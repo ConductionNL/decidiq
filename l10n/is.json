@@ -1289,7 +1289,27 @@
         "Address": "Heimilisfang",
         "Website": "Vefsíða",
         "The contact detail could not be saved.": "Ekki tókst að vista samskiptaupplýsingarnar.",
-        "The contact detail could not be removed.": "Ekki tókst að fjarlægja samskiptaupplýsingarnar."
+        "The contact detail could not be removed.": "Ekki tókst að fjarlægja samskiptaupplýsingarnar.",
+        "Progress": "Framvinda",
+        "No progress has been recorded yet.": "Engin framvinda hefur verið skráð enn.",
+        "What happened": "Hvað gerðist",
+        "Add progress": "Bæta við framvindu",
+        "The progress entry was not added.": "Framvindufærslunni var ekki bætt við.",
+        "Dated progress entries, public from the publication date.": "Dagsettar framvindufærslur, opinberar frá birtingardegi.",
+        "The day the progress was recorded.": "Dagurinn sem framvindan var skráð.",
+        "What happened, in words the public can read.": "Hvað gerðist, með orðum sem almenningur getur lesið.",
+        "Download link": "Niðurhalstengill",
+        "File type": "Skráargerð",
+        "Papers": "Gögn",
+        "Published papers": "Birt gögn",
+        "The agenda item the paper belongs to.": "Dagskrárliðurinn sem gagnið tilheyrir.",
+        "The file name of the paper.": "Skráarheiti gagnsins.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Skrárnar sem þessi birting gerði opinberar, sem dagskrárliður og skrá. Afturköllun tekur þær úr birtingu aftur.",
+        "The id of the published file.": "Auðkenni birtu skrárinnar.",
+        "The media type of the paper, such as application/pdf.": "Miðlagerð gagnsins, t.d. application/pdf.",
+        "The public link to download the paper.": "Opinber tengill til að sækja gagnið.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Opinber gögn þessa dagskrárliðar. Gögn trúnaðarliðar og gögn merkt sem trúnaðarmál eru aldrei birt.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hvað var birt: dagskrá, ákvörðun eða fundargerð. Borgarar sía eftir því."
     },
     "plurals": null
 }

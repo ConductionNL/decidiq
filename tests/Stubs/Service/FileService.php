@@ -96,4 +96,41 @@ class FileService {
 	): File {
 		throw new \RuntimeException('FileService stub: addFile() must be mocked in tests.');
 	}//end addFile()
+	/**
+	 * Format a file node for the API. Same signature as OpenRegister's
+	 * FileService::formatFile() on development (line 1083 at 4abd8343).
+	 *
+	 * @param Node $file The file node.
+	 *
+	 * @return array The formatted file (id, title, downloadUrl, type, labels, ...).
+	 */
+	public function formatFile(Node $file): array {
+		throw new \RuntimeException('FileService stub: formatFile() must be mocked in tests.');
+	}//end formatFile()
+
+	/**
+	 * Make a file of an object public. Same signature as OpenRegister's
+	 * FileService::publishFile() on development (line 1785 at 4abd8343).
+	 *
+	 * @param ObjectEntity|string $object The object or its identifier.
+	 * @param string|int $file The file id or path.
+	 *
+	 * @return File The published file.
+	 */
+	public function publishFile(ObjectEntity|string $object, string|int $file): File {
+		throw new \RuntimeException('FileService stub: publishFile() must be mocked in tests.');
+	}//end publishFile()
+
+	/**
+	 * Take a file of an object offline. Same signature as OpenRegister's
+	 * FileService::unpublishFile() on development (line 1810 at 4abd8343).
+	 *
+	 * @param ObjectEntity|string $object The object or its identifier.
+	 * @param string|int $filePath The file id or path.
+	 *
+	 * @return File The unpublished file.
+	 */
+	public function unpublishFile(ObjectEntity|string $object, string|int $filePath): File {
+		throw new \RuntimeException('FileService stub: unpublishFile() must be mocked in tests.');
+	}//end unpublishFile()
 }//end class

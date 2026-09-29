@@ -1289,7 +1289,27 @@
         "Address": "Adresa",
         "Website": "Web stranica",
         "The contact detail could not be saved.": "Kontakt podatak nije moguće spremiti.",
-        "The contact detail could not be removed.": "Kontakt podatak nije moguće ukloniti."
+        "The contact detail could not be removed.": "Kontakt podatak nije moguće ukloniti.",
+        "Progress": "Napredak",
+        "No progress has been recorded yet.": "Napredak još nije zabilježen.",
+        "What happened": "Što se dogodilo",
+        "Add progress": "Dodaj napredak",
+        "The progress entry was not added.": "Unos napretka nije dodan.",
+        "Dated progress entries, public from the publication date.": "Datirani unosi napretka, javni od datuma objave.",
+        "The day the progress was recorded.": "Dan kada je napredak zabilježen.",
+        "What happened, in words the public can read.": "Što se dogodilo, riječima koje javnost može pročitati.",
+        "Download link": "Poveznica za preuzimanje",
+        "File type": "Vrsta datoteke",
+        "Papers": "Dokumenti",
+        "Published papers": "Objavljeni dokumenti",
+        "The agenda item the paper belongs to.": "Točka dnevnog reda kojoj dokument pripada.",
+        "The file name of the paper.": "Naziv datoteke dokumenta.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Datoteke koje je ova objava učinila javnima, kao točka dnevnog reda i datoteka. Povlačenje ih ponovno uklanja.",
+        "The id of the published file.": "ID objavljene datoteke.",
+        "The media type of the paper, such as application/pdf.": "Vrsta medija dokumenta, npr. application/pdf.",
+        "The public link to download the paper.": "Javna poveznica za preuzimanje dokumenta.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Javni dokumenti ove točke dnevnog reda. Dokumenti povjerljive točke i dokumenti označeni kao povjerljivi nikad se ne navode.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Što je objavljeno: dnevni red, odluka ili zapisnik. Građani po tome filtriraju."
     },
     "plurals": null
 }

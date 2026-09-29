@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\PublicationConfigService;
 use OCA\Decidiq\Service\PublicationPayloadService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -48,10 +50,14 @@ class PublicationPayloadServiceTest extends TestCase {
 		$appConfig->method('getValueString')->willReturn($configBlob);
 		$configService = new PublicationConfigService($appConfig);
 
+		// No confidentiality restrictions: the agenda tests carry their items inline.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturn([]);
 		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturn($objectService);
 		$logger = $this->createMock(LoggerInterface::class);
 
-		return new PublicationPayloadService($container, $logger, $configService);
+		return new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($objectService, $container, $logger));
 	}//end makeService()
 
 	/**

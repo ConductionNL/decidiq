@@ -1289,7 +1289,27 @@
         "Address": "Adresas",
         "Website": "Svetainė",
         "The contact detail could not be saved.": "Kontakto išsaugoti nepavyko.",
-        "The contact detail could not be removed.": "Kontakto pašalinti nepavyko."
+        "The contact detail could not be removed.": "Kontakto pašalinti nepavyko.",
+        "Progress": "Eiga",
+        "No progress has been recorded yet.": "Eiga dar neužregistruota.",
+        "What happened": "Kas įvyko",
+        "Add progress": "Pridėti eigą",
+        "The progress entry was not added.": "Eigos įrašas nepridėtas.",
+        "Dated progress entries, public from the publication date.": "Datuoti eigos įrašai, vieši nuo paskelbimo datos.",
+        "The day the progress was recorded.": "Diena, kai eiga užregistruota.",
+        "What happened, in words the public can read.": "Kas įvyko, žodžiais, kuriuos gali perskaityti visuomenė.",
+        "Download link": "Atsisiuntimo nuoroda",
+        "File type": "Failo tipas",
+        "Papers": "Dokumentai",
+        "Published papers": "Paskelbti dokumentai",
+        "The agenda item the paper belongs to.": "Darbotvarkės klausimas, kuriam priklauso dokumentas.",
+        "The file name of the paper.": "Dokumento failo pavadinimas.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Failai, kuriuos šis paskelbimas padarė viešais, kaip darbotvarkės klausimas ir failas. Atšaukimas juos vėl pašalina.",
+        "The id of the published file.": "Paskelbto failo ID.",
+        "The media type of the paper, such as application/pdf.": "Dokumento medijos tipas, pvz., application/pdf.",
+        "The public link to download the paper.": "Vieša nuoroda dokumentui atsisiųsti.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Viešieji šio darbotvarkės klausimo dokumentai. Konfidencialaus klausimo dokumentai ir konfidencialiais pažymėti dokumentai niekada nerodomi.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Kas paskelbta: darbotvarkė, sprendimas ar protokolas. Piliečiai pagal tai filtruoja."
     },
     "plurals": null
 }

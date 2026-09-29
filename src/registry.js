@@ -31,6 +31,7 @@ import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
+import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
@@ -256,6 +257,8 @@ export default {
 	MotionConflictsTab: page(MotionConflictsTab),
 	// motions-stages-and-themes (mot-08): stage buttons on the motion page.
 	MotionStageTab: page(MotionStageTab),
+	// followup-public-progress (fol-06): progress entries on a commitment.
+	CommitmentProgressTab: page(CommitmentProgressTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),

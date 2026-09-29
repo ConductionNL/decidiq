@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Adresse",
         "Website": "Websted",
         "The contact detail could not be saved.": "Kontaktoplysningen kunne ikke gemmes.",
-        "The contact detail could not be removed.": "Kontaktoplysningen kunne ikke fjernes."
+        "The contact detail could not be removed.": "Kontaktoplysningen kunne ikke fjernes.",
+        "Progress": "Fremskridt",
+        "No progress has been recorded yet.": "Der er endnu ikke registreret fremskridt.",
+        "What happened": "Hvad der skete",
+        "Add progress": "Tilføj fremskridt",
+        "The progress entry was not added.": "Fremskridtet blev ikke tilføjet.",
+        "Dated progress entries, public from the publication date.": "Daterede fremskridtsnoter, offentlige fra offentliggørelsesdatoen.",
+        "The day the progress was recorded.": "Den dag fremskridtet blev registreret.",
+        "What happened, in words the public can read.": "Hvad der skete, med ord offentligheden kan læse.",
+        "Download link": "Downloadlink",
+        "File type": "Filtype",
+        "Papers": "Bilag",
+        "Published papers": "Offentliggjorte bilag",
+        "The agenda item the paper belongs to.": "Det dagsordenspunkt, bilaget hører til.",
+        "The file name of the paper.": "Bilagets filnavn.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "De filer, denne offentliggørelse gjorde offentlige, som dagsordenspunkt og fil. En tilbagetrækning tager dem offline igen.",
+        "The id of the published file.": "Id for den offentliggjorte fil.",
+        "The media type of the paper, such as application/pdf.": "Bilagets medietype, fx application/pdf.",
+        "The public link to download the paper.": "Det offentlige link til at downloade bilaget.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "De offentlige bilag til dette dagsordenspunkt. Bilag til et fortroligt punkt og bilag mærket fortrolige vises aldrig.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hvad der blev offentliggjort: en dagsorden, en beslutning eller et referat. Borgere filtrerer på det."
     },
     "nplurals=2; plural=(n != 1);"
 )

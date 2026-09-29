@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Adres",
         "Website": "Strona internetowa",
         "The contact detail could not be saved.": "Nie udało się zapisać danych kontaktowych.",
-        "The contact detail could not be removed.": "Nie udało się usunąć danych kontaktowych."
+        "The contact detail could not be removed.": "Nie udało się usunąć danych kontaktowych.",
+        "Progress": "Postęp",
+        "No progress has been recorded yet.": "Nie zapisano jeszcze żadnego postępu.",
+        "What happened": "Co się wydarzyło",
+        "Add progress": "Dodaj postęp",
+        "The progress entry was not added.": "Wpis o postępie nie został dodany.",
+        "Dated progress entries, public from the publication date.": "Datowane wpisy o postępie, publiczne od daty publikacji.",
+        "The day the progress was recorded.": "Dzień zapisania postępu.",
+        "What happened, in words the public can read.": "Co się wydarzyło, słowami zrozumiałymi dla publiczności.",
+        "Download link": "Link do pobrania",
+        "File type": "Typ pliku",
+        "Papers": "Dokumenty",
+        "Published papers": "Opublikowane dokumenty",
+        "The agenda item the paper belongs to.": "Punkt porządku obrad, do którego należy dokument.",
+        "The file name of the paper.": "Nazwa pliku dokumentu.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Pliki, które ta publikacja upubliczniła, jako punkt porządku obrad i plik. Wycofanie ponownie je ukrywa.",
+        "The id of the published file.": "Identyfikator opublikowanego pliku.",
+        "The media type of the paper, such as application/pdf.": "Typ nośnika dokumentu, np. application/pdf.",
+        "The public link to download the paper.": "Publiczny link do pobrania dokumentu.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Publiczne dokumenty tego punktu porządku obrad. Dokumenty punktu poufnego i dokumenty oznaczone jako poufne nigdy nie są wyświetlane.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Co opublikowano: porządek obrad, decyzję lub protokół. Obywatele filtrują według tego."
     },
     "nplurals=2; plural=(n != 1);"
 )

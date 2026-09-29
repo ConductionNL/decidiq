@@ -3973,14 +3973,15 @@
 			"area": "followup",
 			"name": "Show the public how commitments and motions are progressing.",
 			"origin": "competitor",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Controller/OriController.php:180-183 #[PublicPage] index() serves /api/ori/v1/{resource} (routes.php:270) incl. motions => decision (:67); decisions/minutes/agenda publish to OpenCatalogi via PublicationActionsTab (/api/publications). No commitment resource in OriController or ApiController RESOURCE_MAP, and PublicationService.php:97 sourceType is decision|agenda|minutes only.",
+				"state": "built",
+				"evidence": "lib/Controller/OriController.php RESOURCE_MAP commitments -> governance-commitment, public from publicationDate (narrowToPublicVisibility, OriSerializer::isPayloadLive); lib/Service/OriSerializer.php COMMITMENT_FIELD_RULES allow-list (text, status, deadline, progress date+note, settlement_notes, motion, published_at); register.d/107-commitment-progress.json Commitment.progress; POST /api/commitments/{id}/progress (CommitmentController, chair/secretary of the meeting via MeetingRoleGate); CommitmentDetail Progress widget (CommitmentProgressTab.vue)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/followup-public-progress"
+				"change": "openspec/changes/archive/2026-09-29-followup-public-progress",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "API only: GET /api/ori/v1/motions (public); decision publication via DecisionDetail Publication widget",
+			"reachedOn": "GET /api/ori/v1/commitments and /api/ori/v1/commitments/{id} (public, from the publication date); CommitmentDetail (/commitments/:id) Progress widget: What happened, Add progress; motion status on GET /api/ori/v1/motions",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "publication",
@@ -4577,14 +4578,15 @@
 			"area": "publication",
 			"name": "Publish meetings, agendas and papers on a public website.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/PublicationService.php:105 publish() builds payload and calls OpenCatalogiPublisher; lib/Service/OpenCatalogiPublisher.php:72 publish() saves an opencatalogi 'publication' object (title/summary/reference only); lib/Service/PublicationPayloadService.php:177 buildAgendaPayload() emits meeting + agenda item titles, strips confidential items and ALL document references; src/manifest.json:580 meeting-publication tab -> AgendaPublicationTab -> PublicationActionsTab.vue:357 POST /api/publications",
+				"state": "built",
+				"evidence": "lib/Service/PublicationPayloadService.php buildAgendaPayload() lists the public items with their papers (AgendaPapers::publish via OpenRegister FileService::publishFile, confidential-labelled files skipped) and leaves out every item under an imposed or ratified confidentiality-restriction (AgendaPapers::restrictedItemIds, system context, fails closed with ConfidentialityUnreadableException -> 503); resolveAgendaItems() now passes register/schema inside filters; PublicationService keeps publishedPapers on the record and unpublishes them on withdraw; register.d/108-publication-papers.json PublicationPayload.documentType + papers, PublicationRecord.publishedPapers",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/publication-papers-and-search"
+				"change": "openspec/changes/archive/2026-09-29-publication-papers-and-search",
+				"readOn": "2026-09-29"
 			},
-			"reachedOn": "MeetingDetail (/meetings/:id) Publication tab and MinutesDetail Publication tab (staff); citizens see it only through OpenCatalogi's public catalog",
+			"reachedOn": "MeetingDetail (/meetings/:id) Publication tab: Publish puts the agenda with its public papers in the body's OpenCatalogi catalog; citizens read and download them there",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
@@ -4821,9 +4823,9 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "building",
-				"evidence": "lib/Service/OpenCatalogiPublisher.php:72 creates an opencatalogi publication (title, summary, catalog, reference); src/views/settings/PublicationSettings.vue:25 'Anonymous read access is served exclusively through OpenCatalogi / OpenRegister'; lib/Controller/OriController.php:237 buildFilters() offers no citizen filters",
+				"evidence": "decidiq half built by publication-papers-and-search: every publication payload carries documentType, and bodyName, meetingDate and documentType are facetable (register.d/108-publication-papers.json). The public search page and its filters are OpenCatalogi's (owner), not checked here.",
 				"owner": "ConductionNL/opencatalogi",
-				"change": "openspec/changes/publication-papers-and-search"
+				"change": "openspec/changes/archive/2026-09-29-publication-papers-and-search"
 			},
 			"reachedOn": "OpenCatalogi's public catalog search (outside decidiq); decidiq has no public search page",
 			"provider": "opencatalogi",

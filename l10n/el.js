@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Διεύθυνση",
         "Website": "Ιστότοπος",
         "The contact detail could not be saved.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αποθηκευτεί.",
-        "The contact detail could not be removed.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αφαιρεθεί."
+        "The contact detail could not be removed.": "Το στοιχείο επικοινωνίας δεν ήταν δυνατό να αφαιρεθεί.",
+        "Progress": "Πρόοδος",
+        "No progress has been recorded yet.": "Δεν έχει καταγραφεί ακόμη πρόοδος.",
+        "What happened": "Τι συνέβη",
+        "Add progress": "Προσθήκη προόδου",
+        "The progress entry was not added.": "Η καταχώριση προόδου δεν προστέθηκε.",
+        "Dated progress entries, public from the publication date.": "Χρονολογημένες καταχωρίσεις προόδου, δημόσιες από την ημερομηνία δημοσίευσης.",
+        "The day the progress was recorded.": "Η ημέρα καταγραφής της προόδου.",
+        "What happened, in words the public can read.": "Τι συνέβη, με λόγια που μπορεί να διαβάσει το κοινό.",
+        "Download link": "Σύνδεσμος λήψης",
+        "File type": "Τύπος αρχείου",
+        "Papers": "Έγγραφα",
+        "Published papers": "Δημοσιευμένα έγγραφα",
+        "The agenda item the paper belongs to.": "Το θέμα της ημερήσιας διάταξης στο οποίο ανήκει το έγγραφο.",
+        "The file name of the paper.": "Το όνομα αρχείου του εγγράφου.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Τα αρχεία που δημοσιοποίησε αυτή η δημοσίευση, ως θέμα ημερήσιας διάταξης και αρχείο. Η ανάκληση τα αποσύρει ξανά.",
+        "The id of the published file.": "Το αναγνωριστικό του δημοσιευμένου αρχείου.",
+        "The media type of the paper, such as application/pdf.": "Ο τύπος μέσου του εγγράφου, π.χ. application/pdf.",
+        "The public link to download the paper.": "Ο δημόσιος σύνδεσμος για λήψη του εγγράφου.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Τα δημόσια έγγραφα αυτού του θέματος. Έγγραφα εμπιστευτικού θέματος και έγγραφα με σήμανση εμπιστευτικά δεν εμφανίζονται ποτέ.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Τι δημοσιεύθηκε: ημερήσια διάταξη, απόφαση ή πρακτικά. Οι πολίτες φιλτράρουν με βάση αυτό."
     },
     "nplurals=2; plural=(n != 1);"
 )

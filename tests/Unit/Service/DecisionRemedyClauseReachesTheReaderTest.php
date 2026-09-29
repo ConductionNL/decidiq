@@ -50,6 +50,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\DecisionPublicationService;
 use OCA\Decidiq\Service\OriSerializer;
 use OCA\Decidiq\Service\PublicationConfigService;
@@ -152,10 +153,13 @@ class DecisionRemedyClauseReachesTheReaderTest extends TestCase {
 		$appConfig = $this->createMock(IAppConfig::class);
 		$appConfig->method('getValueString')->willReturn('');
 
+		$container = $this->createMock(ContainerInterface::class);
+		$logger    = $this->createMock(LoggerInterface::class);
 		$payloadService = new PublicationPayloadService(
-			$this->createMock(ContainerInterface::class),
-			$this->createMock(LoggerInterface::class),
+			$container,
+			$logger,
 			new PublicationConfigService($appConfig),
+			new AgendaPapers($this->createMock(\OCA\OpenRegister\Contract\ObjectServiceInterface::class), $container, $logger),
 		);
 
 		$payload = $payloadService->build(

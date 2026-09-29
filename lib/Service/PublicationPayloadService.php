@@ -46,6 +46,7 @@ class PublicationPayloadService {
 	 * @param ContainerInterface $container DI container (lazy ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 * @param PublicationConfigService $configService Publication configuration.
+	 * @param AgendaPapers $agendaPapers Confidentiality check and papers of agenda items.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
@@ -53,6 +54,7 @@ class PublicationPayloadService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly PublicationConfigService $configService,
+		private readonly AgendaPapers $agendaPapers,
 	) {
 	}//end __construct()
 
@@ -66,21 +68,47 @@ class PublicationPayloadService {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
+	 * An agenda payload also carries `_publishedPapers` (agenda item + file of
+	 * every paper it made public). That key is internal: PublicationService
+	 * moves it onto the publication record before the payload is stored.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
+	 *
 	 * @return array<string,mixed> The allow-list payload, ready to persist.
 	 */
 	public function build(string $sourceType, array $source, ?string $bodyId, int $version = 1): array {
 		switch ($sourceType) {
 			case 'decision':
-				return $this->buildDecisionPayload(source: $source, version: $version);
+				$payload = $this->buildDecisionPayload(source: $source, version: $version);
+				break;
 			case 'agenda':
-				return $this->buildAgendaPayload(source: $source, version: $version);
+				$payload = $this->buildAgendaPayload(source: $source, version: $version);
+				break;
 			case 'minutes':
-				return $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
+				$payload = $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
+				break;
 			default:
 				throw new InvalidArgumentException('Unknown publication source type: ' . $sourceType);
 		}
 
+		$payload['documentType'] = $sourceType;
+		return $payload;
+
 	}//end build()
+
+	/**
+	 * Take the papers of a withdrawn publication offline again.
+	 *
+	 * @param array<int,mixed> $refs The record's publishedPapers.
+	 * @param array<int,mixed> $keep Papers a newer version still publishes.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
+	 *
+	 * @return int The number of papers that could not be taken offline.
+	 */
+	public function withdrawPapers(array $refs, array $keep=[]): int {
+		return $this->agendaPapers->unpublish(refs: $refs, keep: $keep);
+	}//end withdrawPapers()
 
 	/**
 	 * Build a Besluit (decision) payload — totals only, never voters.
@@ -165,28 +193,38 @@ class PublicationPayloadService {
 	}//end extractRemedyClause()
 
 	/**
-	 * Build a Vergadering (agenda) payload — confidential items stripped.
+	 * Build a Vergadering (agenda) payload — confidential items stripped, the
+	 * papers of the public items published with them.
 	 *
 	 * @param array<string,mixed> $source Meeting object data.
 	 * @param int $version Payload version.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
+	 *
+	 * @throws \OCA\Decidiq\Exception\ConfidentialityUnreadableException When the confidentiality restrictions cannot be read.
 	 *
 	 * @return array<string,mixed>
 	 */
 	private function buildAgendaPayload(array $source, int $version): array {
-		$items = $this->resolveAgendaItems(meeting: $source);
-		$published = [];
+		$items      = $this->resolveAgendaItems(meeting: $source);
+		$restricted = $this->agendaPapers->restrictedItemIds();
+		$published  = [];
+		$paperRefs  = [];
 		foreach ($items as $item) {
-			if ($this->isConfidentialItem(item: $item) === true) {
+			$itemId = (string)($item['id'] ?? ($item['@self']['id'] ?? ''));
+			if ($this->isConfidentialItem(item: $item) === true || isset($restricted[$itemId]) === true) {
 				// Strip the confidential item and ALL of its document references.
 				continue;
 			}
 
+			$papers      = $this->agendaPapers->publish(itemId: $itemId);
+			$paperRefs   = array_merge($paperRefs, $papers['refs']);
 			$published[] = [
 				'oriType' => 'AgendaPunt',
 				'order' => (int)($item['orderNumber'] ?? 0),
 				'title' => (string)($item['title'] ?? ''),
+				'papers' => $papers['papers'],
 			];
 		}
 
@@ -207,6 +245,7 @@ class PublicationPayloadService {
 			'meetingDate' => ($source['scheduledDate'] ?? null),
 			'meetingType' => (string)($source['meetingType'] ?? ''),
 			'agendaItems' => $published,
+			'_publishedPapers' => $paperRefs,
 		];
 
 	}//end buildAgendaPayload()
@@ -336,10 +375,15 @@ class PublicationPayloadService {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entities = $objectService->findAll(
+				// Register and schema go INSIDE the filters: ObjectService reads
+				// them there and ignores them at the top level, so this query
+				// found no items and every published agenda was empty.
 				[
-					'register' => 'decidiq',
-					'schema' => 'agenda-item',
-					'filters' => ['meeting' => $meetingId],
+					'filters' => [
+						'register' => 'decidiq',
+						'schema' => 'agenda-item',
+						'meeting' => $meetingId,
+					],
 				]
 			);
 		} catch (\Throwable $e) {

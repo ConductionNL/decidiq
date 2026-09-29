@@ -68,6 +68,7 @@ export const MOTION_SCHEMA = 'decision'
  * respectively) so the child rows delete first.
  */
 const TEARDOWN_ORDER = [
+	'governance-commitment',
 	'vote',
 	'voting-round',
 	'decision',
@@ -81,6 +82,7 @@ const TEARDOWN_ORDER = [
 	'participant',
 	'meeting',
 	'governance-body',
+	'person',
 ]
 
 export function newLedger(): SeedLedger {

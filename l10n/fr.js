@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Adresse",
         "Website": "Site web",
         "The contact detail could not be saved.": "La coordonnée n'a pas pu être enregistrée.",
-        "The contact detail could not be removed.": "La coordonnée n'a pas pu être retirée."
+        "The contact detail could not be removed.": "La coordonnée n'a pas pu être retirée.",
+        "Progress": "Avancement",
+        "No progress has been recorded yet.": "Aucun avancement n'a encore été enregistré.",
+        "What happened": "Ce qui s'est passé",
+        "Add progress": "Ajouter un avancement",
+        "The progress entry was not added.": "L'avancement n'a pas été ajouté.",
+        "Dated progress entries, public from the publication date.": "Entrées d'avancement datées, publiques à partir de la date de publication.",
+        "The day the progress was recorded.": "Le jour où l'avancement a été enregistré.",
+        "What happened, in words the public can read.": "Ce qui s'est passé, en mots que le public peut lire.",
+        "Download link": "Lien de téléchargement",
+        "File type": "Type de fichier",
+        "Papers": "Documents",
+        "Published papers": "Documents publiés",
+        "The agenda item the paper belongs to.": "Le point de l'ordre du jour auquel appartient le document.",
+        "The file name of the paper.": "Le nom de fichier du document.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Les fichiers que cette publication a rendus publics, par point de l'ordre du jour et fichier. Un retrait les retire à nouveau.",
+        "The id of the published file.": "L'identifiant du fichier publié.",
+        "The media type of the paper, such as application/pdf.": "Le type de média du document, par exemple application/pdf.",
+        "The public link to download the paper.": "Le lien public pour télécharger le document.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Les documents publics de ce point de l'ordre du jour. Les documents d'un point confidentiel et ceux marqués confidentiels ne sont jamais listés.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ce qui a été publié : un ordre du jour, une décision ou un procès-verbal. Les citoyens filtrent sur ce champ."
     },
     "nplurals=2; plural=(n != 1);"
 )

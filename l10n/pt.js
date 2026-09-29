@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Morada",
         "Website": "Sítio web",
         "The contact detail could not be saved.": "Não foi possível guardar o contacto.",
-        "The contact detail could not be removed.": "Não foi possível remover o contacto."
+        "The contact detail could not be removed.": "Não foi possível remover o contacto.",
+        "Progress": "Progresso",
+        "No progress has been recorded yet.": "Ainda não foi registado nenhum progresso.",
+        "What happened": "O que aconteceu",
+        "Add progress": "Adicionar progresso",
+        "The progress entry was not added.": "A entrada de progresso não foi adicionada.",
+        "Dated progress entries, public from the publication date.": "Entradas de progresso datadas, públicas a partir da data de publicação.",
+        "The day the progress was recorded.": "O dia em que o progresso foi registado.",
+        "What happened, in words the public can read.": "O que aconteceu, em palavras que o público pode ler.",
+        "Download link": "Link de transferência",
+        "File type": "Tipo de ficheiro",
+        "Papers": "Documentos",
+        "Published papers": "Documentos publicados",
+        "The agenda item the paper belongs to.": "O ponto da ordem de trabalhos a que o documento pertence.",
+        "The file name of the paper.": "O nome do ficheiro do documento.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Os ficheiros que esta publicação tornou públicos, como ponto da ordem de trabalhos e ficheiro. Uma retirada volta a retirá-los.",
+        "The id of the published file.": "O id do ficheiro publicado.",
+        "The media type of the paper, such as application/pdf.": "O tipo de média do documento, como application/pdf.",
+        "The public link to download the paper.": "O link público para transferir o documento.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Os documentos públicos deste ponto da ordem de trabalhos. Documentos de um ponto confidencial e documentos marcados como confidenciais nunca são listados.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "O que foi publicado: uma ordem de trabalhos, uma decisão ou uma ata. Os cidadãos filtram por isso."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1289,7 +1289,27 @@
         "Address": "Cím",
         "Website": "Weboldal",
         "The contact detail could not be saved.": "Az elérhetőséget nem sikerült menteni.",
-        "The contact detail could not be removed.": "Az elérhetőséget nem sikerült eltávolítani."
+        "The contact detail could not be removed.": "Az elérhetőséget nem sikerült eltávolítani.",
+        "Progress": "Előrehaladás",
+        "No progress has been recorded yet.": "Még nincs rögzített előrehaladás.",
+        "What happened": "Mi történt",
+        "Add progress": "Előrehaladás hozzáadása",
+        "The progress entry was not added.": "Az előrehaladási bejegyzés nem lett hozzáadva.",
+        "Dated progress entries, public from the publication date.": "Dátumozott előrehaladási bejegyzések, a közzététel napjától nyilvánosak.",
+        "The day the progress was recorded.": "Az előrehaladás rögzítésének napja.",
+        "What happened, in words the public can read.": "Mi történt, a nyilvánosság számára érthető szavakkal.",
+        "Download link": "Letöltési hivatkozás",
+        "File type": "Fájltípus",
+        "Papers": "Dokumentumok",
+        "Published papers": "Közzétett dokumentumok",
+        "The agenda item the paper belongs to.": "A napirendi pont, amelyhez a dokumentum tartozik.",
+        "The file name of the paper.": "A dokumentum fájlneve.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "A fájlok, amelyeket ez a közzététel nyilvánossá tett, napirendi pontként és fájlként. A visszavonás ismét elérhetetlenné teszi őket.",
+        "The id of the published file.": "A közzétett fájl azonosítója.",
+        "The media type of the paper, such as application/pdf.": "A dokumentum médiatípusa, például application/pdf.",
+        "The public link to download the paper.": "A dokumentum letöltésére szolgáló nyilvános hivatkozás.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "A napirendi pont nyilvános dokumentumai. Bizalmas pont dokumentumai és a bizalmasnak jelölt dokumentumok soha nem jelennek meg.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mi jelent meg: napirend, határozat vagy jegyzőkönyv. A polgárok ez alapján szűrnek."
     },
     "plurals": null
 }

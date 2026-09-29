@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Osoite",
         "Website": "Verkkosivusto",
         "The contact detail could not be saved.": "Yhteystietoa ei voitu tallentaa.",
-        "The contact detail could not be removed.": "Yhteystietoa ei voitu poistaa."
+        "The contact detail could not be removed.": "Yhteystietoa ei voitu poistaa.",
+        "Progress": "Edistyminen",
+        "No progress has been recorded yet.": "Edistymistä ei ole vielä kirjattu.",
+        "What happened": "Mitä tapahtui",
+        "Add progress": "Lisää edistyminen",
+        "The progress entry was not added.": "Edistymismerkintää ei lisätty.",
+        "Dated progress entries, public from the publication date.": "Päivätyt edistymismerkinnät, julkisia julkaisupäivästä alkaen.",
+        "The day the progress was recorded.": "Päivä, jona edistyminen kirjattiin.",
+        "What happened, in words the public can read.": "Mitä tapahtui, sanoin jotka yleisö voi lukea.",
+        "Download link": "Latauslinkki",
+        "File type": "Tiedostotyyppi",
+        "Papers": "Asiakirjat",
+        "Published papers": "Julkaistut asiakirjat",
+        "The agenda item the paper belongs to.": "Esityslistan kohta, johon asiakirja kuuluu.",
+        "The file name of the paper.": "Asiakirjan tiedostonimi.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Tiedostot, jotka tämä julkaisu teki julkisiksi, esityslistan kohtana ja tiedostona. Peruutus poistaa ne taas julkisuudesta.",
+        "The id of the published file.": "Julkaistun tiedoston tunniste.",
+        "The media type of the paper, such as application/pdf.": "Asiakirjan mediatyyppi, kuten application/pdf.",
+        "The public link to download the paper.": "Julkinen linkki asiakirjan lataamiseen.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Tämän esityslistan kohdan julkiset asiakirjat. Luottamuksellisen kohdan asiakirjoja ja luottamukselliseksi merkittyjä asiakirjoja ei koskaan näytetä.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mitä julkaistiin: esityslista, päätös tai pöytäkirja. Kansalaiset suodattavat sen mukaan."
     },
     "nplurals=2; plural=(n != 1);"
 )

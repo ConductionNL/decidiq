@@ -1289,7 +1289,27 @@
         "Address": "Adresă",
         "Website": "Site web",
         "The contact detail could not be saved.": "Datele de contact nu au putut fi salvate.",
-        "The contact detail could not be removed.": "Datele de contact nu au putut fi eliminate."
+        "The contact detail could not be removed.": "Datele de contact nu au putut fi eliminate.",
+        "Progress": "Progres",
+        "No progress has been recorded yet.": "Nu a fost înregistrat încă niciun progres.",
+        "What happened": "Ce s-a întâmplat",
+        "Add progress": "Adaugă progres",
+        "The progress entry was not added.": "Înregistrarea de progres nu a fost adăugată.",
+        "Dated progress entries, public from the publication date.": "Înregistrări de progres datate, publice de la data publicării.",
+        "The day the progress was recorded.": "Ziua în care a fost înregistrat progresul.",
+        "What happened, in words the public can read.": "Ce s-a întâmplat, în cuvinte pe care publicul le poate citi.",
+        "Download link": "Link de descărcare",
+        "File type": "Tip fișier",
+        "Papers": "Documente",
+        "Published papers": "Documente publicate",
+        "The agenda item the paper belongs to.": "Punctul de pe ordinea de zi căruia îi aparține documentul.",
+        "The file name of the paper.": "Numele fișierului documentului.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Fișierele pe care această publicare le-a făcut publice, ca punct de pe ordinea de zi și fișier. O retragere le scoate din nou offline.",
+        "The id of the published file.": "ID-ul fișierului publicat.",
+        "The media type of the paper, such as application/pdf.": "Tipul media al documentului, de exemplu application/pdf.",
+        "The public link to download the paper.": "Linkul public pentru descărcarea documentului.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Documentele publice ale acestui punct de pe ordinea de zi. Documentele unui punct confidențial și cele marcate confidențiale nu sunt afișate niciodată.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ce s-a publicat: o ordine de zi, o decizie sau un proces-verbal. Cetățenii filtrează după asta."
     },
     "plurals": null
 }

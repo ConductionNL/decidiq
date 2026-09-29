@@ -1290,7 +1290,27 @@ OC.L10N.register(
         "Address": "Indirizz",
         "Website": "Sit web",
         "The contact detail could not be saved.": "Id-dettall ta' kuntatt ma setax jiġi ssejvjat.",
-        "The contact detail could not be removed.": "Id-dettall ta' kuntatt ma setax jitneħħa."
+        "The contact detail could not be removed.": "Id-dettall ta' kuntatt ma setax jitneħħa.",
+        "Progress": "Progress",
+        "No progress has been recorded yet.": "Għadu ma ġie rreġistrat l-ebda progress.",
+        "What happened": "X'ġara",
+        "Add progress": "Żid progress",
+        "The progress entry was not added.": "L-entrata tal-progress ma ġietx miżjuda.",
+        "Dated progress entries, public from the publication date.": "Entrati ta' progress bid-data, pubbliċi mid-data tal-pubblikazzjoni.",
+        "The day the progress was recorded.": "Il-jum li fih ġie rreġistrat il-progress.",
+        "What happened, in words the public can read.": "X'ġara, bi kliem li l-pubbliku jista' jaqra.",
+        "Download link": "Link għat-tniżżil",
+        "File type": "Tip ta' fajl",
+        "Papers": "Dokumenti",
+        "Published papers": "Dokumenti ppubblikati",
+        "The agenda item the paper belongs to.": "Il-punt tal-aġenda li għalih jappartjeni d-dokument.",
+        "The file name of the paper.": "L-isem tal-fajl tad-dokument.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Il-fajls li din il-pubblikazzjoni għamlet pubbliċi, bħala punt tal-aġenda u fajl. Irtirar ineħħihom mill-ġdid.",
+        "The id of the published file.": "L-id tal-fajl ippubblikat.",
+        "The media type of the paper, such as application/pdf.": "It-tip ta' midja tad-dokument, bħal application/pdf.",
+        "The public link to download the paper.": "Il-link pubbliku biex tniżżel id-dokument.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Id-dokumenti pubbliċi ta' dan il-punt tal-aġenda. Dokumenti ta' punt kunfidenzjali u dokumenti mmarkati kunfidenzjali qatt ma jitniżżlu.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "X'ġie ppubblikat: aġenda, deċiżjoni jew minuti. Iċ-ċittadini jiffiltraw fuqu."
     },
     "nplurals=2; plural=(n != 1);"
 )
