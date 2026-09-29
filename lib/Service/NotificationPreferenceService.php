@@ -393,13 +393,22 @@ class NotificationPreferenceService {
 	 * @param string $message Notification body
 	 * @param string $deepLink In-app deep link (app-relative, e.g. /decisions/{id})
 	 * @param array<string, mixed>|null $inApp The bell notice (subject, parameters, objectType, objectId), or null for decidiq_message
+	 * @param array<int, array<string, string>> $attachments Files for the email, each { data, filename, contentType }
 	 *
 	 * @return int Number of channel deliveries performed
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
-	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = '', ?array $inApp = null): int {
+	public function dispatch(
+		string $personId,
+		string $eventType,
+		string $title,
+		string $message,
+		string $deepLink = '',
+		?array $inApp = null,
+		array $attachments = [],
+	): int {
 		if ($this->shouldNotify(personId: $personId, eventType: $eventType) === false) {
 			$this->logger->info(
 				'Decidiq: notification not sent, the event type is switched off or unknown',
@@ -420,7 +429,7 @@ class NotificationPreferenceService {
 			}
 
 			if ($method === 'email' || $method === 'both') {
-				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink);
+				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink, attachments: $attachments);
 			}
 		}
 
@@ -486,12 +495,13 @@ class NotificationPreferenceService {
 	 * @param string $title E-mail subject
 	 * @param string $message E-mail plain-text body
 	 * @param string $deepLink App-relative link, appended as an absolute URL when set
+	 * @param array<int, array<string, string>> $attachments Files to attach, each { data, filename, contentType }
 	 *
 	 * @return int 1 on success, 0 on failure (or no address available)
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
-	private function sendEmail(string $recipientId, string $title, string $message, string $deepLink = ''): int {
+	private function sendEmail(string $recipientId, string $title, string $message, string $deepLink = '', array $attachments = []): int {
 		try {
 			$address = $this->getGovernanceEmail(personId: $recipientId);
 			if ($address === null) {
@@ -504,6 +514,15 @@ class NotificationPreferenceService {
 			$emailMessage->setTo([$address]);
 			$emailMessage->setSubject($title);
 			$emailMessage->setPlainBody($this->withLink(message: $message, deepLink: $deepLink));
+			foreach ($attachments as $attachment) {
+				$emailMessage->attach(
+					$mailer->createAttachment(
+						($attachment['data'] ?? ''),
+						($attachment['filename'] ?? 'attachment'),
+						($attachment['contentType'] ?? 'application/octet-stream')
+					)
+				);
+			}
 			$mailer->send($emailMessage);
 			return 1;
 		} catch (\Throwable $e) {

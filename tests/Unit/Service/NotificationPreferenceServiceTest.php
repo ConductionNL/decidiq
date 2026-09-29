@@ -35,6 +35,7 @@ use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
+use OCP\Mail\IAttachment;
 use OCP\Mail\IMailer;
 use OCP\Mail\IMessage;
 use PHPUnit\Framework\TestCase;
@@ -71,6 +72,20 @@ class NotificationPreferenceServiceTest extends TestCase {
 	public array $emailSends = [];
 
 	/**
+	 * Files attached to the e-mails sent: [data, filename, contentType].
+	 *
+	 * @var array<int, array<int, mixed>>
+	 */
+	public array $emailAttachments = [];
+
+	/**
+	 * Attachments created but not yet attached, by object id.
+	 *
+	 * @var array<int, array<int, mixed>>
+	 */
+	public array $pendingAttachments = [];
+
+	/**
 	 * Build the service with a container double.
 	 *
 	 * @param array<string, array<string, mixed>> $preferenceRows Preference row per person id.
@@ -82,6 +97,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 	private function buildService(array $preferenceRows = [], ?string $accountEmail = null, ?\Psr\Log\LoggerInterface $logger = null): NotificationPreferenceService {
 		$this->inAppSends = [];
 		$this->emailSends = [];
+		$this->emailAttachments = [];
 
 		// Plain double for OR ObjectService — only the methods + named
 		// parameters the service actually uses.
@@ -206,7 +222,20 @@ class NotificationPreferenceServiceTest extends TestCase {
 						return $message;
 					}
 				);
+				$message->method('attach')->willReturnCallback(
+					function (IAttachment $attachment) use ($test, $message): IMessage {
+						$test->emailAttachments[] = $test->pendingAttachments[spl_object_id($attachment)];
+						return $message;
+					}
+				);
 				return $message;
+			}
+		);
+		$mailer->method('createAttachment')->willReturnCallback(
+			function ($data = null, $filename = null, $contentType = null) use ($test): IAttachment {
+				$attachment = $test->createMock(IAttachment::class);
+				$test->pendingAttachments[spl_object_id($attachment)] = [$data, $filename, $contentType];
+				return $attachment;
 			}
 		);
 		$mailer->method('send')->willReturnCallback(
@@ -707,4 +736,34 @@ class NotificationPreferenceServiceTest extends TestCase {
 		self::assertCount(0, $this->emailSends);
 
 	}//end testAMemberWhoSwitchedAgendaChangesOffGetsNothing()
+
+	/**
+	 * An email reader gets the invitation with the calendar file attached;
+	 * a bell reader gets the notice without it.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
+	 *
+	 * @return void
+	 */
+	public function testAnEmailReaderGetsTheCalendarFile(): void {
+		$service = $this->buildService(
+			preferenceRows: ['jan' => ['person' => 'jan', 'deliveryMethod' => 'both']],
+			accountEmail: 'jan@example.com'
+		);
+
+		$sent = $service->dispatch(
+			personId: 'jan',
+			eventType: 'agendaChanged',
+			title: 'The agenda of Raad was published',
+			message: "When: 2026-10-08 19:30\n\nAgenda:\n1. Opening",
+			deepLink: '/meetings/m-1',
+			attachments: [['data' => "BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n", 'filename' => 'meeting.ics', 'contentType' => 'text/calendar']]
+		);
+
+		self::assertSame(2, $sent);
+		self::assertCount(1, $this->inAppSends);
+		self::assertStringContainsString('1. Opening', $this->emailBodies[0]);
+		self::assertSame([["BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n", 'meeting.ics', 'text/calendar']], $this->emailAttachments);
+
+	}//end testAnEmailReaderGetsTheCalendarFile()
 }//end class

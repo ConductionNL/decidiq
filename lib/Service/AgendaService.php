@@ -179,13 +179,20 @@ class AgendaService {
 			$subject = 'agenda_revised';
 		}
 
+		// The convocation goes out with the first publication; a republish
+		// keeps that date (publication eligibility reads it).
+		$changes = ['agendaUnderRevision' => false];
+		if (empty($meetingData['convocationSentAt']) === true) {
+			$changes['convocationSentAt'] = (new DateTime())->format(DATE_ATOM);
+		}
+
 		$this->saveMeeting(
 			meetingId: $meetingId,
 			meetingData: $this->withNewAgendaVersion(meetingData: $meetingData, items: $items),
-			changes: ['agendaUnderRevision' => false]
+			changes: $changes
 		);
 
-		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: $subject);
+		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: $subject, items: $items);
 
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
 
@@ -668,12 +675,13 @@ class AgendaService {
 	 * @param string                 $meetingId   The meeting UUID
 	 * @param string                 $subject     agenda_published, agenda_revised, agenda_revision_started or agenda_changed
 	 * @param array<int, string>|null $recipients The users to tell, or null for every active participant
+	 * @param iterable<mixed>|null    $items      The published agenda items, which turn the notice into an invitation
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
 	 */
-	private function notifyParticipants(array $meetingData, string $meetingId, string $subject, ?array $recipients=null): void {
+	private function notifyParticipants(array $meetingData, string $meetingId, string $subject, ?array $recipients=null, ?iterable $items=null): void {
 		$l10n = $this->l10nFactory->get('decidiq');
 		$meetingTitle = (string)($meetingData['title'] ?? '');
 		$named = $meetingTitle;
@@ -683,6 +691,19 @@ class AgendaService {
 
 		$title = $l10n->t(self::AGENDA_SENTENCES[$subject] ?? self::AGENDA_SENTENCES['agenda_changed'], [$named]);
 		$message = $l10n->t('Open the meeting in Decidiq to see the agenda.');
+		$attachments = [];
+		if ($items !== null) {
+			// A published agenda is the invitation: when, where, the items, and
+			// the meeting as a calendar file (agenda-publish-and-invite-members).
+			$invitation = new AgendaInvitation();
+			$titles = $invitation->orderedTitles(items: $items);
+			$message = $invitation->message(l10n: $l10n, meeting: $meetingData, itemTitles: $titles);
+			$attachments[] = [
+				'data' => $invitation->calendarFile(meetingId: $meetingId, meeting: $meetingData, itemTitles: $titles),
+				'filename' => 'meeting.ics',
+				'contentType' => 'text/calendar',
+			];
+		}
 		$inApp = [
 			'subject'    => $subject,
 			'parameters' => ['meetingId' => $meetingId, 'meetingTitle' => $meetingTitle],
@@ -698,7 +719,8 @@ class AgendaService {
 					title: $title,
 					message: $message,
 					deepLink: '/meetings/' . $meetingId,
-					inApp: $inApp
+					inApp: $inApp,
+					attachments: $attachments
 				);
 			} catch (Throwable $e) {
 				$this->logger->warning(
