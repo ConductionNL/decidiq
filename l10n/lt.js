@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Atidėti posėdį",
         "Close meeting": "Uždaryti posėdį",
         "The stage was not changed.": "Etapas nepakeistas.",
-        "The body's rule": "Organo taisyklė"
+        "The body's rule": "Organo taisyklė",
+        "Agenda published on {date}": "Darbotvarkė paskelbta {date}",
+        "Could not publish the agenda": "Nepavyko paskelbti darbotvarkės",
+        "The agenda was not published.": "Darbotvarkė nepaskelbta.",
+        "When: %s": "Kada: %s",
+        "Where: %s": "Kur: %s",
+        "Agenda:": "Darbotvarkė:"
     },
     "nplurals=2; plural=(n != 1);"
 )

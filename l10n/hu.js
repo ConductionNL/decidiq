@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Ülés elnapolása",
         "Close meeting": "Ülés bezárása",
         "The stage was not changed.": "A szakasz nem változott.",
-        "The body's rule": "A testület szabálya"
+        "The body's rule": "A testület szabálya",
+        "Agenda published on {date}": "A napirend közzétéve: {date}",
+        "Could not publish the agenda": "A napirendet nem sikerült közzétenni",
+        "The agenda was not published.": "A napirend nem lett közzétéve.",
+        "When: %s": "Mikor: %s",
+        "Where: %s": "Hol: %s",
+        "Agenda:": "Napirend:"
     },
     "nplurals=2; plural=(n != 1);"
 )

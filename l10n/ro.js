@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Amână ședința",
         "Close meeting": "Închide ședința",
         "The stage was not changed.": "Etapa nu a fost schimbată.",
-        "The body's rule": "Regula organului"
+        "The body's rule": "Regula organului",
+        "Agenda published on {date}": "Ordinea de zi a fost publicată la {date}",
+        "Could not publish the agenda": "Ordinea de zi nu a putut fi publicată",
+        "The agenda was not published.": "Ordinea de zi nu a fost publicată.",
+        "When: %s": "Când: %s",
+        "Where: %s": "Unde: %s",
+        "Agenda:": "Ordinea de zi:"
     },
     "nplurals=2; plural=(n != 1);"
 )

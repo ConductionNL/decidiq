@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Toplantıyı ertele",
         "Close meeting": "Toplantıyı kapat",
         "The stage was not changed.": "Aşama değiştirilmedi.",
-        "The body's rule": "Kurulun kuralı"
+        "The body's rule": "Kurulun kuralı",
+        "Agenda published on {date}": "Gündem {date} tarihinde yayımlandı",
+        "Could not publish the agenda": "Gündem yayımlanamadı",
+        "The agenda was not published.": "Gündem yayımlanmadı.",
+        "When: %s": "Ne zaman: %s",
+        "Where: %s": "Nerede: %s",
+        "Agenda:": "Gündem:"
     },
     "nplurals=2; plural=(n != 1);"
 )

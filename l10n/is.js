@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Fresta fundi",
         "Close meeting": "Slíta fundi",
         "The stage was not changed.": "Stigi var ekki breytt.",
-        "The body's rule": "Regla stofnunarinnar"
+        "The body's rule": "Regla stofnunarinnar",
+        "Agenda published on {date}": "Dagskrá birt {date}",
+        "Could not publish the agenda": "Ekki tókst að birta dagskrána",
+        "The agenda was not published.": "Dagskráin var ekki birt.",
+        "When: %s": "Hvenær: %s",
+        "Where: %s": "Hvar: %s",
+        "Agenda:": "Dagskrá:"
     },
     "nplurals=2; plural=(n != 1);"
 )

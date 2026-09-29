@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Odgodi sjednicu",
         "Close meeting": "Zatvori sjednicu",
         "The stage was not changed.": "Faza nije promijenjena.",
-        "The body's rule": "Pravilo tijela"
+        "The body's rule": "Pravilo tijela",
+        "Agenda published on {date}": "Dnevni red objavljen {date}",
+        "Could not publish the agenda": "Dnevni red nije moguće objaviti",
+        "The agenda was not published.": "Dnevni red nije objavljen.",
+        "When: %s": "Kada: %s",
+        "Where: %s": "Gdje: %s",
+        "Agenda:": "Dnevni red:"
     },
     "nplurals=2; plural=(n != 1);"
 )

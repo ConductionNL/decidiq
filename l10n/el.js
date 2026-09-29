@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Αναβολή συνεδρίασης",
         "Close meeting": "Λήξη συνεδρίασης",
         "The stage was not changed.": "Το στάδιο δεν άλλαξε.",
-        "The body's rule": "Ο κανόνας του οργάνου"
+        "The body's rule": "Ο κανόνας του οργάνου",
+        "Agenda published on {date}": "Η ημερήσια διάταξη δημοσιεύθηκε στις {date}",
+        "Could not publish the agenda": "Δεν ήταν δυνατή η δημοσίευση της ημερήσιας διάταξης",
+        "The agenda was not published.": "Η ημερήσια διάταξη δεν δημοσιεύθηκε.",
+        "When: %s": "Πότε: %s",
+        "Where: %s": "Πού: %s",
+        "Agenda:": "Ημερήσια διάταξη:"
     },
     "nplurals=2; plural=(n != 1);"
 )

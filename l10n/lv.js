@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Atlikt sēdi",
         "Close meeting": "Slēgt sēdi",
         "The stage was not changed.": "Posms netika mainīts.",
-        "The body's rule": "Institūcijas noteikums"
+        "The body's rule": "Institūcijas noteikums",
+        "Agenda published on {date}": "Darba kārtība publicēta {date}",
+        "Could not publish the agenda": "Neizdevās publicēt darba kārtību",
+        "The agenda was not published.": "Darba kārtība netika publicēta.",
+        "When: %s": "Kad: %s",
+        "Where: %s": "Kur: %s",
+        "Agenda:": "Darba kārtība:"
     },
     "nplurals=2; plural=(n != 1);"
 )

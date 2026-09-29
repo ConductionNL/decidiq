@@ -1147,7 +1147,13 @@ OC.L10N.register(
         "Adjourn meeting": "Отложить заседание",
         "Close meeting": "Закрыть заседание",
         "The stage was not changed.": "Этап не изменён.",
-        "The body's rule": "Правило органа"
+        "The body's rule": "Правило органа",
+        "Agenda published on {date}": "Повестка опубликована {date}",
+        "Could not publish the agenda": "Не удалось опубликовать повестку",
+        "The agenda was not published.": "Повестка не опубликована.",
+        "When: %s": "Когда: %s",
+        "Where: %s": "Где: %s",
+        "Agenda:": "Повестка:"
     },
     "nplurals=2; plural=(n != 1);"
 )
