@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "L-aġenda ma ġietx ippubblikata.",
         "When: %s": "Meta: %s",
         "Where: %s": "Fejn: %s",
-        "Agenda:": "Aġenda:"
+        "Agenda:": "Aġenda:",
+        "The meeting %s was scheduled": "Il-laqgħa %s ġiet skedata",
+        "The meeting %s is coming up": "Il-laqgħa %s qed toqrob",
+        "The submission deadline of %s is coming up": "L-iskadenza għas-sottomissjoni ta' %s qed toqrob",
+        "It starts on %s.": "Tibda fil-%s.",
+        "Motions and amendments can be submitted until %s.": "Mozzjonijiet u emendi jistgħu jiġu sottomessi sa %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

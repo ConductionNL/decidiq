@@ -210,4 +210,26 @@ class NotifierTest extends TestCase {
 		(new PlatformIntegrationRegistrar())->register($context);
 
 	}//end testTheRegistrarRegistersTheNotifier()
+
+	/**
+	 * The meeting notices name the meeting, link to it and say when.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 *
+	 * @return void
+	 */
+	public function testMeetingNoticesNameTheMeetingAndWhen(): void {
+		$cases = [
+			['meeting_scheduled', ['meetingTitle' => 'Raad', 'startsAt' => '2026-10-08 19:30'], 'The meeting Raad was scheduled', 'It starts on 2026-10-08 19:30.'],
+			['meeting_reminder', ['meetingTitle' => 'Raad', 'startsAt' => '2026-10-08 19:30'], 'The meeting Raad is coming up', 'It starts on 2026-10-08 19:30.'],
+			['submission_deadline', ['meetingTitle' => 'Raad', 'deadline' => '2026-10-02 12:00'], 'The submission deadline of Raad is coming up', 'Motions and amendments can be submitted until 2026-10-02 12:00.'],
+		];
+		foreach ($cases as [$subject, $params, $sentence, $message]) {
+			$this->notifier()->prepare($this->notification(app: 'decidiq', subject: $subject, parameters: $params), 'en');
+			self::assertSame($sentence, $this->parsed['setParsedSubject'], $subject);
+			self::assertSame($message, ($this->parsed['setParsedMessage'] ?? ''), $subject);
+			self::assertSame('https://cloud.example/apps/decidiq/meetings/m-1', $this->parsed['setLink'], $subject);
+		}
+
+	}//end testMeetingNoticesNameTheMeetingAndWhen()
 }//end class

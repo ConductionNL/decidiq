@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Dagskráin var ekki birt.",
         "When: %s": "Hvenær: %s",
         "Where: %s": "Hvar: %s",
-        "Agenda:": "Dagskrá:"
+        "Agenda:": "Dagskrá:",
+        "The meeting %s was scheduled": "Fundurinn %s hefur verið boðaður",
+        "The meeting %s is coming up": "Fundurinn %s nálgast",
+        "The submission deadline of %s is coming up": "Skilafrestur fyrir %s nálgast",
+        "It starts on %s.": "Hann hefst %s.",
+        "Motions and amendments can be submitted until %s.": "Tillögur og breytingartillögur má leggja fram til %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Darbotvarkė nepaskelbta.",
         "When: %s": "Kada: %s",
         "Where: %s": "Kur: %s",
-        "Agenda:": "Darbotvarkė:"
+        "Agenda:": "Darbotvarkė:",
+        "The meeting %s was scheduled": "Posėdis %s suplanuotas",
+        "The meeting %s is coming up": "Artėja posėdis %s",
+        "The submission deadline of %s is coming up": "Artėja %s pateikimo terminas",
+        "It starts on %s.": "Prasideda %s.",
+        "Motions and amendments can be submitted until %s.": "Pasiūlymus ir pataisas galima pateikti iki %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

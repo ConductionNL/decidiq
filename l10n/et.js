@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Päevakorda ei avaldatud.",
         "When: %s": "Millal: %s",
         "Where: %s": "Kus: %s",
-        "Agenda:": "Päevakord:"
+        "Agenda:": "Päevakord:",
+        "The meeting %s was scheduled": "Koosolek %s on ajastatud",
+        "The meeting %s is coming up": "Koosolek %s on tulemas",
+        "The submission deadline of %s is coming up": "%s esitamise tähtaeg läheneb",
+        "It starts on %s.": "Algab %s.",
+        "Motions and amendments can be submitted until %s.": "Ettepanekuid ja muudatusettepanekuid saab esitada kuni %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

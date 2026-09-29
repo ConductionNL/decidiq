@@ -1152,7 +1152,12 @@
         "The agenda was not published.": "Darba kārtība netika publicēta.",
         "When: %s": "Kad: %s",
         "Where: %s": "Kur: %s",
-        "Agenda:": "Darba kārtība:"
+        "Agenda:": "Darba kārtība:",
+        "The meeting %s was scheduled": "Sēde %s ir ieplānota",
+        "The meeting %s is coming up": "Tuvojas sēde %s",
+        "The submission deadline of %s is coming up": "Tuvojas %s iesniegšanas termiņš",
+        "It starts on %s.": "Sākas %s.",
+        "Motions and amendments can be submitted until %s.": "Priekšlikumus un grozījumus var iesniegt līdz %s."
     },
     "plurals": null
 }

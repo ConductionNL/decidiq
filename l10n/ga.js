@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Níor foilsíodh an clár oibre.",
         "When: %s": "Cathain: %s",
         "Where: %s": "Cá háit: %s",
-        "Agenda:": "Clár oibre:"
+        "Agenda:": "Clár oibre:",
+        "The meeting %s was scheduled": "Socraíodh an cruinniú %s",
+        "The meeting %s is coming up": "Tá an cruinniú %s ag teacht",
+        "The submission deadline of %s is coming up": "Tá an spriocdháta aighneachta do %s ag teacht",
+        "It starts on %s.": "Tosaíonn sé ar %s.",
+        "Motions and amendments can be submitted until %s.": "Is féidir rúin agus leasuithe a chur isteach go dtí %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

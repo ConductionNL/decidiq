@@ -8,16 +8,16 @@
 - **acceptance_criteria**:
   - GIVEN a meeting tomorrow at 19:00 WHEN the job runs today at 19:00 THEN each member with meeting reminder on gets one reminder
   - GIVEN a member who switched it off THEN she gets none
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Submission deadline reminder
 - **spec_ref**: `openspec/changes/meeting-reminders-before-deadlines/specs/decidesk-notifications/spec.md#requirement-req-mrd-002-a-reminder-before-the-submission-deadline`
 - **files**: `lib/BackgroundJob/MeetingReminderJob.php`
 - **acceptance_criteria**:
   - GIVEN a submission deadline in 40 hours WHEN the job runs THEN members get one reminder naming the deadline
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

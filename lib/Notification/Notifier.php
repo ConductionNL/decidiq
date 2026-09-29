@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Notification;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 use OCP\Notification\INotification;
@@ -67,6 +68,21 @@ class Notifier implements INotifier {
 		'email_vote_confirmed'      => ['Your vote by email was recorded', ''],
 		'email_vote_abandoned'      => ['Your vote by email could not be read and was not counted', ''],
 		'email_vote_reprompt'       => ['Your vote by email could not be read, please reply again', ''],
+		'meeting_scheduled'         => ['The meeting %s was scheduled', 'meetings/'],
+		'meeting_reminder'          => ['The meeting %s is coming up', 'meetings/'],
+		'submission_deadline'       => ['The submission deadline of %s is coming up', 'meetings/'],
+	];
+
+	/**
+	 * The second line of a meeting notice: the sentence and the parameter
+	 * it names (meeting-reminders-before-deadlines).
+	 *
+	 * @var array<string, array{0: string, 1: string}>
+	 */
+	private const DETAILS = [
+		'meeting_scheduled'   => ['It starts on %s.', 'startsAt'],
+		'meeting_reminder'    => ['It starts on %s.', 'startsAt'],
+		'submission_deadline' => ['Motions and amendments can be submitted until %s.', 'deadline'],
 	];
 
 	/**
@@ -150,6 +166,7 @@ class Notifier implements INotifier {
 		}
 
 		$notification->setParsedSubject($l10n->t($sentence, [$named]));
+		$this->setDetail(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
 		$path = '';
 		if ($page !== '' && $notification->getObjectId() !== '') {
 			$path = $page . rawurlencode($notification->getObjectId());
@@ -158,6 +175,31 @@ class Notifier implements INotifier {
 		$notification->setLink($this->appLink(path: $path));
 		return $notification;
 	}//end prepare()
+
+	/**
+	 * Set the second line of a meeting notice when its parameter is known.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      The subject key
+	 * @param array<string, mixed> $params       The subject parameters
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
+	 */
+	private function setDetail(INotification $notification, IL10N $l10n, string $subject, array $params): void {
+		if (isset(self::DETAILS[$subject]) === false) {
+			return;
+		}
+
+		[$sentence, $key] = self::DETAILS[$subject];
+		$value = (string)($params[$key] ?? '');
+		if ($value !== '') {
+			$notification->setParsedMessage($l10n->t($sentence, [$value]));
+		}
+
+	}//end setDetail()
 
 	/**
 	 * An absolute link into the decidiq app.

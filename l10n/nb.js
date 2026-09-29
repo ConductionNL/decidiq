@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Sakslisten ble ikke publisert.",
         "When: %s": "Når: %s",
         "Where: %s": "Hvor: %s",
-        "Agenda:": "Saksliste:"
+        "Agenda:": "Saksliste:",
+        "The meeting %s was scheduled": "Møtet %s er berammet",
+        "The meeting %s is coming up": "Møtet %s nærmer seg",
+        "The submission deadline of %s is coming up": "Innleveringsfristen for %s nærmer seg",
+        "It starts on %s.": "Det starter %s.",
+        "Motions and amendments can be submitted until %s.": "Forslag og endringsforslag kan leveres til %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Dnevni red nije objavljen.",
         "When: %s": "Kada: %s",
         "Where: %s": "Gdje: %s",
-        "Agenda:": "Dnevni red:"
+        "Agenda:": "Dnevni red:",
+        "The meeting %s was scheduled": "Sjednica %s je zakazana",
+        "The meeting %s is coming up": "Sjednica %s se približava",
+        "The submission deadline of %s is coming up": "Rok za podnošenje za %s se približava",
+        "It starts on %s.": "Počinje %s.",
+        "Motions and amendments can be submitted until %s.": "Prijedlozi i amandmani mogu se podnijeti do %s."
     },
     "nplurals=2; plural=(n != 1);"
 )
