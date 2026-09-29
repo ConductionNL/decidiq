@@ -237,6 +237,8 @@ class ExportBundleWriter {
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
 	 *
+	 * @throws ExportBundleException When OpenRegister's file store cannot be read.
+	 *
 	 * @return list<\OCP\Files\File>
 	 */
 	private function attachments(array $decision): array {
@@ -245,8 +247,19 @@ class ExportBundleWriter {
 			return [];
 		}
 
-		$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
-		$nodes       = $fileService->getFiles($id);
+		// An export without its attachments would look complete and not be,
+		// so an unreachable file store refuses the export instead.
+		try {
+			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
+			$nodes       = $fileService->getFiles($id);
+		} catch (Throwable $e) {
+			$this->logger->warning('Decidiq export: the attachments could not be read', ['decision' => $id, 'error' => $e->getMessage()]);
+			throw new ExportBundleException(
+				message: 'The attachments could not be read. Try again in a moment.',
+				status: Http::STATUS_SERVICE_UNAVAILABLE,
+				previous: $e
+			);
+		}
 
 		return array_values(
 			array_filter(

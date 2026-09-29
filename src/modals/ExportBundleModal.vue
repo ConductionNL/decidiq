@@ -147,6 +147,12 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Where the finished file opens in Files.
+		 *
+		 * @return {string} The link.
+		 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
+		 */
 		fileLink() {
 			if (this.result && this.result.fileId) {
 				return generateUrl('/f/{id}', { id: this.result.fileId })
@@ -155,6 +161,11 @@ export default {
 		},
 	},
 
+	/**
+	 * Ask the server which formats this instance can make.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
+	 */
 	async mounted() {
 		try {
 			const { data } = await axios.get(
@@ -170,6 +181,12 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Send the export request and show the answer.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+		 */
 		async submit() {
 			this.busy = true
 			this.error = ''
