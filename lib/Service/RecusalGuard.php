@@ -84,7 +84,7 @@ class RecusalGuard {
 
 		foreach ($this->memberKeys(participantId: $participantId) as $memberKey) {
 			foreach ($subjects as $subjectId) {
-				$conflict = $this->conflicts->getActiveConflicts($memberKey, $subjectId);
+				$conflict = $this->readConflict(memberKey: $memberKey, subjectId: $subjectId);
 				if ($conflict !== null && in_array(($conflict['actionTaken'] ?? ''), self::RECUSALS, true) === true) {
 					throw new RuntimeException($this->refusal(conflict: $conflict));
 				}
@@ -92,6 +92,30 @@ class RecusalGuard {
 		}
 
 	}//end assertNotRecused()
+
+	/**
+	 * Read the member's active declaration on one subject. A read that fails
+	 * refuses the ballot: without the declarations the guard cannot tell a
+	 * recused member from one who may vote, so it fails closed.
+	 *
+	 * @param string $memberKey The Membership or Participant id
+	 * @param string $subjectId The motion, amendment or agenda item id
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @throws RuntimeException When the declarations cannot be read.
+	 */
+	private function readConflict(string $memberKey, string $subjectId): ?array {
+		try {
+			return $this->conflicts->getActiveConflicts($memberKey, $subjectId);
+		} catch (\Throwable $e) {
+			throw new RuntimeException(
+				'Your vote could not be checked against the declared conflicts of interest. Try again in a moment.',
+				0,
+				$e
+			);
+		}
+	}//end readConflict()
 
 	/**
 	 * The message that names the declaration.

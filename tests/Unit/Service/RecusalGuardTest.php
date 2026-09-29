@@ -68,6 +68,13 @@ class RecusalGuardTest extends TestCase {
 	private array $saved = [];
 
 	/**
+	 * Whether reading the declarations fails (OpenRegister down).
+	 *
+	 * @var bool
+	 */
+	private bool $readFails = false;
+
+	/**
 	 * Build the fixture.
 	 *
 	 * @return void
@@ -94,6 +101,7 @@ class RecusalGuardTest extends TestCase {
 		];
 		$this->declarations = [];
 		$this->saved = [];
+		$this->readFails = false;
 	}//end setUp()
 
 	/**
@@ -124,6 +132,10 @@ class RecusalGuardTest extends TestCase {
 			function (array $config): array {
 				if (($config['filters']['schema'] ?? '') !== 'conflict-of-interest') {
 					return [];
+				}
+
+				if ($this->readFails === true) {
+					throw new RuntimeException('OpenRegister unavailable');
 				}
 
 				return array_map(fn (array $row): ObjectEntity => $this->entity($row), $this->declarations);
@@ -287,6 +299,41 @@ class RecusalGuardTest extends TestCase {
 	 */
 	public function testCastingRefusesARecusedMemberAndWritesNoBallot(): void {
 		$this->declare(member: 'M-anna', subject: 'M-12', action: 'recused-from-vote');
+
+		try {
+			$this->caster()->castVote(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for', isProxy: false, delegatorId: null);
+			$this->fail('A recused member cast a ballot.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('recused from the vote', $e->getMessage());
+		}
+
+		$this->assertSame([], $this->saved);
+	}//end testCastingRefusesARecusedMemberAndWritesNoBallot()
+
+	/**
+	 * A failing declaration read on the casting path writes no ballot.
+	 *
+	 * @return void
+	 */
+	public function testCastingWritesNoBallotWhenTheDeclarationsCannotBeRead(): void {
+		$this->readFails = true;
+
+		try {
+			$this->caster()->castVote(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for', isProxy: false, delegatorId: null);
+			$this->fail('A ballot was cast while the declarations could not be read.');
+		} catch (RuntimeException $e) {
+			$this->assertStringContainsString('could not be checked', $e->getMessage());
+		}
+
+		$this->assertSame([], $this->saved);
+	}//end testCastingWritesNoBallotWhenTheDeclarationsCannotBeRead()
+
+	/**
+	 * The real VoteCastingService with the real guard over the double.
+	 *
+	 * @return VoteCastingService
+	 */
+	private function caster(): VoteCastingService {
 		$objectService = $this->objectService();
 		$crosswalk = $this->crosswalk();
 		$amendmentOrder = new AmendmentOrderService(
@@ -298,7 +345,7 @@ class RecusalGuardTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		$caster = new VoteCastingService(
+		return new VoteCastingService(
 			logger: new NullLogger(),
 			participantResolver: $participants,
 			amendmentOrder: $amendmentOrder,
@@ -312,14 +359,32 @@ class RecusalGuardTest extends TestCase {
 				amendmentOrder: $amendmentOrder,
 			),
 		);
+	}//end caster()
 
-		try {
-			$caster->castVote(votingRoundId: 'round-1', participantId: 'P-anna', value: 'for', isProxy: false, delegatorId: null);
-			$this->fail('A recused member cast a ballot.');
-		} catch (RuntimeException $e) {
-			$this->assertStringContainsString('recused from the vote', $e->getMessage());
-		}
+	/**
+	 * When the declarations cannot be read the guard cannot know whether the
+	 * member is recused, so it refuses the ballot rather than letting it through.
+	 *
+	 * @return void
+	 */
+	public function testAConflictReadThatFailsRefusesTheBallot(): void {
+		$this->readFails = true;
 
-		$this->assertSame([], $this->saved);
-	}//end testCastingRefusesARecusedMemberAndWritesNoBallot()
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('could not be checked');
+		$this->guard()->assertNotRecused(round: $this->objects['round-1'], participantId: 'P-anna');
+	}//end testAConflictReadThatFailsRefusesTheBallot()
+
+	/**
+	 * A round with no motion or amendment reads no declarations, so a failing
+	 * read does not block it.
+	 *
+	 * @return void
+	 */
+	public function testARoundWithoutAMatterIsNotBlockedByAFailingRead(): void {
+		$this->readFails = true;
+
+		$this->guard()->assertNotRecused(round: ['id' => 'round-3', 'relations' => []], participantId: 'P-anna');
+		$this->addToAssertionCount(1);
+	}//end testARoundWithoutAMatterIsNotBlockedByAFailingRead()
 }//end class

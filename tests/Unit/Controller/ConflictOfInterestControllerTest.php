@@ -233,6 +233,25 @@ class ConflictOfInterestControllerTest extends TestCase {
 	}//end testForMemberReturnsConflict()
 
 	/**
+	 * forMember answers 503 when the declarations cannot be read, instead of
+	 * reporting "no conflict" (fail closed).
+	 *
+	 * @return void
+	 */
+	public function testForMemberAnswers503WhenTheDeclarationsCannotBeRead(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('isAuthorizedForMember')->willReturn(true);
+		$service->method('getActiveConflicts')->willThrowException(new \RuntimeException('Conflict-of-interest declarations could not be read.'));
+
+		$controller = $this->makeController(service: $service, requestParams: ['agendaItemId' => 'a1']);
+		$response = $controller->forMember('m1');
+
+		$this->assertSame(expected: Http::STATUS_SERVICE_UNAVAILABLE, actual: $response->getStatus());
+		$this->assertArrayNotHasKey('conflict', $response->getData());
+
+	}//end testForMemberAnswers503WhenTheDeclarationsCannotBeRead()
+
+	/**
 	 * forMember rejects a request missing agendaItemId.
 	 *
 	 * @return void

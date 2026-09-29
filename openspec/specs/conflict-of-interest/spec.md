@@ -100,3 +100,8 @@ The vote path SHALL refuse a ballot from a member with an active recusal on the 
 - GIVEN Anna has an active recusal on motion M-12
 - WHEN she tries to cast a vote in the open round on M-12
 - THEN the vote is refused with a message naming her declaration and the round shows one eligible voter fewer
+
+#### Scenario: The declarations cannot be read
+- GIVEN the conflict-of-interest declarations cannot be read (OpenRegister does not answer)
+- WHEN a member tries to cast a vote in the open round on a motion
+- THEN the vote is refused with a message saying it could not be checked, and no ballot is written
