@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (hedhur nga {proxy})",
         "Per faction": "Sipas grupit",
         "Secret vote": "Votim i fshehtë",
-        "Secret vote: only the totals are shown.": "Votim i fshehtë: shfaqen vetëm totalet."
+        "Secret vote: only the totals are shown.": "Votim i fshehtë: shfaqen vetëm totalet.",
+        "Adopted without debate": "Miratuar pa debat",
+        "Discuss this item": "Diskuto këtë pikë",
+        "Formality": "Formalitet",
+        "Mark as formality": "Shëno si formalitet",
+        "The formality mark was not saved.": "Shënimi i formalitetit nuk u ruajt."
     },
     "nplurals=2; plural=(n != 1);"
 )

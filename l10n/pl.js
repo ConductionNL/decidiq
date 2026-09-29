@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (oddany przez {proxy})",
         "Per faction": "Według klubów",
         "Secret vote": "Głosowanie tajne",
-        "Secret vote: only the totals are shown.": "Głosowanie tajne: widoczne są tylko sumy."
+        "Secret vote: only the totals are shown.": "Głosowanie tajne: widoczne są tylko sumy.",
+        "Adopted without debate": "Przyjęto bez dyskusji",
+        "Discuss this item": "Omów ten punkt",
+        "Formality": "Formalność",
+        "Mark as formality": "Oznacz jako formalność",
+        "The formality mark was not saved.": "Nie zapisano oznaczenia formalności."
     },
     "nplurals=2; plural=(n != 1);"
 )

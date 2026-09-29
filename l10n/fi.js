@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (äänesti {proxy})",
         "Per faction": "Ryhmittäin",
         "Secret vote": "Suljettu lippuäänestys",
-        "Secret vote: only the totals are shown.": "Suljettu lippuäänestys: vain kokonaismäärät näytetään."
+        "Secret vote: only the totals are shown.": "Suljettu lippuäänestys: vain kokonaismäärät näytetään.",
+        "Adopted without debate": "Hyväksytty ilman keskustelua",
+        "Discuss this item": "Keskustele tästä kohdasta",
+        "Formality": "Muodollisuus",
+        "Mark as formality": "Merkitse muodollisuudeksi",
+        "The formality mark was not saved.": "Muodollisuusmerkintää ei tallennettu."
     },
     "nplurals=2; plural=(n != 1);"
 )

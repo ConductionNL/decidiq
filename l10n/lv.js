@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (balsoja {proxy})",
         "Per faction": "Pa frakcijām",
         "Secret vote": "Aizklāts balsojums",
-        "Secret vote: only the totals are shown.": "Aizklāts balsojums: tiek rādīti tikai kopsavilkumi."
+        "Secret vote: only the totals are shown.": "Aizklāts balsojums: tiek rādīti tikai kopsavilkumi.",
+        "Adopted without debate": "Pieņemts bez debatēm",
+        "Discuss this item": "Apspriest šo punktu",
+        "Formality": "Formalitāte",
+        "Mark as formality": "Atzīmēt kā formalitāti",
+        "The formality mark was not saved.": "Formalitātes atzīme netika saglabāta."
     },
     "nplurals=2; plural=(n != 1);"
 )

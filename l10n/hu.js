@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (leadta: {proxy})",
         "Per faction": "Frakciónként",
         "Secret vote": "Titkos szavazás",
-        "Secret vote: only the totals are shown.": "Titkos szavazás: csak az összesítés látható."
+        "Secret vote: only the totals are shown.": "Titkos szavazás: csak az összesítés látható.",
+        "Adopted without debate": "Vita nélkül elfogadva",
+        "Discuss this item": "Napirendi pont megvitatása",
+        "Formality": "Formalitás",
+        "Mark as formality": "Megjelölés formalitásként",
+        "The formality mark was not saved.": "A formalitás jelölése nem lett mentve."
     },
     "nplurals=2; plural=(n != 1);"
 )

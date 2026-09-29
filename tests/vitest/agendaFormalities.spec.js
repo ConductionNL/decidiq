@@ -30,12 +30,21 @@ const items = [
 	{ id: 'i1', orderNumber: 1 },
 	{ id: 'i4', orderNumber: 4, tags: ['hamerstuk'] },
 	{ id: 'i7', orderNumber: 7, isFormality: true },
-	{ id: 'i8', orderNumber: 8, isFormality: true, formalityOutcome: 'adopted-without-debate' },
+	{
+		id: 'i8',
+		orderNumber: 8,
+		isFormality: true,
+		formalityOutcome: 'adopted-without-debate',
+	},
 ]
 
 describe('formalities', () => {
 	it('are the marked items not yet adopted, in agenda order', () => {
-		expect(pendingFormalities(items).map((i) => i.id)).toEqual(['i3', 'i4', 'i7'])
+		expect(pendingFormalities(items).map((i) => i.id)).toEqual([
+			'i3',
+			'i4',
+			'i7',
+		])
 	})
 
 	it('stop being pending once adopted', () => {
@@ -44,7 +53,9 @@ describe('formalities', () => {
 	})
 
 	it('are marked through the chair-only endpoint of the meeting', () => {
-		expect(formalityUrl('meet-1', 'i4')).toBe('/apps/decidiq/api/agendas/meet-1/items/i4/formality')
+		expect(formalityUrl('meet-1', 'i4')).toBe(
+			'/apps/decidiq/api/agendas/meet-1/items/i4/formality',
+		)
 	})
 })
 

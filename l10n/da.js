@@ -1132,7 +1132,12 @@ OC.L10N.register(
         "{name} (cast by {proxy})": "{name} (afgivet af {proxy})",
         "Per faction": "Pr. fraktion",
         "Secret vote": "Hemmelig afstemning",
-        "Secret vote: only the totals are shown.": "Hemmelig afstemning: kun totalerne vises."
+        "Secret vote: only the totals are shown.": "Hemmelig afstemning: kun totalerne vises.",
+        "Adopted without debate": "Vedtaget uden debat",
+        "Discuss this item": "Behandl dette punkt",
+        "Formality": "Formalitet",
+        "Mark as formality": "Markér som formalitet",
+        "The formality mark was not saved.": "Markeringen som formalitet blev ikke gemt."
     },
     "nplurals=2; plural=(n != 1);"
 )
