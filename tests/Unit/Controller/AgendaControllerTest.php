@@ -142,6 +142,99 @@ class AgendaControllerTest extends TestCase {
 	}//end buildController()
 
 	/**
+	 * A session for a logged-in user who is a chair or secretary of the
+	 * meeting, or not.
+	 *
+	 * @param bool $chair Whether the participant resolver says chair/secretary
+	 *
+	 * @return IUserSession
+	 */
+	private function sessionFor(bool $chair): IUserSession {
+		$user = $this->createMock(\OCP\IUser::class);
+		$user->method('getUID')->willReturn('clerk');
+		$session = $this->createMock(IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->participantResolver->method('hasRole')->willReturn($chair);
+		return $session;
+	}//end sessionFor()
+
+	/**
+	 * The chair or secretary marks an item as a formality.
+	 *
+	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testTheSecretaryMarksAFormality(): void {
+		$this->request->method('getParam')->with('isFormality')->willReturn(true);
+		$this->agendaService->expects($this->once())->method('setFormality')->with('meeting-uuid-001', 'item-4', true);
+
+		$result = $this->buildController($this->sessionFor(chair: true))->formality('meeting-uuid-001', 'item-4');
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+	}//end testTheSecretaryMarksAFormality()
+
+	/**
+	 * A member who is not chair or secretary cannot mark formalities.
+	 *
+	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testAMemberCannotMarkAFormality(): void {
+		$this->agendaService->expects($this->never())->method('setFormality');
+
+		$result = $this->buildController($this->sessionFor(chair: false))->formality('meeting-uuid-001', 'item-4');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+	}//end testAMemberCannotMarkAFormality()
+
+	/**
+	 * An item of another meeting reads as a bad request, with the reason.
+	 *
+	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testAnItemOfAnotherMeetingIsABadRequest(): void {
+		$this->request->method('getParam')->willReturn(true);
+		$this->agendaService->method('setFormality')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
+
+		$result = $this->buildController($this->sessionFor(chair: true))->formality('meeting-uuid-001', 'item-4');
+
+		self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+		self::assertSame('This agenda item is not on this meeting.', $result->getData()['message']);
+	}//end testAnItemOfAnotherMeetingIsABadRequest()
+
+	/**
+	 * Adopting the formalities answers how many were adopted.
+	 *
+	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testAdoptingAnswersHowManyWereAdopted(): void {
+		$this->agendaService->method('processHamerstukken')->willReturn(3);
+
+		$result = $this->buildController($this->sessionFor(chair: true))->processHamerstukken('meeting-uuid-001');
+
+		self::assertSame(['success' => true, 'adopted' => 3], $result->getData());
+	}//end testAdoptingAnswersHowManyWereAdopted()
+
+	/**
+	 * The formality route reaches the method.
+	 *
+	 * @return void
+	 */
+	public function testTheFormalityRouteReachesTheController(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$byName = array_column($routes['routes'], 'url', 'name');
+
+		self::assertSame('/api/agendas/{meetingId}/items/{itemId}/formality', ($byName['agenda#formality'] ?? null));
+	}//end testTheFormalityRouteReachesTheController()
+
+	/**
 	 * publish() returns 401 for unauthenticated requests.
 	 *
 	 * @return void

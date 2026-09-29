@@ -69,6 +69,13 @@ class AgendaService {
 	private const HAMERSTUK_TAG = 'hamerstuk';
 
 	/**
+	 * The outcome a formality records when the chair adopts the formalities.
+	 *
+	 * @var string
+	 */
+	private const FORMALITY_ADOPTED = 'adopted-without-debate';
+
+	/**
 	 * True while this service writes several agenda items as one change.
 	 *
 	 * @var boolean
@@ -265,18 +272,22 @@ class AgendaService {
 	}//end advanceBobPhase()
 
 	/**
-	 * Process all consent agenda items (hamerstukken) for a meeting.
+	 * Adopt the formalities (hamerstukken) of a meeting together.
 	 *
-	 * Fetches all AgendaItems for the meeting that have the 'hamerstuk' tag
-	 * and bulk-updates their status to 'completed' via ObjectService.
+	 * Every agenda item marked `isFormality` (or still carrying the older
+	 * `hamerstuk` tag) that is not adopted yet records `formalityOutcome:
+	 * adopted-without-debate` and `adoptedAt`, the fields register fragment 98
+	 * declares. It used to write `status: completed`, which AgendaItem does not
+	 * declare.
 	 *
 	 * @param string $meetingId UUID of the Meeting
 	 *
-	 * @return void
+	 * @return integer The number of formalities adopted.
 	 *
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
-	public function processHamerstukken(string $meetingId): void {
+	public function processHamerstukken(string $meetingId): int {
 		$items = $this->objectService->findAll(
 			[
 				'filters' => [
@@ -287,17 +298,12 @@ class AgendaService {
 			]
 		);
 
+		$adoptedAt = gmdate('Y-m-d\TH:i:s\Z');
 		$processedCount = 0;
 		foreach ($items as $item) {
 			$itemData = $this->toArray(item: $item);
-			$tags = $itemData['tags'] ?? ($itemData['@self']['tags'] ?? []);
-
-			if (in_array(needle: self::HAMERSTUK_TAG, haystack: (array)$tags, strict: true) === false) {
-				continue;
-			}
-
 			$itemId = $itemData['id'] ?? ($itemData['@self']['id'] ?? ($itemData['uuid'] ?? null));
-			if ($itemId === null) {
+			if ($itemId === null || $this->isPendingFormality(item: $itemData) === false) {
 				continue;
 			}
 
@@ -305,7 +311,7 @@ class AgendaService {
 			// payload under save's full-replace validation 400s per item.
 			$this->objectService->patchObject(
 				objectId: (string)$itemId,
-				data: ['status' => 'completed'],
+				data: ['formalityOutcome' => self::FORMALITY_ADOPTED, 'adoptedAt' => $adoptedAt],
 				register: 'decidiq',
 				schema: 'agenda-item',
 			);
@@ -314,11 +320,68 @@ class AgendaService {
 		}//end foreach
 
 		$this->logger->info(
-			'Processed {count} hamerstukken for meeting {meetingId}',
+			'Adopted {count} formalities for meeting {meetingId}',
 			['count' => $processedCount, 'meetingId' => $meetingId]
 		);
 
+		return $processedCount;
 	}//end processHamerstukken()
+
+	/**
+	 * Mark an agenda item of a meeting as a formality, or take the mark off.
+	 *
+	 * @param string $meetingId UUID of the Meeting the item must belong to
+	 * @param string $itemId UUID of the agenda item
+	 * @param bool $isFormality Whether it is a formality
+	 *
+	 * @return void
+	 *
+	 * @throws \InvalidArgumentException When the item is not on this meeting, or was already adopted as a formality.
+	 *
+	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function setFormality(string $meetingId, string $itemId, bool $isFormality): void {
+		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		$item = [];
+		if ($entity !== null) {
+			$item = $this->toArray(item: $entity);
+		}
+
+		if ((string)($item['meeting'] ?? '') !== $meetingId) {
+			throw new \InvalidArgumentException('This agenda item is not on this meeting.');
+		}
+
+		if (($item['formalityOutcome'] ?? null) === self::FORMALITY_ADOPTED) {
+			throw new \InvalidArgumentException('This formality was already adopted.');
+		}
+
+		$this->objectService->patchObject(
+			objectId: $itemId,
+			data: ['isFormality' => $isFormality],
+			register: 'decidiq',
+			schema: 'agenda-item',
+		);
+	}//end setFormality()
+
+	/**
+	 * Whether an item is a formality that has not been adopted yet.
+	 *
+	 * @param array<string, mixed> $item The agenda item
+	 *
+	 * @return bool
+	 */
+	private function isPendingFormality(array $item): bool {
+		if (($item['formalityOutcome'] ?? null) === self::FORMALITY_ADOPTED) {
+			return false;
+		}
+
+		if (($item['isFormality'] ?? false) === true) {
+			return true;
+		}
+
+		$tags = ($item['tags'] ?? ($item['@self']['tags'] ?? []));
+		return in_array(needle: self::HAMERSTUK_TAG, haystack: (array)$tags, strict: true);
+	}//end isPendingFormality()
 
 	/**
 	 * Open a published agenda for revision.
