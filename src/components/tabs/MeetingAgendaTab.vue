@@ -54,6 +54,22 @@
 					}}
 				</NcButton>
 				<NcButton
+					v-if="canManage"
+					data-testid="agenda-copy-items"
+					@click="openCopy">
+					<template #icon>
+						<ContentCopy :size="20" />
+					</template>
+					{{ t('decidiq', 'Add from template or meeting') }}
+				</NcButton>
+				<NcButton
+					v-if="canManage && rawRows.length > 0"
+					data-testid="agenda-save-template"
+					:disabled="savingTemplate"
+					@click="saveAsTemplate">
+					{{ t('decidiq', 'Save as template') }}
+				</NcButton>
+				<NcButton
 					variant="primary"
 					data-testid="agenda-add-item"
 					:aria-label="t('decidiq', 'Add agenda item')"
@@ -200,6 +216,24 @@
 			</template>
 		</CnFormDialog>
 
+		<CnNoteCard
+			v-if="copyNotice"
+			type="success"
+			data-testid="agenda-copy-notice"
+			:title="copyNotice" />
+
+		<AgendaCopyDialog
+			v-if="copyOpen"
+			:templates="agendaTemplates"
+			:defaultTemplateId="defaultTemplateId"
+			:meetings="earlierMeetings"
+			:meetingItems="copySourceItems"
+			:busy="copying"
+			:error="copyError"
+			@pickMeeting="loadCopySource"
+			@submit="addCopies"
+			@close="copyOpen = false" />
+
 		<CnDeleteDialog
 			v-if="deleteTarget"
 			ref="deleteDialog"
@@ -223,6 +257,7 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
 import ArrowDown from 'vue-material-design-icons/ArrowDown.vue'
 import ArrowUp from 'vue-material-design-icons/ArrowUp.vue'
+import ContentCopy from 'vue-material-design-icons/ContentCopy.vue'
 import DragVertical from 'vue-material-design-icons/DragVertical.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
@@ -230,6 +265,7 @@ import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Presentation from 'vue-material-design-icons/Presentation.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import AgendaCopyDialog from '../../dialogs/AgendaCopyDialog.vue'
 import AgendaItemTypeFields from '../AgendaItemTypeFields.vue'
 import {
 	buildAgendaTree,
@@ -239,6 +275,13 @@ import {
 	missingStatutoryItems,
 	moveAgendaItem,
 } from '../../services/agendaRules.js'
+import {
+	itemsFromMeeting,
+	itemsFromTemplate,
+	nextOrderNumber,
+	refId,
+	templateFromItems,
+} from '../../utils/agendaCopy.js'
 import {
 	findItemType,
 	missingRequiredTypeFields,
@@ -251,7 +294,9 @@ import { ensureRelationType } from './useRelationStore.js'
 export default {
 	name: 'MeetingAgendaTab',
 	components: {
+		AgendaCopyDialog,
 		AgendaItemTypeFields,
+		ContentCopy,
 		CnDataTable,
 		CnDeleteDialog,
 		CnFormDialog,
@@ -297,6 +342,17 @@ export default {
 			reorderError: '',
 			publishing: false,
 			publishError: '',
+			// Add from template or meeting (agenda-templates-and-copy).
+			copyOpen: false,
+			copying: false,
+			copyError: '',
+			copyNotice: '',
+			agendaTemplates: [],
+			defaultTemplateId: '',
+			earlierMeetings: [],
+			copySourceId: '',
+			copySourceItems: [],
+			savingTemplate: false,
 		}
 	},
 
@@ -537,6 +593,152 @@ export default {
 			} catch {
 				this.itemTypeNames = {}
 				this.itemTypes = []
+			}
+		},
+
+		/**
+		 * Open the copy dialog with the templates, the template the meeting's
+		 * type names, and the other meetings of the same body.
+		 *
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+		 */
+		async openCopy() {
+			this.copyError = ''
+			this.copyNotice = ''
+			this.copySourceId = ''
+			this.copySourceItems = []
+			this.copyOpen = true
+			try {
+				const [templates, meetings] = await Promise.all([
+					ensureRelationType('agenda-template').fetchCollection(
+						'agenda-template',
+						{ _limit: 200 },
+					),
+					ensureRelationType('meeting').fetchCollection('meeting', {
+						_order: JSON.stringify({ scheduledDate: 'desc' }),
+						_limit: 100,
+					}),
+				])
+				this.agendaTemplates = templates || []
+				const body = refId(this.meeting?.governanceBody)
+				this.earlierMeetings = (meetings || []).filter(
+					(m) =>
+						refId(m) !== String(this.objectId)
+						&& (!body || refId(m.governanceBody) === body),
+				)
+				const typeId = refId(this.meeting?.type)
+				if (typeId) {
+					const type = await ensureRelationType(
+						'meeting-type',
+					).fetchObject('meeting-type', typeId)
+					this.defaultTemplateId = refId(type?.defaultAgendaTemplate)
+				}
+			} catch (e) {
+				this.copyError =
+					e?.message
+					|| this.t(
+						'decidiq',
+						'Could not load the templates and meetings.',
+					)
+			}
+		},
+
+		/**
+		 * Load the agenda of the meeting picked in the copy dialog.
+		 *
+		 * @param {string} meetingId The earlier meeting
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+		 */
+		async loadCopySource(meetingId) {
+			this.copySourceId = meetingId || ''
+			this.copySourceItems = []
+			if (!meetingId) return
+			try {
+				const items = await ensureRelationType(
+					'agenda-item',
+				).fetchCollection('agenda-item', {
+					meeting: meetingId,
+					_order: JSON.stringify({ orderNumber: 'asc' }),
+					_limit: 200,
+				})
+				this.copySourceItems = (items || []).filter(
+					(i) => refId(i.meeting) === meetingId,
+				)
+			} catch (e) {
+				this.copyError =
+					e?.message || this.t('decidiq', 'Could not load that agenda.')
+			}
+		},
+
+		/**
+		 * Write the template's items, or the picked items of the earlier
+		 * meeting, after the last item of this agenda.
+		 *
+		 * @param {object} choice What the dialog submitted
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+		 */
+		async addCopies(choice) {
+			const meetingId = String(this.objectId)
+			const startAt = nextOrderNumber(this.rawRows)
+			const items =
+				choice.source === 'template'
+					? itemsFromTemplate(choice.template, meetingId, startAt)
+					: itemsFromMeeting(
+							this.copySourceItems,
+							choice.meetingId,
+							meetingId,
+							startAt,
+							choice.itemIds,
+						)
+			this.copying = true
+			this.copyError = ''
+			try {
+				const store = ensureRelationType('agenda-item')
+				for (const item of items) {
+					await store.saveObject('agenda-item', item)
+				}
+				this.copyOpen = false
+				this.copyNotice = this.t('decidiq', 'Agenda items added: {count}.', {
+					count: items.length,
+				})
+				await this.refresh()
+			} catch (e) {
+				this.copyError =
+					e?.message
+					|| this.t('decidiq', 'The agenda items could not be added.')
+			} finally {
+				this.copying = false
+			}
+		},
+
+		/**
+		 * Save this agenda as a template named after the meeting.
+		 *
+		 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+		 */
+		async saveAsTemplate() {
+			this.savingTemplate = true
+			this.copyError = ''
+			this.copyNotice = ''
+			try {
+				const name =
+					this.meeting?.title || this.t('decidiq', 'Agenda template')
+				await ensureRelationType('agenda-template').saveObject(
+					'agenda-template',
+					templateFromItems(name, this.rawRows),
+				)
+				this.copyNotice = this.t(
+					'decidiq',
+					'The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.',
+					{ name },
+				)
+			} catch (e) {
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The template could not be saved.')
+			} finally {
+				this.savingTemplate = false
 			}
 		},
 

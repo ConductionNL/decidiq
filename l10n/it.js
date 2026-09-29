@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Impossibile scrivere la bozza nel verbale.",
         "The minutes of %s are available": "Il verbale di %s è disponibile",
         "Open the minutes in Decidiq to read them.": "Apri il verbale in Decidiq per leggerlo.",
-        "Draft and send": "Bozza e invio"
+        "Draft and send": "Bozza e invio",
+        "Add agenda items": "Aggiungi punti all'ordine del giorno",
+        "Add from template or meeting": "Aggiungi da modello o riunione",
+        "Add to the agenda": "Aggiungi all'ordine del giorno",
+        "Agenda items added: {count}.": "Punti aggiunti: {count}.",
+        "Agenda template": "Modello di ordine del giorno",
+        "Could not load that agenda.": "Impossibile caricare quell'ordine del giorno.",
+        "Could not load the templates and meetings.": "Impossibile caricare modelli e riunioni.",
+        "From a template": "Da un modello",
+        "From an earlier meeting": "Da una riunione precedente",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Scegli i punti da copiare. Se non ne scegli nessuno, viene copiato l'intero ordine del giorno.",
+        "Save as template": "Salva come modello",
+        "Template": "Modello",
+        "That meeting has no agenda items.": "Quella riunione non ha punti all'ordine del giorno.",
+        "The agenda items could not be added.": "Impossibile aggiungere i punti.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "L'ordine del giorno è stato salvato come modello {name}. Rinominalo in Modelli di ordine del giorno nelle impostazioni.",
+        "The template could not be saved.": "Impossibile salvare il modello.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Non ci sono ancora modelli di ordine del giorno. Salva un ordine del giorno come modello o aggiungine uno in Modelli di ordine del giorno nelle impostazioni."
     },
     "nplurals=2; plural=(n != 1);"
 )

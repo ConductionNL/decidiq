@@ -1221,7 +1221,24 @@
         "The draft could not be written into the minutes.": "Utkastet kunne ikke skrives inn i referatet.",
         "The minutes of %s are available": "Referatet fra %s er tilgjengelig",
         "Open the minutes in Decidiq to read them.": "Åpne referatet i Decidiq for å lese det.",
-        "Draft and send": "Utkast og sending"
+        "Draft and send": "Utkast og sending",
+        "Add agenda items": "Legg til saker",
+        "Add from template or meeting": "Legg til fra mal eller møte",
+        "Add to the agenda": "Legg til i sakslisten",
+        "Agenda items added: {count}.": "Saker lagt til: {count}.",
+        "Agenda template": "Mal for saksliste",
+        "Could not load that agenda.": "Kunne ikke laste inn den sakslisten.",
+        "Could not load the templates and meetings.": "Kunne ikke laste inn maler og møter.",
+        "From a template": "Fra en mal",
+        "From an earlier meeting": "Fra et tidligere møte",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Velg sakene som skal kopieres. Velger du ingen, kopieres hele sakslisten.",
+        "Save as template": "Lagre som mal",
+        "Template": "Mal",
+        "That meeting has no agenda items.": "Det møtet har ingen saker.",
+        "The agenda items could not be added.": "Sakene kunne ikke legges til.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Sakslisten ble lagret som malen {name}. Gi den nytt navn under Maler for saksliste i innstillingene.",
+        "The template could not be saved.": "Malen kunne ikke lagres.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Det finnes ingen maler for saksliste ennå. Lagre en saksliste som mal, eller legg til en under Maler for saksliste i innstillingene."
     },
     "plurals": null
 }

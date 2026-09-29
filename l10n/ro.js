@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Ciorna nu a putut fi scrisă în procesul-verbal.",
         "The minutes of %s are available": "Procesul-verbal al %s este disponibil",
         "Open the minutes in Decidiq to read them.": "Deschideți procesul-verbal în Decidiq pentru a-l citi.",
-        "Draft and send": "Ciornă și trimitere"
+        "Draft and send": "Ciornă și trimitere",
+        "Add agenda items": "Adaugă puncte pe ordinea de zi",
+        "Add from template or meeting": "Adaugă din șablon sau ședință",
+        "Add to the agenda": "Adaugă pe ordinea de zi",
+        "Agenda items added: {count}.": "Puncte adăugate: {count}.",
+        "Agenda template": "Șablon de ordine de zi",
+        "Could not load that agenda.": "Ordinea de zi nu a putut fi încărcată.",
+        "Could not load the templates and meetings.": "Șabloanele și ședințele nu au putut fi încărcate.",
+        "From a template": "Din șablon",
+        "From an earlier meeting": "Dintr-o ședință anterioară",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Alegeți punctele de copiat. Fără alegere, se copiază toată ordinea de zi.",
+        "Save as template": "Salvează ca șablon",
+        "Template": "Șablon",
+        "That meeting has no agenda items.": "Ședința nu are puncte pe ordinea de zi.",
+        "The agenda items could not be added.": "Punctele nu au putut fi adăugate.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Ordinea de zi a fost salvată ca șablonul {name}. Redenumiți-l la Șabloane de ordine de zi în setări.",
+        "The template could not be saved.": "Șablonul nu a putut fi salvat.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nu există încă șabloane de ordine de zi. Salvați o ordine de zi ca șablon sau adăugați unul la Șabloane de ordine de zi în setări."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Juodraščio įrašyti į protokolą nepavyko.",
         "The minutes of %s are available": "%s protokolas prieinamas",
         "Open the minutes in Decidiq to read them.": "Atverkite protokolą Decidiq, kad jį perskaitytumėte.",
-        "Draft and send": "Juodraštis ir siuntimas"
+        "Draft and send": "Juodraštis ir siuntimas",
+        "Add agenda items": "Pridėti darbotvarkės klausimų",
+        "Add from template or meeting": "Pridėti iš šablono ar posėdžio",
+        "Add to the agenda": "Pridėti į darbotvarkę",
+        "Agenda items added: {count}.": "Pridėta klausimų: {count}.",
+        "Agenda template": "Darbotvarkės šablonas",
+        "Could not load that agenda.": "Nepavyko įkelti tos darbotvarkės.",
+        "Could not load the templates and meetings.": "Nepavyko įkelti šablonų ir posėdžių.",
+        "From a template": "Iš šablono",
+        "From an earlier meeting": "Iš ankstesnio posėdžio",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Pasirinkite kopijuojamus klausimus. Nieko nepasirinkus, kopijuojama visa darbotvarkė.",
+        "Save as template": "Išsaugoti kaip šabloną",
+        "Template": "Šablonas",
+        "That meeting has no agenda items.": "Tas posėdis neturi darbotvarkės klausimų.",
+        "The agenda items could not be added.": "Nepavyko pridėti klausimų.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Darbotvarkė išsaugota kaip šablonas {name}. Pervadinkite jį nustatymų skiltyje Darbotvarkės šablonai.",
+        "The template could not be saved.": "Šablono išsaugoti nepavyko.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Darbotvarkės šablonų dar nėra. Išsaugokite darbotvarkę kaip šabloną arba pridėkite jį nustatymų skiltyje Darbotvarkės šablonai."
     },
     "nplurals=2; plural=(n != 1);"
 )

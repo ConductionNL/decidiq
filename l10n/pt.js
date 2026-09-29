@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Não foi possível escrever o rascunho na ata.",
         "The minutes of %s are available": "A ata de %s está disponível",
         "Open the minutes in Decidiq to read them.": "Abra a ata no Decidiq para a ler.",
-        "Draft and send": "Rascunho e envio"
+        "Draft and send": "Rascunho e envio",
+        "Add agenda items": "Adicionar pontos da ordem de trabalhos",
+        "Add from template or meeting": "Adicionar a partir de modelo ou reunião",
+        "Add to the agenda": "Adicionar à ordem de trabalhos",
+        "Agenda items added: {count}.": "Pontos adicionados: {count}.",
+        "Agenda template": "Modelo de ordem de trabalhos",
+        "Could not load that agenda.": "Não foi possível carregar essa ordem de trabalhos.",
+        "Could not load the templates and meetings.": "Não foi possível carregar os modelos e as reuniões.",
+        "From a template": "A partir de um modelo",
+        "From an earlier meeting": "A partir de uma reunião anterior",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Escolha os pontos a copiar. Sem escolha, é copiada toda a ordem de trabalhos.",
+        "Save as template": "Guardar como modelo",
+        "Template": "Modelo",
+        "That meeting has no agenda items.": "Essa reunião não tem pontos na ordem de trabalhos.",
+        "The agenda items could not be added.": "Não foi possível adicionar os pontos.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "A ordem de trabalhos foi guardada como o modelo {name}. Mude-lhe o nome em Modelos de ordem de trabalhos nas definições.",
+        "The template could not be saved.": "Não foi possível guardar o modelo.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Ainda não há modelos de ordem de trabalhos. Guarde uma ordem de trabalhos como modelo ou adicione um em Modelos de ordem de trabalhos nas definições."
     },
     "nplurals=2; plural=(n != 1);"
 )

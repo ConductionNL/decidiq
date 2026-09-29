@@ -1221,7 +1221,24 @@
         "The draft could not be written into the minutes.": "Melnrakstu neizdevās ierakstīt protokolā.",
         "The minutes of %s are available": "%s protokols ir pieejams",
         "Open the minutes in Decidiq to read them.": "Atveriet protokolu Decidiq, lai to izlasītu.",
-        "Draft and send": "Melnraksts un nosūtīšana"
+        "Draft and send": "Melnraksts un nosūtīšana",
+        "Add agenda items": "Pievienot darba kārtības punktus",
+        "Add from template or meeting": "Pievienot no veidnes vai sēdes",
+        "Add to the agenda": "Pievienot darba kārtībai",
+        "Agenda items added: {count}.": "Pievienoti punkti: {count}.",
+        "Agenda template": "Darba kārtības veidne",
+        "Could not load that agenda.": "Šo darba kārtību neizdevās ielādēt.",
+        "Could not load the templates and meetings.": "Veidnes un sēdes neizdevās ielādēt.",
+        "From a template": "No veidnes",
+        "From an earlier meeting": "No iepriekšējas sēdes",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Izvēlieties kopējamos punktus. Ja nekas nav izvēlēts, tiek kopēta visa darba kārtība.",
+        "Save as template": "Saglabāt kā veidni",
+        "Template": "Veidne",
+        "That meeting has no agenda items.": "Šai sēdei nav darba kārtības punktu.",
+        "The agenda items could not be added.": "Punktus neizdevās pievienot.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Darba kārtība saglabāta kā veidne {name}. Pārdēvējiet to iestatījumos sadaļā Darba kārtības veidnes.",
+        "The template could not be saved.": "Veidni neizdevās saglabāt.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Darba kārtības veidņu vēl nav. Saglabājiet darba kārtību kā veidni vai pievienojiet to iestatījumos sadaļā Darba kārtības veidnes."
     },
     "plurals": null
 }

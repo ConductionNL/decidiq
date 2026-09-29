@@ -1221,7 +1221,24 @@
         "The draft could not be written into the minutes.": "Ekki tókst að skrifa drögin inn í fundargerðina.",
         "The minutes of %s are available": "Fundargerð %s er tilbúin",
         "Open the minutes in Decidiq to read them.": "Opnaðu fundargerðina í Decidiq til að lesa hana.",
-        "Draft and send": "Drög og sending"
+        "Draft and send": "Drög og sending",
+        "Add agenda items": "Bæta við dagskrárliðum",
+        "Add from template or meeting": "Bæta við úr sniðmáti eða fundi",
+        "Add to the agenda": "Bæta á dagskrá",
+        "Agenda items added: {count}.": "Liðum bætt við: {count}.",
+        "Agenda template": "Dagskrársniðmát",
+        "Could not load that agenda.": "Ekki tókst að hlaða þeirri dagskrá.",
+        "Could not load the templates and meetings.": "Ekki tókst að hlaða sniðmátum og fundum.",
+        "From a template": "Úr sniðmáti",
+        "From an earlier meeting": "Úr fyrri fundi",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Veldu liðina sem á að afrita. Ef ekkert er valið er öll dagskráin afrituð.",
+        "Save as template": "Vista sem sniðmát",
+        "Template": "Sniðmát",
+        "That meeting has no agenda items.": "Sá fundur hefur enga dagskrárliði.",
+        "The agenda items could not be added.": "Ekki tókst að bæta liðunum við.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Dagskráin var vistuð sem sniðmátið {name}. Endurnefndu það undir Dagskrársniðmát í stillingum.",
+        "The template could not be saved.": "Ekki tókst að vista sniðmátið.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Engin dagskrársniðmát eru til enn. Vistaðu dagskrá sem sniðmát eða bættu einu við undir Dagskrársniðmát í stillingum."
     },
     "plurals": null
 }

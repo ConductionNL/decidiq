@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Nie udało się wpisać szkicu do protokołu.",
         "The minutes of %s are available": "Protokół z %s jest dostępny",
         "Open the minutes in Decidiq to read them.": "Otwórz protokół w Decidiq, aby go przeczytać.",
-        "Draft and send": "Szkic i wysyłka"
+        "Draft and send": "Szkic i wysyłka",
+        "Add agenda items": "Dodaj punkty porządku obrad",
+        "Add from template or meeting": "Dodaj z szablonu lub posiedzenia",
+        "Add to the agenda": "Dodaj do porządku obrad",
+        "Agenda items added: {count}.": "Dodane punkty: {count}.",
+        "Agenda template": "Szablon porządku obrad",
+        "Could not load that agenda.": "Nie udało się wczytać tego porządku obrad.",
+        "Could not load the templates and meetings.": "Nie udało się wczytać szablonów i posiedzeń.",
+        "From a template": "Z szablonu",
+        "From an earlier meeting": "Z wcześniejszego posiedzenia",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Wybierz punkty do skopiowania. Bez wyboru kopiowany jest cały porządek obrad.",
+        "Save as template": "Zapisz jako szablon",
+        "Template": "Szablon",
+        "That meeting has no agenda items.": "To posiedzenie nie ma punktów porządku obrad.",
+        "The agenda items could not be added.": "Nie udało się dodać punktów.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Porządek obrad zapisano jako szablon {name}. Zmień jego nazwę w Szablonach porządku obrad w ustawieniach.",
+        "The template could not be saved.": "Nie udało się zapisać szablonu.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nie ma jeszcze szablonów porządku obrad. Zapisz porządek obrad jako szablon lub dodaj go w Szablonach porządku obrad w ustawieniach."
     },
     "nplurals=2; plural=(n != 1);"
 )

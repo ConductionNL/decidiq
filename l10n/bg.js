@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Черновата не можа да бъде записана в протокола.",
         "The minutes of %s are available": "Протоколът от %s е наличен",
         "Open the minutes in Decidiq to read them.": "Отворете протокола в Decidiq, за да го прочетете.",
-        "Draft and send": "Чернова и изпращане"
+        "Draft and send": "Чернова и изпращане",
+        "Add agenda items": "Добави точки от дневния ред",
+        "Add from template or meeting": "Добави от шаблон или заседание",
+        "Add to the agenda": "Добави към дневния ред",
+        "Agenda items added: {count}.": "Добавени точки: {count}.",
+        "Agenda template": "Шаблон на дневен ред",
+        "Could not load that agenda.": "Този дневен ред не можа да бъде зареден.",
+        "Could not load the templates and meetings.": "Шаблоните и заседанията не можаха да бъдат заредени.",
+        "From a template": "От шаблон",
+        "From an earlier meeting": "От предишно заседание",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Изберете точките за копиране. Ако не изберете нищо, се копира целият дневен ред.",
+        "Save as template": "Запази като шаблон",
+        "Template": "Шаблон",
+        "That meeting has no agenda items.": "Това заседание няма точки от дневния ред.",
+        "The agenda items could not be added.": "Точките не можаха да бъдат добавени.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Дневният ред е запазен като шаблона {name}. Преименувайте го в Шаблони на дневен ред в настройките.",
+        "The template could not be saved.": "Шаблонът не можа да бъде запазен.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Все още няма шаблони на дневен ред. Запазете дневен ред като шаблон или добавете такъв в Шаблони на дневен ред в настройките."
     },
     "nplurals=2; plural=(n != 1);"
 )

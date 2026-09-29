@@ -1222,7 +1222,24 @@ OC.L10N.register(
         "The draft could not be written into the minutes.": "Taslak tutanağa yazılamadı.",
         "The minutes of %s are available": "%s tutanağı hazır",
         "Open the minutes in Decidiq to read them.": "Okumak için tutanağı Decidiq'te açın.",
-        "Draft and send": "Taslak ve gönderim"
+        "Draft and send": "Taslak ve gönderim",
+        "Add agenda items": "Gündem maddesi ekle",
+        "Add from template or meeting": "Şablondan veya toplantıdan ekle",
+        "Add to the agenda": "Gündeme ekle",
+        "Agenda items added: {count}.": "Eklenen maddeler: {count}.",
+        "Agenda template": "Gündem şablonu",
+        "Could not load that agenda.": "O gündem yüklenemedi.",
+        "Could not load the templates and meetings.": "Şablonlar ve toplantılar yüklenemedi.",
+        "From a template": "Bir şablondan",
+        "From an earlier meeting": "Önceki bir toplantıdan",
+        "Pick the items to copy. With none picked, the whole agenda is copied.": "Kopyalanacak maddeleri seçin. Hiçbiri seçilmezse tüm gündem kopyalanır.",
+        "Save as template": "Şablon olarak kaydet",
+        "Template": "Şablon",
+        "That meeting has no agenda items.": "O toplantının gündem maddesi yok.",
+        "The agenda items could not be added.": "Gündem maddeleri eklenemedi.",
+        "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Gündem {name} şablonu olarak kaydedildi. Ayarlardaki Gündem şablonları bölümünden yeniden adlandırın.",
+        "The template could not be saved.": "Şablon kaydedilemedi.",
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Henüz gündem şablonu yok. Bir gündemi şablon olarak kaydedin veya ayarlardaki Gündem şablonları bölümünden ekleyin."
     },
     "nplurals=2; plural=(n != 1);"
 )
