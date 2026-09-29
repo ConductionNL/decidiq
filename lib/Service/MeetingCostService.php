@@ -295,7 +295,7 @@ class MeetingCostService {
 	 * @return int Attendee count (>= 0)
 	 *
 	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
-	 * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
 	private function countAttendees(iterable $results, string $bodyId, array $statuses): int {
 		$members = 0;

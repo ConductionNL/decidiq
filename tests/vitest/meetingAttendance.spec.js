@@ -3,7 +3,7 @@
 //
 // Attendance is recorded per meeting (meeting-attendance-per-meeting, pla-09).
 //
-// @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+// @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 // @e2e tests/e2e/meeting-attendance-per-meeting.spec.ts
 
 import { readFileSync } from 'node:fs'

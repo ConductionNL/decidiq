@@ -138,12 +138,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
+		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
 		meetingId() {
 			return String(this.objectId || '')
 		},
 
-		/** @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
+		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
 		rows() {
 			return attendanceRows(
 				this.members,
@@ -153,7 +153,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
+		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
 		tableRows() {
 			return this.rows.map((row) => ({
 				...row,
@@ -194,7 +194,7 @@ export default {
 		/**
 		 * @param {string} status The attendance status
 		 * @return {string} The label
-		 * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+		 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 		 */
 		statusLabel(status) {
 			return (
@@ -210,7 +210,7 @@ export default {
 		/**
 		 * @param {object} row The widget row
 		 * @return {Array<object>} The row actions
-		 * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+		 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 		 */
 		actionsFor(row) {
 			const set = (status) => () => this.setStatus(row, status)
@@ -250,7 +250,7 @@ export default {
 			return actions
 		},
 
-		/** @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
+		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
 		async refresh() {
 			if (!this.meetingId) return
 			this.loading = true
@@ -287,7 +287,7 @@ export default {
 		/**
 		 * @param {object} payload The attendance object
 		 * @return {Promise<object>} The saved object
-		 * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+		 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 		 */
 		async saveRecord(payload) {
 			const store = ensureRelationType(ATTENDANCE)
@@ -297,7 +297,7 @@ export default {
 		/**
 		 * @param {object} row The widget row
 		 * @param {string} status The attendance status
-		 * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+		 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 		 */
 		async setStatus(row, status) {
 			this.saving = true
@@ -321,7 +321,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
+		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
 		async markEveryonePresent() {
 			this.saving = true
 			this.error = ''
@@ -365,7 +365,7 @@ export default {
 		 * A guest joins this meeting as present.
 		 *
 		 * @param {object} participant The participant picked in the dialog
-		 * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+		 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 		 */
 		async linkParticipant(participant) {
 			this.addDialogOpen = false
@@ -375,7 +375,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
+		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */
 		async confirmRemove() {
 			const store = ensureRelationType(ATTENDANCE)
 			const record = this.removeTarget?.attendanceRecord

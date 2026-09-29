@@ -5,7 +5,7 @@
 // meeting-attendance object records one participant at one meeting, so
 // marking Anna excused on 14 October leaves her 7 October record alone.
 //
-// @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+// @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 
 /** The statuses the meeting-attendance schema accepts. */
 export const ATTENDANCE_STATUSES = ['present', 'absent', 'excused', 'proxy']
@@ -15,7 +15,7 @@ export const ATTENDANCE_STATUSES = ['present', 'absent', 'excused', 'proxy']
  *
  * @param {string|object|null} ref The reference
  * @return {string} The uuid, or ''
- * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+ * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
  */
 export function refId(ref) {
 	if (!ref) return ''
@@ -30,7 +30,7 @@ export function refId(ref) {
  * @param {string} meetingId The meeting UUID
  * @param {string} participantId The participant UUID
  * @return {object|null} The record, or null
- * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+ * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
  */
 export function recordFor(records, meetingId, participantId) {
 	return (
@@ -52,7 +52,7 @@ export function recordFor(records, meetingId, participantId) {
  * @param {string} meetingId The meeting UUID
  * @param {Array<object>} everyone All participants, to name guests
  * @return {Array<object>} Rows with status and record
- * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+ * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
  */
 export function attendanceRows(members, records, meetingId, everyone = []) {
 	const own = (records || []).filter((r) => refId(r.meeting) === meetingId)
@@ -87,7 +87,7 @@ export function attendanceRows(members, records, meetingId, everyone = []) {
  * @param {string} input.status One of ATTENDANCE_STATUSES
  * @param {string} input.now ISO timestamp for the arrival
  * @return {object} The attendance object
- * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+ * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
  */
 export function attendancePayload(
 	existing,
@@ -115,7 +115,7 @@ export function attendancePayload(
  * @param {string} meetingId The meeting UUID
  * @param {string} now ISO timestamp for the arrival
  * @return {Array<object>} Attendance objects to save
- * @spec openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+ * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
  */
 export function everyonePresent(rows, meetingId, now) {
 	return (rows || [])

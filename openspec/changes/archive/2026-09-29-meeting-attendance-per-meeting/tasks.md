@@ -7,16 +7,16 @@
 - **files**: `lib/Settings/register.d/`, `src/components/tabs/MeetingParticipantsTab.vue`
 - **acceptance_criteria**:
   - GIVEN a meeting with 5 participants WHEN the clerk marks Anna as sent apologies THEN an attendance record for this meeting says excused and earlier meetings keep theirs
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Report reads per-meeting attendance
 - **spec_ref**: `openspec/changes/meeting-attendance-per-meeting/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting`
 - **files**: `src/manifest.json`
 - **acceptance_criteria**:
   - GIVEN two meetings with different attendance WHEN the report opens THEN each meeting counts its own absentees
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 
