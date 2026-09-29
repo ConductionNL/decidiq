@@ -92,7 +92,10 @@ export default {
 	},
 
 	computed: {
-		/** @return {string} The record UUID */
+		/**
+		 * @return {string} The record UUID
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+		 */
 		subjectId() {
 			return String(this.objectId || this.$route?.params?.id || '')
 		},
@@ -190,6 +193,7 @@ export default {
 		/**
 		 * @param {object} row A declaration
 		 * @return {string} Who declared
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 		 */
 		memberName(row) {
 			return (
@@ -200,6 +204,7 @@ export default {
 		/**
 		 * @param {string} type The declaration type
 		 * @return {string} Its label
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 		 */
 		typeLabel(type) {
 			const labels = {
@@ -250,7 +255,11 @@ export default {
 			}
 		},
 
-		/** Close the dialog and forget its error. */
+		/**
+		 * Close the dialog and forget its error.
+		 *
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+		 */
 		closeDialog() {
 			this.dialogOpen = false
 			this.postError = ''

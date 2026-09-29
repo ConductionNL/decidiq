@@ -44,6 +44,7 @@ export function declarationPayload({
  *
  * @param {string|object|null} ref The reference
  * @return {string} The uuid, or ''
+ * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
  */
 export function refId(ref) {
 	if (!ref) return ''
