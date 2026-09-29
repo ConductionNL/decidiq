@@ -177,6 +177,30 @@
 				}}
 			</CnNoteCard>
 
+			<div class="decidiq-transcription__use">
+				<NcButton
+					variant="primary"
+					data-testid="draft-use-as-minutes"
+					:disabled="working || keptCount === 0"
+					@click="useAsMinutes">
+					{{ t('decidiq', 'Use as minutes') }}
+				</NcButton>
+				<span class="decidiq-transcription__use-hint">
+					{{
+						t(
+							'decidiq',
+							'Kept sections that go into the minutes of this meeting: {count}',
+							{ count: keptCount },
+						)
+					}}
+				</span>
+			</div>
+			<CnNoteCard
+				v-if="usedNotice"
+				type="success"
+				data-testid="draft-used-notice"
+				:title="usedNotice" />
+
 			<div
 				v-for="(section, idx) in draft.sections"
 				:key="idx"
@@ -261,6 +285,11 @@ import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextArea } from '@nextcloud/vue'
 import TranscriptionConsentModal from '../../modals/TranscriptionConsentModal.vue'
+import {
+	keptSections,
+	minutesFromAiDraft,
+	newMinutesFor,
+} from '../../utils/minutesDraft.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -307,11 +336,22 @@ export default {
 			transcript: null,
 			agendaTitles: {},
 			draft: null,
+			usedNotice: '',
 			consentOpen: false,
 		}
 	},
 
 	computed: {
+		/**
+		 * How many sections of the AI draft the secretary kept.
+		 *
+		 * @return {number} The kept count
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 */
+		keptCount() {
+			return keptSections(this.draft).length
+		},
+
 		/**
 		 * The meeting this panel acts on: the explicit `objectId` prop when
 		 * mounted directly, otherwise the id CnDetailPage provides on
@@ -571,6 +611,60 @@ export default {
 		},
 
 		/**
+		 * Write the kept sections of the AI draft into this meeting's minutes:
+		 * the draft minutes if there are any, else a new draft record.
+		 * Minutes past the draft stage are not overwritten.
+		 *
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 */
+		async useAsMinutes() {
+			const meetingId = this.resolvedObjectId
+			if (!meetingId || !this.draft) return
+			this.working = true
+			this.error = ''
+			this.usedNotice = ''
+			try {
+				const store = ensureRelationType('minutes')
+				const found = await store.fetchCollection('minutes', {
+					meeting: meetingId,
+					_limit: 20,
+				})
+				const refOf = (ref) =>
+					ref && typeof ref === 'object' ? ref.id || ref.uuid : ref
+				let minutes = (found || []).find(
+					(m) => refOf(m.meeting) === meetingId,
+				)
+				if (minutes && (minutes.lifecycle || 'draft') !== 'draft') {
+					this.error = this.t(
+						'decidiq',
+						'The minutes of this meeting are past the draft stage, so the AI draft was not written into them.',
+					)
+					return
+				}
+				if (!minutes) {
+					minutes = newMinutesFor(meetingId, this.t('decidiq', 'Minutes'))
+				}
+				await store.saveObject(
+					'minutes',
+					minutesFromAiDraft(minutes, this.draft),
+				)
+				this.usedNotice = this.t(
+					'decidiq',
+					'The kept sections are in the minutes. Open the minutes to review them.',
+				)
+			} catch (e) {
+				this.error =
+					e?.message
+					|| this.t(
+						'decidiq',
+						'The draft could not be written into the minutes.',
+					)
+			} finally {
+				this.working = false
+			}
+		},
+
+		/**
 		 * Discard a generated section (removes its AI content + marker).
 		 *
 		 * @param {object} section The draft section.
@@ -630,6 +724,18 @@ export default {
 </script>
 
 <style scoped>
+.decidiq-transcription__use {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--default-grid-baseline);
+	margin-block: var(--default-grid-baseline);
+}
+
+.decidiq-transcription__use-hint {
+	color: var(--color-text-maxcontrast);
+}
+
 .decidiq-tab {
 	display: flex;
 	flex-direction: column;

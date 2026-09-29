@@ -118,8 +118,9 @@ class MinutesGenerationService {
 			);
 		}
 
-		// Fetch related entities for the Meeting.
-		$meetingId = $meeting['id'] ?? '';
+		// Fetch related entities for the Meeting. getObject() carries the
+		// properties only, so the id falls back to the minutes' reference.
+		$meetingId = (string)($meeting['id'] ?? $this->meetingRefId(minutes: $minutes));
 		$agendaItems = $this->fetchRelatedObjects(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
 		// ADR-005: motions are `decision` objects selected by the decisionType
 		// discriminator; the `motion` schema no longer exists.
@@ -146,10 +147,71 @@ class MinutesGenerationService {
 			agendaItems: $agendaItems,
 			motions: $motions,
 			votingRounds: $votingRounds,
-			decisions: $decisions
+			decisions: $decisions,
+			attendance: $this->attendance(objectService: $objectService, meetingId: $meetingId)
 		);
 
 	}//end generateDraft()
+
+	/**
+	 * The meeting's attendance as names with status, from its
+	 * meeting-attendance records (meeting-attendance-per-meeting).
+	 *
+	 * @param object $objectService The OpenRegister object service
+	 * @param string $meetingId     The meeting UUID
+	 *
+	 * @return array<int,array{name:string,status:string}>
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 */
+	private function attendance(object $objectService, string $meetingId): array {
+		$statuses = (new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger))->statusesFor(meetingId: $meetingId);
+		if ($statuses === []) {
+			return [];
+		}
+
+		$names = [];
+		try {
+			$participants = $objectService->findAll(['filters' => ['register' => 'decidiq', 'schema' => 'participant'], 'limit' => 1000]);
+		} catch (Throwable) {
+			$participants = [];
+		}
+
+		foreach ($participants as $participant) {
+			$data = (array)$participant->jsonSerialize();
+			$names[(string)($data['id'] ?? '')] = (string)($data['displayName'] ?? '');
+		}
+
+		$rows = [];
+		foreach ($statuses as $participantId => $status) {
+			$name = ($names[$participantId] ?? '');
+			if ($name === '') {
+				$name = $participantId;
+			}
+
+			$rows[] = ['name' => $name, 'status' => $status];
+		}
+
+		return $rows;
+
+	}//end attendance()
+
+	/**
+	 * The meeting id the minutes reference, bare or expanded.
+	 *
+	 * @param array<string,mixed> $minutes The minutes data
+	 *
+	 * @return string
+	 */
+	private function meetingRefId(array $minutes): string {
+		$ref = ($minutes['meeting'] ?? $minutes['relations']['meeting'] ?? '');
+		if (is_array($ref) === true) {
+			$ref = ($ref['id'] ?? $ref['uuid'] ?? '');
+		}
+
+		return (string)$ref;
+
+	}//end meetingRefId()
 
 	/**
 	 * Transition a Minutes object to the next lifecycle state (server-side enforcement).

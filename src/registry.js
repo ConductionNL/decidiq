@@ -61,6 +61,7 @@ import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
 import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
+import MinutesActionsTab from './components/tabs/MinutesActionsTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
 import MinutesItemNotesTab from './components/tabs/MinutesItemNotesTab.vue'
@@ -247,6 +248,7 @@ export default {
 	// Visual diff against the parent motion text (motion-amendment spec).
 	AmendmentDiffTab: page(AmendmentDiffTab),
 	MinutesSignersTab: page(MinutesSignersTab),
+	MinutesActionsTab: page(MinutesActionsTab),
 	// signing-external-service-with-order (min-17): the same Signers widget on
 	// motions and on a meeting's decision list.
 	MotionSignersTab: page(MotionSignersTab),

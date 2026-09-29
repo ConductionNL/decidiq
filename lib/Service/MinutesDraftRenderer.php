@@ -50,10 +50,12 @@ class MinutesDraftRenderer {
 	 * @param array<int,array<string,mixed>> $motions Motions from the meeting
 	 * @param array<int,array<string,mixed>> $votingRounds VotingRounds from the meeting
 	 * @param array<int,array<string,mixed>> $decisions Decisions from the meeting
+	 * @param array<int,array{name:string,status:string}> $attendance Who attended, with this meeting's status (min-01)
 	 *
 	 * @return string The rendered Dutch minutes text
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 	 */
 	public function render(
 		array $minutes,
@@ -62,6 +64,7 @@ class MinutesDraftRenderer {
 		array $motions,
 		array $votingRounds,
 		array $decisions,
+		array $attendance=[],
 	): string {
 		$lines = $this->headerLines(minutes: $minutes, meeting: $meeting);
 
@@ -70,6 +73,7 @@ class MinutesDraftRenderer {
 		$sectionNumber = 1;
 
 		$sections = [
+			$this->attendanceSection(attendance: $attendance),
 			$this->agendaSection(agendaItems: $agendaItems),
 			$this->treatmentSection(agendaItems: $agendaItems),
 			$this->motionSection(motions: $motions),
@@ -136,6 +140,51 @@ class MinutesDraftRenderer {
 
 		return $lines;
 	}//end headerLines()
+
+	/**
+	 * Build the "Aanwezigheid" section: who was present, sent apologies,
+	 * was absent or was represented, each group with its count.
+	 *
+	 * @param array<int,array{name:string,status:string}> $attendance Who attended
+	 *
+	 * @return array{title:string,body:array<int,string>}|null The section, or null when no attendance was recorded
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 */
+	private function attendanceSection(array $attendance): ?array {
+		$labels = [
+			'present' => 'Aanwezig',
+			'excused' => 'Afgemeld',
+			'absent' => 'Afwezig',
+			'proxy' => 'Vertegenwoordigd met volmacht',
+		];
+
+		$groups = [];
+		foreach ($attendance as $row) {
+			$status = (string)($row['status'] ?? '');
+			if (isset($labels[$status]) === true) {
+				$groups[$status][] = (string)($row['name'] ?? '');
+			}
+		}
+
+		if ($groups === []) {
+			return null;
+		}
+
+		$body = [];
+		foreach ($labels as $status => $label) {
+			if (isset($groups[$status]) === true) {
+				$body[] = sprintf('%s (%d): %s', $label, count($groups[$status]), implode(', ', $groups[$status]));
+				$body[] = '';
+			}
+		}
+
+		return [
+			'title' => 'Aanwezigheid',
+			'body' => $body,
+		];
+
+	}//end attendanceSection()
 
 	/**
 	 * Build the "Agenda" section listing the agenda items.
