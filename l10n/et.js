@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Sihtrühmad",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Kellele seda liiki koosolekud on mõeldud. Koosolekute kalender filtreerib selle järgi.",
         "Where the meeting takes place, as residents read it on the calendar.": "Kus koosolek toimub, nagu elanikud seda kalendrist loevad.",
-        "Who the meeting is for, taken from its kind of meeting.": "Kellele koosolek on mõeldud, võetud koosoleku liigist."
+        "Who the meeting is for, taken from its kind of meeting.": "Kellele koosolek on mõeldud, võetud koosoleku liigist.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Avaldatud juhtimistulemuse liik või avaliku koosoleku kalendrikirje.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Mis avaldati: päevakord, otsus, protokoll või kalendrikirje. Kodanikud filtreerivad selle järgi."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1345,7 +1345,9 @@
         "Audiences": "Públicos",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "A quem se destinam as reuniões deste tipo. O calendário de reuniões filtra por isso.",
         "Where the meeting takes place, as residents read it on the calendar.": "Onde decorre a reunião, tal como os residentes o leem no calendário.",
-        "Who the meeting is for, taken from its kind of meeting.": "A quem se destina a reunião, retirado do seu tipo de reunião."
+        "Who the meeting is for, taken from its kind of meeting.": "A quem se destina a reunião, retirado do seu tipo de reunião.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "O tipo de resultado de governação publicado, ou uma entrada de calendário para uma reunião pública.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "O que foi publicado: uma ordem de trabalhos, uma decisão, uma ata ou uma entrada de calendário. Os cidadãos filtram por isso."
     },
     "plurals": null
 }

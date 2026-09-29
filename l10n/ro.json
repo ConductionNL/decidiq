@@ -1345,7 +1345,9 @@
         "Audiences": "Publicuri",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Cui se adresează ședințele de acest tip. Calendarul ședințelor filtrează după asta.",
         "Where the meeting takes place, as residents read it on the calendar.": "Unde are loc ședința, așa cum o citesc locuitorii în calendar.",
-        "Who the meeting is for, taken from its kind of meeting.": "Cui se adresează ședința, preluat din tipul ședinței."
+        "Who the meeting is for, taken from its kind of meeting.": "Cui se adresează ședința, preluat din tipul ședinței.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Tipul de rezultat de guvernanță publicat sau o intrare în calendar pentru o ședință publică.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Ce s-a publicat: o ordine de zi, o decizie, un proces-verbal sau o intrare în calendar. Cetățenii filtrează după aceasta."
     },
     "plurals": null
 }

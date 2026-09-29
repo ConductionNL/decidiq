@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Audiencat",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Për kë janë mbledhjet e këtij lloji. Kalendari i mbledhjeve filtron sipas tij.",
         "Where the meeting takes place, as residents read it on the calendar.": "Ku zhvillohet mbledhja, siç e lexojnë banorët në kalendar.",
-        "Who the meeting is for, taken from its kind of meeting.": "Për kë është mbledhja, marrë nga lloji i mbledhjes."
+        "Who the meeting is for, taken from its kind of meeting.": "Për kë është mbledhja, marrë nga lloji i mbledhjes.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Lloji i rezultatit të qeverisjes së publikuar, ose një hyrje kalendari për një mbledhje publike.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Çfarë u publikua: një rend dite, një vendim, një procesverbal ose një hyrje kalendari. Qytetarët filtrojnë sipas saj."
     },
     "nplurals=2; plural=(n != 1);"
 )

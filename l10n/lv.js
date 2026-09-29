@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Mērķauditorijas",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Kam paredzētas šāda veida sēdes. Sēžu kalendārs filtrē pēc tā.",
         "Where the meeting takes place, as residents read it on the calendar.": "Kur notiek sēde, kā iedzīvotāji to redz kalendārā.",
-        "Who the meeting is for, taken from its kind of meeting.": "Kam paredzēta sēde, ņemts no sēdes veida."
+        "Who the meeting is for, taken from its kind of meeting.": "Kam paredzēta sēde, ņemts no sēdes veida.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Publicētā pārvaldības rezultāta veids vai atklātas sēdes kalendāra ieraksts.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Kas publicēts: darba kārtība, lēmums, protokols vai kalendāra ieraksts. Iedzīvotāji filtrē pēc tā."
     },
     "nplurals=2; plural=(n != 1);"
 )

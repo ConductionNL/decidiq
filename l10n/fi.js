@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Kohderyhmät",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Kenelle tämän lajin kokoukset on tarkoitettu. Kokouskalenteri suodattaa sen mukaan.",
         "Where the meeting takes place, as residents read it on the calendar.": "Missä kokous pidetään, kuten asukkaat sen kalenterista lukevat.",
-        "Who the meeting is for, taken from its kind of meeting.": "Kenelle kokous on tarkoitettu, otettu kokouksen lajista."
+        "Who the meeting is for, taken from its kind of meeting.": "Kenelle kokous on tarkoitettu, otettu kokouksen lajista.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Julkaistun hallintotuotoksen laji tai julkisen kokouksen kalenterimerkintä.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Mitä julkaistiin: esityslista, päätös, pöytäkirja tai kalenterimerkintä. Asukkaat suodattavat sen mukaan."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1345,7 +1345,9 @@
         "Audiences": "Lucht féachana",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Cé dóibh na cruinnithe den chineál seo. Scagann féilire na gcruinnithe air.",
         "Where the meeting takes place, as residents read it on the calendar.": "Cá háit a mbíonn an cruinniú, mar a léann cónaitheoirí é ar an bhféilire.",
-        "Who the meeting is for, taken from its kind of meeting.": "Cé dó an cruinniú, bunaithe ar a chineál cruinnithe."
+        "Who the meeting is for, taken from its kind of meeting.": "Cé dó an cruinniú, bunaithe ar a chineál cruinnithe.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "An cineál aschur rialachais a foilsíodh, nó iontráil féilire do chruinniú poiblí.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Cad a foilsíodh: clár oibre, cinneadh, miontuairiscí nó iontráil féilire. Scagann saoránaigh air."
     },
     "plurals": null
 }

@@ -14,7 +14,13 @@
 /**
  * The audiences a kind of meeting can declare, in display order.
  */
-export const AUDIENCES = ['council', 'executive', 'joint-arrangement', 'residents', 'staff']
+export const AUDIENCES = [
+	'council',
+	'executive',
+	'joint-arrangement',
+	'residents',
+	'staff',
+]
 
 /**
  * The option that shows meetings whose type declares no audience.
@@ -57,7 +63,10 @@ export function gridRange(year, month) {
  */
 export function typesFor(types, audience) {
 	return (types || [])
-		.filter((type) => Array.isArray(type.audiences) && type.audiences.includes(audience))
+		.filter(
+			(type) =>
+				Array.isArray(type.audiences) && type.audiences.includes(audience),
+		)
 		.map((type) => type.id ?? type['@self']?.id)
 		.filter(Boolean)
 }
@@ -74,7 +83,13 @@ export function typesFor(types, audience) {
  * @return {object|null} Params for fetchCollection, or null when the audience matches no type.
  * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
  */
-export function calendarParams({ year, month, audience = '', body = '', types = [] }) {
+export function calendarParams({
+	year,
+	month,
+	audience = '',
+	body = '',
+	types = [],
+}) {
 	const { from, to } = gridRange(year, month)
 	const params = {
 		'scheduledDate[gte]': from,
@@ -111,7 +126,9 @@ export function withoutAudience(meetings, audience, types) {
 	}
 	const declared = new Set(
 		(types || [])
-			.filter((type) => Array.isArray(type.audiences) && type.audiences.length > 0)
+			.filter(
+				(type) => Array.isArray(type.audiences) && type.audiences.length > 0,
+			)
 			.map((type) => type.id ?? type['@self']?.id),
 	)
 	return meetings.filter((meeting) => !meeting.type || !declared.has(meeting.type))

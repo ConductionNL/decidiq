@@ -15,7 +15,9 @@ import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
 
 // @e2e activity-calendar::a-clerk-looks-at-what-is-on-for-the-executive
-test('the calendar filters on an audience and keeps it in the address', async ({ page }) => {
+test('the calendar filters on an audience and keeps it in the address', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/calendar`)
 	await expect(page.getByTestId('meeting-calendar')).toBeVisible()
 	await page.getByTestId('meeting-calendar-audience').click()
@@ -27,5 +29,7 @@ test('the calendar filters on an audience and keeps it in the address', async ({
 test('No audience set is offered as a filter', async ({ page }) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/meetings/calendar?audience=none`)
 	await expect(page.getByTestId('meeting-calendar')).toBeVisible()
-	await expect(page.getByTestId('meeting-calendar-audience')).toContainText('No audience set')
+	await expect(page.getByTestId('meeting-calendar-audience')).toContainText(
+		'No audience set',
+	)
 })

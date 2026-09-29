@@ -37,7 +37,9 @@ describe('the calendar asks for the visible month (REQ-ACAL-003)', () => {
 		// April 2026 starts on a Wednesday, so the grid starts Monday 30 March.
 		expect(new Date(from).getDate()).toBe(30)
 		expect(new Date(from).getMonth()).toBe(2)
-		expect(new Date(to).getTime() - new Date(from).getTime()).toBe(42 * 24 * 60 * 60 * 1000 - 1)
+		expect(new Date(to).getTime() - new Date(from).getTime()).toBe(
+			42 * 24 * 60 * 60 * 1000 - 1,
+		)
 	})
 
 	it('sends a scheduledDate range and no cap of 500 over all time', () => {
@@ -62,26 +64,49 @@ describe('the calendar asks for the visible month (REQ-ACAL-003)', () => {
 
 describe('the calendar filters by audience and by body (REQ-ACAL-002)', () => {
 	it('asks for the meeting types that carry the chosen audience', () => {
-		expect(calendarParams({ year: 2026, month: 3, audience: 'executive', types }).type).toEqual(['college'])
-		expect(calendarParams({ year: 2026, month: 3, audience: 'residents', types }).type).toEqual(['raad', 'info'])
+		expect(
+			calendarParams({ year: 2026, month: 3, audience: 'executive', types })
+				.type,
+		).toEqual(['college'])
+		expect(
+			calendarParams({ year: 2026, month: 3, audience: 'residents', types })
+				.type,
+		).toEqual(['raad', 'info'])
 	})
 
 	it('passes the body', () => {
-		expect(calendarParams({ year: 2026, month: 3, body: 'body-1', types }).governanceBody).toBe('body-1')
+		expect(
+			calendarParams({ year: 2026, month: 3, body: 'body-1', types })
+				.governanceBody,
+		).toBe('body-1')
 	})
 
 	it('asks nothing when no type carries the audience', () => {
-		expect(calendarParams({ year: 2026, month: 3, audience: 'staff', types })).toBeNull()
+		expect(
+			calendarParams({ year: 2026, month: 3, audience: 'staff', types }),
+		).toBeNull()
 	})
 
 	it('keeps a meeting without a type findable under No audience set', () => {
-		const meetings = [{ id: 'm1', type: 'raad' }, { id: 'm2' }, { id: 'm3', type: 'bare' }]
-		expect(withoutAudience(meetings, NO_AUDIENCE, types).map((m) => m.id)).toEqual(['m2', 'm3'])
+		const meetings = [
+			{ id: 'm1', type: 'raad' },
+			{ id: 'm2' },
+			{ id: 'm3', type: 'bare' },
+		]
+		expect(
+			withoutAudience(meetings, NO_AUDIENCE, types).map((m) => m.id),
+		).toEqual(['m2', 'm3'])
 		expect(withoutAudience(meetings, '', types)).toHaveLength(3)
 	})
 
 	it('knows the five audiences', () => {
-		expect(AUDIENCES).toEqual(['council', 'executive', 'joint-arrangement', 'residents', 'staff'])
+		expect(AUDIENCES).toEqual([
+			'council',
+			'executive',
+			'joint-arrangement',
+			'residents',
+			'staff',
+		])
 	})
 })
 
@@ -94,6 +119,8 @@ describe('staff publish a public meeting to the residents calendar (REQ-ACAL-004
 
 	it('offers it only for a public meeting, which needs no convocation', () => {
 		const actions = read('src/components/tabs/PublicationActionsTab.vue')
-		expect(actions).toMatch(/sourceType === 'activity'\)[\s\S]{0,160}isPublic === true/)
+		expect(actions).toMatch(
+			/sourceType === 'activity'\)[\s\S]{0,160}isPublic === true/,
+		)
 	})
 })

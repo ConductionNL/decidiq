@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Målgrupper",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Hvem møder af denne type er for. Mødekalenderen filtrerer på det.",
         "Where the meeting takes place, as residents read it on the calendar.": "Hvor mødet finder sted, som borgerne læser det i kalenderen.",
-        "Who the meeting is for, taken from its kind of meeting.": "Hvem mødet er for, taget fra mødetypen."
+        "Who the meeting is for, taken from its kind of meeting.": "Hvem mødet er for, taget fra mødetypen.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Den slags styringsresultat, der er offentliggjort, eller en kalenderpost for et offentligt møde.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Hvad der er offentliggjort: en dagsorden, en beslutning, et referat eller en kalenderpost. Borgere filtrerer på det."
     },
     "nplurals=2; plural=(n != 1);"
 )

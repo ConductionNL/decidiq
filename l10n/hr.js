@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Ciljne skupine",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Kome su namijenjene sjednice ove vrste. Kalendar sjednica filtrira prema tome.",
         "Where the meeting takes place, as residents read it on the calendar.": "Gdje se sjednica održava, kako to stanovnici čitaju u kalendaru.",
-        "Who the meeting is for, taken from its kind of meeting.": "Kome je sjednica namijenjena, preuzeto iz vrste sjednice."
+        "Who the meeting is for, taken from its kind of meeting.": "Kome je sjednica namijenjena, preuzeto iz vrste sjednice.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Vrsta objavljenog rezultata upravljanja ili unos u kalendar za javnu sjednicu.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Što je objavljeno: dnevni red, odluka, zapisnik ili unos u kalendar. Građani filtriraju po tome."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -215,10 +215,13 @@ export default {
 		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
 		 */
 		audienceOption: {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 			get() {
 				const id = this.$route?.query?.audience || ''
 				return this.audienceOptions.find((o) => o.id === id) || null
 			},
+
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 			set(option) {
 				this.setQuery('audience', option ? option.id : '')
 			},
@@ -230,10 +233,13 @@ export default {
 		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
 		 */
 		bodyOption: {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 			get() {
 				const id = this.$route?.query?.body || ''
 				return this.bodyOptions.find((o) => o.id === id) || null
 			},
+
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 			set(option) {
 				this.setQuery('body', option ? option.id : '')
 			},
@@ -329,14 +335,22 @@ export default {
 	},
 
 	watch: {
-		'$route.query.audience'() {
-			this.load()
+		'$route.query.audience': {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			handler() {
+				this.load()
+			},
 		},
-		'$route.query.body'() {
-			this.load()
+
+		'$route.query.body': {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			handler() {
+				this.load()
+			},
 		},
 	},
 
+	/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 	async mounted() {
 		const store = useObjectStore()
 		try {

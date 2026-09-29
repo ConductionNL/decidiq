@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Κοινά",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Για ποιους είναι οι συνεδριάσεις αυτού του είδους. Το ημερολόγιο συνεδριάσεων φιλτράρει με βάση αυτό.",
         "Where the meeting takes place, as residents read it on the calendar.": "Πού πραγματοποιείται η συνεδρίαση, όπως το διαβάζουν οι κάτοικοι στο ημερολόγιο.",
-        "Who the meeting is for, taken from its kind of meeting.": "Για ποιους είναι η συνεδρίαση, από το είδος της συνεδρίασης."
+        "Who the meeting is for, taken from its kind of meeting.": "Για ποιους είναι η συνεδρίαση, από το είδος της συνεδρίασης.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Το είδος του αποτελέσματος διακυβέρνησης που δημοσιεύθηκε ή μια καταχώριση ημερολογίου για δημόσια συνεδρίαση.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Τι δημοσιεύθηκε: ημερήσια διάταξη, απόφαση, πρακτικά ή καταχώριση ημερολογίου. Οι πολίτες φιλτράρουν με βάση αυτό."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Auditorijos",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Kam skirti šios rūšies posėdžiai. Posėdžių kalendorius pagal tai filtruoja.",
         "Where the meeting takes place, as residents read it on the calendar.": "Kur vyksta posėdis, kaip gyventojai tai mato kalendoriuje.",
-        "Who the meeting is for, taken from its kind of meeting.": "Kam skirtas posėdis, paimta iš posėdžio rūšies."
+        "Who the meeting is for, taken from its kind of meeting.": "Kam skirtas posėdis, paimta iš posėdžio rūšies.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Paskelbto valdymo rezultato rūšis arba viešo posėdžio kalendoriaus įrašas.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Kas paskelbta: darbotvarkė, sprendimas, protokolas ar kalendoriaus įrašas. Gyventojai filtruoja pagal tai."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -26,6 +26,8 @@
 				"version": "0.3.0",
 				"properties": {
 					"sourceType": {
+						"title": "Source type",
+						"description": "The kind of governance output published, or a calendar entry for a public meeting.",
 						"enum": ["activity"]
 					}
 				}
@@ -35,6 +37,8 @@
 				"version": "0.3.0",
 				"properties": {
 					"documentType": {
+						"title": "Document type",
+						"description": "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.",
 						"enum": ["activity"]
 					},
 					"location": {

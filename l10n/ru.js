@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Аудитории",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Для кого предназначены заседания этого вида. Календарь заседаний фильтрует по этому полю.",
         "Where the meeting takes place, as residents read it on the calendar.": "Где проходит заседание, как жители видят это в календаре.",
-        "Who the meeting is for, taken from its kind of meeting.": "Для кого заседание, взято из его вида."
+        "Who the meeting is for, taken from its kind of meeting.": "Для кого заседание, взято из его вида.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Вид опубликованного управленческого результата или запись календаря об открытом заседании.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Что опубликовано: повестка, решение, протокол или запись календаря. Жители фильтруют по этому полю."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Célcsoportok",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Kinek szólnak az ilyen fajta ülések. Az ülésnaptár ez alapján szűr.",
         "Where the meeting takes place, as residents read it on the calendar.": "Hol tartják az ülést, ahogy a lakosok a naptárban olvassák.",
-        "Who the meeting is for, taken from its kind of meeting.": "Kinek szól az ülés, az ülés fajtájából véve."
+        "Who the meeting is for, taken from its kind of meeting.": "Kinek szól az ülés, az ülés fajtájából véve.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "A közzétett irányítási eredmény fajtája, vagy nyilvános ülés naptárbejegyzése.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Mi jelent meg: napirend, határozat, jegyzőkönyv vagy naptárbejegyzés. A polgárok erre szűrnek."
     },
     "nplurals=2; plural=(n != 1);"
 )

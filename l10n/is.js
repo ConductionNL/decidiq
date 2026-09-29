@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Markhópar",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Fyrir hverja fundir af þessari gerð eru. Fundadagatalið síar eftir því.",
         "Where the meeting takes place, as residents read it on the calendar.": "Hvar fundurinn fer fram, eins og íbúar lesa það í dagatalinu.",
-        "Who the meeting is for, taken from its kind of meeting.": "Fyrir hverja fundurinn er, tekið úr fundargerðinni."
+        "Who the meeting is for, taken from its kind of meeting.": "Fyrir hverja fundurinn er, tekið úr fundargerðinni.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Tegund birtrar stjórnarniðurstöðu, eða dagatalsfærsla fyrir opinn fund.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Hvað var birt: dagskrá, ákvörðun, fundargerð eða dagatalsfærsla. Íbúar sía eftir því."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Hedef kitleler",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "Bu türdeki toplantıların kime yönelik olduğu. Toplantı takvimi buna göre süzer.",
         "Where the meeting takes place, as residents read it on the calendar.": "Toplantının yapıldığı yer, sakinlerin takvimde okuduğu biçimiyle.",
-        "Who the meeting is for, taken from its kind of meeting.": "Toplantının kime yönelik olduğu, toplantı türünden alınır."
+        "Who the meeting is for, taken from its kind of meeting.": "Toplantının kime yönelik olduğu, toplantı türünden alınır.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Yayımlanan yönetişim çıktısının türü veya açık bir toplantı için takvim kaydı.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Ne yayımlandı: bir gündem, bir karar, bir tutanak veya bir takvim kaydı. Vatandaşlar buna göre filtreler."
     },
     "nplurals=2; plural=(n != 1);"
 )

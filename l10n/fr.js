@@ -1346,7 +1346,9 @@ OC.L10N.register(
         "Audiences": "Publics",
         "Who meetings of this kind are for. The meeting calendar filters on it.": "À qui s'adressent les réunions de ce type. Le calendrier des réunions filtre dessus.",
         "Where the meeting takes place, as residents read it on the calendar.": "Où se tient la réunion, tel que les habitants le lisent dans le calendrier.",
-        "Who the meeting is for, taken from its kind of meeting.": "À qui s'adresse la réunion, repris de son type de réunion."
+        "Who the meeting is for, taken from its kind of meeting.": "À qui s'adresse la réunion, repris de son type de réunion.",
+        "The kind of governance output published, or a calendar entry for a public meeting.": "Le type de résultat de gouvernance publié, ou une entrée d'agenda pour une réunion publique.",
+        "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.": "Ce qui a été publié : un ordre du jour, une décision, un procès-verbal ou une entrée d'agenda. Les citoyens filtrent dessus."
     },
     "nplurals=2; plural=(n != 1);"
 )
