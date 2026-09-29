@@ -48,6 +48,33 @@ The system SHALL allow publication only of: `Decision` objects in status `decide
 
 ---
 
+### Requirement: A decision under a confidentiality restriction is never published
+
+Confidentiality of a decision lives in `confidentiality-restriction` objects with scope `decision`, a `targetDecision` and a lifecycle of `imposed`, `ratified` or `dissolved`. Both publication paths, the catalogue publication (`POST /api/publications`) and the decision's own publish action (`POST /api/decisions/{id}/publish`), SHALL read these restrictions in system context before writing anything, and SHALL refuse a decision under an `imposed` or `ratified` restriction. A `dissolved` restriction no longer keeps the decision out. When the restrictions cannot be read, the system SHALL refuse with HTTP 503 and publish nothing.
+
+#### Scenario: A restricted decision reaches no public surface
+
+@e2e exclude refusal contract, covered by PHPUnit DecisionConfidentialityTest::testARestrictedDecisionReachesNoPublicSurface and ::testTheDecisionsOwnPublishActionRefusesARestrictedDecision
+- **GIVEN** a decided decision under an `imposed` or `ratified` restriction
+- **WHEN** a publish request is made for it on either path
+- **THEN** the request is refused, and no payload, publication record, catalogue publication or published flag is written
+
+#### Scenario: A dissolved restriction no longer keeps the decision out
+
+@e2e exclude refusal contract, covered by PHPUnit DecisionConfidentialityTest::testADissolvedRestrictionNoLongerKeepsTheDecisionOut
+- **GIVEN** a decided decision whose only restriction is `dissolved`
+- **WHEN** a publish request is made for it
+- **THEN** the decision is published
+
+#### Scenario: Restrictions that cannot be read publish nothing
+
+@e2e exclude fail-closed contract, covered by PHPUnit DecisionConfidentialityTest::testRestrictionsThatCannotBeReadPublishNothing and ::testTheDecisionsOwnPublishActionFailsClosed
+- **GIVEN** the confidentiality restrictions cannot be read
+- **WHEN** a publish request is made for a decision on either path
+- **THEN** the request is answered with HTTP 503 and nothing is written
+
+---
+
 ### Requirement: Derived publication payloads with PII stripping
 
 Publication SHALL create a derived, immutable payload object per publish action — never set the publication predicate (`publicatiedatum`) on the live `Decision`/`Meeting`/`Minutes` objects. Payloads SHALL be constructed allow-list style (field-by-field): decision payloads carry title, decision text, outcome, decisionDate, legalBasis, body name, and vote totals only; agenda payloads carry meeting metadata and the ordered agenda items with confidential items and their document references stripped; minutes payloads carry the approved content version with attendance rendered per the body's configured policy (counts, or names of role-holders). No payload SHALL contain individual votes, voter identities, NC UIDs, or contact details.
