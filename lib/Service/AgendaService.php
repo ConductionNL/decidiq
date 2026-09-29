@@ -336,7 +336,7 @@ class AgendaService {
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When the item is not on this meeting, or was already adopted as a formality.
+	 * @throws InvalidArgumentException When the item is not on this meeting, or was already adopted as a formality.
 	 *
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
@@ -348,11 +348,11 @@ class AgendaService {
 		}
 
 		if ((string)($item['meeting'] ?? '') !== $meetingId) {
-			throw new \InvalidArgumentException('This agenda item is not on this meeting.');
+			throw new InvalidArgumentException('This agenda item is not on this meeting.');
 		}
 
 		if (($item['formalityOutcome'] ?? null) === self::FORMALITY_ADOPTED) {
-			throw new \InvalidArgumentException('This formality was already adopted.');
+			throw new InvalidArgumentException('This formality was already adopted.');
 		}
 
 		$this->objectService->patchObject(
