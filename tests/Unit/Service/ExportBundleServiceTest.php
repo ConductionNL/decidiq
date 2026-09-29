@@ -29,6 +29,7 @@ use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\File;
@@ -281,6 +282,8 @@ class ExportBundleServiceTest extends TestCase {
 		$time->method('getDateTime')->willReturn(new DateTime('2026-10-20 10:00:00'));
 
 		$logger = $this->createMock(LoggerInterface::class);
+		$apps   = $this->createMock(IAppManager::class);
+		$apps->method('isInstalled')->willReturn(true);
 
 		$writer = new ExportBundleWriter(
 			container: $container,
@@ -289,6 +292,7 @@ class ExportBundleServiceTest extends TestCase {
 			tempManager: $temp,
 			jobList: $jobList,
 			logger: $logger,
+			appManager: $apps,
 		);
 
 		return new ExportBundleService(

@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\BackgroundJob\ExportBundleNoticeJob;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Http;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\Folder;
@@ -65,6 +66,7 @@ class ExportBundleWriter {
 	 * @param ITempManager       $tempManager Local scratch space for the ZIP.
 	 * @param IJobList           $jobList     Schedules the ready notice for a queued PDF.
 	 * @param LoggerInterface    $logger      Diagnostics.
+	 * @param IAppManager        $appManager  Whether OpenRegister, which holds the attachments, is installed.
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
 	 */
@@ -75,6 +77,7 @@ class ExportBundleWriter {
 		private readonly ITempManager $tempManager,
 		private readonly IJobList $jobList,
 		private readonly LoggerInterface $logger,
+		private readonly IAppManager $appManager,
 	) {
 	}//end __construct()
 
@@ -237,7 +240,7 @@ class ExportBundleWriter {
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
 	 *
-	 * @throws ExportBundleException When OpenRegister's file store cannot be read.
+	 * @throws ExportBundleException When OpenRegister is not installed.
 	 *
 	 * @return list<\OCP\Files\File>
 	 */
@@ -248,18 +251,16 @@ class ExportBundleWriter {
 		}
 
 		// An export without its attachments would look complete and not be,
-		// so an unreachable file store refuses the export instead.
-		try {
-			$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
-			$nodes       = $fileService->getFiles($id);
-		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq export: the attachments could not be read', ['decision' => $id, 'error' => $e->getMessage()]);
+		// so a missing file store refuses the export instead.
+		if ($this->appManager->isInstalled('openregister') === false) {
 			throw new ExportBundleException(
-				message: 'The attachments could not be read. Try again in a moment.',
-				status: Http::STATUS_SERVICE_UNAVAILABLE,
-				previous: $e
+				message: 'The attachments could not be read: OpenRegister is not installed.',
+				status: Http::STATUS_SERVICE_UNAVAILABLE
 			);
 		}
+
+		$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
+		$nodes       = $fileService->getFiles($id);
 
 		return array_values(
 			array_filter(
