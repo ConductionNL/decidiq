@@ -371,6 +371,38 @@ class AgendaService {
 	}//end setFormality()
 
 	/**
+	 * Save the agenda item the chair is dealing with now on the meeting, so
+	 * members' live screens and the room screen follow it.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 * @param string $itemId UUID of an agenda item of that meeting
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the item is not on this meeting.
+	 *
+	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 */
+	public function setCurrentItem(string $meetingId, string $itemId): void {
+		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		$item = [];
+		if ($entity !== null) {
+			$item = $this->toArray(item: $entity);
+		}
+
+		if ((string)($item['meeting'] ?? '') !== $meetingId) {
+			throw new InvalidArgumentException('This agenda item is not on this meeting.');
+		}
+
+		$this->objectService->patchObject(
+			objectId: $meetingId,
+			data: ['currentAgendaItem' => $itemId],
+			register: 'decidiq',
+			schema: 'meeting',
+		);
+	}//end setCurrentItem()
+
+	/**
 	 * Whether an item is a formality that has not been adopted yet.
 	 *
 	 * @param array<string, mixed> $item The agenda item

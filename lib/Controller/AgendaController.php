@@ -312,4 +312,41 @@ class AgendaController extends Controller {
 			return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}//end formality()
+
+	/**
+	 * Make an agenda item the current one on the live meeting.
+	 *
+	 * PUT /api/agendas/{meetingId}/current-item, body `{ "agendaItem": uuid }`.
+	 * Chair, secretary or admin only.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 */
+	#[NoAdminRequired]
+	public function currentItem(string $meetingId): JSONResponse {
+		$denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$itemId = (string)($this->request->getParam('agendaItem') ?? '');
+
+		try {
+			$this->agendaService->setCurrentItem(meetingId: $meetingId, itemId: $itemId);
+			return new JSONResponse(['success' => true, 'currentAgendaItem' => $itemId]);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'setCurrentItem failed for meeting {meetingId}: {error}',
+				['meetingId' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+			);
+			return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}//end currentItem()
 }//end class

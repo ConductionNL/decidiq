@@ -30,28 +30,6 @@ export function sharedCurrentItemId(meeting) {
 }
 
 /**
- * The meeting as it is saved when the chair makes an item current: the
- * meeting's own properties with currentAgendaItem set, without the
- * OpenRegister metadata the object API adds on read.
- *
- * @param {object} meeting The meeting object as read.
- * @param {string} itemId  The agenda item made current.
- *
- * @return {object} The meeting to save.
- *
- * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
- */
-export function withCurrentItem(meeting, itemId) {
-	const saved = {}
-	for (const [key, value] of Object.entries(meeting ?? {})) {
-		if (key === '@self' || key === '_links') continue
-		saved[key] = value
-	}
-	saved.currentAgendaItem = itemId
-	return saved
-}
-
-/**
  * Whether the caller runs the meeting (chair, secretary or admin), as
  * answered by GET /api/meetings/{id}/my-roles.
  *

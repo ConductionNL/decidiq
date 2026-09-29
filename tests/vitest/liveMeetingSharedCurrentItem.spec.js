@@ -21,7 +21,6 @@ import {
 	openRoundFor,
 	runsTheMeeting,
 	sharedCurrentItemId,
-	withCurrentItem,
 } from '../../src/utils/liveMeeting.js'
 import { validatorFor } from './helpers/registerSchema.js'
 
@@ -43,14 +42,12 @@ const meeting = {
 }
 
 describe('everyone follows the current item (REQ-LSC-001)', () => {
-	it('saves the current item on the meeting in a shape the meeting schema accepts', () => {
-		const saved = withCurrentItem(meeting, ITEM5)
-		expect(saved.currentAgendaItem).toBe(ITEM5)
-		expect(saved['@self']).toBeUndefined()
-		const { id, ...properties } = saved
+	it('the current item the server saves passes the meeting schema', () => {
+		const { id, '@self': self, ...properties } = meeting
 		const valid = validatorFor('meeting')
-		expect(valid(properties), JSON.stringify(valid.errors)).toBe(true)
-		expect(id).toBe(MEETING)
+		const saved = { ...properties, currentAgendaItem: ITEM5 }
+		expect(valid(saved), JSON.stringify(valid.errors)).toBe(true)
+		expect(id).toBe(self.id)
 	})
 
 	it('reads the shared current item, or none', () => {
@@ -65,8 +62,9 @@ describe('everyone follows the current item (REQ-LSC-001)', () => {
 
 	it('the live screen saves the chosen item, follows the meeting and asks the server who runs it', () => {
 		const source = read('src/views/LiveMeeting.vue')
-		expect(source).toMatch(/withCurrentItem\(/)
-		expect(source).toMatch(/saveObject\('meeting'/)
+		expect(source).toMatch(/\/current-item/)
+		expect(source).toMatch(/method: 'PUT'/)
+		expect(source).not.toMatch(/saveObject\('meeting'/)
 		expect(source).toMatch(/sharedCurrentItemId\(/)
 		expect(source).toMatch(/FOLLOW_INTERVAL_MS/)
 		expect(source).toMatch(/\/my-roles/)

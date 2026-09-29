@@ -315,4 +315,67 @@ class AgendaControllerTest extends TestCase {
 		self::assertArrayHasKey('message', $result->getData());
 
 	}//end testReviseUnauthenticatedReturns401()
+
+	/**
+	 * The chair makes an item current; the choice is saved on the meeting.
+	 *
+	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testTheChairMakesAnItemCurrent(): void {
+		$this->request->method('getParam')->with('agendaItem')->willReturn('item-5');
+		$this->agendaService->expects($this->once())->method('setCurrentItem')->with('meeting-uuid-001', 'item-5');
+
+		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertSame(['success' => true, 'currentAgendaItem' => 'item-5'], $result->getData());
+	}//end testTheChairMakesAnItemCurrent()
+
+	/**
+	 * A member who is not chair or secretary cannot move the meeting on.
+	 *
+	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testAMemberCannotMakeAnItemCurrent(): void {
+		$this->agendaService->expects($this->never())->method('setCurrentItem');
+
+		$result = $this->buildController($this->sessionFor(chair: false))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+	}//end testAMemberCannotMakeAnItemCurrent()
+
+	/**
+	 * An item of another meeting cannot be made current here.
+	 *
+	 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testAnItemOfAnotherMeetingCannotBeMadeCurrent(): void {
+		$this->request->method('getParam')->willReturn('item-9');
+		$this->agendaService->method('setCurrentItem')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
+
+		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+	}//end testAnItemOfAnotherMeetingCannotBeMadeCurrent()
+
+	/**
+	 * The current-item route reaches the method.
+	 *
+	 * @return void
+	 */
+	public function testTheCurrentItemRouteReachesTheController(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$byName = array_column($routes['routes'], 'url', 'name');
+		$verbs = array_column($routes['routes'], 'verb', 'name');
+
+		self::assertSame('/api/agendas/{meetingId}/current-item', ($byName['agenda#currentItem'] ?? null));
+		self::assertSame('PUT', ($verbs['agenda#currentItem'] ?? null));
+	}//end testTheCurrentItemRouteReachesTheController()
+
 }//end class

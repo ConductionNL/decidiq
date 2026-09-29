@@ -10,9 +10,8 @@
  @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
 -->
 <template>
-	<div
+	<section
 		class="meeting-screen"
-		role="main"
 		data-testid="meeting-screen"
 		:aria-label="t('decidiq', 'Room screen')">
 		<p class="meeting-screen__meeting">
@@ -37,7 +36,7 @@
 		<p v-else class="meeting-screen__label" data-testid="meeting-screen-no-item">
 			{{ t('decidiq', 'No agenda item is being dealt with yet.') }}
 		</p>
-	</div>
+	</section>
 </template>
 
 <script>

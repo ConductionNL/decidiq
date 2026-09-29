@@ -269,7 +269,6 @@ import {
 	FOLLOW_INTERVAL_MS,
 	runsTheMeeting,
 	sharedCurrentItemId,
-	withCurrentItem,
 } from '../utils/liveMeeting.js'
 import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
 import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
@@ -556,12 +555,25 @@ export default {
 		/**
 		 * @param item
 		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
+		 * @spec openspec/changes/live-meeting-shared-current-item/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		async activateItem(item) {
 			this.activeItemId = item.id
 			if (!this.isChair) return
+			// The server saves it on the meeting (chair, secretary or admin
+			// only), so members and the room screen follow.
 			try {
-				await this.objectStore.saveObject('meeting', withCurrentItem(this.meeting, item.id))
+				await fetch(
+					generateUrl(`/apps/decidiq/api/agendas/${this.id}/current-item`),
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ agendaItem: item.id }),
+					},
+				)
 			} catch (e) {
 				console.error('Error saving the current agenda item:', e)
 			}
