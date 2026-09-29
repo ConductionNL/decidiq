@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
 use OCA\Decidiq\Service\PublicationConfigService;
@@ -119,7 +120,7 @@ class PublicationServiceTest extends TestCase {
 		$eligibility = new PublicationEligibilityService($logger,
 			objectService: $objectService,
 		);
-		$payload = new PublicationPayloadService($container, $logger, $configService);
+		$payload = new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($container, $logger));
 
 		$catalog = $catalogOverride;
 		if ($catalog === null) {

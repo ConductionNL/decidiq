@@ -1298,7 +1298,19 @@ OC.L10N.register(
         "The progress entry was not added.": "Níor cuireadh an iontráil dul chun cinn leis.",
         "Dated progress entries, public from the publication date.": "Iontrálacha dul chun cinn dátaithe, poiblí ón dáta foilsithe.",
         "The day the progress was recorded.": "An lá ar taifeadadh an dul chun cinn.",
-        "What happened, in words the public can read.": "Cad a tharla, i bhfocail is féidir leis an bpobal a léamh."
+        "What happened, in words the public can read.": "Cad a tharla, i bhfocail is féidir leis an bpobal a léamh.",
+        "Download link": "Nasc íoslódála",
+        "File type": "Cineál comhaid",
+        "Papers": "Páipéir",
+        "Published papers": "Páipéir foilsithe",
+        "The agenda item the paper belongs to.": "An mhír den chlár lena mbaineann an páipéar.",
+        "The file name of the paper.": "Ainm comhaid an pháipéir.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Na comhaid a rinne an foilseachán seo poiblí, mar mhír den chlár agus comhad. Tógann aistarraingt as líne arís iad.",
+        "The id of the published file.": "Aitheantas an chomhaid fhoilsithe.",
+        "The media type of the paper, such as application/pdf.": "Cineál meán an pháipéir, mar shampla application/pdf.",
+        "The public link to download the paper.": "An nasc poiblí chun an páipéar a íoslódáil.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Páipéir phoiblí na míre seo den chlár. Ní liostaítear riamh páipéir míre faoi rún ná páipéir atá marcáilte faoi rún.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Cad a foilsíodh: clár, cinneadh nó miontuairiscí. Scagann saoránaigh air."
     },
     "nplurals=2; plural=(n != 1);"
 )

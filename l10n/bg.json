@@ -1297,7 +1297,19 @@
         "The progress entry was not added.": "Записът за напредък не беше добавен.",
         "Dated progress entries, public from the publication date.": "Датирани записи за напредъка, публични от датата на публикуване.",
         "The day the progress was recorded.": "Денят, в който е записан напредъкът.",
-        "What happened, in words the public can read.": "Какво се случи, с думи, които обществеността може да прочете."
+        "What happened, in words the public can read.": "Какво се случи, с думи, които обществеността може да прочете.",
+        "Download link": "Връзка за изтегляне",
+        "File type": "Тип на файла",
+        "Papers": "Документи",
+        "Published papers": "Публикувани документи",
+        "The agenda item the paper belongs to.": "Точката от дневния ред, към която принадлежи документът.",
+        "The file name of the paper.": "Името на файла на документа.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Файловете, които тази публикация направи публични, като точка от дневния ред и файл. Оттеглянето ги прави отново недостъпни.",
+        "The id of the published file.": "Идентификаторът на публикувания файл.",
+        "The media type of the paper, such as application/pdf.": "Медийният тип на документа, например application/pdf.",
+        "The public link to download the paper.": "Публичната връзка за изтегляне на документа.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Публичните документи по тази точка от дневния ред. Документи по поверителна точка и документи, отбелязани като поверителни, никога не се показват.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Какво е публикувано: дневен ред, решение или протокол. Гражданите филтрират по това."
     },
     "plurals": null
 }

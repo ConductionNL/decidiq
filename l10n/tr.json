@@ -1297,7 +1297,19 @@
         "The progress entry was not added.": "İlerleme kaydı eklenmedi.",
         "Dated progress entries, public from the publication date.": "Tarihli ilerleme kayıtları, yayın tarihinden itibaren herkese açık.",
         "The day the progress was recorded.": "İlerlemenin kaydedildiği gün.",
-        "What happened, in words the public can read.": "Ne olduğu, halkın okuyabileceği sözcüklerle."
+        "What happened, in words the public can read.": "Ne olduğu, halkın okuyabileceği sözcüklerle.",
+        "Download link": "İndirme bağlantısı",
+        "File type": "Dosya türü",
+        "Papers": "Belgeler",
+        "Published papers": "Yayımlanan belgeler",
+        "The agenda item the paper belongs to.": "Belgenin ait olduğu gündem maddesi.",
+        "The file name of the paper.": "Belgenin dosya adı.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Bu yayının herkese açık hale getirdiği dosyalar, gündem maddesi ve dosya olarak. Geri çekme onları yeniden kaldırır.",
+        "The id of the published file.": "Yayımlanan dosyanın kimliği.",
+        "The media type of the paper, such as application/pdf.": "Belgenin ortam türü, örneğin application/pdf.",
+        "The public link to download the paper.": "Belgeyi indirmek için herkese açık bağlantı.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Bu gündem maddesinin herkese açık belgeleri. Gizli bir maddenin belgeleri ve gizli olarak etiketlenen belgeler asla listelenmez.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ne yayımlandı: gündem, karar veya tutanak. Vatandaşlar buna göre filtreler."
     },
     "plurals": null
 }

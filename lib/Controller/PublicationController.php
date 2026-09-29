@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\PublicationService;
 use OCA\Decidiq\Service\PublicationStaffGuard;
@@ -98,6 +99,8 @@ class PublicationController extends Controller {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		} catch (MissingObjectException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (ConfidentialityUnreadableException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		} catch (\Throwable $e) {
 			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
@@ -179,6 +182,8 @@ class PublicationController extends Controller {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		} catch (MissingObjectException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (ConfidentialityUnreadableException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		} catch (\Throwable $e) {
 			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}

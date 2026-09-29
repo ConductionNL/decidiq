@@ -1298,7 +1298,19 @@ OC.L10N.register(
         "The progress entry was not added.": "Hyrja e ecurisë nuk u shtua.",
         "Dated progress entries, public from the publication date.": "Hyrje ecurie me datë, publike nga data e publikimit.",
         "The day the progress was recorded.": "Dita kur u regjistrua ecuria.",
-        "What happened, in words the public can read.": "Çfarë ndodhi, me fjalë që publiku mund t'i lexojë."
+        "What happened, in words the public can read.": "Çfarë ndodhi, me fjalë që publiku mund t'i lexojë.",
+        "Download link": "Lidhja e shkarkimit",
+        "File type": "Lloji i skedarit",
+        "Papers": "Dokumentet",
+        "Published papers": "Dokumentet e publikuara",
+        "The agenda item the paper belongs to.": "Pika e rendit të ditës së cilës i përket dokumenti.",
+        "The file name of the paper.": "Emri i skedarit të dokumentit.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Skedarët që ky publikim i bëri publikë, si pikë e rendit të ditës dhe skedar. Tërheqja i heq sërish.",
+        "The id of the published file.": "ID-ja e skedarit të publikuar.",
+        "The media type of the paper, such as application/pdf.": "Lloji i medias së dokumentit, si application/pdf.",
+        "The public link to download the paper.": "Lidhja publike për të shkarkuar dokumentin.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Dokumentet publike të kësaj pike të rendit të ditës. Dokumentet e një pike konfidenciale dhe ato të shënuara konfidenciale nuk shfaqen kurrë.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Çfarë u publikua: një rend dite, një vendim ose një procesverbal. Qytetarët filtrojnë sipas tij."
     },
     "nplurals=2; plural=(n != 1);"
 )

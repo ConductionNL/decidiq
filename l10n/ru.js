@@ -1298,7 +1298,19 @@ OC.L10N.register(
         "The progress entry was not added.": "Запись о ходе выполнения не добавлена.",
         "Dated progress entries, public from the publication date.": "Датированные записи о ходе выполнения, публичные с даты публикации.",
         "The day the progress was recorded.": "День, когда был записан ход выполнения.",
-        "What happened, in words the public can read.": "Что произошло, словами, понятными публике."
+        "What happened, in words the public can read.": "Что произошло, словами, понятными публике.",
+        "Download link": "Ссылка для скачивания",
+        "File type": "Тип файла",
+        "Papers": "Документы",
+        "Published papers": "Опубликованные документы",
+        "The agenda item the paper belongs to.": "Пункт повестки дня, к которому относится документ.",
+        "The file name of the paper.": "Имя файла документа.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Файлы, которые эта публикация сделала общедоступными, как пункт повестки и файл. Отзыв снова скрывает их.",
+        "The id of the published file.": "Идентификатор опубликованного файла.",
+        "The media type of the paper, such as application/pdf.": "Тип медиа документа, например application/pdf.",
+        "The public link to download the paper.": "Общедоступная ссылка для скачивания документа.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Общедоступные документы этого пункта повестки. Документы конфиденциального пункта и документы с пометкой конфиденциально никогда не показываются.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Что опубликовано: повестка, решение или протокол. Граждане фильтруют по этому полю."
     },
     "nplurals=2; plural=(n != 1);"
 )

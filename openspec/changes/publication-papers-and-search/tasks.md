@@ -7,8 +7,8 @@
 - **files**: `lib/Service/PublicationPayloadService.php`, `lib/Service/OpenCatalogiPublisher.php`
 - **acceptance_criteria**:
   - GIVEN a public agenda with three items with papers, one confidential WHEN it is published THEN the publication has the papers of the two public items and the body, date and type
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first): tests/Unit/Service/PublicationConfidentialityTest.php (3, red on development 5ab7aeef), tests/Unit/Service/PublicationPapersTest.php (7)
 
 ## Verification
 

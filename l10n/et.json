@@ -1297,7 +1297,19 @@
         "The progress entry was not added.": "Edenemise kirjet ei lisatud.",
         "Dated progress entries, public from the publication date.": "Kuupäevaga edenemiskirjed, avalikud alates avaldamise kuupäevast.",
         "The day the progress was recorded.": "Päev, mil edenemine kirja pandi.",
-        "What happened, in words the public can read.": "Mis juhtus, sõnadega, mida avalikkus saab lugeda."
+        "What happened, in words the public can read.": "Mis juhtus, sõnadega, mida avalikkus saab lugeda.",
+        "Download link": "Allalaadimise link",
+        "File type": "Failitüüp",
+        "Papers": "Dokumendid",
+        "Published papers": "Avaldatud dokumendid",
+        "The agenda item the paper belongs to.": "Päevakorrapunkt, mille juurde dokument kuulub.",
+        "The file name of the paper.": "Dokumendi failinimi.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Failid, mille see avaldamine avalikuks tegi, päevakorrapunkti ja failina. Tagasivõtmine eemaldab need taas.",
+        "The id of the published file.": "Avaldatud faili id.",
+        "The media type of the paper, such as application/pdf.": "Dokumendi meediatüüp, näiteks application/pdf.",
+        "The public link to download the paper.": "Avalik link dokumendi allalaadimiseks.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Selle päevakorrapunkti avalikud dokumendid. Konfidentsiaalse punkti dokumente ja konfidentsiaalseks märgitud dokumente ei näidata kunagi.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mis avaldati: päevakord, otsus või protokoll. Kodanikud filtreerivad selle järgi."
     },
     "plurals": null
 }

@@ -1297,7 +1297,19 @@
         "The progress entry was not added.": "No se ha añadido el avance.",
         "Dated progress entries, public from the publication date.": "Entradas de avance con fecha, públicas desde la fecha de publicación.",
         "The day the progress was recorded.": "El día en que se registró el avance.",
-        "What happened, in words the public can read.": "Qué ha pasado, con palabras que el público pueda leer."
+        "What happened, in words the public can read.": "Qué ha pasado, con palabras que el público pueda leer.",
+        "Download link": "Enlace de descarga",
+        "File type": "Tipo de archivo",
+        "Papers": "Documentos",
+        "Published papers": "Documentos publicados",
+        "The agenda item the paper belongs to.": "El punto del orden del día al que pertenece el documento.",
+        "The file name of the paper.": "El nombre de archivo del documento.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Los archivos que esta publicación hizo públicos, como punto del orden del día y archivo. Una retirada los vuelve a desconectar.",
+        "The id of the published file.": "El id del archivo publicado.",
+        "The media type of the paper, such as application/pdf.": "El tipo de medio del documento, como application/pdf.",
+        "The public link to download the paper.": "El enlace público para descargar el documento.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Los documentos públicos de este punto del orden del día. Nunca se listan los documentos de un punto confidencial ni los marcados como confidenciales.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Lo que se publicó: un orden del día, una decisión o un acta. Los ciudadanos filtran por ello."
     },
     "plurals": null
 }

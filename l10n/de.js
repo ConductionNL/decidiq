@@ -1298,7 +1298,19 @@ OC.L10N.register(
         "The progress entry was not added.": "Der Fortschrittseintrag wurde nicht hinzugefügt.",
         "Dated progress entries, public from the publication date.": "Datierte Fortschrittseinträge, öffentlich ab dem Veröffentlichungsdatum.",
         "The day the progress was recorded.": "Der Tag, an dem der Fortschritt erfasst wurde.",
-        "What happened, in words the public can read.": "Was geschehen ist, in Worten, die die Öffentlichkeit lesen kann."
+        "What happened, in words the public can read.": "Was geschehen ist, in Worten, die die Öffentlichkeit lesen kann.",
+        "Download link": "Download-Link",
+        "File type": "Dateityp",
+        "Papers": "Unterlagen",
+        "Published papers": "Veröffentlichte Unterlagen",
+        "The agenda item the paper belongs to.": "Der Tagesordnungspunkt, zu dem die Unterlage gehört.",
+        "The file name of the paper.": "Der Dateiname der Unterlage.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Die Dateien, die diese Veröffentlichung öffentlich gemacht hat, als Tagesordnungspunkt und Datei. Eine Rücknahme nimmt sie wieder offline.",
+        "The id of the published file.": "Die ID der veröffentlichten Datei.",
+        "The media type of the paper, such as application/pdf.": "Der Medientyp der Unterlage, etwa application/pdf.",
+        "The public link to download the paper.": "Der öffentliche Link zum Herunterladen der Unterlage.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Die öffentlichen Unterlagen dieses Tagesordnungspunkts. Unterlagen eines vertraulichen Punkts und als vertraulich markierte Unterlagen werden nie aufgeführt.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Was veröffentlicht wurde: eine Tagesordnung, ein Beschluss oder ein Protokoll. Bürger filtern danach."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1298,7 +1298,19 @@ OC.L10N.register(
         "The progress entry was not added.": "Progresa ieraksts netika pievienots.",
         "Dated progress entries, public from the publication date.": "Datēti progresa ieraksti, publiski no publicēšanas datuma.",
         "The day the progress was recorded.": "Diena, kad progress tika reģistrēts.",
-        "What happened, in words the public can read.": "Kas notika, vārdiem, ko sabiedrība var izlasīt."
+        "What happened, in words the public can read.": "Kas notika, vārdiem, ko sabiedrība var izlasīt.",
+        "Download link": "Lejupielādes saite",
+        "File type": "Faila tips",
+        "Papers": "Dokumenti",
+        "Published papers": "Publicētie dokumenti",
+        "The agenda item the paper belongs to.": "Darba kārtības punkts, kuram pieder dokuments.",
+        "The file name of the paper.": "Dokumenta faila nosaukums.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Faili, ko šī publikācija padarīja publiskus, kā darba kārtības punkts un fails. Atsaukšana tos atkal noņem.",
+        "The id of the published file.": "Publicētā faila ID.",
+        "The media type of the paper, such as application/pdf.": "Dokumenta multivides tips, piemēram, application/pdf.",
+        "The public link to download the paper.": "Publiskā saite dokumenta lejupielādei.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Šī darba kārtības punkta publiskie dokumenti. Konfidenciāla punkta dokumenti un par konfidenciāliem atzīmēti dokumenti netiek rādīti.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Kas tika publicēts: darba kārtība, lēmums vai protokols. Iedzīvotāji pēc tā filtrē."
     },
     "nplurals=2; plural=(n != 1);"
 )

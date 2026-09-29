@@ -1298,7 +1298,19 @@ OC.L10N.register(
         "The progress entry was not added.": "Fremdriftsoppføringen ble ikke lagt til.",
         "Dated progress entries, public from the publication date.": "Daterte fremdriftsoppføringer, offentlige fra publiseringsdatoen.",
         "The day the progress was recorded.": "Dagen fremdriften ble registrert.",
-        "What happened, in words the public can read.": "Hva som skjedde, med ord publikum kan lese."
+        "What happened, in words the public can read.": "Hva som skjedde, med ord publikum kan lese.",
+        "Download link": "Nedlastingslenke",
+        "File type": "Filtype",
+        "Papers": "Dokumenter",
+        "Published papers": "Publiserte dokumenter",
+        "The agenda item the paper belongs to.": "Sakslisten punktet dokumentet hører til.",
+        "The file name of the paper.": "Filnavnet til dokumentet.",
+        "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.": "Filene denne publiseringen gjorde offentlige, som sakslistepunkt og fil. En tilbaketrekking tar dem offline igjen.",
+        "The id of the published file.": "ID-en til den publiserte filen.",
+        "The media type of the paper, such as application/pdf.": "Medietypen til dokumentet, for eksempel application/pdf.",
+        "The public link to download the paper.": "Den offentlige lenken for å laste ned dokumentet.",
+        "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "De offentlige dokumentene til dette sakslistepunktet. Dokumenter til et konfidensielt punkt og dokumenter merket konfidensielle vises aldri.",
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hva som ble publisert: en saksliste, et vedtak eller et referat. Innbyggere filtrerer på det."
     },
     "nplurals=2; plural=(n != 1);"
 )
