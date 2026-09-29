@@ -1294,7 +1294,10 @@
         "No progress has been recorded yet.": "Ende nuk është regjistruar asnjë ecuri.",
         "What happened": "Çfarë ndodhi",
         "Add progress": "Shto ecuri",
-        "The progress entry was not added.": "Hyrja e ecurisë nuk u shtua."
+        "The progress entry was not added.": "Hyrja e ecurisë nuk u shtua.",
+        "Dated progress entries, public from the publication date.": "Hyrje ecurie me datë, publike nga data e publikimit.",
+        "The day the progress was recorded.": "Dita kur u regjistrua ecuria.",
+        "What happened, in words the public can read.": "Çfarë ndodhi, me fjalë që publiku mund t'i lexojë."
     },
     "plurals": null
 }

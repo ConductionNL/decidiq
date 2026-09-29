@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Δεν έχει καταγραφεί ακόμη πρόοδος.",
         "What happened": "Τι συνέβη",
         "Add progress": "Προσθήκη προόδου",
-        "The progress entry was not added.": "Η καταχώριση προόδου δεν προστέθηκε."
+        "The progress entry was not added.": "Η καταχώριση προόδου δεν προστέθηκε.",
+        "Dated progress entries, public from the publication date.": "Χρονολογημένες καταχωρίσεις προόδου, δημόσιες από την ημερομηνία δημοσίευσης.",
+        "The day the progress was recorded.": "Η ημέρα καταγραφής της προόδου.",
+        "What happened, in words the public can read.": "Τι συνέβη, με λόγια που μπορεί να διαβάσει το κοινό."
     },
     "nplurals=2; plural=(n != 1);"
 )

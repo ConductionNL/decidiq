@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Għadu ma ġie rreġistrat l-ebda progress.",
         "What happened": "X'ġara",
         "Add progress": "Żid progress",
-        "The progress entry was not added.": "L-entrata tal-progress ma ġietx miżjuda."
+        "The progress entry was not added.": "L-entrata tal-progress ma ġietx miżjuda.",
+        "Dated progress entries, public from the publication date.": "Entrati ta' progress bid-data, pubbliċi mid-data tal-pubblikazzjoni.",
+        "The day the progress was recorded.": "Il-jum li fih ġie rreġistrat il-progress.",
+        "What happened, in words the public can read.": "X'ġara, bi kliem li l-pubbliku jista' jaqra."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Edenemist pole veel kirja pandud.",
         "What happened": "Mis juhtus",
         "Add progress": "Lisa edenemine",
-        "The progress entry was not added.": "Edenemise kirjet ei lisatud."
+        "The progress entry was not added.": "Edenemise kirjet ei lisatud.",
+        "Dated progress entries, public from the publication date.": "Kuupäevaga edenemiskirjed, avalikud alates avaldamise kuupäevast.",
+        "The day the progress was recorded.": "Päev, mil edenemine kirja pandi.",
+        "What happened, in words the public can read.": "Mis juhtus, sõnadega, mida avalikkus saab lugeda."
     },
     "nplurals=2; plural=(n != 1);"
 )

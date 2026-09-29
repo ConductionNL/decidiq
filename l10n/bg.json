@@ -1294,7 +1294,10 @@
         "No progress has been recorded yet.": "Все още няма записан напредък.",
         "What happened": "Какво се случи",
         "Add progress": "Добавяне на напредък",
-        "The progress entry was not added.": "Записът за напредък не беше добавен."
+        "The progress entry was not added.": "Записът за напредък не беше добавен.",
+        "Dated progress entries, public from the publication date.": "Датирани записи за напредъка, публични от датата на публикуване.",
+        "The day the progress was recorded.": "Денят, в който е записан напредъкът.",
+        "What happened, in words the public can read.": "Какво се случи, с думи, които обществеността може да прочете."
     },
     "plurals": null
 }

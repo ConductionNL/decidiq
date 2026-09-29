@@ -77,7 +77,7 @@ class OriController extends Controller {
 		// is gated by the same RBAC published-predicate the payload schema declares
 		// (publicationDate <= $now, not depublished).
 		'publications' => 'publication-payload',
-		// followup-public-progress (fol-06): commitments with their progress.
+		// Commitments (followup-public-progress, fol-06) with their progress.
 		// Public once publicationDate has passed (the schema's own published
 		// predicate); the serializer carries an allow-list of public fields.
 		'commitments' => 'governance-commitment',

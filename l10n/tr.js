@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Henüz bir ilerleme kaydedilmedi.",
         "What happened": "Ne oldu",
         "Add progress": "İlerleme ekle",
-        "The progress entry was not added.": "İlerleme kaydı eklenmedi."
+        "The progress entry was not added.": "İlerleme kaydı eklenmedi.",
+        "Dated progress entries, public from the publication date.": "Tarihli ilerleme kayıtları, yayın tarihinden itibaren herkese açık.",
+        "The day the progress was recorded.": "İlerlemenin kaydedildiği gün.",
+        "What happened, in words the public can read.": "Ne olduğu, halkın okuyabileceği sözcüklerle."
     },
     "nplurals=2; plural=(n != 1);"
 )

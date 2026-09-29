@@ -1294,7 +1294,10 @@
         "No progress has been recorded yet.": "Engin framvinda hefur verið skráð enn.",
         "What happened": "Hvað gerðist",
         "Add progress": "Bæta við framvindu",
-        "The progress entry was not added.": "Framvindufærslunni var ekki bætt við."
+        "The progress entry was not added.": "Framvindufærslunni var ekki bætt við.",
+        "Dated progress entries, public from the publication date.": "Dagsettar framvindufærslur, opinberar frá birtingardegi.",
+        "The day the progress was recorded.": "Dagurinn sem framvindan var skráð.",
+        "What happened, in words the public can read.": "Hvað gerðist, með orðum sem almenningur getur lesið."
     },
     "plurals": null
 }

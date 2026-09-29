@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Még nincs rögzített előrehaladás.",
         "What happened": "Mi történt",
         "Add progress": "Előrehaladás hozzáadása",
-        "The progress entry was not added.": "Az előrehaladási bejegyzés nem lett hozzáadva."
+        "The progress entry was not added.": "Az előrehaladási bejegyzés nem lett hozzáadva.",
+        "Dated progress entries, public from the publication date.": "Dátumozott előrehaladási bejegyzések, a közzététel napjától nyilvánosak.",
+        "The day the progress was recorded.": "Az előrehaladás rögzítésének napja.",
+        "What happened, in words the public can read.": "Mi történt, a nyilvánosság számára érthető szavakkal."
     },
     "nplurals=2; plural=(n != 1);"
 )

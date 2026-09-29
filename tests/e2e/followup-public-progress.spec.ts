@@ -9,8 +9,9 @@
  *
  * @spec openspec/specs/ori-api/spec.md
  */
-import { expect, request, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
+import { anonymousActor } from './support/api-actors.ts'
 import {
 	cleanupAll,
 	createObject,
@@ -34,6 +35,7 @@ test.afterAll(async ({ browser }) => {
 // @e2e ori-api::a-commitment-before-its-publication-date-is-not-public
 test('the clerk records progress and the public reads it from the publication date', async ({
 	page,
+	playwright,
 }) => {
 	const council = await createObject(page, ledger, 'governance-body', {
 		name: `${tag}-raad`,
@@ -75,11 +77,11 @@ test('the clerk records progress and the public reads it from the publication da
 		.locator('textarea')
 		.fill('Draft report sent to the committee')
 	await widget.getByTestId('commitment-progress-add').click()
-	await expect(widget.getByTestId('commitment-progress-entry').first()).toContainText(
-		'Draft report sent to the committee',
-	)
+	await expect(
+		widget.getByTestId('commitment-progress-entry').first(),
+	).toContainText('Draft report sent to the committee')
 
-	const anonymous = await request.newContext()
+	const { ctx: anonymous } = await anonymousActor(playwright)
 	const list = await (await anonymous.get(ORI)).json()
 	const item = list.items.find((i: any) => i.id === idOf(published))
 	expect(item.deadline).toBe('2026-12-01')

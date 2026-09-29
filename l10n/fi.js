@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Edistymistä ei ole vielä kirjattu.",
         "What happened": "Mitä tapahtui",
         "Add progress": "Lisää edistyminen",
-        "The progress entry was not added.": "Edistymismerkintää ei lisätty."
+        "The progress entry was not added.": "Edistymismerkintää ei lisätty.",
+        "Dated progress entries, public from the publication date.": "Päivätyt edistymismerkinnät, julkisia julkaisupäivästä alkaen.",
+        "The day the progress was recorded.": "Päivä, jona edistyminen kirjattiin.",
+        "What happened, in words the public can read.": "Mitä tapahtui, sanoin jotka yleisö voi lukea."
     },
     "nplurals=2; plural=(n != 1);"
 )

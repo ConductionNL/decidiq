@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Níor taifeadadh aon dul chun cinn fós.",
         "What happened": "Cad a tharla",
         "Add progress": "Cuir dul chun cinn leis",
-        "The progress entry was not added.": "Níor cuireadh an iontráil dul chun cinn leis."
+        "The progress entry was not added.": "Níor cuireadh an iontráil dul chun cinn leis.",
+        "Dated progress entries, public from the publication date.": "Iontrálacha dul chun cinn dátaithe, poiblí ón dáta foilsithe.",
+        "The day the progress was recorded.": "An lá ar taifeadadh an dul chun cinn.",
+        "What happened, in words the public can read.": "Cad a tharla, i bhfocail is féidir leis an bpobal a léamh."
     },
     "nplurals=2; plural=(n != 1);"
 )

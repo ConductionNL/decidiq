@@ -1294,7 +1294,10 @@
         "No progress has been recorded yet.": "Nu a fost înregistrat încă niciun progres.",
         "What happened": "Ce s-a întâmplat",
         "Add progress": "Adaugă progres",
-        "The progress entry was not added.": "Înregistrarea de progres nu a fost adăugată."
+        "The progress entry was not added.": "Înregistrarea de progres nu a fost adăugată.",
+        "Dated progress entries, public from the publication date.": "Înregistrări de progres datate, publice de la data publicării.",
+        "The day the progress was recorded.": "Ziua în care a fost înregistrat progresul.",
+        "What happened, in words the public can read.": "Ce s-a întâmplat, în cuvinte pe care publicul le poate citi."
     },
     "plurals": null
 }

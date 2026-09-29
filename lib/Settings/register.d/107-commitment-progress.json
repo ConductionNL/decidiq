@@ -12,21 +12,26 @@
           "progress": {
             "type": "array",
             "title": "Progress",
-            "description": "Dated progress entries, added by the chair or secretary of the meeting the commitment was made in. Public on the ORI commitments resource from the publication date on.",
+            "description": "Dated progress entries, public from the publication date.",
             "items": {
               "type": "object",
               "properties": {
                 "date": {
                   "type": "string",
                   "format": "date",
-                  "title": "Date"
+                  "title": "Date",
+                  "description": "The day the progress was recorded."
                 },
                 "note": {
                   "type": "string",
-                  "title": "Note"
+                  "title": "Note",
+                  "description": "What happened, in words the public can read."
                 }
               },
-              "required": ["date", "note"]
+              "required": [
+                "date",
+                "note"
+              ]
             }
           }
         }

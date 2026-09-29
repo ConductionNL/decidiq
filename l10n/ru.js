@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Ход выполнения пока не записан.",
         "What happened": "Что произошло",
         "Add progress": "Добавить ход выполнения",
-        "The progress entry was not added.": "Запись о ходе выполнения не добавлена."
+        "The progress entry was not added.": "Запись о ходе выполнения не добавлена.",
+        "Dated progress entries, public from the publication date.": "Датированные записи о ходе выполнения, публичные с даты публикации.",
+        "The day the progress was recorded.": "День, когда был записан ход выполнения.",
+        "What happened, in words the public can read.": "Что произошло, словами, понятными публике."
     },
     "nplurals=2; plural=(n != 1);"
 )

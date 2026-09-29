@@ -83,17 +83,32 @@ describe('a commitment carries dated progress entries (REQ-FPP-002)', () => {
 	})
 
 	it('posts to the commitment progress route', () => {
-		expect(progressPath('c 1')).toBe('/apps/decidiq/api/commitments/c%201/progress')
+		expect(progressPath('c 1')).toBe(
+			'/apps/decidiq/api/commitments/c%201/progress',
+		)
 		const routes = read('appinfo/routes.php')
-		expect(routes).toContain("'url' => '/api/commitments/{id}/progress', 'verb' => 'POST'")
+		expect(routes).toContain(
+			"'url' => '/api/commitments/{id}/progress', 'verb' => 'POST'",
+		)
 	})
 
 	it('the commitment page shows the progress widget', () => {
-		const fragment = JSON.parse(read('src/manifest.d/toezeggingen-ingekomen-stukken.json'))
+		const fragment = JSON.parse(
+			read('src/manifest.d/toezeggingen-ingekomen-stukken.json'),
+		)
 		const page = fragment.pages.find((p) => p.id === 'CommitmentDetail')
-		const widget = page.config.widgets.find((w) => w.id === 'commitment-progress')
-		expect(widget).toMatchObject({ type: 'custom', component: 'CommitmentProgressTab' })
-		expect(page.config.layout.some((l) => l.widgetId === 'commitment-progress')).toBe(true)
-		expect(read('src/registry.js')).toMatch(/CommitmentProgressTab: page\(CommitmentProgressTab\)/)
+		const widget = page.config.widgets.find(
+			(w) => w.id === 'commitment-progress',
+		)
+		expect(widget).toMatchObject({
+			type: 'custom',
+			component: 'CommitmentProgressTab',
+		})
+		expect(
+			page.config.layout.some((l) => l.widgetId === 'commitment-progress'),
+		).toBe(true)
+		expect(read('src/registry.js')).toMatch(
+			/CommitmentProgressTab: page\(CommitmentProgressTab\)/,
+		)
 	})
 })

@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Progress vēl nav reģistrēts.",
         "What happened": "Kas notika",
         "Add progress": "Pievienot progresu",
-        "The progress entry was not added.": "Progresa ieraksts netika pievienots."
+        "The progress entry was not added.": "Progresa ieraksts netika pievienots.",
+        "Dated progress entries, public from the publication date.": "Datēti progresa ieraksti, publiski no publicēšanas datuma.",
+        "The day the progress was recorded.": "Diena, kad progress tika reģistrēts.",
+        "What happened, in words the public can read.": "Kas notika, vārdiem, ko sabiedrība var izlasīt."
     },
     "nplurals=2; plural=(n != 1);"
 )

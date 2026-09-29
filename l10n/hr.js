@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Napredak još nije zabilježen.",
         "What happened": "Što se dogodilo",
         "Add progress": "Dodaj napredak",
-        "The progress entry was not added.": "Unos napretka nije dodan."
+        "The progress entry was not added.": "Unos napretka nije dodan.",
+        "Dated progress entries, public from the publication date.": "Datirani unosi napretka, javni od datuma objave.",
+        "The day the progress was recorded.": "Dan kada je napredak zabilježen.",
+        "What happened, in words the public can read.": "Što se dogodilo, riječima koje javnost može pročitati."
     },
     "nplurals=2; plural=(n != 1);"
 )

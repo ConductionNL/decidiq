@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Aucun avancement n'a encore été enregistré.",
         "What happened": "Ce qui s'est passé",
         "Add progress": "Ajouter un avancement",
-        "The progress entry was not added.": "L'avancement n'a pas été ajouté."
+        "The progress entry was not added.": "L'avancement n'a pas été ajouté.",
+        "Dated progress entries, public from the publication date.": "Entrées d'avancement datées, publiques à partir de la date de publication.",
+        "The day the progress was recorded.": "Le jour où l'avancement a été enregistré.",
+        "What happened, in words the public can read.": "Ce qui s'est passé, en mots que le public peut lire."
     },
     "nplurals=2; plural=(n != 1);"
 )

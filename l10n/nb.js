@@ -1295,7 +1295,10 @@ OC.L10N.register(
         "No progress has been recorded yet.": "Ingen fremdrift er registrert ennå.",
         "What happened": "Hva som skjedde",
         "Add progress": "Legg til fremdrift",
-        "The progress entry was not added.": "Fremdriftsoppføringen ble ikke lagt til."
+        "The progress entry was not added.": "Fremdriftsoppføringen ble ikke lagt til.",
+        "Dated progress entries, public from the publication date.": "Daterte fremdriftsoppføringer, offentlige fra publiseringsdatoen.",
+        "The day the progress was recorded.": "Dagen fremdriften ble registrert.",
+        "What happened, in words the public can read.": "Hva som skjedde, med ord publikum kan lese."
     },
     "nplurals=2; plural=(n != 1);"
 )

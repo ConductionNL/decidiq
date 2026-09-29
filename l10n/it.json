@@ -1294,7 +1294,10 @@
         "No progress has been recorded yet.": "Non è ancora stato registrato alcun avanzamento.",
         "What happened": "Cosa è successo",
         "Add progress": "Aggiungi avanzamento",
-        "The progress entry was not added.": "L'avanzamento non è stato aggiunto."
+        "The progress entry was not added.": "L'avanzamento non è stato aggiunto.",
+        "Dated progress entries, public from the publication date.": "Voci di avanzamento datate, pubbliche dalla data di pubblicazione.",
+        "The day the progress was recorded.": "Il giorno in cui è stato registrato l'avanzamento.",
+        "What happened, in words the public can read.": "Cosa è successo, con parole che il pubblico può leggere."
     },
     "plurals": null
 }
