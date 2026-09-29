@@ -5011,7 +5011,7 @@
 				"readOn": "2026-09-29"
 			},
 			"reachedOn": "Administration settings > decidiq: Export all data; the notification links to the download; the panel links to the newest export",
-			"provider": "openregister",
+			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "data-portability",
 			"featureConfidence": "low",
