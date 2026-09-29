@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\MotionService;
+use OCA\Decidiq\Service\MotionStages;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -52,6 +53,7 @@ class MotionController extends Controller {
 	 * @param IGroupManager $groupManager The group manager
 	 * @param IAppConfig $appConfig The app config
 	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
+	 * @param MotionStages $motionStages The stage steps a caller may take
 	 *
 	 * @return void
 	 *
@@ -64,6 +66,7 @@ class MotionController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly IAppConfig $appConfig,
 		private readonly ParticipantResolver $participantResolver,
+		private readonly MotionStages $motionStages,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -230,6 +233,9 @@ class MotionController extends Controller {
 	 * The vote result travels in `outcome` (`adopted`|`rejected`), which is a
 	 * separate axis and is required only when entering a terminal state.
 	 *
+	 * Access control: the chair or secretary of the motion's meeting takes
+	 * any step; the member who submitted the motion may withdraw it (mot-08).
+	 *
 	 * @param string $id The motion UUID
 	 *
 	 * @NoAdminRequired
@@ -240,13 +246,13 @@ class MotionController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function transition(string $id): JSONResponse {
+		$params = $this->request->getParams();
+		$newState = ($params['newState'] ?? '');
 		$guard = $this->requireChairOrSecretary(motionId: $id);
-		if ($guard !== null) {
+		if ($guard !== null && $this->isOwnWithdrawal(motionId: $id, newState: $newState) === false) {
 			return $guard;
 		}
 
-		$params = $this->request->getParams();
-		$newState = ($params['newState'] ?? '');
 		$outcome = $this->readOutcome(params: $params);
 		$actorId = ($this->userSession->getUser()?->getUID() ?? '');
 
@@ -266,6 +272,58 @@ class MotionController extends Controller {
 		}
 
 	}//end transition()
+
+	/**
+	 * Whether this is the submitter withdrawing her own motion, the one step
+	 * a member who does not chair the meeting may take (mot-08).
+	 *
+	 * @param string $motionId The motion UUID
+	 * @param mixed  $newState The requested stage
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
+	 */
+	private function isOwnWithdrawal(string $motionId, mixed $newState): bool {
+		$uid = ($this->userSession->getUser()?->getUID() ?? '');
+		if ($newState !== 'withdrawn' || $uid === '') {
+			return false;
+		}
+
+		return $this->motionStages->mayWithdraw(motionId: $motionId, uid: $uid);
+	}//end isOwnWithdrawal()
+
+	/**
+	 * Tell the caller the motion's stage and the steps they may take.
+	 *
+	 * GET /api/motions/{id}/transitions
+	 *
+	 * Access control: the motion is read through ObjectService (OpenRegister
+	 * RBAC), so a caller who cannot read it gets 404. The chair or secretary
+	 * of its meeting is offered every step the motion lifecycle allows; the
+	 * member who submitted it is offered Withdraw; anyone else no step. The
+	 * same rule guards transition().
+	 *
+	 * @param string $id The motion UUID
+	 *
+	 * @return JSONResponse 200 with { lifecycle, outcome, actions }; 401 when anonymous; 404 when the motion cannot be read
+	 *
+	 * @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
+	 */
+	#[NoAdminRequired]
+	public function transitions(string $id): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$answer = $this->motionStages->forCaller(motionId: $id, uid: $user->getUID());
+		if ($answer === null) {
+			return new JSONResponse(['message' => 'Motion not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		return new JSONResponse($answer);
+	}//end transitions()
 
 	/**
 	 * Request co-signature from one or more participants for a Motion.
