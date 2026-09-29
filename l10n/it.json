@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Il tipo di media del documento, ad esempio application/pdf.",
         "The public link to download the paper.": "Il link pubblico per scaricare il documento.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "I documenti pubblici di questo punto all'ordine del giorno. I documenti di un punto riservato e quelli contrassegnati come riservati non sono mai elencati.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Cosa è stato pubblicato: un ordine del giorno, una decisione o un verbale. I cittadini filtrano su questo."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Cosa è stato pubblicato: un ordine del giorno, una decisione o un verbale. I cittadini filtrano su questo.",
+        "Export all data": "Esporta tutti i dati",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Scarica ogni record di questa app per tipo di record, con i file di riunioni, punti all'ordine del giorno e decisioni. La preparazione richiede un po' di tempo; riceverai una notifica con il link per il download.",
+        "Export failed": "Esportazione non riuscita",
+        "The export is being prepared": "L'esportazione è in preparazione",
+        "You get a notification when it is ready.": "Riceverai una notifica quando sarà pronta.",
+        "Download the export of {date} ({size})": "Scarica l'esportazione del {date} ({size})",
+        "The export could not be started.": "Impossibile avviare l'esportazione.",
+        "Your data export is ready to download": "La tua esportazione dei dati è pronta per il download",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "La tua esportazione dei dati non è riuscita. Riprova, oppure leggi il log di Nextcloud per la causa."
     },
     "plurals": null
 }

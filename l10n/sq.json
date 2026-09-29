@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Lloji i medias së dokumentit, si application/pdf.",
         "The public link to download the paper.": "Lidhja publike për të shkarkuar dokumentin.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Dokumentet publike të kësaj pike të rendit të ditës. Dokumentet e një pike konfidenciale dhe ato të shënuara konfidenciale nuk shfaqen kurrë.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Çfarë u publikua: një rend dite, një vendim ose një procesverbal. Qytetarët filtrojnë sipas tij."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Çfarë u publikua: një rend dite, një vendim ose një procesverbal. Qytetarët filtrojnë sipas tij.",
+        "Export all data": "Eksporto të gjitha të dhënat",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Shkarkoni çdo regjistrim të këtij aplikacioni sipas llojit, me skedarët e mbledhjeve, pikave të rendit të ditës dhe vendimeve. Përgatitja zgjat pak; do të merrni një njoftim me lidhjen e shkarkimit.",
+        "Export failed": "Eksportimi dështoi",
+        "The export is being prepared": "Eksportimi po përgatitet",
+        "You get a notification when it is ready.": "Do të merrni një njoftim kur të jetë gati.",
+        "Download the export of {date} ({size})": "Shkarko eksportin e {date} ({size})",
+        "The export could not be started.": "Eksportimi nuk mund të nisej.",
+        "Your data export is ready to download": "Eksportimi i të dhënave tuaja është gati për shkarkim",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Eksportimi i të dhënave dështoi. Provoni përsëri ose lexoni shkakun në regjistrin e Nextcloud."
     },
     "plurals": null
 }

@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Ο τύπος μέσου του εγγράφου, π.χ. application/pdf.",
         "The public link to download the paper.": "Ο δημόσιος σύνδεσμος για λήψη του εγγράφου.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Τα δημόσια έγγραφα αυτού του θέματος. Έγγραφα εμπιστευτικού θέματος και έγγραφα με σήμανση εμπιστευτικά δεν εμφανίζονται ποτέ.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Τι δημοσιεύθηκε: ημερήσια διάταξη, απόφαση ή πρακτικά. Οι πολίτες φιλτράρουν με βάση αυτό."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Τι δημοσιεύθηκε: ημερήσια διάταξη, απόφαση ή πρακτικά. Οι πολίτες φιλτράρουν με βάση αυτό.",
+        "Export all data": "Εξαγωγή όλων των δεδομένων",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Κατεβάστε κάθε εγγραφή αυτής της εφαρμογής ανά τύπο εγγραφής, με τα αρχεία συνεδριάσεων, θεμάτων ημερήσιας διάταξης και αποφάσεων. Η προετοιμασία διαρκεί λίγο· θα λάβετε ειδοποίηση με τον σύνδεσμο λήψης.",
+        "Export failed": "Η εξαγωγή απέτυχε",
+        "The export is being prepared": "Η εξαγωγή προετοιμάζεται",
+        "You get a notification when it is ready.": "Θα λάβετε ειδοποίηση όταν είναι έτοιμη.",
+        "Download the export of {date} ({size})": "Λήψη της εξαγωγής της {date} ({size})",
+        "The export could not be started.": "Δεν ήταν δυνατή η έναρξη της εξαγωγής.",
+        "Your data export is ready to download": "Η εξαγωγή δεδομένων σας είναι έτοιμη για λήψη",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Η εξαγωγή δεδομένων σας απέτυχε. Δοκιμάστε ξανά ή διαβάστε το αρχείο καταγραφής του Nextcloud για την αιτία."
     },
     "nplurals=2; plural=(n != 1);"
 )

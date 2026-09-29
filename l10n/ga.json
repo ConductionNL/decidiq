@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Cineál meán an pháipéir, mar shampla application/pdf.",
         "The public link to download the paper.": "An nasc poiblí chun an páipéar a íoslódáil.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Páipéir phoiblí na míre seo den chlár. Ní liostaítear riamh páipéir míre faoi rún ná páipéir atá marcáilte faoi rún.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Cad a foilsíodh: clár, cinneadh nó miontuairiscí. Scagann saoránaigh air."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Cad a foilsíodh: clár, cinneadh nó miontuairiscí. Scagann saoránaigh air.",
+        "Export all data": "Easpórtáil na sonraí go léir",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Íoslódáil gach taifead den aip seo de réir cineál taifid, le comhaid na gcruinnithe, míreanna an chláir agus na gcinntí. Tógann an t-ullmhúchán tamall; gheobhaidh tú fógra leis an nasc íoslódála.",
+        "Export failed": "Theip ar an easpórtáil",
+        "The export is being prepared": "Tá an easpórtáil á hullmhú",
+        "You get a notification when it is ready.": "Gheobhaidh tú fógra nuair a bheidh sé réidh.",
+        "Download the export of {date} ({size})": "Íoslódáil easpórtáil {date} ({size})",
+        "The export could not be started.": "Níorbh fhéidir an easpórtáil a thosú.",
+        "Your data export is ready to download": "Tá d'easpórtáil sonraí réidh le híoslódáil",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Theip ar d'easpórtáil sonraí. Bain triail eile as, nó léigh loga Nextcloud don chúis."
     },
     "plurals": null
 }

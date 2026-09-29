@@ -232,4 +232,21 @@ class NotifierTest extends TestCase {
 		}
 
 	}//end testMeetingNoticesNameTheMeetingAndWhen()
+
+	/**
+	 * The export notice links to the download; a failed export says so.
+	 *
+	 * @spec openspec/specs/openregister-integration/spec.md#requirement-req-pfe-001-an-administrator-exports-all-data
+	 *
+	 * @return void
+	 */
+	public function testTheExportNoticeLinksToTheDownload(): void {
+		$name = 'decidiq-export-20261014-201500.zip';
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'full_export_ready', parameters: ['title' => $name], objectType: 'export', objectId: $name), 'en');
+		self::assertSame('Your data export is ready to download', $this->parsed['setParsedSubject']);
+		self::assertSame('https://cloud.example/apps/decidiq/api/export/full/' . $name, $this->parsed['setLink']);
+
+		$this->notifier()->prepare($this->notification(app: 'decidiq', subject: 'full_export_failed', objectType: 'export', objectId: 'failed'), 'en');
+		self::assertSame('Your data export failed. Try again, or read the Nextcloud log for the cause.', $this->parsed['setParsedSubject']);
+	}//end testTheExportNoticeLinksToTheDownload()
 }//end class

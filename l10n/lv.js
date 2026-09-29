@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Dokumenta multivides tips, piemēram, application/pdf.",
         "The public link to download the paper.": "Publiskā saite dokumenta lejupielādei.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Šī darba kārtības punkta publiskie dokumenti. Konfidenciāla punkta dokumenti un par konfidenciāliem atzīmēti dokumenti netiek rādīti.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Kas tika publicēts: darba kārtība, lēmums vai protokols. Iedzīvotāji pēc tā filtrē."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Kas tika publicēts: darba kārtība, lēmums vai protokols. Iedzīvotāji pēc tā filtrē.",
+        "Export all data": "Eksportēt visus datus",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Lejupielādējiet katru šīs lietotnes ierakstu pēc ieraksta veida ar sēžu, darba kārtības punktu un lēmumu failiem. Sagatavošana aizņem laiku; saņemsiet paziņojumu ar lejupielādes saiti.",
+        "Export failed": "Eksportēšana neizdevās",
+        "The export is being prepared": "Eksports tiek sagatavots",
+        "You get a notification when it is ready.": "Saņemsiet paziņojumu, kad tas būs gatavs.",
+        "Download the export of {date} ({size})": "Lejupielādēt {date} eksportu ({size})",
+        "The export could not be started.": "Eksportu neizdevās sākt.",
+        "Your data export is ready to download": "Jūsu datu eksports ir gatavs lejupielādei",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Datu eksports neizdevās. Mēģiniet vēlreiz vai izlasiet cēloni Nextcloud žurnālā."
     },
     "nplurals=2; plural=(n != 1);"
 )

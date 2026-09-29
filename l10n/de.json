@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Der Medientyp der Unterlage, etwa application/pdf.",
         "The public link to download the paper.": "Der öffentliche Link zum Herunterladen der Unterlage.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Die öffentlichen Unterlagen dieses Tagesordnungspunkts. Unterlagen eines vertraulichen Punkts und als vertraulich markierte Unterlagen werden nie aufgeführt.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Was veröffentlicht wurde: eine Tagesordnung, ein Beschluss oder ein Protokoll. Bürger filtern danach."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Was veröffentlicht wurde: eine Tagesordnung, ein Beschluss oder ein Protokoll. Bürger filtern danach.",
+        "Export all data": "Alle Daten exportieren",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Laden Sie jeden Datensatz dieser App nach Datensatztyp herunter, mit den Dateien von Sitzungen, Tagesordnungspunkten und Beschlüssen. Die Vorbereitung dauert eine Weile; Sie erhalten eine Benachrichtigung mit dem Download-Link.",
+        "Export failed": "Export fehlgeschlagen",
+        "The export is being prepared": "Der Export wird vorbereitet",
+        "You get a notification when it is ready.": "Sie erhalten eine Benachrichtigung, sobald er fertig ist.",
+        "Download the export of {date} ({size})": "Export vom {date} herunterladen ({size})",
+        "The export could not be started.": "Der Export konnte nicht gestartet werden.",
+        "Your data export is ready to download": "Ihr Datenexport steht zum Herunterladen bereit",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Ihr Datenexport ist fehlgeschlagen. Versuchen Sie es erneut oder lesen Sie das Nextcloud-Protokoll für die Ursache."
     },
     "plurals": null
 }

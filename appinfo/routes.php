@@ -41,6 +41,9 @@ $extra = [
         // `run-action` step that follows reads it back, because runAction()
         // carries no body and so cannot carry the answer itself.
         ['name' => 'setup#saveConfig', 'url' => '/api/setup/config',           'verb' => 'POST'],
+        ['name' => 'fullExport#start',    'url' => '/api/export/full',        'verb' => 'POST'],
+        ['name' => 'fullExport#latest',   'url' => '/api/export/full',        'verb' => 'GET'],
+        ['name' => 'fullExport#download', 'url' => '/api/export/full/{name}', 'verb' => 'GET'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
 

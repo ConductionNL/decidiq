@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Miðlagerð gagnsins, t.d. application/pdf.",
         "The public link to download the paper.": "Opinber tengill til að sækja gagnið.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Opinber gögn þessa dagskrárliðar. Gögn trúnaðarliðar og gögn merkt sem trúnaðarmál eru aldrei birt.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hvað var birt: dagskrá, ákvörðun eða fundargerð. Borgarar sía eftir því."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hvað var birt: dagskrá, ákvörðun eða fundargerð. Borgarar sía eftir því.",
+        "Export all data": "Flytja út öll gögn",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Sæktu allar færslur þessa forrits eftir færslugerð, með skrám funda, dagskrárliða og ákvarðana. Undirbúningur tekur smá tíma; þú færð tilkynningu með niðurhalstenglinum.",
+        "Export failed": "Útflutningur mistókst",
+        "The export is being prepared": "Verið er að undirbúa útflutninginn",
+        "You get a notification when it is ready.": "Þú færð tilkynningu þegar hann er tilbúinn.",
+        "Download the export of {date} ({size})": "Sækja útflutning frá {date} ({size})",
+        "The export could not be started.": "Ekki tókst að hefja útflutninginn.",
+        "Your data export is ready to download": "Gagnaútflutningurinn þinn er tilbúinn til niðurhals",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Gagnaútflutningurinn mistókst. Reyndu aftur eða lestu Nextcloud-atvikaskrána til að finna orsökina."
     },
     "nplurals=2; plural=(n != 1);"
 )

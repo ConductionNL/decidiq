@@ -10,11 +10,13 @@
 		<Settings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
+		<FullExportSettings v-if="storesReady" />
 	</CnAdminSettingsShell>
 </template>
 
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
+import FullExportSettings from './FullExportSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
 import Settings from './Settings.vue'
 import manifest from '../../manifest.json'
@@ -25,6 +27,7 @@ export default {
 	components: {
 		CnAdminSettingsShell,
 		Settings,
+		FullExportSettings,
 		PublicationSettings,
 	},
 

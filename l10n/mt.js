@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "It-tip ta' midja tad-dokument, bħal application/pdf.",
         "The public link to download the paper.": "Il-link pubbliku biex tniżżel id-dokument.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Id-dokumenti pubbliċi ta' dan il-punt tal-aġenda. Dokumenti ta' punt kunfidenzjali u dokumenti mmarkati kunfidenzjali qatt ma jitniżżlu.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "X'ġie ppubblikat: aġenda, deċiżjoni jew minuti. Iċ-ċittadini jiffiltraw fuqu."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "X'ġie ppubblikat: aġenda, deċiżjoni jew minuti. Iċ-ċittadini jiffiltraw fuqu.",
+        "Export all data": "Esporta d-data kollha",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Niżżel kull rekord ta' din l-app skont it-tip ta' rekord, bil-fajls tal-laqgħat, il-punti tal-aġenda u d-deċiżjonijiet. Il-preparazzjoni tieħu ftit żmien; tirċievi notifika bil-link għat-tniżżil.",
+        "Export failed": "L-esportazzjoni falliet",
+        "The export is being prepared": "L-esportazzjoni qed tiġi ppreparata",
+        "You get a notification when it is ready.": "Tirċievi notifika meta tkun lesta.",
+        "Download the export of {date} ({size})": "Niżżel l-esportazzjoni ta' {date} ({size})",
+        "The export could not be started.": "L-esportazzjoni ma setgħetx tinbeda.",
+        "Your data export is ready to download": "L-esportazzjoni tad-data tiegħek hija lesta biex titniżżel",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "L-esportazzjoni tad-data tiegħek falliet. Erġa' pprova, jew aqra l-log ta' Nextcloud għall-kawża."
     },
     "nplurals=2; plural=(n != 1);"
 )

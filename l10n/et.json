@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Dokumendi meediatüüp, näiteks application/pdf.",
         "The public link to download the paper.": "Avalik link dokumendi allalaadimiseks.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Selle päevakorrapunkti avalikud dokumendid. Konfidentsiaalse punkti dokumente ja konfidentsiaalseks märgitud dokumente ei näidata kunagi.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mis avaldati: päevakord, otsus või protokoll. Kodanikud filtreerivad selle järgi."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mis avaldati: päevakord, otsus või protokoll. Kodanikud filtreerivad selle järgi.",
+        "Export all data": "Ekspordi kõik andmed",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Laadige alla selle rakenduse kõik kirjed kirje tüübi kaupa koos koosolekute, päevakorrapunktide ja otsuste failidega. Ettevalmistus võtab aega; saate teavituse allalaadimise lingiga.",
+        "Export failed": "Eksport ebaõnnestus",
+        "The export is being prepared": "Eksporti valmistatakse ette",
+        "You get a notification when it is ready.": "Saate teavituse, kui see on valmis.",
+        "Download the export of {date} ({size})": "Laadi alla eksport kuupäevaga {date} ({size})",
+        "The export could not be started.": "Eksporti ei saanud alustada.",
+        "Your data export is ready to download": "Teie andmete eksport on allalaadimiseks valmis",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Andmete eksport ebaõnnestus. Proovige uuesti või lugege põhjust Nextcloudi logist."
     },
     "plurals": null
 }

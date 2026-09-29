@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Медийният тип на документа, например application/pdf.",
         "The public link to download the paper.": "Публичната връзка за изтегляне на документа.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Публичните документи по тази точка от дневния ред. Документи по поверителна точка и документи, отбелязани като поверителни, никога не се показват.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Какво е публикувано: дневен ред, решение или протокол. Гражданите филтрират по това."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Какво е публикувано: дневен ред, решение или протокол. Гражданите филтрират по това.",
+        "Export all data": "Експортиране на всички данни",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Изтеглете всеки запис на това приложение по вид запис, с файловете на заседания, точки от дневния ред и решения. Подготовката отнема време; ще получите известие с връзката за изтегляне.",
+        "Export failed": "Експортирането не бе успешно",
+        "The export is being prepared": "Експортът се подготвя",
+        "You get a notification when it is ready.": "Ще получите известие, когато е готов.",
+        "Download the export of {date} ({size})": "Изтеглете експорта от {date} ({size})",
+        "The export could not be started.": "Експортът не можа да бъде стартиран.",
+        "Your data export is ready to download": "Експортът на данните ви е готов за изтегляне",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Експортът на данните ви не бе успешен. Опитайте отново или прочетете дневника на Nextcloud за причината."
     },
     "plurals": null
 }

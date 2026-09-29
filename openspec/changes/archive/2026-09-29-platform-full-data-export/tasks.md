@@ -7,8 +7,8 @@
 - **files**: `lib/BackgroundJob/FullExportJob.php`, `lib/Service/FullExportService.php`, `src/views/settings/`
 - **acceptance_criteria**:
   - GIVEN an instance with meetings and decisions WHEN the admin exports all data THEN the ZIP holds a JSON per schema and the meeting files, and the admin is notified
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first): tests/Unit/Service/FullExportTest.php (5), NotifierTest::testTheExportNoticeLinksToTheDownload, tests/vitest/fullExport.spec.js (4)
 
 ## Verification
 

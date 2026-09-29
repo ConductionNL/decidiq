@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Asiakirjan mediatyyppi, kuten application/pdf.",
         "The public link to download the paper.": "Julkinen linkki asiakirjan lataamiseen.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Tämän esityslistan kohdan julkiset asiakirjat. Luottamuksellisen kohdan asiakirjoja ja luottamukselliseksi merkittyjä asiakirjoja ei koskaan näytetä.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mitä julkaistiin: esityslista, päätös tai pöytäkirja. Kansalaiset suodattavat sen mukaan."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mitä julkaistiin: esityslista, päätös tai pöytäkirja. Kansalaiset suodattavat sen mukaan.",
+        "Export all data": "Vie kaikki tiedot",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Lataa sovelluksen kaikki tietueet tietuetyypeittäin kokousten, esityslistan kohtien ja päätösten tiedostoineen. Valmistelu kestää hetken; saat ilmoituksen latauslinkin kanssa.",
+        "Export failed": "Vienti epäonnistui",
+        "The export is being prepared": "Vientiä valmistellaan",
+        "You get a notification when it is ready.": "Saat ilmoituksen, kun se on valmis.",
+        "Download the export of {date} ({size})": "Lataa vienti {date} ({size})",
+        "The export could not be started.": "Vientiä ei voitu aloittaa.",
+        "Your data export is ready to download": "Tietojen vienti on valmis ladattavaksi",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Tietojen vienti epäonnistui. Yritä uudelleen tai katso syy Nextcloudin lokista."
     },
     "plurals": null
 }
