@@ -362,7 +362,7 @@ class AgendaServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function testFormalitiesAreAdoptedWithoutDebate(): void {
 		$items = [
@@ -397,7 +397,7 @@ class AgendaServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function testAnItemOfTheMeetingIsMarkedAsAFormality(): void {
 		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-4', 'meeting' => 'meeting-uuid-1']));
@@ -415,7 +415,7 @@ class AgendaServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function testAnItemOfAnotherMeetingIsRefused(): void {
 		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-4', 'meeting' => 'other-meeting']));
@@ -431,7 +431,7 @@ class AgendaServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function testAnAdoptedFormalityCannotBeUnmarked(): void {
 		$this->objectService->method('find')->willReturn(

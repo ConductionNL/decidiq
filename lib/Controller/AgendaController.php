@@ -288,7 +288,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	#[NoAdminRequired]
 	public function formality(string $meetingId, string $itemId): JSONResponse {

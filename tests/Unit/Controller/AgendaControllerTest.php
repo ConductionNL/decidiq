@@ -162,7 +162,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * The chair or secretary marks an item as a formality.
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 *
 	 * @return void
 	 */
@@ -178,7 +178,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * A member who is not chair or secretary cannot mark formalities.
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 *
 	 * @return void
 	 */
@@ -193,7 +193,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * An item of another meeting reads as a bad request, with the reason.
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 *
 	 * @return void
 	 */
@@ -210,7 +210,7 @@ class AgendaControllerTest extends TestCase {
 	/**
 	 * Adopting the formalities answers how many were adopted.
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 *
 	 * @return void
 	 */

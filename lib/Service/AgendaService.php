@@ -285,7 +285,7 @@ class AgendaService {
 	 * @return integer The number of formalities adopted.
 	 *
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function processHamerstukken(string $meetingId): int {
 		$items = $this->objectService->findAll(
@@ -338,7 +338,7 @@ class AgendaService {
 	 *
 	 * @throws \InvalidArgumentException When the item is not on this meeting, or was already adopted as a formality.
 	 *
-	 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function setFormality(string $meetingId, string $itemId, bool $isFormality): void {
 		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');

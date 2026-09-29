@@ -639,7 +639,7 @@ export default {
 		 *
 		 * @param {object} item The agenda item
 		 * @return {string}
-		 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 		 */
 		formalityLabel(item) {
 			if (item.formalityOutcome === 'adopted-without-debate') {
@@ -654,7 +654,7 @@ export default {
 		 *
 		 * @param {object} row The agenda item row
 		 * @param {boolean} isFormality Whether it is a formality
-		 * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 		 */
 		async setFormality(row, isFormality) {
 			this.reorderError = ''

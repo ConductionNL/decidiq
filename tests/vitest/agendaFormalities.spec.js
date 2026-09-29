@@ -9,7 +9,7 @@
  * This repo's vitest cannot mount a `.vue` file, so the wiring is asserted
  * against the sources.
  *
- * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
  */
 
 import { readFileSync } from 'node:fs'

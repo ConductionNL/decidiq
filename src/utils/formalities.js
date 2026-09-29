@@ -7,7 +7,7 @@
  * carries the older `hamerstuk` tag) and stays pending until the live
  * screen records `formalityOutcome`.
  *
- * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
  */
 
 /**
@@ -15,7 +15,7 @@
  *
  * @param {object} item The agenda item
  * @return {boolean}
- * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
  */
 export function isPendingFormality(item) {
 	if (!item || item.formalityOutcome) return false
@@ -27,7 +27,7 @@ export function isPendingFormality(item) {
  *
  * @param {Array<object>} items The meeting's agenda items
  * @return {Array<object>}
- * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
  */
 export function pendingFormalities(items) {
 	return (items ?? [])
@@ -41,7 +41,7 @@ export function pendingFormalities(items) {
  * @param {string} meetingId The meeting id
  * @param {string} itemId The agenda item id
  * @return {string}
- * @spec openspec/changes/agenda-formalities-hamerstukken/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
  */
 export function formalityUrl(meetingId, itemId) {
 	return `/apps/decidiq/api/agendas/${encodeURIComponent(meetingId)}/items/${encodeURIComponent(itemId)}/formality`
