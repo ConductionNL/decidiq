@@ -7,7 +7,7 @@
  * from the ballot's relations and the faction from the participant; a
  * secret round comes back with totals only.
  *
- * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  */
 
 import { rankingText } from './rankedBallot.js'
@@ -17,7 +17,7 @@ import { rankingText } from './rankedBallot.js'
  *
  * @param {string} roundId The voting round id
  * @return {string}
- * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  */
 export function breakdownUrl(roundId) {
 	return `/apps/decidiq/api/voting-rounds/${encodeURIComponent(roundId)}/breakdown`
@@ -29,7 +29,7 @@ export function breakdownUrl(roundId) {
  * @param {object} breakdown The breakdown answer
  * @param {object} round The voting round (for ranked options)
  * @return {Array<object>}
- * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  */
 export function memberRows(breakdown, round) {
 	if (!breakdown || breakdown.secret) return []
@@ -53,7 +53,7 @@ export function memberRows(breakdown, round) {
  *
  * @param {object} breakdown The breakdown answer
  * @return {Array<object>}
- * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  */
 export function factionRows(breakdown) {
 	if (!breakdown || breakdown.secret) return []

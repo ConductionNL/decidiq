@@ -196,7 +196,7 @@ export default {
 		 *
 		 * @param {string} roundId The voting round id
 		 * @return {Promise<string>}
-		 * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+		 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
 		 */
 		async factionSummary(roundId) {
 			try {

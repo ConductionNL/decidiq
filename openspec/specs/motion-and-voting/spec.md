@@ -409,3 +409,14 @@ Every new PHP class and public method introduced by this change MUST carry a `@s
 
 ### REQ-NFR-006 — Security: voting operations require backend auth (ADR-005)
 All vote-related endpoints (cast, proxy grant/revoke, round open/close) MUST verify the caller's Nextcloud identity and role on the backend. Frontend-only role checks are not sufficient. No vote data is returned to unauthenticated callers.
+
+## Requirements
+
+### Requirement: REQ-VRF-001 Results per faction and per member
+
+An open vote's result SHALL be shown per member by name and per faction; a secret vote SHALL show totals only.
+
+#### Scenario: The council sees how factions voted
+- GIVEN an open vote on motion M-12 closed with 20 for and 9 against
+- WHEN member Pieter opens the motion page
+- THEN he sees each member's vote by name and a line per faction with its counts

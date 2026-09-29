@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -33,7 +33,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 /**
  * A round's result per member and per faction.
  *
- * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  */
 class VoteBreakdownService {
 
@@ -64,7 +64,7 @@ class VoteBreakdownService {
 	 *
 	 * @return array<string, mixed>|null secret, totals, members (by name) and factions (counts)
 	 *
-	 * @spec openspec/changes/voting-results-by-faction-and-member/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+	 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
 	 */
 	public function forRound(string $roundId): ?array {
 		$roundEntity = $this->objectService->find(id: $roundId, register: 'decidiq', schema: 'voting-round');
