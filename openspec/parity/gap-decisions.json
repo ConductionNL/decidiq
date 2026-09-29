@@ -1494,5 +1494,205 @@
     "reason": "Building, missing half decided no: Single competitor (Diligent Boards), no demand row, outside the core area (bodies, planning). Reversible.",
     "change": null,
     "decidedOn": "2026-09-28"
+  },
+  {
+    "row": "bod-08",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: core area (bodies).",
+    "change": "bodies-onboarding-checklist-walkthrough",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "bod-13",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: core area (bodies).",
+    "change": "bodies-shared-body-participations",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pla-12",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: core area (planning).",
+    "change": "planning-cycle-generate-from-template",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-13",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: 2 competitors rated yes (Notubiz, iBabs).",
+    "change": "agenda-incoming-documents-list",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-01",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Building, missing half has no change. Build: 2 competitors rated yes (iBabs, GO. Raadsinformatie).",
+    "change": "routes-send-proposal-along-route",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-05",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Building row; the open change voting-named-paper-vote-entry covers it (its proposal now names the row).",
+    "change": "voting-named-paper-vote-entry",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-18",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Building row; the open change bodies-member-profile-and-voting-record covers it (its proposal now names the row).",
+    "change": "bodies-member-profile-and-voting-record",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-11",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change document-annotations covers it (its proposal now names the row).",
+    "change": "document-annotations",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-12",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change meeting-pack-board-book covers it (its proposal now names the row).",
+    "change": "meeting-pack-board-book",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "age-15",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change document-accessibility-check covers it (its proposal now names the row).",
+    "change": "document-accessibility-check",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-11",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change records-management-archiving covers it (its proposal now names the row).",
+    "change": "records-management-archiving",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "par-09",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change inspreekrecht-plenair covers it (its proposal now names the row).",
+    "change": "inspreekrecht-plenair",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-18",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change records-management-archiving covers it (its proposal now names the row).",
+    "change": "records-management-archiving",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-09",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change works-council-consultation covers it (its proposal now names the row).",
+    "change": "works-council-consultation",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-12",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Specified row; the open change objection-advisory-committee covers it (its proposal now names the row).",
+    "change": "objection-advisory-committee",
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-07",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Specified without a change, decided no: A recorded non-goal: openspec/changes/embargo-geheimhouding/tasks.md states a passed deadline flags the restriction overdue and never lifts it automatically, because the body lifts secrecy by decision.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "mot-10",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-09",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (OpenSlides), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "vot-10",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (OpenSlides), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "fol-07",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-06",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "pub-06",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "par-12",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Building, missing half decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "rou-15",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Specified without a change, decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "plt-08",
+    "matrix": "decidiq",
+    "decision": "decided-no",
+    "reason": "Specified without a change, decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
+    "change": null,
+    "decidedOn": "2026-09-29"
   }
 ]
