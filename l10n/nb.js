@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Malen kunne ikke lagres.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Det finnes ingen maler for saksliste ennå. Lagre en saksliste som mal, eller legg til en under Maler for saksliste i innstillingene.",
         "Agenda templates": "Maler for saksliste",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen maler for saksliste ennå. Åpne et møte med en god saksliste og trykk Lagre som mal på sakslisten."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen maler for saksliste ennå. Åpne et møte med en god saksliste og trykk Lagre som mal på sakslisten.",
+        "Video call": "Videosamtale",
+        "This meeting has a video call in Talk.": "Dette møtet har en videosamtale i Talk.",
+        "Join video call": "Bli med i videosamtalen",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Opprett et Talk-rom for dette møtet og inviter medlemmene av organet, eller koble til et rom som finnes fra før.",
+        "Create video call": "Opprett videosamtale",
+        "Talk room link": "Lenke til Talk-rom",
+        "Link room": "Koble til rom",
+        "The video call has not been set up yet.": "Videosamtalen er ikke satt opp ennå.",
+        "The video call could not be created.": "Videosamtalen kunne ikke opprettes.",
+        "The room could not be linked.": "Rommet kunne ikke kobles til."
     },
     "nplurals=2; plural=(n != 1);"
 )

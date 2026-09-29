@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "No se pudo guardar la plantilla.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Aún no hay plantillas de orden del día. Guarde un orden del día como plantilla o añada una en Plantillas de orden del día en la configuración.",
         "Agenda templates": "Plantillas de orden del día",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Aún no hay plantillas. Abra una reunión con un buen orden del día y pulse Guardar como plantilla en su orden del día."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Aún no hay plantillas. Abra una reunión con un buen orden del día y pulse Guardar como plantilla en su orden del día.",
+        "Video call": "Videollamada",
+        "This meeting has a video call in Talk.": "Esta reunión tiene una videollamada en Talk.",
+        "Join video call": "Unirse a la videollamada",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Cree una sala de Talk para esta reunión e invite a los miembros del órgano, o vincule una sala existente.",
+        "Create video call": "Crear videollamada",
+        "Talk room link": "Enlace de la sala de Talk",
+        "Link room": "Vincular sala",
+        "The video call has not been set up yet.": "La videollamada aún no está preparada.",
+        "The video call could not be created.": "No se pudo crear la videollamada.",
+        "The room could not be linked.": "No se pudo vincular la sala."
     },
     "plurals": null
 }

@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "Veidni neizdevās saglabāt.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Darba kārtības veidņu vēl nav. Saglabājiet darba kārtību kā veidni vai pievienojiet to iestatījumos sadaļā Darba kārtības veidnes.",
         "Agenda templates": "Darba kārtības veidnes",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Darba kārtības veidņu vēl nav. Atveriet sēdi ar labu darba kārtību un tās darba kārtībā nospiediet Saglabāt kā veidni."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Darba kārtības veidņu vēl nav. Atveriet sēdi ar labu darba kārtību un tās darba kārtībā nospiediet Saglabāt kā veidni.",
+        "Video call": "Videozvans",
+        "This meeting has a video call in Talk.": "Šai sēdei ir videozvans Talk.",
+        "Join video call": "Pievienoties videozvanam",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Izveidojiet šai sēdei Talk istabu un uzaiciniet institūcijas locekļus vai piesaistiet jau esošu istabu.",
+        "Create video call": "Izveidot videozvanu",
+        "Talk room link": "Talk istabas saite",
+        "Link room": "Piesaistīt istabu",
+        "The video call has not been set up yet.": "Videozvans vēl nav iestatīts.",
+        "The video call could not be created.": "Videozvanu neizdevās izveidot.",
+        "The room could not be linked.": "Istabu neizdevās piesaistīt."
     },
     "plurals": null
 }

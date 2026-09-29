@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Șablonul nu a putut fi salvat.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nu există încă șabloane de ordine de zi. Salvați o ordine de zi ca șablon sau adăugați unul la Șabloane de ordine de zi în setări.",
         "Agenda templates": "Șabloane de ordine de zi",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Încă nu există șabloane. Deschideți o ședință cu o ordine de zi bună și apăsați Salvează ca șablon."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Încă nu există șabloane. Deschideți o ședință cu o ordine de zi bună și apăsați Salvează ca șablon.",
+        "Video call": "Apel video",
+        "This meeting has a video call in Talk.": "Această ședință are un apel video în Talk.",
+        "Join video call": "Alătură-te apelului video",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Creați o cameră Talk pentru această ședință și invitați membrii organului sau legați o cameră existentă.",
+        "Create video call": "Creează apel video",
+        "Talk room link": "Link către camera Talk",
+        "Link room": "Leagă camera",
+        "The video call has not been set up yet.": "Apelul video nu a fost încă configurat.",
+        "The video call could not be created.": "Apelul video nu a putut fi creat.",
+        "The room could not be linked.": "Camera nu a putut fi legată."
     },
     "nplurals=2; plural=(n != 1);"
 )

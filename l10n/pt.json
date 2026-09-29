@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "Não foi possível guardar o modelo.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Ainda não há modelos de ordem de trabalhos. Guarde uma ordem de trabalhos como modelo ou adicione um em Modelos de ordem de trabalhos nas definições.",
         "Agenda templates": "Modelos de ordem de trabalhos",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ainda não há modelos. Abra uma reunião com uma boa ordem de trabalhos e prima Guardar como modelo."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ainda não há modelos. Abra uma reunião com uma boa ordem de trabalhos e prima Guardar como modelo.",
+        "Video call": "Videochamada",
+        "This meeting has a video call in Talk.": "Esta reunião tem uma videochamada no Talk.",
+        "Join video call": "Entrar na videochamada",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Crie uma sala do Talk para esta reunião e convide os membros do órgão, ou ligue uma sala que já existe.",
+        "Create video call": "Criar videochamada",
+        "Talk room link": "Ligação da sala do Talk",
+        "Link room": "Ligar sala",
+        "The video call has not been set up yet.": "A videochamada ainda não foi configurada.",
+        "The video call could not be created.": "Não foi possível criar a videochamada.",
+        "The room could not be linked.": "Não foi possível ligar a sala."
     },
     "plurals": null
 }

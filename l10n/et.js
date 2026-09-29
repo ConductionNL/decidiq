@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Malli ei õnnestunud salvestada.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Päevakorra malle veel pole. Salvesta päevakord mallina või lisa mall seadete all Päevakorra mallid.",
         "Agenda templates": "Päevakorra mallid",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Päevakorra malle veel pole. Ava hea päevakorraga koosolek ja vajuta selle päevakorras Salvesta mallina."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Päevakorra malle veel pole. Ava hea päevakorraga koosolek ja vajuta selle päevakorras Salvesta mallina.",
+        "Video call": "Videokõne",
+        "This meeting has a video call in Talk.": "Sellel koosolekul on Talkis videokõne.",
+        "Join video call": "Liitu videokõnega",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Loo selle koosoleku jaoks Talki ruum ja kutsu organi liikmed või seo juba olemasolev ruum.",
+        "Create video call": "Loo videokõne",
+        "Talk room link": "Talki ruumi link",
+        "Link room": "Seo ruum",
+        "The video call has not been set up yet.": "Videokõnet pole veel seadistatud.",
+        "The video call could not be created.": "Videokõnet ei õnnestunud luua.",
+        "The room could not be linked.": "Ruumi ei õnnestunud siduda."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "Skabelonen kunne ikke gemmes.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Der er endnu ingen dagsordensskabeloner. Gem en dagsorden som skabelon, eller tilføj en under Dagsordensskabeloner i indstillingerne.",
         "Agenda templates": "Dagsordensskabeloner",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen dagsordensskabeloner endnu. Åbn et møde med en god dagsorden, og tryk på Gem som skabelon på dagsordenen."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen dagsordensskabeloner endnu. Åbn et møde med en god dagsorden, og tryk på Gem som skabelon på dagsordenen.",
+        "Video call": "Videoopkald",
+        "This meeting has a video call in Talk.": "Dette møde har et videoopkald i Talk.",
+        "Join video call": "Deltag i videoopkald",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Opret et Talk-rum til dette møde og inviter organets medlemmer, eller tilknyt et rum, der allerede findes.",
+        "Create video call": "Opret videoopkald",
+        "Talk room link": "Link til Talk-rum",
+        "Link room": "Tilknyt rum",
+        "The video call has not been set up yet.": "Videoopkaldet er ikke sat op endnu.",
+        "The video call could not be created.": "Videoopkaldet kunne ikke oprettes.",
+        "The room could not be linked.": "Rummet kunne ikke tilknyttes."
     },
     "plurals": null
 }

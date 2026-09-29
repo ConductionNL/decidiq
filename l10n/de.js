@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Die Vorlage konnte nicht gespeichert werden.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Es gibt noch keine Tagesordnungsvorlagen. Speichern Sie eine Tagesordnung als Vorlage oder fügen Sie eine unter Tagesordnungsvorlagen in den Einstellungen hinzu.",
         "Agenda templates": "Tagesordnungsvorlagen",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Noch keine Tagesordnungsvorlagen. Öffnen Sie eine Sitzung mit einer guten Tagesordnung und klicken Sie dort auf Als Vorlage speichern."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Noch keine Tagesordnungsvorlagen. Öffnen Sie eine Sitzung mit einer guten Tagesordnung und klicken Sie dort auf Als Vorlage speichern.",
+        "Video call": "Videoanruf",
+        "This meeting has a video call in Talk.": "Diese Sitzung hat einen Videoanruf in Talk.",
+        "Join video call": "Videoanruf beitreten",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Erstellen Sie einen Talk-Raum für diese Sitzung und laden Sie die Mitglieder des Gremiums ein, oder verknüpfen Sie einen bestehenden Raum.",
+        "Create video call": "Videoanruf erstellen",
+        "Talk room link": "Link zum Talk-Raum",
+        "Link room": "Raum verknüpfen",
+        "The video call has not been set up yet.": "Der Videoanruf ist noch nicht eingerichtet.",
+        "The video call could not be created.": "Der Videoanruf konnte nicht erstellt werden.",
+        "The room could not be linked.": "Der Raum konnte nicht verknüpft werden."
     },
     "nplurals=2; plural=(n != 1);"
 )

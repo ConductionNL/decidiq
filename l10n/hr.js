@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Predložak nije moguće spremiti.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Još nema predložaka dnevnog reda. Spremite dnevni red kao predložak ili ga dodajte pod Predlošci dnevnog reda u postavkama.",
         "Agenda templates": "Predlošci dnevnog reda",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Još nema predložaka. Otvorite sjednicu s dobrim dnevnim redom i pritisnite Spremi kao predložak na njegovom dnevnom redu."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Još nema predložaka. Otvorite sjednicu s dobrim dnevnim redom i pritisnite Spremi kao predložak na njegovom dnevnom redu.",
+        "Video call": "Videopoziv",
+        "This meeting has a video call in Talk.": "Ova sjednica ima videopoziv u Talku.",
+        "Join video call": "Pridruži se videopozivu",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Stvorite sobu u Talku za ovu sjednicu i pozovite članove tijela ili povežite postojeću sobu.",
+        "Create video call": "Stvori videopoziv",
+        "Talk room link": "Poveznica na sobu u Talku",
+        "Link room": "Poveži sobu",
+        "The video call has not been set up yet.": "Videopoziv još nije postavljen.",
+        "The video call could not be created.": "Videopoziv nije moguće stvoriti.",
+        "The room could not be linked.": "Sobu nije moguće povezati."
     },
     "nplurals=2; plural=(n != 1);"
 )

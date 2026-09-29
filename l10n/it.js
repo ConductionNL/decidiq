@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Impossibile salvare il modello.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Non ci sono ancora modelli di ordine del giorno. Salva un ordine del giorno come modello o aggiungine uno in Modelli di ordine del giorno nelle impostazioni.",
         "Agenda templates": "Modelli di ordine del giorno",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ancora nessun modello. Apri una riunione con un buon ordine del giorno e premi Salva come modello."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ancora nessun modello. Apri una riunione con un buon ordine del giorno e premi Salva come modello.",
+        "Video call": "Videochiamata",
+        "This meeting has a video call in Talk.": "Questa riunione ha una videochiamata in Talk.",
+        "Join video call": "Partecipa alla videochiamata",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Crea una stanza Talk per questa riunione e invita i membri dell'organo, oppure collega una stanza esistente.",
+        "Create video call": "Crea videochiamata",
+        "Talk room link": "Collegamento alla stanza Talk",
+        "Link room": "Collega stanza",
+        "The video call has not been set up yet.": "La videochiamata non è ancora stata configurata.",
+        "The video call could not be created.": "Impossibile creare la videochiamata.",
+        "The room could not be linked.": "Impossibile collegare la stanza."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "Níorbh fhéidir an teimpléad a shábháil.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Níl aon teimpléid chláir ann fós. Sábháil clár mar theimpléad, nó cuir ceann leis faoi Theimpléid chláir sna socruithe.",
         "Agenda templates": "Teimpléid chláir",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Níl aon teimpléid chláir ann fós. Oscail cruinniú a bhfuil clár maith aige agus brúigh Sábháil mar theimpléad ar a chlár."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Níl aon teimpléid chláir ann fós. Oscail cruinniú a bhfuil clár maith aige agus brúigh Sábháil mar theimpléad ar a chlár.",
+        "Video call": "Glao físe",
+        "This meeting has a video call in Talk.": "Tá glao físe in Talk ag an gcruinniú seo.",
+        "Join video call": "Glac páirt sa ghlao físe",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Cruthaigh seomra Talk don chruinniú seo agus tabhair cuireadh do bhaill an chomhlachta, nó nasc seomra atá ann cheana.",
+        "Create video call": "Cruthaigh glao físe",
+        "Talk room link": "Nasc seomra Talk",
+        "Link room": "Nasc seomra",
+        "The video call has not been set up yet.": "Níl an glao físe socraithe fós.",
+        "The video call could not be created.": "Níorbh fhéidir an glao físe a chruthú.",
+        "The room could not be linked.": "Níorbh fhéidir an seomra a nascadh."
     },
     "plurals": null
 }

@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Šablono išsaugoti nepavyko.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Darbotvarkės šablonų dar nėra. Išsaugokite darbotvarkę kaip šabloną arba pridėkite jį nustatymų skiltyje Darbotvarkės šablonai.",
         "Agenda templates": "Darbotvarkės šablonai",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Darbotvarkės šablonų dar nėra. Atverkite posėdį su gera darbotvarke ir jos skiltyje paspauskite Išsaugoti kaip šabloną."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Darbotvarkės šablonų dar nėra. Atverkite posėdį su gera darbotvarke ir jos skiltyje paspauskite Išsaugoti kaip šabloną.",
+        "Video call": "Vaizdo skambutis",
+        "This meeting has a video call in Talk.": "Šis posėdis turi vaizdo skambutį Talk.",
+        "Join video call": "Prisijungti prie vaizdo skambučio",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Sukurkite Talk kambarį šiam posėdžiui ir pakvieskite organo narius arba susiekite jau esamą kambarį.",
+        "Create video call": "Sukurti vaizdo skambutį",
+        "Talk room link": "Talk kambario nuoroda",
+        "Link room": "Susieti kambarį",
+        "The video call has not been set up yet.": "Vaizdo skambutis dar nenustatytas.",
+        "The video call could not be created.": "Vaizdo skambučio sukurti nepavyko.",
+        "The room could not be linked.": "Kambario susieti nepavyko."
     },
     "nplurals=2; plural=(n != 1);"
 )

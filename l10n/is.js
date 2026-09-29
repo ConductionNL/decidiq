@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Ekki tókst að vista sniðmátið.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Engin dagskrársniðmát eru til enn. Vistaðu dagskrá sem sniðmát eða bættu einu við undir Dagskrársniðmát í stillingum.",
         "Agenda templates": "Dagskrársniðmát",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Engin dagskrársniðmát enn. Opnaðu fund með góðri dagskrá og ýttu á Vista sem sniðmát á dagskránni."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Engin dagskrársniðmát enn. Opnaðu fund með góðri dagskrá og ýttu á Vista sem sniðmát á dagskránni.",
+        "Video call": "Myndsímtal",
+        "This meeting has a video call in Talk.": "Þessi fundur er með myndsímtal í Talk.",
+        "Join video call": "Taka þátt í myndsímtali",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Búðu til Talk-herbergi fyrir þennan fund og bjóddu meðlimum ráðsins, eða tengdu herbergi sem þegar er til.",
+        "Create video call": "Búa til myndsímtal",
+        "Talk room link": "Tengill á Talk-herbergi",
+        "Link room": "Tengja herbergi",
+        "The video call has not been set up yet.": "Myndsímtalið hefur ekki verið sett upp enn.",
+        "The video call could not be created.": "Ekki tókst að búa til myndsímtalið.",
+        "The room could not be linked.": "Ekki tókst að tengja herbergið."
     },
     "nplurals=2; plural=(n != 1);"
 )

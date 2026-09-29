@@ -1240,7 +1240,17 @@
         "The template could not be saved.": "Şablon kaydedilemedi.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Henüz gündem şablonu yok. Bir gündemi şablon olarak kaydedin veya ayarlardaki Gündem şablonları bölümünden ekleyin.",
         "Agenda templates": "Gündem şablonları",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Henüz gündem şablonu yok. İyi bir gündemi olan bir toplantıyı açın ve gündeminde Şablon olarak kaydet'e basın."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Henüz gündem şablonu yok. İyi bir gündemi olan bir toplantıyı açın ve gündeminde Şablon olarak kaydet'e basın.",
+        "Video call": "Görüntülü görüşme",
+        "This meeting has a video call in Talk.": "Bu toplantının Talk'ta görüntülü görüşmesi var.",
+        "Join video call": "Görüntülü görüşmeye katıl",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Bu toplantı için bir Talk odası oluşturup kurul üyelerini davet edin veya var olan bir odayı bağlayın.",
+        "Create video call": "Görüntülü görüşme oluştur",
+        "Talk room link": "Talk odası bağlantısı",
+        "Link room": "Odayı bağla",
+        "The video call has not been set up yet.": "Görüntülü görüşme henüz ayarlanmadı.",
+        "The video call could not be created.": "Görüntülü görüşme oluşturulamadı.",
+        "The room could not be linked.": "Oda bağlanamadı."
     },
     "plurals": null
 }

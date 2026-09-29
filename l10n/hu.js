@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "A sablont nem sikerült menteni.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Még nincsenek napirendsablonok. Mentsen egy napirendet sablonként, vagy adjon hozzá egyet a beállítások Napirendsablonok részén.",
         "Agenda templates": "Napirendsablonok",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Még nincsenek napirendsablonok. Nyisson meg egy jó napirendű ülést, és nyomja meg a napirendjén a Mentés sablonként gombot."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Még nincsenek napirendsablonok. Nyisson meg egy jó napirendű ülést, és nyomja meg a napirendjén a Mentés sablonként gombot.",
+        "Video call": "Videohívás",
+        "This meeting has a video call in Talk.": "Ennek az ülésnek van videohívása a Talkban.",
+        "Join video call": "Csatlakozás a videohíváshoz",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Hozzon létre Talk-szobát ehhez az üléshez, és hívja meg a testület tagjait, vagy kapcsoljon hozzá egy meglévő szobát.",
+        "Create video call": "Videohívás létrehozása",
+        "Talk room link": "Talk-szoba hivatkozása",
+        "Link room": "Szoba hozzákapcsolása",
+        "The video call has not been set up yet.": "A videohívás még nincs beállítva.",
+        "The video call could not be created.": "A videohívást nem sikerült létrehozni.",
+        "The room could not be linked.": "A szobát nem sikerült hozzákapcsolni."
     },
     "nplurals=2; plural=(n != 1);"
 )

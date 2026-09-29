@@ -1241,7 +1241,17 @@ OC.L10N.register(
         "The template could not be saved.": "Δεν ήταν δυνατή η αποθήκευση του προτύπου.",
         "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Δεν υπάρχουν ακόμη πρότυπα ημερήσιας διάταξης. Αποθηκεύστε μια ημερήσια διάταξη ως πρότυπο ή προσθέστε ένα στις ρυθμίσεις.",
         "Agenda templates": "Πρότυπα ημερήσιας διάταξης",
-        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Δεν υπάρχουν ακόμη πρότυπα. Ανοίξτε μια συνεδρίαση με καλή ημερήσια διάταξη και πατήστε Αποθήκευση ως πρότυπο."
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Δεν υπάρχουν ακόμη πρότυπα. Ανοίξτε μια συνεδρίαση με καλή ημερήσια διάταξη και πατήστε Αποθήκευση ως πρότυπο.",
+        "Video call": "Βιντεοκλήση",
+        "This meeting has a video call in Talk.": "Αυτή η συνεδρίαση έχει βιντεοκλήση στο Talk.",
+        "Join video call": "Συμμετοχή στη βιντεοκλήση",
+        "Create a Talk room for this meeting and invite the members of the body, or link a room that already exists.": "Δημιουργήστε αίθουσα Talk για αυτή τη συνεδρίαση και προσκαλέστε τα μέλη του οργάνου ή συνδέστε μια υπάρχουσα αίθουσα.",
+        "Create video call": "Δημιουργία βιντεοκλήσης",
+        "Talk room link": "Σύνδεσμος αίθουσας Talk",
+        "Link room": "Σύνδεση αίθουσας",
+        "The video call has not been set up yet.": "Η βιντεοκλήση δεν έχει ρυθμιστεί ακόμη.",
+        "The video call could not be created.": "Δεν ήταν δυνατή η δημιουργία της βιντεοκλήσης.",
+        "The room could not be linked.": "Δεν ήταν δυνατή η σύνδεση της αίθουσας."
     },
     "nplurals=2; plural=(n != 1);"
 )
