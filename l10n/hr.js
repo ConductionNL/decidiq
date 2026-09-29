@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Točke nije moguće dodati.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Dnevni red spremljen je kao predložak {name}. Preimenujte ga pod Predlošci dnevnog reda u postavkama.",
         "The template could not be saved.": "Predložak nije moguće spremiti.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Još nema predložaka dnevnog reda. Spremite dnevni red kao predložak ili ga dodajte pod Predlošci dnevnog reda u postavkama."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Još nema predložaka dnevnog reda. Spremite dnevni red kao predložak ili ga dodajte pod Predlošci dnevnog reda u postavkama.",
+        "Agenda templates": "Predlošci dnevnog reda",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Još nema predložaka. Otvorite sjednicu s dobrim dnevnim redom i pritisnite Spremi kao predložak na njegovom dnevnom redu."
     },
     "nplurals=2; plural=(n != 1);"
 )

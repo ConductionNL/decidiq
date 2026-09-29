@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Die Tagesordnungspunkte konnten nicht hinzugefügt werden.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Die Tagesordnung wurde als Vorlage {name} gespeichert. Benennen Sie sie unter Tagesordnungsvorlagen in den Einstellungen um.",
         "The template could not be saved.": "Die Vorlage konnte nicht gespeichert werden.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Es gibt noch keine Tagesordnungsvorlagen. Speichern Sie eine Tagesordnung als Vorlage oder fügen Sie eine unter Tagesordnungsvorlagen in den Einstellungen hinzu."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Es gibt noch keine Tagesordnungsvorlagen. Speichern Sie eine Tagesordnung als Vorlage oder fügen Sie eine unter Tagesordnungsvorlagen in den Einstellungen hinzu.",
+        "Agenda templates": "Tagesordnungsvorlagen",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Noch keine Tagesordnungsvorlagen. Öffnen Sie eine Sitzung mit einer guten Tagesordnung und klicken Sie dort auf Als Vorlage speichern."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Sakene kunne ikke legges til.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Sakslisten ble lagret som malen {name}. Gi den nytt navn under Maler for saksliste i innstillingene.",
         "The template could not be saved.": "Malen kunne ikke lagres.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Det finnes ingen maler for saksliste ennå. Lagre en saksliste som mal, eller legg til en under Maler for saksliste i innstillingene."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Det finnes ingen maler for saksliste ennå. Lagre en saksliste som mal, eller legg til en under Maler for saksliste i innstillingene.",
+        "Agenda templates": "Maler for saksliste",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen maler for saksliste ennå. Åpne et møte med en god saksliste og trykk Lagre som mal på sakslisten."
     },
     "nplurals=2; plural=(n != 1);"
 )

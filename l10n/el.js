@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Δεν ήταν δυνατή η προσθήκη των θεμάτων.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Η ημερήσια διάταξη αποθηκεύτηκε ως πρότυπο {name}. Μετονομάστε το στα Πρότυπα ημερήσιας διάταξης στις ρυθμίσεις.",
         "The template could not be saved.": "Δεν ήταν δυνατή η αποθήκευση του προτύπου.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Δεν υπάρχουν ακόμη πρότυπα ημερήσιας διάταξης. Αποθηκεύστε μια ημερήσια διάταξη ως πρότυπο ή προσθέστε ένα στις ρυθμίσεις."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Δεν υπάρχουν ακόμη πρότυπα ημερήσιας διάταξης. Αποθηκεύστε μια ημερήσια διάταξη ως πρότυπο ή προσθέστε ένα στις ρυθμίσεις.",
+        "Agenda templates": "Πρότυπα ημερήσιας διάταξης",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Δεν υπάρχουν ακόμη πρότυπα. Ανοίξτε μια συνεδρίαση με καλή ημερήσια διάταξη και πατήστε Αποθήκευση ως πρότυπο."
     },
     "nplurals=2; plural=(n != 1);"
 )

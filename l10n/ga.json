@@ -1238,7 +1238,9 @@
         "The agenda items could not be added.": "Níorbh fhéidir na míreanna a chur leis.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Sábháladh an clár mar an teimpléad {name}. Athainmnigh é faoi Theimpléid chláir sna socruithe.",
         "The template could not be saved.": "Níorbh fhéidir an teimpléad a shábháil.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Níl aon teimpléid chláir ann fós. Sábháil clár mar theimpléad, nó cuir ceann leis faoi Theimpléid chláir sna socruithe."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Níl aon teimpléid chláir ann fós. Sábháil clár mar theimpléad, nó cuir ceann leis faoi Theimpléid chláir sna socruithe.",
+        "Agenda templates": "Teimpléid chláir",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Níl aon teimpléid chláir ann fós. Oscail cruinniú a bhfuil clár maith aige agus brúigh Sábháil mar theimpléad ar a chlár."
     },
     "plurals": null
 }

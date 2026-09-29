@@ -1238,7 +1238,9 @@
         "The agenda items could not be added.": "Não foi possível adicionar os pontos.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "A ordem de trabalhos foi guardada como o modelo {name}. Mude-lhe o nome em Modelos de ordem de trabalhos nas definições.",
         "The template could not be saved.": "Não foi possível guardar o modelo.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Ainda não há modelos de ordem de trabalhos. Guarde uma ordem de trabalhos como modelo ou adicione um em Modelos de ordem de trabalhos nas definições."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Ainda não há modelos de ordem de trabalhos. Guarde uma ordem de trabalhos como modelo ou adicione um em Modelos de ordem de trabalhos nas definições.",
+        "Agenda templates": "Modelos de ordem de trabalhos",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ainda não há modelos. Abra uma reunião com uma boa ordem de trabalhos e prima Guardar como modelo."
     },
     "plurals": null
 }

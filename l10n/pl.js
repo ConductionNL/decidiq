@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Nie udało się dodać punktów.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Porządek obrad zapisano jako szablon {name}. Zmień jego nazwę w Szablonach porządku obrad w ustawieniach.",
         "The template could not be saved.": "Nie udało się zapisać szablonu.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nie ma jeszcze szablonów porządku obrad. Zapisz porządek obrad jako szablon lub dodaj go w Szablonach porządku obrad w ustawieniach."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nie ma jeszcze szablonów porządku obrad. Zapisz porządek obrad jako szablon lub dodaj go w Szablonach porządku obrad w ustawieniach.",
+        "Agenda templates": "Szablony porządku obrad",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Brak szablonów porządku obrad. Otwórz posiedzenie z dobrym porządkiem obrad i naciśnij Zapisz jako szablon."
     },
     "nplurals=2; plural=(n != 1);"
 )

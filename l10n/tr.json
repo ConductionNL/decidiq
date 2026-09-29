@@ -1238,7 +1238,9 @@
         "The agenda items could not be added.": "Gündem maddeleri eklenemedi.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Gündem {name} şablonu olarak kaydedildi. Ayarlardaki Gündem şablonları bölümünden yeniden adlandırın.",
         "The template could not be saved.": "Şablon kaydedilemedi.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Henüz gündem şablonu yok. Bir gündemi şablon olarak kaydedin veya ayarlardaki Gündem şablonları bölümünden ekleyin."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Henüz gündem şablonu yok. Bir gündemi şablon olarak kaydedin veya ayarlardaki Gündem şablonları bölümünden ekleyin.",
+        "Agenda templates": "Gündem şablonları",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Henüz gündem şablonu yok. İyi bir gündemi olan bir toplantıyı açın ve gündeminde Şablon olarak kaydet'e basın."
     },
     "plurals": null
 }

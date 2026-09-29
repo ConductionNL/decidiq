@@ -1238,7 +1238,9 @@
         "The agenda items could not be added.": "Dagsordenspunkterne kunne ikke tilføjes.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Dagsordenen blev gemt som skabelonen {name}. Omdøb den under Dagsordensskabeloner i indstillingerne.",
         "The template could not be saved.": "Skabelonen kunne ikke gemmes.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Der er endnu ingen dagsordensskabeloner. Gem en dagsorden som skabelon, eller tilføj en under Dagsordensskabeloner i indstillingerne."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Der er endnu ingen dagsordensskabeloner. Gem en dagsorden som skabelon, eller tilføj en under Dagsordensskabeloner i indstillingerne.",
+        "Agenda templates": "Dagsordensskabeloner",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ingen dagsordensskabeloner endnu. Åbn et møde med en god dagsorden, og tryk på Gem som skabelon på dagsordenen."
     },
     "plurals": null
 }

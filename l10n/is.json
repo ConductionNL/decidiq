@@ -1238,7 +1238,9 @@
         "The agenda items could not be added.": "Ekki tókst að bæta liðunum við.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Dagskráin var vistuð sem sniðmátið {name}. Endurnefndu það undir Dagskrársniðmát í stillingum.",
         "The template could not be saved.": "Ekki tókst að vista sniðmátið.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Engin dagskrársniðmát eru til enn. Vistaðu dagskrá sem sniðmát eða bættu einu við undir Dagskrársniðmát í stillingum."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Engin dagskrársniðmát eru til enn. Vistaðu dagskrá sem sniðmát eða bættu einu við undir Dagskrársniðmát í stillingum.",
+        "Agenda templates": "Dagskrársniðmát",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Engin dagskrársniðmát enn. Opnaðu fund með góðri dagskrá og ýttu á Vista sem sniðmát á dagskránni."
     },
     "plurals": null
 }

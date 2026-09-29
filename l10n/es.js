@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "No se pudieron añadir los puntos.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "El orden del día se guardó como la plantilla {name}. Cámbiele el nombre en Plantillas de orden del día en la configuración.",
         "The template could not be saved.": "No se pudo guardar la plantilla.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Aún no hay plantillas de orden del día. Guarde un orden del día como plantilla o añada una en Plantillas de orden del día en la configuración."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Aún no hay plantillas de orden del día. Guarde un orden del día como plantilla o añada una en Plantillas de orden del día en la configuración.",
+        "Agenda templates": "Plantillas de orden del día",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Aún no hay plantillas. Abra una reunión con un buen orden del día y pulse Guardar como plantilla en su orden del día."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Punctele nu au putut fi adăugate.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Ordinea de zi a fost salvată ca șablonul {name}. Redenumiți-l la Șabloane de ordine de zi în setări.",
         "The template could not be saved.": "Șablonul nu a putut fi salvat.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nu există încă șabloane de ordine de zi. Salvați o ordine de zi ca șablon sau adăugați unul la Șabloane de ordine de zi în setări."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Nu există încă șabloane de ordine de zi. Salvați o ordine de zi ca șablon sau adăugați unul la Șabloane de ordine de zi în setări.",
+        "Agenda templates": "Șabloane de ordine de zi",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Încă nu există șabloane. Deschideți o ședință cu o ordine de zi bună și apăsați Salvează ca șablon."
     },
     "nplurals=2; plural=(n != 1);"
 )

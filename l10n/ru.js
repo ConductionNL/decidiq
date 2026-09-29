@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Не удалось добавить пункты.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Повестка сохранена как шаблон {name}. Переименуйте его в разделе Шаблоны повестки в настройках.",
         "The template could not be saved.": "Не удалось сохранить шаблон.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Шаблонов повестки пока нет. Сохраните повестку как шаблон или добавьте его в разделе Шаблоны повестки в настройках."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Шаблонов повестки пока нет. Сохраните повестку как шаблон или добавьте его в разделе Шаблоны повестки в настройках.",
+        "Agenda templates": "Шаблоны повестки",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Шаблонов повестки пока нет. Откройте заседание с хорошей повесткой и нажмите Сохранить как шаблон."
     },
     "nplurals=2; plural=(n != 1);"
 )

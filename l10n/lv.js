@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Punktus neizdevās pievienot.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "Darba kārtība saglabāta kā veidne {name}. Pārdēvējiet to iestatījumos sadaļā Darba kārtības veidnes.",
         "The template could not be saved.": "Veidni neizdevās saglabāt.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Darba kārtības veidņu vēl nav. Saglabājiet darba kārtību kā veidni vai pievienojiet to iestatījumos sadaļā Darba kārtības veidnes."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Darba kārtības veidņu vēl nav. Saglabājiet darba kārtību kā veidni vai pievienojiet to iestatījumos sadaļā Darba kārtības veidnes.",
+        "Agenda templates": "Darba kārtības veidnes",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Darba kārtības veidņu vēl nav. Atveriet sēdi ar labu darba kārtību un tās darba kārtībā nospiediet Saglabāt kā veidni."
     },
     "nplurals=2; plural=(n != 1);"
 )

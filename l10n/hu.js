@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "A napirendi pontokat nem sikerült hozzáadni.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "A napirend {name} sablonként lett mentve. Nevezze át a beállítások Napirendsablonok részén.",
         "The template could not be saved.": "A sablont nem sikerült menteni.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Még nincsenek napirendsablonok. Mentsen egy napirendet sablonként, vagy adjon hozzá egyet a beállítások Napirendsablonok részén."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Még nincsenek napirendsablonok. Mentsen egy napirendet sablonként, vagy adjon hozzá egyet a beállítások Napirendsablonok részén.",
+        "Agenda templates": "Napirendsablonok",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Még nincsenek napirendsablonok. Nyisson meg egy jó napirendű ülést, és nyomja meg a napirendjén a Mentés sablonként gombot."
     },
     "nplurals=2; plural=(n != 1);"
 )

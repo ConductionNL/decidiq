@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Il-punti ma setgħux jiżdiedu.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "L-aġenda ġiet issejvjata bħala l-mudell {name}. Ibdel l-isem taħt Mudelli tal-aġenda fis-settings.",
         "The template could not be saved.": "Il-mudell ma setax jiġi ssejvjat.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Għad m'hemmx mudelli tal-aġenda. Issejvja aġenda bħala mudell, jew żid wieħed taħt Mudelli tal-aġenda fis-settings."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Għad m'hemmx mudelli tal-aġenda. Issejvja aġenda bħala mudell, jew żid wieħed taħt Mudelli tal-aġenda fis-settings.",
+        "Agenda templates": "Mudelli tal-aġenda",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Għad m'hemmx mudelli tal-aġenda. Iftaħ laqgħa b'aġenda tajba u agħfas Issejvja bħala mudell fuq l-aġenda tagħha."
     },
     "nplurals=2; plural=(n != 1);"
 )

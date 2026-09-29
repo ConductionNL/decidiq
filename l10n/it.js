@@ -1239,7 +1239,9 @@ OC.L10N.register(
         "The agenda items could not be added.": "Impossibile aggiungere i punti.",
         "The agenda was saved as the template {name}. Rename it under Agenda templates in the settings.": "L'ordine del giorno è stato salvato come modello {name}. Rinominalo in Modelli di ordine del giorno nelle impostazioni.",
         "The template could not be saved.": "Impossibile salvare il modello.",
-        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Non ci sono ancora modelli di ordine del giorno. Salva un ordine del giorno come modello o aggiungine uno in Modelli di ordine del giorno nelle impostazioni."
+        "There are no agenda templates yet. Save an agenda as a template, or add one under Agenda templates in the settings.": "Non ci sono ancora modelli di ordine del giorno. Salva un ordine del giorno come modello o aggiungine uno in Modelli di ordine del giorno nelle impostazioni.",
+        "Agenda templates": "Modelli di ordine del giorno",
+        "No agenda templates yet. Open a meeting with a good agenda and press Save as template on its Agenda.": "Ancora nessun modello. Apri una riunione con un buon ordine del giorno e premi Salva come modello."
     },
     "nplurals=2; plural=(n != 1);"
 )
