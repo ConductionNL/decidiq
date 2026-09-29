@@ -5002,14 +5002,15 @@
 			"area": "publication",
 			"name": "Take all your data with you when you leave the supplier.",
 			"origin": "competitor",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "appinfo/routes.php:263-264 /api/v1/{resource} GET list/show; lib/Service/RegulatorExportService.php (resolutions and minutes to PDF/CSV only); all records are OpenRegister objects in the customer's own Nextcloud",
-				"owner": "ConductionNL/openregister",
-				"change": "openspec/changes/platform-full-data-export"
+				"state": "built",
+				"evidence": "lib/Service/FullExportService.php build(): one JSON per shipped schema (paged findAll, system context), files of meeting/agenda-item/decision under files/<type>/<id>/, manifest.json with counts, relations, skipped and missingFiles; lib/BackgroundJob/FullExportJob.php notifies full_export_ready with the download link; lib/Controller/FullExportController.php POST/GET /api/export/full and GET /api/export/full/{name} (AuthorizedAdminSetting); src/views/settings/FullExportSettings.vue Export all data",
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/archive/2026-09-29-platform-full-data-export",
+				"readOn": "2026-09-29"
 			},
-			"reachedOn": "API only: GET /apps/decidiq/api/v1/{resource}; full export would be OpenRegister's",
+			"reachedOn": "Administration settings > decidiq: Export all data; the notification links to the download; the panel links to the newest export",
 			"provider": "openregister",
 			"providerHow": "read-from-code",
 			"feature": "data-portability",

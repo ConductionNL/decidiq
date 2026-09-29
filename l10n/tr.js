@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Belgenin ortam türü, örneğin application/pdf.",
         "The public link to download the paper.": "Belgeyi indirmek için herkese açık bağlantı.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Bu gündem maddesinin herkese açık belgeleri. Gizli bir maddenin belgeleri ve gizli olarak etiketlenen belgeler asla listelenmez.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ne yayımlandı: gündem, karar veya tutanak. Vatandaşlar buna göre filtreler."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ne yayımlandı: gündem, karar veya tutanak. Vatandaşlar buna göre filtreler.",
+        "Export all data": "Tüm verileri dışa aktar",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Bu uygulamadaki her kaydı kayıt türüne göre, toplantıların, gündem maddelerinin ve kararların dosyalarıyla indirin. Hazırlık biraz zaman alır; indirme bağlantısını içeren bir bildirim alırsınız.",
+        "Export failed": "Dışa aktarma başarısız oldu",
+        "The export is being prepared": "Dışa aktarma hazırlanıyor",
+        "You get a notification when it is ready.": "Hazır olduğunda bir bildirim alırsınız.",
+        "Download the export of {date} ({size})": "{date} tarihli dışa aktarmayı indir ({size})",
+        "The export could not be started.": "Dışa aktarma başlatılamadı.",
+        "Your data export is ready to download": "Veri dışa aktarımınız indirilmeye hazır",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Veri dışa aktarımınız başarısız oldu. Yeniden deneyin veya nedeni için Nextcloud günlüğünü okuyun."
     },
     "nplurals=2; plural=(n != 1);"
 )

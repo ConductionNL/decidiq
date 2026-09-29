@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Bilagets medietype, fx application/pdf.",
         "The public link to download the paper.": "Det offentlige link til at downloade bilaget.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "De offentlige bilag til dette dagsordenspunkt. Bilag til et fortroligt punkt og bilag mærket fortrolige vises aldrig.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hvad der blev offentliggjort: en dagsorden, en beslutning eller et referat. Borgere filtrerer på det."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hvad der blev offentliggjort: en dagsorden, en beslutning eller et referat. Borgere filtrerer på det.",
+        "Export all data": "Eksportér alle data",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Download alle poster i denne app pr. posttype med filerne fra møder, dagsordenspunkter og beslutninger. Det tager et stykke tid at forberede; du får en notifikation med downloadlinket.",
+        "Export failed": "Eksporten mislykkedes",
+        "The export is being prepared": "Eksporten forberedes",
+        "You get a notification when it is ready.": "Du får en notifikation, når den er klar.",
+        "Download the export of {date} ({size})": "Download eksporten fra {date} ({size})",
+        "The export could not be started.": "Eksporten kunne ikke startes.",
+        "Your data export is ready to download": "Din dataeksport er klar til download",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Din dataeksport mislykkedes. Prøv igen, eller læs Nextcloud-loggen for årsagen."
     },
     "nplurals=2; plural=(n != 1);"
 )

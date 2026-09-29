@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Vrsta medija dokumenta, npr. application/pdf.",
         "The public link to download the paper.": "Javna poveznica za preuzimanje dokumenta.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Javni dokumenti ove točke dnevnog reda. Dokumenti povjerljive točke i dokumenti označeni kao povjerljivi nikad se ne navode.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Što je objavljeno: dnevni red, odluka ili zapisnik. Građani po tome filtriraju."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Što je objavljeno: dnevni red, odluka ili zapisnik. Građani po tome filtriraju.",
+        "Export all data": "Izvezi sve podatke",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Preuzmite svaki zapis ove aplikacije po vrsti zapisa, s datotekama sjednica, točaka dnevnog reda i odluka. Priprema traje neko vrijeme; dobit ćete obavijest s poveznicom za preuzimanje.",
+        "Export failed": "Izvoz nije uspio",
+        "The export is being prepared": "Izvoz se priprema",
+        "You get a notification when it is ready.": "Dobit ćete obavijest kad bude spreman.",
+        "Download the export of {date} ({size})": "Preuzmi izvoz od {date} ({size})",
+        "The export could not be started.": "Izvoz nije moguće pokrenuti.",
+        "Your data export is ready to download": "Vaš izvoz podataka spreman je za preuzimanje",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Izvoz podataka nije uspio. Pokušajte ponovno ili pročitajte uzrok u zapisniku Nextclouda."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "El tipo de medio del documento, como application/pdf.",
         "The public link to download the paper.": "El enlace público para descargar el documento.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Los documentos públicos de este punto del orden del día. Nunca se listan los documentos de un punto confidencial ni los marcados como confidenciales.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Lo que se publicó: un orden del día, una decisión o un acta. Los ciudadanos filtran por ello."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Lo que se publicó: un orden del día, una decisión o un acta. Los ciudadanos filtran por ello.",
+        "Export all data": "Exportar todos los datos",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Descargue todos los registros de esta aplicación por tipo de registro, con los archivos de reuniones, puntos del orden del día y decisiones. La preparación lleva un tiempo; recibirá una notificación con el enlace de descarga.",
+        "Export failed": "La exportación falló",
+        "The export is being prepared": "Se está preparando la exportación",
+        "You get a notification when it is ready.": "Recibirá una notificación cuando esté lista.",
+        "Download the export of {date} ({size})": "Descargar la exportación del {date} ({size})",
+        "The export could not be started.": "No se pudo iniciar la exportación.",
+        "Your data export is ready to download": "Su exportación de datos está lista para descargar",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Su exportación de datos falló. Inténtelo de nuevo o consulte el registro de Nextcloud para ver la causa."
     },
     "nplurals=2; plural=(n != 1);"
 )

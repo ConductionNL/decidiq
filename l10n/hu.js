@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "A dokumentum médiatípusa, például application/pdf.",
         "The public link to download the paper.": "A dokumentum letöltésére szolgáló nyilvános hivatkozás.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "A napirendi pont nyilvános dokumentumai. Bizalmas pont dokumentumai és a bizalmasnak jelölt dokumentumok soha nem jelennek meg.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mi jelent meg: napirend, határozat vagy jegyzőkönyv. A polgárok ez alapján szűrnek."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Mi jelent meg: napirend, határozat vagy jegyzőkönyv. A polgárok ez alapján szűrnek.",
+        "Export all data": "Összes adat exportálása",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Töltse le az alkalmazás minden rekordját rekordtípusonként, az ülések, napirendi pontok és határozatok fájljaival. Az előkészítés eltart egy ideig; értesítést kap a letöltési hivatkozással.",
+        "Export failed": "Az exportálás sikertelen",
+        "The export is being prepared": "Az exportálás előkészítés alatt",
+        "You get a notification when it is ready.": "Értesítést kap, amikor elkészül.",
+        "Download the export of {date} ({size})": "A {date} exportálás letöltése ({size})",
+        "The export could not be started.": "Az exportálást nem sikerült elindítani.",
+        "Your data export is ready to download": "Az adatexportálás letölthető",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Az adatexportálás sikertelen. Próbálja újra, vagy nézze meg az okát a Nextcloud naplójában."
     },
     "nplurals=2; plural=(n != 1);"
 )

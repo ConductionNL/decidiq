@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Dokumento medijos tipas, pvz., application/pdf.",
         "The public link to download the paper.": "Vieša nuoroda dokumentui atsisiųsti.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Viešieji šio darbotvarkės klausimo dokumentai. Konfidencialaus klausimo dokumentai ir konfidencialiais pažymėti dokumentai niekada nerodomi.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Kas paskelbta: darbotvarkė, sprendimas ar protokolas. Piliečiai pagal tai filtruoja."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Kas paskelbta: darbotvarkė, sprendimas ar protokolas. Piliečiai pagal tai filtruoja.",
+        "Export all data": "Eksportuoti visus duomenis",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Atsisiųskite kiekvieną šios programos įrašą pagal įrašo tipą, su posėdžių, darbotvarkės klausimų ir sprendimų failais. Paruošimas užtrunka; gausite pranešimą su atsisiuntimo nuoroda.",
+        "Export failed": "Eksportas nepavyko",
+        "The export is being prepared": "Eksportas ruošiamas",
+        "You get a notification when it is ready.": "Gausite pranešimą, kai jis bus paruoštas.",
+        "Download the export of {date} ({size})": "Atsisiųsti {date} eksportą ({size})",
+        "The export could not be started.": "Eksporto nepavyko pradėti.",
+        "Your data export is ready to download": "Jūsų duomenų eksportas paruoštas atsisiųsti",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Duomenų eksportas nepavyko. Bandykite dar kartą arba priežastį raskite Nextcloud žurnale."
     },
     "plurals": null
 }

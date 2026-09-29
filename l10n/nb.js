@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Medietypen til dokumentet, for eksempel application/pdf.",
         "The public link to download the paper.": "Den offentlige lenken for å laste ned dokumentet.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "De offentlige dokumentene til dette sakslistepunktet. Dokumenter til et konfidensielt punkt og dokumenter merket konfidensielle vises aldri.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hva som ble publisert: en saksliste, et vedtak eller et referat. Innbyggere filtrerer på det."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Hva som ble publisert: en saksliste, et vedtak eller et referat. Innbyggere filtrerer på det.",
+        "Export all data": "Eksporter alle data",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Last ned alle poster i denne appen per posttype, med filene fra møter, sakslistepunkter og vedtak. Det tar litt tid å klargjøre; du får et varsel med nedlastingslenken.",
+        "Export failed": "Eksporten mislyktes",
+        "The export is being prepared": "Eksporten klargjøres",
+        "You get a notification when it is ready.": "Du får et varsel når den er klar.",
+        "Download the export of {date} ({size})": "Last ned eksporten fra {date} ({size})",
+        "The export could not be started.": "Eksporten kunne ikke startes.",
+        "Your data export is ready to download": "Dataeksporten din er klar til nedlasting",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Dataeksporten din mislyktes. Prøv igjen, eller les Nextcloud-loggen for årsaken."
     },
     "nplurals=2; plural=(n != 1);"
 )

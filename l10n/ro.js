@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Tipul media al documentului, de exemplu application/pdf.",
         "The public link to download the paper.": "Linkul public pentru descărcarea documentului.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Documentele publice ale acestui punct de pe ordinea de zi. Documentele unui punct confidențial și cele marcate confidențiale nu sunt afișate niciodată.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ce s-a publicat: o ordine de zi, o decizie sau un proces-verbal. Cetățenii filtrează după asta."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ce s-a publicat: o ordine de zi, o decizie sau un proces-verbal. Cetățenii filtrează după asta.",
+        "Export all data": "Exportă toate datele",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Descărcați fiecare înregistrare a acestei aplicații după tip, cu fișierele ședințelor, punctelor de pe ordinea de zi și deciziilor. Pregătirea durează puțin; veți primi o notificare cu linkul de descărcare.",
+        "Export failed": "Exportul a eșuat",
+        "The export is being prepared": "Exportul este în pregătire",
+        "You get a notification when it is ready.": "Veți primi o notificare când este gata.",
+        "Download the export of {date} ({size})": "Descărcați exportul din {date} ({size})",
+        "The export could not be started.": "Exportul nu a putut fi pornit.",
+        "Your data export is ready to download": "Exportul datelor dvs. este gata de descărcare",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Exportul datelor a eșuat. Încercați din nou sau citiți cauza în jurnalul Nextcloud."
     },
     "nplurals=2; plural=(n != 1);"
 )

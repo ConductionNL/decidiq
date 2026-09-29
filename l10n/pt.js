@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "O tipo de média do documento, como application/pdf.",
         "The public link to download the paper.": "O link público para transferir o documento.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Os documentos públicos deste ponto da ordem de trabalhos. Documentos de um ponto confidencial e documentos marcados como confidenciais nunca são listados.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "O que foi publicado: uma ordem de trabalhos, uma decisão ou uma ata. Os cidadãos filtram por isso."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "O que foi publicado: uma ordem de trabalhos, uma decisão ou uma ata. Os cidadãos filtram por isso.",
+        "Export all data": "Exportar todos os dados",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Transfira todos os registos desta aplicação por tipo de registo, com os ficheiros de reuniões, pontos da ordem de trabalhos e decisões. A preparação demora algum tempo; receberá uma notificação com o link de transferência.",
+        "Export failed": "A exportação falhou",
+        "The export is being prepared": "A exportação está a ser preparada",
+        "You get a notification when it is ready.": "Receberá uma notificação quando estiver pronta.",
+        "Download the export of {date} ({size})": "Transferir a exportação de {date} ({size})",
+        "The export could not be started.": "Não foi possível iniciar a exportação.",
+        "Your data export is ready to download": "A sua exportação de dados está pronta para transferir",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "A exportação de dados falhou. Tente novamente ou consulte o registo do Nextcloud para saber a causa."
     },
     "nplurals=2; plural=(n != 1);"
 )

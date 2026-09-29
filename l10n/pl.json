@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Typ nośnika dokumentu, np. application/pdf.",
         "The public link to download the paper.": "Publiczny link do pobrania dokumentu.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Publiczne dokumenty tego punktu porządku obrad. Dokumenty punktu poufnego i dokumenty oznaczone jako poufne nigdy nie są wyświetlane.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Co opublikowano: porządek obrad, decyzję lub protokół. Obywatele filtrują według tego."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Co opublikowano: porządek obrad, decyzję lub protokół. Obywatele filtrują według tego.",
+        "Export all data": "Eksportuj wszystkie dane",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Pobierz każdy rekord tej aplikacji według typu rekordu, z plikami posiedzeń, punktów porządku obrad i decyzji. Przygotowanie trochę trwa; otrzymasz powiadomienie z linkiem do pobrania.",
+        "Export failed": "Eksport nie powiódł się",
+        "The export is being prepared": "Eksport jest przygotowywany",
+        "You get a notification when it is ready.": "Otrzymasz powiadomienie, gdy będzie gotowy.",
+        "Download the export of {date} ({size})": "Pobierz eksport z {date} ({size})",
+        "The export could not be started.": "Nie udało się rozpocząć eksportu.",
+        "Your data export is ready to download": "Twój eksport danych jest gotowy do pobrania",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Eksport danych nie powiódł się. Spróbuj ponownie lub sprawdź przyczynę w dzienniku Nextcloud."
     },
     "plurals": null
 }

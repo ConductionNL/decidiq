@@ -1310,7 +1310,16 @@ OC.L10N.register(
         "The media type of the paper, such as application/pdf.": "Le type de média du document, par exemple application/pdf.",
         "The public link to download the paper.": "Le lien public pour télécharger le document.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Les documents publics de ce point de l'ordre du jour. Les documents d'un point confidentiel et ceux marqués confidentiels ne sont jamais listés.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ce qui a été publié : un ordre du jour, une décision ou un procès-verbal. Les citoyens filtrent sur ce champ."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Ce qui a été publié : un ordre du jour, une décision ou un procès-verbal. Les citoyens filtrent sur ce champ.",
+        "Export all data": "Exporter toutes les données",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Téléchargez chaque enregistrement de cette application par type, avec les fichiers des réunions, des points de l'ordre du jour et des décisions. La préparation prend un moment ; vous recevez une notification avec le lien de téléchargement.",
+        "Export failed": "L'export a échoué",
+        "The export is being prepared": "L'export est en préparation",
+        "You get a notification when it is ready.": "Vous recevez une notification quand il est prêt.",
+        "Download the export of {date} ({size})": "Télécharger l'export du {date} ({size})",
+        "The export could not be started.": "L'export n'a pas pu être lancé.",
+        "Your data export is ready to download": "Votre export de données est prêt à être téléchargé",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Votre export de données a échoué. Réessayez, ou consultez le journal de Nextcloud pour en connaître la cause."
     },
     "nplurals=2; plural=(n != 1);"
 )

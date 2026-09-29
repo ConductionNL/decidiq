@@ -1309,7 +1309,16 @@
         "The media type of the paper, such as application/pdf.": "Тип медиа документа, например application/pdf.",
         "The public link to download the paper.": "Общедоступная ссылка для скачивания документа.",
         "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.": "Общедоступные документы этого пункта повестки. Документы конфиденциального пункта и документы с пометкой конфиденциально никогда не показываются.",
-        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Что опубликовано: повестка, решение или протокол. Граждане фильтруют по этому полю."
+        "What was published: an agenda, a decision or minutes. Citizens filter on it.": "Что опубликовано: повестка, решение или протокол. Граждане фильтруют по этому полю.",
+        "Export all data": "Экспортировать все данные",
+        "Download every record of this app per record type, with the files of meetings, agenda items and decisions. Preparing it takes a while; you get a notification with the download link.": "Скачайте все записи этого приложения по типам записей вместе с файлами заседаний, пунктов повестки и решений. Подготовка занимает некоторое время; вы получите уведомление со ссылкой для скачивания.",
+        "Export failed": "Экспорт не удался",
+        "The export is being prepared": "Экспорт готовится",
+        "You get a notification when it is ready.": "Вы получите уведомление, когда он будет готов.",
+        "Download the export of {date} ({size})": "Скачать экспорт от {date} ({size})",
+        "The export could not be started.": "Не удалось запустить экспорт.",
+        "Your data export is ready to download": "Экспорт ваших данных готов к скачиванию",
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Экспорт данных не удался. Попробуйте снова или посмотрите причину в журнале Nextcloud."
     },
     "plurals": null
 }
