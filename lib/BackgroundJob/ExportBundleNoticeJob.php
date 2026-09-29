@@ -24,7 +24,7 @@ namespace OCA\Decidiq\BackgroundJob;
 
 use DateTime;
 use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\Decidiq\Support\FleetAppId;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
@@ -37,7 +37,7 @@ use Throwable;
 /**
  * Tells the clerk when a queued PDF export is ready.
  *
- * filinq runs the queued merge in its own background job and emits nothing
+ * The filinq app runs the queued merge in its own background job and emits nothing
  * when it finishes, so this job reads the merge job's status. Still queued or
  * running: it schedules itself again. Done: the ready notice with the file.
  * Failed, gone, or still not done after a day: the failed notice. Either way
@@ -57,7 +57,7 @@ class ExportBundleNoticeJob extends QueuedJob {
 	 *
 	 * @param ITimeFactory         $time          The clock.
 	 * @param ContainerInterface   $container     Resolves filinq's merge job store.
-	 * @param ExportBundleService  $exports       Removes the rendered text pages.
+	 * @param ExportBundleWriter   $exports       Removes the rendered text pages.
 	 * @param IJobList             $jobList       Schedules the next look.
 	 * @param INotificationManager $notifications Nextcloud notifications.
 	 * @param LoggerInterface      $logger        Diagnostics.
@@ -67,12 +67,12 @@ class ExportBundleNoticeJob extends QueuedJob {
 	public function __construct(
 		ITimeFactory $time,
 		private readonly ContainerInterface $container,
-		private readonly ExportBundleService $exports,
+		private readonly ExportBundleWriter $exports,
 		private readonly IJobList $jobList,
 		private readonly INotificationManager $notifications,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct($time);
+		parent::__construct(time: $time);
 	}//end __construct()
 
 	/**

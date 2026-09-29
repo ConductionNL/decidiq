@@ -50,6 +50,16 @@ use OCP\Notification\UnknownNotificationException;
 class Notifier implements INotifier {
 
 	/**
+	 * The export notices, rendered by prepareExportBundle(), subject key => method.
+	 *
+	 * @var array<string, string>
+	 */
+	private const OWN_SHAPE = [
+		'export_bundle_ready'  => 'prepareExportBundle',
+		'export_bundle_failed' => 'prepareExportBundle',
+	];
+
+	/**
 	 * Subject key => [English sentence with %s for the named object, object page prefix].
 	 *
 	 * The sentences are the l10n source strings; `%s` is the meeting or motion
@@ -144,18 +154,12 @@ class Notifier implements INotifier {
 		$params = $notification->getSubjectParameters();
 		$notification->setIcon($this->urlGenerator->getAbsoluteURL($this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')));
 
+		// Subjects with a shape of their own: a free message, and the export notices.
 		if ($subject === 'decidiq_message') {
-			$notification->setParsedSubject((string)($params['title'] ?? $l10n->t('Decidiq')));
-			$message = (string)($params['message'] ?? '');
-			if ($message !== '') {
-				$notification->setParsedMessage($message);
-			}
-
-			$notification->setLink($this->appLink(path: ltrim((string)($params['link'] ?? ''), '/')));
-			return $notification;
+			return $this->prepareMessage(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
 		}
 
-		if ($subject === 'export_bundle_ready' || $subject === 'export_bundle_failed') {
+		if (isset(self::OWN_SHAPE[$subject]) === true) {
 			return $this->prepareExportBundle(notification: $notification, l10n: $l10n, subject: $subject, params: $params);
 		}
 
@@ -182,6 +186,31 @@ class Notifier implements INotifier {
 		$notification->setLink($this->appLink(path: $path));
 		return $notification;
 	}//end prepare()
+
+	/**
+	 * A free message: its own title, sentence and link.
+	 *
+	 * @param INotification        $notification The notification
+	 * @param IL10N                $l10n         Translations in the recipient's language
+	 * @param string               $subject      decidiq_message
+	 * @param array<string, mixed> $params       `title`, `message`, `link`
+	 *
+	 * @return INotification
+	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) One signature for every OWN_SHAPE renderer; this one does not need the subject.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-001-every-notice-decidiq-sends-can-be-shown
+	 */
+	private function prepareMessage(INotification $notification, IL10N $l10n, string $subject, array $params): INotification {
+		$notification->setParsedSubject((string)($params['title'] ?? $l10n->t('Decidiq')));
+		$message = (string)($params['message'] ?? '');
+		if ($message !== '') {
+			$notification->setParsedMessage($message);
+		}
+
+		$notification->setLink($this->appLink(path: ltrim((string)($params['link'] ?? ''), '/')));
+		return $notification;
+	}//end prepareMessage()
 
 	/**
 	 * The notice for a queued export with attachments: ready links the file in

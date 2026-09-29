@@ -24,6 +24,7 @@ use DateTime;
 use OCA\Decidiq\BackgroundJob\ExportBundleNoticeJob;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -45,6 +46,7 @@ use ZipArchive;
 
 /**
  * @covers \OCA\Decidiq\Service\ExportBundleService
+ * @covers \OCA\Decidiq\Service\ExportBundleWriter
  * @covers \OCA\Decidiq\Exception\ExportBundleException
  * @uses   \OCA\Decidiq\Support\FilinqPdf
  * @uses   \OCA\Decidiq\Support\FleetAppId
@@ -280,16 +282,22 @@ class ExportBundleServiceTest extends TestCase {
 
 		$logger = $this->createMock(LoggerInterface::class);
 
-		return new ExportBundleService(
-			objectService: $objects,
+		$writer = new ExportBundleWriter(
 			container: $container,
 			pdf: new FilinqPdf($container, $logger),
 			rootFolder: $root,
-			userSession: $session,
 			tempManager: $temp,
 			jobList: $jobList,
-			time: $time,
 			logger: $logger,
+		);
+
+		return new ExportBundleService(
+			objectService: $objects,
+			container: $container,
+			writer: $writer,
+			rootFolder: $root,
+			userSession: $session,
+			time: $time,
 		);
 	}//end service()
 

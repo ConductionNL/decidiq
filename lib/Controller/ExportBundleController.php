@@ -102,7 +102,10 @@ class ExportBundleController extends Controller {
 			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq export: the export failed', ['exception' => $e]);
-			return new JSONResponse(['message' => 'The export failed. Try again, or read the Nextcloud log for the cause.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+			return new JSONResponse(
+				['message' => 'The export failed. Try again, or read the Nextcloud log for the cause.'],
+				Http::STATUS_INTERNAL_SERVER_ERROR
+			);
 		}
 
 		$status = Http::STATUS_CREATED;

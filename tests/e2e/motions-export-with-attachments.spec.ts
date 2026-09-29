@@ -18,7 +18,9 @@ import { adminActor, anonymousActor, APP_API } from './support/api-actors.ts'
 const EXPORT = `${APP_API}/exports/decision-bundle`
 
 // @e2e motion-management::the-griffier-exports-three-motions
-test('the griffier exports selected motions from the Motions list', async ({ page }) => {
+test('the griffier exports selected motions from the Motions list', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/motions`)
 	const rows = page.getByRole('row').filter({ has: page.getByRole('checkbox') })
 	await expect(rows.first()).toBeVisible()
@@ -31,7 +33,9 @@ test('the griffier exports selected motions from the Motions list', async ({ pag
 	await expect(dialog).toBeVisible()
 	await dialog.getByTestId('export-bundle-format-zip').click()
 	await dialog.getByTestId('export-bundle-confirm').click()
-	await expect(dialog.getByTestId('export-bundle-done')).toContainText('is in your Decidiq exports folder')
+	await expect(dialog.getByTestId('export-bundle-done')).toContainText(
+		'is in your Decidiq exports folder',
+	)
 })
 
 // @e2e motion-management::all-motions-of-this-year
@@ -49,9 +53,13 @@ test('all motions matching the filter export as one ZIP, and a visitor is refuse
 	})
 	expect([201, 422]).toContain(response.status())
 	if (response.status() === 201) {
-		expect((await response.json()).path).toMatch(/^Decidiq exports\/Motions \d{4}-\d{2}-\d{2}\.zip$/)
+		expect((await response.json()).path).toMatch(
+			/^Decidiq exports\/Motions \d{4}-\d{2}-\d{2}\.zip$/,
+		)
 	}
 
 	const { ctx: anonymous } = await anonymousActor(playwright)
-	expect((await anonymous.post(EXPORT, { data: { format: 'zip' } })).status()).toBeGreaterThanOrEqual(401)
+	expect(
+		(await anonymous.post(EXPORT, { data: { format: 'zip' } })).status(),
+	).toBeGreaterThanOrEqual(401)
 })

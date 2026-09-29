@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use OCA\Decidiq\BackgroundJob\ExportBundleNoticeJob;
-use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportBundleWriter;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
 use OCP\Notification\IManager as INotificationManager;
@@ -104,7 +104,7 @@ class ExportBundleNoticeJobTest extends TestCase {
 			}
 		);
 
-		$exports = $this->createMock(ExportBundleService::class);
+		$exports = $this->createMock(ExportBundleWriter::class);
 		$exports->method('removePages')->willReturnCallback(function (string $uid, array $pages): void {
 			$this->removed = [...$this->removed, ...$pages];
 		});

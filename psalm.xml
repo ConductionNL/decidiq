@@ -16,6 +16,8 @@
     </projectFiles>
     <stubs>
         <file name="vendor/nextcloud/ocp/OCP/Capabilities/ICapability.php" preloadClasses="true" />
+        <!-- OCP\Files\IRootFolder extends the server-private OC\Hooks\Emitter, absent from nextcloud/ocp. -->
+        <file name="tests/stubs/OcHooksEmitter.php" />
         <!--
             OpenRegister's data-access contract, which this app's lib/ typehints
             but does not own. OpenRegister supplies it at RUNTIME; these are
