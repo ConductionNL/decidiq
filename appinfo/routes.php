@@ -129,6 +129,8 @@ $extra = [
         ['name' => 'transcription#attach',          'url' => '/api/meetings/{meetingId}/transcription/attach',  'verb' => 'POST'],
         ['name' => 'transcription#transcribe',      'url' => '/api/transcripts/{transcriptId}/transcribe',      'verb' => 'POST'],
         ['name' => 'transcription#realign',         'url' => '/api/transcripts/{transcriptId}/re-align',        'verb' => 'POST'],
+        // Play the recording, seekable (live-recording-jump-to-item, liv-08).
+        ['name' => 'recording#play',                'url' => '/api/transcripts/{transcriptId}/recording',       'verb' => 'GET'],
         ['name' => 'transcription#generateDraft',   'url' => '/api/transcripts/{transcriptId}/generate-draft',  'verb' => 'POST'],
         ['name' => 'transcription#retentionConfig', 'url' => '/api/governance-bodies/{bodyId}/retention-config', 'verb' => 'PUT'],
 

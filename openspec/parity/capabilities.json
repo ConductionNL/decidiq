@@ -2089,14 +2089,15 @@
 			"area": "live",
 			"name": "Jump from an agenda item to the moment it was discussed in the recording.",
 			"origin": "competitor",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/TranscriptionService.php:344 align() maps transcript segments to agenda items; src/components/tabs/MeetingTranscriptionTab.vue:130-146 renders segment TEXT grouped per agenda item, no player, timestamps or seek link",
+				"state": "built",
+				"evidence": "src/components/tabs/MeetingTranscriptionTab.vue plays the recording (audio or video) from GET /api/transcripts/{transcriptId}/recording (RecordingController::play, Range 206 via lib/Service/RecordingRange.php, any meeting participant via TranscriptionStaffGuard::forTranscriptListener); Play from here on each agenda item heading seeks to its earliest aligned segment (src/utils/recordingJump.js itemStartTimes)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/live-recording-jump-to-item"
+				"change": "openspec/changes/archive/2026-09-29-live-recording-jump-to-item",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "nothing reaches it: MeetingDetail Transcription widget shows text per item but cannot jump into the recording",
+			"reachedOn": "MeetingDetail (/meetings/:id) Transcription widget: player above the transcript, Play from here on each agenda item heading",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "transcription",
