@@ -36,6 +36,8 @@ use Psr\Log\NullLogger;
 
 /**
  * @covers \OCA\Decidiq\Service\LiveDecisionService
+ * @covers \OCA\Decidiq\Service\CurrentAgendaItemService
+ * @covers \OCA\Decidiq\Service\EngagementService
  */
 class LiveMeetingSharedCurrentItemTest extends TestCase {
 
