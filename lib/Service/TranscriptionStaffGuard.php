@@ -131,6 +131,25 @@ class TranscriptionStaffGuard {
 	}//end forTranscript()
 
 	/**
+	 * Listener guard for a transcript's recording: any participant of the
+	 * transcript's meeting may play it, besides the chair, secretary and admins.
+	 *
+	 * @param string $transcriptId Transcript UUID.
+	 *
+	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
+	 *
+	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 */
+	public function forTranscriptListener(string $transcriptId): ?JSONResponse {
+		return $this->authorize(
+			resolveMeetings: fn (): ?array => $this->meetingsOfTranscript(transcriptId: $transcriptId),
+			roleMessage: 'Forbidden: only participants of this meeting can play its recording.',
+			anyParticipant: true
+		);
+
+	}//end forTranscriptListener()
+
+	/**
 	 * Staff guard for a governance body id.
 	 *
 	 * Non-admins must hold a chair/secretary role on at least one meeting of the
@@ -166,12 +185,13 @@ class TranscriptionStaffGuard {
 	 *
 	 * @param callable $resolveMeetings Lazily yields the candidate meeting ids, or null.
 	 * @param string $roleMessage Denial message when no staff role matches.
+	 * @param bool $anyParticipant Also admit any participant of the meeting (listening only).
 	 *
 	 * @return JSONResponse|null Null when authorised; a 401/403 response otherwise.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
-	private function authorize(callable $resolveMeetings, string $roleMessage): ?JSONResponse {
+	private function authorize(callable $resolveMeetings, string $roleMessage, bool $anyParticipant=false): ?JSONResponse {
 		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
@@ -189,6 +209,10 @@ class TranscriptionStaffGuard {
 
 		foreach ($meetingIds as $meetingId) {
 			if ($this->participantResolver->hasRole(meetingId: $meetingId, nextcloudUid: $userId, roles: self::STAFF_ROLES) === true) {
+				return null;
+			}
+
+			if ($anyParticipant === true && $this->participantResolver->isParticipant(meetingId: $meetingId, nextcloudUid: $userId) === true) {
 				return null;
 			}
 		}

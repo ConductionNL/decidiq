@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\TranscriptionController;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\MinutesDraftService;
+use OCA\Decidiq\Service\RecordingRange;
 use OCA\Decidiq\Service\TranscriptionQueue;
 use OCA\Decidiq\Service\TranscriptionService;
 use OCA\Decidiq\Service\TranscriptionStaffGuard;
@@ -125,6 +126,7 @@ class TranscriptionControllerTest extends TestCase {
 			$this->minutesDraftService,
 			$this->staffGuard,
 			$this->queue,
+			new RecordingRange(),
 		);
 
 	}//end setUp()
@@ -141,6 +143,7 @@ class TranscriptionControllerTest extends TestCase {
 		$denial = new JSONResponse(['message' => 'Chair or secretary role required.'], $status);
 		$this->staffGuard->method('forMeeting')->willReturn($denial);
 		$this->staffGuard->method('forTranscript')->willReturn($denial);
+		$this->staffGuard->method('forTranscriptListener')->willReturn($denial);
 		$this->staffGuard->method('currentUserId')->willReturn('raadslid');
 
 		$this->controller = new TranscriptionController(
@@ -149,6 +152,7 @@ class TranscriptionControllerTest extends TestCase {
 			$this->minutesDraftService,
 			$this->staffGuard,
 			$this->queue,
+			new RecordingRange(),
 		);
 
 	}//end denyGuard()
@@ -438,4 +442,104 @@ class TranscriptionControllerTest extends TestCase {
 
 	}//end testRealignDeniedForNonStaff()
 
+	/**
+	 * The headers a response was given (getHeaders() needs a running server).
+	 *
+	 * @param \OCP\AppFramework\Http\Response $response The response.
+	 *
+	 * @return array<string, string>
+	 */
+	private function headersOf(\OCP\AppFramework\Http\Response $response): array {
+		$property = new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers');
+		return (array)$property->getValue($response);
+	}//end headersOf()
+
+	/**
+	 * A recording file double of the given bytes.
+	 *
+	 * @param string $bytes The content.
+	 *
+	 * @return \OCP\Files\File
+	 */
+	private function recording(string $bytes): \OCP\Files\File {
+		$file = $this->createMock(\OCP\Files\File::class);
+		$file->method('getSize')->willReturn(strlen($bytes));
+		$file->method('getMimeType')->willReturn('audio/mpeg');
+		$file->method('fopen')->willReturnCallback(
+			static function () use ($bytes) {
+				$stream = fopen('php://memory', 'w+');
+				fwrite($stream, $bytes);
+				rewind($stream);
+				return $stream;
+			}
+		);
+		return $file;
+	}//end recording()
+
+	/**
+	 * Scenario "A member replays a debate": the player seeks, so the
+	 * recording answers a byte range with 206 and the bytes from there.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 */
+	public function testTheRecordingPlaysFromTheRequestedByte(): void {
+		$this->request->method('getHeader')->with('Range')->willReturn('bytes=4-');
+		$this->transcriptionService->method('recordingFile')->with(transcriptId: 't-1')->willReturn($this->recording('0123456789'));
+
+		$response = $this->controller->recording(transcriptId: 't-1');
+
+		self::assertSame(Http::STATUS_PARTIAL_CONTENT, $response->getStatus());
+		self::assertSame('bytes 4-9/10', $this->headersOf($response)['Content-Range']);
+		self::assertSame('6', $this->headersOf($response)['Content-Length']);
+		self::assertSame('bytes', $this->headersOf($response)['Accept-Ranges']);
+		self::assertSame('audio/mpeg', $this->headersOf($response)['Content-Type']);
+		$body = (new \ReflectionProperty(\OCP\AppFramework\Http\StreamResponse::class, 'filePath'))->getValue($response);
+		self::assertSame('456789', stream_get_contents($body));
+	}//end testTheRecordingPlaysFromTheRequestedByte()
+
+	/**
+	 * Without a range the whole recording is served, saying ranges work.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 */
+	public function testTheWholeRecordingWithoutARange(): void {
+		$this->request->method('getHeader')->willReturn('');
+		$this->transcriptionService->method('recordingFile')->willReturn($this->recording('0123456789'));
+
+		$response = $this->controller->recording(transcriptId: 't-1');
+
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame('10', $this->headersOf($response)['Content-Length']);
+		self::assertSame('bytes', $this->headersOf($response)['Accept-Ranges']);
+	}//end testTheWholeRecordingWithoutARange()
+
+	/**
+	 * Someone outside the meeting gets the guard's 403 and no file is read.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/live-recording-jump-to-item/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+	 */
+	public function testTheRecordingIsRefusedToAnOutsider(): void {
+		$this->denyGuard();
+		$this->transcriptionService->expects($this->never())->method('recordingFile');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $this->controller->recording(transcriptId: 't-1')->getStatus());
+	}//end testTheRecordingIsRefusedToAnOutsider()
+
+	/**
+	 * The recording route reaches the method.
+	 *
+	 * @return void
+	 */
+	public function testTheRecordingRouteReachesTheController(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$byName = array_column($routes['routes'], 'url', 'name');
+
+		self::assertSame('/api/transcripts/{transcriptId}/recording', ($byName['transcription#recording'] ?? null));
+	}//end testTheRecordingRouteReachesTheController()
 }//end class
