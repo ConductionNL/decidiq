@@ -39,6 +39,14 @@
 				@update:open="objectSidebarState.open = $event" />
 		</template>
 	</CnAppRoot>
+	<!-- Export with attachments: opened by the Motions and Decisions bulk action
+	     (CnIndexPage emits open-modal to nobody, so the handler opens it here). -->
+	<ExportBundleModal
+		v-if="exportBundleState.open"
+		:list="exportBundleState.list"
+		:selectedIds="exportBundleState.selectedIds"
+		:baseFilter="exportBundleState.baseFilter"
+		@close="exportBundleState.open = false" />
 </template>
 
 <script>
@@ -46,10 +54,12 @@ import { CnAppRoot, CnObjectSidebar } from '@conduction/nextcloud-vue'
 import { translate as ncT } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { reactive } from 'vue'
+import ExportBundleModal from './modals/ExportBundleModal.vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
 import cellFormatters from './utils/cellFormatters.js'
 import { createConnectionHandlers } from './utils/connectionRegistry.js'
+import { createExportBundleHandlers } from './utils/exportBundle.js'
 
 export default {
 	name: 'App',
@@ -57,6 +67,7 @@ export default {
 	components: {
 		CnAppRoot,
 		CnObjectSidebar,
+		ExportBundleModal,
 	},
 
 	/** @spec exclude Vue provide() wiring only; exposes the objectSidebarState channel, no domain logic */
@@ -129,7 +140,17 @@ export default {
 	},
 
 	data() {
+		// The export dialog's state; the bulk action handlers below fill it.
+		const exportBundleState = reactive({
+			open: false,
+			list: 'Decisions',
+			baseFilter: {},
+			selectedIds: [],
+		})
+
 		return {
+			exportBundleState,
+
 			/**
 			 * Cell-formatter registry passed to CnAppRoot's `formatters`
 			 * prop (see src/utils/cellFormatters.js). Static — no need to
@@ -146,10 +167,15 @@ export default {
 			 * has to travel through that prop. CnAppRoot logs a one-time
 			 * deprecation notice for it beside a v2 manifest.
 			 */
-			headerActionHandlers: createConnectionHandlers({
-				generateUrl,
-				assign: (url) => window.location.assign(url),
-			}),
+			headerActionHandlers: {
+				...createConnectionHandlers({
+					generateUrl,
+					assign: (url) => window.location.assign(url),
+				}),
+
+				// Bulk actions resolve their handler name the same way.
+				...createExportBundleHandlers(exportBundleState),
+			},
 
 			objectSidebarState: reactive({
 				active: false,

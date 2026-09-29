@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Laadi alla eksport kuupäevaga {date} ({size})",
         "The export could not be started.": "Eksporti ei saanud alustada.",
         "Your data export is ready to download": "Teie andmete eksport on allalaadimiseks valmis",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Andmete eksport ebaõnnestus. Proovige uuesti või lugege põhjust Nextcloudi logist."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Andmete eksport ebaõnnestus. Proovige uuesti või lugege põhjust Nextcloudi logist.",
+        "Export with attachments": "Ekspordi koos lisadega",
+        "What to export": "Mida eksportida",
+        "Selected rows ({count})": "Valitud read ({count})",
+        "All rows matching the current filter": "Kõik praegusele filtrile vastavad read",
+        "One PDF, each text followed by its attachments": "Üks PDF, iga tekst koos oma lisadega",
+        "A ZIP with the documents as they are": "ZIP dokumentidega nende praegusel kujul",
+        "One PDF needs the filinq app, which is not installed.": "Ühe PDF-i jaoks on vaja rakendust filinq, mis pole paigaldatud.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Eksporti valmistatakse ette. Saate teavituse, kui {name} on valmis.",
+        "{name} is in your Decidiq exports folder.": "{name} on teie kaustas Decidiq exports.",
+        "Open the file": "Ava fail",
+        "The export failed. Try again.": "Eksport ebaõnnestus. Proovige uuesti.",
+        "%s is ready in your Decidiq exports folder": "%s on valmis teie kaustas Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s loomine ebaõnnestus. Proovige uuesti või eksportige ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

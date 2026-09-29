@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Niżżel l-esportazzjoni ta' {date} ({size})",
         "The export could not be started.": "L-esportazzjoni ma setgħetx tinbeda.",
         "Your data export is ready to download": "L-esportazzjoni tad-data tiegħek hija lesta biex titniżżel",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "L-esportazzjoni tad-data tiegħek falliet. Erġa' pprova, jew aqra l-log ta' Nextcloud għall-kawża."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "L-esportazzjoni tad-data tiegħek falliet. Erġa' pprova, jew aqra l-log ta' Nextcloud għall-kawża.",
+        "Export with attachments": "Esporta bl-annessi",
+        "What to export": "X'għandu jiġi esportat",
+        "Selected rows ({count})": "Ringieli magħżula ({count})",
+        "All rows matching the current filter": "Ir-ringieli kollha li jaqblu mal-filtru attwali",
+        "One PDF, each text followed by its attachments": "PDF wieħed, kull test segwit mill-annessi tiegħu",
+        "A ZIP with the documents as they are": "ZIP bid-dokumenti kif inhuma",
+        "One PDF needs the filinq app, which is not installed.": "PDF wieħed jeħtieġ l-app filinq, li mhijiex installata.",
+        "The export is being prepared. You get a notification when {name} is ready.": "L-esportazzjoni qed titħejja. Tirċievi notifika meta {name} ikun lest.",
+        "{name} is in your Decidiq exports folder.": "{name} jinsab fil-folder Decidiq exports tiegħek.",
+        "Open the file": "Iftaħ il-fajl",
+        "The export failed. Try again.": "L-esportazzjoni ma rnexxietx. Erġa' pprova.",
+        "%s is ready in your Decidiq exports folder": "%s lest fil-folder Decidiq exports tiegħek",
+        "%s could not be made. Try again, or export a ZIP.": "%s ma setax isir. Erġa' pprova, jew esporta ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

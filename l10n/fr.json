@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "Télécharger l'export du {date} ({size})",
         "The export could not be started.": "L'export n'a pas pu être lancé.",
         "Your data export is ready to download": "Votre export de données est prêt à être téléchargé",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Votre export de données a échoué. Réessayez, ou consultez le journal de Nextcloud pour en connaître la cause."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Votre export de données a échoué. Réessayez, ou consultez le journal de Nextcloud pour en connaître la cause.",
+        "Export with attachments": "Exporter avec les pièces jointes",
+        "What to export": "Quoi exporter",
+        "Selected rows ({count})": "Lignes sélectionnées ({count})",
+        "All rows matching the current filter": "Toutes les lignes correspondant au filtre actuel",
+        "One PDF, each text followed by its attachments": "Un PDF, chaque texte suivi de ses pièces jointes",
+        "A ZIP with the documents as they are": "Un ZIP avec les documents tels quels",
+        "One PDF needs the filinq app, which is not installed.": "Un PDF nécessite l'application filinq, qui n'est pas installée.",
+        "The export is being prepared. You get a notification when {name} is ready.": "L'export est en préparation. Vous recevrez une notification quand {name} sera prêt.",
+        "{name} is in your Decidiq exports folder.": "{name} se trouve dans votre dossier Decidiq exports.",
+        "Open the file": "Ouvrir le fichier",
+        "The export failed. Try again.": "L'export a échoué. Réessayez.",
+        "%s is ready in your Decidiq exports folder": "%s est prêt dans votre dossier Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s n'a pas pu être créé. Réessayez ou exportez un ZIP."
     },
     "plurals": null
 }

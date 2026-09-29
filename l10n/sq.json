@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "Shkarko eksportin e {date} ({size})",
         "The export could not be started.": "Eksportimi nuk mund të nisej.",
         "Your data export is ready to download": "Eksportimi i të dhënave tuaja është gati për shkarkim",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Eksportimi i të dhënave dështoi. Provoni përsëri ose lexoni shkakun në regjistrin e Nextcloud."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Eksportimi i të dhënave dështoi. Provoni përsëri ose lexoni shkakun në regjistrin e Nextcloud.",
+        "Export with attachments": "Eksporto me bashkëngjitjet",
+        "What to export": "Çfarë të eksportohet",
+        "Selected rows ({count})": "Rreshtat e zgjedhur ({count})",
+        "All rows matching the current filter": "Të gjithë rreshtat që përputhen me filtrin aktual",
+        "One PDF, each text followed by its attachments": "Një PDF, çdo tekst i ndjekur nga bashkëngjitjet e tij",
+        "A ZIP with the documents as they are": "Një ZIP me dokumentet siç janë",
+        "One PDF needs the filinq app, which is not installed.": "Një PDF kërkon aplikacionin filinq, i cili nuk është i instaluar.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Eksporti po përgatitet. Do të merrni një njoftim kur {name} të jetë gati.",
+        "{name} is in your Decidiq exports folder.": "{name} ndodhet në dosjen tuaj Decidiq exports.",
+        "Open the file": "Hap skedarin",
+        "The export failed. Try again.": "Eksporti dështoi. Provoni përsëri.",
+        "%s is ready in your Decidiq exports folder": "%s është gati në dosjen tuaj Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s nuk u krijua dot. Provoni përsëri ose eksportoni një ZIP."
     },
     "plurals": null
 }

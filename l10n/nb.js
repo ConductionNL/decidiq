@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Last ned eksporten fra {date} ({size})",
         "The export could not be started.": "Eksporten kunne ikke startes.",
         "Your data export is ready to download": "Dataeksporten din er klar til nedlasting",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Dataeksporten din mislyktes. Prøv igjen, eller les Nextcloud-loggen for årsaken."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Dataeksporten din mislyktes. Prøv igjen, eller les Nextcloud-loggen for årsaken.",
+        "Export with attachments": "Eksporter med vedlegg",
+        "What to export": "Hva som skal eksporteres",
+        "Selected rows ({count})": "Valgte rader ({count})",
+        "All rows matching the current filter": "Alle rader som samsvarer med gjeldende filter",
+        "One PDF, each text followed by its attachments": "Én PDF, hver tekst etterfulgt av vedleggene",
+        "A ZIP with the documents as they are": "En ZIP med dokumentene slik de er",
+        "One PDF needs the filinq app, which is not installed.": "Én PDF krever appen filinq, som ikke er installert.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Eksporten forberedes. Du får et varsel når {name} er klar.",
+        "{name} is in your Decidiq exports folder.": "{name} ligger i mappen Decidiq exports.",
+        "Open the file": "Åpne filen",
+        "The export failed. Try again.": "Eksporten mislyktes. Prøv igjen.",
+        "%s is ready in your Decidiq exports folder": "%s er klar i mappen Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s kunne ikke lages. Prøv igjen, eller eksporter en ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Descărcați exportul din {date} ({size})",
         "The export could not be started.": "Exportul nu a putut fi pornit.",
         "Your data export is ready to download": "Exportul datelor dvs. este gata de descărcare",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Exportul datelor a eșuat. Încercați din nou sau citiți cauza în jurnalul Nextcloud."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Exportul datelor a eșuat. Încercați din nou sau citiți cauza în jurnalul Nextcloud.",
+        "Export with attachments": "Exportă cu anexe",
+        "What to export": "Ce se exportă",
+        "Selected rows ({count})": "Rânduri selectate ({count})",
+        "All rows matching the current filter": "Toate rândurile care corespund filtrului curent",
+        "One PDF, each text followed by its attachments": "Un PDF, fiecare text urmat de anexele sale",
+        "A ZIP with the documents as they are": "Un ZIP cu documentele așa cum sunt",
+        "One PDF needs the filinq app, which is not installed.": "Un PDF necesită aplicația filinq, care nu este instalată.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Exportul se pregătește. Veți primi o notificare când {name} este gata.",
+        "{name} is in your Decidiq exports folder.": "{name} se află în dosarul dvs. Decidiq exports.",
+        "Open the file": "Deschide fișierul",
+        "The export failed. Try again.": "Exportul a eșuat. Încercați din nou.",
+        "%s is ready in your Decidiq exports folder": "%s este gata în dosarul dvs. Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s nu a putut fi creat. Încercați din nou sau exportați un ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

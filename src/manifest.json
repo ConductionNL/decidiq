@@ -882,6 +882,9 @@
 				"schema": "decision",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"bulkActions": [
+					{ "id": "export-bundle", "label": "Export with attachments", "icon": "FilePdfBox", "handler": "exportMotionsWithAttachments" }
+				],
 				"filter": {
 					"decisionType": "motion"
 				},
@@ -1110,6 +1113,9 @@
 				"schema": "decision",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"bulkActions": [
+					{ "id": "export-bundle", "label": "Export with attachments", "icon": "FilePdfBox", "handler": "exportDecisionsWithAttachments" }
+				],
 				"quickFilters": [
 					{
 						"label": "Decisions",

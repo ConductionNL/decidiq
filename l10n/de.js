@@ -1319,7 +1319,20 @@ OC.L10N.register(
         "Download the export of {date} ({size})": "Export vom {date} herunterladen ({size})",
         "The export could not be started.": "Der Export konnte nicht gestartet werden.",
         "Your data export is ready to download": "Ihr Datenexport steht zum Herunterladen bereit",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Ihr Datenexport ist fehlgeschlagen. Versuchen Sie es erneut oder lesen Sie das Nextcloud-Protokoll für die Ursache."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Ihr Datenexport ist fehlgeschlagen. Versuchen Sie es erneut oder lesen Sie das Nextcloud-Protokoll für die Ursache.",
+        "Export with attachments": "Mit Anlagen exportieren",
+        "What to export": "Was exportiert wird",
+        "Selected rows ({count})": "Ausgewählte Zeilen ({count})",
+        "All rows matching the current filter": "Alle Zeilen, die dem aktuellen Filter entsprechen",
+        "One PDF, each text followed by its attachments": "Ein PDF, jeder Text gefolgt von seinen Anlagen",
+        "A ZIP with the documents as they are": "Ein ZIP mit den Dokumenten, wie sie sind",
+        "One PDF needs the filinq app, which is not installed.": "Für ein PDF wird die App filinq benötigt, die nicht installiert ist.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Der Export wird vorbereitet. Sie erhalten eine Benachrichtigung, wenn {name} fertig ist.",
+        "{name} is in your Decidiq exports folder.": "{name} liegt in Ihrem Ordner Decidiq exports.",
+        "Open the file": "Datei öffnen",
+        "The export failed. Try again.": "Der Export ist fehlgeschlagen. Versuchen Sie es erneut.",
+        "%s is ready in your Decidiq exports folder": "%s liegt fertig in Ihrem Ordner Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "%s konnte nicht erstellt werden. Versuchen Sie es erneut oder exportieren Sie ein ZIP."
     },
     "nplurals=2; plural=(n != 1);"
 )

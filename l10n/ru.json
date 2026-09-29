@@ -1318,7 +1318,20 @@
         "Download the export of {date} ({size})": "Скачать экспорт от {date} ({size})",
         "The export could not be started.": "Не удалось запустить экспорт.",
         "Your data export is ready to download": "Экспорт ваших данных готов к скачиванию",
-        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Экспорт данных не удался. Попробуйте снова или посмотрите причину в журнале Nextcloud."
+        "Your data export failed. Try again, or read the Nextcloud log for the cause.": "Экспорт данных не удался. Попробуйте снова или посмотрите причину в журнале Nextcloud.",
+        "Export with attachments": "Экспорт с вложениями",
+        "What to export": "Что экспортировать",
+        "Selected rows ({count})": "Выбранные строки ({count})",
+        "All rows matching the current filter": "Все строки, соответствующие текущему фильтру",
+        "One PDF, each text followed by its attachments": "Один PDF, каждый текст с его вложениями",
+        "A ZIP with the documents as they are": "ZIP с документами как есть",
+        "One PDF needs the filinq app, which is not installed.": "Для одного PDF нужно приложение filinq, которое не установлено.",
+        "The export is being prepared. You get a notification when {name} is ready.": "Экспорт готовится. Вы получите уведомление, когда {name} будет готов.",
+        "{name} is in your Decidiq exports folder.": "{name} находится в вашей папке Decidiq exports.",
+        "Open the file": "Открыть файл",
+        "The export failed. Try again.": "Экспорт не удался. Попробуйте ещё раз.",
+        "%s is ready in your Decidiq exports folder": "%s готов в вашей папке Decidiq exports",
+        "%s could not be made. Try again, or export a ZIP.": "Не удалось создать %s. Попробуйте ещё раз или экспортируйте ZIP."
     },
     "plurals": null
 }
