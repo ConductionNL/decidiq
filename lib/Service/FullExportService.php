@@ -100,6 +100,8 @@ class FullExportService {
 	 *
 	 * @throws RuntimeException When the archive cannot be written.
 	 *
+	 * @SuppressWarnings(PHPMD.StaticAccess) SettingsService::shippedRegisterDescriptor() is a pure read of the schemas this app ships.
+	 *
 	 * @return string The export's file name.
 	 */
 	public function build(): string {
@@ -238,8 +240,9 @@ class FullExportService {
 				}
 			}
 
-			$offset += self::PAGE_SIZE;
-		} while (count($rows) === self::PAGE_SIZE);
+			$offset  += self::PAGE_SIZE;
+			$pageFull = (count($rows) === self::PAGE_SIZE);
+		} while ($pageFull === true);
 
 		return $objects;
 	}//end readAll()
@@ -332,9 +335,7 @@ class FullExportService {
 
 		$folder = $this->folder();
 		$folder->newFile($name, $stream);
-		if (is_resource($stream) === true) {
-			fclose($stream);
-		}
+		fclose($stream);
 
 		// Only after the new export is stored: a failed write keeps the old one.
 		foreach ($folder->getDirectoryListing() as $old) {
