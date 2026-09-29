@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Leagă camera",
         "The video call has not been set up yet.": "Apelul video nu a fost încă configurat.",
         "The video call could not be created.": "Apelul video nu a putut fi creat.",
-        "The room could not be linked.": "Camera nu a putut fi legată."
+        "The room could not be linked.": "Camera nu a putut fi legată.",
+        "Minutes wait for your approval: %s": "Procesul-verbal așteaptă aprobarea dvs.: %s",
+        "The minutes were submitted for approval.": "Procesul-verbal a fost trimis spre aprobare."
     },
     "nplurals=2; plural=(n != 1);"
 )

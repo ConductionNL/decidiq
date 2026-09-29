@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Orbot kamra",
         "The video call has not been set up yet.": "Is-sejħa bil-vidjo għadha ma ġietx issettjata.",
         "The video call could not be created.": "Is-sejħa bil-vidjo ma setgħetx tinħoloq.",
-        "The room could not be linked.": "Il-kamra ma setgħetx tiġi marbuta."
+        "The room could not be linked.": "Il-kamra ma setgħetx tiġi marbuta.",
+        "Minutes wait for your approval: %s": "Il-minuti qed jistennew l-approvazzjoni tiegħek: %s",
+        "The minutes were submitted for approval.": "Il-minuti ġew sottomessi għall-approvazzjoni."
     },
     "nplurals=2; plural=(n != 1);"
 )

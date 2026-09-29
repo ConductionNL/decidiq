@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Seo ruum",
         "The video call has not been set up yet.": "Videokõnet pole veel seadistatud.",
         "The video call could not be created.": "Videokõnet ei õnnestunud luua.",
-        "The room could not be linked.": "Ruumi ei õnnestunud siduda."
+        "The room could not be linked.": "Ruumi ei õnnestunud siduda.",
+        "Minutes wait for your approval: %s": "Protokoll ootab teie kinnitust: %s",
+        "The minutes were submitted for approval.": "Protokoll esitati kinnitamiseks."
     },
     "nplurals=2; plural=(n != 1);"
 )

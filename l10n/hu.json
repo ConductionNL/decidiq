@@ -1250,7 +1250,9 @@
         "Link room": "Szoba hozzákapcsolása",
         "The video call has not been set up yet.": "A videohívás még nincs beállítva.",
         "The video call could not be created.": "A videohívást nem sikerült létrehozni.",
-        "The room could not be linked.": "A szobát nem sikerült hozzákapcsolni."
+        "The room could not be linked.": "A szobát nem sikerült hozzákapcsolni.",
+        "Minutes wait for your approval: %s": "Jegyzőkönyv jóváhagyásra vár: %s",
+        "The minutes were submitted for approval.": "A jegyzőkönyvet jóváhagyásra benyújtották."
     },
     "plurals": null
 }

@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Свържи стая",
         "The video call has not been set up yet.": "Видеообаждането все още не е настроено.",
         "The video call could not be created.": "Видеообаждането не можа да бъде създадено.",
-        "The room could not be linked.": "Стаята не можа да бъде свързана."
+        "The room could not be linked.": "Стаята не можа да бъде свързана.",
+        "Minutes wait for your approval: %s": "Протокол очаква вашето одобрение: %s",
+        "The minutes were submitted for approval.": "Протоколът е изпратен за одобрение."
     },
     "nplurals=2; plural=(n != 1);"
 )

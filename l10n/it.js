@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Collega stanza",
         "The video call has not been set up yet.": "La videochiamata non è ancora stata configurata.",
         "The video call could not be created.": "Impossibile creare la videochiamata.",
-        "The room could not be linked.": "Impossibile collegare la stanza."
+        "The room could not be linked.": "Impossibile collegare la stanza.",
+        "Minutes wait for your approval: %s": "Verbale in attesa della tua approvazione: %s",
+        "The minutes were submitted for approval.": "Il verbale è stato inviato per l'approvazione."
     },
     "nplurals=2; plural=(n != 1);"
 )

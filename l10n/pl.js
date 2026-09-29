@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Powiąż pokój",
         "The video call has not been set up yet.": "Rozmowa wideo nie została jeszcze skonfigurowana.",
         "The video call could not be created.": "Nie udało się utworzyć rozmowy wideo.",
-        "The room could not be linked.": "Nie udało się powiązać pokoju."
+        "The room could not be linked.": "Nie udało się powiązać pokoju.",
+        "Minutes wait for your approval: %s": "Protokół czeka na Twoje zatwierdzenie: %s",
+        "The minutes were submitted for approval.": "Protokół przesłano do zatwierdzenia."
     },
     "nplurals=2; plural=(n != 1);"
 )

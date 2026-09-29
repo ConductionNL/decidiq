@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Привязать комнату",
         "The video call has not been set up yet.": "Видеозвонок ещё не настроен.",
         "The video call could not be created.": "Не удалось создать видеозвонок.",
-        "The room could not be linked.": "Не удалось привязать комнату."
+        "The room could not be linked.": "Не удалось привязать комнату.",
+        "Minutes wait for your approval: %s": "Протокол ожидает вашего утверждения: %s",
+        "The minutes were submitted for approval.": "Протокол отправлен на утверждение."
     },
     "nplurals=2; plural=(n != 1);"
 )

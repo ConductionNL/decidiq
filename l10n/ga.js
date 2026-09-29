@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Nasc seomra",
         "The video call has not been set up yet.": "Níl an glao físe socraithe fós.",
         "The video call could not be created.": "Níorbh fhéidir an glao físe a chruthú.",
-        "The room could not be linked.": "Níorbh fhéidir an seomra a nascadh."
+        "The room could not be linked.": "Níorbh fhéidir an seomra a nascadh.",
+        "Minutes wait for your approval: %s": "Miontuairiscí ag fanacht le do cheadú: %s",
+        "The minutes were submitted for approval.": "Cuireadh na miontuairiscí isteach lena gceadú."
     },
     "nplurals=2; plural=(n != 1);"
 )

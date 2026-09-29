@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Vincular sala",
         "The video call has not been set up yet.": "La videollamada aún no está preparada.",
         "The video call could not be created.": "No se pudo crear la videollamada.",
-        "The room could not be linked.": "No se pudo vincular la sala."
+        "The room could not be linked.": "No se pudo vincular la sala.",
+        "Minutes wait for your approval: %s": "Acta pendiente de su aprobación: %s",
+        "The minutes were submitted for approval.": "El acta se ha enviado para su aprobación."
     },
     "nplurals=2; plural=(n != 1);"
 )

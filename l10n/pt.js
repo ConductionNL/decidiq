@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Ligar sala",
         "The video call has not been set up yet.": "A videochamada ainda não foi configurada.",
         "The video call could not be created.": "Não foi possível criar a videochamada.",
-        "The room could not be linked.": "Não foi possível ligar a sala."
+        "The room could not be linked.": "Não foi possível ligar a sala.",
+        "Minutes wait for your approval: %s": "Ata aguarda a sua aprovação: %s",
+        "The minutes were submitted for approval.": "A ata foi submetida para aprovação."
     },
     "nplurals=2; plural=(n != 1);"
 )

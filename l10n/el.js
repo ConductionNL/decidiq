@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Σύνδεση αίθουσας",
         "The video call has not been set up yet.": "Η βιντεοκλήση δεν έχει ρυθμιστεί ακόμη.",
         "The video call could not be created.": "Δεν ήταν δυνατή η δημιουργία της βιντεοκλήσης.",
-        "The room could not be linked.": "Δεν ήταν δυνατή η σύνδεση της αίθουσας."
+        "The room could not be linked.": "Δεν ήταν δυνατή η σύνδεση της αίθουσας.",
+        "Minutes wait for your approval: %s": "Πρακτικά περιμένουν την έγκρισή σας: %s",
+        "The minutes were submitted for approval.": "Τα πρακτικά υποβλήθηκαν για έγκριση."
     },
     "nplurals=2; plural=(n != 1);"
 )

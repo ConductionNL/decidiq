@@ -41,6 +41,12 @@ The system SHALL allow a secretary to transition draft minutes to `review` state
 - **THEN** `lifecycle` transitions to `review`
 - **AND** an audit trail entry is created recording the transition, user, and timestamp
 
+#### Scenario: The chair and secretary are told
+- **GIVEN** minutes of a meeting of body X, whose current chair is Anna and secretary is Bert, and body Y whose chair is Dirk
+- **WHEN** the minutes are submitted for approval
+- **THEN** Anna and Bert each get a notice "Minutes wait for your approval" linking the minutes, through their notification preferences
+- **AND** a plain member of X, a former chair of X and Dirk get nothing
+
 ### Requirement: REQ-ML-004 Approve minutes
 The system SHALL allow a chair or secretary to approve minutes in `review` state. On approval the `approvedAt` timestamp SHALL be set and the approver's display name SHALL be appended to `signedBy`. `version` SHALL increment by 1.
 

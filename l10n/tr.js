@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Odayı bağla",
         "The video call has not been set up yet.": "Görüntülü görüşme henüz ayarlanmadı.",
         "The video call could not be created.": "Görüntülü görüşme oluşturulamadı.",
-        "The room could not be linked.": "Oda bağlanamadı."
+        "The room could not be linked.": "Oda bağlanamadı.",
+        "Minutes wait for your approval: %s": "Tutanak onayınızı bekliyor: %s",
+        "The minutes were submitted for approval.": "Tutanak onaya gönderildi."
     },
     "nplurals=2; plural=(n != 1);"
 )
