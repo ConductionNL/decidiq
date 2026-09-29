@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Assinado. A cópia assinada {file} está guardada nos ficheiros deste registo.",
         "The signing round did not finish. You can send it again.": "A ronda de assinaturas não terminou. Pode enviá-lo novamente.",
         "Failed to save the signers.": "Não foi possível guardar os signatários.",
-        "Could not send it for signature.": "Não foi possível enviar para assinatura."
+        "Could not send it for signature.": "Não foi possível enviar para assinatura.",
+        "Signing the decision list": "Assinatura da lista de decisões"
     },
     "nplurals=2; plural=(n != 1);"
 )

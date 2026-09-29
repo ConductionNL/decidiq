@@ -9,10 +9,7 @@
  @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 -->
 <template>
-	<MinutesSignersTab
-		:objectId="objectId"
-		schema="decision"
-		subjectType="motion" />
+	<MinutesSignersTab :objectId="objectId" schema="decision" subjectType="motion" />
 </template>
 
 <script>

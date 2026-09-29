@@ -27,6 +27,7 @@ function participantOf(entry) {
  *
  * @param {Array<string|object>} entries The record's signers
  * @return {Array<{participant: string, order: number, signedAt?: string}>}
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
 export function orderedSigners(entries) {
 	const rows = (Array.isArray(entries) ? entries : [])
@@ -51,10 +52,12 @@ export function orderedSigners(entries) {
  * @param {Array<string|object>} entries The record's signers
  * @param {string} participant The participant to add
  * @return {Array<object>}
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
 export function addSigner(entries, participant) {
 	const current = orderedSigners(entries)
-	if (!participant || current.some((s) => s.participant === participant)) return current
+	if (!participant || current.some((s) => s.participant === participant))
+		return current
 	return current.concat([{ participant, order: current.length + 1 }])
 }
 
@@ -65,6 +68,7 @@ export function addSigner(entries, participant) {
  * @param {string} participant The signer to move
  * @param {number} delta -1 moves up, 1 moves down
  * @return {Array<object>}
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
 export function moveSigner(entries, participant, delta) {
 	const current = orderedSigners(entries)
@@ -84,6 +88,7 @@ export function moveSigner(entries, participant, delta) {
  * @param {string} subjectId The record's id
  * @param {'send'|'collect'} action Send it, or collect the signed copy
  * @return {string}
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
 export function signingUrl(subjectType, subjectId, action) {
 	return `/apps/decidiq/api/signing/${encodeURIComponent(subjectType)}/${encodeURIComponent(subjectId)}/${action}`

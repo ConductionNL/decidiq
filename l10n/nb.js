@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Signert. Den signerte kopien {file} er lagret i filene til denne posten.",
         "The signing round did not finish. You can send it again.": "Signeringsrunden ble ikke fullført. Du kan sende den på nytt.",
         "Failed to save the signers.": "Kunne ikke lagre signatarene.",
-        "Could not send it for signature.": "Kunne ikke sende til signering."
+        "Could not send it for signature.": "Kunne ikke sende til signering.",
+        "Signing the decision list": "Signering av vedtakslisten"
     },
     "nplurals=2; plural=(n != 1);"
 )

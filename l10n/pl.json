@@ -1125,7 +1125,8 @@
         "Signed. The signed copy {file} is stored in the files of this record.": "Podpisano. Podpisana kopia {file} jest zapisana w plikach tego rekordu.",
         "The signing round did not finish. You can send it again.": "Runda podpisywania nie zakończyła się. Możesz wysłać ponownie.",
         "Failed to save the signers.": "Nie udało się zapisać podpisujących.",
-        "Could not send it for signature.": "Nie udało się wysłać do podpisu."
+        "Could not send it for signature.": "Nie udało się wysłać do podpisu.",
+        "Signing the decision list": "Podpisanie listy decyzji"
     },
     "plurals": null
 }

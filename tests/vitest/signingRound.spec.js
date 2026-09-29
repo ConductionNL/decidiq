@@ -41,9 +41,11 @@ describe('the signing order', () => {
 
 	it('keeps signers without an order in the place they were added, after the ordered ones', () => {
 		expect(
-			orderedSigners(['kees', { participant: 'anna', order: 1 }, { participant: 'els' }]).map(
-				(s) => [s.participant, s.order],
-			),
+			orderedSigners([
+				'kees',
+				{ participant: 'anna', order: 1 },
+				{ participant: 'els' },
+			]).map((s) => [s.participant, s.order]),
 		).toEqual([
 			['anna', 1],
 			['kees', 2],
@@ -53,7 +55,9 @@ describe('the signing order', () => {
 
 	it('keeps when someone signed', () => {
 		expect(
-			orderedSigners([{ participant: 'anna', order: 1, signedAt: '2026-10-15T10:00:00Z' }])[0].signedAt,
+			orderedSigners([
+				{ participant: 'anna', order: 1, signedAt: '2026-10-15T10:00:00Z' },
+			])[0].signedAt,
 		).toBe('2026-10-15T10:00:00Z')
 	})
 
@@ -102,7 +106,9 @@ describe('send for signature', () => {
 	it('is a button on the Signers widget that posts there', () => {
 		const source = read('../../src/components/tabs/MinutesSignersTab.vue')
 		expect(source).toContain("t('decidiq', 'Send for signature')")
-		expect(source).toContain('signingUrl(this.subjectType, this.objectId, action)')
+		expect(source).toContain(
+			'signingUrl(this.subjectType, this.objectId, action)',
+		)
 		expect(source).toContain("this.postSigning('send')")
 		expect(source).toContain('moveSigner(')
 	})
@@ -129,6 +135,8 @@ describe('send for signature', () => {
 
 		const registry = read('../../src/registry.js')
 		expect(registry).toContain('MotionSignersTab: page(MotionSignersTab)')
-		expect(registry).toContain('DecisionListSignersTab: page(DecisionListSignersTab)')
+		expect(registry).toContain(
+			'DecisionListSignersTab: page(DecisionListSignersTab)',
+		)
 	})
 })

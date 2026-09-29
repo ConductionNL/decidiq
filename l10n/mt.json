@@ -1125,7 +1125,8 @@
         "Signed. The signed copy {file} is stored in the files of this record.": "Iffirmat. Il-kopja ffirmata {file} hija maħżuna fil-fajls ta' dan ir-rekord.",
         "The signing round did not finish. You can send it again.": "Ir-rawnd tal-firma ma spiċċatx. Tista' terġa' tibagħtu.",
         "Failed to save the signers.": "Ma kienx possibbli li jiġu salvati l-firmatarji.",
-        "Could not send it for signature.": "Ma kienx possibbli li jintbagħat għall-firma."
+        "Could not send it for signature.": "Ma kienx possibbli li jintbagħat għall-firma.",
+        "Signing the decision list": "L-iffirmar tal-lista tad-deċiżjonijiet"
     },
     "plurals": null
 }

@@ -1125,7 +1125,8 @@
         "Signed. The signed copy {file} is stored in the files of this record.": "Подписано. Подписаното копие {file} се съхранява във файловете на този запис.",
         "The signing round did not finish. You can send it again.": "Подписването не завърши. Можете да го изпратите отново.",
         "Failed to save the signers.": "Подписващите не бяха запазени.",
-        "Could not send it for signature.": "Не можа да бъде изпратено за подпис."
+        "Could not send it for signature.": "Не можа да бъде изпратено за подпис.",
+        "Signing the decision list": "Подписване на списъка с решения"
     },
     "plurals": null
 }

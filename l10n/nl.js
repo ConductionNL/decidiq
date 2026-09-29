@@ -1852,6 +1852,7 @@ OC.L10N.register(
         "Signing failed.": "Ondertekenen mislukt.",
         "Signing request": "Ondertekenverzoek",
         "Signing status": "Ondertekenstatus",
+        "Signing the decision list": "Ondertekening van de besluitenlijst",
         "Simple majority (50%+1)": "Gewone meerderheid (50%+1)",
         "Simple majority of votes cast, default quorum.": "Gewone meerderheid van uitgebrachte stemmen, standaardquorum.",
         "Simulated": "Gesimuleerd",

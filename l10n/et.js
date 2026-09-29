@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Allkirjastatud. Allkirjastatud koopia {file} on salvestatud selle kirje failidesse.",
         "The signing round did not finish. You can send it again.": "Allkirjastamisvoor ei lõppenud. Saate selle uuesti saata.",
         "Failed to save the signers.": "Allkirjastajate salvestamine ebaõnnestus.",
-        "Could not send it for signature.": "Allkirjastamiseks saatmine ebaõnnestus."
+        "Could not send it for signature.": "Allkirjastamiseks saatmine ebaõnnestus.",
+        "Signing the decision list": "Otsuste loetelu allkirjastamine"
     },
     "nplurals=2; plural=(n != 1);"
 )

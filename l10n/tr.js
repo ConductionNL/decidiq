@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "İmzalandı. İmzalı kopya {file} bu kaydın dosyalarında saklanıyor.",
         "The signing round did not finish. You can send it again.": "İmza turu tamamlanmadı. Yeniden gönderebilirsiniz.",
         "Failed to save the signers.": "İmzacılar kaydedilemedi.",
-        "Could not send it for signature.": "İmzaya gönderilemedi."
+        "Could not send it for signature.": "İmzaya gönderilemedi.",
+        "Signing the decision list": "Karar listesinin imzalanması"
     },
     "nplurals=2; plural=(n != 1);"
 )

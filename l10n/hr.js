@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Potpisano. Potpisana kopija {file} spremljena je u datoteke ovog zapisa.",
         "The signing round did not finish. You can send it again.": "Krug potpisivanja nije završen. Možete ga ponovno poslati.",
         "Failed to save the signers.": "Potpisnike nije moguće spremiti.",
-        "Could not send it for signature.": "Nije moguće poslati na potpis."
+        "Could not send it for signature.": "Nije moguće poslati na potpis.",
+        "Signing the decision list": "Potpisivanje popisa odluka"
     },
     "nplurals=2; plural=(n != 1);"
 )

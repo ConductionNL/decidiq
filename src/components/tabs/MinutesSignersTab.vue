@@ -83,7 +83,10 @@
 			<NcButton v-if="canSignNow" variant="primary" @click="signNow">
 				{{ t('decidiq', 'Sign now') }}
 			</NcButton>
-			<p v-if="signingStatusText" class="decidiq-tab__status" data-testid="signers-status">
+			<p
+				v-if="signingStatusText"
+				class="decidiq-tab__status"
+				data-testid="signers-status">
 				{{ signingStatusText }}
 			</p>
 			<p v-if="signError" class="decidiq-tab__error" role="alert">
@@ -202,15 +205,25 @@ export default {
 		/** @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy */
 		signingStatusText() {
 			if (this.signingStatus === 'sent') {
-				return this.t('decidiq', 'Out for signature. The signed copy is stored here once everyone has signed.')
+				return this.t(
+					'decidiq',
+					'Out for signature. The signed copy is stored here once everyone has signed.',
+				)
 			}
 			if (this.signingStatus === 'signed') {
-				return this.t('decidiq', 'Signed. The signed copy {file} is stored in the files of this record.', {
-					file: this.record?.signedCopy || '',
-				})
+				return this.t(
+					'decidiq',
+					'Signed. The signed copy {file} is stored in the files of this record.',
+					{
+						file: this.record?.signedCopy || '',
+					},
+				)
 			}
 			if (this.signingStatus === 'failed') {
-				return this.t('decidiq', 'The signing round did not finish. You can send it again.')
+				return this.t(
+					'decidiq',
+					'The signing round did not finish. You can send it again.',
+				)
 			}
 			return ''
 		},
@@ -275,13 +288,19 @@ export default {
 					label: this.t('decidiq', 'Move up'),
 					icon: ArrowUp,
 					disabled: row.order === 1,
-					handler: () => this.saveSigners(moveSigner(this.rawSigners, row.participantId, -1)),
+					handler: () =>
+						this.saveSigners(
+							moveSigner(this.rawSigners, row.participantId, -1),
+						),
 				},
 				{
 					label: this.t('decidiq', 'Move down'),
 					icon: ArrowDown,
 					disabled: row.order === this.rawSigners.length,
-					handler: () => this.saveSigners(moveSigner(this.rawSigners, row.participantId, 1)),
+					handler: () =>
+						this.saveSigners(
+							moveSigner(this.rawSigners, row.participantId, 1),
+						),
 				},
 				{
 					label: this.t('decidiq', 'Remove signer'),
@@ -378,7 +397,8 @@ export default {
 				this.refresh()
 			} catch (e) {
 				if (rethrow) throw e
-				this.error = e?.message || this.t('decidiq', 'Failed to save the signers.')
+				this.error =
+					e?.message || this.t('decidiq', 'Failed to save the signers.')
 			}
 		},
 
@@ -421,12 +441,16 @@ export default {
 				)
 				if (!response.ok) {
 					const data = await response.json().catch(() => ({}))
-					this.signError = data.message || this.t('decidiq', 'Could not send it for signature.')
+					this.signError =
+						data.message
+						|| this.t('decidiq', 'Could not send it for signature.')
 					return
 				}
 				this.refresh()
 			} catch (e) {
-				this.signError = e?.message || this.t('decidiq', 'Could not send it for signature.')
+				this.signError =
+					e?.message
+					|| this.t('decidiq', 'Could not send it for signature.')
 			} finally {
 				this.sending = false
 			}
@@ -436,7 +460,9 @@ export default {
 		async confirmRemove() {
 			const target = this.removeTarget
 			const next = orderedSigners(
-				this.rawSigners.filter((e) => e.participant !== target.participantId),
+				this.rawSigners.filter(
+					(e) => e.participant !== target.participantId,
+				),
 			)
 			const store = ensureRelationType(this.schema)
 			try {

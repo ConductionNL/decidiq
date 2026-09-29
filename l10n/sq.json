@@ -1125,7 +1125,8 @@
         "Signed. The signed copy {file} is stored in the files of this record.": "Nënshkruar. Kopja e nënshkruar {file} ruhet në skedarët e këtij regjistri.",
         "The signing round did not finish. You can send it again.": "Raundi i nënshkrimit nuk përfundoi. Mund ta dërgoni përsëri.",
         "Failed to save the signers.": "Nënshkruesit nuk u ruajtën dot.",
-        "Could not send it for signature.": "Nuk u dërgua dot për nënshkrim."
+        "Could not send it for signature.": "Nuk u dërgua dot për nënshkrim.",
+        "Signing the decision list": "Nënshkrimi i listës së vendimeve"
     },
     "plurals": null
 }

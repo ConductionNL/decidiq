@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Sínithe. Tá an chóip shínithe {file} stóráilte i gcomhaid an taifid seo.",
         "The signing round did not finish. You can send it again.": "Níor críochnaíodh an babhta sínithe. Is féidir leat é a sheoladh arís.",
         "Failed to save the signers.": "Níorbh fhéidir na sínitheoirí a shábháil.",
-        "Could not send it for signature.": "Níorbh fhéidir é a sheoladh le síniú."
+        "Could not send it for signature.": "Níorbh fhéidir é a sheoladh le síniú.",
+        "Signing the decision list": "Liosta na gcinntí a shíniú"
     },
     "nplurals=2; plural=(n != 1);"
 )

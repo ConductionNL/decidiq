@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Подписано. Подписанная копия {file} сохранена в файлах этой записи.",
         "The signing round did not finish. You can send it again.": "Подписание не завершено. Можно отправить снова.",
         "Failed to save the signers.": "Не удалось сохранить подписантов.",
-        "Could not send it for signature.": "Не удалось отправить на подпись."
+        "Could not send it for signature.": "Не удалось отправить на подпись.",
+        "Signing the decision list": "Подписание списка решений"
     },
     "nplurals=2; plural=(n != 1);"
 )

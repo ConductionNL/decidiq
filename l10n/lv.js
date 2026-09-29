@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Parakstīts. Parakstītā kopija {file} ir saglabāta šī ieraksta failos.",
         "The signing round did not finish. You can send it again.": "Parakstīšanas kārta netika pabeigta. Varat to nosūtīt vēlreiz.",
         "Failed to save the signers.": "Neizdevās saglabāt parakstītājus.",
-        "Could not send it for signature.": "Neizdevās nosūtīt parakstīšanai."
+        "Could not send it for signature.": "Neizdevās nosūtīt parakstīšanai.",
+        "Signing the decision list": "Lēmumu saraksta parakstīšana"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1613,6 +1613,7 @@ OC.L10N.register(
         "Signing failed.": "Signing failed.",
         "Signing request": "Signing request",
         "Signing status": "Signing status",
+        "Signing the decision list": "Signing the decision list",
         "Simple majority (50%+1)": "Simple majority (50%+1)",
         "Simple majority of votes cast, default quorum.": "Simple majority of votes cast, default quorum.",
         "Simulated": "Simulated",

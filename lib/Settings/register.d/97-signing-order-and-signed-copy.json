@@ -17,15 +17,18 @@
               "type": "object",
               "properties": {
                 "participant": {
+                  "title": "Participant",
                   "type": "string",
                   "description": "The participant who signs."
                 },
                 "order": {
+                  "title": "Order",
                   "type": "integer",
                   "minimum": 1,
                   "description": "Position in the signing order, 1 signs first."
                 },
                 "signedAt": {
+                  "title": "Signed on",
                   "type": "string",
                   "format": "date-time",
                   "description": "When this signer signed."
@@ -82,15 +85,18 @@
               "type": "object",
               "properties": {
                 "participant": {
+                  "title": "Participant",
                   "type": "string",
                   "description": "The participant who signs."
                 },
                 "order": {
+                  "title": "Order",
                   "type": "integer",
                   "minimum": 1,
                   "description": "Position in the signing order, 1 signs first."
                 },
                 "signedAt": {
+                  "title": "Signed on",
                   "type": "string",
                   "format": "date-time",
                   "description": "When this signer signed."
@@ -147,15 +153,18 @@
               "type": "object",
               "properties": {
                 "participant": {
+                  "title": "Participant",
                   "type": "string",
                   "description": "The participant who signs."
                 },
                 "order": {
+                  "title": "Order",
                   "type": "integer",
                   "minimum": 1,
                   "description": "Position in the signing order, 1 signs first."
                 },
                 "signedAt": {
+                  "title": "Signed on",
                   "type": "string",
                   "format": "date-time",
                   "description": "When this signer signed."

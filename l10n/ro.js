@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Semnat. Copia semnată {file} este stocată în fișierele acestei înregistrări.",
         "The signing round did not finish. You can send it again.": "Runda de semnare nu s-a încheiat. Îl puteți trimite din nou.",
         "Failed to save the signers.": "Semnatarii nu au putut fi salvați.",
-        "Could not send it for signature.": "Nu a putut fi trimis spre semnare."
+        "Could not send it for signature.": "Nu a putut fi trimis spre semnare.",
+        "Signing the decision list": "Semnarea listei de decizii"
     },
     "nplurals=2; plural=(n != 1);"
 )

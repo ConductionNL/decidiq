@@ -1126,7 +1126,8 @@ OC.L10N.register(
         "Signed. The signed copy {file} is stored in the files of this record.": "Υπογράφηκε. Το υπογεγραμμένο αντίγραφο {file} είναι αποθηκευμένο στα αρχεία αυτής της εγγραφής.",
         "The signing round did not finish. You can send it again.": "Ο γύρος υπογραφής δεν ολοκληρώθηκε. Μπορείτε να το στείλετε ξανά.",
         "Failed to save the signers.": "Δεν ήταν δυνατή η αποθήκευση των υπογραφόντων.",
-        "Could not send it for signature.": "Δεν ήταν δυνατή η αποστολή για υπογραφή."
+        "Could not send it for signature.": "Δεν ήταν δυνατή η αποστολή για υπογραφή.",
+        "Signing the decision list": "Υπογραφή του καταλόγου αποφάσεων"
     },
     "nplurals=2; plural=(n != 1);"
 )

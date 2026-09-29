@@ -1125,7 +1125,8 @@
         "Signed. The signed copy {file} is stored in the files of this record.": "Allekirjoitettu. Allekirjoitettu kopio {file} on tallennettu tämän tietueen tiedostoihin.",
         "The signing round did not finish. You can send it again.": "Allekirjoituskierros ei päättynyt. Voit lähettää sen uudelleen.",
         "Failed to save the signers.": "Allekirjoittajien tallentaminen epäonnistui.",
-        "Could not send it for signature.": "Allekirjoitettavaksi lähettäminen epäonnistui."
+        "Could not send it for signature.": "Allekirjoitettavaksi lähettäminen epäonnistui.",
+        "Signing the decision list": "Päätösluettelon allekirjoittaminen"
     },
     "plurals": null
 }
