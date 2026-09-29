@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Cinneadh déanta",
         "Themes": "Téamaí",
         "Theme": "Téama",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Níl aon téamaí fós. Cuir leis na téamaí beartais a bhaineann le do rúin, mar thithíocht nó aeráid."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Níl aon téamaí fós. Cuir leis na téamaí beartais a bhaineann le do rúin, mar thithíocht nó aeráid.",
+        "Everyone present": "Gach duine i láthair",
+        "Present": "I láthair",
+        "Absent": "As láthair",
+        "Sent apologies": "Leithscéal seolta",
+        "Represented by proxy": "Ionadaíocht trí phróicse",
+        "Not recorded": "Níor taifeadadh",
+        "Mark present": "Marcáil i láthair",
+        "Mark absent": "Marcáil as láthair",
+        "Mark as sent apologies": "Marcáil mar leithscéal seolta",
+        "Mark as represented by proxy": "Marcáil mar ionadaíocht trí phróicse",
+        "The attendance could not be saved.": "Níorbh fhéidir an tinreamh a shábháil."
     },
     "nplurals=2; plural=(n != 1);"
 )

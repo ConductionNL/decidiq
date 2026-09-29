@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Rozstrzygnięty",
         "Themes": "Tematy",
         "Theme": "Temat",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Brak tematów. Dodaj tematy polityki, których dotyczą wnioski, np. mieszkalnictwo lub klimat."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Brak tematów. Dodaj tematy polityki, których dotyczą wnioski, np. mieszkalnictwo lub klimat.",
+        "Everyone present": "Wszyscy obecni",
+        "Present": "Obecny",
+        "Absent": "Nieobecny",
+        "Sent apologies": "Usprawiedliwiony",
+        "Represented by proxy": "Reprezentowany przez pełnomocnika",
+        "Not recorded": "Nie odnotowano",
+        "Mark present": "Oznacz jako obecnego",
+        "Mark absent": "Oznacz jako nieobecnego",
+        "Mark as sent apologies": "Oznacz jako usprawiedliwionego",
+        "Mark as represented by proxy": "Oznacz jako reprezentowanego przez pełnomocnika",
+        "The attendance could not be saved.": "Nie udało się zapisać obecności."
     },
     "nplurals=2; plural=(n != 1);"
 )

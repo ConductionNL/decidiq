@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Deċiża",
         "Themes": "Temi",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Għad m'hemmx temi. Żid it-temi tal-politika li jittrattaw il-mozzjonijiet tiegħek, bħad-djar jew il-klima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Għad m'hemmx temi. Żid it-temi tal-politika li jittrattaw il-mozzjonijiet tiegħek, bħad-djar jew il-klima.",
+        "Everyone present": "Kulħadd preżenti",
+        "Present": "Preżenti",
+        "Absent": "Assenti",
+        "Sent apologies": "Bagħat skuża",
+        "Represented by proxy": "Rappreżentat bi prokura",
+        "Not recorded": "Mhux irreġistrat",
+        "Mark present": "Immarka preżenti",
+        "Mark absent": "Immarka assenti",
+        "Mark as sent apologies": "Immarka li bagħat skuża",
+        "Mark as represented by proxy": "Immarka bħala rappreżentat bi prokura",
+        "The attendance could not be saved.": "Il-preżenza ma setgħetx tiġi salvata."
     },
     "nplurals=2; plural=(n != 1);"
 )

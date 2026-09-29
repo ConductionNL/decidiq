@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Otsustatud",
         "Themes": "Teemad",
         "Theme": "Teema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Teemasid veel pole. Lisage poliitikateemad, millest teie ettepanekud räägivad, näiteks eluase või kliima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Teemasid veel pole. Lisage poliitikateemad, millest teie ettepanekud räägivad, näiteks eluase või kliima.",
+        "Everyone present": "Kõik kohal",
+        "Present": "Kohal",
+        "Absent": "Puudub",
+        "Sent apologies": "Teatas puudumisest",
+        "Represented by proxy": "Esindatud volikirjaga",
+        "Not recorded": "Märkimata",
+        "Mark present": "Märgi kohalolijaks",
+        "Mark absent": "Märgi puudujaks",
+        "Mark as sent apologies": "Märgi puudumisest teatanuks",
+        "Mark as represented by proxy": "Märgi volikirjaga esindatuks",
+        "The attendance could not be saved.": "Kohalolekut ei õnnestunud salvestada."
     },
     "nplurals=2; plural=(n != 1);"
 )

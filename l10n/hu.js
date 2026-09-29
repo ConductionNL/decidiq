@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Döntés született",
         "Themes": "Témák",
         "Theme": "Téma",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Még nincsenek témák. Adja hozzá a szakpolitikai témákat, amelyekről indítványai szólnak, például lakhatás vagy klíma."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Még nincsenek témák. Adja hozzá a szakpolitikai témákat, amelyekről indítványai szólnak, például lakhatás vagy klíma.",
+        "Everyone present": "Mindenki jelen",
+        "Present": "Jelen",
+        "Absent": "Távol",
+        "Sent apologies": "Kimentette magát",
+        "Represented by proxy": "Meghatalmazottal képviselve",
+        "Not recorded": "Nincs rögzítve",
+        "Mark present": "Jelenlévőnek jelöl",
+        "Mark absent": "Távollévőnek jelöl",
+        "Mark as sent apologies": "Kimentettnek jelöl",
+        "Mark as represented by proxy": "Meghatalmazottal képviseltnek jelöl",
+        "The attendance could not be saved.": "A jelenlétet nem sikerült menteni."
     },
     "nplurals=2; plural=(n != 1);"
 )

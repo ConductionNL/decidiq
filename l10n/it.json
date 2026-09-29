@@ -1188,7 +1188,18 @@
         "Decision taken": "Decisa",
         "Themes": "Temi",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ancora nessun tema. Aggiungi i temi politici delle tue mozioni, come casa o clima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ancora nessun tema. Aggiungi i temi politici delle tue mozioni, come casa o clima.",
+        "Everyone present": "Tutti presenti",
+        "Present": "Presente",
+        "Absent": "Assente",
+        "Sent apologies": "Giustificato",
+        "Represented by proxy": "Rappresentato per delega",
+        "Not recorded": "Non registrato",
+        "Mark present": "Segna presente",
+        "Mark absent": "Segna assente",
+        "Mark as sent apologies": "Segna come giustificato",
+        "Mark as represented by proxy": "Segna come rappresentato per delega",
+        "The attendance could not be saved.": "Non è stato possibile salvare la presenza."
     },
     "plurals": null
 }

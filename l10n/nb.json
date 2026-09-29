@@ -1188,7 +1188,18 @@
         "Decision taken": "Besluttet",
         "Themes": "Temaer",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ingen temaer ennå. Legg til de politiske temaene forslagene handler om, for eksempel bolig eller klima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ingen temaer ennå. Legg til de politiske temaene forslagene handler om, for eksempel bolig eller klima.",
+        "Everyone present": "Alle til stede",
+        "Present": "Til stede",
+        "Absent": "Fraværende",
+        "Sent apologies": "Meldt forfall",
+        "Represented by proxy": "Representert ved fullmakt",
+        "Not recorded": "Ikke registrert",
+        "Mark present": "Merk til stede",
+        "Mark absent": "Merk fraværende",
+        "Mark as sent apologies": "Merk som meldt forfall",
+        "Mark as represented by proxy": "Merk som representert ved fullmakt",
+        "The attendance could not be saved.": "Oppmøtet kunne ikke lagres."
     },
     "plurals": null
 }

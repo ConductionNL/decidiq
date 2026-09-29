@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Nuspręsta",
         "Themes": "Temos",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Temų dar nėra. Pridėkite politikos temas, apie kurias yra jūsų pasiūlymai, pavyzdžiui, būstas ar klimatas."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Temų dar nėra. Pridėkite politikos temas, apie kurias yra jūsų pasiūlymai, pavyzdžiui, būstas ar klimatas.",
+        "Everyone present": "Visi dalyvauja",
+        "Present": "Dalyvauja",
+        "Absent": "Nedalyvauja",
+        "Sent apologies": "Pranešė, kad negalės",
+        "Represented by proxy": "Atstovaujamas pagal įgaliojimą",
+        "Not recorded": "Neužregistruota",
+        "Mark present": "Pažymėti dalyvaujančiu",
+        "Mark absent": "Pažymėti nedalyvaujančiu",
+        "Mark as sent apologies": "Pažymėti, kad pranešė negalėsiąs",
+        "Mark as represented by proxy": "Pažymėti atstovaujamu pagal įgaliojimą",
+        "The attendance could not be saved.": "Dalyvavimo išsaugoti nepavyko."
     },
     "nplurals=2; plural=(n != 1);"
 )

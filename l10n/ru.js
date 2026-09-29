@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Решение принято",
         "Themes": "Темы",
         "Theme": "Тема",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Тем пока нет. Добавьте темы политики, к которым относятся ваши предложения, например жильё или климат."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Тем пока нет. Добавьте темы политики, к которым относятся ваши предложения, например жильё или климат.",
+        "Everyone present": "Все присутствуют",
+        "Present": "Присутствует",
+        "Absent": "Отсутствует",
+        "Sent apologies": "Извинился",
+        "Represented by proxy": "Представлен по доверенности",
+        "Not recorded": "Не отмечено",
+        "Mark present": "Отметить присутствие",
+        "Mark absent": "Отметить отсутствие",
+        "Mark as sent apologies": "Отметить как извинившегося",
+        "Mark as represented by proxy": "Отметить как представленного по доверенности",
+        "The attendance could not be saved.": "Не удалось сохранить присутствие."
     },
     "nplurals=2; plural=(n != 1);"
 )

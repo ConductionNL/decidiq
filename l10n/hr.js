@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Odlučeno",
         "Themes": "Teme",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Još nema tema. Dodajte teme politike na koje se odnose vaši prijedlozi, npr. stanovanje ili klima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Još nema tema. Dodajte teme politike na koje se odnose vaši prijedlozi, npr. stanovanje ili klima.",
+        "Everyone present": "Svi prisutni",
+        "Present": "Prisutan",
+        "Absent": "Odsutan",
+        "Sent apologies": "Ispričan",
+        "Represented by proxy": "Zastupljen punomoći",
+        "Not recorded": "Nije zabilježeno",
+        "Mark present": "Označi prisutnim",
+        "Mark absent": "Označi odsutnim",
+        "Mark as sent apologies": "Označi ispričanim",
+        "Mark as represented by proxy": "Označi zastupljenim punomoći",
+        "The attendance could not be saved.": "Prisutnost nije moguće spremiti."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Besluttet",
         "Themes": "Temaer",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ingen temaer endnu. Tilføj de politiske temaer, jeres forslag handler om, fx bolig eller klima."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Ingen temaer endnu. Tilføj de politiske temaer, jeres forslag handler om, fx bolig eller klima.",
+        "Everyone present": "Alle til stede",
+        "Present": "Til stede",
+        "Absent": "Fraværende",
+        "Sent apologies": "Meldt afbud",
+        "Represented by proxy": "Repræsenteret ved fuldmagt",
+        "Not recorded": "Ikke registreret",
+        "Mark present": "Markér til stede",
+        "Mark absent": "Markér fraværende",
+        "Mark as sent apologies": "Markér som meldt afbud",
+        "Mark as represented by proxy": "Markér som repræsenteret ved fuldmagt",
+        "The attendance could not be saved.": "Fremmødet kunne ikke gemmes."
     },
     "nplurals=2; plural=(n != 1);"
 )

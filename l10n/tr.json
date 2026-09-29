@@ -1188,7 +1188,18 @@
         "Decision taken": "Karara bağlandı",
         "Themes": "Temalar",
         "Theme": "Tema",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Henüz tema yok. Önergelerinizin konu aldığı politika temalarını ekleyin, örneğin konut veya iklim."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Henüz tema yok. Önergelerinizin konu aldığı politika temalarını ekleyin, örneğin konut veya iklim.",
+        "Everyone present": "Herkes katıldı",
+        "Present": "Katıldı",
+        "Absent": "Katılmadı",
+        "Sent apologies": "Mazeret bildirdi",
+        "Represented by proxy": "Vekaletle temsil edildi",
+        "Not recorded": "Kaydedilmedi",
+        "Mark present": "Katıldı olarak işaretle",
+        "Mark absent": "Katılmadı olarak işaretle",
+        "Mark as sent apologies": "Mazeret bildirdi olarak işaretle",
+        "Mark as represented by proxy": "Vekaletle temsil edildi olarak işaretle",
+        "The attendance could not be saved.": "Katılım kaydedilemedi."
     },
     "plurals": null
 }

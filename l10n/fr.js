@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Décidée",
         "Themes": "Thèmes",
         "Theme": "Thème",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Aucun thème pour l'instant. Ajoutez les thèmes politiques de vos motions, comme le logement ou le climat."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Aucun thème pour l'instant. Ajoutez les thèmes politiques de vos motions, comme le logement ou le climat.",
+        "Everyone present": "Tout le monde présent",
+        "Present": "Présent",
+        "Absent": "Absent",
+        "Sent apologies": "Excusé",
+        "Represented by proxy": "Représenté par procuration",
+        "Not recorded": "Non renseigné",
+        "Mark present": "Marquer présent",
+        "Mark absent": "Marquer absent",
+        "Mark as sent apologies": "Marquer comme excusé",
+        "Mark as represented by proxy": "Marquer comme représenté par procuration",
+        "The attendance could not be saved.": "La présence n'a pas pu être enregistrée."
     },
     "nplurals=2; plural=(n != 1);"
 )

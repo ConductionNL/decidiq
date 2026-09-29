@@ -1189,7 +1189,18 @@ OC.L10N.register(
         "Decision taken": "Decisă",
         "Themes": "Teme",
         "Theme": "Temă",
-        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Încă nu există teme. Adăugați temele de politică ale moțiunilor, precum locuințe sau climă."
+        "No themes yet. Add the policy themes your motions are about, such as housing or climate.": "Încă nu există teme. Adăugați temele de politică ale moțiunilor, precum locuințe sau climă.",
+        "Everyone present": "Toți prezenți",
+        "Present": "Prezent",
+        "Absent": "Absent",
+        "Sent apologies": "Absență motivată",
+        "Represented by proxy": "Reprezentat prin procură",
+        "Not recorded": "Neînregistrat",
+        "Mark present": "Marchează prezent",
+        "Mark absent": "Marchează absent",
+        "Mark as sent apologies": "Marchează absență motivată",
+        "Mark as represented by proxy": "Marchează reprezentat prin procură",
+        "The attendance could not be saved.": "Prezența nu a putut fi salvată."
     },
     "nplurals=2; plural=(n != 1);"
 )
