@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Esityslistaa ei julkaistu.",
         "When: %s": "Milloin: %s",
         "Where: %s": "Missä: %s",
-        "Agenda:": "Esityslista:"
+        "Agenda:": "Esityslista:",
+        "The meeting %s was scheduled": "Kokous %s on aikataulutettu",
+        "The meeting %s is coming up": "Kokous %s lähestyy",
+        "The submission deadline of %s is coming up": "Kokouksen %s jättöaika päättyy pian",
+        "It starts on %s.": "Alkaa %s.",
+        "Motions and amendments can be submitted until %s.": "Aloitteita ja muutosehdotuksia voi jättää %s asti."
     },
     "nplurals=2; plural=(n != 1);"
 )

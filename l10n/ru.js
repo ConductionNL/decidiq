@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Повестка не опубликована.",
         "When: %s": "Когда: %s",
         "Where: %s": "Где: %s",
-        "Agenda:": "Повестка:"
+        "Agenda:": "Повестка:",
+        "The meeting %s was scheduled": "Заседание %s назначено",
+        "The meeting %s is coming up": "Скоро заседание %s",
+        "The submission deadline of %s is coming up": "Приближается срок подачи для %s",
+        "It starts on %s.": "Начало: %s.",
+        "Motions and amendments can be submitted until %s.": "Предложения и поправки принимаются до %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

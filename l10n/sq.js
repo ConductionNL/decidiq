@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Rendi i ditës nuk u publikua.",
         "When: %s": "Kur: %s",
         "Where: %s": "Ku: %s",
-        "Agenda:": "Rendi i ditës:"
+        "Agenda:": "Rendi i ditës:",
+        "The meeting %s was scheduled": "Mbledhja %s u planifikua",
+        "The meeting %s is coming up": "Mbledhja %s po afron",
+        "The submission deadline of %s is coming up": "Afati i dorëzimit për %s po afron",
+        "It starts on %s.": "Fillon më %s.",
+        "Motions and amendments can be submitted until %s.": "Mocionet dhe amendamentet mund të dorëzohen deri më %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

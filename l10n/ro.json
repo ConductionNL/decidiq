@@ -1152,7 +1152,12 @@
         "The agenda was not published.": "Ordinea de zi nu a fost publicată.",
         "When: %s": "Când: %s",
         "Where: %s": "Unde: %s",
-        "Agenda:": "Ordinea de zi:"
+        "Agenda:": "Ordinea de zi:",
+        "The meeting %s was scheduled": "Ședința %s a fost programată",
+        "The meeting %s is coming up": "Se apropie ședința %s",
+        "The submission deadline of %s is coming up": "Se apropie termenul de depunere pentru %s",
+        "It starts on %s.": "Începe la %s.",
+        "Motions and amendments can be submitted until %s.": "Moțiunile și amendamentele pot fi depuse până la %s."
     },
     "plurals": null
 }

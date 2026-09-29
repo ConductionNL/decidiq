@@ -1,0 +1,47 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change meeting-reminders-before-deadlines (REQ-MRD-001, REQ-MRD-002, matrix rows pla-06 and plt-09). MeetingReminderService stamps what it sent on the meeting so every notice goes out once. The two declarative OpenRegister notices below reached every reader of the meeting and ignored the member's Meeting scheduled and Meeting reminder switches; they are switched off so a member is told once, by their own switch.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.8.0",
+        "x-openregister-notifications": {
+          "meetingScheduled": {
+            "enabled": false
+          },
+          "meetingReminder": {
+            "enabled": false
+          }
+        },
+        "properties": {
+          "scheduledNoticeSentAt": {
+            "title": "Scheduled notice sent at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the members were told the meeting was scheduled."
+          },
+          "reminderSentTo": {
+            "title": "Reminders sent",
+            "type": "object",
+            "description": "Per member, the reminder times already sent before the meeting starts.",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "deadlineReminderSentAt": {
+            "title": "Deadline reminder sent at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the members were reminded of the submission deadline."
+          }
+        }
+      }
+    }
+  }
+}

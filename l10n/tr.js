@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Gündem yayımlanmadı.",
         "When: %s": "Ne zaman: %s",
         "Where: %s": "Nerede: %s",
-        "Agenda:": "Gündem:"
+        "Agenda:": "Gündem:",
+        "The meeting %s was scheduled": "%s toplantısı planlandı",
+        "The meeting %s is coming up": "%s toplantısı yaklaşıyor",
+        "The submission deadline of %s is coming up": "%s için sunma süresi yaklaşıyor",
+        "It starts on %s.": "%s tarihinde başlıyor.",
+        "Motions and amendments can be submitted until %s.": "Önergeler ve değişiklik önergeleri %s tarihine kadar sunulabilir."
     },
     "nplurals=2; plural=(n != 1);"
 )

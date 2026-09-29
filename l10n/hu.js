@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "A napirend nem lett közzétéve.",
         "When: %s": "Mikor: %s",
         "Where: %s": "Hol: %s",
-        "Agenda:": "Napirend:"
+        "Agenda:": "Napirend:",
+        "The meeting %s was scheduled": "A(z) %s ülés időpontja kitűzve",
+        "The meeting %s is coming up": "Közeleg a(z) %s ülés",
+        "The submission deadline of %s is coming up": "Közeleg a(z) %s benyújtási határideje",
+        "It starts on %s.": "Kezdés: %s.",
+        "Motions and amendments can be submitted until %s.": "Indítványok és módosítók %s-ig nyújthatók be."
     },
     "nplurals=2; plural=(n != 1);"
 )

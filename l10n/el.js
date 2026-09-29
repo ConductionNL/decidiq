@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "Η ημερήσια διάταξη δεν δημοσιεύθηκε.",
         "When: %s": "Πότε: %s",
         "Where: %s": "Πού: %s",
-        "Agenda:": "Ημερήσια διάταξη:"
+        "Agenda:": "Ημερήσια διάταξη:",
+        "The meeting %s was scheduled": "Η συνεδρίαση %s προγραμματίστηκε",
+        "The meeting %s is coming up": "Η συνεδρίαση %s πλησιάζει",
+        "The submission deadline of %s is coming up": "Η προθεσμία υποβολής για %s πλησιάζει",
+        "It starts on %s.": "Ξεκινά στις %s.",
+        "Motions and amendments can be submitted until %s.": "Προτάσεις και τροπολογίες υποβάλλονται έως %s."
     },
     "nplurals=2; plural=(n != 1);"
 )

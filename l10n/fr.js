@@ -1153,7 +1153,12 @@ OC.L10N.register(
         "The agenda was not published.": "L'ordre du jour n'a pas été publié.",
         "When: %s": "Quand : %s",
         "Where: %s": "Où : %s",
-        "Agenda:": "Ordre du jour :"
+        "Agenda:": "Ordre du jour :",
+        "The meeting %s was scheduled": "La réunion %s a été planifiée",
+        "The meeting %s is coming up": "La réunion %s approche",
+        "The submission deadline of %s is coming up": "La date limite de dépôt pour %s approche",
+        "It starts on %s.": "Elle commence le %s.",
+        "Motions and amendments can be submitted until %s.": "Les motions et amendements peuvent être déposés jusqu'au %s."
     },
     "nplurals=2; plural=(n != 1);"
 )
