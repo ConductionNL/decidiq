@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Lidh dhomën",
         "The video call has not been set up yet.": "Thirrja video nuk është ngritur ende.",
         "The video call could not be created.": "Thirrja video nuk u krijua dot.",
-        "The room could not be linked.": "Dhoma nuk u lidh dot."
+        "The room could not be linked.": "Dhoma nuk u lidh dot.",
+        "Minutes wait for your approval: %s": "Procesverbali pret miratimin tuaj: %s",
+        "The minutes were submitted for approval.": "Procesverbali u dërgua për miratim."
     },
     "nplurals=2; plural=(n != 1);"
 )

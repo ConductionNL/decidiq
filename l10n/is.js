@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Tengja herbergi",
         "The video call has not been set up yet.": "Myndsímtalið hefur ekki verið sett upp enn.",
         "The video call could not be created.": "Ekki tókst að búa til myndsímtalið.",
-        "The room could not be linked.": "Ekki tókst að tengja herbergið."
+        "The room could not be linked.": "Ekki tókst að tengja herbergið.",
+        "Minutes wait for your approval: %s": "Fundargerð bíður samþykkis þíns: %s",
+        "The minutes were submitted for approval.": "Fundargerðin var send til samþykktar."
     },
     "nplurals=2; plural=(n != 1);"
 )

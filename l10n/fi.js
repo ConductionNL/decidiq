@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Linkitä huone",
         "The video call has not been set up yet.": "Videopuhelua ei ole vielä järjestetty.",
         "The video call could not be created.": "Videopuhelua ei voitu luoda.",
-        "The room could not be linked.": "Huonetta ei voitu linkittää."
+        "The room could not be linked.": "Huonetta ei voitu linkittää.",
+        "Minutes wait for your approval: %s": "Pöytäkirja odottaa hyväksyntääsi: %s",
+        "The minutes were submitted for approval.": "Pöytäkirja lähetettiin hyväksyttäväksi."
     },
     "nplurals=2; plural=(n != 1);"
 )

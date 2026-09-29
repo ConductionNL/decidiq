@@ -35,8 +35,9 @@ use Throwable;
  * quorum statements, member rolls, and formal resolution language. Handles
  * distribution of approved minutes to active members via notifications.
  *
- * OpenRegister lookups are delegated to MinutesContextResolver and notification
- * delivery to ParticipantNotifier; what stays here is the ALV domain rules —
+ * OpenRegister lookups are delegated to MinutesContextResolver, the body's
+ * members to ParticipantResolver and delivery to NotificationPreferenceService;
+ * what stays here is the ALV domain rules —
  * what counts as an ALV, what quorum means, and when minutes may be
  * distributed.
  *
@@ -133,11 +134,7 @@ TEMPLATE;
 			$meeting = $this->context->requireMeeting(meetingId: $meetingId);
 			$this->assertAlvMeeting(meeting: $meeting);
 
-			$participants = $this->context->activeParticipants(
-				bodyId: $this->context->governanceBodyId(meeting: $meeting)
-			);
-
-			$memberCount = count($participants);
+			$memberCount = count($this->currentMembers(meetingId: $meetingId));
 			$presentCount = $this->presentCount(memberCount: $memberCount, meeting: $meeting);
 
 			$content = $this->renderAlvTemplate(
@@ -251,11 +248,7 @@ TEMPLATE;
 	 */
 	private function memberUids(string $meetingId): array {
 		$uids = [];
-		foreach ($this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId) as $participant) {
-			if (empty($participant['leftAt']) === false) {
-				continue;
-			}
-
+		foreach ($this->currentMembers(meetingId: $meetingId) as $participant) {
 			$uid = (string)($participant['nextcloudUserId'] ?? $participant['owner'] ?? '');
 			if ($uid !== '') {
 				$uids[$uid] = true;
@@ -265,6 +258,25 @@ TEMPLATE;
 		return array_map('strval', array_keys($uids));
 
 	}//end memberUids()
+
+	/**
+	 * The participants of the meeting's body who have not left. Read through
+	 * ParticipantResolver, which honours the flat relation the object API
+	 * writes; a `_relations.governance-body` filter matches none of those.
+	 *
+	 * @param string $meetingId The meeting
+	 *
+	 * @return array<int, array<string, mixed>> The current members
+	 */
+	private function currentMembers(string $meetingId): array {
+		return array_values(
+			array_filter(
+				$this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId),
+				static fn (array $participant): bool => empty($participant['leftAt']) === true
+			)
+		);
+
+	}//end currentMembers()
 
 	/**
 	 * Assert that a Meeting is an ALV.

@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Koble til rom",
         "The video call has not been set up yet.": "Videosamtalen er ikke satt opp ennå.",
         "The video call could not be created.": "Videosamtalen kunne ikke opprettes.",
-        "The room could not be linked.": "Rommet kunne ikke kobles til."
+        "The room could not be linked.": "Rommet kunne ikke kobles til.",
+        "Minutes wait for your approval: %s": "Referat venter på din godkjenning: %s",
+        "The minutes were submitted for approval.": "Referatet er sendt til godkjenning."
     },
     "nplurals=2; plural=(n != 1);"
 )

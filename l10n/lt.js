@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Susieti kambarį",
         "The video call has not been set up yet.": "Vaizdo skambutis dar nenustatytas.",
         "The video call could not be created.": "Vaizdo skambučio sukurti nepavyko.",
-        "The room could not be linked.": "Kambario susieti nepavyko."
+        "The room could not be linked.": "Kambario susieti nepavyko.",
+        "Minutes wait for your approval: %s": "Protokolas laukia jūsų patvirtinimo: %s",
+        "The minutes were submitted for approval.": "Protokolas pateiktas tvirtinti."
     },
     "nplurals=2; plural=(n != 1);"
 )

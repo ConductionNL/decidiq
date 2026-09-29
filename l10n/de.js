@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Raum verknüpfen",
         "The video call has not been set up yet.": "Der Videoanruf ist noch nicht eingerichtet.",
         "The video call could not be created.": "Der Videoanruf konnte nicht erstellt werden.",
-        "The room could not be linked.": "Der Raum konnte nicht verknüpft werden."
+        "The room could not be linked.": "Der Raum konnte nicht verknüpft werden.",
+        "Minutes wait for your approval: %s": "Protokoll wartet auf Ihre Genehmigung: %s",
+        "The minutes were submitted for approval.": "Das Protokoll wurde zur Genehmigung eingereicht."
     },
     "nplurals=2; plural=(n != 1);"
 )

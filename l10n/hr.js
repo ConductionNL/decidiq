@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Poveži sobu",
         "The video call has not been set up yet.": "Videopoziv još nije postavljen.",
         "The video call could not be created.": "Videopoziv nije moguće stvoriti.",
-        "The room could not be linked.": "Sobu nije moguće povezati."
+        "The room could not be linked.": "Sobu nije moguće povezati.",
+        "Minutes wait for your approval: %s": "Zapisnik čeka vaše odobrenje: %s",
+        "The minutes were submitted for approval.": "Zapisnik je podnesen na odobrenje."
     },
     "nplurals=2; plural=(n != 1);"
 )

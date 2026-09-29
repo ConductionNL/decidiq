@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Lier la salle",
         "The video call has not been set up yet.": "L'appel vidéo n'est pas encore configuré.",
         "The video call could not be created.": "L'appel vidéo n'a pas pu être créé.",
-        "The room could not be linked.": "La salle n'a pas pu être liée."
+        "The room could not be linked.": "La salle n'a pas pu être liée.",
+        "Minutes wait for your approval: %s": "Procès-verbal en attente de votre approbation : %s",
+        "The minutes were submitted for approval.": "Le procès-verbal a été soumis pour approbation."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1251,7 +1251,9 @@ OC.L10N.register(
         "Link room": "Piesaistīt istabu",
         "The video call has not been set up yet.": "Videozvans vēl nav iestatīts.",
         "The video call could not be created.": "Videozvanu neizdevās izveidot.",
-        "The room could not be linked.": "Istabu neizdevās piesaistīt."
+        "The room could not be linked.": "Istabu neizdevās piesaistīt.",
+        "Minutes wait for your approval: %s": "Protokols gaida jūsu apstiprinājumu: %s",
+        "The minutes were submitted for approval.": "Protokols iesniegts apstiprināšanai."
     },
     "nplurals=2; plural=(n != 1);"
 )
