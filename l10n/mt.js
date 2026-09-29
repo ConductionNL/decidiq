@@ -1253,7 +1253,26 @@ OC.L10N.register(
         "The video call could not be created.": "Is-sejħa bil-vidjo ma setgħetx tinħoloq.",
         "The room could not be linked.": "Il-kamra ma setgħetx tiġi marbuta.",
         "Minutes wait for your approval: %s": "Il-minuti qed jistennew l-approvazzjoni tiegħek: %s",
-        "The minutes were submitted for approval.": "Il-minuti ġew sottomessi għall-approvazzjoni."
+        "The minutes were submitted for approval.": "Il-minuti ġew sottomessi għall-approvazzjoni.",
+        "Open the room screen": "Iftaħ l-iskrin tal-kamra",
+        "Room screen": "Skrin tal-kamra",
+        "Record a decision on {title}": "Irreġistra deċiżjoni dwar {title}",
+        "Decision recorded.": "Id-deċiżjoni ġiet irreġistrata.",
+        "Log a question by {name}": "Irreġistra mistoqsija minn {name}",
+        "Question raised": "Saret mistoqsija",
+        "Record a decision": "Irreġistra deċiżjoni",
+        "Decision text": "Test tad-deċiżjoni",
+        "Kind of decision": "Tip ta' deċiżjoni",
+        "A decision can only be recorded while the meeting is in session.": "Deċiżjoni tista' tiġi rreġistrata biss waqt il-laqgħa.",
+        "The decision could not be recorded.": "Id-deċiżjoni ma setgħetx tiġi rreġistrata.",
+        "Now on the agenda": "Issa fuq l-aġenda",
+        "Voting is open": "Il-votazzjoni hija miftuħa",
+        "No agenda item is being dealt with yet.": "L-ebda punt tal-aġenda għadu mhu qed jiġi ttrattat.",
+        "Current agenda item": "Punt kurrenti tal-aġenda",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Il-punt li l-president qed jittratta issa. L-iskrins tal-membri u tal-kamra jsegwuh.",
+        "Contributions on this item": "Kontribuzzjonijiet fuq dan il-punt",
+        "{name} spoke for {time}": "{name} tkellem għal {time}",
+        "{name} raised a question": "{name} għamel mistoqsija"
     },
     "nplurals=2; plural=(n != 1);"
 )

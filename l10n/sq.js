@@ -1253,7 +1253,26 @@ OC.L10N.register(
         "The video call could not be created.": "Thirrja video nuk u krijua dot.",
         "The room could not be linked.": "Dhoma nuk u lidh dot.",
         "Minutes wait for your approval: %s": "Procesverbali pret miratimin tuaj: %s",
-        "The minutes were submitted for approval.": "Procesverbali u dërgua për miratim."
+        "The minutes were submitted for approval.": "Procesverbali u dërgua për miratim.",
+        "Open the room screen": "Hap ekranin e sallës",
+        "Room screen": "Ekrani i sallës",
+        "Record a decision on {title}": "Regjistro një vendim për {title}",
+        "Decision recorded.": "Vendimi u regjistrua.",
+        "Log a question by {name}": "Regjistro një pyetje nga {name}",
+        "Question raised": "Pyetje e ngritur",
+        "Record a decision": "Regjistro një vendim",
+        "Decision text": "Teksti i vendimit",
+        "Kind of decision": "Lloji i vendimit",
+        "A decision can only be recorded while the meeting is in session.": "Një vendim mund të regjistrohet vetëm gjatë mbledhjes.",
+        "The decision could not be recorded.": "Vendimi nuk u regjistrua dot.",
+        "Now on the agenda": "Tani në rend të ditës",
+        "Voting is open": "Votimi është i hapur",
+        "No agenda item is being dealt with yet.": "Ende nuk po trajtohet asnjë pikë e rendit të ditës.",
+        "Current agenda item": "Pika aktuale e rendit të ditës",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Pika që kryesuesi po trajton tani. Ekranet e anëtarëve dhe ekrani i sallës e ndjekin.",
+        "Contributions on this item": "Ndërhyrjet në këtë pikë",
+        "{name} spoke for {time}": "{name} foli për {time}",
+        "{name} raised a question": "{name} ngriti një pyetje"
     },
     "nplurals=2; plural=(n != 1);"
 )

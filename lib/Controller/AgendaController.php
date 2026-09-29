@@ -31,6 +31,7 @@ use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -56,6 +57,7 @@ class AgendaController extends Controller {
 	 *
 	 * @param IRequest $request The HTTP request
 	 * @param AgendaService $agendaService The agenda service
+	 * @param CurrentAgendaItemService $currentItems The live meeting's current item
 	 * @param AgendaAuthorizationGuard $guard Authentication + chair/secretary authorization
 	 * @param LoggerInterface $logger PSR-3 logger
 	 *
@@ -66,6 +68,7 @@ class AgendaController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly AgendaService $agendaService,
+		private readonly CurrentAgendaItemService $currentItems,
 		private readonly AgendaAuthorizationGuard $guard,
 		private readonly LoggerInterface $logger,
 	) {
@@ -312,4 +315,41 @@ class AgendaController extends Controller {
 			return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
 	}//end formality()
+
+	/**
+	 * Make an agenda item the current one on the live meeting.
+	 *
+	 * PUT /api/agendas/{meetingId}/current-item, body `{ "agendaItem": uuid }`.
+	 * Chair, secretary or admin only.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 */
+	#[NoAdminRequired]
+	public function currentItem(string $meetingId): JSONResponse {
+		$denied = $this->denyUnlessChairOrAdmin(meetingId: $meetingId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$itemId = (string)($this->request->getParam('agendaItem') ?? '');
+
+		try {
+			$this->currentItems->setCurrentItem(meetingId: $meetingId, itemId: $itemId);
+			return new JSONResponse(['success' => true, 'currentAgendaItem' => $itemId]);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'setCurrentItem failed for meeting {meetingId}: {error}',
+				['meetingId' => $meetingId, 'error' => $e->getMessage(), 'exception' => $e]
+			);
+			return new JSONResponse(['message' => 'An internal error occurred.'], Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+	}//end currentItem()
 }//end class

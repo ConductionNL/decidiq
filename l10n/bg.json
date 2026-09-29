@@ -1252,7 +1252,26 @@
         "The video call could not be created.": "Видеообаждането не можа да бъде създадено.",
         "The room could not be linked.": "Стаята не можа да бъде свързана.",
         "Minutes wait for your approval: %s": "Протокол очаква вашето одобрение: %s",
-        "The minutes were submitted for approval.": "Протоколът е изпратен за одобрение."
+        "The minutes were submitted for approval.": "Протоколът е изпратен за одобрение.",
+        "Open the room screen": "Отваряне на екрана в залата",
+        "Room screen": "Екран в залата",
+        "Record a decision on {title}": "Запис на решение по {title}",
+        "Decision recorded.": "Решението е записано.",
+        "Log a question by {name}": "Запис на въпрос от {name}",
+        "Question raised": "Зададен въпрос",
+        "Record a decision": "Запис на решение",
+        "Decision text": "Текст на решението",
+        "Kind of decision": "Вид решение",
+        "A decision can only be recorded while the meeting is in session.": "Решение може да се запише само докато заседанието тече.",
+        "The decision could not be recorded.": "Решението не можа да бъде записано.",
+        "Now on the agenda": "Сега на дневен ред",
+        "Voting is open": "Гласуването е открито",
+        "No agenda item is being dealt with yet.": "Все още не се разглежда точка от дневния ред.",
+        "Current agenda item": "Текуща точка от дневния ред",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Точката, която председателят разглежда сега. Екраните на членовете и екранът в залата я следват.",
+        "Contributions on this item": "Изказвания по тази точка",
+        "{name} spoke for {time}": "{name} говори {time}",
+        "{name} raised a question": "{name} зададе въпрос"
     },
     "plurals": null
 }

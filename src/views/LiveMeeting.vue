@@ -14,7 +14,9 @@
 		role="main"
 		data-testid="meeting-live"
 		:aria-label="t('decidiq', 'Live meeting view')">
-		<NcLoadingIcon v-if="loading" :size="64" />
+		<!-- The room screen: the same page in projector mode (live-meeting-shared-current-item) -->
+		<MeetingScreen v-if="roomView" :id="id" />
+		<NcLoadingIcon v-else-if="loading" :size="64" />
 
 		<template v-else>
 			<!-- Meeting header -->
@@ -28,6 +30,18 @@
 					:aria-label="t('decidiq', 'Back to meeting detail')"
 					@click="$router.push({ name: 'MeetingDetail', params: { id } })">
 					← {{ t('decidiq', 'Back') }}
+				</NcButton>
+				<NcButton
+					data-testid="meeting-live-room-screen"
+					:aria-label="t('decidiq', 'Open the room screen')"
+					@click="
+						$router.push({
+							name: 'LiveMeeting',
+							params: { id },
+							query: { view: 'screen' },
+						})
+					">
+					{{ t('decidiq', 'Room screen') }}
 				</NcButton>
 			</div>
 
@@ -178,12 +192,37 @@
 						{{ t('decidiq', 'Next phase') }}
 					</NcButton>
 				</template>
+
+				<NcButton
+					v-if="canTakeMinutes"
+					data-testid="meeting-live-record-decision"
+					:aria-label="
+						t('decidiq', 'Record a decision on {title}', {
+							title: activeItem.title,
+						})
+					"
+					@click="decisionOpen = true">
+					{{ t('decidiq', 'Record decision') }}
+				</NcButton>
+				<p
+					v-if="decisionRecorded"
+					class="live-meeting__decision-recorded"
+					role="status">
+					{{ t('decidiq', 'Decision recorded.') }}
+				</p>
+				<LiveDecisionDialog
+					v-if="decisionOpen"
+					:meetingId="id"
+					:item="activeItem"
+					@recorded="onDecisionRecorded"
+					@close="decisionOpen = false" />
 			</section>
 
 			<!-- Speaker queue (meeting-efficiency) -->
 			<SpeakerQueuePanel
 				v-if="activeItem"
 				:meetingId="id"
+				:currentItemId="activeItem.id"
 				:participants="participants"
 				:isChair="isChair" />
 
@@ -229,20 +268,28 @@
 
 <script>
 import { CnStatusBadge, CnTimelineStages } from '@conduction/nextcloud-vue'
-import { getCurrentUser } from '@nextcloud/auth'
+import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import AgendaBuilder from '../components/AgendaBuilder.vue'
 import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
 import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
+import MeetingScreen from '../components/liveMeeting/MeetingScreen.vue'
 import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
+import LiveDecisionDialog from '../dialogs/LiveDecisionDialog.vue'
 import { useObjectStore } from '../store/store.js'
 import {
 	formalityUrl,
 	isPendingFormality,
 	pendingFormalities,
 } from '../utils/formalities.js'
+import {
+	FOLLOW_INTERVAL_MS,
+	runsTheMeeting,
+	sharedCurrentItemId,
+} from '../utils/liveMeeting.js'
+import { references } from '../utils/objectRelations.js'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -269,6 +316,8 @@ export default {
 		AgendaItemTimer,
 		SpeakerQueuePanel,
 		MeetingCostPanel,
+		LiveDecisionDialog,
+		MeetingScreen,
 	},
 
 	props: {
@@ -293,6 +342,13 @@ export default {
 			// (30s/60s) when notify_push is unavailable, so the page
 			// works on stacks with or without the WebSocket sidecar.
 			liveSubs: [],
+			// The caller's roles in this meeting, from GET /api/meetings/{id}/my-roles
+			// (live-meeting-shared-current-item): the participant relation the old
+			// check read is written by no screen.
+			myRoles: null,
+			followTimer: null,
+			decisionOpen: false,
+			decisionRecorded: false,
 		}
 	},
 
@@ -331,12 +387,23 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/**
+		 * The members of the meeting's body. Participant has no meeting field;
+		 * it names its body (governanceBody), so the meeting's body scopes it.
+		 * The old meeting relation stays as a fallback for older records.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
 		participants() {
 			const collection = this.objectStore.collections?.participant ?? []
+			const bodyId =
+				this.meeting?.governanceBody
+				?? this.meeting?.['@self']?.relations?.governanceBody
 			return collection.filter(
 				(p) =>
-					p?.['@self']?.relations?.meeting === this.id
+					(bodyId
+						&& (p?.governanceBody === bodyId || references(p, bodyId)))
+					|| p?.['@self']?.relations?.meeting === this.id
 					|| p?.relations?.meeting === this.id,
 			)
 		},
@@ -357,37 +424,26 @@ export default {
 			return Number.isFinite(rate) && rate > 0 ? rate : 0
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/**
+		 * The chair, secretary or an admin runs the live meeting: activates
+		 * items, advances phases and records decisions. Asked of the server
+		 * (GET /api/meetings/{id}/my-roles), the same answer the live decision
+		 * endpoint's guard gives.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 */
 		isChair() {
-			const currentUser = getCurrentUser()
-			if (!currentUser) return false
-			// nextcloudUserId is the canonical link (ParticipantResolver);
-			// owner is the legacy fallback for pre-migration records.
-			return this.participants.some(
-				(p) =>
-					(p.nextcloudUserId === currentUser.uid
-						|| (!p.nextcloudUserId && p.owner === currentUser.uid))
-					&& p.role === 'chair',
-			)
+			return runsTheMeeting(this.myRoles)
 		},
 
 		/**
-		 * Whether the current user may take live minutes: secretary (the
-		 * spec's primary actor), chair, or NC admin — mirrors the backend
-		 * chair/secretary/admin guard on the minutes endpoints.
+		 * Whether the caller may take live minutes and record decisions:
+		 * secretary, chair or admin, as the server answers.
 		 *
-		 * @spec openspec/specs/resolution-minutes/spec.md
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 		 */
 		canTakeMinutes() {
-			const currentUser = getCurrentUser()
-			if (!currentUser) return false
-			if (currentUser.isAdmin) return true
-			return this.participants.some(
-				(p) =>
-					(p.nextcloudUserId === currentUser.uid
-						|| (!p.nextcloudUserId && p.owner === currentUser.uid))
-					&& ['chair', 'secretary'].includes(p.role),
-			)
+			return runsTheMeeting(this.myRoles)
 		},
 
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
@@ -413,6 +469,37 @@ export default {
 		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
 		activeItem() {
 			return this.allItems.find((i) => i.id === this.activeItemId) ?? null
+		},
+
+		/**
+		 * The page shows the room screen instead of the chair's controls
+		 * (?view=screen), for the projector in the room.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-002-a-room-screen-shows-the-current-item-and-vote
+		 */
+		roomView() {
+			return this.$route?.query?.view === 'screen'
+		},
+
+		/**
+		 * The current item as saved on the meeting.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 */
+		sharedItemId() {
+			return sharedCurrentItemId(this.meeting)
+		},
+	},
+
+	watch: {
+		/**
+		 * Follow the item the chair made current.
+		 *
+		 * @param {?string} itemId The shared current item.
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 */
+		sharedItemId(itemId) {
+			if (itemId) this.activeItemId = itemId
 		},
 	},
 
@@ -440,6 +527,16 @@ export default {
 		this.liveSubs.push(await this.objectStore.subscribe('meeting', this.id))
 		this.liveSubs.push(await this.objectStore.subscribe('agenda-item'))
 		this.liveSubs.push(await this.objectStore.subscribe('participant'))
+
+		// Everyone follows the chair's current item within seconds
+		// (live-meeting-shared-current-item): the live-update fallback polls
+		// objects only every 60 s, so the meeting is re-read here.
+		this.activeItemId = sharedCurrentItemId(this.meeting) ?? this.activeItemId
+		await this.fetchMyRoles()
+		this.followTimer = setInterval(
+			() => this.followMeeting(),
+			FOLLOW_INTERVAL_MS,
+		)
 	},
 
 	/** @spec exclude lifecycle teardown; only unsubscribes the live-update handles created in created() */
@@ -449,11 +546,15 @@ export default {
 		for (const handle of this.liveSubs) {
 			try {
 				this.objectStore.unsubscribe(handle)
-			} catch (e) {
+			} catch {
 				// best-effort cleanup
 			}
 		}
 		this.liveSubs = []
+		if (this.followTimer) {
+			clearInterval(this.followTimer)
+			this.followTimer = null
+		}
 	},
 
 	methods: {
@@ -478,9 +579,69 @@ export default {
 		/**
 		 * @param item
 		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
-		activateItem(item) {
+		async activateItem(item) {
 			this.activeItemId = item.id
+			if (!this.isChair) return
+			// The server saves it on the meeting (chair, secretary or admin
+			// only), so members and the room screen follow.
+			try {
+				await fetch(
+					generateUrl(`/apps/decidiq/api/agendas/${this.id}/current-item`),
+					{
+						method: 'PUT',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ agendaItem: item.id }),
+					},
+				)
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error('Error saving the current agenda item:', e)
+			}
+		},
+
+		/**
+		 * Re-read the meeting so this screen follows the current item.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 */
+		async followMeeting() {
+			try {
+				await this.objectStore.fetchObject('meeting', this.id)
+			} catch {
+				// The next tick tries again.
+			}
+		},
+
+		/**
+		 * Ask the server which roles the caller holds in this meeting.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+		 */
+		async fetchMyRoles() {
+			try {
+				const response = await fetch(
+					generateUrl(`/apps/decidiq/api/meetings/${this.id}/my-roles`),
+					{ headers: { requesttoken: OC.requestToken } },
+				)
+				this.myRoles = response.ok ? await response.json() : null
+			} catch {
+				this.myRoles = null
+			}
+		},
+
+		/**
+		 * The decision dialog saved a decision on the current item.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+		 */
+		onDecisionRecorded() {
+			this.decisionOpen = false
+			this.decisionRecorded = true
 		},
 
 		/**
@@ -500,11 +661,13 @@ export default {
 					},
 				)
 				if (!response.ok) {
+					// eslint-disable-next-line no-console
 					console.error('Failed to advance BOB phase')
 					return
 				}
 				await this.refreshItems()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error advancing BOB phase:', e)
 			} finally {
 				this.advancingBob = false
@@ -526,11 +689,13 @@ export default {
 					},
 				)
 				if (!response.ok) {
+					// eslint-disable-next-line no-console
 					console.error('Failed to process hamerstukken:', response.status)
 					return
 				}
 				await this.refreshItems()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error processing hamerstukken:', e)
 			} finally {
 				this.processingHamerstukken = false
@@ -559,6 +724,7 @@ export default {
 				}
 				await this.refreshItems()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error taking the formality mark off:', e)
 			}
 		},
@@ -601,6 +767,7 @@ export default {
 				// panel renders a no-rate hint when the body / rate is absent.
 				await this.fetchGovernanceBody()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error fetching live meeting data:', e)
 			} finally {
 				this.loading = false
@@ -621,6 +788,7 @@ export default {
 			try {
 				await this.objectStore.fetchObject('governance-body', bodyId)
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error fetching governance body:', e)
 			}
 		},
@@ -635,6 +803,7 @@ export default {
 					_limit: 200,
 				})
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Error refreshing items:', e)
 			}
 		},

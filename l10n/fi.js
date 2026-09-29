@@ -1253,7 +1253,26 @@ OC.L10N.register(
         "The video call could not be created.": "Videopuhelua ei voitu luoda.",
         "The room could not be linked.": "Huonetta ei voitu linkittää.",
         "Minutes wait for your approval: %s": "Pöytäkirja odottaa hyväksyntääsi: %s",
-        "The minutes were submitted for approval.": "Pöytäkirja lähetettiin hyväksyttäväksi."
+        "The minutes were submitted for approval.": "Pöytäkirja lähetettiin hyväksyttäväksi.",
+        "Open the room screen": "Avaa salin näyttö",
+        "Room screen": "Salin näyttö",
+        "Record a decision on {title}": "Kirjaa päätös asiasta {title}",
+        "Decision recorded.": "Päätös kirjattu.",
+        "Log a question by {name}": "Kirjaa kysymys: {name}",
+        "Question raised": "Kysymys esitetty",
+        "Record a decision": "Kirjaa päätös",
+        "Decision text": "Päätöksen teksti",
+        "Kind of decision": "Päätöksen laji",
+        "A decision can only be recorded while the meeting is in session.": "Päätöksen voi kirjata vain kokouksen ollessa käynnissä.",
+        "The decision could not be recorded.": "Päätöstä ei voitu kirjata.",
+        "Now on the agenda": "Nyt esityslistalla",
+        "Voting is open": "Äänestys on käynnissä",
+        "No agenda item is being dealt with yet.": "Mitään asiaa ei vielä käsitellä.",
+        "Current agenda item": "Käsiteltävä asia",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Asia, jota puheenjohtaja nyt käsittelee. Jäsenten näytöt ja salin näyttö seuraavat sitä.",
+        "Contributions on this item": "Puheenvuorot tässä kohdassa",
+        "{name} spoke for {time}": "{name} puhui {time}",
+        "{name} raised a question": "{name} esitti kysymyksen"
     },
     "nplurals=2; plural=(n != 1);"
 )

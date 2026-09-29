@@ -1252,7 +1252,26 @@
         "The video call could not be created.": "Не удалось создать видеозвонок.",
         "The room could not be linked.": "Не удалось привязать комнату.",
         "Minutes wait for your approval: %s": "Протокол ожидает вашего утверждения: %s",
-        "The minutes were submitted for approval.": "Протокол отправлен на утверждение."
+        "The minutes were submitted for approval.": "Протокол отправлен на утверждение.",
+        "Open the room screen": "Открыть экран зала",
+        "Room screen": "Экран зала",
+        "Record a decision on {title}": "Записать решение по {title}",
+        "Decision recorded.": "Решение записано.",
+        "Log a question by {name}": "Записать вопрос от {name}",
+        "Question raised": "Задан вопрос",
+        "Record a decision": "Записать решение",
+        "Decision text": "Текст решения",
+        "Kind of decision": "Вид решения",
+        "A decision can only be recorded while the meeting is in session.": "Решение можно записать только во время заседания.",
+        "The decision could not be recorded.": "Не удалось записать решение.",
+        "Now on the agenda": "Сейчас на повестке",
+        "Voting is open": "Голосование открыто",
+        "No agenda item is being dealt with yet.": "Ни один пункт повестки ещё не рассматривается.",
+        "Current agenda item": "Текущий пункт повестки",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Пункт, который сейчас рассматривает председатель. Экраны участников и зала следуют за ним.",
+        "Contributions on this item": "Выступления по этому пункту",
+        "{name} spoke for {time}": "{name} выступал(а) {time}",
+        "{name} raised a question": "{name} задал(а) вопрос"
     },
     "plurals": null
 }

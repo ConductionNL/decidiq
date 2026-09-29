@@ -1870,14 +1870,15 @@
 			"area": "live",
 			"name": "Run a meeting from a live view that shows the chair and members the current item.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "src/manifest.json:720 LiveMeeting page /meetings/:id/live -> src/views/LiveMeeting.vue; chair 'Activate item' buttons set a LOCAL activeItemId (LiveMeeting.vue:477 activateItem), never saved, so members' browsers never learn the current item; isChair (LiveMeeting.vue:356) matches participants filtered on @self.relations.meeting (LiveMeeting.vue:330) but the Participant schema has no meeting property and MeetingParticipantsTab writes a `meetings` array instead",
+				"state": "built",
+				"evidence": "lib/Settings/register.d/105-live-meeting-current-item.json Meeting.currentAgendaItem; PUT /api/agendas/{meetingId}/current-item (AgendaController::currentItem, chair/secretary/admin; AgendaService::setCurrentItem); src/views/LiveMeeting.vue activateItem() saves it, every screen re-reads the meeting every 5 s and follows it; chair controls from GET my-roles",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/live-meeting-shared-current-item"
+				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "LiveMeeting page (/meetings/:id/live); no in-app link to it found (grep for LiveMeeting route name and /live in src/ found only the manifest entry), so URL only",
+			"reachedOn": "LiveMeeting page (/meetings/:id/live), Open live meeting on MeetingDetail; the chair Activate item is followed on every live screen",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "live-meeting",
@@ -1961,14 +1962,15 @@
 			"area": "live",
 			"name": "Show the current item or vote on a screen in the room.",
 			"origin": "code",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Controller/ProjectionController.php:80 publicState() (#[PublicPage]) serves GET /api/voting-rounds/{id}/public-state; grep for 'public-state' under src/ finds no caller and no projection page in manifest",
+				"state": "built",
+				"evidence": "src/components/liveMeeting/MeetingScreen.vue, shown by the live page at /meetings/:id/live?view=screen (Room screen button); shows the meeting, the current item and 'Voting is open' while a round on the item or its motion is open (src/utils/liveMeeting.js openRoundFor)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/live-meeting-shared-current-item"
+				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "API only: GET /api/voting-rounds/{id}/public-state",
+			"reachedOn": "Room screen button on the live page opens /meetings/:id/live?view=screen",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "room-display",
@@ -1992,14 +1994,15 @@
 			"area": "live",
 			"name": "Record a decision the moment it is taken during the meeting.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "src/components/tabs/MeetingDecisionsTab.vue:143 createDecision() saves a decision with only title+meeting (schema requires title,text,decisionType in lib/Settings/decidesk_register.json Decision.required, so the save may be refused); src/components/minutesEditor/MinutesPanel.vue:121 free-text 'Decisions' notes per agenda item on the live page; lib/Controller/LiveMeetingController.php:122 recordLiveDecision() has no frontend caller",
+				"state": "built",
+				"evidence": "src/dialogs/LiveDecisionDialog.vue (Record decision on the live page, chair/secretary/admin) posts title, text, outcome, decisionType and the current agendaItem to POST /api/meetings/{id}/live-decisions; lib/Service/LiveDecisionService.php decisionFor() writes meeting, agendaItem, decisionType, validated against the Decision schema in tests/Unit/Service/LiveMeetingSharedCurrentItemTest.php",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/live-meeting-shared-current-item"
+				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "MeetingDetail (/meetings/:id) Decisions widget 'New decision' button; LiveMeeting page MinutesPanel decisions notes; Decisions index create dialog",
+			"reachedOn": "Record decision button on the live page, current item",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "live-meeting",
@@ -2174,14 +2177,15 @@
 			"area": "live",
 			"name": "Log who spoke on which item and which questions were raised.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/EngagementService.php:84 captureEngagement() appends speeches/questionsRaised per meeting+participant; UI only posts eventType 'speech' (src/components/liveMeeting/SpeakerQueuePanel.vue:307); EngagementRecord has no agenda-item field (decidesk_register.json EngagementRecord.properties); Engagement index page src/manifest.json:1277",
+				"state": "built",
+				"evidence": "src/components/liveMeeting/SpeakerQueuePanel.vue logs speeches and 'Question raised' with the current agendaItem (src/utils/liveMeeting.js engagementBody) and lists 'Contributions on this item' from GET /api/engagement?meeting= (contributionsOn)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/live-meeting-shared-current-item"
+				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "Engagement index (/engagement); speeches logged from the LiveMeeting speaker queue",
+			"reachedOn": "Speaker queue on the live page: Question raised, Contributions on this item",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "engagement",

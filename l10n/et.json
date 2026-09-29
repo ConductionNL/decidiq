@@ -1252,7 +1252,26 @@
         "The video call could not be created.": "Videokõnet ei õnnestunud luua.",
         "The room could not be linked.": "Ruumi ei õnnestunud siduda.",
         "Minutes wait for your approval: %s": "Protokoll ootab teie kinnitust: %s",
-        "The minutes were submitted for approval.": "Protokoll esitati kinnitamiseks."
+        "The minutes were submitted for approval.": "Protokoll esitati kinnitamiseks.",
+        "Open the room screen": "Ava saali ekraan",
+        "Room screen": "Saali ekraan",
+        "Record a decision on {title}": "Salvesta otsus teemal {title}",
+        "Decision recorded.": "Otsus on salvestatud.",
+        "Log a question by {name}": "Salvesta küsimus: {name}",
+        "Question raised": "Küsimus esitatud",
+        "Record a decision": "Salvesta otsus",
+        "Decision text": "Otsuse tekst",
+        "Kind of decision": "Otsuse liik",
+        "A decision can only be recorded while the meeting is in session.": "Otsust saab salvestada ainult koosoleku ajal.",
+        "The decision could not be recorded.": "Otsust ei õnnestunud salvestada.",
+        "Now on the agenda": "Praegu päevakorras",
+        "Voting is open": "Hääletus on avatud",
+        "No agenda item is being dealt with yet.": "Ühtegi päevakorrapunkti veel ei arutata.",
+        "Current agenda item": "Praegune päevakorrapunkt",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punkt, mida juhataja praegu arutab. Liikmete ja saali ekraanid järgivad seda.",
+        "Contributions on this item": "Sõnavõtud selles punktis",
+        "{name} spoke for {time}": "{name} rääkis {time}",
+        "{name} raised a question": "{name} esitas küsimuse"
     },
     "plurals": null
 }

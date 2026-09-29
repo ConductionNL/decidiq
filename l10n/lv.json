@@ -1252,7 +1252,26 @@
         "The video call could not be created.": "Videozvanu neizdevās izveidot.",
         "The room could not be linked.": "Istabu neizdevās piesaistīt.",
         "Minutes wait for your approval: %s": "Protokols gaida jūsu apstiprinājumu: %s",
-        "The minutes were submitted for approval.": "Protokols iesniegts apstiprināšanai."
+        "The minutes were submitted for approval.": "Protokols iesniegts apstiprināšanai.",
+        "Open the room screen": "Atvērt zāles ekrānu",
+        "Room screen": "Zāles ekrāns",
+        "Record a decision on {title}": "Reģistrēt lēmumu par {title}",
+        "Decision recorded.": "Lēmums reģistrēts.",
+        "Log a question by {name}": "Reģistrēt {name} jautājumu",
+        "Question raised": "Uzdots jautājums",
+        "Record a decision": "Reģistrēt lēmumu",
+        "Decision text": "Lēmuma teksts",
+        "Kind of decision": "Lēmuma veids",
+        "A decision can only be recorded while the meeting is in session.": "Lēmumu var reģistrēt tikai sēdes laikā.",
+        "The decision could not be recorded.": "Lēmumu neizdevās reģistrēt.",
+        "Now on the agenda": "Tagad darba kārtībā",
+        "Voting is open": "Balsošana ir atvērta",
+        "No agenda item is being dealt with yet.": "Vēl netiek izskatīts neviens darba kārtības punkts.",
+        "Current agenda item": "Pašreizējais darba kārtības punkts",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punkts, ko priekšsēdētājs izskata tagad. Locekļu un zāles ekrāni tam seko.",
+        "Contributions on this item": "Runas par šo punktu",
+        "{name} spoke for {time}": "{name} runāja {time}",
+        "{name} raised a question": "{name} uzdeva jautājumu"
     },
     "plurals": null
 }

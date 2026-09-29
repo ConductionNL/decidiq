@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\AgendaController;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
@@ -56,6 +57,13 @@ class AgendaControllerTest extends TestCase {
 	 * @var AgendaService&MockObject
 	 */
 	private AgendaService&MockObject $agendaService;
+
+	/**
+	 * Mock CurrentAgendaItemService.
+	 *
+	 * @var CurrentAgendaItemService&MockObject
+	 */
+	private CurrentAgendaItemService&MockObject $currentItems;
 
 	/**
 	 * Mock ObjectService.
@@ -102,6 +110,7 @@ class AgendaControllerTest extends TestCase {
 
 		$this->request = $this->createMock(IRequest::class);
 		$this->agendaService = $this->createMock(AgendaService::class);
+		$this->currentItems = $this->createMock(CurrentAgendaItemService::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -135,6 +144,7 @@ class AgendaControllerTest extends TestCase {
 		return new AgendaController(
 			request: $this->request,
 			agendaService: $this->agendaService,
+			currentItems: $this->currentItems,
 			guard: $guard,
 			logger: $this->logger,
 		);
@@ -315,4 +325,67 @@ class AgendaControllerTest extends TestCase {
 		self::assertArrayHasKey('message', $result->getData());
 
 	}//end testReviseUnauthenticatedReturns401()
+
+	/**
+	 * The chair makes an item current; the choice is saved on the meeting.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testTheChairMakesAnItemCurrent(): void {
+		$this->request->method('getParam')->with('agendaItem')->willReturn('item-5');
+		$this->currentItems->expects($this->once())->method('setCurrentItem')->with('meeting-uuid-001', 'item-5');
+
+		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertSame(['success' => true, 'currentAgendaItem' => 'item-5'], $result->getData());
+	}//end testTheChairMakesAnItemCurrent()
+
+	/**
+	 * A member who is not chair or secretary cannot move the meeting on.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testAMemberCannotMakeAnItemCurrent(): void {
+		$this->currentItems->expects($this->never())->method('setCurrentItem');
+
+		$result = $this->buildController($this->sessionFor(chair: false))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+	}//end testAMemberCannotMakeAnItemCurrent()
+
+	/**
+	 * An item of another meeting cannot be made current here.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testAnItemOfAnotherMeetingCannotBeMadeCurrent(): void {
+		$this->request->method('getParam')->willReturn('item-9');
+		$this->currentItems->method('setCurrentItem')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
+
+		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+	}//end testAnItemOfAnotherMeetingCannotBeMadeCurrent()
+
+	/**
+	 * The current-item route reaches the method.
+	 *
+	 * @return void
+	 */
+	public function testTheCurrentItemRouteReachesTheController(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$byName = array_column($routes['routes'], 'url', 'name');
+		$verbs = array_column($routes['routes'], 'verb', 'name');
+
+		self::assertSame('/api/agendas/{meetingId}/current-item', ($byName['agenda#currentItem'] ?? null));
+		self::assertSame('PUT', ($verbs['agenda#currentItem'] ?? null));
+	}//end testTheCurrentItemRouteReachesTheController()
+
 }//end class

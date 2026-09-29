@@ -1253,7 +1253,26 @@ OC.L10N.register(
         "The video call could not be created.": "Δεν ήταν δυνατή η δημιουργία της βιντεοκλήσης.",
         "The room could not be linked.": "Δεν ήταν δυνατή η σύνδεση της αίθουσας.",
         "Minutes wait for your approval: %s": "Πρακτικά περιμένουν την έγκρισή σας: %s",
-        "The minutes were submitted for approval.": "Τα πρακτικά υποβλήθηκαν για έγκριση."
+        "The minutes were submitted for approval.": "Τα πρακτικά υποβλήθηκαν για έγκριση.",
+        "Open the room screen": "Άνοιγμα της οθόνης της αίθουσας",
+        "Room screen": "Οθόνη αίθουσας",
+        "Record a decision on {title}": "Καταγραφή απόφασης για {title}",
+        "Decision recorded.": "Η απόφαση καταγράφηκε.",
+        "Log a question by {name}": "Καταγραφή ερώτησης από {name}",
+        "Question raised": "Τέθηκε ερώτηση",
+        "Record a decision": "Καταγραφή απόφασης",
+        "Decision text": "Κείμενο απόφασης",
+        "Kind of decision": "Είδος απόφασης",
+        "A decision can only be recorded while the meeting is in session.": "Απόφαση καταγράφεται μόνο όσο η συνεδρίαση βρίσκεται σε εξέλιξη.",
+        "The decision could not be recorded.": "Η απόφαση δεν μπόρεσε να καταγραφεί.",
+        "Now on the agenda": "Τώρα στην ημερήσια διάταξη",
+        "Voting is open": "Η ψηφοφορία είναι ανοιχτή",
+        "No agenda item is being dealt with yet.": "Δεν συζητείται ακόμη κανένα θέμα.",
+        "Current agenda item": "Τρέχον θέμα ημερήσιας διάταξης",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Το θέμα που χειρίζεται τώρα ο πρόεδρος. Οι οθόνες των μελών και η οθόνη της αίθουσας το ακολουθούν.",
+        "Contributions on this item": "Τοποθετήσεις σε αυτό το θέμα",
+        "{name} spoke for {time}": "{name} μίλησε για {time}",
+        "{name} raised a question": "{name} έθεσε μια ερώτηση"
     },
     "nplurals=2; plural=(n != 1);"
 )

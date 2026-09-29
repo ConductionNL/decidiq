@@ -1253,7 +1253,26 @@ OC.L10N.register(
         "The video call could not be created.": "Videoopkaldet kunne ikke oprettes.",
         "The room could not be linked.": "Rummet kunne ikke tilknyttes.",
         "Minutes wait for your approval: %s": "Referat venter på din godkendelse: %s",
-        "The minutes were submitted for approval.": "Referatet er sendt til godkendelse."
+        "The minutes were submitted for approval.": "Referatet er sendt til godkendelse.",
+        "Open the room screen": "Åbn skærmen i salen",
+        "Room screen": "Skærm i salen",
+        "Record a decision on {title}": "Registrér en beslutning om {title}",
+        "Decision recorded.": "Beslutningen er registreret.",
+        "Log a question by {name}": "Registrér et spørgsmål fra {name}",
+        "Question raised": "Spørgsmål stillet",
+        "Record a decision": "Registrér en beslutning",
+        "Decision text": "Beslutningstekst",
+        "Kind of decision": "Beslutningstype",
+        "A decision can only be recorded while the meeting is in session.": "En beslutning kan kun registreres, mens mødet er i gang.",
+        "The decision could not be recorded.": "Beslutningen kunne ikke registreres.",
+        "Now on the agenda": "Nu på dagsordenen",
+        "Voting is open": "Afstemningen er åben",
+        "No agenda item is being dealt with yet.": "Der behandles endnu ikke et dagsordenspunkt.",
+        "Current agenda item": "Aktuelt dagsordenspunkt",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Det punkt, formanden behandler nu. Medlemmernes skærme og skærmen i salen følger det.",
+        "Contributions on this item": "Indlæg om dette punkt",
+        "{name} spoke for {time}": "{name} talte i {time}",
+        "{name} raised a question": "{name} stillede et spørgsmål"
     },
     "nplurals=2; plural=(n != 1);"
 )

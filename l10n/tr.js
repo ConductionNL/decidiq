@@ -1253,7 +1253,26 @@ OC.L10N.register(
         "The video call could not be created.": "Görüntülü görüşme oluşturulamadı.",
         "The room could not be linked.": "Oda bağlanamadı.",
         "Minutes wait for your approval: %s": "Tutanak onayınızı bekliyor: %s",
-        "The minutes were submitted for approval.": "Tutanak onaya gönderildi."
+        "The minutes were submitted for approval.": "Tutanak onaya gönderildi.",
+        "Open the room screen": "Salon ekranını aç",
+        "Room screen": "Salon ekranı",
+        "Record a decision on {title}": "{title} için karar kaydet",
+        "Decision recorded.": "Karar kaydedildi.",
+        "Log a question by {name}": "{name} tarafından sorulan soruyu kaydet",
+        "Question raised": "Soru soruldu",
+        "Record a decision": "Karar kaydet",
+        "Decision text": "Karar metni",
+        "Kind of decision": "Karar türü",
+        "A decision can only be recorded while the meeting is in session.": "Karar yalnızca toplantı sürerken kaydedilebilir.",
+        "The decision could not be recorded.": "Karar kaydedilemedi.",
+        "Now on the agenda": "Şimdi gündemde",
+        "Voting is open": "Oylama açık",
+        "No agenda item is being dealt with yet.": "Henüz hiçbir gündem maddesi görüşülmüyor.",
+        "Current agenda item": "Güncel gündem maddesi",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Başkanın şu anda ele aldığı madde. Üyelerin ve salonun ekranları onu izler.",
+        "Contributions on this item": "Bu maddedeki katkılar",
+        "{name} spoke for {time}": "{name} {time} konuştu",
+        "{name} raised a question": "{name} bir soru sordu"
     },
     "nplurals=2; plural=(n != 1);"
 )

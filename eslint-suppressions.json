@@ -35,9 +35,6 @@
     "jsdoc/require-param-type": {
       "count": 6
     },
-    "no-console": {
-      "count": 1
-    },
     "vue/custom-event-name-casing": {
       "count": 1
     }
@@ -234,14 +231,8 @@
     }
   },
   "src/views/LiveMeeting.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "jsdoc/require-param-type": {
       "count": 5
-    },
-    "no-console": {
-      "count": 8
     }
   },
   "src/views/dashboard/widgets/ActiveDecisionsKpiWidget.vue": {

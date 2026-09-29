@@ -1252,7 +1252,26 @@
         "The video call could not be created.": "Vaizdo skambučio sukurti nepavyko.",
         "The room could not be linked.": "Kambario susieti nepavyko.",
         "Minutes wait for your approval: %s": "Protokolas laukia jūsų patvirtinimo: %s",
-        "The minutes were submitted for approval.": "Protokolas pateiktas tvirtinti."
+        "The minutes were submitted for approval.": "Protokolas pateiktas tvirtinti.",
+        "Open the room screen": "Atverti salės ekraną",
+        "Room screen": "Salės ekranas",
+        "Record a decision on {title}": "Užregistruoti sprendimą dėl {title}",
+        "Decision recorded.": "Sprendimas užregistruotas.",
+        "Log a question by {name}": "Užregistruoti {name} klausimą",
+        "Question raised": "Užduotas klausimas",
+        "Record a decision": "Užregistruoti sprendimą",
+        "Decision text": "Sprendimo tekstas",
+        "Kind of decision": "Sprendimo rūšis",
+        "A decision can only be recorded while the meeting is in session.": "Sprendimą galima užregistruoti tik vykstant posėdžiui.",
+        "The decision could not be recorded.": "Sprendimo užregistruoti nepavyko.",
+        "Now on the agenda": "Dabar darbotvarkėje",
+        "Voting is open": "Balsavimas vyksta",
+        "No agenda item is being dealt with yet.": "Dar nesvarstomas joks darbotvarkės klausimas.",
+        "Current agenda item": "Dabartinis darbotvarkės klausimas",
+        "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Klausimas, kurį dabar svarsto pirmininkas. Narių ir salės ekranai jį rodo.",
+        "Contributions on this item": "Pasisakymai šiuo klausimu",
+        "{name} spoke for {time}": "{name} kalbėjo {time}",
+        "{name} raised a question": "{name} uždavė klausimą"
     },
     "plurals": null
 }
