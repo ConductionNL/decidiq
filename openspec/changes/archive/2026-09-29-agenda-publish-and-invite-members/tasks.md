@@ -7,8 +7,8 @@
 - **files**: `src/components/tabs/MeetingAgendaTab.vue`
 - **acceptance_criteria**:
   - GIVEN the secretary on a meeting page WHEN she presses Publish agenda THEN the publish endpoint is called and the widget shows the published date
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Invitation with the agenda
 - **spec_ref**: `openspec/changes/agenda-publish-and-invite-members/specs/agenda-publication/spec.md#requirement-req-apim-002-a-published-agenda-of-a-public-meeting-can-go-public`
@@ -16,16 +16,16 @@
 - **acceptance_criteria**:
   - GIVEN three members WHEN the agenda is published THEN each gets a notification and, with email delivery, an invitation listing the items
   - GIVEN a published agenda THEN the stage is unchanged and convocationSentAt is set
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 3: Public publication becomes possible
 - **spec_ref**: `openspec/changes/agenda-publish-and-invite-members/specs/agenda-publication/spec.md#requirement-req-apim-002-a-published-agenda-of-a-public-meeting-can-go-public`
 - **files**: `lib/Service/PublicationEligibilityService.php`
 - **acceptance_criteria**:
   - GIVEN a public meeting whose agenda was published WHEN the clerk opens the Publication widget THEN Publish is offered for the agenda
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 
