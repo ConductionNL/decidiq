@@ -36,6 +36,7 @@ import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 // Public-publication tabs (publish-decisions-via-opencatalogi): publish /
 // withdraw / rectify actions on the decision, meeting (agenda), and minutes
 // detail views. Three thin wrappers around the shared PublicationActionsTab.
+import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue'
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
@@ -66,6 +67,7 @@ import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
 import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
+import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
@@ -241,6 +243,10 @@ export default {
 	// Visual diff against the parent motion text (motion-amendment spec).
 	AmendmentDiffTab: page(AmendmentDiffTab),
 	MinutesSignersTab: page(MinutesSignersTab),
+	// signing-external-service-with-order (min-17): the same Signers widget on
+	// motions and on a meeting's decision list.
+	MotionSignersTab: page(MotionSignersTab),
+	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),
 	// Minutes approval workflow + document generation (minutes-ui-v1):

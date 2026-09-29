@@ -583,7 +583,8 @@
 					{ "id": "meeting-proxy-authorizations", "type": "object-list", "title": "Proxy authorizations", "icon": "AccountBoxOutline", "content": { "register": "decidiq", "schema": "proxy-authorization", "filter": { "meeting": "@objectId" }, "sort": { "field": "signedAt", "dir": "desc" }, "columns": [ { "key": "signatureStatus", "label": "Signature", "widget": "badge" }, { "key": "countersignStatus", "label": "Countersign", "widget": "badge" }, { "key": "signedAt", "label": "Signed" } ], "limit": 25, "allowCreate": true, "viewAllRoute": "ProxyAuthorizations", "viewAllQuery": { "meeting": "@objectId" }, "rowRoute": "ProxyAuthorizationDetail", "emptyText": "No proxy authorizations registered for this meeting yet." } },
 					{ "id": "meeting-audit-statements", "type": "custom", "component": "MeetingAuditStatementTab", "title": "Audit statements", "icon": "ClipboardCheckOutline" },
 					{ "id": "meeting-routed-documents", "type": "custom", "component": "MeetingRoutedDocumentsTab", "title": "Incoming documents", "icon": "Email" },
-					{ "id": "meeting-technical-questions", "type": "custom", "component": "MeetingTechnicalQuestionsTab", "title": "Technical questions", "icon": "CommentQuestionOutline", "_note": "motions-technical-questions-to-officials (mot-17): the meeting's technical questions with their official, answer deadline and open, answered or overdue status." }
+					{ "id": "meeting-technical-questions", "type": "custom", "component": "MeetingTechnicalQuestionsTab", "title": "Technical questions", "icon": "CommentQuestionOutline", "_note": "motions-technical-questions-to-officials (mot-17): the meeting's technical questions with their official, answer deadline and open, answered or overdue status." },
+					{ "id": "meeting-decision-list-signers", "type": "custom", "component": "DecisionListSignersTab", "title": "Signing the decision list", "icon": "FileSign", "_note": "signing-external-service-with-order (min-17): who signs the decision list, in which order, and Send for signature; the signed copy is stored in the meeting files." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "meeting-planning", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
@@ -602,7 +603,8 @@
 					{ "id": "17", "widgetId": "meeting-proxy-authorizations", "gridX": 0, "gridY": 35, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "18", "widgetId": "meeting-audit-statements", "gridX": 6, "gridY": 35, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "19", "widgetId": "meeting-routed-documents", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "20", "widgetId": "meeting-technical-questions", "gridX": 0, "gridY": 45, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "20", "widgetId": "meeting-technical-questions", "gridX": 0, "gridY": 45, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "21", "widgetId": "meeting-decision-list-signers", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -624,7 +626,8 @@
 				"widget-meeting-transcription": "MeetingTranscriptionTab",
 				"widget-meeting-audit-statements": "MeetingAuditStatementTab",
 				"widget-meeting-routed-documents": "MeetingRoutedDocumentsTab",
-				"widget-meeting-technical-questions": "MeetingTechnicalQuestionsTab"
+				"widget-meeting-technical-questions": "MeetingTechnicalQuestionsTab",
+				"widget-meeting-decision-list-signers": "DecisionListSignersTab"
 			}
 		},
 		{
@@ -912,7 +915,8 @@
 				"widget-motion-votes": "MotionVotesTab",
 				"widget-motion-amendment-order": "MotionAmendmentOrderTab",
 				"widget-motion-voting-round": "MotionVotingRoundTab",
-				"widget-motion-citizen-advice": "MotionCitizenAdviceTab"
+				"widget-motion-citizen-advice": "MotionCitizenAdviceTab",
+				"widget-motion-signers": "MotionSignersTab"
 			},
 			"title": "Motion",
 			"config": {
@@ -926,7 +930,8 @@
 					{ "id": "motion-votes", "type": "custom", "component": "MotionVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "motion-amendment-order", "type": "custom", "component": "MotionAmendmentOrderTab", "title": "Voting order", "icon": "TableColumn" },
 					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" },
-					{ "id": "motion-citizen-advice", "type": "custom", "component": "MotionCitizenAdviceTab", "title": "Advisory vote by residents", "icon": "AccountVoice" }
+					{ "id": "motion-citizen-advice", "type": "custom", "component": "MotionCitizenAdviceTab", "title": "Advisory vote by residents", "icon": "AccountVoice" },
+					{ "id": "motion-signers", "type": "custom", "component": "MotionSignersTab", "title": "Signers", "icon": "FileSign" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "motion-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
@@ -935,7 +940,8 @@
 					{ "id": "4", "widgetId": "motion-votes", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "5", "widgetId": "motion-amendment-order", "gridX": 0, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 16, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 21, "gridWidth": 6, "gridHeight": 4 }
+					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 21, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 21, "gridWidth": 6, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,

@@ -1118,7 +1118,15 @@
         "The answer is on the agenda item: %1$s": "Odgovor je na točki dnevnog reda: %1$s",
         "no deadline set": "rok nije postavljen",
         "Question": "Pitanje",
-        "Technical questions": "Tehnička pitanja"
+        "Technical questions": "Tehnička pitanja",
+        "Send for signature": "Pošalji na potpis",
+        "Check signing status": "Provjeri status potpisivanja",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Poslano na potpis. Potpisana kopija sprema se ovdje kada svi potpišu.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Potpisano. Potpisana kopija {file} spremljena je u datoteke ovog zapisa.",
+        "The signing round did not finish. You can send it again.": "Krug potpisivanja nije završen. Možete ga ponovno poslati.",
+        "Failed to save the signers.": "Potpisnike nije moguće spremiti.",
+        "Could not send it for signature.": "Nije moguće poslati na potpis.",
+        "Signing the decision list": "Potpisivanje popisa odluka"
     },
     "plurals": null
 }

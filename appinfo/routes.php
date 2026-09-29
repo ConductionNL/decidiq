@@ -210,6 +210,11 @@ $extra = [
         ['name' => 'eIDASSignature#finalize',   'url' => '/api/minutes/{minutesId}/eidas/finalize',  'verb' => 'POST'],
         ['name' => 'eIDASSignature#certStatus', 'url' => '/api/eidas/validate-cert',                 'verb' => 'POST'],
 
+        // Send minutes, a meeting's decision list or a motion for signature in order,
+        // and collect the signed copy (signing-external-service-with-order, min-17).
+        ['name' => 'signing#send',    'url' => '/api/signing/{subjectType}/{subjectId}/send',    'verb' => 'POST'],
+        ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
+
         // Proxy voting (task-5.1).
         ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],
         ['name' => 'proxyVote#index',    'url' => '/api/proxies',               'verb' => 'GET'],

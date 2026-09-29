@@ -39,6 +39,7 @@
 namespace OCA\OpenRegister\Service;
 
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\Files\File;
 use OCP\Files\Node;
 
 /**
@@ -67,4 +68,32 @@ class FileService {
 	public function getFiles(ObjectEntity|string $object, ?bool $sharedFilesOnly = false): array {
 		throw new \RuntimeException('FileService stub: getFiles() must be mocked in tests.');
 	}//end getFiles()
+
+	/**
+	 * Add a file to an object's folder. Same signature as OpenRegister's
+	 * FileService::addFile() on development.
+	 *
+	 * @param ObjectEntity|string $objectEntity The object to add the file to.
+	 * @param string $fileName The name of the file to create.
+	 * @param mixed $content The file content.
+	 * @param boolean $share Whether to create a share link.
+	 * @param array<int, string> $tags Tags to attach.
+	 * @param mixed $_schema The schema of the object.
+	 * @param mixed $_register The register of the object.
+	 * @param integer|string|null $registerId The register id.
+	 *
+	 * @return File The created file.
+	 */
+	public function addFile(
+		ObjectEntity|string $objectEntity,
+		string $fileName,
+		mixed $content,
+		bool $share = false,
+		array $tags = [],
+		mixed $_schema = null,
+		mixed $_register = null,
+		int|string|null $registerId = null,
+	): File {
+		throw new \RuntimeException('FileService stub: addFile() must be mocked in tests.');
+	}//end addFile()
 }//end class

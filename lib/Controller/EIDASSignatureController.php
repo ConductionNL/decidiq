@@ -179,9 +179,8 @@ class EIDASSignatureController extends Controller {
 	 * Authorization: the caller must be in the OR-projected signatory scope of
 	 * the GovernanceBody that owns these minutes, or be a Nextcloud admin. This
 	 * is the highest-stakes endpoint of the flow — `finalizeMinutes()` writes
-	 * `pdfArchiveReference`, `hashSha256`, `signingCompletionDate`,
-	 * `eidasSignatureLevel = QES`, `version = signed` and `signedBy` onto the
-	 * Minutes row, resolves the `method=signature` DecisionStage to
+	 * `signingStatus = signed`, `signedCopy` (the archive reference),
+	 * `signedCopyHash`, `signedAt` and `signedBy` onto the Minutes row, resolves the `method=signature` DecisionStage to
 	 * `outcome=adopted`, and appends a `signature` audit entry. Starting the
 	 * flow already required this authority (`initiate()`); completing it must
 	 * require no less. The guard runs BEFORE the service is reached, so a

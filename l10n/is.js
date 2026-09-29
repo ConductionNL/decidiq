@@ -1119,7 +1119,15 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "Svarið er á dagskrárliðnum: %1$s",
         "no deadline set": "enginn frestur settur",
         "Question": "Spurning",
-        "Technical questions": "Tæknilegar spurningar"
+        "Technical questions": "Tæknilegar spurningar",
+        "Send for signature": "Senda til undirritunar",
+        "Check signing status": "Athuga stöðu undirritunar",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Í undirritun. Undirritaða afritið er vistað hér þegar allir hafa undirritað.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Undirritað. Undirritaða afritið {file} er vistað í skrám þessarar færslu.",
+        "The signing round did not finish. You can send it again.": "Undirritunarlotunni lauk ekki. Þú getur sent hana aftur.",
+        "Failed to save the signers.": "Ekki tókst að vista undirritendur.",
+        "Could not send it for signature.": "Ekki tókst að senda til undirritunar.",
+        "Signing the decision list": "Undirritun ákvarðanalistans"
     },
     "nplurals=2; plural=(n != 1);"
 )

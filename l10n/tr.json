@@ -1118,7 +1118,15 @@
         "The answer is on the agenda item: %1$s": "Yanıt gündem maddesinde: %1$s",
         "no deadline set": "son tarih belirlenmedi",
         "Question": "Soru",
-        "Technical questions": "Teknik sorular"
+        "Technical questions": "Teknik sorular",
+        "Send for signature": "İmzaya gönder",
+        "Check signing status": "İmza durumunu kontrol et",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "İmzaya gönderildi. İmzalı kopya herkes imzaladığında burada saklanır.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "İmzalandı. İmzalı kopya {file} bu kaydın dosyalarında saklanıyor.",
+        "The signing round did not finish. You can send it again.": "İmza turu tamamlanmadı. Yeniden gönderebilirsiniz.",
+        "Failed to save the signers.": "İmzacılar kaydedilemedi.",
+        "Could not send it for signature.": "İmzaya gönderilemedi.",
+        "Signing the decision list": "Karar listesinin imzalanması"
     },
     "plurals": null
 }

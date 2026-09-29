@@ -16,6 +16,14 @@ Read at decidiq development `759d044c`.
 - `CallService::call()` returns the call log as an OpenRegister object whose data holds `response.body`; decidiq read `getResponse()`, which that object does not have, so every answer would have decoded as empty. The body is now read from `getObject()['response']['body']`, with `getResponse()` kept as a fallback.
 - For task 2: `finalizeMinutes()` writes `pdfArchiveReference`, `hashSha256`, `signingCompletionDate`, `eidasSignatureLevel` and `version` onto the minutes, and the Minutes schema declares only `signedBy`. Task 2 has to declare them (or a signing record) before a signed copy can be stored back.
 
+## Built in task 2 (feat/signing-order-and-send)
+
+- Register fragment 97 declares `signers` (participant, order, signedAt), `signingRequestId`, `signingStatus` (sent, signed, failed), `signedCopy`, `signedCopyHash` and `signedAt` on Minutes, Meeting and Decision. `finalizeMinutes()` now writes those fields; it wrote `version: signed` into the integer revision and signature tuples into the list of names, so OpenRegister refused the save.
+- `SigningRoundService` maps minutes, decision-list (the meeting) and motion (a decision) to their schema, sorts the signers on `order`, sends through `IEIDASSignatureService::initializeSigningRequest()` with `subjectType` and `signingOrder: sequential`, and records the request on the record. `collect()` asks the signing service's `status` action (`fetchSigningResult()`); on signed it stores the base64 `document` in the record's files through OpenRegister's `FileService::addFile()` and links it as `signedCopy`. `SignedCopyCollectorJob` runs `collectAllSent()` every fifteen minutes, which is what makes the store-back automatic.
+- `SigningController` (`POST /api/signing/{subjectType}/{subjectId}/send|collect`) is guarded by `GovernanceScopeGuard::isSignatoryForSubject()`: the body's signatory scope, reached through the record's meeting.
+- The Signers widget (`MinutesSignersTab`) takes `schema` and `subjectType`; `MotionSignersTab` and `DecisionListSignersTab` point it at motions and meetings. Proposals are motions in this register (a Decision of decisionType motion), so the motion page covers them.
+- Contract with the signing source, for integriq's connection: `status` takes `{requestId}` and answers `{status, document (base64), fileName}`.
+
 ## Approach
 
 1. Read integriq development for the call service it ships today and use it; a test against the real integriq interface name.

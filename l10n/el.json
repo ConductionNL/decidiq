@@ -1118,7 +1118,15 @@
         "The answer is on the agenda item: %1$s": "Η απάντηση βρίσκεται στο θέμα της ημερήσιας διάταξης: %1$s",
         "no deadline set": "δεν έχει οριστεί προθεσμία",
         "Question": "Ερώτηση",
-        "Technical questions": "Τεχνικές ερωτήσεις"
+        "Technical questions": "Τεχνικές ερωτήσεις",
+        "Send for signature": "Αποστολή για υπογραφή",
+        "Check signing status": "Έλεγχος κατάστασης υπογραφής",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Εστάλη για υπογραφή. Το υπογεγραμμένο αντίγραφο αποθηκεύεται εδώ μόλις υπογράψουν όλοι.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Υπογράφηκε. Το υπογεγραμμένο αντίγραφο {file} είναι αποθηκευμένο στα αρχεία αυτής της εγγραφής.",
+        "The signing round did not finish. You can send it again.": "Ο γύρος υπογραφής δεν ολοκληρώθηκε. Μπορείτε να το στείλετε ξανά.",
+        "Failed to save the signers.": "Δεν ήταν δυνατή η αποθήκευση των υπογραφόντων.",
+        "Could not send it for signature.": "Δεν ήταν δυνατή η αποστολή για υπογραφή.",
+        "Signing the decision list": "Υπογραφή του καταλόγου αποφάσεων"
     },
     "plurals": null
 }

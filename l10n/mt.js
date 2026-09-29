@@ -1119,7 +1119,15 @@ OC.L10N.register(
         "The answer is on the agenda item: %1$s": "It-tweġiba tinsab fuq il-punt tal-aġenda: %1$s",
         "no deadline set": "ebda skadenza stabbilita",
         "Question": "Mistoqsija",
-        "Technical questions": "Mistoqsijiet tekniċi"
+        "Technical questions": "Mistoqsijiet tekniċi",
+        "Send for signature": "Ibgħat għall-firma",
+        "Check signing status": "Iċċekkja l-istatus tal-firma",
+        "Out for signature. The signed copy is stored here once everyone has signed.": "Mibgħut għall-firma. Il-kopja ffirmata tinħażen hawn ladarba kulħadd ikun iffirma.",
+        "Signed. The signed copy {file} is stored in the files of this record.": "Iffirmat. Il-kopja ffirmata {file} hija maħżuna fil-fajls ta' dan ir-rekord.",
+        "The signing round did not finish. You can send it again.": "Ir-rawnd tal-firma ma spiċċatx. Tista' terġa' tibagħtu.",
+        "Failed to save the signers.": "Ma kienx possibbli li jiġu salvati l-firmatarji.",
+        "Could not send it for signature.": "Ma kienx possibbli li jintbagħat għall-firma.",
+        "Signing the decision list": "L-iffirmar tal-lista tad-deċiżjonijiet"
     },
     "nplurals=2; plural=(n != 1);"
 )
