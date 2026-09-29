@@ -412,10 +412,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// LogEIDASSignatureService rather than proceeding against nothing.
 		$callService = FleetAppId::getService($this->container, 'integriq', 'Service\CallService')
 			?? throw new RuntimeException('Integriq CallService is not available under any known namespace.');
-		$sourceMapper = FleetAppId::getService($this->container, 'integriq', 'Db\SourceMapper')
-			?? throw new RuntimeException('Integriq SourceMapper is not available under any known namespace.');
-
-		$source = $sourceMapper->findBySlug(slug: self::ESIGN_SOURCE_SLUG);
+		$source = $this->integriqSource(slug: self::ESIGN_SOURCE_SLUG);
 		if ($source === null) {
 			throw new RuntimeException("Openconnector source '" . self::ESIGN_SOURCE_SLUG . "' is not configured.");
 		}
@@ -430,11 +427,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			]
 		);
 
-		$body = '';
-		if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
-			$raw = $response->getResponse();
-			$body = (string)($raw['body'] ?? '');
-		}
+		$body = $this->responseBody(response: $response);
 
 		$decoded = null;
 		if ($body !== '') {
@@ -447,6 +440,76 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		return $decoded;
 	}//end invokeOpenconnector()
+
+	/**
+	 * Find an integriq source by slug.
+	 *
+	 * The integriq app keeps its sources as OpenRegister objects (register
+	 * `integriq`, schema `source`); its own controllers find them this way. There is no
+	 * `Db\SourceMapper` under any namespace integriq has shipped since the
+	 * sources moved into OpenRegister, so the lookup this replaces threw on
+	 * every instance and no signing request ever left decidiq.
+	 *
+	 * @param string $slug The source's slug.
+	 *
+	 * @return object|null The source object, or null when none is configured.
+	 *
+	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 */
+	private function integriqSource(string $slug): ?object {
+		// Sources are admin configuration, not the signer's data: integriq reads
+		// them in system context too (ConnectionStore::findSourceBySlug()), so a
+		// griffier without rights on the integriq register still reaches them.
+		$found = $this->objectService->findAll(
+			config: ['filters' => ['register' => 'integriq', 'schema' => 'source', 'slug' => $slug]],
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		foreach (($found['results'] ?? $found) as $item) {
+			if (is_object($item) === false || method_exists($item, 'getObject') === false) {
+				continue;
+			}
+
+			if ((string)($item->getObject()['slug'] ?? '') === $slug) {
+				return $item;
+			}
+		}
+
+		return null;
+	}//end integriqSource()
+
+	/**
+	 * The response body of an integriq call.
+	 *
+	 * The integriq CallService::call() returns the call log as an OpenRegister
+	 * object whose data holds `response.body`. An older call log exposed
+	 * `getResponse()`; both are read.
+	 *
+	 * @param mixed $response The call log.
+	 *
+	 * @return string The raw body, or an empty string.
+	 */
+	private function responseBody(mixed $response): string {
+		if (is_object($response) === false) {
+			return '';
+		}
+
+		if (method_exists($response, 'getObject') === true) {
+			$data = (array)$response->getObject();
+			$body = ($data['response']['body'] ?? null);
+			if (is_string($body) === true && $body !== '') {
+				return $body;
+			}
+		}
+
+		if (method_exists($response, 'getResponse') === true) {
+			$raw = $response->getResponse();
+			return (string)($raw['body'] ?? '');
+		}
+
+		return '';
+	}//end responseBody()
 
 	/**
 	 * Resolve the DecisionStage of method=signature that is linked (via the
@@ -557,9 +620,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 */
 	private function composeDocudeskSigningRequest(string $minutesId, array $signatories): array {
 		try {
-			$sourceMapper = FleetAppId::getService($this->container, 'integriq', 'Db\SourceMapper')
-				?? throw new RuntimeException('Integriq SourceMapper is not available under any known namespace.');
-			$source = $sourceMapper->findBySlug(slug: self::DOCUDESK_SOURCE_SLUG);
+			$source = $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
 		} catch (\Throwable) {
 			// Openconnector absent or source not configured — docudesk unavailable.
 			return ['success' => false, 'requestId' => null, 'signingUrl' => null, 'message' => 'Docudesk source not configured.'];
@@ -640,11 +701,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @return array<string, mixed> The decoded response body
 	 */
 	private function decodeDocudeskResponse(mixed $response): array {
-		$body = '';
-		if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
-			$raw = $response->getResponse();
-			$body = (string)($raw['body'] ?? '');
-		}
+		$body = $this->responseBody(response: $response);
 
 		$decoded = null;
 		if ($body !== '') {

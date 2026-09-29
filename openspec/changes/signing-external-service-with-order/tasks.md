@@ -7,8 +7,8 @@
 - **files**: `lib/Service/EIDASSignatureService.php`, `tests/Unit/Service/EIDASSignatureServiceTest.php`
 - **acceptance_criteria**:
   - GIVEN integriq installed WHEN a signing round starts THEN the call goes through integriq without a missing-class error
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Signing order and send from three pages
 - **spec_ref**: `openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy`
