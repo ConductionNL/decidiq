@@ -133,17 +133,29 @@ class PublicationEligibilityService {
 	];
 
 	/**
+	 * Reads the confidentiality restrictions on a decision.
+	 *
+	 * @var ConfidentialityRestrictions
+	 */
+	private readonly ConfidentialityRestrictions $confidentiality;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param LoggerInterface $logger Logger.
-	 * @param ObjectServiceInterface $objectService The OpenRegister object service.
+	 * @param LoggerInterface                  $logger          Logger.
+	 * @param ObjectServiceInterface           $objectService   The OpenRegister object service.
+	 * @param ConfidentialityRestrictions|null $confidentiality Reads the restrictions that keep a
+	 *        decision out of the public. Null builds it on the same object service, so the
+	 *        check always runs; it is never skipped.
 	 *
-	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
+		?ConfidentialityRestrictions $confidentiality=null,
 	) {
+		$this->confidentiality = ($confidentiality ?? new ConfidentialityRestrictions(objectService: $objectService));
 	}//end __construct()
 
 	/**
@@ -292,6 +304,7 @@ class PublicationEligibilityService {
 		switch ($sourceType) {
 			case 'decision':
 				$this->assertDecisionEligible(data: $data);
+				$this->assertDecisionNotRestricted(decisionId: $sourceId);
 				break;
 			case 'agenda':
 				$this->assertAgendaEligible(data: $data);
@@ -326,6 +339,26 @@ class PublicationEligibilityService {
 		}
 
 	}//end assertDecisionEligible()
+
+	/**
+	 * Refuse a decision under an imposed or ratified confidentiality restriction.
+	 *
+	 * @param string $decisionId The decision id.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
+	 *
+	 * @throws AccessDeniedException When a restriction keeps the decision out.
+	 * @throws \OCA\Decidiq\Exception\ConfidentialityUnreadableException When the restrictions cannot be read.
+	 *
+	 * @return void
+	 */
+	private function assertDecisionNotRestricted(string $decisionId): void {
+		if ($this->confidentiality->isDecisionRestricted(decisionId: $decisionId) === true) {
+			throw new AccessDeniedException(
+				message: 'This decision is under a confidentiality restriction and is not publishable.'
+			);
+		}
+	}//end assertDecisionNotRestricted()
 
 	/**
 	 * Assert a meeting agenda is publishable (isPublic + convocation sent).

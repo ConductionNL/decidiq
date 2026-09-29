@@ -54,11 +54,18 @@ class DecisionPublicationService {
 	 *        Deliberately NOT nullable: a null collaborator would mean the guard
 	 *        quietly does not run, which is the state this parameter ends. It has
 	 *        a real default because the resolver is pure and has nothing to inject.
+	 * @param ConfidentialityRestrictions|null $confidentiality Reads the restrictions
+	 *        that keep a decision out of the public. Null resolves it from the
+	 *        container at publish time; when that fails the publish is refused
+	 *        with a 503, so the check is never skipped.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly LegalRemedyResolver $remedies = new LegalRemedyResolver(),
+		private readonly ?ConfidentialityRestrictions $confidentiality = null,
 	) {
 	}//end __construct()
 
@@ -98,6 +105,14 @@ class DecisionPublicationService {
 		$rejection = $this->resolvePublicationRejection(decision: $decision);
 		if ($rejection !== null) {
 			return $this->envelope(status: Http::STATUS_UNPROCESSABLE_ENTITY, message: $rejection);
+		}
+
+		// A decision under an imposed or ratified confidentiality restriction
+		// never reaches the public. Restrictions that cannot be read refuse the
+		// publish rather than let it through.
+		$restricted = $this->restrictionRejection(decisionId: $decisionId);
+		if ($restricted !== null) {
+			return $restricted;
 		}
 
 		// REQ-DWP-007. A published besluit that does not carry its remedy clause
@@ -177,6 +192,43 @@ class DecisionPublicationService {
 
 		return (array)$found->getObject();
 	}//end typeOf()
+
+	/**
+	 * The refusal for a decision under a confidentiality restriction, or null.
+	 *
+	 * @param string $decisionId UUID of the Decision object
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
+	 *
+	 * @return array{status: int, data: array<string, mixed>}|null 422 when restricted, 503 when unreadable.
+	 */
+	private function restrictionRejection(string $decisionId): ?array {
+		$unreadable = 'The decision was not published: its confidentiality could not be checked. Try again in a moment.';
+
+		try {
+			$reader = ($this->confidentiality ?? $this->container->get(ConfidentialityRestrictions::class));
+			if (($reader instanceof ConfidentialityRestrictions) === false) {
+				return $this->envelope(status: Http::STATUS_SERVICE_UNAVAILABLE, message: $unreadable);
+			}
+
+			$restricted = $reader->isDecisionRestricted(decisionId: $decisionId);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: confidentiality restrictions unreadable, decision not published',
+				['decision' => $decisionId, 'reason' => $e->getMessage()]
+			);
+			return $this->envelope(status: Http::STATUS_SERVICE_UNAVAILABLE, message: $unreadable);
+		}
+
+		if ($restricted === true) {
+			return $this->envelope(
+				status: Http::STATUS_UNPROCESSABLE_ENTITY,
+				message: 'This decision is under a confidentiality restriction and is not publishable.'
+			);
+		}
+
+		return null;
+	}//end restrictionRejection()
 
 	/**
 	 * Load the Decision object as a plain array, or null when it does not exist.
