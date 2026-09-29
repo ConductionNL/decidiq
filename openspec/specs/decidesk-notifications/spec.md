@@ -95,3 +95,21 @@ The app SHALL send a member at most one agenda change notice per meeting within 
 - WHEN the griffier edits three items within two minutes
 - THEN three agenda versions are recorded and each member receives one notice
 @e2e exclude the five minute window cannot be waited out in a browser run; covered by tests/Unit/Service/AgendaServiceTest.php testABurstOfEditsSendsOneNotice
+
+### Requirement: REQ-MRD-001 Meeting notices follow the member switches
+
+decidiq SHALL send a notice when a meeting is scheduled and a reminder before it starts, each only to members who left that switch on.
+
+#### Scenario: Pieter is reminded
+- GIVEN Pieter left Meeting reminder on and a council meeting starts tomorrow at 19:00
+- WHEN the reminder job runs 24 hours before
+- THEN Pieter gets one reminder linking the meeting, and Anna who switched it off gets none
+
+### Requirement: REQ-MRD-002 A reminder before the submission deadline
+
+decidiq SHALL remind the members of a body once, 48 hours before a meeting's submission deadline.
+
+#### Scenario: The deadline reminder
+- GIVEN the submission deadline for motions is Friday 12:00
+- WHEN the reminder job runs on Wednesday after 12:00
+- THEN members get one reminder naming the deadline and the meeting
