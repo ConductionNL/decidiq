@@ -145,11 +145,13 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'publicCalendar'],
 			actual: array_keys($byId),
-			message: 'Exactly the four documented citizen collections, in order'
+			message: 'Exactly the four documented citizen collections and the public calendar, in order'
 		);
 
+		// The public calendar is read without an account; it is tested on its own.
+		unset($byId['publicCalendar']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
@@ -203,6 +205,32 @@ final class PortalContributionProviderTest extends TestCase {
 		);
 
 	}//end testCitizenCollectionScopingAndProjection()
+
+	/**
+	 * Residents read the council calendar without an account: the collection
+	 * is anonymous, filtered to meetings, sorted by date, and projects only the
+	 * seven calendar fields (REQ-ACAL-005).
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-005-residents-read-the-calendar-without-an-account
+	 *
+	 * @return void
+	 */
+	public function testThePublicCalendarIsAnonymousWithCalendarFieldsOnly(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'publicCalendar', array: $byId);
+		$calendar = $byId['publicCalendar'];
+		self::assertSame(expected: 'publication-payload', actual: $calendar['schema']);
+		self::assertTrue(condition: $calendar['anonymous']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $calendar, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(
+			expected: ['title', 'bodyName', 'meetingDate', 'meetingType', 'location', 'audiences', 'oriType'],
+			actual: $calendar['fields']
+		);
+		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['defaultFilters']);
+		self::assertSame(expected: ['field' => 'meetingDate', 'direction' => 'asc'], actual: $calendar['defaultSort']);
+
+	}//end testThePublicCalendarIsAnonymousWithCalendarFieldsOnly()
 
 	/**
 	 * Only `citizenNotifications` carries `kind: inbox`; the read collections do not.
@@ -397,12 +425,6 @@ final class PortalContributionProviderTest extends TestCase {
 
 			$properties = $propertiesBySlug[$slug];
 
-			self::assertArrayHasKey(
-				key: $collection['scopeField'],
-				array: $properties,
-				message: "scopeField '{$collection['scopeField']}' must exist on schema '{$slug}'"
-			);
-
 			foreach ($collection['fields'] as $field) {
 				self::assertArrayHasKey(
 					key: $field,
@@ -410,6 +432,16 @@ final class PortalContributionProviderTest extends TestCase {
 					message: "Projected field '{$field}' must exist on schema '{$slug}'"
 				);
 			}
+
+			if (($collection['anonymous'] ?? false) === true) {
+				continue;
+			}
+
+			self::assertArrayHasKey(
+				key: $collection['scopeField'],
+				array: $properties,
+				message: "scopeField '{$collection['scopeField']}' must exist on schema '{$slug}'"
+			);
 		}
 
 	}//end testManifestMatchesShippedRegisterSchemas()

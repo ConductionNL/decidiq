@@ -293,6 +293,29 @@ class PortalContributionProvider {
 					'readAt',
 				],
 			],
+			[
+				// planning-activity-calendar-by-audience (REQ-ACAL-005): the
+				// council calendar residents read without an account. Every
+				// publication payload is public once published; the whitelist
+				// holds calendar fields only.
+				'id' => 'publicCalendar',
+				'register' => self::REGISTER,
+				'schema' => 'publication-payload',
+				'anonymous' => true,
+				'label' => 'Council calendar',
+				'listable' => true,
+				'fields' => [
+					'title',
+					'bodyName',
+					'meetingDate',
+					'meetingType',
+					'location',
+					'audiences',
+					'oriType',
+				],
+				'defaultFilters' => ['oriType' => 'Vergadering'],
+				'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
+			],
 		];
 
 	}//end citizenCollections()

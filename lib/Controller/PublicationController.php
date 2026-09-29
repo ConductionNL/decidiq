@@ -68,9 +68,12 @@ class PublicationController extends Controller {
 	 * Publish an eligible decision / agenda / minutes object.
 	 *
 	 * POST /api/publications
-	 * Body: { sourceType: decision|agenda|minutes, sourceId: <uuid> }
+	 * Body: { sourceType: decision|agenda|minutes|activity, sourceId: <uuid> }
+	 *
+	 * An activity is a public meeting on the residents' calendar.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
 	 *
 	 * @return JSONResponse
 	 */
@@ -83,8 +86,8 @@ class PublicationController extends Controller {
 
 		$sourceType = (string)$this->request->getParam('sourceType', '');
 		$sourceId = (string)$this->request->getParam('sourceId', '');
-		if (in_array($sourceType, ['decision', 'agenda', 'minutes'], true) === false || $sourceId === '') {
-			return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
+		if (in_array($sourceType, ['decision', 'agenda', 'minutes', 'activity'], true) === false || $sourceId === '') {
+			return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes|activity) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
 		}
 
 		$denied = $this->requireStaffForSource(sourceType: $sourceType, sourceId: $sourceId);
