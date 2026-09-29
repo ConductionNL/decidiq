@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Il-punt li l-president qed jittratta issa. L-iskrins tal-membri u tal-kamra jsegwuh.",
         "Contributions on this item": "Kontribuzzjonijiet fuq dan il-punt",
         "{name} spoke for {time}": "{name} tkellem għal {time}",
-        "{name} raised a question": "{name} għamel mistoqsija"
+        "{name} raised a question": "{name} għamel mistoqsija",
+        "Member from": "Membru minn",
+        "Past members": "Membri preċedenti",
+        "Contact details of this body": "Dettalji ta' kuntatt ta' dan il-korp",
+        "Contact details": "Dettalji ta' kuntatt",
+        "Contact details of {name}": "Dettalji ta' kuntatt ta' {name}",
+        "Remove {value}": "Neħħi {value}",
+        "No contact details yet.": "L-ebda dettalji ta' kuntatt s'issa.",
+        "Value": "Valur",
+        "Add contact detail": "Żid dettall ta' kuntatt",
+        "Phone": "Telefon",
+        "Mobile phone": "Mowbajl",
+        "Address": "Indirizz",
+        "Website": "Sit web",
+        "The contact detail could not be saved.": "Id-dettall ta' kuntatt ma setax jiġi ssejvjat.",
+        "The contact detail could not be removed.": "Id-dettall ta' kuntatt ma setax jitneħħa."
     },
     "nplurals=2; plural=(n != 1);"
 )

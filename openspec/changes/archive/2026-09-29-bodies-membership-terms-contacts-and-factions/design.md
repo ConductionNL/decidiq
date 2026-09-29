@@ -20,6 +20,13 @@ Read at decidiq development `759d044c`.
 4. A register fragment adds Membership.faction (uuid reference to governance-body); the dialogs offer factions whose parentBody is the current body.
 5. The GovernanceBodyDetail manifest page gets the collectives integration widget, shown when bodyType is faction.
 
+Design corrected at build (29 Sep):
+- The body's own contact details open from a Contact details button on the Members widget (same dialog as a member's), not from a separate widget.
+- A faction page's Members widget lists the faction's own memberships and the council memberships whose `faction` names it, so the faction shows its members without a second membership per person. Fragment 106 adds Membership.faction (Membership 0.3.0).
+- The Workspace (collectives integration) widget sits on every body page: committees and task groups use workspaces too, and the registry hides it when Collectives is absent.
+- Remove from body used to save only id, person, body, role and endDate, which dropped the start date (the save replaces the object); it now keeps start date, faction, party and voting weight, so Past members can say from when.
+- Member rows show email and phone from ContactDetail (first of each kind), falling back to Person.email.
+
 ## Declarative or imperative
 
 Schema changes go in a new `lib/Settings/register.d/` fragment (ADR-037) and are validated against the real register fragment in a test. Imperative code only where the design names a service or listener that already carries the behaviour.

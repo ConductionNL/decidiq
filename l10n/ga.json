@@ -1271,7 +1271,22 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "An mhír atá an cathaoirleach a phlé anois. Leanann scáileáin na gcomhaltaí agus scáileán an tseomra í.",
         "Contributions on this item": "Ranníocaíochtaí ar an mír seo",
         "{name} spoke for {time}": "Labhair {name} ar feadh {time}",
-        "{name} raised a question": "Chuir {name} ceist"
+        "{name} raised a question": "Chuir {name} ceist",
+        "Member from": "Ball ó",
+        "Past members": "Iarbhaill",
+        "Contact details of this body": "Sonraí teagmhála an chomhlachta seo",
+        "Contact details": "Sonraí teagmhála",
+        "Contact details of {name}": "Sonraí teagmhála {name}",
+        "Remove {value}": "Bain {value}",
+        "No contact details yet.": "Níl aon sonraí teagmhála fós.",
+        "Value": "Luach",
+        "Add contact detail": "Cuir sonra teagmhála leis",
+        "Phone": "Fón",
+        "Mobile phone": "Fón póca",
+        "Address": "Seoladh",
+        "Website": "Suíomh gréasáin",
+        "The contact detail could not be saved.": "Níorbh fhéidir an sonra teagmhála a shábháil.",
+        "The contact detail could not be removed.": "Níorbh fhéidir an sonra teagmhála a bhaint."
     },
     "plurals": null
 }

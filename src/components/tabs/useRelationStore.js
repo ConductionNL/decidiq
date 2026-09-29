@@ -136,7 +136,9 @@ export function buildMemberRow(membership, person) {
 		role: membership.role || '',
 		party: membership.party || '',
 		votingWeight: membership.votingWeight,
+		startDate: membership.startDate || null,
 		endDate: membership.endDate || null,
+		faction: membership.faction || '',
 		displayName: person?.name || membership.person || '',
 		email: person?.email || '',
 		nextcloudUserId: person?.nextcloudUserId || '',
@@ -195,6 +197,8 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
  * @param {string} [fields.party] Membership.party
  * @param {number} [fields.votingWeight] Membership.votingWeight
  * @param {string} [fields.id] Existing Membership id — include to update rather than create
+ * @param {string} [fields.startDate] Membership.startDate (ISO)
+ * @param {string} [fields.faction] Membership.faction (faction body UUID)
  * @return {object} Membership creation/update payload
  * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
  */
@@ -205,10 +209,18 @@ export function buildMembershipPayload({
 	party = '',
 	votingWeight = null,
 	id = '',
+	startDate = '',
+	faction = '',
 }) {
 	const payload = { person: personId, governanceBody: governanceBodyId, role }
 	if (party) {
 		payload.party = party
+	}
+	if (startDate) {
+		payload.startDate = startDate
+	}
+	if (faction) {
+		payload.faction = faction
 	}
 	if (votingWeight !== null && votingWeight !== undefined) {
 		payload.votingWeight = votingWeight

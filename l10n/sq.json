@@ -1271,7 +1271,22 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Pika që kryesuesi po trajton tani. Ekranet e anëtarëve dhe ekrani i sallës e ndjekin.",
         "Contributions on this item": "Ndërhyrjet në këtë pikë",
         "{name} spoke for {time}": "{name} foli për {time}",
-        "{name} raised a question": "{name} ngriti një pyetje"
+        "{name} raised a question": "{name} ngriti një pyetje",
+        "Member from": "Anëtar nga",
+        "Past members": "Ish-anëtarët",
+        "Contact details of this body": "Të dhënat e kontaktit të këtij organi",
+        "Contact details": "Të dhënat e kontaktit",
+        "Contact details of {name}": "Të dhënat e kontaktit të {name}",
+        "Remove {value}": "Hiq {value}",
+        "No contact details yet.": "Ende pa të dhëna kontakti.",
+        "Value": "Vlera",
+        "Add contact detail": "Shto të dhënë kontakti",
+        "Phone": "Telefon",
+        "Mobile phone": "Celular",
+        "Address": "Adresa",
+        "Website": "Faqe interneti",
+        "The contact detail could not be saved.": "Të dhënat e kontaktit nuk u ruajtën dot.",
+        "The contact detail could not be removed.": "Të dhënat e kontaktit nuk u hoqën dot."
     },
     "plurals": null
 }

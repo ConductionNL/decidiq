@@ -1271,7 +1271,22 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "O ponto que a presidência está a tratar agora. Os ecrãs dos membros e o da sala acompanham-no.",
         "Contributions on this item": "Intervenções neste ponto",
         "{name} spoke for {time}": "{name} falou durante {time}",
-        "{name} raised a question": "{name} fez uma pergunta"
+        "{name} raised a question": "{name} fez uma pergunta",
+        "Member from": "Membro desde",
+        "Past members": "Antigos membros",
+        "Contact details of this body": "Contactos deste órgão",
+        "Contact details": "Contactos",
+        "Contact details of {name}": "Contactos de {name}",
+        "Remove {value}": "Remover {value}",
+        "No contact details yet.": "Ainda sem contactos.",
+        "Value": "Valor",
+        "Add contact detail": "Adicionar contacto",
+        "Phone": "Telefone",
+        "Mobile phone": "Telemóvel",
+        "Address": "Morada",
+        "Website": "Sítio web",
+        "The contact detail could not be saved.": "Não foi possível guardar o contacto.",
+        "The contact detail could not be removed.": "Não foi possível remover o contacto."
     },
     "plurals": null
 }

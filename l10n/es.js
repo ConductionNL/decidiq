@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "El punto que trata ahora la presidencia. Las pantallas de los miembros y la de la sala lo siguen.",
         "Contributions on this item": "Intervenciones en este punto",
         "{name} spoke for {time}": "{name} habló durante {time}",
-        "{name} raised a question": "{name} planteó una pregunta"
+        "{name} raised a question": "{name} planteó una pregunta",
+        "Member from": "Miembro desde",
+        "Past members": "Miembros anteriores",
+        "Contact details of this body": "Datos de contacto de este órgano",
+        "Contact details": "Datos de contacto",
+        "Contact details of {name}": "Datos de contacto de {name}",
+        "Remove {value}": "Quitar {value}",
+        "No contact details yet.": "Aún no hay datos de contacto.",
+        "Value": "Valor",
+        "Add contact detail": "Añadir dato de contacto",
+        "Phone": "Teléfono",
+        "Mobile phone": "Teléfono móvil",
+        "Address": "Dirección",
+        "Website": "Sitio web",
+        "The contact detail could not be saved.": "No se pudo guardar el dato de contacto.",
+        "The contact detail could not be removed.": "No se pudo quitar el dato de contacto."
     },
     "nplurals=2; plural=(n != 1);"
 )

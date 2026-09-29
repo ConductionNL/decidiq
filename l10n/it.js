@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Il punto che la presidenza sta trattando ora. Gli schermi dei membri e della sala lo seguono.",
         "Contributions on this item": "Interventi su questo punto",
         "{name} spoke for {time}": "{name} ha parlato per {time}",
-        "{name} raised a question": "{name} ha posto una domanda"
+        "{name} raised a question": "{name} ha posto una domanda",
+        "Member from": "Membro dal",
+        "Past members": "Ex membri",
+        "Contact details of this body": "Recapiti di questo organo",
+        "Contact details": "Recapiti",
+        "Contact details of {name}": "Recapiti di {name}",
+        "Remove {value}": "Rimuovi {value}",
+        "No contact details yet.": "Ancora nessun recapito.",
+        "Value": "Valore",
+        "Add contact detail": "Aggiungi recapito",
+        "Phone": "Telefono",
+        "Mobile phone": "Cellulare",
+        "Address": "Indirizzo",
+        "Website": "Sito web",
+        "The contact detail could not be saved.": "Impossibile salvare il recapito.",
+        "The contact detail could not be removed.": "Impossibile rimuovere il recapito."
     },
     "nplurals=2; plural=(n != 1);"
 )

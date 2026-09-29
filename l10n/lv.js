@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punkts, ko priekšsēdētājs izskata tagad. Locekļu un zāles ekrāni tam seko.",
         "Contributions on this item": "Runas par šo punktu",
         "{name} spoke for {time}": "{name} runāja {time}",
-        "{name} raised a question": "{name} uzdeva jautājumu"
+        "{name} raised a question": "{name} uzdeva jautājumu",
+        "Member from": "Biedrs no",
+        "Past members": "Bijušie biedri",
+        "Contact details of this body": "Šīs institūcijas kontaktinformācija",
+        "Contact details": "Kontaktinformācija",
+        "Contact details of {name}": "{name} kontaktinformācija",
+        "Remove {value}": "Noņemt {value}",
+        "No contact details yet.": "Kontaktinformācijas vēl nav.",
+        "Value": "Vērtība",
+        "Add contact detail": "Pievienot kontaktinformāciju",
+        "Phone": "Tālrunis",
+        "Mobile phone": "Mobilais tālrunis",
+        "Address": "Adrese",
+        "Website": "Tīmekļa vietne",
+        "The contact detail could not be saved.": "Kontaktinformāciju neizdevās saglabāt.",
+        "The contact detail could not be removed.": "Kontaktinformāciju neizdevās noņemt."
     },
     "nplurals=2; plural=(n != 1);"
 )

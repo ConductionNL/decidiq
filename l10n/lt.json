@@ -1271,7 +1271,22 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Klausimas, kurį dabar svarsto pirmininkas. Narių ir salės ekranai jį rodo.",
         "Contributions on this item": "Pasisakymai šiuo klausimu",
         "{name} spoke for {time}": "{name} kalbėjo {time}",
-        "{name} raised a question": "{name} uždavė klausimą"
+        "{name} raised a question": "{name} uždavė klausimą",
+        "Member from": "Narys nuo",
+        "Past members": "Buvę nariai",
+        "Contact details of this body": "Šio organo kontaktai",
+        "Contact details": "Kontaktai",
+        "Contact details of {name}": "{name} kontaktai",
+        "Remove {value}": "Pašalinti {value}",
+        "No contact details yet.": "Kontaktų dar nėra.",
+        "Value": "Reikšmė",
+        "Add contact detail": "Pridėti kontaktą",
+        "Phone": "Telefonas",
+        "Mobile phone": "Mobilusis telefonas",
+        "Address": "Adresas",
+        "Website": "Svetainė",
+        "The contact detail could not be saved.": "Kontakto išsaugoti nepavyko.",
+        "The contact detail could not be removed.": "Kontakto pašalinti nepavyko."
     },
     "plurals": null
 }

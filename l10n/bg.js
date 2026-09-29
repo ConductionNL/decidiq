@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Точката, която председателят разглежда сега. Екраните на членовете и екранът в залата я следват.",
         "Contributions on this item": "Изказвания по тази точка",
         "{name} spoke for {time}": "{name} говори {time}",
-        "{name} raised a question": "{name} зададе въпрос"
+        "{name} raised a question": "{name} зададе въпрос",
+        "Member from": "Член от",
+        "Past members": "Бивши членове",
+        "Contact details of this body": "Данни за контакт на този орган",
+        "Contact details": "Данни за контакт",
+        "Contact details of {name}": "Данни за контакт на {name}",
+        "Remove {value}": "Премахни {value}",
+        "No contact details yet.": "Все още няма данни за контакт.",
+        "Value": "Стойност",
+        "Add contact detail": "Добави данни за контакт",
+        "Phone": "Телефон",
+        "Mobile phone": "Мобилен телефон",
+        "Address": "Адрес",
+        "Website": "Уебсайт",
+        "The contact detail could not be saved.": "Данните за контакт не можаха да бъдат запазени.",
+        "The contact detail could not be removed.": "Данните за контакт не можаха да бъдат премахнати."
     },
     "nplurals=2; plural=(n != 1);"
 )

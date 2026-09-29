@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Točka kojom se predsjedatelj sada bavi. Zasloni članova i zaslon dvorane je prate.",
         "Contributions on this item": "Izlaganja o ovoj točki",
         "{name} spoke for {time}": "{name} je govorio {time}",
-        "{name} raised a question": "{name} je postavio pitanje"
+        "{name} raised a question": "{name} je postavio pitanje",
+        "Member from": "Član od",
+        "Past members": "Bivši članovi",
+        "Contact details of this body": "Kontakt podaci ovog tijela",
+        "Contact details": "Kontakt podaci",
+        "Contact details of {name}": "Kontakt podaci za {name}",
+        "Remove {value}": "Ukloni {value}",
+        "No contact details yet.": "Još nema kontakt podataka.",
+        "Value": "Vrijednost",
+        "Add contact detail": "Dodaj kontakt podatak",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobitel",
+        "Address": "Adresa",
+        "Website": "Web stranica",
+        "The contact detail could not be saved.": "Kontakt podatak nije moguće spremiti.",
+        "The contact detail could not be removed.": "Kontakt podatak nije moguće ukloniti."
     },
     "nplurals=2; plural=(n != 1);"
 )

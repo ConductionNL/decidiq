@@ -1271,7 +1271,22 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Пункт, который сейчас рассматривает председатель. Экраны участников и зала следуют за ним.",
         "Contributions on this item": "Выступления по этому пункту",
         "{name} spoke for {time}": "{name} выступал(а) {time}",
-        "{name} raised a question": "{name} задал(а) вопрос"
+        "{name} raised a question": "{name} задал(а) вопрос",
+        "Member from": "Член с",
+        "Past members": "Бывшие члены",
+        "Contact details of this body": "Контактные данные этого органа",
+        "Contact details": "Контактные данные",
+        "Contact details of {name}": "Контактные данные: {name}",
+        "Remove {value}": "Удалить {value}",
+        "No contact details yet.": "Контактных данных пока нет.",
+        "Value": "Значение",
+        "Add contact detail": "Добавить контакт",
+        "Phone": "Телефон",
+        "Mobile phone": "Мобильный телефон",
+        "Address": "Адрес",
+        "Website": "Веб-сайт",
+        "The contact detail could not be saved.": "Не удалось сохранить контакт.",
+        "The contact detail could not be removed.": "Не удалось удалить контакт."
     },
     "plurals": null
 }

@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Liðurinn sem formaður fjallar um núna. Skjáir fundarmanna og salarins fylgja honum.",
         "Contributions on this item": "Innlegg um þennan lið",
         "{name} spoke for {time}": "{name} talaði í {time}",
-        "{name} raised a question": "{name} bar fram spurningu"
+        "{name} raised a question": "{name} bar fram spurningu",
+        "Member from": "Meðlimur frá",
+        "Past members": "Fyrrverandi meðlimir",
+        "Contact details of this body": "Samskiptaupplýsingar þessarar stofnunar",
+        "Contact details": "Samskiptaupplýsingar",
+        "Contact details of {name}": "Samskiptaupplýsingar {name}",
+        "Remove {value}": "Fjarlægja {value}",
+        "No contact details yet.": "Engar samskiptaupplýsingar enn.",
+        "Value": "Gildi",
+        "Add contact detail": "Bæta við samskiptaupplýsingum",
+        "Phone": "Sími",
+        "Mobile phone": "Farsími",
+        "Address": "Heimilisfang",
+        "Website": "Vefsíða",
+        "The contact detail could not be saved.": "Ekki tókst að vista samskiptaupplýsingarnar.",
+        "The contact detail could not be removed.": "Ekki tókst að fjarlægja samskiptaupplýsingarnar."
     },
     "nplurals=2; plural=(n != 1);"
 )

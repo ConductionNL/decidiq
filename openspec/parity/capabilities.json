@@ -450,14 +450,15 @@
 			"area": "bodies",
 			"name": "Record who sits on a body, in which role, and from when to when.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "src/components/tabs/GovernanceBodyMembersTab.vue:240-266 lists active Memberships (no endDate) joined to Person; :279-288 'Remove from body' writes Membership.endDate=today; src/modals/MemberAddDialog.vue:162-168 creates Membership with role; src/components/tabs/useRelationStore.js:201-219 buildMembershipPayload never sets startDate; lib/Settings/decidesk_register.json:334 Membership has startDate/endDate",
+				"state": "built",
+				"evidence": "src/modals/MemberAddDialog.vue Member from date -> Membership.startDate (src/utils/bodyMembership.js startOfDay); src/components/tabs/GovernanceBodyMembersTab.vue From column, Past members switch lists ended memberships with From and To (memberRowsFor); Remove from body keeps the start date",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/bodies-membership-terms-contacts-and-factions"
+				"change": "openspec/changes/archive/2026-09-29-bodies-membership-terms-contacts-and-factions",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Members widget (GovernanceBodyMembersTab)",
+			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id) Members widget: Add member (Member from), Past members switch",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "membership",
@@ -571,14 +572,15 @@
 			"area": "bodies",
 			"name": "Group council members by faction and give each faction its own shared workspace.",
 			"origin": "competitor",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/decidesk_register.json:553 bodyType 'faction' and :655 parentBody; src/manifest.json:485 body-factions object-list (filter parentBody+bodyType=faction) on GovernanceBodyDetail; lib/Settings/register.d/41-migrate-workspaces-to-collectives-leaf.json declares a collectives leaf bound to governance-body, but no collectives integration widget appears on any page (grep integrationId in src/manifest.json: files/deck/talk/notes/email/tasks only)",
+				"state": "built",
+				"evidence": "lib/Settings/register.d/106-membership-faction.json Membership.faction; MemberAddDialog Faction select (factionsOf: sub-bodies of type faction); Members widget Faction column, a faction page lists council memberships naming it; GovernanceBodyDetail widget body-workspace (collectives integration, src/manifest.json)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/bodies-membership-terms-contacts-and-factions"
+				"change": "openspec/changes/archive/2026-09-29-bodies-membership-terms-contacts-and-factions",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), 'Factions' list; a faction is itself a GovernanceBody",
+			"reachedOn": "GovernanceBodyDetail Members widget Faction column and Add member Faction select; a faction body page lists its members and the Workspace widget",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "factions",
@@ -878,14 +880,15 @@
 			"area": "bodies",
 			"name": "Keep contact details for members and bodies.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/decidesk_register.json:449 ContactDetail (type email/phone/address, person, governanceBody) has no page in src/manifest.json or src/manifest.d; Person.email written by src/modals/MemberAddDialog.vue:31 and the group/CSV imports; Participant.email shown on ParticipantDetail (src/manifest.json:751, no menu entry)",
+				"state": "built",
+				"evidence": "src/modals/ContactDetailsDialog.vue lists, adds and removes ContactDetail (email, phone, mobile, address, website) for a member (row action Contact details) or the body (Contact details button); member rows show email and phone (contactSummary)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/bodies-membership-terms-contacts-and-factions"
+				"change": "openspec/changes/archive/2026-09-29-bodies-membership-terms-contacts-and-factions",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "GovernanceBodyDetail Members widget, add-member dialog (email only); no page for contact details",
+			"reachedOn": "GovernanceBodyDetail Members widget: row action Contact details, Contact details button for the body",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "membership",

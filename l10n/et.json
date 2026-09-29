@@ -1271,7 +1271,22 @@
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Punkt, mida juhataja praegu arutab. Liikmete ja saali ekraanid järgivad seda.",
         "Contributions on this item": "Sõnavõtud selles punktis",
         "{name} spoke for {time}": "{name} rääkis {time}",
-        "{name} raised a question": "{name} esitas küsimuse"
+        "{name} raised a question": "{name} esitas küsimuse",
+        "Member from": "Liige alates",
+        "Past members": "Endised liikmed",
+        "Contact details of this body": "Selle organi kontaktandmed",
+        "Contact details": "Kontaktandmed",
+        "Contact details of {name}": "Isiku {name} kontaktandmed",
+        "Remove {value}": "Eemalda {value}",
+        "No contact details yet.": "Kontaktandmeid veel pole.",
+        "Value": "Väärtus",
+        "Add contact detail": "Lisa kontaktandmed",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiiltelefon",
+        "Address": "Aadress",
+        "Website": "Veebisait",
+        "The contact detail could not be saved.": "Kontaktandmeid ei õnnestunud salvestada.",
+        "The contact detail could not be removed.": "Kontaktandmeid ei õnnestunud eemaldada."
     },
     "plurals": null
 }

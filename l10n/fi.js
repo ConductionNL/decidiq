@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Asia, jota puheenjohtaja nyt käsittelee. Jäsenten näytöt ja salin näyttö seuraavat sitä.",
         "Contributions on this item": "Puheenvuorot tässä kohdassa",
         "{name} spoke for {time}": "{name} puhui {time}",
-        "{name} raised a question": "{name} esitti kysymyksen"
+        "{name} raised a question": "{name} esitti kysymyksen",
+        "Member from": "Jäsen alkaen",
+        "Past members": "Entiset jäsenet",
+        "Contact details of this body": "Tämän toimielimen yhteystiedot",
+        "Contact details": "Yhteystiedot",
+        "Contact details of {name}": "Henkilön {name} yhteystiedot",
+        "Remove {value}": "Poista {value}",
+        "No contact details yet.": "Ei vielä yhteystietoja.",
+        "Value": "Arvo",
+        "Add contact detail": "Lisää yhteystieto",
+        "Phone": "Puhelin",
+        "Mobile phone": "Matkapuhelin",
+        "Address": "Osoite",
+        "Website": "Verkkosivusto",
+        "The contact detail could not be saved.": "Yhteystietoa ei voitu tallentaa.",
+        "The contact detail could not be removed.": "Yhteystietoa ei voitu poistaa."
     },
     "nplurals=2; plural=(n != 1);"
 )

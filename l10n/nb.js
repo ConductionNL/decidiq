@@ -1272,7 +1272,22 @@ OC.L10N.register(
         "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it.": "Saken lederen behandler nå. Medlemmenes skjermer og skjermen i salen følger den.",
         "Contributions on this item": "Innlegg om dette punktet",
         "{name} spoke for {time}": "{name} snakket i {time}",
-        "{name} raised a question": "{name} stilte et spørsmål"
+        "{name} raised a question": "{name} stilte et spørsmål",
+        "Member from": "Medlem fra",
+        "Past members": "Tidligere medlemmer",
+        "Contact details of this body": "Kontaktinformasjon for dette organet",
+        "Contact details": "Kontaktinformasjon",
+        "Contact details of {name}": "Kontaktinformasjon for {name}",
+        "Remove {value}": "Fjern {value}",
+        "No contact details yet.": "Ingen kontaktinformasjon ennå.",
+        "Value": "Verdi",
+        "Add contact detail": "Legg til kontaktinformasjon",
+        "Phone": "Telefon",
+        "Mobile phone": "Mobiltelefon",
+        "Address": "Adresse",
+        "Website": "Nettsted",
+        "The contact detail could not be saved.": "Kontaktinformasjonen kunne ikke lagres.",
+        "The contact detail could not be removed.": "Kontaktinformasjonen kunne ikke fjernes."
     },
     "nplurals=2; plural=(n != 1);"
 )
