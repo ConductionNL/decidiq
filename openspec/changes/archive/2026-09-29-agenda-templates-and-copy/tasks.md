@@ -7,8 +7,8 @@
 - **files**: `lib/Settings/register.d/`, `src/dialogs/AgendaCopyDialog.vue`, `src/components/tabs/MeetingAgendaTab.vue`
 - **acceptance_criteria**:
   - GIVEN template Raadsvergadering with 6 items WHEN the secretary starts a new agenda from it THEN the meeting has those 6 items in order
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Copy from an earlier meeting
 - **spec_ref**: `openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting`
@@ -16,8 +16,8 @@
 - **acceptance_criteria**:
   - GIVEN an earlier meeting WHEN the secretary picks two of its items THEN both are added after the last item
   - GIVEN a series generated from a meeting THEN each new meeting has its agenda
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

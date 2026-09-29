@@ -545,7 +545,7 @@ class MeetingSeriesService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+	 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
 	 */
 	private function copyAgenda(object $objectService, string $fromMeetingId, array $instances): void {
 		$items = $objectService->findAll(

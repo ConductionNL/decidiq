@@ -4,8 +4,8 @@
 // Start an agenda from a template or copy items from an earlier meeting
 // (agenda-templates-and-copy, age-04 and pla-14).
 //
-// @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
-// @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+// @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+// @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
 // @e2e tests/e2e/agenda-templates-and-copy.spec.ts
 
 import { readFileSync } from 'node:fs'

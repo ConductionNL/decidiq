@@ -6,7 +6,7 @@
 // it is and leaves behind what happened to it; lib/Service/AgendaItemCopier.php
 // keeps the same field list for the meeting series.
 //
-// @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md
+// @spec openspec/specs/agenda-builder/spec.md
 
 /** The fields a copied agenda item keeps (AgendaItemCopier::KEPT_FIELDS). */
 export const KEPT_FIELDS = [
@@ -27,7 +27,7 @@ const TEMPLATE_FIELDS = KEPT_FIELDS.filter((f) => f !== 'typeFields')
  *
  * @param {string|object|null} ref The reference
  * @return {string} The uuid, or ''
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
  */
 export function refId(ref) {
 	if (!ref) return ''
@@ -40,7 +40,7 @@ export function refId(ref) {
  *
  * @param {Array<object>} items The agenda items
  * @return {number} The next order number
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
  */
 export function nextOrderNumber(items) {
 	const numbers = (items || []).map((i) => Number(i.orderNumber) || 0)
@@ -95,7 +95,7 @@ function numbered(entries, meetingId, startAt, fields) {
  * @param {string} meetingId The meeting UUID
  * @param {number} startAt The first order number
  * @return {Array<object>} Agenda item objects
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
  */
 export function itemsFromTemplate(template, meetingId, startAt = 1) {
 	return numbered(
@@ -116,7 +116,7 @@ export function itemsFromTemplate(template, meetingId, startAt = 1) {
  * @param {number} startAt The first order number
  * @param {Array<string>} pickedIds The item ids to copy, or [] for all
  * @return {Array<object>} Agenda item objects
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
  */
 export function itemsFromMeeting(
 	items,
@@ -139,7 +139,7 @@ export function itemsFromMeeting(
  * @param {string} name The template name
  * @param {Array<object>} items The agenda items
  * @return {object} The agenda template
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
  */
 export function templateFromItems(name, items) {
 	const ordered = [...(items || [])]

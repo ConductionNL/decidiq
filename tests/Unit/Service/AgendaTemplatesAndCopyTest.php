@@ -13,8 +13,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,7 +37,7 @@ use Psr\Log\NullLogger;
 /**
  * The council meeting of 7 October has three agenda items; later meetings copy them.
  *
- * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+ * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
  */
 class AgendaTemplatesAndCopyTest extends TestCase {
 
@@ -121,7 +121,7 @@ class AgendaTemplatesAndCopyTest extends TestCase {
 	 * A template is a named, ordered list of items; a meeting type can name
 	 * its default template.
 	 *
-	 * @spec openspec/changes/agenda-templates-and-copy/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
+	 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-001-start-an-agenda-from-a-template
 	 *
 	 * @return void
 	 */
