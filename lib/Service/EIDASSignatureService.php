@@ -89,14 +89,19 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $minutesId UUID of the BoardMinutes record
+	 * The signatories go out in the order given and the service is told to
+	 * keep it (`signingOrder: sequential`): the first signs first.
+	 *
+	 * @param string $minutesId UUID of the record to sign (minutes, meeting or decision)
 	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
-	public function initializeSigningRequest(string $minutesId, array $signatories): array {
+	public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
 		if ($minutesId === '' || $signatories === []) {
 			return [
 				'success' => false,
@@ -109,7 +114,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// Contract #2: prefer docudesk for document e-signature when available (REQ-DCDH-005).
 		$docudeskResult = $this->composeDocudeskSigningRequest(
 			minutesId: $minutesId,
-			signatories: $signatories
+			signatories: $signatories,
+			subjectType: $subjectType
 		);
 		if ($docudeskResult['success'] === true) {
 			return $docudeskResult;
@@ -118,9 +124,12 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// Fallback to openconnector e-sign Source (REQ-DCDH-005).
 		$payload = [
 			'minutesId' => $minutesId,
+			'subjectType' => $subjectType,
+			'subjectId' => $minutesId,
 			'signatories' => array_values(array_map('strval', $signatories)),
+			'signingOrder' => 'sequential',
 			'profile' => 'eIDAS-QES',
-			'returnTarget' => 'decidiq/board-portal/minutes/' . $minutesId,
+			'returnTarget' => 'decidiq/' . $subjectType . '/' . $minutesId,
 		];
 
 		try {
@@ -299,16 +308,19 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		$archiveReference = (string)($response['pdfArchiveReference'] ?? '');
 		$hash = (string)($response['hashSha256'] ?? '');
 
-		// Persist the archive reference + hash + signed payload on the Minutes row.
+		// Persist the archive reference + hash + signers on the Minutes row,
+		// in the fields the Minutes schema declares (register fragment 97).
+		// This wrote `version: signed` into the integer revision number and
+		// signature tuples into the list of signer names, so the save was
+		// refused and nothing was kept.
 		$this->updateMinutesRow(
 			minutesId: $minutesId,
 			patch: [
-				'pdfArchiveReference' => $archiveReference,
-				'hashSha256' => $hash,
-				'signingCompletionDate' => gmdate('Y-m-d'),
-				'eidasSignatureLevel' => 'QES',
-				'version' => 'signed',
-				'signedBy' => array_values($signatureList),
+				'signingStatus' => 'signed',
+				'signedCopy' => $archiveReference,
+				'signedCopyHash' => $hash,
+				'signedAt' => gmdate('Y-m-d\TH:i:s\Z'),
+				'signedBy' => $this->signerNames(signatureList: $signatureList),
 			]
 		);
 
@@ -393,12 +405,90 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	}//end validateCertificateChain()
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * Asks the `eidas-qes` source's `status` action. The service answers with
+	 * `status` and, once signed, the signed document base64-encoded in
+	 * `document` with an optional `fileName`. Any status that is not a finished
+	 * one reads as pending, so a round is only closed on a clear answer; a
+	 * signed answer without a decodable document also reads as pending, so
+	 * nothing half-stored is ever linked.
+	 *
+	 * @param string $requestId The signing service's request reference
+	 *
+	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
+	 */
+	public function fetchSigningResult(string $requestId): array {
+		if ($requestId === '') {
+			return ['status' => 'pending', 'document' => null, 'fileName' => null, 'message' => 'requestId is required.'];
+		}
+
+		try {
+			$response = $this->invokeOpenconnector(action: 'status', payload: ['requestId' => $requestId]);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not ask the signing service for a request status',
+				['requestId' => $requestId, 'exception' => $e->getMessage()]
+			);
+			return [
+				'status' => 'pending',
+				'document' => null,
+				'fileName' => null,
+				'message' => 'Could not reach the signing service: ' . $e->getMessage(),
+			];
+		}
+
+		$status = $this->signingStatus(raw: strtolower((string)($response['status'] ?? '')));
+		if ($status !== 'signed') {
+			return ['status' => $status, 'document' => null, 'fileName' => null, 'message' => 'The signing request is ' . $status . '.'];
+		}
+
+		$document = base64_decode((string)($response['document'] ?? ''), true);
+		if ($document === false || $document === '') {
+			return [
+				'status' => 'pending',
+				'document' => null,
+				'fileName' => null,
+				'message' => 'The signing service reported signed but sent no readable document.',
+			];
+		}
+
+		return [
+			'status' => 'signed',
+			'document' => $document,
+			'fileName' => $this->nullIfEmpty(value: (string)($response['fileName'] ?? '')),
+			'message' => 'Signed.',
+		];
+	}//end fetchSigningResult()
+
+	/**
+	 * Map a signing service status onto pending, signed or failed.
+	 *
+	 * @param string $raw The status as the service sent it, lower-cased
+	 *
+	 * @return string pending, signed or failed
+	 */
+	private function signingStatus(string $raw): string {
+		if (in_array($raw, ['signed', 'completed', 'complete', 'finished'], true) === true) {
+			return 'signed';
+		}
+
+		if (in_array($raw, ['failed', 'declined', 'rejected', 'cancelled', 'canceled', 'expired'], true) === true) {
+			return 'failed';
+		}
+
+		return 'pending';
+	}//end signingStatus()
+
+	/**
 	 * Invoke the openconnector e-sign source via the CallService. The
 	 * openconnector Source slug is fixed (see ::ESIGN_SOURCE_SLUG); the action
 	 * is sent as a relative path the Source's mapper resolves into a concrete
 	 * API call.
 	 *
-	 * @param string $action One of initiate|verify|finalize|validate-cert
+	 * @param string $action One of initiate|verify|finalize|validate-cert|status
 	 * @param array<string, mixed> $payload Action-specific payload
 	 *
 	 * @return array<string, mixed>
@@ -615,10 +705,11 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $minutesId UUID of the Minutes / document record
 	 * @param array<string> $signatories Ordered list of Person UUIDs
+	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
-	private function composeDocudeskSigningRequest(string $minutesId, array $signatories): array {
+	private function composeDocudeskSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
 		try {
 			$source = $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
 		} catch (\Throwable) {
@@ -634,9 +725,11 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// Docudesk IS registered — compose the signingRequest (fail-closed from here).
 		$payload = [
 			'documentId' => $minutesId,
+			'subjectType' => $subjectType,
 			'signatories' => array_values(array_map('strval', $signatories)),
+			'signingOrder' => 'sequential',
 			'signingLevel' => 'QES',
-			'returnTarget' => 'decidiq/minutes/' . $minutesId,
+			'returnTarget' => 'decidiq/' . $subjectType . '/' . $minutesId,
 		];
 
 		try {
@@ -714,6 +807,29 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		return $decoded;
 	}//end decodeDocudeskResponse()
+
+	/**
+	 * The signer of each signature tuple, as the list of names `signedBy` holds.
+	 *
+	 * @param array<int, mixed> $signatureList List of {signer, signature, timestamp} tuples
+	 *
+	 * @return array<int, string>
+	 */
+	private function signerNames(array $signatureList): array {
+		$names = [];
+		foreach ($signatureList as $entry) {
+			$name = $entry;
+			if (is_array($entry) === true) {
+				$name = ($entry['signer'] ?? '');
+			}
+
+			if (is_string($name) === true && $name !== '') {
+				$names[] = $name;
+			}
+		}
+
+		return $names;
+	}//end signerNames()
 
 	/**
 	 * Persist a partial update on a Minutes row. Wrapped in a try/catch so

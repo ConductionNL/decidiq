@@ -217,6 +217,34 @@ class GovernanceScopeGuardTest extends TestCase {
 	}//end testIsSignatoryForMinutesAllowsSignatoryAndDeniesOthers()
 
 	/**
+	 * Motions and decision lists are signed by the same people as minutes:
+	 * the signatories of the body whose meeting they belong to.
+	 *
+	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return void
+	 */
+	public function testSignatoryForEachSignableRecord(): void {
+		$groupManager = $this->createMock(IGroupManager::class);
+		$groupManager->method('isInGroup')->willReturnCallback(
+			static fn (string $uid, string $group): bool => $uid === 'alice' && $group === 'decidesk:body:body-9:signatory'
+		);
+
+		$guard = new GovernanceScopeGuard(
+			$groupManager,
+			$this->createMock(LoggerInterface::class),
+			objectService: $this->makeObjectService('body-9'),
+		);
+
+		$this->assertTrue($guard->isSignatoryForSubject('alice', 'decision', 'dec-1'));
+		$this->assertTrue($guard->isSignatoryForSubject('alice', 'meeting', 'meet-1'));
+		$this->assertTrue($guard->isSignatoryForSubject('alice', 'minutes', 'min-1'));
+		$this->assertFalse($guard->isSignatoryForSubject('bob', 'decision', 'dec-1'));
+		$this->assertFalse($guard->isSignatoryForSubject('alice', 'agenda-item', 'dec-1'));
+		$this->assertFalse($guard->isSignatoryForSubject('alice', 'decision', 'unknown'));
+	}//end testSignatoryForEachSignableRecord()
+
+	/**
 	 * Build an ObjectService double that resolves Minutes -> Meeting ->
 	 * GovernanceBody to the given body id (or leaves it unresolvable when null).
 	 *
@@ -226,6 +254,7 @@ class GovernanceScopeGuardTest extends TestCase {
 	 */
 	private function makeObjectService(?string $bodyId): ObjectServiceInterface {
 		$minutesRow = ['id' => 'min-1', 'relations' => ['Meeting' => 'meet-1']];
+		$decisionRow = ['id' => 'dec-1', 'decisionType' => 'motion', 'meeting' => 'meet-1'];
 		$meetingRow = ['id' => 'meet-1'];
 		if ($bodyId !== null) {
 			$meetingRow['relations'] = ['GovernanceBody' => $bodyId];
@@ -233,9 +262,11 @@ class GovernanceScopeGuardTest extends TestCase {
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
-			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $meetingRow): ?ObjectEntity {
+			function (mixed $id, mixed $register = null, mixed $schema = null) use ($minutesRow, $decisionRow, $meetingRow): ?ObjectEntity {
 				$row = null;
-				if ((string)$id === 'min-1') {
+				if ((string)$id === 'dec-1') {
+					$row = $decisionRow;
+				} elseif ((string)$id === 'min-1') {
 					$row = $minutesRow;
 				} elseif ((string)$id === 'meet-1') {
 					$row = $meetingRow;

@@ -43,14 +43,28 @@ interface IEIDASSignatureService {
 	/**
 	 * Request initialization for a QES flow against the configured QSP.
 	 *
-	 * @param string $minutesId UUID of the Minutes record
-	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 * @param string $minutesId UUID of the record to sign (minutes, meeting or decision)
+	 * @param array<string> $signatories Ordered list of member (Person) UUIDs; the first signs first
+	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
-	public function initializeSigningRequest(string $minutesId, array $signatories): array;
+	public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array;
+
+	/**
+	 * Ask the signing service where a request stands and, once signed, for
+	 * the signed document.
+	 *
+	 * @param string $requestId The signing service's request reference
+	 *
+	 * @spec openspec/changes/signing-external-service-with-order/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return array{status: string, document: ?string, fileName: ?string, message: string} status is pending, signed or failed; document holds the raw signed bytes
+	 */
+	public function fetchSigningResult(string $requestId): array;
 
 	/**
 	 * Verify a signature against the EU Trusted List.
