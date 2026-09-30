@@ -30,7 +30,7 @@ The automated scan did not run for this report, so every criterion it decides re
 - Process: A member opens a meeting (meetings, meeting)
 - Process: A member casts a vote (meeting, live-meeting)
 - Process: A member reads the minutes (minutes, minutes-detail)
-- Not sampled: projection-screen. The projection screen is a JSON endpoint (GET /api/voting-rounds/{id}/public-state) with no page of its own; the live meeting page is sampled instead.
+- Not sampled: projection-screen. The projection screen is a JSON endpoint (GET /api/voting-rounds/\{id\}/public-state) with no page of its own; the live meeting page is sampled instead.
 
 ## Success criteria
 
