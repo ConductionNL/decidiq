@@ -6590,9 +6590,11 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "decidiq has no public website of its own (public reading goes through OpenCatalogi, src/views/settings/PublicationSettings.vue:25); grep -rliE 'toegankelijkheidsverklaring|accessibility statement|wcag.*(audit|report)' outside openspec: only a manifest note; docs/compliance/ holds board-portal-compliance.md only; no axe or audit report in tests/e2e",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "tests/e2e/a11y/sample.json (WCAG-EM structured sample, checked by scripts/wcag-sample-check.mjs), tests/e2e/a11y/wcag-audit.spec.ts + owner.js (axe-core WCAG 2.1 A/AA scan per sampled page, findings owned by decidiq, nextcloud or portaliq, writes tests/axe/report.json; npm run a11y:scan), docs/compliance/wcag-manual-checks.json (manual checklist), scripts/wcag-audit-report.mjs -> docs/compliance/wcag-2.1-aa-audit.md (npm run a11y:report). Missing half: the scan on every release build, which runs in the shared quality workflow (ConductionNL/.github, DECISIONS row 28, drafted for Ruben), and a first tester pass on the checklist.",
+				"owner": "ConductionNL/decidiq",
+				"change": "platform-accessibility-audit-report",
+				"readOn": "2026-09-30"
 			},
 			"reachedOn": "nothing reaches it: no public site and no audit report in this repo",
 			"provider": "decidiq",

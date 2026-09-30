@@ -29,6 +29,10 @@
     "stylelint-fix": "stylelint src/**/*.vue src/**/*.scss src/**/*.css --fix",
     "test:e2e": "playwright test",
     "test:e2e:docs": "playwright test --project docs-capture",
+    "a11y:scan": "playwright test --config tests/e2e/a11y/playwright.config.ts",
+    "a11y:report": "node scripts/wcag-audit-report.mjs",
+    "a11y:audit": "npm run a11y:scan; s=$?; npm run a11y:report || exit 1; exit $s",
+    "check:wcag-sample": "node scripts/wcag-sample-check.mjs",
     "test:l10n": "node tests/l10n/check-l10n.js",
     "test:l10n:write": "node tests/l10n/check-l10n.js --write",
     "test:l10n:parity": "node tests/l10n/check-l10n-parity.js"

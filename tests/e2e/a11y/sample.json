@@ -1,0 +1,34 @@
+{
+	"_note": "WCAG-EM step 3, a structured sample (platform-accessibility-audit-report, matrix row plt-22). One page of every page type the manifests declare, the processes a member walks, and the pages the tender names. scripts/wcag-sample-check.mjs fails when a page type has no entry here. A detail page opens the first row of the index named in `from`. Owner is who fixes a finding in the page's own markup.",
+	"pages": [
+		{ "id": "dashboard", "pageId": "Dashboard", "type": "dashboard", "path": "/", "owner": "decidiq" },
+		{ "id": "meetings", "pageId": "Meetings", "type": "index", "path": "/meetings", "owner": "decidiq" },
+		{ "id": "meeting", "pageId": "MeetingDetail", "type": "detail", "from": "/meetings", "owner": "decidiq" },
+		{ "id": "meetings-calendar", "pageId": "MeetingsCalendar", "type": "custom", "path": "/meetings/calendar", "owner": "decidiq" },
+		{ "id": "reports", "pageId": "Reports", "type": "reports", "path": "/reports", "owner": "decidiq" },
+		{ "id": "store", "pageId": "Store", "type": "store", "path": "/store", "owner": "decidiq" },
+		{ "id": "roadmap", "pageId": "FeaturesRoadmap", "type": "roadmap", "path": "/features-roadmap", "owner": "decidiq" },
+		{ "id": "flow", "pageId": "FlowDetail", "type": "flow-detail", "from": "/flows", "owner": "decidiq" },
+		{ "id": "live-meeting", "pageId": "LiveMeeting", "type": "custom", "from": "/meetings", "suffix": "/live", "owner": "decidiq" },
+		{ "id": "personal-settings", "pageId": "UserSettings", "type": "custom", "path": "/user-settings", "owner": "decidiq" }
+	],
+	"processes": [
+		{ "id": "open-a-meeting", "title": "A member opens a meeting", "pages": ["meetings", "meeting"] },
+		{ "id": "cast-a-vote", "title": "A member casts a vote", "pages": ["meeting", "live-meeting"] },
+		{ "id": "read-the-minutes", "title": "A member reads the minutes", "pages": ["minutes", "minutes-detail"] }
+	],
+	"processPages": [
+		{ "id": "minutes", "pageId": "Minutes", "type": "index", "path": "/minutes", "owner": "decidiq" },
+		{ "id": "minutes-detail", "pageId": "MinutesDetail", "type": "detail", "from": "/minutes", "owner": "decidiq" }
+	],
+	"notApplicable": [
+		{ "id": "projection-screen", "reason": "The projection screen is a JSON endpoint (GET /api/voting-rounds/{id}/public-state) with no page of its own; the live meeting page is sampled instead." }
+	],
+	"portal": {
+		"_note": "Scanned only when portaliq is installed on the test instance. Findings are portaliq's to fix.",
+		"owner": "portaliq",
+		"pages": [
+			{ "id": "portal-publications", "path": "/apps/portaliq/", "owner": "portaliq" }
+		]
+	}
+}

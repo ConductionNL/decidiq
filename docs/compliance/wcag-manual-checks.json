@@ -1,0 +1,374 @@
+{
+	"_note": "Manual WCAG 2.1 A and AA checks for decidiq, filled in per release by a tester (platform-accessibility-audit-report, plt-22). result is pass, fail, not-applicable or not-tested; an empty result counts as not-tested, never as pass. Record the tester and the date with every result.",
+	"release": "",
+	"entries": [
+		{
+			"criterion": "1.1.1",
+			"check": "Every image, icon button and chart has a text alternative that says what it shows or does.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.2.1",
+			"check": "Every prerecorded audio-only or video-only item, such as a meeting recording without sound, has a transcript or a text alternative.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.2.2",
+			"check": "Every prerecorded video with sound, such as a meeting recording, has captions.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.2.3",
+			"check": "Every prerecorded video has an audio description or a full text alternative.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.3.1",
+			"check": "Headings, lists, tables and form labels are marked up as such, so a screen reader announces the same structure you see.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.3.2",
+			"check": "Read each page with a screen reader: the reading order matches the visual order.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.3.3",
+			"check": "No instruction relies only on shape, colour, size, position or sound, such as \"click the green button on the right\".",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.1",
+			"check": "Colour is never the only way to tell things apart, such as a vote result or a status badge.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.2",
+			"check": "Audio that plays by itself for more than three seconds can be paused or muted.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.1.1",
+			"check": "Every function works with the keyboard alone: open a meeting, cast a vote, reorder the agenda, fill in a form.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.1.2",
+			"check": "Tab into and out of every dialog, menu and editor without getting stuck.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.1.4",
+			"check": "Any single-key shortcut can be turned off or remapped, or only works while its component has focus.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.2.1",
+			"check": "Every time limit, such as a voting round or a session timeout, can be turned off, adjusted or extended.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.2.2",
+			"check": "Moving, blinking or auto-updating content, such as a live agenda or a timer, can be paused, stopped or hidden.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.3.1",
+			"check": "Nothing flashes more than three times in one second.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.4.1",
+			"check": "A skip link or landmarks let you jump past the navigation to the main content.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.4.3",
+			"check": "Tab through each page: focus moves in an order that keeps the meaning, and a closed dialog returns focus to what opened it.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.4.4",
+			"check": "Every link says where it goes, alone or with its sentence, list item or table cell.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.5.1",
+			"check": "Everything done with a multipoint or path gesture, such as drag to reorder, can also be done with a single tap or click.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.5.2",
+			"check": "An action fires on release, not on press, or can be cancelled by moving away.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.5.3",
+			"check": "The accessible name of each control contains its visible label text.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.5.4",
+			"check": "Nothing works only by shaking or tilting the device.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.2.1",
+			"check": "Focusing a control never submits a form, opens a window or moves you elsewhere.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.2.2",
+			"check": "Changing a field or a choice never submits or navigates without warning.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.3.1",
+			"check": "A form error names the field and says what is wrong, in text.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.3.2",
+			"check": "Every form field has a visible label or instruction.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "4.1.2",
+			"check": "Every control, including custom ones like the vote buttons and the agenda reorder, exposes its name, role and state to a screen reader.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.2.4",
+			"check": "A live meeting stream offered with sound has live captions.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.2.5",
+			"check": "Every prerecorded video has an audio description where the picture carries information the sound does not.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.3.4",
+			"check": "Every page works in portrait and in landscape.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.3.5",
+			"check": "Fields asking for the user's own details, such as name and email, carry the matching autocomplete value.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.4",
+			"check": "At 200 percent browser zoom all text is readable and no function is lost.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.5",
+			"check": "No text is shown as an image, apart from logos.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.10",
+			"check": "At 320 CSS pixels wide (400 percent zoom) each page reads without scrolling in two directions, apart from tables and the agenda grid.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.11",
+			"check": "Borders of fields and buttons, focus rings, icons and chart parts have a contrast of at least 3 to 1.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.12",
+			"check": "With increased line, paragraph, letter and word spacing no text is cut off or overlaps.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "1.4.13",
+			"check": "A tooltip or popover can be dismissed with Escape, can be hovered, and stays until you move away.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.4.5",
+			"check": "Each page can be reached in more than one way, such as the navigation and the search.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.4.6",
+			"check": "Headings and labels say what the section or field is about.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "2.4.7",
+			"check": "The keyboard focus is always visible.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.1.2",
+			"check": "Text in another language than the page, such as a Dutch motion title on an English page, is marked with its language where it matters.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.2.3",
+			"check": "The navigation appears in the same place and order on every page.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.2.4",
+			"check": "Controls with the same function, such as Save or Delete, have the same name everywhere.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.3.3",
+			"check": "When a correction is known, such as a date format, the error message suggests it.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "3.3.4",
+			"check": "A vote, a signature or a deletion can be reviewed, corrected or confirmed before it is final.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		},
+		{
+			"criterion": "4.1.3",
+			"check": "A saved, queued or failed message is announced by a screen reader without moving focus.",
+			"result": "",
+			"tester": "",
+			"date": "",
+			"note": ""
+		}
+	]
+}
