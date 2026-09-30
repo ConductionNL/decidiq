@@ -24,7 +24,6 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCP\AppFramework\Utility\ITimeFactory;
 use Psr\Container\ContainerInterface;
 use Throwable;
 
@@ -235,6 +234,6 @@ class CaseDocumentService {
 			throw new CaseSystemException(message: 'Agenda item not found', status: 404);
 		}
 
-		return (array)$entity->getObject();
+		return $entity->getObject();
 	}//end item()
 }//end class

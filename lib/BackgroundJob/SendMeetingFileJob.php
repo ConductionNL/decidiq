@@ -66,12 +66,14 @@ class SendMeetingFileJob extends QueuedJob {
 		$argument = (array)$argument;
 		try {
 			if ((string)($argument['record'] ?? '') !== '') {
-				$this->exchange->resend(recordId: (string)$argument['record']);
+				$record = $this->exchange->resend(recordId: (string)$argument['record']);
+				$this->logger->info('Decidiq: failed case system documents sent again', ['record' => (string)($record['id'] ?? '')]);
 				return;
 			}
 
 			if ((string)($argument['meeting'] ?? '') !== '') {
-				$this->exchange->send(meetingId: (string)$argument['meeting'], userId: (string)($argument['uid'] ?? 'system'));
+				$records = $this->exchange->send(meetingId: (string)$argument['meeting'], userId: (string)($argument['uid'] ?? 'system'));
+				$this->logger->info('Decidiq: meeting file sent to the case system', ['meeting' => (string)$argument['meeting'], 'records' => count($records)]);
 			}
 		} catch (Throwable $e) {
 			$this->logger->error('Decidiq: sending the meeting file to the case system failed', ['exception' => $e]);

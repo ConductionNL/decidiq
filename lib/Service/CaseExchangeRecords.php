@@ -105,7 +105,7 @@ class CaseExchangeRecords {
 			throw new CaseSystemException(message: 'Exchange record not found', status: 404);
 		}
 
-		return ['id' => $recordId] + (array)$entity->getObject();
+		return ['id' => $recordId] + $entity->getObject();
 	}//end find()
 
 	/**
@@ -168,6 +168,6 @@ class CaseExchangeRecords {
 			_multitenancy: false
 		);
 
-		return ['id' => (string)$saved->getUuid()] + (array)$saved->getObject();
+		return ['id' => (string)$saved->getUuid()] + $saved->getObject();
 	}//end save()
 }//end class

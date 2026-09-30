@@ -194,7 +194,7 @@ class CaseSystemController extends Controller {
 			return new JSONResponse(['message' => 'Agenda item not found'], Http::STATUS_NOT_FOUND);
 		}
 
-		$denied = $this->guard->forMeeting(meetingId: (string)(((array)$item->getObject())['meeting'] ?? ''));
+		$denied = $this->guard->forMeeting(meetingId: (string)($item->getObject()['meeting'] ?? ''));
 		if ($denied !== null) {
 			return $denied;
 		}

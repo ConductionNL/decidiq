@@ -150,7 +150,7 @@ class DecisionListService {
 		}
 
 		$rounds = $this->rows(schema: 'voting-round', filters: ['_relations.meeting' => $meetingId]);
-		foreach ($decisions as $id => $decision) {
+		foreach (array_keys($decisions) as $id) {
 			$decisions[$id]['votes'] = $this->roundFor(decisionId: (string)$id, rounds: $rounds);
 		}
 
