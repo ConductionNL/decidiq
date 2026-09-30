@@ -8,8 +8,8 @@
   - GIVEN the merged register WHEN read THEN `membership.portfolio` (array of strings) and `governance-body.publishVotingRecords` (boolean, default false) exist with a `title`
   - GIVEN the example sets WHEN imported THEN the executive board membership carries its portfolio, the council publishes voting records and the corporate board does not (REQ-MPR-005)
   - Verification: `RegisterJsonTest` red first, then green
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: The profile page and its links
 
@@ -20,8 +20,9 @@
   - GIVEN a body's members widget WHEN a name is clicked THEN the profile opens (REQ-MPR-003)
   - GIVEN the manifest WHEN validated THEN every custom widget has a slot and a layout cell
   - Verification: Playwright red first (no route), then green; `tests/validate-manifest.js`
-- [ ] Implement
-- [ ] Test
+  - Done as: the Playwright spec is `tests/e2e/member-profile-and-voting-record.spec.ts` (written, not run: no instance serves a branch); red-then-green on `tests/vitest/memberProfile.spec.js` and `tests/validate-manifest.js`. The photo or initials sit in the memberships widget because a data widget renders `image` as text. The example set uses the existing body `college-van-b-en-w-amsterdam`.
+- [x] Implement
+- [x] Test
 
 ### Task 3: The voting record read and widget
 
@@ -32,8 +33,8 @@
   - GIVEN an anonymised round WHEN read THEN its votes are absent
   - GIVEN a person matching no participant WHEN read THEN the list is empty and the object count of person and participant is unchanged
   - Verification: PHPUnit red-then-green, including a count assertion that nothing is created; the widget is covered by the Playwright spec of task 2
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: Measure the public API before changing it
 
