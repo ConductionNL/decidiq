@@ -96,6 +96,7 @@ export default {
 			type:
 				this.types.find((type) => (type.id ?? type['@self']?.id) === typeId)
 				|| null,
+
 			values: { ...(this.record?.typeFields || {}) },
 			saving: false,
 			error: '',

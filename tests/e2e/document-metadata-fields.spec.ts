@@ -39,7 +39,9 @@ test('the clerk records the zaaknummer of a raadsvoorstel', async ({ page }) => 
 })
 
 // @e2e document-metadata-fields::a-type-for-meetings-is-not-offered-on-an-agenda-item
-test('a meeting-only type is not offered on an agenda item file', async ({ page }) => {
+test('a meeting-only type is not offered on an agenda item file', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/agenda-items`)
 	await page.getByText('Vaststelling omgevingsvisie').first().click()
 	await page.getByTestId('document-details-open').first().click()

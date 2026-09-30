@@ -40,6 +40,8 @@ use Psr\Log\LoggerInterface;
  * skipped when its type is unreadable is no rule.
  *
  * @template-implements IEventListener<Event>
+ *
+ * @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-004-a-required-field-is-enforced-on-save
  */
 class DocumentTypeFieldsGuardListener implements IEventListener {
 
@@ -86,7 +88,15 @@ class DocumentTypeFieldsGuardListener implements IEventListener {
 			return;
 		}
 
-		$entity = $event instanceof ObjectUpdatingEvent ? $event->getNewObject() : $event->getObject();
+		$entity = null;
+		if ($event instanceof ObjectUpdatingEvent) {
+			$entity = $event->getNewObject();
+		}
+
+		if ($event instanceof ObjectCreatingEvent) {
+			$entity = $event->getObject();
+		}
+
 		$row    = $this->row(entity: $entity);
 		if ($this->isDocument(row: $row) === false) {
 			return;
@@ -132,9 +142,27 @@ class DocumentTypeFieldsGuardListener implements IEventListener {
 			return 'The details were not saved: the document type does not exist.';
 		}
 
-		$values  = (array)($row['typeFields'] ?? []);
+		$missing = $this->missingRequired(fields: (array)(($type->jsonSerialize())['fields'] ?? []), values: (array)($row['typeFields'] ?? []));
+		if ($missing === []) {
+			return null;
+		}
+
+		return 'The details were not saved: fill in ' . implode(', ', $missing) . '.';
+	}//end refusal()
+
+	/**
+	 * The labels of the required fields left empty.
+	 *
+	 * @param array<int|string, mixed> $fields The type's field definitions.
+	 * @param array<int|string, mixed> $values The record's values.
+	 *
+	 * @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-004-a-required-field-is-enforced-on-save
+	 *
+	 * @return list<string>
+	 */
+	private function missingRequired(array $fields, array $values): array {
 		$missing = [];
-		foreach ((array)(($type->jsonSerialize())['fields'] ?? []) as $field) {
+		foreach ($fields as $field) {
 			if (is_array($field) === false || ($field['required'] ?? false) !== true) {
 				continue;
 			}
@@ -145,12 +173,8 @@ class DocumentTypeFieldsGuardListener implements IEventListener {
 			}
 		}
 
-		if ($missing === []) {
-			return null;
-		}
-
-		return 'The details were not saved: fill in ' . implode(', ', $missing) . '.';
-	}//end refusal()
+		return $missing;
+	}//end missingRequired()
 
 	/**
 	 * A refusal when another record already describes this file.

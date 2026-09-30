@@ -35,15 +35,10 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
-use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
-use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
-use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
-use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
-use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
 
@@ -150,57 +145,15 @@ class ObjectListenerRegistrar {
 			);
 		}
 
-		// Submission deadline gate (motion-amendment spec). Declared interest is
-		// the handler's own literal schema guard verbatim —
-		// `$slug !== 'decision'` — so the declaration cannot be
-		// narrower than the guard it fronts. ADR-005 retired the `motion` and
-		// `amendment` schemas into `decision`; subscribing to the deleted slugs
-		// subscribed the listener to nothing, so the deadline never fired.
-		// The motion/amendment narrowing now happens inside the handler on the
-		// `decisionType` discriminator, which no schema subscription can express.
-		$this->subscribe(
-			dispatcher: $dispatcher,
-			event: ObjectCreatingEvent::class,
-			listener: SubmissionDeadlineListener::class,
-			registers: null,
-			schemas: ['decision']
-		);
-
-		// Meeting defaults (meeting-rules-from-body-and-type, REQ-MRB-001): a
-		// new meeting takes the empty fields from its type, then its body.
-		// Declared interest is the handler's literal `meeting` guard.
-		$this->subscribe(
-			dispatcher: $dispatcher,
-			event: ObjectCreatingEvent::class,
-			listener: MeetingDefaultsListener::class,
-			registers: null,
-			schemas: ['meeting']
-		);
-
-		// Submission window sanity (motions-submission-window, REQ-SUBW-003):
-		// the same listener refuses a meeting whose window opens after it
-		// closes, on create and on update. Declared interest is the handler's
-		// literal `$slug === 'meeting'` branch.
-		foreach ([ObjectCreatingEvent::class, ObjectUpdatingEvent::class] as $meetingEvent) {
+		// Before-save guards (SaveGuardSubscriptions): submission deadline,
+		// meeting defaults, submission window and document details.
+		foreach (SaveGuardSubscriptions::all() as $guard) {
 			$this->subscribe(
 				dispatcher: $dispatcher,
-				event: $meetingEvent,
-				listener: SubmissionDeadlineListener::class,
+				event: $guard['event'],
+				listener: $guard['listener'],
 				registers: null,
-				schemas: ['meeting']
-			);
-		}
-
-		// Document details (platform-document-metadata-fields, REQ-DMF-002 and
-		// REQ-DMF-004): a record keeps its type's required fields and one
-		// record describes one file, on create and on update.
-		foreach ([ObjectCreatingEvent::class, ObjectUpdatingEvent::class] as $documentEvent) {
-			$this->subscribe(
-				dispatcher: $dispatcher,
-				event: $documentEvent,
-				listener: DocumentTypeFieldsGuardListener::class,
-				registers: null,
-				schemas: ['digital-document']
+				schemas: $guard['schemas']
 			);
 		}
 
