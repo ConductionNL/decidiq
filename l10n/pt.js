@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Tente novamente daqui a pouco.",
         "Try the conversion of {name} again": "Tentar novamente a conversão de {name}",
         "no backend could convert this file": "nenhum conversor conseguiu converter este ficheiro",
-        "the conversion stopped before a PDF was made": "a conversão parou antes de ser criado um PDF"
+        "the conversion stopped before a PDF was made": "a conversão parou antes de ser criado um PDF",
+        "Rights per record type": "Direitos por tipo de registo",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "As regras abaixo decidem quem pode ler e alterar cada tipo de registo. Referem papéis do decidiq. Adicione os seus próprios grupos a um papel e eles obtêm os mesmos direitos; o grupo próprio do papel também os mantém.",
+        "Could not save": "Não foi possível guardar",
+        "The rules now include the groups you added.": "As regras incluem agora os grupos que adicionou.",
+        "Save groups": "Guardar grupos",
+        "Who may do what, per record type": "Quem pode fazer o quê, por tipo de registo",
+        "Record type": "Tipo de registo",
+        "Read": "Ler",
+        "Change": "Alterar",
+        "(the app's general rules)": "(as regras gerais da aplicação)",
+        "The rights could not be loaded.": "Não foi possível carregar os direitos.",
+        "The groups could not be saved.": "Não foi possível guardar os grupos.",
+        "Record administrators": "Administradores de registos",
+        "Secretariat": "Secretariado",
+        "Publication flow": "Fluxo de publicação",
+        "Groups with the role {role} ({groups})": "Grupos com o papel {role} ({groups})",
+        "Everyone": "Todos",
+        "Signed-in users": "Utilizadores com sessão iniciada",
+        "Nobody": "Ninguém",
+        "{who} (under a condition)": "{who} (sob uma condição)"
     },
     "nplurals=2; plural=(n != 1);"
 )

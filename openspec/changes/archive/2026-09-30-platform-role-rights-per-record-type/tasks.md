@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the admin settings WHEN the admin opens Rights per record type THEN each record type shows who may read and change it
   - GIVEN griffie mapped to group Griffie WHEN a Griffie member edits a meeting THEN it saves
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ## Verification
 

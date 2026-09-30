@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Proovige hetke pärast uuesti.",
         "Try the conversion of {name} again": "Proovi faili {name} teisendamist uuesti",
         "no backend could convert this file": "ükski teisendaja ei suutnud seda faili teisendada",
-        "the conversion stopped before a PDF was made": "teisendus peatus enne PDF-i valmimist"
+        "the conversion stopped before a PDF was made": "teisendus peatus enne PDF-i valmimist",
+        "Rights per record type": "Õigused kirjetüübi kaupa",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Allolevad reeglid määravad, kes võib iga kirjetüüpi lugeda ja muuta. Need nimetavad decidiqi rolle. Lisage rollile oma grupid ja need saavad samad õigused; rolli enda grupp jääb samuti alles.",
+        "Could not save": "Salvestamine ebaõnnestus",
+        "The rules now include the groups you added.": "Reeglid sisaldavad nüüd teie lisatud gruppe.",
+        "Save groups": "Salvesta grupid",
+        "Who may do what, per record type": "Kes mida tohib, kirjetüübi kaupa",
+        "Record type": "Kirjetüüp",
+        "Read": "Lugeda",
+        "Change": "Muuta",
+        "(the app's general rules)": "(rakenduse üldreeglid)",
+        "The rights could not be loaded.": "Õigusi ei õnnestunud laadida.",
+        "The groups could not be saved.": "Gruppe ei õnnestunud salvestada.",
+        "Record administrators": "Kirjete haldurid",
+        "Secretariat": "Sekretariaat",
+        "Publication flow": "Avaldamise voog",
+        "Groups with the role {role} ({groups})": "Rolliga {role} grupid ({groups})",
+        "Everyone": "Kõik",
+        "Signed-in users": "Sisselogitud kasutajad",
+        "Nobody": "Mitte keegi",
+        "{who} (under a condition)": "{who} (tingimusel)"
     },
     "plurals": null
 }

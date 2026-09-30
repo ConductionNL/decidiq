@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Bandykite dar kartą po akimirkos.",
         "Try the conversion of {name} again": "Bandyti dar kartą konvertuoti {name}",
         "no backend could convert this file": "nė vienas konverteris negalėjo konvertuoti šio failo",
-        "the conversion stopped before a PDF was made": "konvertavimas sustojo prieš sukuriant PDF"
+        "the conversion stopped before a PDF was made": "konvertavimas sustojo prieš sukuriant PDF",
+        "Rights per record type": "Teisės pagal įrašo tipą",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Toliau pateiktos taisyklės nustato, kas gali skaityti ir keisti kiekvienos rūšies įrašą. Jose nurodyti decidiq vaidmenys. Pridėkite savo grupes prie vaidmens ir jos gaus tas pačias teises; vaidmens grupė jas taip pat išlaiko.",
+        "Could not save": "Nepavyko išsaugoti",
+        "The rules now include the groups you added.": "Taisyklės dabar apima jūsų pridėtas grupes.",
+        "Save groups": "Išsaugoti grupes",
+        "Who may do what, per record type": "Kas ką gali, pagal įrašo tipą",
+        "Record type": "Įrašo tipas",
+        "Read": "Skaityti",
+        "Change": "Keisti",
+        "(the app's general rules)": "(bendrosios programos taisyklės)",
+        "The rights could not be loaded.": "Nepavyko įkelti teisių.",
+        "The groups could not be saved.": "Nepavyko išsaugoti grupių.",
+        "Record administrators": "Įrašų administratoriai",
+        "Secretariat": "Sekretoriatas",
+        "Publication flow": "Publikavimo eiga",
+        "Groups with the role {role} ({groups})": "Grupės su vaidmeniu {role} ({groups})",
+        "Everyone": "Visi",
+        "Signed-in users": "Prisijungę naudotojai",
+        "Nobody": "Niekas",
+        "{who} (under a condition)": "{who} (su sąlyga)"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -120,6 +120,7 @@ class SettingsService {
 		private IGroupManager $groupManager,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
+		private RoleGroupMapping $roleMapping=new RoleGroupMapping(),
 	) {
 	}//end __construct()
 
@@ -275,6 +276,7 @@ class SettingsService {
 			}
 
 			[$configData, $fragmentSig] = $this->mergeRegisterFragments(configData: $configData);
+			$configData = $this->roleMapping->rewrite(config: $configData, mapping: $this->roleGroupMapping());
 
 			return $this->importRegisterConfig(
 				configData: $configData,
@@ -292,6 +294,37 @@ class SettingsService {
 			];
 		}//end try
 	}//end importConfiguration()
+
+	/**
+	 * The groups an administrator added to each decidiq role.
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
+	 *
+	 * @return array<string, list<string>> Role => group ids, every role present.
+	 */
+	public function roleGroupMapping(): array {
+		return $this->roleMapping->decode(
+			json: $this->appConfig->getValueString(Application::APP_ID, RoleGroupMapping::CONFIG_KEY, '')
+		);
+	}//end roleGroupMapping()
+
+	/**
+	 * The register as the import sends it: base, fragments and the role
+	 * mapping applied. Empty when the base file cannot be read.
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function mergedRegisterConfig(): array {
+		[$configData, $failure] = $this->readBaseRegisterConfig();
+		if ($failure !== null) {
+			return [];
+		}
+
+		[$configData] = $this->mergeRegisterFragments(configData: $configData);
+		return $this->roleMapping->rewrite(config: $configData, mapping: $this->roleGroupMapping());
+	}//end mergedRegisterConfig()
 
 	/**
 	 * Read and decode the monolithic decidesk_register.json.
@@ -491,6 +524,11 @@ class SettingsService {
 		$configVersion = ($configData['info']['version'] ?? '0.0.0');
 		if ($fragmentSig !== '') {
 			$configVersion .= '+frag.' . substr(md5($fragmentSig), 0, 8);
+		}
+
+		$roleSig = $this->roleMapping->signature(mapping: $this->roleGroupMapping());
+		if ($roleSig !== '') {
+			$configVersion .= '+roles.' . $roleSig;
 		}
 
 		$configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');

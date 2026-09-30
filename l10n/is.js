@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Reyndu aftur eftir smástund.",
         "Try the conversion of {name} again": "Reyna umbreytingu á {name} aftur",
         "no backend could convert this file": "enginn breytir gat breytt þessari skrá",
-        "the conversion stopped before a PDF was made": "umbreytingin stöðvaðist áður en PDF varð til"
+        "the conversion stopped before a PDF was made": "umbreytingin stöðvaðist áður en PDF varð til",
+        "Rights per record type": "Réttindi eftir tegund færslu",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Reglurnar hér að neðan ákveða hver má lesa og breyta hverri tegund færslu. Þær nefna hlutverk í decidiq. Bættu eigin hópum við hlutverk og þeir fá sömu réttindi; eigin hópur hlutverksins heldur þeim líka.",
+        "Could not save": "Ekki tókst að vista",
+        "The rules now include the groups you added.": "Reglurnar ná nú yfir hópana sem þú bættir við.",
+        "Save groups": "Vista hópa",
+        "Who may do what, per record type": "Hver má gera hvað, eftir tegund færslu",
+        "Record type": "Tegund færslu",
+        "Read": "Lesa",
+        "Change": "Breyta",
+        "(the app's general rules)": "(almennar reglur forritsins)",
+        "The rights could not be loaded.": "Ekki tókst að hlaða réttindunum.",
+        "The groups could not be saved.": "Ekki tókst að vista hópana.",
+        "Record administrators": "Stjórnendur færslna",
+        "Secretariat": "Skrifstofa",
+        "Publication flow": "Útgáfuflæði",
+        "Groups with the role {role} ({groups})": "Hópar með hlutverkið {role} ({groups})",
+        "Everyone": "Allir",
+        "Signed-in users": "Innskráðir notendur",
+        "Nobody": "Enginn",
+        "{who} (under a condition)": "{who} (með skilyrði)"
     },
     "nplurals=2; plural=(n != 1);"
 )

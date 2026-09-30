@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Erġa' pprova ftit wara.",
         "Try the conversion of {name} again": "Erġa' pprova l-konverżjoni ta' {name}",
         "no backend could convert this file": "ebda konvertitur ma seta' jikkonverti dan il-fajl",
-        "the conversion stopped before a PDF was made": "il-konverżjoni waqfet qabel ma sar PDF"
+        "the conversion stopped before a PDF was made": "il-konverżjoni waqfet qabel ma sar PDF",
+        "Rights per record type": "Drittijiet skont it-tip ta' rekord",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Ir-regoli hawn taħt jiddeċiedu min jista' jaqra u jibdel kull tip ta' rekord. Isemmu rwoli ta' decidiq. Żid il-gruppi tiegħek ma' rwol u jieħdu l-istess drittijiet; il-grupp proprju tar-rwol iżommhom ukoll.",
+        "Could not save": "Ma setax jiġi ssejvjat",
+        "The rules now include the groups you added.": "Ir-regoli issa jinkludu l-gruppi li żidt.",
+        "Save groups": "Issejvja l-gruppi",
+        "Who may do what, per record type": "Min jista' jagħmel xiex, skont it-tip ta' rekord",
+        "Record type": "Tip ta' rekord",
+        "Read": "Aqra",
+        "Change": "Ibdel",
+        "(the app's general rules)": "(ir-regoli ġenerali tal-app)",
+        "The rights could not be loaded.": "Id-drittijiet ma setgħux jitgħabbew.",
+        "The groups could not be saved.": "Il-gruppi ma setgħux jiġu ssejvjati.",
+        "Record administrators": "Amministraturi tar-rekords",
+        "Secretariat": "Segretarjat",
+        "Publication flow": "Fluss tal-pubblikazzjoni",
+        "Groups with the role {role} ({groups})": "Gruppi bir-rwol {role} ({groups})",
+        "Everyone": "Kulħadd",
+        "Signed-in users": "Utenti li daħlu",
+        "Nobody": "Ħadd",
+        "{who} (under a condition)": "{who} (b'kundizzjoni)"
     },
     "plurals": null
 }

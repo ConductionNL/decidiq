@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Повторите попытку через минуту.",
         "Try the conversion of {name} again": "Повторить преобразование {name}",
         "no backend could convert this file": "ни один конвертер не смог преобразовать этот файл",
-        "the conversion stopped before a PDF was made": "преобразование остановилось до создания PDF"
+        "the conversion stopped before a PDF was made": "преобразование остановилось до создания PDF",
+        "Rights per record type": "Права по типу записи",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Правила ниже определяют, кто может читать и изменять каждый вид записи. В них указаны роли decidiq. Добавьте свои группы к роли, и они получат те же права; собственная группа роли их тоже сохраняет.",
+        "Could not save": "Не удалось сохранить",
+        "The rules now include the groups you added.": "Теперь правила включают добавленные вами группы.",
+        "Save groups": "Сохранить группы",
+        "Who may do what, per record type": "Кто что может, по типу записи",
+        "Record type": "Тип записи",
+        "Read": "Чтение",
+        "Change": "Изменение",
+        "(the app's general rules)": "(общие правила приложения)",
+        "The rights could not be loaded.": "Не удалось загрузить права.",
+        "The groups could not be saved.": "Не удалось сохранить группы.",
+        "Record administrators": "Администраторы записей",
+        "Secretariat": "Секретариат",
+        "Publication flow": "Поток публикации",
+        "Groups with the role {role} ({groups})": "Группы с ролью {role} ({groups})",
+        "Everyone": "Все",
+        "Signed-in users": "Вошедшие пользователи",
+        "Nobody": "Никто",
+        "{who} (under a condition)": "{who} (при условии)"
     },
     "plurals": null
 }

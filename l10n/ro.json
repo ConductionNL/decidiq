@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Încercați din nou peste câteva momente.",
         "Try the conversion of {name} again": "Reîncearcă conversia fișierului {name}",
         "no backend could convert this file": "niciun convertor nu a putut converti acest fișier",
-        "the conversion stopped before a PDF was made": "conversia s-a oprit înainte de crearea unui PDF"
+        "the conversion stopped before a PDF was made": "conversia s-a oprit înainte de crearea unui PDF",
+        "Rights per record type": "Drepturi pe tip de înregistrare",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Regulile de mai jos decid cine poate citi și modifica fiecare tip de înregistrare. Ele numesc roluri decidiq. Adăugați propriile grupuri la un rol și vor primi aceleași drepturi; grupul propriu al rolului le păstrează și el.",
+        "Could not save": "Nu s-a putut salva",
+        "The rules now include the groups you added.": "Regulile includ acum grupurile pe care le-ați adăugat.",
+        "Save groups": "Salvează grupurile",
+        "Who may do what, per record type": "Cine ce poate face, pe tip de înregistrare",
+        "Record type": "Tip de înregistrare",
+        "Read": "Citire",
+        "Change": "Modificare",
+        "(the app's general rules)": "(regulile generale ale aplicației)",
+        "The rights could not be loaded.": "Drepturile nu au putut fi încărcate.",
+        "The groups could not be saved.": "Grupurile nu au putut fi salvate.",
+        "Record administrators": "Administratori de înregistrări",
+        "Secretariat": "Secretariat",
+        "Publication flow": "Flux de publicare",
+        "Groups with the role {role} ({groups})": "Grupuri cu rolul {role} ({groups})",
+        "Everyone": "Toată lumea",
+        "Signed-in users": "Utilizatori conectați",
+        "Nobody": "Nimeni",
+        "{who} (under a condition)": "{who} (cu o condiție)"
     },
     "plurals": null
 }

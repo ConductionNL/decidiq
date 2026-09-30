@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Prøv igjen om et øyeblikk.",
         "Try the conversion of {name} again": "Prøv konverteringen av {name} igjen",
         "no backend could convert this file": "ingen konverterer kunne konvertere denne filen",
-        "the conversion stopped before a PDF was made": "konverteringen stoppet før det ble laget en PDF"
+        "the conversion stopped before a PDF was made": "konverteringen stoppet før det ble laget en PDF",
+        "Rights per record type": "Rettigheter per posttype",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Reglene nedenfor bestemmer hvem som kan lese og endre hver type post. De nevner decidiq-roller. Legg til egne grupper i en rolle, så får de de samme rettighetene; rollens egen gruppe beholder dem også.",
+        "Could not save": "Kunne ikke lagre",
+        "The rules now include the groups you added.": "Reglene omfatter nå gruppene du la til.",
+        "Save groups": "Lagre grupper",
+        "Who may do what, per record type": "Hvem kan gjøre hva, per posttype",
+        "Record type": "Posttype",
+        "Read": "Lese",
+        "Change": "Endre",
+        "(the app's general rules)": "(appens generelle regler)",
+        "The rights could not be loaded.": "Rettighetene kunne ikke lastes inn.",
+        "The groups could not be saved.": "Gruppene kunne ikke lagres.",
+        "Record administrators": "Postadministratorer",
+        "Secretariat": "Sekretariat",
+        "Publication flow": "Publiseringsflyt",
+        "Groups with the role {role} ({groups})": "Grupper med rollen {role} ({groups})",
+        "Everyone": "Alle",
+        "Signed-in users": "Innloggede brukere",
+        "Nobody": "Ingen",
+        "{who} (under a condition)": "{who} (på en betingelse)"
     },
     "plurals": null
 }

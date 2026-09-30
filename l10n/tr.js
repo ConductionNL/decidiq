@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Birazdan tekrar deneyin.",
         "Try the conversion of {name} again": "{name} dönüştürmesini tekrar dene",
         "no backend could convert this file": "hiçbir dönüştürücü bu dosyayı dönüştüremedi",
-        "the conversion stopped before a PDF was made": "dönüştürme, PDF oluşturulmadan durdu"
+        "the conversion stopped before a PDF was made": "dönüştürme, PDF oluşturulmadan durdu",
+        "Rights per record type": "Kayıt türüne göre haklar",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Aşağıdaki kurallar her kayıt türünü kimin okuyup değiştirebileceğini belirler. decidiq rollerini adlandırırlar. Bir role kendi gruplarınızı ekleyin, aynı hakları alırlar; rolün kendi grubu da bu hakları korur.",
+        "Could not save": "Kaydedilemedi",
+        "The rules now include the groups you added.": "Kurallar artık eklediğiniz grupları içeriyor.",
+        "Save groups": "Grupları kaydet",
+        "Who may do what, per record type": "Kim neyi yapabilir, kayıt türüne göre",
+        "Record type": "Kayıt türü",
+        "Read": "Okuma",
+        "Change": "Değiştirme",
+        "(the app's general rules)": "(uygulamanın genel kuralları)",
+        "The rights could not be loaded.": "Haklar yüklenemedi.",
+        "The groups could not be saved.": "Gruplar kaydedilemedi.",
+        "Record administrators": "Kayıt yöneticileri",
+        "Secretariat": "Sekreterlik",
+        "Publication flow": "Yayın akışı",
+        "Groups with the role {role} ({groups})": "{role} rolüne sahip gruplar ({groups})",
+        "Everyone": "Herkes",
+        "Signed-in users": "Oturum açmış kullanıcılar",
+        "Nobody": "Hiç kimse",
+        "{who} (under a condition)": "{who} (bir koşulla)"
     },
     "nplurals=2; plural=(n != 1);"
 )

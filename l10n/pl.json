@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Spróbuj ponownie za chwilę.",
         "Try the conversion of {name} again": "Ponów konwersję pliku {name}",
         "no backend could convert this file": "żaden konwerter nie mógł przekonwertować tego pliku",
-        "the conversion stopped before a PDF was made": "konwersja zatrzymała się przed utworzeniem PDF"
+        "the conversion stopped before a PDF was made": "konwersja zatrzymała się przed utworzeniem PDF",
+        "Rights per record type": "Uprawnienia według typu rekordu",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Poniższe reguły określają, kto może czytać i zmieniać każdy rodzaj rekordu. Wskazują role decidiq. Dodaj własne grupy do roli, a otrzymają te same uprawnienia; własna grupa roli też je zachowuje.",
+        "Could not save": "Nie udało się zapisać",
+        "The rules now include the groups you added.": "Reguły obejmują teraz dodane przez Ciebie grupy.",
+        "Save groups": "Zapisz grupy",
+        "Who may do what, per record type": "Kto może co, według typu rekordu",
+        "Record type": "Typ rekordu",
+        "Read": "Odczyt",
+        "Change": "Zmiana",
+        "(the app's general rules)": "(ogólne reguły aplikacji)",
+        "The rights could not be loaded.": "Nie udało się wczytać uprawnień.",
+        "The groups could not be saved.": "Nie udało się zapisać grup.",
+        "Record administrators": "Administratorzy rekordów",
+        "Secretariat": "Sekretariat",
+        "Publication flow": "Przepływ publikacji",
+        "Groups with the role {role} ({groups})": "Grupy z rolą {role} ({groups})",
+        "Everyone": "Wszyscy",
+        "Signed-in users": "Zalogowani użytkownicy",
+        "Nobody": "Nikt",
+        "{who} (under a condition)": "{who} (pod warunkiem)"
     },
     "plurals": null
 }

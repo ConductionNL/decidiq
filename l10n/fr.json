@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Réessayez dans un instant.",
         "Try the conversion of {name} again": "Réessayer la conversion de {name}",
         "no backend could convert this file": "aucun convertisseur n'a pu convertir ce fichier",
-        "the conversion stopped before a PDF was made": "la conversion s'est arrêtée avant la création d'un PDF"
+        "the conversion stopped before a PDF was made": "la conversion s'est arrêtée avant la création d'un PDF",
+        "Rights per record type": "Droits par type d'enregistrement",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Les règles ci-dessous déterminent qui peut lire et modifier chaque type d'enregistrement. Elles nomment des rôles decidiq. Ajoutez vos propres groupes à un rôle et ils obtiennent les mêmes droits ; le groupe propre du rôle les conserve aussi.",
+        "Could not save": "Enregistrement impossible",
+        "The rules now include the groups you added.": "Les règles incluent désormais les groupes que vous avez ajoutés.",
+        "Save groups": "Enregistrer les groupes",
+        "Who may do what, per record type": "Qui peut faire quoi, par type d'enregistrement",
+        "Record type": "Type d'enregistrement",
+        "Read": "Lire",
+        "Change": "Modifier",
+        "(the app's general rules)": "(les règles générales de l'application)",
+        "The rights could not be loaded.": "Les droits n'ont pas pu être chargés.",
+        "The groups could not be saved.": "Les groupes n'ont pas pu être enregistrés.",
+        "Record administrators": "Administrateurs des enregistrements",
+        "Secretariat": "Secrétariat",
+        "Publication flow": "Flux de publication",
+        "Groups with the role {role} ({groups})": "Groupes avec le rôle {role} ({groups})",
+        "Everyone": "Tout le monde",
+        "Signed-in users": "Utilisateurs connectés",
+        "Nobody": "Personne",
+        "{who} (under a condition)": "{who} (sous condition)"
     },
     "plurals": null
 }

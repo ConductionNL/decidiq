@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Provoni përsëri pas pak.",
         "Try the conversion of {name} again": "Provo përsëri konvertimin e {name}",
         "no backend could convert this file": "asnjë konvertues nuk mundi ta konvertonte këtë skedar",
-        "the conversion stopped before a PDF was made": "konvertimi ndaloi para se të krijohej PDF"
+        "the conversion stopped before a PDF was made": "konvertimi ndaloi para se të krijohej PDF",
+        "Rights per record type": "Të drejtat sipas llojit të regjistrimit",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Rregullat më poshtë vendosin se kush mund të lexojë dhe ndryshojë çdo lloj regjistrimi. Ato emërtojnë role të decidiq. Shtoni grupet tuaja te një rol dhe ato marrin të njëjtat të drejta; grupi i vetë rolit i ruan gjithashtu.",
+        "Could not save": "Nuk u ruajt dot",
+        "The rules now include the groups you added.": "Rregullat tani përfshijnë grupet që shtuat.",
+        "Save groups": "Ruaj grupet",
+        "Who may do what, per record type": "Kush mund të bëjë çfarë, sipas llojit të regjistrimit",
+        "Record type": "Lloji i regjistrimit",
+        "Read": "Lexim",
+        "Change": "Ndryshim",
+        "(the app's general rules)": "(rregullat e përgjithshme të aplikacionit)",
+        "The rights could not be loaded.": "Të drejtat nuk u ngarkuan dot.",
+        "The groups could not be saved.": "Grupet nuk u ruajtën dot.",
+        "Record administrators": "Administratorët e regjistrimeve",
+        "Secretariat": "Sekretaria",
+        "Publication flow": "Rrjedha e publikimit",
+        "Groups with the role {role} ({groups})": "Grupe me rolin {role} ({groups})",
+        "Everyone": "Të gjithë",
+        "Signed-in users": "Përdoruesit e identifikuar",
+        "Nobody": "Askush",
+        "{who} (under a condition)": "{who} (me një kusht)"
     },
     "nplurals=2; plural=(n != 1);"
 )

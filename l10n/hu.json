@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Próbálja újra egy pillanat múlva.",
         "Try the conversion of {name} again": "A(z) {name} átalakításának újrapróbálása",
         "no backend could convert this file": "egyik átalakító sem tudta átalakítani ezt a fájlt",
-        "the conversion stopped before a PDF was made": "az átalakítás leállt, mielőtt PDF készült volna"
+        "the conversion stopped before a PDF was made": "az átalakítás leállt, mielőtt PDF készült volna",
+        "Rights per record type": "Jogok rekordtípusonként",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Az alábbi szabályok döntik el, ki olvashatja és módosíthatja az egyes rekordtípusokat. decidiq-szerepköröket neveznek meg. Adja hozzá saját csoportjait egy szerepkörhöz, és ugyanazokat a jogokat kapják; a szerepkör saját csoportja is megtartja őket.",
+        "Could not save": "A mentés nem sikerült",
+        "The rules now include the groups you added.": "A szabályok mostantól tartalmazzák a hozzáadott csoportokat.",
+        "Save groups": "Csoportok mentése",
+        "Who may do what, per record type": "Ki mit tehet, rekordtípusonként",
+        "Record type": "Rekordtípus",
+        "Read": "Olvasás",
+        "Change": "Módosítás",
+        "(the app's general rules)": "(az alkalmazás általános szabályai)",
+        "The rights could not be loaded.": "A jogokat nem sikerült betölteni.",
+        "The groups could not be saved.": "A csoportokat nem sikerült menteni.",
+        "Record administrators": "Rekordadminisztrátorok",
+        "Secretariat": "Titkárság",
+        "Publication flow": "Közzétételi folyamat",
+        "Groups with the role {role} ({groups})": "A(z) {role} szerepkörrel rendelkező csoportok ({groups})",
+        "Everyone": "Mindenki",
+        "Signed-in users": "Bejelentkezett felhasználók",
+        "Nobody": "Senki",
+        "{who} (under a condition)": "{who} (feltétellel)"
     },
     "plurals": null
 }

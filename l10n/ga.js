@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Bain triail eile as i gceann nóiméid.",
         "Try the conversion of {name} again": "Bain triail eile as tiontú {name}",
         "no backend could convert this file": "níorbh fhéidir le haon tiontaire an comhad seo a thiontú",
-        "the conversion stopped before a PDF was made": "stad an tiontú sular déanadh PDF"
+        "the conversion stopped before a PDF was made": "stad an tiontú sular déanadh PDF",
+        "Rights per record type": "Cearta de réir cineál taifid",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Socraíonn na rialacha thíos cé a fhéadfaidh gach cineál taifid a léamh agus a athrú. Ainmníonn siad róil decidiq. Cuir do ghrúpaí féin le ról agus gheobhaidh siad na cearta céanna; coinníonn grúpa an róil féin iad freisin.",
+        "Could not save": "Níorbh fhéidir sábháil",
+        "The rules now include the groups you added.": "Tá na grúpaí a chuir tú leis sna rialacha anois.",
+        "Save groups": "Sábháil grúpaí",
+        "Who may do what, per record type": "Cé a fhéadfaidh cad a dhéanamh, de réir cineál taifid",
+        "Record type": "Cineál taifid",
+        "Read": "Léamh",
+        "Change": "Athrú",
+        "(the app's general rules)": "(rialacha ginearálta na haipe)",
+        "The rights could not be loaded.": "Níorbh fhéidir na cearta a lódáil.",
+        "The groups could not be saved.": "Níorbh fhéidir na grúpaí a shábháil.",
+        "Record administrators": "Riarthóirí taifead",
+        "Secretariat": "Rúnaíocht",
+        "Publication flow": "Sreabhadh foilsithe",
+        "Groups with the role {role} ({groups})": "Grúpaí leis an ról {role} ({groups})",
+        "Everyone": "Gach duine",
+        "Signed-in users": "Úsáideoirí sínithe isteach",
+        "Nobody": "Duine ar bith",
+        "{who} (under a condition)": "{who} (faoi choinníoll)"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Riprova tra un momento.",
         "Try the conversion of {name} again": "Riprova la conversione di {name}",
         "no backend could convert this file": "nessun convertitore ha potuto convertire questo file",
-        "the conversion stopped before a PDF was made": "la conversione si è interrotta prima di creare un PDF"
+        "the conversion stopped before a PDF was made": "la conversione si è interrotta prima di creare un PDF",
+        "Rights per record type": "Diritti per tipo di record",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Le regole qui sotto decidono chi può leggere e modificare ogni tipo di record. Nominano ruoli decidiq. Aggiunga i propri gruppi a un ruolo e otterranno gli stessi diritti; anche il gruppo proprio del ruolo li mantiene.",
+        "Could not save": "Impossibile salvare",
+        "The rules now include the groups you added.": "Le regole ora includono i gruppi che ha aggiunto.",
+        "Save groups": "Salva gruppi",
+        "Who may do what, per record type": "Chi può fare cosa, per tipo di record",
+        "Record type": "Tipo di record",
+        "Read": "Leggere",
+        "Change": "Modificare",
+        "(the app's general rules)": "(le regole generali dell'app)",
+        "The rights could not be loaded.": "Non è stato possibile caricare i diritti.",
+        "The groups could not be saved.": "Non è stato possibile salvare i gruppi.",
+        "Record administrators": "Amministratori dei record",
+        "Secretariat": "Segreteria",
+        "Publication flow": "Flusso di pubblicazione",
+        "Groups with the role {role} ({groups})": "Gruppi con il ruolo {role} ({groups})",
+        "Everyone": "Tutti",
+        "Signed-in users": "Utenti che hanno effettuato l'accesso",
+        "Nobody": "Nessuno",
+        "{who} (under a condition)": "{who} (a una condizione)"
     },
     "plurals": null
 }

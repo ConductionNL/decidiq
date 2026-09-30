@@ -1405,7 +1405,27 @@ OC.L10N.register(
         "Try again in a moment.": "Versuchen Sie es gleich noch einmal.",
         "Try the conversion of {name} again": "Umwandlung von {name} erneut versuchen",
         "no backend could convert this file": "kein Konverter konnte diese Datei umwandeln",
-        "the conversion stopped before a PDF was made": "die Umwandlung brach ab, bevor ein PDF entstand"
+        "the conversion stopped before a PDF was made": "die Umwandlung brach ab, bevor ein PDF entstand",
+        "Rights per record type": "Rechte pro Datensatztyp",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Die folgenden Regeln legen fest, wer welche Art von Datensatz lesen und ändern darf. Sie nennen decidiq-Rollen. Fügen Sie einer Rolle eigene Gruppen hinzu, dann erhalten diese dieselben Rechte; die eigene Gruppe der Rolle behält sie ebenfalls.",
+        "Could not save": "Speichern fehlgeschlagen",
+        "The rules now include the groups you added.": "Die Regeln enthalten jetzt die Gruppen, die Sie hinzugefügt haben.",
+        "Save groups": "Gruppen speichern",
+        "Who may do what, per record type": "Wer was darf, pro Datensatztyp",
+        "Record type": "Datensatztyp",
+        "Read": "Lesen",
+        "Change": "Ändern",
+        "(the app's general rules)": "(die allgemeinen Regeln der App)",
+        "The rights could not be loaded.": "Die Rechte konnten nicht geladen werden.",
+        "The groups could not be saved.": "Die Gruppen konnten nicht gespeichert werden.",
+        "Record administrators": "Datensatzverwaltung",
+        "Secretariat": "Sekretariat",
+        "Publication flow": "Veröffentlichungsablauf",
+        "Groups with the role {role} ({groups})": "Gruppen mit der Rolle {role} ({groups})",
+        "Everyone": "Alle",
+        "Signed-in users": "Angemeldete Benutzer",
+        "Nobody": "Niemand",
+        "{who} (under a condition)": "{who} (unter einer Bedingung)"
     },
     "nplurals=2; plural=(n != 1);"
 )

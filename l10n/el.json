@@ -1404,7 +1404,27 @@
         "Try again in a moment.": "Δοκιμάστε ξανά σε λίγο.",
         "Try the conversion of {name} again": "Δοκιμάστε ξανά τη μετατροπή του {name}",
         "no backend could convert this file": "κανένας μετατροπέας δεν μπόρεσε να μετατρέψει αυτό το αρχείο",
-        "the conversion stopped before a PDF was made": "η μετατροπή σταμάτησε πριν δημιουργηθεί PDF"
+        "the conversion stopped before a PDF was made": "η μετατροπή σταμάτησε πριν δημιουργηθεί PDF",
+        "Rights per record type": "Δικαιώματα ανά τύπο εγγραφής",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Οι παρακάτω κανόνες ορίζουν ποιος μπορεί να διαβάζει και να αλλάζει κάθε είδος εγγραφής. Αναφέρουν ρόλους του decidiq. Προσθέστε δικές σας ομάδες σε έναν ρόλο και αποκτούν τα ίδια δικαιώματα· η δική του ομάδα του ρόλου τα διατηρεί επίσης.",
+        "Could not save": "Δεν ήταν δυνατή η αποθήκευση",
+        "The rules now include the groups you added.": "Οι κανόνες περιλαμβάνουν πλέον τις ομάδες που προσθέσατε.",
+        "Save groups": "Αποθήκευση ομάδων",
+        "Who may do what, per record type": "Ποιος μπορεί να κάνει τι, ανά τύπο εγγραφής",
+        "Record type": "Τύπος εγγραφής",
+        "Read": "Ανάγνωση",
+        "Change": "Αλλαγή",
+        "(the app's general rules)": "(οι γενικοί κανόνες της εφαρμογής)",
+        "The rights could not be loaded.": "Δεν ήταν δυνατή η φόρτωση των δικαιωμάτων.",
+        "The groups could not be saved.": "Δεν ήταν δυνατή η αποθήκευση των ομάδων.",
+        "Record administrators": "Διαχειριστές εγγραφών",
+        "Secretariat": "Γραμματεία",
+        "Publication flow": "Ροή δημοσίευσης",
+        "Groups with the role {role} ({groups})": "Ομάδες με τον ρόλο {role} ({groups})",
+        "Everyone": "Όλοι",
+        "Signed-in users": "Συνδεδεμένοι χρήστες",
+        "Nobody": "Κανείς",
+        "{who} (under a condition)": "{who} (υπό προϋπόθεση)"
     },
     "plurals": null
 }

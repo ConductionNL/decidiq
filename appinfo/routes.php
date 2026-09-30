@@ -48,6 +48,9 @@ $extra = [
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
+        // Rights per record type (platform-role-rights-per-record-type, plt-03).
+        ['name' => 'roleRights#index', 'url' => '/api/settings/role-rights', 'verb' => 'GET'],
+        ['name' => 'roleRights#update', 'url' => '/api/settings/role-rights', 'verb' => 'PUT'],
 
         // Publication action endpoints — publish/withdraw/rectify ONLY (ADR-022; CRUD stays on OR object API).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md

@@ -11,6 +11,7 @@
 
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
+		<RoleRightsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
 	</CnAdminSettingsShell>
 </template>
@@ -20,6 +21,7 @@ import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 import FullExportSettings from './FullExportSettings.vue'
 import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
+import RoleRightsSettings from './RoleRightsSettings.vue'
 import Settings from './Settings.vue'
 import manifest from '../../manifest.json'
 import { initializeStores } from '../../store/store.js'
@@ -32,6 +34,7 @@ export default {
 		FullExportSettings,
 		OfficePaperSettings,
 		PublicationSettings,
+		RoleRightsSettings,
 	},
 
 	data() {
