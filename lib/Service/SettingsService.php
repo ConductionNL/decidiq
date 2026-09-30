@@ -110,6 +110,7 @@ class SettingsService {
 	 * @param IGroupManager $groupManager The group manager
 	 * @param IUserSession $userSession The user session
 	 * @param LoggerInterface $logger The logger
+	 * @param RoleGroupMapping $roleMapping The role to group mapping written into the rules on import
 	 *
 	 * @return void
 	 */

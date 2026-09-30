@@ -22,12 +22,15 @@
 			{{
 				t(
 					'decidiq',
-					'The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role\'s own group keeps them too.',
+					"The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.",
 				)
 			}}
 		</p>
 
-		<CnNoteCard v-if="error" type="error" :title="t('decidiq', 'Could not save')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidiq', 'Could not save')">
 			{{ error }}
 		</CnNoteCard>
 		<CnNoteCard v-if="saved" type="success" :title="t('decidiq', 'Saved')">
@@ -45,7 +48,7 @@
 				:options="groups"
 				:multiple="true"
 				:taggable="false"
-				:closeOnSelect="false" />
+				:keepOpen="true" />
 		</div>
 
 		<div>
@@ -59,7 +62,11 @@
 		</div>
 
 		<table class="decidiq-role-rights__table" data-testid="role-rights-table">
-			<caption>{{ t('decidiq', 'Who may do what, per record type') }}</caption>
+			<caption>
+				{{
+					t('decidiq', 'Who may do what, per record type')
+				}}
+			</caption>
 			<thead>
 				<tr>
 					<th scope="col">
@@ -80,11 +87,16 @@
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="type in recordTypes" :key="type.slug" :data-testid="`role-rights-row-${type.slug}`">
+				<tr
+					v-for="type in recordTypes"
+					:key="type.slug"
+					:data-testid="`role-rights-row-${type.slug}`">
 					<th scope="row">
 						{{ type.title }}
-						<span v-if="type.inherited" class="decidiq-role-rights__inherited">
-							{{ t('decidiq', '(the app\'s general rules)') }}
+						<span
+							v-if="type.inherited"
+							class="decidiq-role-rights__inherited">
+							{{ t('decidiq', "(the app's general rules)") }}
 						</span>
 					</th>
 					<td>{{ summary(type.rules.read) }}</td>
@@ -127,7 +139,9 @@ export default {
 		/** @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type */
 		async load() {
 			try {
-				const res = await fetch(generateUrl(URL), { headers: { Accept: 'application/json' } })
+				const res = await fetch(generateUrl(URL), {
+					headers: { Accept: 'application/json' },
+				})
 				if (res.ok) {
 					this.apply(await res.json())
 				}
@@ -138,7 +152,10 @@ export default {
 
 		/** @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type */
 		apply(body) {
-			this.roles = (body.roles || []).map((row) => ({ ...row, mapped: [...(row.mapped || [])] }))
+			this.roles = (body.roles || []).map((row) => ({
+				...row,
+				mapped: [...(row.mapped || [])],
+			}))
 			this.groups = body.groups || []
 			this.recordTypes = body.recordTypes || []
 		},
@@ -160,7 +177,9 @@ export default {
 				})
 				const body = await res.json().catch(() => ({}))
 				if (!res.ok) {
-					this.error = body.message || t('decidiq', 'The groups could not be saved.')
+					this.error =
+						body.message
+						|| t('decidiq', 'The groups could not be saved.')
 				} else {
 					this.saved = true
 				}

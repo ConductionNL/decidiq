@@ -42,6 +42,8 @@ namespace OCA\Decidiq\Service;
  * groups.
  *
  * `authenticated` and `public` are not roles and cannot be mapped.
+ *
+ * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
  */
 class RoleGroupMapping {
 
@@ -177,13 +179,7 @@ class RoleGroupMapping {
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
 	 */
 	public function overview(array $config): array {
-		$registers = ($config['components']['registers'] ?? []);
-		$baseline  = [];
-		if (is_array($registers) === true && $registers !== []) {
-			$first    = reset($registers);
-			$baseline = (is_array($first) === true && is_array($first['authorization'] ?? null) === true) ? $first['authorization'] : [];
-		}
-
+		$baseline = $this->baseline(config: $config);
 		$schemas = ($config['components']['schemas'] ?? []);
 		if (is_array($schemas) === false) {
 			return [];
@@ -217,6 +213,28 @@ class RoleGroupMapping {
 		usort($rows, static fn (array $left, array $right): int => strcmp($left['title'], $right['title']));
 		return $rows;
 	}//end overview()
+
+	/**
+	 * The register-level authorization block: the rules of every schema
+	 * without rules of its own.
+	 *
+	 * @param array<string,mixed> $config The configuration.
+	 *
+	 * @return array<mixed> The block, or [] when there is none.
+	 */
+	private function baseline(array $config): array {
+		$registers = ($config['components']['registers'] ?? []);
+		if (is_array($registers) === false || $registers === []) {
+			return [];
+		}
+
+		$first = reset($registers);
+		if (is_array($first) === false || is_array($first['authorization'] ?? null) === false) {
+			return [];
+		}
+
+		return $first['authorization'];
+	}//end baseline()
 
 	/**
 	 * The groups of one action's rules, each marked when it holds a condition.

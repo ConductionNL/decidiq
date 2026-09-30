@@ -19,7 +19,10 @@ import { adminActor, anonymousActor } from './support/api-actors.ts'
 const RIGHTS = `${BASE}/index.php/apps/decidiq/api/settings/role-rights`
 
 // @e2e authorization-via-or-rbac::the-administrator-checks-who-can-edit-minutes
-test('the administrator maps a group to a role and the minutes row names it', async ({ page, playwright }) => {
+test('the administrator maps a group to a role and the minutes row names it', async ({
+	page,
+	playwright,
+}) => {
 	const { ctx: admin } = await adminActor(playwright)
 	const groups = (await (await admin.get(RIGHTS)).json()).groups as string[]
 	test.skip(!groups.includes('admin'), 'the instance has no admin group to map')
@@ -27,14 +30,24 @@ test('the administrator maps a group to a role and the minutes row names it', as
 	await page.goto(`${BASE}/index.php/settings/admin/decidiq`)
 	const panel = page.getByTestId('role-rights-settings')
 	await expect(panel).toBeVisible()
-	await expect(panel.getByTestId('role-rights-row-minutes')).toContainText('decidiq-administrators')
+	await expect(panel.getByTestId('role-rights-row-minutes')).toContainText(
+		'decidiq-administrators',
+	)
 
-	const saved = await admin.put(RIGHTS, { data: { mapping: { administrators: ['admin'] } } })
+	const saved = await admin.put(RIGHTS, {
+		data: { mapping: { administrators: ['admin'] } },
+	})
 	expect(saved.status()).toBe(200)
 	await page.reload()
 	await expect(page.getByTestId('role-rights-row-minutes')).toContainText('admin')
 
-	expect((await admin.put(RIGHTS, { data: { mapping: { administrators: ['no-such-group-e2e'] } } })).status()).toBe(400)
+	expect(
+		(
+			await admin.put(RIGHTS, {
+				data: { mapping: { administrators: ['no-such-group-e2e'] } },
+			})
+		).status(),
+	).toBe(400)
 	await admin.put(RIGHTS, { data: { mapping: {} } })
 
 	const { ctx: anonymous } = await anonymousActor(playwright)

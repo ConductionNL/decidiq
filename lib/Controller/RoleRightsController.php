@@ -40,6 +40,8 @@ use OCP\IRequest;
  * change and delete it, and the groups mapped onto each role. PUT stores a
  * new mapping and re-imports the register, so the rules OpenRegister
  * enforces name the mapped groups.
+ *
+ * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
  */
 class RoleRightsController extends Controller {
 
@@ -99,11 +101,18 @@ class RoleRightsController extends Controller {
 			}
 		}
 
-		$this->appConfig->setValueString(Application::APP_ID, RoleGroupMapping::CONFIG_KEY, (string) json_encode($clean));
+		$this->appConfig->setValueString(
+			Application::APP_ID,
+			RoleGroupMapping::CONFIG_KEY,
+			(string) json_encode($clean)
+		);
 		$import = $this->settings->reloadConfiguration();
 		if (($import['success'] ?? false) !== true) {
 			return new JSONResponse(
-				['message' => 'The mapping is saved, but the register could not be re-imported, so the rules still name the old groups. See the server log.'] + $this->state(),
+				[
+					'message' => 'The mapping is saved, but the register could not be re-imported, '
+						. 'so the rules still name the old groups. See the server log.',
+				] + $this->state(),
 				Http::STATUS_SERVICE_UNAVAILABLE
 			);
 		}
@@ -114,7 +123,7 @@ class RoleRightsController extends Controller {
 	/**
 	 * The page's data.
 	 *
-	 * @return array{roles: list<array{role: string, groups: list<string>, mapped: list<string>}>, groups: list<string>, recordTypes: list<array<string,mixed>>}
+	 * @return array{roles: list<array{role: string, groups: list<string>, mapped: list<string>}>, groups: list<string>, recordTypes: list<array>}
 	 */
 	private function state(): array {
 		$mapped = $this->settings->roleGroupMapping();
