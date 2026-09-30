@@ -1,0 +1,122 @@
+<?php
+
+/**
+ * Decidiq Person Participant Lookup
+ *
+ * Finds the participants that stand for a person, read-only: on the Nextcloud
+ * user id first and only when that finds none on the email address. Unlike
+ * ParticipantToPersonMembershipResolver, which is a migration step and creates
+ * what it cannot find, this never writes.
+ *
+ * @category Service
+ * @package  OCA\Decidiq\Service
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidiq\Service;
+
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+
+/**
+ * Read-only person to participant lookup.
+ *
+ * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ */
+class PersonParticipantLookup {
+
+	/**
+	 * The person fields to match on, strongest first.
+	 *
+	 * @var list<string>
+	 */
+	private const MATCH_ORDER = ['nextcloudUserId', 'email'];
+
+	/**
+	 * Constructor.
+	 *
+	 * @param ObjectServiceInterface $objectService OpenRegister object service
+	 */
+	public function __construct(
+		private readonly ObjectServiceInterface $objectService,
+	) {
+	}//end __construct()
+
+	/**
+	 * The ids of the participants that stand for a person.
+	 *
+	 * @param array<string, mixed> $person The person object
+	 *
+	 * @return list<string> Participant ids, empty when nothing matches
+	 *
+	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 */
+	public function participantIdsOf(array $person): array {
+		foreach (self::MATCH_ORDER as $field) {
+			$value = trim((string)($person[$field] ?? ''));
+			if ($value === '') {
+				continue;
+			}
+
+			$ids = $this->participantIdsWhere(field: $field, value: $value);
+			if ($ids !== []) {
+				return $ids;
+			}
+		}
+
+		return [];
+	}//end participantIdsOf()
+
+	/**
+	 * The ids of the participants whose field has this value.
+	 *
+	 * @param string $field The participant field
+	 * @param string $value The value to match
+	 *
+	 * @return list<string>
+	 */
+	private function participantIdsWhere(string $field, string $value): array {
+		$entities = $this->objectService->findAll(
+			config: ['filters' => ['register' => 'decidiq', 'schema' => 'participant', $field => $value], 'limit' => 50],
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		$ids = [];
+		foreach ($entities as $entity) {
+			$id = self::idOf(object: $entity->jsonSerialize());
+			if ($id !== null) {
+				$ids[] = $id;
+			}
+		}
+
+		return $ids;
+	}//end participantIdsWhere()
+
+	/**
+	 * The id of a serialised object, wherever OpenRegister put it.
+	 *
+	 * @param array<string, mixed> $object The serialised object
+	 *
+	 * @return string|null
+	 */
+	private static function idOf(array $object): ?string {
+		$id = ($object['id'] ?? ($object['@self']['id'] ?? ($object['uuid'] ?? null)));
+		if (is_string($id) === true && $id !== '') {
+			return $id;
+		}
+
+		return null;
+	}//end idOf()
+}//end class
