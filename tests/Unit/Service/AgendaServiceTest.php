@@ -127,6 +127,7 @@ class AgendaServiceTest extends TestCase {
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
 			l10nFactory: $this->l10nFactory,
+			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 
 	}//end setUp()
@@ -269,6 +270,7 @@ class AgendaServiceTest extends TestCase {
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
 				l10nFactory: $this->l10nFactory,
+				eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 			);
 
 			$freshService->advanceBobPhase($itemId);

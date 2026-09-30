@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 197,
+			"objectCount": 203,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -4228,6 +4228,111 @@
 								"ground": "Gemeentewet artikel 25"
 							}
 						]
+					}
+				],
+				"publication-subscription": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-subscription"
+						},
+						"slug": "volgen-gemeenteraad-admin",
+						"subscriberUserId": "admin",
+						"governanceBodies": [
+							"gemeenteraad-amsterdam"
+						],
+						"kinds": [
+							"agenda",
+							"paper"
+						],
+						"frequency": "immediate",
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-subscription"
+						},
+						"slug": "volgen-alle-organen-inwoner",
+						"subscriberRef": "example-resident",
+						"governanceBodies": [],
+						"kinds": [
+							"agenda",
+							"decision"
+						],
+						"frequency": "daily",
+						"active": true
+					}
+				],
+				"publication-event": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-agenda-windpark-gepubliceerd",
+						"kind": "agenda",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meeting": "informatieavond-windpark-noord",
+						"objectType": "meeting",
+						"objectId": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"summary": "Agenda published",
+						"isPublished": true,
+						"occurredAt": "2026-09-21T09:00:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-agenda-windpark-gewijzigd",
+						"kind": "agenda",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meeting": "informatieavond-windpark-noord",
+						"objectType": "meeting",
+						"objectId": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"summary": "Agenda changed: item 4 added",
+						"isPublished": false,
+						"occurredAt": "2026-09-22T14:30:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-stuk-windpark",
+						"kind": "paper",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meeting": "informatieavond-windpark-noord",
+						"objectType": "meeting",
+						"objectId": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"summary": "Paper added: Geluidsonderzoek windpark Noord.pdf",
+						"isPublished": false,
+						"occurredAt": "2026-09-23T10:15:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-besluit-begroting-2026",
+						"kind": "decision",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"objectType": "decision",
+						"objectId": "besluit-begroting-2026",
+						"title": "Vaststelling Programmabegroting 2026",
+						"summary": "Decision published",
+						"isPublished": true,
+						"occurredAt": "2026-09-24T21:45:00+02:00"
 					}
 				]
 			}
