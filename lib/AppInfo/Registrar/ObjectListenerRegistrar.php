@@ -36,6 +36,7 @@ use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
+use OCA\Decidiq\Listener\MinutesApprovedListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -144,6 +145,17 @@ class ObjectListenerRegistrar {
 				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
 			);
 		}
+
+		// Platform-case-system-document-exchange (plt-24): minutes reaching
+		// approved or signed render the decision list, and may send the
+		// meeting file. Declared interest is the handler's own schema guard.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: MinutesApprovedListener::class,
+			registers: null,
+			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
+		);
 
 		// Before-save guards (SaveGuardSubscriptions): submission deadline,
 		// meeting defaults, submission window and document details.

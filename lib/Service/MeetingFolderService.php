@@ -187,6 +187,31 @@ class MeetingFolderService {
 	}//end writeMeetingFile()
 
 	/**
+	 * Read back a file this service wrote, by the path writeMeetingFile() returned.
+	 *
+	 * @param string $path The path.
+	 *
+	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
+	 *
+	 * @return string|null The content, or null when the file cannot be read.
+	 */
+	public function readMeetingFile(string $path): ?string {
+		$slash = strrpos($path, '/');
+		if ($slash === false) {
+			return null;
+		}
+
+		try {
+			$folder = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder(substr($path, 0, $slash));
+			return (string)$folder->get(substr($path, ($slash + 1)))->getContent();
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: meeting file read failed', ['path' => $path, 'error' => $e->getMessage()]);
+			return null;
+		}
+
+	}//end readMeetingFile()
+
+	/**
 	 * Resolve the governance-body display name from the meeting's relation.
 	 *
 	 * @param array<string, mixed> $meeting Meeting object payload

@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 194,
+			"objectCount": 197,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -610,6 +610,25 @@
 							"politicalGroup": "D66",
 							"setOn": "2026-03-08",
 							"lifecycle": "put"
+						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "vaststelling-omgevingsvisie",
+						"title": "Vaststelling omgevingsvisie",
+						"itemType": "decision",
+						"orderNumber": 9,
+						"estimatedDuration": 45,
+						"description": "Raadsvoorstel tot vaststelling van de omgevingsvisie 2040.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"caseReference": {
+							"url": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+							"identification": "Z-2026-00412",
+							"title": "Omgevingsvisie 2040"
 						}
 					}
 				],
@@ -4123,6 +4142,92 @@
 							"zaaknummer": "Z-2026-00412",
 							"status": "definitief"
 						}
+					}
+				],
+				"case-exchange-record": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "case-exchange-record"
+						},
+						"slug": "zaakuitwisseling-ophalen-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15",
+						"agendaItem": "vaststelling-omgevingsvisie",
+						"direction": "fetch",
+						"target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+						"targetLabel": "Z-2026-00412",
+						"requestedBy": "griffier",
+						"requestedAt": "2025-01-08T10:00:00+01:00",
+						"lines": [
+							{
+								"name": "Raadsvoorstel omgevingsvisie.pdf",
+								"kind": "item-document",
+								"source": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+								"remoteUrl": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+								"status": "sent"
+							}
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "case-exchange-record"
+						},
+						"slug": "zaakuitwisseling-vergaderdossier-2025-01-15",
+						"meeting": "raadsvergadering-2025-01-15",
+						"direction": "send",
+						"target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000500",
+						"targetLabel": "Z-2026-00500",
+						"requestedBy": "griffier",
+						"requestedAt": "2025-02-13T09:00:00+01:00",
+						"lines": [
+							{
+								"name": "Agenda.pdf",
+								"kind": "agenda",
+								"source": "agenda",
+								"remoteUrl": "https://documenten.example.org/agenda",
+								"status": "sent"
+							},
+							{
+								"name": "Raadsvoorstel omgevingsvisie.pdf",
+								"kind": "item-document",
+								"source": "file:501",
+								"remoteUrl": "https://documenten.example.org/raadsvoorstel",
+								"status": "sent"
+							},
+							{
+								"name": "Besluitenlijst.pdf",
+								"kind": "decision-list",
+								"source": "decision-list",
+								"remoteUrl": "https://documenten.example.org/besluitenlijst",
+								"status": "sent"
+							},
+							{
+								"name": "Notulen.pdf",
+								"kind": "minutes",
+								"source": "minutes",
+								"remoteUrl": "https://documenten.example.org/notulen",
+								"status": "sent"
+							},
+							{
+								"name": "Bewijspakket.json",
+								"kind": "proof-package",
+								"source": "proof-package",
+								"remoteUrl": "https://documenten.example.org/bewijspakket",
+								"status": "sent"
+							},
+							{
+								"name": "Bijlage geheime grondaankoop.pdf",
+								"kind": "item-document",
+								"source": "file:502",
+								"status": "failed",
+								"error": "The case system refused the document: informatieobjecttype not configured",
+								"confidential": true,
+								"ground": "Gemeentewet artikel 25"
+							}
+						]
 					}
 				]
 			}
