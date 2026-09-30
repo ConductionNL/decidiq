@@ -47,22 +47,10 @@
         "title": "Case system exchange",
         "description": "One fetch from or send to the case system, with a line per document and the status of each.",
         "type": "object",
-        "_authorizationNote": "Staff read only. Records are written by decidiq in system context when a document is fetched or the meeting file is sent; nobody writes them by hand, so the write actions stay with administrators.",
+        "_authorizationNote": "Staff read only. Records are written only by decidiq's CaseExchangeRecords service, in system context, after the controller has checked the chair or secretary of the meeting. The write actions are left out on purpose: a schema block replaces the register block whole, so an omitted write stays closed on the object API (RegisterAuthorizationTest, SERVICE_OWNED_WRITES_STAY_CLOSED).",
         "authorization": {
           "read": [
             "decidiq-secretariat",
-            "decidiq-administrators",
-            "decidesk-administrators"
-          ],
-          "create": [
-            "decidiq-administrators",
-            "decidesk-administrators"
-          ],
-          "update": [
-            "decidiq-administrators",
-            "decidesk-administrators"
-          ],
-          "delete": [
             "decidiq-administrators",
             "decidesk-administrators"
           ]

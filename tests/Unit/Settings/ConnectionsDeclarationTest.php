@@ -141,7 +141,7 @@ class ConnectionsDeclarationTest extends TestCase {
 	}//end testTheFileNamesThisApp()
 
 	/**
-	 * The three connections, in order, each key once.
+	 * The four connections, in order, each key once.
 	 *
 	 * A row is keyed by app and key, so a second entry with the same key would
 	 * overwrite the first, and a renamed key orphans a row.
@@ -152,7 +152,7 @@ class ConnectionsDeclarationTest extends TestCase {
 		$keys = array_column($this->declaration()['connections'], 'key');
 
 		$this->assertSame(expected: array_values(array_unique($keys)), actual: $keys);
-		$this->assertSame(expected: ['ori', 'eidas', 'translation'], actual: $keys);
+		$this->assertSame(expected: ['ori', 'eidas', 'translation', 'case-system'], actual: $keys);
 	}//end testTheKeysAreUniqueAndTheOnesDecidiqReports()
 
 	/**
