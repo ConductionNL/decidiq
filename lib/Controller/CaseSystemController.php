@@ -145,7 +145,8 @@ class CaseSystemController extends Controller {
 			return $denied;
 		}
 
-		return $this->run(action: fn (): array => $this->exchange->requestSend(meetingId: $id, userId: $this->guard->currentUserId()), status: Http::STATUS_ACCEPTED);
+		$userId = $this->guard->currentUserId();
+		return $this->run(action: fn (): array => $this->exchange->requestSend(meetingId: $id, userId: $userId), status: Http::STATUS_ACCEPTED);
 	}//end send()
 
 	/**
@@ -170,7 +171,8 @@ class CaseSystemController extends Controller {
 			return $denied;
 		}
 
-		return $this->run(action: fn (): array => $this->exchange->requestResend(recordId: $id, userId: $this->guard->currentUserId()), status: Http::STATUS_ACCEPTED);
+		$userId = $this->guard->currentUserId();
+		return $this->run(action: fn (): array => $this->exchange->requestResend(recordId: $id, userId: $userId), status: Http::STATUS_ACCEPTED);
 	}//end resend()
 
 	/**

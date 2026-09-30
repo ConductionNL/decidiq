@@ -32,7 +32,7 @@ use Throwable;
  * Reaches the organisation's case system through integriq, and only through
  * integriq.
  *
- * decidiq declares the `case-system` connection (lib/Settings/connections.json);
+ * The app declares the `case-system` connection (lib/Settings/connections.json);
  * an administrator links an integriq source to it. integriq speaks the ZGW APIs
  * or StUF-ZKN and maps decidiq's document kinds onto the organisation's
  * document and case types. decidiq names the intent: one POST per operation
@@ -179,7 +179,8 @@ class CaseSystemClient {
 		);
 		$url    = (string)($answer['url'] ?? '');
 		if ($url === '') {
-			throw new CaseSystemException(message: 'The case system did not return an address for ' . (string)($document['name'] ?? 'the document'), status: 502);
+			$name = (string)($document['name'] ?? 'the document');
+			throw new CaseSystemException(message: 'The case system did not return an address for ' . $name, status: 502);
 		}
 
 		return $url;

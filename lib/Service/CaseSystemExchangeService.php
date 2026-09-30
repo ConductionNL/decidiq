@@ -114,13 +114,25 @@ class CaseSystemExchangeService {
 		$written  = [];
 		foreach ($file['items'] as $itemId => $item) {
 			$case      = (array)($item['caseReference'] ?? []);
-			$decisions = array_values(array_filter($file['documents'], static fn (array $doc): bool => $doc['kind'] === 'decision' && ($doc['agendaItem'] ?? '') === (string)$itemId));
+			$decisions = array_values(
+				array_filter(
+					$file['documents'],
+					static fn (array $doc): bool => $doc['kind'] === 'decision' && ($doc['agendaItem'] ?? '') === (string)$itemId
+				)
+			);
 			if ((string)($case['url'] ?? '') === '' || $decisions === []) {
 				continue;
 			}
 
 			$record    = $this->records->write(
-				record: ['meeting' => $meetingId, 'agendaItem' => (string)$itemId, 'direction' => 'send', 'target' => (string)$case['url'], 'targetLabel' => (string)($case['identification'] ?? ''), 'lines' => $this->lines(documents: $decisions)],
+				record: [
+					'meeting' => $meetingId,
+					'agendaItem' => (string)$itemId,
+					'direction' => 'send',
+					'target' => (string)$case['url'],
+					'targetLabel' => (string)($case['identification'] ?? ''),
+					'lines' => $this->lines(documents: $decisions),
+				],
 				userId: $userId
 			);
 			$written[] = $this->deliver(record: $record, bySource: $bySource);
@@ -175,7 +187,8 @@ class CaseSystemExchangeService {
 	 */
 	private function withMeetingCase(array $record, array $meeting): array {
 		try {
-			$case                  = $this->client->createMeetingCase(title: (string)($meeting['title'] ?? ''), date: substr((string)($meeting['scheduledDate'] ?? ''), 0, 10));
+			$date                  = substr((string)($meeting['scheduledDate'] ?? ''), 0, 10);
+			$case                  = $this->client->createMeetingCase(title: (string)($meeting['title'] ?? ''), date: $date);
 			$record['target']      = $case['url'];
 			$record['targetLabel'] = $case['identification'];
 		} catch (Throwable $e) {

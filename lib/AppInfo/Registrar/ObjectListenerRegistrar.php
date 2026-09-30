@@ -146,7 +146,7 @@ class ObjectListenerRegistrar {
 			);
 		}
 
-		// platform-case-system-document-exchange (plt-24): minutes reaching
+		// Platform-case-system-document-exchange (plt-24): minutes reaching
 		// approved or signed render the decision list, and may send the
 		// meeting file. Declared interest is the handler's own schema guard.
 		$this->subscribe(

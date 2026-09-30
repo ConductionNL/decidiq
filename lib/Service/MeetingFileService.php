@@ -124,12 +124,16 @@ class MeetingFileService {
 
 		uasort($items, static fn (array $one, array $two): int => ((int)($one['orderNumber'] ?? 0) <=> (int)($two['orderNumber'] ?? 0)));
 
-		$documents   = [$this->produce(source: 'agenda', kind: 'agenda', name: $this->l10n->t('Agenda') . '.pdf', make: fn (): string => $this->agenda(meeting: $meeting, items: $items))];
+		$agenda      = fn (): string => $this->agenda(meeting: $meeting, items: $items);
+		$list        = fn (): string => $this->decisionList->render(meetingId: $meetingId, minutes: $minutes)['content'];
+		$documents   = [$this->produce(source: 'agenda', kind: 'agenda', name: $this->l10n->t('Agenda') . '.pdf', make: $agenda)];
 		$documents   = array_merge($documents, $this->itemDocuments(items: $items));
 		$documents   = array_merge($documents, $this->decisionDocuments(meetingId: $meetingId));
-		$documents[] = $this->produce(source: 'decision-list', kind: 'decision-list', name: DecisionListService::BASE_NAME . '.pdf', make: fn (): string => $this->decisionList->render(meetingId: $meetingId, minutes: $minutes)['content']);
-		$documents[] = $this->produce(source: 'minutes', kind: 'minutes', name: $this->l10n->t('Minutes') . '.pdf', make: fn (): string => $this->minutes(minutes: $minutes));
-		$documents[] = $this->produce(source: 'proof-package', kind: 'proof-package', name: $this->l10n->t('Proof package') . '.json', make: fn (): string => $this->proof(meetingId: $meetingId));
+		$documents[] = $this->produce(source: 'decision-list', kind: 'decision-list', name: DecisionListService::BASE_NAME . '.pdf', make: $list);
+		$minutesDoc  = fn (): string => $this->minutes(minutes: $minutes);
+		$proof       = fn (): string => $this->proof(meetingId: $meetingId);
+		$documents[] = $this->produce(source: 'minutes', kind: 'minutes', name: $this->l10n->t('Minutes') . '.pdf', make: $minutesDoc);
+		$documents[] = $this->produce(source: 'proof-package', kind: 'proof-package', name: $this->l10n->t('Proof package') . '.json', make: $proof);
 
 		return ['meeting' => $meeting, 'items' => $items, 'documents' => $this->markConfidential(documents: $documents)];
 	}//end assemble()
@@ -149,7 +153,8 @@ class MeetingFileService {
 		foreach (array_keys($items) as $itemId) {
 			foreach ((array)$files->getFiles($itemId) as $node) {
 				$fileId      = (int)$node->getId();
-				$document    = $this->produce(source: 'file:' . $fileId, kind: 'item-document', name: (string)$node->getName(), make: static fn (): string => (string)$node->getContent());
+				$content     = static fn (): string => (string)$node->getContent();
+				$document    = $this->produce(source: 'file:' . $fileId, kind: 'item-document', name: (string)$node->getName(), make: $content);
 				$documents[] = $document + ['agendaItem' => $itemId, 'fileId' => $fileId];
 			}
 		}
@@ -169,7 +174,8 @@ class MeetingFileService {
 	private function decisionDocuments(string $meetingId): array {
 		$documents = [];
 		foreach ($this->decisionList->decisions(meetingId: $meetingId) as $decision) {
-			$html     = '<h1>' . htmlspecialchars((string)($decision['title'] ?? ''), ENT_QUOTES, 'UTF-8') . '</h1><div>' . htmlspecialchars((string)($decision['text'] ?? ''), ENT_QUOTES, 'UTF-8') . '</div>';
+			$html     = '<h1>' . htmlspecialchars((string)($decision['title'] ?? ''), ENT_QUOTES, 'UTF-8') . '</h1>';
+			$html    .= '<div>' . htmlspecialchars((string)($decision['text'] ?? ''), ENT_QUOTES, 'UTF-8') . '</div>';
 			$title    = $this->l10n->t('Decision') . ' ' . (string)($decision['title'] ?? '');
 			$document = $this->produce(
 				source: 'decision:' . (string)$decision['id'],
@@ -195,7 +201,11 @@ class MeetingFileService {
 	 */
 	private function agenda(array $meeting, array $items): string {
 		$versions = (array)($meeting['agendaVersions'] ?? []);
-		$last     = (array)(end($versions) ?: []);
+		$last     = [];
+		if ($versions !== []) {
+			$last = (array)end($versions);
+		}
+
 		$rows     = (array)($last['items'] ?? array_values($items));
 		$esc      = static fn (mixed $value): string => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 		$html     = '<h1>' . $esc($this->l10n->t('Agenda')) . ' ' . $esc($meeting['title'] ?? '') . '</h1><ol>';
@@ -220,7 +230,11 @@ class MeetingFileService {
 	 */
 	private function minutes(array $minutes): string {
 		$generated = (array)($minutes['generatedDocuments'] ?? []);
-		$path      = (string)(((array)(end($generated) ?: []))['path'] ?? '');
+		$path      = '';
+		if ($generated !== []) {
+			$path = (string)(((array)end($generated))['path'] ?? '');
+		}
+
 		if ($path === '') {
 			$path = (string)$this->minutesDoc->generate(minutesId: (string)$minutes['id'], format: 'pdf', displayName: 'decidiq')['path'];
 		}
@@ -310,7 +324,12 @@ class MeetingFileService {
 		}
 
 		foreach ($documents as $index => $document) {
-			foreach (['file:' . (string)($document['fileId'] ?? ''), 'item:' . (string)($document['agendaItem'] ?? ''), 'decision:' . (string)($document['decision'] ?? '')] as $key) {
+			$keys = [
+				'file:' . (string)($document['fileId'] ?? ''),
+				'item:' . (string)($document['agendaItem'] ?? ''),
+				'decision:' . (string)($document['decision'] ?? ''),
+			];
+			foreach ($keys as $key) {
 				if (isset($grounds[$key]) === true) {
 					$documents[$index]['confidential'] = true;
 					$documents[$index]['ground']       = $grounds[$key];

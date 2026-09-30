@@ -82,7 +82,8 @@ class DecisionListService {
 		$result  = ['name' => self::BASE_NAME . '.pdf', 'format' => 'pdf'];
 		if ($content === null) {
 			$content = $html;
-			$result  = ['name' => self::BASE_NAME . '.html', 'format' => 'html', 'note' => $this->l10n->t('filinq is not installed, so the decision list was saved as HTML instead of PDF.')];
+			$note    = $this->l10n->t('filinq is not installed, so the decision list was saved as HTML instead of PDF.');
+			$result  = ['name' => self::BASE_NAME . '.html', 'format' => 'html', 'note' => $note];
 		}
 
 		$path = $this->folders->writeMeetingFile(meeting: $meeting, subfolder: 'Minutes', fileName: $result['name'], content: $content);
@@ -111,9 +112,11 @@ class DecisionListService {
 		$html   .= '<p>' . $esc((string)($meeting['title'] ?? '')) . ', ' . $esc(substr((string)($meeting['scheduledDate'] ?? ''), 0, 10)) . '</p>';
 		$html   .= '<p>' . $esc($this->l10n->t('Minutes approved on %1$s', [substr((string)($minutes['approvedAt'] ?? ''), 0, 10)])) . '</p>';
 		$html   .= '<p>' . $esc($this->l10n->t('Signed by %1$s', [$signers])) . '</p>';
-		$html   .= '<table><thead><tr><th>' . $esc($this->l10n->t('Decision')) . '</th><th>' . $esc($this->l10n->t('Outcome')) . '</th><th>' . $esc($this->l10n->t('Votes')) . '</th></tr></thead><tbody>';
+		$html   .= '<table><thead><tr><th>' . $esc($this->l10n->t('Decision')) . '</th><th>' . $esc($this->l10n->t('Outcome'));
+		$html   .= '</th><th>' . $esc($this->l10n->t('Votes')) . '</th></tr></thead><tbody>';
 		foreach ($decisions as $decision) {
-			$html .= '<tr><td>' . $esc($decision['title'] ?? '') . '</td><td>' . $esc($this->outcome(outcome: (string)($decision['outcome'] ?? ''))) . '</td><td>' . $esc($this->votes(votes: $decision['votes'] ?? null)) . '</td></tr>';
+			$html .= '<tr><td>' . $esc($decision['title'] ?? '') . '</td><td>' . $esc($this->outcome(outcome: (string)($decision['outcome'] ?? '')));
+			$html .= '</td><td>' . $esc($this->votes(votes: $decision['votes'] ?? null)) . '</td></tr>';
 		}
 
 		return $html . '</tbody></table>';
@@ -154,7 +157,9 @@ class DecisionListService {
 		$list = array_values($decisions);
 		usort(
 			$list,
-			static fn (array $one, array $two): int => (($order[(string)($one['agendaItem'] ?? '')] ?? PHP_INT_MAX) <=> ($order[(string)($two['agendaItem'] ?? '')] ?? PHP_INT_MAX))
+			static fn (array $one, array $two): int => (
+				($order[(string)($one['agendaItem'] ?? '')] ?? PHP_INT_MAX) <=> ($order[(string)($two['agendaItem'] ?? '')] ?? PHP_INT_MAX)
+			)
 		);
 
 		return $list;
@@ -174,7 +179,11 @@ class DecisionListService {
 		foreach ($rounds as $round) {
 			$related = array_map(static fn (mixed $rel): string => (string)(((array)$rel)['id'] ?? ''), (array)($round['relations'] ?? []));
 			if (in_array($decisionId, $related, true) === true || (string)($round['decision'] ?? '') === $decisionId) {
-				return ['for' => (int)($round['votesFor'] ?? 0), 'against' => (int)($round['votesAgainst'] ?? 0), 'abstain' => (int)($round['votesAbstain'] ?? 0)];
+				return [
+					'for' => (int)($round['votesFor'] ?? 0),
+					'against' => (int)($round['votesAgainst'] ?? 0),
+					'abstain' => (int)($round['votesAbstain'] ?? 0),
+				];
 			}
 		}
 
