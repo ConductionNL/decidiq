@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\AgendaInvitation;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\PublicationEligibilityService;
 use OCA\Decidiq\Service\SettingsService;
@@ -73,6 +74,13 @@ class AgendaInvitationTest extends TestCase {
 	 * @var array<int, array<string, mixed>>
 	 */
 	private array $saved = [];
+
+	/**
+	 * Publication events recorded: [method, arguments].
+	 *
+	 * @var array<int, array{0: string, 1: array<int, mixed>}>
+	 */
+	private array $recorded = [];
 
 	/**
 	 * Notifications dispatched.
@@ -125,6 +133,15 @@ class AgendaInvitationTest extends TestCase {
 			}
 		);
 
+		$recorder = $this->createMock(PublicationEventRecorder::class);
+		foreach (['agendaPublished', 'agendaChanged'] as $method) {
+			$recorder->method($method)->willReturnCallback(
+				function (mixed ...$arguments) use ($method): void {
+					$this->recorded[] = [$method, $arguments];
+				}
+			);
+		}
+
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnCallback(
 			static fn (string $text, array|string $params = []): string => vsprintf($text, (array)$params)
@@ -139,6 +156,7 @@ class AgendaInvitationTest extends TestCase {
 			logger: new NullLogger(),
 			participantResolver: $resolver,
 			l10nFactory: $factory,
+			eventRecorder: $recorder,
 		);
 
 	}//end service()
@@ -281,4 +299,50 @@ class AgendaInvitationTest extends TestCase {
 		$this->assertTrue($result->isValid(), 'The saved meeting must validate: ' . json_encode($result->error()?->args()));
 
 	}//end assertValidMeeting()
+	/**
+	 * Publishing the agenda records one publication event for subscribers.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 */
+	public function testPublishingTheAgendaRecordsOneEvent(): void {
+		$this->service()->publishAgenda(self::MEETING);
+
+		self::assertCount(1, $this->recorded);
+		self::assertSame('agendaPublished', $this->recorded[0][0]);
+		self::assertSame(self::MEETING, $this->recorded[0][1][0]);
+		self::assertFalse($this->recorded[0][1][2], 'A first publication is not a revision');
+
+	}//end testPublishingTheAgendaRecordsOneEvent()
+
+	/**
+	 * A change to a published agenda records one event with the item snapshots
+	 * before and after, so the summary can say which item was added.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 */
+	public function testAChangedPublishedAgendaRecordsOneEventWithTheSnapshots(): void {
+		$before = [['id' => 'item-1', 'title' => 'Opening', 'orderNumber' => 1]];
+		$this->service(
+			[
+				'agendaPublishedAt' => '2026-10-01T09:00:00+02:00',
+				'agendaVersion'     => 1,
+				'agendaVersions'    => [['version' => 1, 'publishedAt' => '2026-10-01T09:00:00+02:00', 'items' => $before]],
+			]
+		)->notifyAgendaChanged(self::MEETING);
+
+		self::assertCount(1, $this->recorded);
+		self::assertSame('agendaChanged', $this->recorded[0][0]);
+		self::assertSame($before, $this->recorded[0][1][2]);
+		self::assertCount(5, $this->recorded[0][1][3], 'The new snapshot holds the five current items');
+		self::assertSame(
+			'Agenda changed: item 2 added, item 3 added, item 4 added, item 5 added',
+			PublicationEventRecorder::changeSummary(before: $this->recorded[0][1][2], after: $this->recorded[0][1][3])
+		);
+
+	}//end testAChangedPublishedAgendaRecordsOneEventWithTheSnapshots()
+
 }//end class

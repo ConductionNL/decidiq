@@ -111,6 +111,7 @@ class AgendaService {
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
 	 * @param IFactory $l10nFactory Translations for the notice title and body
+	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
 	 *
 	 * @return void
 	 *
@@ -123,6 +124,7 @@ class AgendaService {
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly IFactory $l10nFactory,
+		private readonly PublicationEventRecorder $eventRecorder,
 	) {
 	}//end __construct()
 
@@ -193,6 +195,7 @@ class AgendaService {
 		);
 
 		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: $subject, items: $items);
+		$this->eventRecorder->agendaPublished(meetingId: $meetingId, meeting: $meetingData, revised: ($subject === 'agenda_revised'));
 
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
 
@@ -541,12 +544,23 @@ class AgendaService {
 			$sentAt[$uid] = date(DATE_ATOM);
 		}
 
+		$versioned = $this->withNewAgendaVersion(meetingData: $meetingData, items: $items);
 		$this->saveMeeting(
 			meetingId: $meetingId,
-			meetingData: $this->withNewAgendaVersion(meetingData: $meetingData, items: $items),
+			meetingData: $versioned,
 			changes: ['agendaNoticeSentAt' => $sentAt]
 		);
 		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: 'agenda_changed', recipients: $due);
+
+		// Subscribers hear what changed: the item snapshot of the last version against the new one.
+		$versions = $versioned['agendaVersions'];
+		$after    = (array)(end($versions)['items'] ?? []);
+		$before   = [];
+		if (count($versions) > 1) {
+			$before = (array)($versions[(count($versions) - 2)]['items'] ?? []);
+		}
+
+		$this->eventRecorder->agendaChanged(meetingId: $meetingId, meeting: $meetingData, before: $before, after: $after);
 
 	}//end notifyAgendaChanged()
 

@@ -231,8 +231,8 @@ class PublicationEventRecorder {
 	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public static function changeSummary(array $before, array $after): string {
-		$beforeIds = array_column($before, null, 'id');
-		$afterIds  = array_column($after, null, 'id');
+		$beforeIds = array_column(self::inAgendaOrder(items: $before), null, 'id');
+		$afterIds  = array_column(self::inAgendaOrder(items: $after), null, 'id');
 
 		$parts = [];
 		foreach ($afterIds as $id => $item) {
@@ -253,6 +253,22 @@ class PublicationEventRecorder {
 
 		return 'Agenda changed: ' . implode(', ', $parts);
 	}//end changeSummary()
+
+	/**
+	 * The items sorted by their number; items without one keep their place at the end.
+	 *
+	 * @param array<int,array<string,mixed>> $items Snapshot items
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	private static function inAgendaOrder(array $items): array {
+		usort(
+			$items,
+			static fn(array $a, array $b): int => ((int)($a['orderNumber'] ?? PHP_INT_MAX) <=> (int)($b['orderNumber'] ?? PHP_INT_MAX))
+		);
+
+		return $items;
+	}//end inAgendaOrder()
 
 	/**
 	 * An item's number, or its title when it has none.

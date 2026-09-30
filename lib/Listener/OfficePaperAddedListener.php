@@ -26,6 +26,7 @@ namespace OCA\Decidiq\Listener;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\BackgroundJob\IJobList;
 use OCP\EventDispatcher\Event;
@@ -80,6 +81,7 @@ class OfficePaperAddedListener implements IEventListener {
 	 * @param IAppConfig             $appConfig     The app config.
 	 * @param ListenerSchemaResolver $schemaResolver Reads an object's schema slug.
 	 * @param LoggerInterface        $logger        The logger.
+	 * @param PublicationEventRecorder $eventRecorder Reports a new paper to subscribers.
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
 	 */
@@ -89,15 +91,18 @@ class OfficePaperAddedListener implements IEventListener {
 		private readonly IAppConfig $appConfig,
 		private readonly ListenerSchemaResolver $schemaResolver,
 		private readonly LoggerInterface $logger,
+		private readonly PublicationEventRecorder $eventRecorder,
 	) {
 	}//end __construct()
 
 	/**
-	 * Queue a conversion for an Office paper in a meeting or agenda item folder.
+	 * Queue a conversion for an Office paper in a meeting or agenda item folder,
+	 * and report a new paper there to publication subscribers.
 	 *
 	 * @param Event $event The event.
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
+	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 *
 	 * @return void
 	 */
@@ -107,11 +112,16 @@ class OfficePaperAddedListener implements IEventListener {
 		}
 
 		$node = $event->getNode();
-		if ($node instanceof File === false || self::isOfficeName(name: $node->getName()) === false) {
+		if ($node instanceof File === false) {
 			return;
 		}
 
-		if (self::isSwitchedOn(value: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, 'true')) === false) {
+		$isOffice    = self::isOfficeName(name: $node->getName());
+		$converts    = ($isOffice === true && self::isSwitchedOn(value: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, 'true')) === true);
+		$isNewPaper  = ($event instanceof NodeCreatedEvent);
+		// A converted Office paper is reported once, through the PDF the conversion creates.
+		$reportPaper = ($isNewPaper === true && $converts === false);
+		if ($converts === false && $reportPaper === false) {
 			return;
 		}
 
@@ -130,10 +140,16 @@ class OfficePaperAddedListener implements IEventListener {
 			return;
 		}
 
-		$this->jobList->add(
-			ConvertPaperToPdfJob::class,
-			['fileId' => (int)$node->getId(), 'objectId' => $folderName, 'schema' => $schema]
-		);
+		if ($reportPaper === true) {
+			$this->eventRecorder->paperAdded(schema: $schema, objectId: $folderName, fileName: $node->getName());
+		}
+
+		if ($converts === true) {
+			$this->jobList->add(
+				ConvertPaperToPdfJob::class,
+				['fileId' => (int)$node->getId(), 'objectId' => $folderName, 'schema' => $schema]
+			);
+		}
 	}//end handle()
 
 	/**
