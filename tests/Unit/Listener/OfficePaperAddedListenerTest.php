@@ -43,6 +43,7 @@ use Psr\Log\NullLogger;
  * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
  * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
  * @uses   \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
+ * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
  *
  * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
  */
