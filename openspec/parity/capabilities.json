@@ -5847,12 +5847,13 @@
 			"area": "platform",
 			"name": "Limit what each role may see and change per kind of record.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/decidesk_register.json:61 register-level authorization baseline (read/list authenticated+public, update/delete decidiq-administrators) plus 36 schema-level authorization blocks, all enforced by OpenRegister; decidiq's own guards on action endpoints: lib/Service/MeetingRoleGate.php (used lib/Controller/MeetingController.php:91), GovernanceScopeGuard.php, VoteCastGuard.php, PublicationStaffGuard.php, ParticipationStaffGuard.php, MinutesAccessGuard.php",
+				"state": "built",
+				"evidence": "lib/Service/RoleGroupMapping.php (role to group mapping; rewrite() adds mapped groups to the register-level baseline and every schema authorization block on import, SettingsService::importConfiguration), lib/Controller/RoleRightsController.php (GET/PUT /api/settings/role-rights, admin only), src/views/settings/RoleRightsSettings.vue (Rights per record type on the admin settings page)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/platform-role-rights-per-record-type"
+				"change": "2026-09-30-platform-role-rights-per-record-type",
+				"readOn": "2026-09-30"
 			},
 			"reachedOn": "No admin page to set it: rules are fixed in the register JSON and in code; users feel it as refused actions",
 			"provider": "openregister",

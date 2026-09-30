@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Kas ir dokuments: darba kārtība, punkta dokuments, lēmums, lēmumu saraksts, protokols vai pierādījumu pakete.",
         "When the fetch or send was asked for.": "Kad tika pieprasīta iegūšana vai nosūtīšana.",
         "Where decidiq finds the document again when it is sent a second time.": "Kur decidiq atkal atrod dokumentu, kad tas tiek sūtīts otro reizi.",
-        "Why the case system refused the document.": "Kāpēc lietu sistēma noraidīja dokumentu."
+        "Why the case system refused the document.": "Kāpēc lietu sistēma noraidīja dokumentu.",
+        "Rights per record type": "Tiesības pēc ieraksta veida",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Tālāk norādītie noteikumi nosaka, kas drīkst lasīt un mainīt katru ieraksta veidu. Tie nosauc decidiq lomas. Pievienojiet lomai savas grupas, un tās iegūs tādas pašas tiesības; lomas pašas grupa tās arī saglabā.",
+        "Could not save": "Neizdevās saglabāt",
+        "The rules now include the groups you added.": "Noteikumi tagad ietver jūsu pievienotās grupas.",
+        "Save groups": "Saglabāt grupas",
+        "Who may do what, per record type": "Kurš ko drīkst, pēc ieraksta veida",
+        "Record type": "Ieraksta veids",
+        "Read": "Lasīt",
+        "Change": "Mainīt",
+        "(the app's general rules)": "(lietotnes vispārīgie noteikumi)",
+        "The rights could not be loaded.": "Tiesības neizdevās ielādēt.",
+        "The groups could not be saved.": "Grupas neizdevās saglabāt.",
+        "Record administrators": "Ierakstu administratori",
+        "Secretariat": "Sekretariāts",
+        "Publication flow": "Publicēšanas plūsma",
+        "Groups with the role {role} ({groups})": "Grupas ar lomu {role} ({groups})",
+        "Everyone": "Visi",
+        "Signed-in users": "Pieteikušies lietotāji",
+        "Nobody": "Neviens",
+        "{who} (under a condition)": "{who} (ar nosacījumu)"
     },
     "nplurals=2; plural=(n != 1);"
 )

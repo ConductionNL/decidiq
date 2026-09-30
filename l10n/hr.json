@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Što je dokument: dnevni red, dokument točke, odluka, popis odluka, zapisnik ili paket dokaza.",
         "When the fetch or send was asked for.": "Kada su dohvaćanje ili slanje zatraženi.",
         "Where decidiq finds the document again when it is sent a second time.": "Gdje decidiq ponovno pronalazi dokument kada se šalje drugi put.",
-        "Why the case system refused the document.": "Zašto je sustav za predmete odbio dokument."
+        "Why the case system refused the document.": "Zašto je sustav za predmete odbio dokument.",
+        "Rights per record type": "Prava po vrsti zapisa",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Pravila u nastavku određuju tko smije čitati i mijenjati svaku vrstu zapisa. Navode uloge u decidiqu. Dodajte vlastite grupe ulozi i dobit će ista prava; vlastita grupa uloge ih također zadržava.",
+        "Could not save": "Spremanje nije uspjelo",
+        "The rules now include the groups you added.": "Pravila sada uključuju grupe koje ste dodali.",
+        "Save groups": "Spremi grupe",
+        "Who may do what, per record type": "Tko smije što, po vrsti zapisa",
+        "Record type": "Vrsta zapisa",
+        "Read": "Čitanje",
+        "Change": "Promjena",
+        "(the app's general rules)": "(opća pravila aplikacije)",
+        "The rights could not be loaded.": "Prava nije bilo moguće učitati.",
+        "The groups could not be saved.": "Grupe nije bilo moguće spremiti.",
+        "Record administrators": "Administratori zapisa",
+        "Secretariat": "Tajništvo",
+        "Publication flow": "Tijek objave",
+        "Groups with the role {role} ({groups})": "Grupe s ulogom {role} ({groups})",
+        "Everyone": "Svi",
+        "Signed-in users": "Prijavljeni korisnici",
+        "Nobody": "Nitko",
+        "{who} (under a condition)": "{who} (pod uvjetom)"
     },
     "plurals": null
 }

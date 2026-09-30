@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Hvad dokumentet er: dagsordenen, et punktdokument, en beslutning, beslutningslisten, referatet eller bevispakken.",
         "When the fetch or send was asked for.": "Hvornår hentningen eller afsendelsen blev bedt om.",
         "Where decidiq finds the document again when it is sent a second time.": "Hvor decidiq finder dokumentet igen, når det sendes en anden gang.",
-        "Why the case system refused the document.": "Hvorfor sagssystemet afviste dokumentet."
+        "Why the case system refused the document.": "Hvorfor sagssystemet afviste dokumentet.",
+        "Rights per record type": "Rettigheder pr. posttype",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Reglerne nedenfor bestemmer, hvem der må læse og ændre hver slags post. De nævner decidiq-roller. Tilføj jeres egne grupper til en rolle, så får de de samme rettigheder; rollens egen gruppe beholder dem også.",
+        "Could not save": "Kunne ikke gemme",
+        "The rules now include the groups you added.": "Reglerne omfatter nu de grupper, du har tilføjet.",
+        "Save groups": "Gem grupper",
+        "Who may do what, per record type": "Hvem må hvad, pr. posttype",
+        "Record type": "Posttype",
+        "Read": "Læse",
+        "Change": "Ændre",
+        "(the app's general rules)": "(appens generelle regler)",
+        "The rights could not be loaded.": "Rettighederne kunne ikke indlæses.",
+        "The groups could not be saved.": "Grupperne kunne ikke gemmes.",
+        "Record administrators": "Postadministratorer",
+        "Secretariat": "Sekretariat",
+        "Publication flow": "Publiceringsflow",
+        "Groups with the role {role} ({groups})": "Grupper med rollen {role} ({groups})",
+        "Everyone": "Alle",
+        "Signed-in users": "Loggede ind brugere",
+        "Nobody": "Ingen",
+        "{who} (under a condition)": "{who} (på en betingelse)"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Was das Dokument ist: die Tagesordnung, ein Punktdokument, ein Beschluss, die Beschlussliste, das Protokoll oder das Nachweispaket.",
         "When the fetch or send was asked for.": "Wann das Abrufen oder Senden angefordert wurde.",
         "Where decidiq finds the document again when it is sent a second time.": "Wo decidiq das Dokument wiederfindet, wenn es ein zweites Mal gesendet wird.",
-        "Why the case system refused the document.": "Warum das Vorgangssystem das Dokument abgelehnt hat."
+        "Why the case system refused the document.": "Warum das Vorgangssystem das Dokument abgelehnt hat.",
+        "Rights per record type": "Rechte pro Datensatztyp",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Die folgenden Regeln legen fest, wer welche Art von Datensatz lesen und ändern darf. Sie nennen decidiq-Rollen. Fügen Sie einer Rolle eigene Gruppen hinzu, dann erhalten diese dieselben Rechte; die eigene Gruppe der Rolle behält sie ebenfalls.",
+        "Could not save": "Speichern fehlgeschlagen",
+        "The rules now include the groups you added.": "Die Regeln enthalten jetzt die Gruppen, die Sie hinzugefügt haben.",
+        "Save groups": "Gruppen speichern",
+        "Who may do what, per record type": "Wer was darf, pro Datensatztyp",
+        "Record type": "Datensatztyp",
+        "Read": "Lesen",
+        "Change": "Ändern",
+        "(the app's general rules)": "(die allgemeinen Regeln der App)",
+        "The rights could not be loaded.": "Die Rechte konnten nicht geladen werden.",
+        "The groups could not be saved.": "Die Gruppen konnten nicht gespeichert werden.",
+        "Record administrators": "Datensatzverwaltung",
+        "Secretariat": "Sekretariat",
+        "Publication flow": "Veröffentlichungsablauf",
+        "Groups with the role {role} ({groups})": "Gruppen mit der Rolle {role} ({groups})",
+        "Everyone": "Alle",
+        "Signed-in users": "Angemeldete Benutzer",
+        "Nobody": "Niemand",
+        "{who} (under a condition)": "{who} (unter einer Bedingung)"
     },
     "plurals": null
 }

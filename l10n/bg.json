@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Какво е документът: дневният ред, документ към точка, решение, списъкът с решения, протоколът или пакетът с доказателства.",
         "When the fetch or send was asked for.": "Кога е поискано извличането или изпращането.",
         "Where decidiq finds the document again when it is sent a second time.": "Къде decidiq намира документа отново, когато той се изпраща за втори път.",
-        "Why the case system refused the document.": "Защо системата за дела е отказала документа."
+        "Why the case system refused the document.": "Защо системата за дела е отказала документа.",
+        "Rights per record type": "Права по вид запис",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Правилата по-долу определят кой може да чете и променя всеки вид запис. Те посочват роли в decidiq. Добавете свои групи към роля и те получават същите права; собствената група на ролята ги запазва.",
+        "Could not save": "Неуспешно запазване",
+        "The rules now include the groups you added.": "Правилата вече включват добавените от вас групи.",
+        "Save groups": "Запазване на групите",
+        "Who may do what, per record type": "Кой какво може, по вид запис",
+        "Record type": "Вид запис",
+        "Read": "Четене",
+        "Change": "Промяна",
+        "(the app's general rules)": "(общите правила на приложението)",
+        "The rights could not be loaded.": "Правата не можаха да бъдат заредени.",
+        "The groups could not be saved.": "Групите не можаха да бъдат запазени.",
+        "Record administrators": "Администратори на записи",
+        "Secretariat": "Секретариат",
+        "Publication flow": "Поток за публикуване",
+        "Groups with the role {role} ({groups})": "Групи с ролята {role} ({groups})",
+        "Everyone": "Всички",
+        "Signed-in users": "Влезли потребители",
+        "Nobody": "Никой",
+        "{who} (under a condition)": "{who} (при условие)"
     },
     "plurals": null
 }
