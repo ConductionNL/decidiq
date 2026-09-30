@@ -48,6 +48,9 @@ import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
+import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
+import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
+import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
@@ -215,6 +218,10 @@ export default {
 	// renderer, per the manifest-abstract-sidebar contract.
 	ConsultationReactionsTab: page(ConsultationReactionsTab),
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
+	// Member profile (bodies-member-profile-and-voting-record, bod-05 vot-18).
+	PersonMembershipsTab: page(PersonMembershipsTab),
+	PersonVotingRecordTab: page(PersonVotingRecordTab),
+	ParticipantProfileLink: page(ParticipantProfileLink),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
 	// trend, agenda completion, speaking distribution, cost trend and time

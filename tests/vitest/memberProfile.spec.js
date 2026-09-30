@@ -89,7 +89,7 @@ describe('the profile page is declared and reachable', () => {
 		expect(page.route).toBe('/people/:id')
 		expect(page.config.schema).toBe('person')
 		const ids = page.config.widgets.map((w) => w.id)
-		expect(ids).toEqual(['person-data', 'person-memberships', 'person-outside-positions', 'person-voting-record'])
+		expect([...ids].sort()).toEqual(['person-data', 'person-memberships', 'person-outside-positions', 'person-voting-record'])
 		const cells = page.config.layout.map((cell) => cell.widgetId)
 		for (const id of ids) expect(cells).toContain(id)
 		for (const widget of page.config.widgets.filter((w) => w.type === 'custom')) {

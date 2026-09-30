@@ -93,6 +93,12 @@
 			rowKey="id"
 			:emptyText="t('decidiq', 'No members linked to this body yet.')"
 			:loadingText="t('decidiq', 'Loading members…')">
+			<template #column-displayName="{ row, value }">
+				<router-link v-if="row.person" :to="{ path: profilePath(row.person) }">
+					{{ value }}
+				</router-link>
+				<span v-else>{{ value }}</span>
+			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -172,6 +178,7 @@ import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
 import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
 import MemberRoleDialog from '../../modals/MemberRoleDialog.vue'
+import { profilePath } from '../../utils/memberProfile.js'
 import {
 	contactSummary,
 	factionsOf,
@@ -288,6 +295,17 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The profile route of a member (REQ-MPR-003).
+		 *
+		 * @param {string} personId The person id
+		 * @return {string}
+		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+		 */
+		profilePath(personId) {
+			return profilePath(personId)
+		},
+
 		/**
 		 * Load every active Membership for this body and join each to its
 		 * Person for the displayed name (spec.md "Members tab lists active
