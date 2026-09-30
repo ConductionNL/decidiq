@@ -36,6 +36,8 @@ use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 
 /**
  * The before-save listener subscriptions.
+ *
+ * @spec openspec/specs/nextcloud-integration/spec.md
  */
 final class SaveGuardSubscriptions {
 
@@ -45,30 +47,26 @@ final class SaveGuardSubscriptions {
 	 * Each declared schema is the handler's own literal schema guard, so the
 	 * declaration can never be narrower than the guard it fronts.
 	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return list<array{event: string, listener: string, schemas: list<string>}>
+	 * @var list<array{event: string, listener: string, schemas: list<string>}>
 	 */
-	public static function all(): array {
-		return [
-			// Submission deadline gate (motion-amendment spec). ADR-005 retired
-			// the `motion` and `amendment` schemas into `decision`; the
-			// motion/amendment narrowing happens inside the handler on the
-			// `decisionType` discriminator, which no subscription can express.
-			['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['decision']],
-			// Meeting defaults (meeting-rules-from-body-and-type, REQ-MRB-001):
-			// a new meeting takes the empty fields from its type, then its body.
-			['event' => ObjectCreatingEvent::class, 'listener' => MeetingDefaultsListener::class, 'schemas' => ['meeting']],
-			// Submission window sanity (motions-submission-window,
-			// REQ-SUBW-003): a meeting whose window opens after it closes is
-			// refused, on create and on update.
-			['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
-			['event' => ObjectUpdatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
-			// Document details (platform-document-metadata-fields, REQ-DMF-002
-			// and REQ-DMF-004): a record keeps its type's required fields and
-			// one record describes one file, on create and on update.
-			['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
-			['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
-		];
-	}//end all()
+	public const ALL = [
+		// Submission deadline gate (motion-amendment spec). ADR-005 retired
+		// the `motion` and `amendment` schemas into `decision`; the
+		// motion/amendment narrowing happens inside the handler on the
+		// `decisionType` discriminator, which no subscription can express.
+		['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['decision']],
+		// Meeting defaults (meeting-rules-from-body-and-type, REQ-MRB-001):
+		// a new meeting takes the empty fields from its type, then its body.
+		['event' => ObjectCreatingEvent::class, 'listener' => MeetingDefaultsListener::class, 'schemas' => ['meeting']],
+		// Submission window sanity (motions-submission-window,
+		// REQ-SUBW-003): a meeting whose window opens after it closes is
+		// refused, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
+		// Document details (platform-document-metadata-fields, REQ-DMF-002
+		// and REQ-DMF-004): a record keeps its type's required fields and
+		// one record describes one file, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+	];
 }//end class

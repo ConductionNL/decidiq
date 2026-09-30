@@ -147,7 +147,7 @@ class ObjectListenerRegistrar {
 
 		// Before-save guards (SaveGuardSubscriptions): submission deadline,
 		// meeting defaults, submission window and document details.
-		foreach (SaveGuardSubscriptions::all() as $guard) {
+		foreach (SaveGuardSubscriptions::ALL as $guard) {
 			$this->subscribe(
 				dispatcher: $dispatcher,
 				event: $guard['event'],
