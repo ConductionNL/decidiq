@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Support\FleetAppId;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -83,6 +84,9 @@ class SettingsService {
 		'participation_default_moderation_policy',
 		'participation_catalog',
 		'participation_anon_rate_limit',
+		// @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+		// Office papers are converted to PDF on arrival unless this reads false.
+		'convert_office_papers',
 	];
 
 	/**
@@ -160,6 +164,7 @@ class SettingsService {
 			'decisionSchema' => 'decision',
 			'actionItemSchema' => 'action-item',
 			'organisatie_modus' => 'gov',
+			'convert_office_papers' => 'true',
 		];
 
 		$settings = [];
@@ -183,6 +188,8 @@ class SettingsService {
 			$settings,
 			[
 				'openregisters' => $this->isOpenRegisterAvailable(),
+				// Office papers are converted by filinq; the admin page says so when it is absent.
+				'filinq' => FleetAppId::isInstalled(appManager: $this->appManager, canonical: 'filinq'),
 				// UI-HINT ONLY: isAdmin is used exclusively to control frontend rendering
 				// (e.g. showing/hiding admin-only settings panels). It MUST NOT be used
 				// for server-side access control decisions. All admin-gated backend routes

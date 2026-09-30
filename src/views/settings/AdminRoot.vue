@@ -12,6 +12,7 @@
 
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
+		<OfficePaperSettings v-if="storesReady" />
 	</CnAdminSettingsShell>
 </template>
 
@@ -19,6 +20,7 @@
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
+import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
 import Settings from './Settings.vue'
 import manifest from '../../manifest.json'
@@ -31,6 +33,7 @@ export default {
 		CaseSystemSettings,
 		Settings,
 		FullExportSettings,
+		OfficePaperSettings,
 		PublicationSettings,
 	},
 

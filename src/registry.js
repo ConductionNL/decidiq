@@ -28,6 +28,7 @@ import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
+import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
@@ -406,6 +407,9 @@ export default {
 	// Document details on meeting and agenda item pages
 	// (platform-document-metadata-fields).
 	DocumentMetadataTab: page(DocumentMetadataTab),
+	// Office papers as PDF on meeting and agenda item pages
+	// (agenda-office-files-to-pdf).
+	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
 
 	// --- User settings (user-settings-v1). ---
