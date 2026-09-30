@@ -114,3 +114,18 @@ In `lib/Settings/profiles/municipality.json`:
   sweep; neither is in this change.
 - A moved file keeps its id in Nextcloud, so a record follows a move within
   the same storage.
+
+## Design corrections at build (29 Sep, decidiq development 00a35107)
+
+- The fragment is `lib/Settings/register.d/110-document-metadata-fields.json`;
+  92 was taken by the time this was built.
+- No `TypeFieldsForm.vue` split (task 3): `AgendaItemTypeFields.vue` already
+  renders any field list passed as props, so the dialog reuses it unchanged and
+  the agenda item vitest is untouched.
+- One record per file is enforced by `DocumentTypeFieldsGuardListener` on
+  create and update (a lookup on `fileId`), not by a register uniqueness rule
+  tested with Newman: the register dialect has no unique constraint we could
+  rely on. The refusal text is "This file already has details. Open them to
+  change them."
+- The required-field refusal reads "The details were not saved: fill in
+  Zaaknummer." (the field's label); the dialog checks first and says "Fill in Zaaknummer."

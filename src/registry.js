@@ -42,6 +42,7 @@ import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -395,6 +396,10 @@ export default {
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).
 	DecisionPublicationTab: page(DecisionPublicationTab),
 	AgendaPublicationTab: page(AgendaPublicationTab),
+
+	// Document details on meeting and agenda item pages
+	// (platform-document-metadata-fields).
+	DocumentMetadataTab: page(DocumentMetadataTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
 
 	// --- User settings (user-settings-v1). ---

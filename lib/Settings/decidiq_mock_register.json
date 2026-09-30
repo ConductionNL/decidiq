@@ -8377,6 +8377,86 @@
         "description": "Een vergadering van het bestuur.",
         "governanceBody": "00000000-0000-4000-8000-000000000000",
         "defaultDurationMinutes": 120
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "DocumentType",
+          "slug": "documenttype-raadsvoorstel-1"
+        },
+        "name": "Raadsvoorstel",
+        "description": "Een voorstel van het college aan de raad.",
+        "appliesTo": [
+          "meeting",
+          "agenda-item"
+        ],
+        "active": true,
+        "fields": [
+          {
+            "key": "zaaknummer",
+            "label": "Zaaknummer",
+            "fieldType": "string",
+            "required": true
+          },
+          {
+            "key": "status",
+            "label": "Status",
+            "fieldType": "enum",
+            "required": false,
+            "enumValues": [
+              "concept",
+              "definitief"
+            ]
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "DocumentType",
+          "slug": "documenttype-ingekomen-stuk-2"
+        },
+        "name": "Ingekomen stuk",
+        "description": "Een brief of stuk dat de raad ontvangt.",
+        "appliesTo": [
+          "agenda-item"
+        ],
+        "active": true,
+        "fields": [
+          {
+            "key": "afzender",
+            "label": "Afzender",
+            "fieldType": "string",
+            "required": true
+          },
+          {
+            "key": "ontvangen",
+            "label": "Ontvangen op",
+            "fieldType": "date",
+            "required": false
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "DocumentType",
+          "slug": "documenttype-notulen-3"
+        },
+        "name": "Notulen",
+        "description": "Het verslag van een vergadering.",
+        "appliesTo": [
+          "meeting"
+        ],
+        "active": true,
+        "fields": [
+          {
+            "key": "vastgesteld",
+            "label": "Vastgesteld",
+            "fieldType": "boolean",
+            "required": false
+          }
+        ]
       }
     ]
   }

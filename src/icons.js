@@ -78,6 +78,7 @@ import EmailArrowRightOutline from 'vue-material-design-icons/EmailArrowRightOut
 import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
 import FileChartOutline from 'vue-material-design-icons/FileChartOutline.vue'
+import FileCogOutline from 'vue-material-design-icons/FileCogOutline.vue'
 import FileDocument from 'vue-material-design-icons/FileDocument.vue'
 import FileDocumentCheckOutline from 'vue-material-design-icons/FileDocumentCheckOutline.vue'
 import FileDocumentMultipleOutline from 'vue-material-design-icons/FileDocumentMultipleOutline.vue'
@@ -203,6 +204,7 @@ export default {
 	FileDocument,
 	FileDocumentCheckOutline,
 	FileDocumentMultipleOutline,
+	FileCogOutline,
 	FileDocumentOutline,
 	FileLockOutline,
 	FilePdfBox,
