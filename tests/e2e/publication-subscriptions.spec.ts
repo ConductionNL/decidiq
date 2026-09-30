@@ -16,7 +16,9 @@ import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
 
 test.describe('Publication subscriptions', () => {
-	test('a member subscribes to agendas and papers immediately, then removes it', async ({ page }) => {
+	test('a member subscribes to agendas and papers immediately, then removes it', async ({
+		page,
+	}) => {
 		await page.goto(`${BASE}/settings/user/decidiq`)
 		const section = page.locator('[data-testid="subscriptions-section"]')
 		try {
@@ -29,8 +31,12 @@ test.describe('Publication subscriptions', () => {
 		const rows = section.locator('[data-testid="subscriptions-list"] li')
 		const before = await rows.count()
 
-		await section.locator('[data-testid="subscription-kind-paper"]').check({ force: true })
-		await section.locator('[data-testid="subscription-frequency-immediate"]').check({ force: true })
+		await section
+			.locator('[data-testid="subscription-kind-paper"]')
+			.check({ force: true })
+		await section
+			.locator('[data-testid="subscription-frequency-immediate"]')
+			.check({ force: true })
 		await section.locator('[data-testid="subscription-add"]').click()
 
 		await expect(rows).toHaveCount(before + 1)

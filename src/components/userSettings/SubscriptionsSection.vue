@@ -33,7 +33,11 @@
 				<span>{{ describe(subscription) }}</span>
 				<NcButton
 					variant="tertiary"
-					:aria-label="t('decidiq', 'Remove subscription: {what}', { what: describe(subscription) })"
+					:aria-label="
+						t('decidiq', 'Remove subscription: {what}', {
+							what: describe(subscription),
+						})
+					"
 					:disabled="saving"
 					data-testid="subscription-remove"
 					@click="remove(subscription)">
@@ -41,7 +45,10 @@
 				</NcButton>
 			</li>
 		</ul>
-		<p v-else-if="!loading" class="user-settings-section__hint" data-testid="subscriptions-empty">
+		<p
+			v-else-if="!loading"
+			class="user-settings-section__hint"
+			data-testid="subscriptions-empty">
 			{{ t('decidiq', 'You do not follow any body yet.') }}
 		</p>
 
@@ -100,9 +107,14 @@
 </template>
 
 <script>
-import axios from '@nextcloud/axios'
 import { getCurrentUser } from '@nextcloud/auth'
-import { NcButton, NcCheckboxRadioSwitch, NcNoteCard, NcSelect } from '@nextcloud/vue'
+import axios from '@nextcloud/axios'
+import {
+	NcButton,
+	NcCheckboxRadioSwitch,
+	NcNoteCard,
+	NcSelect,
+} from '@nextcloud/vue'
 import {
 	bodiesUrl,
 	buildSubscription,
@@ -135,6 +147,12 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The four kinds a member can follow.
+		 *
+		 * @return {Array<object>} Key and label per kind.
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		kindOptions() {
 			return [
 				{ key: 'agenda', label: this.t('decidiq', 'Agendas') },
@@ -144,22 +162,51 @@ export default {
 			]
 		},
 
+		/**
+		 * How often a member can hear of it.
+		 *
+		 * @return {Array<object>} Key and label per frequency.
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		frequencyOptions() {
 			return [
 				{ key: 'immediate', label: this.t('decidiq', 'Immediately') },
 				{ key: 'daily', label: this.t('decidiq', 'Daily digest at 07:00') },
-				{ key: 'weekly', label: this.t('decidiq', 'Weekly digest on Monday') },
+				{
+					key: 'weekly',
+					label: this.t('decidiq', 'Weekly digest on Monday'),
+				},
 			]
 		},
 
+		/**
+		 * Body names by id, for the one-line descriptions.
+		 *
+		 * @return {object} Names by id.
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		bodyNames() {
-			return Object.fromEntries(this.bodies.map((body) => [body.id, body.label]))
+			return Object.fromEntries(
+				this.bodies.map((body) => [body.id, body.label]),
+			)
 		},
 
+		/**
+		 * Why the form cannot be saved yet, translated.
+		 *
+		 * @return {string} The reason, or empty.
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		validationError() {
 			const reasons = {
-				'Choose at least one thing to follow.': this.t('decidiq', 'Choose at least one thing to follow.'),
-				'Choose how often you want to hear of it.': this.t('decidiq', 'Choose how often you want to hear of it.'),
+				'Choose at least one thing to follow.': this.t(
+					'decidiq',
+					'Choose at least one thing to follow.',
+				),
+				'Choose how often you want to hear of it.': this.t(
+					'decidiq',
+					'Choose how often you want to hear of it.',
+				),
 			}
 			const reason = validateSubscription(this.form)
 			return reasons[reason] ?? reason
@@ -171,6 +218,12 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Load the member's own subscriptions and the bodies to choose from.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		async load() {
 			this.loading = true
 			this.error = ''
@@ -179,48 +232,92 @@ export default {
 					axios.get(listUrl(this.uid)),
 					axios.get(bodiesUrl()),
 				])
-				this.subscriptions = ownSubscriptions(mine.data?.results ?? [], this.uid)
+				this.subscriptions = ownSubscriptions(
+					mine.data?.results ?? [],
+					this.uid,
+				)
 				this.bodies = (bodies.data?.results ?? []).map((body) => ({
 					id: body.id ?? body['@self']?.id,
 					label: body.name ?? body.id,
 				}))
-			} catch (e) {
-				this.error = this.t('decidiq', 'Your subscriptions could not be loaded.')
+			} catch {
+				this.error = this.t(
+					'decidiq',
+					'Your subscriptions could not be loaded.',
+				)
 			} finally {
 				this.loading = false
 			}
 		},
 
+		/**
+		 * One line naming what a subscription follows.
+		 *
+		 * @param {object} subscription The subscription.
+		 * @return {string} The line.
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		describe(subscription) {
 			return describeSubscription(subscription, this.bodyNames, this.t)
 		},
 
+		/**
+		 * Switch one kind on or off in the form.
+		 *
+		 * @param {string} kind The kind.
+		 * @param {boolean} on Whether it is on.
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		toggleKind(kind, on) {
 			const kinds = this.form.kinds.filter((k) => k !== kind)
 			this.form.kinds = on ? [...kinds, kind] : kinds
 		},
 
+		/**
+		 * Save the form as a new subscription and reload the list.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		async add() {
 			this.saving = true
 			this.error = ''
 			try {
-				await axios.post(subscriptionUrl(), buildSubscription(this.uid, this.form))
+				await axios.post(
+					subscriptionUrl(),
+					buildSubscription(this.uid, this.form),
+				)
 				await this.load()
-			} catch (e) {
-				this.error = this.t('decidiq', 'The subscription could not be saved.')
+			} catch {
+				this.error = this.t(
+					'decidiq',
+					'The subscription could not be saved.',
+				)
 			} finally {
 				this.saving = false
 			}
 		},
 
+		/**
+		 * Remove one of the member's subscriptions.
+		 *
+		 * @param {object} subscription The subscription.
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 */
 		async remove(subscription) {
 			this.saving = true
 			this.error = ''
 			try {
 				await axios.delete(subscriptionUrl(subscription.id))
-				this.subscriptions = this.subscriptions.filter((row) => row.id !== subscription.id)
-			} catch (e) {
-				this.error = this.t('decidiq', 'The subscription could not be removed.')
+				this.subscriptions = this.subscriptions.filter(
+					(row) => row.id !== subscription.id,
+				)
+			} catch {
+				this.error = this.t(
+					'decidiq',
+					'The subscription could not be removed.',
+				)
 			} finally {
 				this.saving = false
 			}

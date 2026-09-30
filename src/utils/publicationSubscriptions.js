@@ -120,7 +120,9 @@ export function describeSubscription(subscription, bodyNames, t) {
 		daily: t('decidiq', 'daily'),
 		weekly: t('decidiq', 'weekly'),
 	}
-	const kinds = (subscription.kinds ?? []).map((kind) => kindLabels[kind] ?? kind).join(', ')
+	const kinds = (subscription.kinds ?? [])
+		.map((kind) => kindLabels[kind] ?? kind)
+		.join(', ')
 	const bodies = (subscription.governanceBodies ?? []).length
 		? subscription.governanceBodies.map((id) => bodyNames[id] ?? id).join(', ')
 		: t('decidiq', 'every body')
