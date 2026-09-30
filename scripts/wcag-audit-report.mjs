@@ -105,6 +105,19 @@ const LABELS = {
 }
 
 /**
+ * Escape what MDX would read as code: the docs site builds the report as MDX,
+ * where `{id}` is a JavaScript expression and `<json>` a tag, and one such
+ * character fails the whole docs build.
+ *
+ * @param {string} markdown The report.
+ * @return {string} The report with braces escaped and `<` as an entity.
+ * @spec openspec/changes/platform-accessibility-audit-report/specs/accessibility-baseline/spec.md#requirement-req-aar-004-each-release-has-a-readable-wcag-21-aa-audit-report
+ */
+export function mdxSafe(markdown) {
+	return markdown.replace(/[{}]/g, (brace) => `\\${brace}`).replace(/</g, '&lt;')
+}
+
+/**
  * The report in Markdown.
  *
  * @param {{version: string, date: string, sample: object, rows: Array, scanned: boolean, theme: string}} input What to write.
@@ -164,7 +177,7 @@ export function renderReport({ version, date, sample, rows, scanned, theme }) {
 		}),
 		'',
 	]
-	return lines.join('\n')
+	return mdxSafe(lines.join('\n'))
 }
 
 const self = fileURLToPath(import.meta.url)

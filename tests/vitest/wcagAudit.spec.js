@@ -178,6 +178,29 @@ describe('the audit report (REQ-AAR-004)', () => {
 		expect(markdown).toMatch(/Not tested: \d+/)
 	})
 
+	it('writes Markdown the docs site can build: no bare braces or angle brackets', () => {
+		const rows = auditRows({ criteria, scan: null, checklist })
+		const withBraces = {
+			...sample,
+			notApplicable: [
+				{
+					id: 'projection',
+					reason: 'GET /api/voting-rounds/{id}/public-state <json>',
+				},
+			],
+		}
+		const markdown = renderReport({
+			version: '1',
+			date: 'd',
+			sample: withBraces,
+			rows,
+			scanned: false,
+		})
+		expect(markdown).toContain('/api/voting-rounds/\\{id\\}/public-state')
+		expect(markdown).not.toMatch(/(^|[^\\])[{}]/)
+		expect(markdown).not.toMatch(/<(?!br>)/)
+	})
+
 	it('says so when no scan ran', () => {
 		const rows = auditRows({ criteria, scan: null, checklist })
 		expect(rows.find((row) => row.id === '1.4.3').outcome).toBe('not-tested')
