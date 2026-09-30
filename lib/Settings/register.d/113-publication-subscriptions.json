@@ -222,6 +222,8 @@
         "version": "0.2.0",
         "properties": {
           "type": {
+            "title": "Type",
+            "description": "Notification event type.",
             "enum": [
               "publication-digest"
             ]

@@ -47,6 +47,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Service\PublicationDigestService
  * @covers \OCA\Decidiq\Service\PublicationDigestComposer
  * @covers \OCA\Decidiq\Service\PublicationDigestSchedule
+ * @uses   \OCA\Decidiq\Service\SettingsService
  */
 final class PublicationDigestServiceTest extends TestCase {
 
