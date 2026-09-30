@@ -216,6 +216,17 @@
             "description": "When it was published or changed."
           }
         }
+      },
+      "Notification": {
+        "slug": "notification",
+        "version": "0.2.0",
+        "properties": {
+          "type": {
+            "enum": [
+              "publication-digest"
+            ]
+          }
+        }
       }
     }
   }

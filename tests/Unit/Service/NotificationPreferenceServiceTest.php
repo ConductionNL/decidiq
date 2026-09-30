@@ -617,6 +617,31 @@ class NotificationPreferenceServiceTest extends TestCase {
 	}//end testApprovalStageLapseNoticeIsDeliveredOnDefaultPreferences()
 
 	/**
+	 * A publication digest goes to a member who subscribed: the subscription is
+	 * his opt-in, so no event toggle stands in its way; the delivery method
+	 * still applies (publication-subscriptions-and-daily-digest).
+	 *
+	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 *
+	 * @return void
+	 */
+	public function testPublicationDigestIsDeliveredOnDefaultPreferences(): void {
+		$service = $this->buildService(preferenceRows: [], accountEmail: 'pieter@example.com');
+
+		$sent = $service->dispatch(
+			personId: 'pieter',
+			eventType: \OCA\Decidiq\Service\PublicationDigestService::EVENT_TYPE,
+			title: '5 updates from Gemeenteraad',
+			message: 'Raadsvergadering 14 oktober'
+		);
+
+		self::assertSame(1, $sent, 'A digest the member subscribed to MUST be delivered on default preferences');
+		self::assertCount(1, $this->inAppSends);
+		self::assertSame('pieter', $this->inAppSends[0]['userId']);
+
+	}//end testPublicationDigestIsDeliveredOnDefaultPreferences()
+
+	/**
 	 * An event type nobody declared is still dropped, and the drop is logged
 	 * so a silent filter can be found in the log (issue #1395).
 	 *

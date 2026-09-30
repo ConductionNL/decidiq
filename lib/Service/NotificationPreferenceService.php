@@ -80,6 +80,9 @@ class NotificationPreferenceService {
 	 */
 	public const ALWAYS_ON_EVENTS = [
 		ApprovalStageLapseService::EVENT_TYPE,
+		// A publication digest reaches only a member who subscribed: the
+		// subscription is the opt-in (publication-subscriptions-and-daily-digest).
+		PublicationDigestService::EVENT_TYPE,
 	];
 
 	/**
