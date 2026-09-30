@@ -24,6 +24,7 @@
  */
 
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
+import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
@@ -54,6 +55,7 @@ import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 // meeting's agenda (two-hop join). See design.md Decisions 3/4 for why each
 // needs a thin wrapper rather than a pure declarative object-list widget.
 import MeetingAuditStatementTab from './components/tabs/MeetingAuditStatementTab.vue'
+import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
@@ -261,6 +263,10 @@ export default {
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	// The case system on the agenda item and meeting pages
+	// (platform-case-system-document-exchange).
+	AgendaItemCaseTab: page(AgendaItemCaseTab),
+	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),

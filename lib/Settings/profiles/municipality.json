@@ -596,6 +596,25 @@
 							"setOn": "2026-03-08",
 							"lifecycle": "put"
 						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "vaststelling-omgevingsvisie-2025-01-15",
+						"title": "Vaststelling omgevingsvisie",
+						"itemType": "decision",
+						"orderNumber": 9,
+						"estimatedDuration": 45,
+						"description": "Raadsvoorstel tot vaststelling van de omgevingsvisie 2040.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"caseReference": {
+							"url": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+							"identification": "Z-2026-00412",
+							"title": "Omgevingsvisie 2040"
+						}
 					}
 				],
 				"agenda-item-type": [
@@ -4108,6 +4127,92 @@
 							"zaaknummer": "Z-2026-00412",
 							"status": "definitief"
 						}
+					}
+				],
+				"case-exchange-record": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "case-exchange-record"
+						},
+						"slug": "zaakuitwisseling-ophalen-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15",
+						"agendaItem": "vaststelling-omgevingsvisie-2025-01-15",
+						"direction": "fetch",
+						"target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+						"targetLabel": "Z-2026-00412",
+						"requestedBy": "griffier",
+						"requestedAt": "2025-01-08T10:00:00+01:00",
+						"lines": [
+							{
+								"name": "Raadsvoorstel omgevingsvisie.pdf",
+								"kind": "item-document",
+								"source": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+								"remoteUrl": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+								"status": "sent"
+							}
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "case-exchange-record"
+						},
+						"slug": "zaakuitwisseling-vergaderdossier-2025-01-15",
+						"meeting": "raadsvergadering-2025-01-15",
+						"direction": "send",
+						"target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000500",
+						"targetLabel": "Z-2026-00500",
+						"requestedBy": "griffier",
+						"requestedAt": "2025-02-13T09:00:00+01:00",
+						"lines": [
+							{
+								"name": "Agenda.pdf",
+								"kind": "agenda",
+								"source": "agenda",
+								"remoteUrl": "https://documenten.example.org/agenda",
+								"status": "sent"
+							},
+							{
+								"name": "Raadsvoorstel omgevingsvisie.pdf",
+								"kind": "item-document",
+								"source": "file:501",
+								"remoteUrl": "https://documenten.example.org/raadsvoorstel",
+								"status": "sent"
+							},
+							{
+								"name": "Besluitenlijst.pdf",
+								"kind": "decision-list",
+								"source": "decision-list",
+								"remoteUrl": "https://documenten.example.org/besluitenlijst",
+								"status": "sent"
+							},
+							{
+								"name": "Notulen.pdf",
+								"kind": "minutes",
+								"source": "minutes",
+								"remoteUrl": "https://documenten.example.org/notulen",
+								"status": "sent"
+							},
+							{
+								"name": "Bewijspakket.json",
+								"kind": "proof-package",
+								"source": "proof-package",
+								"remoteUrl": "https://documenten.example.org/bewijspakket",
+								"status": "sent"
+							},
+							{
+								"name": "Bijlage geheime grondaankoop.pdf",
+								"kind": "item-document",
+								"source": "file:502",
+								"status": "failed",
+								"error": "The case system refused the document: informatieobjecttype not configured",
+								"confidential": true,
+								"ground": "Gemeentewet artikel 25"
+							}
+						]
 					}
 				]
 			}

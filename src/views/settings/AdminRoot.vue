@@ -8,6 +8,7 @@
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />
+		<CaseSystemSettings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
@@ -16,6 +17,7 @@
 
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
+import CaseSystemSettings from './CaseSystemSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
 import Settings from './Settings.vue'
@@ -26,6 +28,7 @@ export default {
 	name: 'AdminRoot',
 	components: {
 		CnAdminSettingsShell,
+		CaseSystemSettings,
 		Settings,
 		FullExportSettings,
 		PublicationSettings,
