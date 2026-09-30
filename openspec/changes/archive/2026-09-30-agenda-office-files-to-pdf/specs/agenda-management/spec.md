@@ -1,6 +1,6 @@
 # agenda-management Specification (delta)
 
-**Status**: planned
+**Status**: implemented
 **Scope**: decidiq
 **OpenSpec changes**:
 - [agenda-office-files-to-pdf](../../) (this delta)

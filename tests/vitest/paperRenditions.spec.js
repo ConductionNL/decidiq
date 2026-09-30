@@ -115,3 +115,29 @@ describe('the administrator switch (REQ-OPDF-004)', () => {
 		expect(conversionPayload(true)).toEqual({ convert_office_papers: 'true' })
 	})
 })
+
+describe('the example set shows both states (REQ-OPDF-002)', async () => {
+	const { readFileSync } = await import('node:fs')
+	const profile = JSON.parse(
+		readFileSync(new URL('../../lib/Settings/profiles/municipality.json', import.meta.url)),
+	)
+	const item = profile['x-openregister'].seedData.objects['agenda-item'].find(
+		(object) => object.slug === 'begroting-2026-bespreking',
+	)
+
+	it('holds one converted and one failed paper the register accepts', () => {
+		const renditions = item.paperRenditions
+		expect(renditions.filter((entry) => entry.pdfFileId)).toHaveLength(1)
+		expect(renditions.filter((entry) => entry.failedAt)).toHaveLength(1)
+		const validate = validatorFor('agenda-item')
+		validate({ paperRenditions: renditions })
+		expect(
+			(validate.errors || []).filter((error) =>
+				error.instancePath.startsWith('/paperRenditions'),
+			),
+		).toEqual([])
+		expect(paperEntries(renditions, true).map((entry) => entry.failure)).toContain(
+			'No backend could convert this file',
+		)
+	})
+})
