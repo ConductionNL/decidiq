@@ -40,6 +40,7 @@ use OCA\Decidiq\Tests\Unit\Support\CaseSystemWorld;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
+use OCP\App\IAppManager;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\File;
@@ -309,10 +310,22 @@ class CaseSystemExchangeTest extends TestCase {
 			folders: $this->folders(),
 			pdf: new FilinqPdf(container: $this->container(), logger: new NullLogger()),
 			container: $this->container(),
-			l10n: $this->l10n()
+			l10n: $this->l10n(),
+			appManager: $this->appManager()
 		);
 		return new CaseSystemExchangeService(client: $this->client(), meetingFile: $meetingFile, records: $this->records(), jobList: $this->jobList);
 	}//end exchange()
+
+	/**
+	 * An app manager on which OpenRegister is installed.
+	 *
+	 * @return IAppManager
+	 */
+	private function appManager(): IAppManager {
+		$apps = $this->createMock(IAppManager::class);
+		$apps->method('isInstalled')->willReturn(true);
+		return $apps;
+	}//end appManager()
 
 	/**
 	 * The document service.

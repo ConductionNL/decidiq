@@ -189,7 +189,12 @@ class CaseSystemController extends Controller {
 	 * @return JSONResponse
 	 */
 	private function forItem(string $itemId, callable $action): JSONResponse {
-		$item = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		try {
+			$item = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		} catch (\Exception $e) {
+			return new JSONResponse(['message' => 'The agenda item could not be read.'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
 		if ($item === null) {
 			return new JSONResponse(['message' => 'Agenda item not found'], Http::STATUS_NOT_FOUND);
 		}

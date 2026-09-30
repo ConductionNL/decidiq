@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\App\IAppManager;
 use OCP\IL10N;
 use Psr\Container\ContainerInterface;
 use Throwable;
@@ -62,6 +63,7 @@ class MeetingFileService {
 	 * @param FilinqPdf              $pdf           PDF rendering through filinq.
 	 * @param ContainerInterface     $container     DI container (OpenRegister FileService, lazily).
 	 * @param IL10N                  $l10n          Translations.
+	 * @param IAppManager            $appManager    Tells whether OpenRegister is installed.
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
 	 */
@@ -74,6 +76,7 @@ class MeetingFileService {
 		private readonly FilinqPdf $pdf,
 		private readonly ContainerInterface $container,
 		private readonly IL10N $l10n,
+		private readonly IAppManager $appManager,
 	) {
 	}//end __construct()
 
@@ -145,9 +148,16 @@ class MeetingFileService {
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
 	 *
+	 * @throws CaseSystemException 503 when OpenRegister, which holds the files, is not installed.
+	 *
 	 * @return list<array<string,mixed>>
 	 */
 	private function itemDocuments(array $items): array {
+		// A meeting file without its papers would look complete and not be.
+		if ($this->appManager->isInstalled('openregister') === false) {
+			throw new CaseSystemException(message: 'The agenda item files could not be read: OpenRegister is not installed', status: 503);
+		}
+
 		$documents = [];
 		$files     = $this->container->get('OCA\OpenRegister\Service\FileService');
 		foreach (array_keys($items) as $itemId) {

@@ -105,13 +105,13 @@ class MinutesApprovedListener implements IEventListener {
 	/**
 	 * The minutes of this event when they just reached approved or signed, with a meeting.
 	 *
-	 * @param Event $event The event.
+	 * @param object $event The event.
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-004-approving-the-minutes-produces-a-decision-list-document
 	 *
 	 * @return array<string,mixed>|null
 	 */
-	private function approvedOrSigned(Event $event): ?array {
+	private function approvedOrSigned(object $event): ?array {
 		if (($event instanceof ObjectUpdatedEvent) === false || $event->getNewObject() === null) {
 			return null;
 		}
