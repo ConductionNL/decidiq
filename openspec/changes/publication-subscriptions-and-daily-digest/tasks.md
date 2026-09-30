@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the register WHEN imported THEN `publication-subscription` and `publication-event` exist with their read rules
   - GIVEN a member WHEN he lists subscriptions THEN only his own return
-- [ ] Implement
-- [ ] Test (Newman)
+- [x] Implement
+- [x] Test (PHPUnit instead of Newman: `tests/Unit/Settings/PublicationSubscriptionRegisterTest.php` reads the merged register, the read rules and validates the example sets with Opis; `tests/Unit/RegisterAuthorizationTest.php` classifies both blocks)
 
 ### Task 2: Record what happened
 - **spec_ref**: `openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events`
@@ -46,8 +46,8 @@
 - **acceptance_criteria**:
   - GIVEN a member on the settings page WHEN he subscribes to the council's agendas daily THEN the subscription is listed and can be removed
   - GIVEN the nc-input-labels gate WHEN run THEN it passes
-- [ ] Implement
-- [ ] Test (Playwright)
+- [x] Implement
+- [x] Test (Playwright: `tests/e2e/publication-subscriptions.spec.ts`; the rules in `tests/vitest/publicationSubscriptions.spec.js`, payload validated against the merged schema)
 
 ## Verification
 
