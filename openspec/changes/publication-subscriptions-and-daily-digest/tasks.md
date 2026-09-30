@@ -37,6 +37,7 @@
 - **acceptance_criteria**:
   - GIVEN the citizen contribution WHEN read THEN it offers `subscribeToPublications` and lists `citizenSubscriptions`
   - GIVEN a resident subscription and one unpublished and two published events WHEN the job runs THEN one inbox notification lists the two published events
+- Delivered in two pull requests: the first (subscriptions) ships the portal action `subscribeToPublications`, `unsubscribeFromPublications` and the `citizenSubscriptions` collection, with `tests/Unit/Portal/PortalContributionProviderTest.php`; the second (daily digest) ships the resident delivery in the digest job and ticks this task.
 - [ ] Implement
 - [ ] Test
 

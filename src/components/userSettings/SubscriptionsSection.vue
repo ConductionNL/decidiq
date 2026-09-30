@@ -203,6 +203,7 @@ export default {
 					'decidiq',
 					'Choose at least one thing to follow.',
 				),
+
 				'Choose how often you want to hear of it.': this.t(
 					'decidiq',
 					'Choose how often you want to hear of it.',
