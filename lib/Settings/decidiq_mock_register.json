@@ -8557,6 +8557,93 @@
             "ground": "Gemeentewet artikel 25"
           }
         ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationSubscription",
+          "slug": "publication-subscription-member-immediate"
+        },
+        "subscriberUserId": "admin",
+        "governanceBodies": [],
+        "kinds": [
+          "agenda",
+          "paper"
+        ],
+        "frequency": "immediate",
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationSubscription",
+          "slug": "publication-subscription-member-weekly"
+        },
+        "subscriberUserId": "griffier",
+        "governanceBodies": [],
+        "kinds": [
+          "decision",
+          "minutes"
+        ],
+        "frequency": "weekly",
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationSubscription",
+          "slug": "publication-subscription-resident-daily"
+        },
+        "subscriberRef": "example-resident",
+        "governanceBodies": [],
+        "kinds": [
+          "agenda",
+          "decision"
+        ],
+        "frequency": "daily",
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationEvent",
+          "slug": "publication-event-agenda-published"
+        },
+        "kind": "agenda",
+        "objectType": "meeting",
+        "objectId": "meeting-1",
+        "title": "Council meeting",
+        "summary": "Agenda published",
+        "isPublished": true,
+        "occurredAt": "2025-01-08T09:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationEvent",
+          "slug": "publication-event-paper-added"
+        },
+        "kind": "paper",
+        "objectType": "agenda-item",
+        "objectId": "agenda-item-1",
+        "title": "Budget 2026",
+        "summary": "Paper added: Budget 2026.pdf",
+        "isPublished": false,
+        "occurredAt": "2025-01-09T10:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationEvent",
+          "slug": "publication-event-decision-published"
+        },
+        "kind": "decision",
+        "objectType": "decision",
+        "objectId": "decision-1",
+        "title": "Budget 2026 adopted",
+        "summary": "Decision published",
+        "isPublished": true,
+        "occurredAt": "2025-01-16T22:00:00+01:00"
       }
     ]
   }

@@ -1,0 +1,222 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change publication-subscriptions-and-daily-digest (REQ-PSD-001, REQ-PSD-002, matrix rows pub-10 and pub-16, tender 408309). PublicationSubscription (slug publication-subscription) holds who follows which bodies and kinds, and how often: a member by Nextcloud account, a resident by portal subject reference. PublicationEvent (slug publication-event) is one published or changed agenda, paper, decision or minutes, which the digest job groups into one message per subscriber.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "publication-subscription",
+          "publication-event"
+        ]
+      }
+    },
+    "schemas": {
+      "PublicationSubscription": {
+        "slug": "publication-subscription",
+        "icon": "BellOutline",
+        "version": "1.0.0",
+        "title": "Publication subscription",
+        "description": "Who follows new and changed agendas, papers, decisions and minutes of which bodies, and how often they hear of them.",
+        "type": "object",
+        "_authorizationNote": "A member reads, changes and removes only their own subscriptions (subscriberUserId is the signed-in account); administrators see all. Create is open to every signed-in member, as on the register row; the digest job only sends to the account that created the subscription, so naming someone else sends nothing. Residents subscribe through the portal (citizen action subscribeToPublications), which stamps subscriberRef from the signed-in subject.",
+        "authorization": {
+          "read": [
+            {
+              "group": "authenticated",
+              "match": {
+                "subscriberUserId": "$userId"
+              }
+            },
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "create": [
+            "authenticated"
+          ],
+          "update": [
+            {
+              "group": "authenticated",
+              "match": {
+                "subscriberUserId": "$userId"
+              }
+            },
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "delete": [
+            {
+              "group": "authenticated",
+              "match": {
+                "subscriberUserId": "$userId"
+              }
+            },
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        },
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false
+        },
+        "required": [
+          "kinds",
+          "frequency"
+        ],
+        "properties": {
+          "subscriberUserId": {
+            "title": "Member",
+            "type": "string",
+            "facetable": true,
+            "description": "The Nextcloud account of the member who subscribes. Empty for a resident."
+          },
+          "subscriberRef": {
+            "title": "Resident",
+            "type": "string",
+            "description": "The portal subject reference of the resident who subscribes. Empty for a member. decidiq never stores a resident's email address."
+          },
+          "governanceBodies": {
+            "title": "Bodies",
+            "type": "array",
+            "description": "The bodies to follow. Empty means every body.",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "governance-body"
+            }
+          },
+          "kinds": {
+            "title": "What to follow",
+            "type": "array",
+            "description": "Agendas, papers, decisions and minutes, one or more.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "agenda",
+                "paper",
+                "decision",
+                "minutes"
+              ]
+            }
+          },
+          "frequency": {
+            "title": "How often",
+            "type": "string",
+            "facetable": true,
+            "description": "Immediately (after a short wait that groups an editing session), a daily digest at 07:00, or a weekly digest on Monday at 07:00.",
+            "enum": [
+              "immediate",
+              "daily",
+              "weekly"
+            ],
+            "default": "daily"
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean",
+            "description": "Unsubscribing switches this off.",
+            "default": true
+          },
+          "lastSentAt": {
+            "title": "Last sent",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the subscriber last received a message. Set by the digest job."
+          }
+        }
+      },
+      "PublicationEvent": {
+        "slug": "publication-event",
+        "icon": "BullhornOutline",
+        "version": "1.0.0",
+        "title": "Publication event",
+        "description": "One agenda, paper, decision or minutes that was published or changed, as subscribers hear of it.",
+        "type": "object",
+        "_authorizationNote": "Administrators read only. Events are written only by decidiq's PublicationEventRecorder, in system context. The write actions are left out on purpose: a schema block replaces the register block whole, so an omitted write stays closed on the object API (RegisterAuthorizationTest, SERVICE_OWNED_WRITES_STAY_CLOSED). A subscriber hears of an event only in a digest, after a read check on its object.",
+        "authorization": {
+          "read": [
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        },
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": true,
+          "searchable": false
+        },
+        "required": [
+          "kind",
+          "objectType",
+          "objectId",
+          "title",
+          "occurredAt"
+        ],
+        "properties": {
+          "kind": {
+            "title": "Kind",
+            "type": "string",
+            "facetable": true,
+            "description": "What happened to: an agenda, a paper, a decision or minutes.",
+            "enum": [
+              "agenda",
+              "paper",
+              "decision",
+              "minutes"
+            ]
+          },
+          "governanceBody": {
+            "title": "Body",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "governance-body",
+            "description": "The body the agenda, paper, decision or minutes belongs to."
+          },
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "meeting",
+            "description": "The meeting it belongs to, when there is one."
+          },
+          "objectType": {
+            "title": "Object type",
+            "type": "string",
+            "description": "The schema of the object the event is about, such as meeting, agenda-item or decision."
+          },
+          "objectId": {
+            "title": "Object",
+            "type": "string",
+            "description": "The object the event is about. The digest checks the subscriber may read it before sending."
+          },
+          "title": {
+            "title": "Title",
+            "type": "string",
+            "description": "The meeting, paper, decision or minutes title."
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string",
+            "description": "One line on what happened, such as: Agenda changed: item 4 added."
+          },
+          "isPublished": {
+            "title": "Published",
+            "type": "boolean",
+            "description": "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.",
+            "default": false
+          },
+          "occurredAt": {
+            "title": "Happened at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When it was published or changed."
+          }
+        }
+      }
+    }
+  }
+}

@@ -293,6 +293,7 @@ class PortalContributionProvider {
 					'readAt',
 				],
 			],
+			$this->subscriptionsCollection(),
 			$this->publicCalendarCollection(),
 		];
 
@@ -423,7 +424,82 @@ class PortalContributionProvider {
 					'statusValue' => 'open',
 				],
 			],
+			...$this->subscriptionActions(),
 		];
 
 	}//end citizenActions()
+	/**
+	 * The resident's own publication subscriptions (REQ-PSD-001).
+	 *
+	 * The digest itself arrives in citizenNotifications; this lists what the
+	 * resident follows, scoped to the portal subject.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	private function subscriptionsCollection(): array {
+		return [
+			'id' => 'citizenSubscriptions',
+			'register' => self::REGISTER,
+			'schema' => 'publication-subscription',
+			'scopeField' => 'subscriberRef',
+			'label' => 'My subscriptions',
+			'listable' => true,
+			'minTrust' => 'low',
+			'fields' => [
+				'governanceBodies',
+				'kinds',
+				'frequency',
+				'active',
+				'lastSentAt',
+			],
+		];
+
+	}//end subscriptionsCollection()
+
+	/**
+	 * Subscribe to agendas, papers, decisions and minutes per body, and stop again (REQ-PSD-001).
+	 *
+	 * The portal stamps subscriberRef from the signed-in subject; the client
+	 * sends only the bodies, the kinds and how often. Stopping sets `active`
+	 * to false and nothing else.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 *
+	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	private function subscriptionActions(): array {
+		return [
+			[
+				'id' => 'subscribeToPublications',
+				'type' => 'create',
+				'label' => 'Follow agendas and decisions',
+				'register' => self::REGISTER,
+				'schema' => 'publication-subscription',
+				'scopeField' => 'subscriberRef',
+				'minTrust' => 'low',
+				'fields' => [
+					'governanceBodies',
+					'kinds',
+					'frequency',
+				],
+				'defaults' => [
+					'active' => true,
+				],
+			],
+			[
+				'id' => 'unsubscribeFromPublications',
+				'type' => 'update',
+				'label' => 'Stop following',
+				'register' => self::REGISTER,
+				'schema' => 'publication-subscription',
+				'scopeField' => 'subscriberRef',
+				'minTrust' => 'low',
+				'fields' => ['active'],
+				'set' => ['active' => false],
+			],
+		];
+
+	}//end subscriptionActions()
 }//end class
