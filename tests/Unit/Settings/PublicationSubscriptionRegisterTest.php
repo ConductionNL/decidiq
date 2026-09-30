@@ -27,7 +27,7 @@ use PHPUnit\Framework\TestCase;
  * The register carries publication-subscription and publication-event, with read rules that keep
  * a member to his own subscriptions, and the example sets validate against the merged schemas.
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  *
  * @coversNothing
  */

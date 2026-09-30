@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Üks rida juhtunust, näiteks: Päevakorda muudeti: lisati punkt 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Kas elanikud tohivad sellest kuulda: arvesse lähevad ainult avalikult avaldatud päevakorrad, otsused ja protokollid.",
         "Happened at": "Toimus",
-        "When it was published or changed.": "Millal see avaldati või muudeti."
+        "When it was published or changed.": "Millal see avaldati või muudeti.",
+        "Other": "Muu",
+        "1 update from %s": "1 uudis: %s",
+        "%1$d updates from %2$s": "%1$d uudist: %2$s",
+        "1 update from the bodies you follow": "1 uudis organitelt, mida jälgite",
+        "%d updates from the bodies you follow": "%d uudist organitelt, mida jälgite"
     },
     "plurals": null
 }

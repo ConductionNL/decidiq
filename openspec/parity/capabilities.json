@@ -4852,11 +4852,12 @@
 			"area": "publication",
 			"name": "Follow new publications through an RSS feed or email alert.",
 			"origin": "competitor",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "specified",
-				"evidence": "grep rss/atom/feed/subscribe across lib and src: no feed endpoint; IntegrationController subscribe is a system webhook, NotificationPreference is for logged-in users",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Settings/register.d/113-publication-subscriptions.json (publication-subscription, publication-event), src/components/userSettings/SubscriptionsSection.vue (members subscribe per body, kind and frequency), lib/Portal/PortalContributionProvider.php subscribeToPublications + citizenSubscriptions (residents on the portal), lib/Service/PublicationDigestService.php + lib/BackgroundJob/PublicationDigestJob.php (email or bell per member choice, resident portal inbox). Email alert, no RSS feed.",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-30-publication-subscriptions-and-daily-digest"
 			},
 			"reachedOn": "nothing reaches it: no RSS feed or citizen email alert",
 			"provider": "decidiq",
@@ -6368,11 +6369,12 @@
 			"name": "Subscribe to new and changed agendas and documents and get the changes by email, also as a daily digest.",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/408309",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -riE 'digest|subscri' lib src: no agenda or document subscription (hits are OpenRegister event listeners, the live-meeting refresh and the consultation reaction digest); lib/Service/NotificationPreferenceService.php:46 DEFAULTS has per-event toggles and :372 dispatch() sends in-app or email per event, called only for votingOpened (lib/Service/VotingOpenedNotifier.php:144) and approval lapses (lib/Service/ApprovalStageLapseService.php:476); lib/Settings/decidesk_register.json:666 declares a meetingScheduled nc-notification for OpenRegister to send",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Service/PublicationEventRecorder.php (agenda published or changed, paper added, decision/agenda/minutes published; called from AgendaService::publishAgenda/notifyAgendaChanged, PublicationService::publish, OfficePaperAddedListener), lib/Service/PublicationDigestService.php (immediate after 15 minutes, daily 07:00, weekly Monday 07:00; read check per member; published-only for residents), lib/BackgroundJob/PublicationDigestJob.php, src/components/userSettings/SubscriptionsSection.vue",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-30-publication-subscriptions-and-daily-digest"
 			},
 			"reachedOn": "nothing reaches it: no subscription to agendas or documents; User settings (/user-settings) only toggles per-event notifications",
 			"provider": "decidiq",

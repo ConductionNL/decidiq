@@ -178,7 +178,7 @@ class OfficePaperAddedListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function testAPdfPaperIsReportedAsANewPaper(): void {
 		$this->listener([self::ITEM => 'agenda-item'])->handle(new NodeCreatedEvent($this->file('Motie vreemd aan de orde.pdf', self::ITEM)));
@@ -193,7 +193,7 @@ class OfficePaperAddedListenerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function testEachPaperIsReportedOnce(): void {
 		$this->listener([self::ITEM => 'meeting'])->handle(new NodeCreatedEvent($this->file('Raadsvoorstel.docx', self::ITEM)));

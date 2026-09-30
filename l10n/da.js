@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Én linje om, hvad der skete, fx: Dagsorden ændret: punkt 4 tilføjet.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Om borgere må høre om det: kun offentligt publicerede dagsordener, beslutninger og referater tæller.",
         "Happened at": "Skete",
-        "When it was published or changed.": "Hvornår det blev publiceret eller ændret."
+        "When it was published or changed.": "Hvornår det blev publiceret eller ændret.",
+        "Other": "Andet",
+        "1 update from %s": "1 opdatering fra %s",
+        "%1$d updates from %2$s": "%1$d opdateringer fra %2$s",
+        "1 update from the bodies you follow": "1 opdatering fra de organer, du følger",
+        "%d updates from the bodies you follow": "%d opdateringer fra de organer, du følger"
     },
     "nplurals=2; plural=(n != 1);"
 )

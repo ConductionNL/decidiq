@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Një rresht për atë që ndodhi, si: Rendi i ditës ndryshoi: u shtua pika 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Nëse banorët mund ta mësojnë: llogariten vetëm rendet e ditës, vendimet dhe procesverbalet e publikuara publikisht.",
         "Happened at": "Ndodhi më",
-        "When it was published or changed.": "Kur u publikua ose u ndryshua."
+        "When it was published or changed.": "Kur u publikua ose u ndryshua.",
+        "Other": "Tjetër",
+        "1 update from %s": "1 përditësim nga %s",
+        "%1$d updates from %2$s": "%1$d përditësime nga %2$s",
+        "1 update from the bodies you follow": "1 përditësim nga organet që ndiqni",
+        "%d updates from the bodies you follow": "%d përditësime nga organet që ndiqni"
     },
     "plurals": null
 }

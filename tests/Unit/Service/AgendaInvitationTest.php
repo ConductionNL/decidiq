@@ -304,7 +304,7 @@ class AgendaInvitationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function testPublishingTheAgendaRecordsOneEvent(): void {
 		$this->service()->publishAgenda(self::MEETING);
@@ -322,7 +322,7 @@ class AgendaInvitationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function testAChangedPublishedAgendaRecordsOneEventWithTheSnapshots(): void {
 		$before = [['id' => 'item-1', 'title' => 'Opening', 'orderNumber' => 1]];

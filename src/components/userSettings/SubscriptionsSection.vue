@@ -8,7 +8,7 @@
  subscriptions, and removes them here. What arrives, and how, follows the
  delivery channels in the notification preferences above.
 
- @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 -->
 <template>
 	<div class="user-settings-section" data-testid="subscriptions-section">
@@ -151,7 +151,7 @@ export default {
 		 * The four kinds a member can follow.
 		 *
 		 * @return {Array<object>} Key and label per kind.
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		kindOptions() {
 			return [
@@ -166,7 +166,7 @@ export default {
 		 * How often a member can hear of it.
 		 *
 		 * @return {Array<object>} Key and label per frequency.
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		frequencyOptions() {
 			return [
@@ -183,7 +183,7 @@ export default {
 		 * Body names by id, for the one-line descriptions.
 		 *
 		 * @return {object} Names by id.
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		bodyNames() {
 			return Object.fromEntries(
@@ -195,7 +195,7 @@ export default {
 		 * Why the form cannot be saved yet, translated.
 		 *
 		 * @return {string} The reason, or empty.
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		validationError() {
 			const reasons = {
@@ -223,7 +223,7 @@ export default {
 		 * Load the member's own subscriptions and the bodies to choose from.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		async load() {
 			this.loading = true
@@ -256,7 +256,7 @@ export default {
 		 *
 		 * @param {object} subscription The subscription.
 		 * @return {string} The line.
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		describe(subscription) {
 			return describeSubscription(subscription, this.bodyNames, this.t)
@@ -267,7 +267,7 @@ export default {
 		 *
 		 * @param {string} kind The kind.
 		 * @param {boolean} on Whether it is on.
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		toggleKind(kind, on) {
 			const kinds = this.form.kinds.filter((k) => k !== kind)
@@ -278,7 +278,7 @@ export default {
 		 * Save the form as a new subscription and reload the list.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		async add() {
 			this.saving = true
@@ -304,7 +304,7 @@ export default {
 		 *
 		 * @param {object} subscription The subscription.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+		 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
 		 */
 		async remove(subscription) {
 			this.saving = true

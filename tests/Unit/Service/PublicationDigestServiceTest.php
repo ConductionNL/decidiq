@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -207,13 +207,7 @@ final class PublicationDigestServiceTest extends TestCase {
 		$urls->method('linkToRouteAbsolute')->willReturn('https://raad.example.nl/apps/decidiq/');
 
 		$l10n = $this->createMock(IL10N::class);
-		$l10n->method('t')->willReturnCallback(static fn(string $text): string => $text);
-		$l10n->method('n')->willReturnCallback(
-			static function (string $singular, string $plural, int $count, array $parameters=[]): string {
-				$text = str_replace('%n', (string)$count, ($count === 1 ? $singular : $plural));
-				return vsprintf($text, $parameters);
-			}
-		);
+		$l10n->method('t')->willReturnCallback(static fn(string $text, array $parameters=[]): string => vsprintf($text, $parameters));
 		$factory = $this->createMock(IFactory::class);
 		$factory->method('get')->willReturn($l10n);
 
@@ -375,7 +369,7 @@ final class PublicationDigestServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-004-residents-subscribe-on-the-portal-and-receive-published-news-only
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-004-residents-subscribe-on-the-portal-and-receive-published-news-only
 	 */
 	public function testAResidentGetsOneInboxNotificationWithThePublishedEventsOnly(): void {
 		$subscription = [

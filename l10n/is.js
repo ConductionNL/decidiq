@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Ein lína um hvað gerðist, t.d.: Dagskrá breytt: lið 4 bætt við.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Hvort íbúar megi frétta af því: aðeins opinberlega birtar dagskrár, ákvarðanir og fundargerðir teljast.",
         "Happened at": "Gerðist",
-        "When it was published or changed.": "Hvenær það var birt eða breytt."
+        "When it was published or changed.": "Hvenær það var birt eða breytt.",
+        "Other": "Annað",
+        "1 update from %s": "1 uppfærsla frá %s",
+        "%1$d updates from %2$s": "%1$d uppfærslur frá %2$s",
+        "1 update from the bodies you follow": "1 uppfærsla frá stofnunum sem þú fylgir",
+        "%d updates from the bodies you follow": "%d uppfærslur frá stofnunum sem þú fylgir"
     },
     "nplurals=2; plural=(n != 1);"
 )

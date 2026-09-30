@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Ne olduğuna dair bir satır, örneğin: Gündem değişti: 4. madde eklendi.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Sakinlerin bundan haberdar olup olamayacağı: yalnızca kamuya yayımlanmış gündemler, kararlar ve tutanaklar sayılır.",
         "Happened at": "Gerçekleşme zamanı",
-        "When it was published or changed.": "Ne zaman yayımlandığı veya değiştirildiği."
+        "When it was published or changed.": "Ne zaman yayımlandığı veya değiştirildiği.",
+        "Other": "Diğer",
+        "1 update from %s": "%s: 1 güncelleme",
+        "%1$d updates from %2$s": "%2$s: %1$d güncelleme",
+        "1 update from the bodies you follow": "Takip ettiğiniz organlardan 1 güncelleme",
+        "%d updates from the bodies you follow": "Takip ettiğiniz organlardan %d güncelleme"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Един ред за случилото се, например: Дневният ред е променен: добавена е точка 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Дали жителите могат да научат за него: броят се само публично публикувани дневни редове, решения и протоколи.",
         "Happened at": "Случило се на",
-        "When it was published or changed.": "Кога е публикувано или променено."
+        "When it was published or changed.": "Кога е публикувано или променено.",
+        "Other": "Друго",
+        "1 update from %s": "1 новост от %s",
+        "%1$d updates from %2$s": "%1$d новости от %2$s",
+        "1 update from the bodies you follow": "1 новост от органите, които следите",
+        "%d updates from the bodies you follow": "%d новости от органите, които следите"
     },
     "plurals": null
 }

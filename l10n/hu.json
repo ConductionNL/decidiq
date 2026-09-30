@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Egy sor a történtekről, például: A napirend módosult: 4. pont hozzáadva.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Értesülhetnek-e róla a lakosok: csak a nyilvánosan közzétett napirendek, döntések és jegyzőkönyvek számítanak.",
         "Happened at": "Történt",
-        "When it was published or changed.": "Mikor tették közzé vagy módosították."
+        "When it was published or changed.": "Mikor tették közzé vagy módosították.",
+        "Other": "Egyéb",
+        "1 update from %s": "1 újdonság: %s",
+        "%1$d updates from %2$s": "%1$d újdonság: %2$s",
+        "1 update from the bodies you follow": "1 újdonság a követett testületektől",
+        "%d updates from the bodies you follow": "%d újdonság a követett testületektől"
     },
     "plurals": null
 }

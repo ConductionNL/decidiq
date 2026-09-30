@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Jedan redak o tome što se dogodilo, npr.: Dnevni red promijenjen: dodana točka 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Smiju li stanovnici saznati za to: računaju se samo javno objavljeni dnevni redovi, odluke i zapisnici.",
         "Happened at": "Dogodilo se",
-        "When it was published or changed.": "Kada je objavljeno ili promijenjeno."
+        "When it was published or changed.": "Kada je objavljeno ili promijenjeno.",
+        "Other": "Ostalo",
+        "1 update from %s": "1 novost od %s",
+        "%1$d updates from %2$s": "%1$d novosti od %2$s",
+        "1 update from the bodies you follow": "1 novost od tijela koja pratite",
+        "%d updates from the bodies you follow": "%d novosti od tijela koja pratite"
     },
     "nplurals=2; plural=(n != 1);"
 )

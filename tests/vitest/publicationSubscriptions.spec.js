@@ -7,7 +7,7 @@
  * often, sees only his own subscriptions and removes them there. The payload
  * the section writes validates against the merged register schema.
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

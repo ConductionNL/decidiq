@@ -621,7 +621,7 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 * his opt-in, so no event toggle stands in its way; the delivery method
 	 * still applies (publication-subscriptions-and-daily-digest).
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 *
 	 * @return void
 	 */

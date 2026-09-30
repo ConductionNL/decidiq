@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Linja waħda dwar x'ġara, bħal: Aġenda mibdula: żdied il-punt 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Jekk ir-residenti jistgħux jisimgħu dwaru: jgħoddu biss aġendi, deċiżjonijiet u minuti ppubblikati pubblikament.",
         "Happened at": "Ġara fi",
-        "When it was published or changed.": "Meta ġie ppubblikat jew mibdul."
+        "When it was published or changed.": "Meta ġie ppubblikat jew mibdul.",
+        "Other": "Oħrajn",
+        "1 update from %s": "Aġġornament wieħed minn %s",
+        "%1$d updates from %2$s": "%1$d aġġornamenti minn %2$s",
+        "1 update from the bodies you follow": "Aġġornament wieħed mill-korpi li ssegwi",
+        "%d updates from the bodies you follow": "%d aġġornamenti mill-korpi li ssegwi"
     },
     "plurals": null
 }

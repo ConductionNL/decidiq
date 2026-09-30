@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -48,7 +48,7 @@ use Throwable;
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The digest reads OpenRegister, the user session and the delivery channel.
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
  */
 class PublicationDigestService {
 
@@ -102,7 +102,7 @@ class PublicationDigestService {
 	 * @param IFactory                      $l10nFactory   Translations of the message
 	 * @param LoggerInterface               $logger        PSR-3 logger
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -123,7 +123,7 @@ class PublicationDigestService {
 	 *
 	 * @return int Messages sent
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	public function run(int $now): int {
 		$events = $this->purgeAndList(now: $now);
@@ -150,7 +150,7 @@ class PublicationDigestService {
 	 *
 	 * @return DateTimeImmutable
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	public static function lastDueMoment(string $frequency, DateTimeImmutable $now): DateTimeImmutable {
 		if ($frequency === 'immediate') {
@@ -181,7 +181,7 @@ class PublicationDigestService {
 	 *
 	 * @return array<int,array<string,mixed>>
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	public static function matching(array $subscription, array $events, int $until): array {
 		$since  = self::time(value: ($subscription['lastSentAt'] ?? null));
@@ -281,7 +281,7 @@ class PublicationDigestService {
 	 *
 	 * @return array<int,array<string,mixed>>
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	private function readableBy(string $uid, array $events): array {
 		$user = $this->userManager->get($uid);
@@ -377,7 +377,7 @@ class PublicationDigestService {
 	 *
 	 * @return array{0: string, 1: string}
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	private function compose(array $events, bool $withLinks): array {
 		$l10n   = $this->l10nFactory->get('decidiq');
@@ -414,9 +414,22 @@ class PublicationDigestService {
 		}
 
 		$count = count($events);
-		$title = $l10n->n('%n update from the bodies you follow', '%n updates from the bodies you follow', $count);
-		if (count($bodyNames) === 1 && reset($bodyNames) !== '') {
-			$title = $l10n->n('%n update from %s', '%n updates from %s', $count, [reset($bodyNames)]);
+		// Plain t() per count: the catalogues carry no plural forms.
+		$body = '';
+		if (count($bodyNames) === 1) {
+			$body = (string)reset($bodyNames);
+		}
+
+		$title = $l10n->t('%d updates from the bodies you follow', [$count]);
+		if ($count === 1) {
+			$title = $l10n->t('1 update from the bodies you follow');
+		}
+
+		if ($body !== '') {
+			$title = $l10n->t('%1$d updates from %2$s', [$count, $body]);
+			if ($count === 1) {
+				$title = $l10n->t('1 update from %s', [$body]);
+			}
 		}
 
 		return [$title, rtrim(implode("\n", $lines))];

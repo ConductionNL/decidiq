@@ -20,7 +20,7 @@ const OBJECTS = '/apps/openregister/api/objects/decidiq'
  *
  * @param {string} uid The member's account.
  * @return {string} The URL.
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function listUrl(uid) {
 	return generateUrl(
@@ -33,7 +33,7 @@ export function listUrl(uid) {
  *
  * @param {string} [id] The subscription.
  * @return {string} The URL.
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function subscriptionUrl(id = '') {
 	const tail = id ? `/${encodeURIComponent(id)}` : ''
@@ -44,7 +44,7 @@ export function subscriptionUrl(id = '') {
  * The OpenRegister list URL of the governance bodies to choose from.
  *
  * @return {string} The URL.
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function bodiesUrl() {
 	return generateUrl(`${OBJECTS}/governance-body?_limit=200`)
@@ -55,7 +55,7 @@ export function bodiesUrl() {
  *
  * @param {object} form The form: kinds and frequency.
  * @return {string} The reason, in English (translated by the caller).
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function validateSubscription(form) {
 	if (!Array.isArray(form?.kinds) || form.kinds.length === 0) {
@@ -73,7 +73,7 @@ export function validateSubscription(form) {
  * @param {string} uid The member's account.
  * @param {object} form The form: bodies (options with an id), kinds and frequency.
  * @return {object} The PublicationSubscription.
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function buildSubscription(uid, form) {
 	return {
@@ -91,7 +91,7 @@ export function buildSubscription(uid, form) {
  * @param {Array<object>} rows Subscriptions from the list call.
  * @param {string} uid The member's account.
  * @return {Array<object>} His active ones.
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function ownSubscriptions(rows, uid) {
 	return (rows ?? []).filter(
@@ -106,7 +106,7 @@ export function ownSubscriptions(rows, uid) {
  * @param {object} bodyNames Body names by id.
  * @param {Function} t The translate function.
  * @return {string} The line.
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
  */
 export function describeSubscription(subscription, bodyNames, t) {
 	const kindLabels = {

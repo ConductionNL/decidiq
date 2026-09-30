@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Yksi rivi tapahtuneesta, esimerkiksi: Esityslista muuttui: kohta 4 lisätty.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Saavatko asukkaat kuulla siitä: vain julkisesti julkaistut esityslistat, päätökset ja pöytäkirjat lasketaan.",
         "Happened at": "Tapahtui",
-        "When it was published or changed.": "Milloin se julkaistiin tai muuttui."
+        "When it was published or changed.": "Milloin se julkaistiin tai muuttui.",
+        "Other": "Muu",
+        "1 update from %s": "1 päivitys: %s",
+        "%1$d updates from %2$s": "%1$d päivitystä: %2$s",
+        "1 update from the bodies you follow": "1 päivitys seuraamiltasi toimielimiltä",
+        "%d updates from the bodies you follow": "%d päivitystä seuraamiltasi toimielimiltä"
     },
     "nplurals=2; plural=(n != 1);"
 )

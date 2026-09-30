@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -38,7 +38,7 @@ use Throwable;
 /**
  * Writes PublicationEvent objects, fail-soft: recording never breaks the flow that called it.
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
  */
 class PublicationEventRecorder {
 
@@ -59,7 +59,7 @@ class PublicationEventRecorder {
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 * @param LoggerInterface        $logger        PSR-3 logger
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -79,7 +79,7 @@ class PublicationEventRecorder {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function agendaPublished(string $meetingId, array $meeting, bool $revised): void {
 		$summary = 'Agenda published';
@@ -111,7 +111,7 @@ class PublicationEventRecorder {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function agendaChanged(string $meetingId, array $meeting, array $before, array $after): void {
 		$this->record(
@@ -138,7 +138,7 @@ class PublicationEventRecorder {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function published(string $sourceType, string $sourceId, array $source, ?string $bodyId): void {
 		if (isset(self::SOURCE_SCHEMAS[$sourceType]) === false) {
@@ -183,7 +183,7 @@ class PublicationEventRecorder {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public function paperAdded(string $schema, string $objectId, string $fileName): void {
 		try {
@@ -228,7 +228,7 @@ class PublicationEventRecorder {
 	 *
 	 * @return string Such as "Agenda changed: item 4 added"
 	 *
-	 * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
 	public static function changeSummary(array $before, array $after): string {
 		$beforeIds = array_column(self::inAgendaOrder(items: $before), null, 'id');

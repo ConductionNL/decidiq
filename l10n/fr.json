@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Une ligne sur ce qui s'est passé, par exemple : Ordre du jour modifié : point 4 ajouté.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Si les habitants peuvent en être informés : seuls les ordres du jour, décisions et procès-verbaux publiés publiquement comptent.",
         "Happened at": "Survenu le",
-        "When it was published or changed.": "Quand il a été publié ou modifié."
+        "When it was published or changed.": "Quand il a été publié ou modifié.",
+        "Other": "Autre",
+        "1 update from %s": "1 nouveauté de %s",
+        "%1$d updates from %2$s": "%1$d nouveautés de %2$s",
+        "1 update from the bodies you follow": "1 nouveauté des organes que vous suivez",
+        "%d updates from the bodies you follow": "%d nouveautés des organes que vous suivez"
     },
     "plurals": null
 }

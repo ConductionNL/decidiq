@@ -35,7 +35,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Service\PublicationEventRecorder
  * @uses   \OCA\Decidiq\Service\SettingsService
  *
- * @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+ * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
  */
 final class PublicationEventRecorderTest extends TestCase {
 

@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Un rând despre ce s-a întâmplat, de exemplu: Ordinea de zi modificată: punctul 4 adăugat.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Dacă locuitorii pot afla: contează doar ordinile de zi, deciziile și procesele-verbale publicate public.",
         "Happened at": "S-a întâmplat la",
-        "When it was published or changed.": "Când a fost publicat sau modificat."
+        "When it was published or changed.": "Când a fost publicat sau modificat.",
+        "Other": "Altele",
+        "1 update from %s": "1 noutate de la %s",
+        "%1$d updates from %2$s": "%1$d noutăți de la %2$s",
+        "1 update from the bodies you follow": "1 noutate de la organele pe care le urmăriți",
+        "%d updates from the bodies you follow": "%d noutăți de la organele pe care le urmăriți"
     },
     "nplurals=2; plural=(n != 1);"
 )

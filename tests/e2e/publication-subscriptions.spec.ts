@@ -10,7 +10,7 @@
  * settings page yet, the spec skips instead of failing, like the other
  * settings suites.
  *
- * @e2e openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#a-member-follows-two-committees
+ * @e2e openspec/specs/public-publication/spec.md#a-member-follows-two-committees
  */
 import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'

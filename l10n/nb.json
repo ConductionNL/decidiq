@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Én linje om hva som skjedde, for eksempel: Saksliste endret: sak 4 lagt til.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Om innbyggere får høre om det: bare offentlig publiserte sakslister, vedtak og protokoller teller.",
         "Happened at": "Skjedde",
-        "When it was published or changed.": "Når det ble publisert eller endret."
+        "When it was published or changed.": "Når det ble publisert eller endret.",
+        "Other": "Annet",
+        "1 update from %s": "1 oppdatering fra %s",
+        "%1$d updates from %2$s": "%1$d oppdateringer fra %2$s",
+        "1 update from the bodies you follow": "1 oppdatering fra organene du følger",
+        "%d updates from the bodies you follow": "%d oppdateringer fra organene du følger"
     },
     "plurals": null
 }

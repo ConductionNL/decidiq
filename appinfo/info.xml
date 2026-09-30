@@ -149,7 +149,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <!-- publication-subscriptions-and-daily-digest: every fifteen minutes,
              sends subscribers the agendas, papers, decisions and minutes that
              match their subscription, straight away, daily or weekly.
-             @spec openspec/changes/publication-subscriptions-and-daily-digest/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly -->
+             @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly -->
         <job>OCA\Decidiq\BackgroundJob\PublicationDigestJob</job>
     </background-jobs>
 

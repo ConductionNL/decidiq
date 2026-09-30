@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Líne amháin faoin méid a tharla, mar shampla: Athraíodh an clár oibre: cuireadh mír 4 leis.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Cibé an féidir le cónaitheoirí cloisteáil faoi: ní áirítear ach cláir oibre, cinntí agus miontuairiscí a foilsíodh go poiblí.",
         "Happened at": "Tharla ag",
-        "When it was published or changed.": "Cathain a foilsíodh nó a athraíodh é."
+        "When it was published or changed.": "Cathain a foilsíodh nó a athraíodh é.",
+        "Other": "Eile",
+        "1 update from %s": "1 nuashonrú ó %s",
+        "%1$d updates from %2$s": "%1$d nuashonrú ó %2$s",
+        "1 update from the bodies you follow": "1 nuashonrú ó na comhlachtaí a leanann tú",
+        "%d updates from the bodies you follow": "%d nuashonrú ó na comhlachtaí a leanann tú"
     },
     "plurals": null
 }

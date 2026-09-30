@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Eine Zeile dazu, was geschah, etwa: Tagesordnung geändert: Punkt 4 hinzugefügt.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Ob Einwohner davon erfahren dürfen: nur öffentlich veröffentlichte Tagesordnungen, Beschlüsse und Protokolle zählen.",
         "Happened at": "Geschehen am",
-        "When it was published or changed.": "Wann es veröffentlicht oder geändert wurde."
+        "When it was published or changed.": "Wann es veröffentlicht oder geändert wurde.",
+        "Other": "Sonstiges",
+        "1 update from %s": "1 Neuigkeit von %s",
+        "%1$d updates from %2$s": "%1$d Neuigkeiten von %2$s",
+        "1 update from the bodies you follow": "1 Neuigkeit von den Gremien, denen Sie folgen",
+        "%d updates from the bodies you follow": "%d Neuigkeiten von den Gremien, denen Sie folgen"
     },
     "plurals": null
 }

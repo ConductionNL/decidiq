@@ -1547,7 +1547,12 @@
         "One line on what happened, such as: Agenda changed: item 4 added.": "Μία γραμμή για το τι συνέβη, π.χ.: Η ημερήσια διάταξη άλλαξε: προστέθηκε το θέμα 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Αν οι κάτοικοι μπορούν να το μάθουν: μετρούν μόνο δημόσια δημοσιευμένες διατάξεις, αποφάσεις και πρακτικά.",
         "Happened at": "Συνέβη στις",
-        "When it was published or changed.": "Πότε δημοσιεύτηκε ή άλλαξε."
+        "When it was published or changed.": "Πότε δημοσιεύτηκε ή άλλαξε.",
+        "Other": "Άλλο",
+        "1 update from %s": "1 ενημέρωση από %s",
+        "%1$d updates from %2$s": "%1$d ενημερώσεις από %2$s",
+        "1 update from the bodies you follow": "1 ενημέρωση από τα όργανα που ακολουθείτε",
+        "%d updates from the bodies you follow": "%d ενημερώσεις από τα όργανα που ακολουθείτε"
     },
     "plurals": null
 }

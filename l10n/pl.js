@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Jedna linia o tym, co się stało, np.: Zmieniono porządek obrad: dodano punkt 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Czy mieszkańcy mogą się o tym dowiedzieć: liczą się tylko publicznie opublikowane porządki obrad, decyzje i protokoły.",
         "Happened at": "Wystąpiło",
-        "When it was published or changed.": "Kiedy zostało opublikowane lub zmienione."
+        "When it was published or changed.": "Kiedy zostało opublikowane lub zmienione.",
+        "Other": "Inne",
+        "1 update from %s": "1 aktualizacja od %s",
+        "%1$d updates from %2$s": "%1$d aktualizacji od %2$s",
+        "1 update from the bodies you follow": "1 aktualizacja od obserwowanych organów",
+        "%d updates from the bodies you follow": "%d aktualizacji od obserwowanych organów"
     },
     "nplurals=2; plural=(n != 1);"
 )

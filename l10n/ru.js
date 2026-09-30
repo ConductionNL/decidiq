@@ -1548,7 +1548,12 @@ OC.L10N.register(
         "One line on what happened, such as: Agenda changed: item 4 added.": "Одна строка о том, что произошло, например: Повестка изменена: добавлен пункт 4.",
         "Whether residents may hear of it: only publicly published agendas, decisions and minutes count.": "Могут ли жители узнать об этом: учитываются только публично опубликованные повестки, решения и протоколы.",
         "Happened at": "Произошло",
-        "When it was published or changed.": "Когда было опубликовано или изменено."
+        "When it was published or changed.": "Когда было опубликовано или изменено.",
+        "Other": "Другое",
+        "1 update from %s": "1 обновление от %s",
+        "%1$d updates from %2$s": "%1$d обновлений от %2$s",
+        "1 update from the bodies you follow": "1 обновление от органов, за которыми вы следите",
+        "%d updates from the bodies you follow": "%d обновлений от органов, за которыми вы следите"
     },
     "nplurals=2; plural=(n != 1);"
 )
