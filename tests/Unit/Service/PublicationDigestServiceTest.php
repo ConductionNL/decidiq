@@ -24,6 +24,8 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\PublicationDigestComposer;
+use OCA\Decidiq\Service\PublicationDigestSchedule;
 use OCA\Decidiq\Service\PublicationDigestService;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -43,6 +45,8 @@ use Psr\Log\NullLogger;
  * A fixed clock throughout: Wednesday 14 October 2026 in Amsterdam.
  *
  * @covers \OCA\Decidiq\Service\PublicationDigestService
+ * @covers \OCA\Decidiq\Service\PublicationDigestComposer
+ * @covers \OCA\Decidiq\Service\PublicationDigestSchedule
  */
 final class PublicationDigestServiceTest extends TestCase {
 
@@ -217,8 +221,8 @@ final class PublicationDigestServiceTest extends TestCase {
 			userManager: $users,
 			userSession: $session,
 			config: $config,
-			urlGenerator: $urls,
-			l10nFactory: $factory,
+			composer: new PublicationDigestComposer(objectService: $objects, urlGenerator: $urls, l10nFactory: $factory),
+			schedule: new PublicationDigestSchedule(),
 			logger: new NullLogger(),
 		);
 	}//end service()
@@ -340,11 +344,11 @@ final class PublicationDigestServiceTest extends TestCase {
 	 */
 	public function testTheWeeklyMomentIsMondaySeven(): void {
 		$now = new DateTimeImmutable('2026-10-14 09:00', new DateTimeZone('Europe/Amsterdam'));
-		$this->assertSame('2026-10-12 07:00', PublicationDigestService::lastDueMoment(frequency: 'weekly', now: $now)->format('Y-m-d H:i'));
-		$this->assertSame('2026-10-14 07:00', PublicationDigestService::lastDueMoment(frequency: 'daily', now: $now)->format('Y-m-d H:i'));
+		$this->assertSame('2026-10-12 07:00', (new PublicationDigestSchedule())->lastDueMoment(frequency: 'weekly', now: $now)->format('Y-m-d H:i'));
+		$this->assertSame('2026-10-14 07:00', (new PublicationDigestSchedule())->lastDueMoment(frequency: 'daily', now: $now)->format('Y-m-d H:i'));
 
 		$early = new DateTimeImmutable('2026-10-12 06:00', new DateTimeZone('Europe/Amsterdam'));
-		$this->assertSame('2026-10-05 07:00', PublicationDigestService::lastDueMoment(frequency: 'weekly', now: $early)->format('Y-m-d H:i'));
+		$this->assertSame('2026-10-05 07:00', (new PublicationDigestSchedule())->lastDueMoment(frequency: 'weekly', now: $early)->format('Y-m-d H:i'));
 	}//end testTheWeeklyMomentIsMondaySeven()
 
 	/**

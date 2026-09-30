@@ -104,16 +104,24 @@ class PublicationEventRecorder {
 	/**
 	 * The agenda of a published meeting changed.
 	 *
-	 * @param string                        $meetingId The meeting
-	 * @param array<string,mixed>           $meeting   The meeting as read before the save
-	 * @param array<int,array<string,mixed>> $before    The item snapshot of the last agenda version
-	 * @param array<int,array<string,mixed>> $after     The item snapshot of the new agenda version
+	 * The summary compares the item snapshot of the new agenda version with the one before it.
+	 *
+	 * @param string                         $meetingId The meeting
+	 * @param array<string,mixed>            $meeting   The meeting as read before the save
+	 * @param array<int,array<string,mixed>> $versions  The agenda versions, the new one last
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
 	 */
-	public function agendaChanged(string $meetingId, array $meeting, array $before, array $after): void {
+	public function agendaChanged(string $meetingId, array $meeting, array $versions): void {
+		$versions = array_values($versions);
+		$after    = (array)(end($versions)['items'] ?? []);
+		$before   = [];
+		if (count($versions) > 1) {
+			$before = (array)($versions[(count($versions) - 2)]['items'] ?? []);
+		}
+
 		$this->record(
 			event: [
 				'kind'           => 'agenda',
@@ -198,7 +206,10 @@ class PublicationEventRecorder {
 				$meeting = $this->read(schema: 'meeting', id: $meetingId);
 			}
 		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: no publication event for a paper, its meeting could not be read', ['objectId' => $objectId, 'error' => $e->getMessage()]);
+			$this->logger->warning(
+				'Decidiq: no publication event for a paper, its meeting could not be read',
+				['objectId' => $objectId, 'error' => $e->getMessage()]
+			);
 			return;
 		}
 

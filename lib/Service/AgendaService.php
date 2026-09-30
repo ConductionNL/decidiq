@@ -552,15 +552,7 @@ class AgendaService {
 		);
 		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: 'agenda_changed', recipients: $due);
 
-		// Subscribers hear what changed: the item snapshot of the last version against the new one.
-		$versions = $versioned['agendaVersions'];
-		$after    = (array)(end($versions)['items'] ?? []);
-		$before   = [];
-		if (count($versions) > 1) {
-			$before = (array)($versions[(count($versions) - 2)]['items'] ?? []);
-		}
-
-		$this->eventRecorder->agendaChanged(meetingId: $meetingId, meeting: $meetingData, before: $before, after: $after);
+		$this->eventRecorder->agendaChanged(meetingId: $meetingId, meeting: $meetingData, versions: $versioned['agendaVersions']);
 
 	}//end notifyAgendaChanged()
 

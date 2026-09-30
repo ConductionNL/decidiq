@@ -336,11 +336,13 @@ class AgendaInvitationTest extends TestCase {
 
 		self::assertCount(1, $this->recorded);
 		self::assertSame('agendaChanged', $this->recorded[0][0]);
-		self::assertSame($before, $this->recorded[0][1][2]);
-		self::assertCount(5, $this->recorded[0][1][3], 'The new snapshot holds the five current items');
+		$versions = $this->recorded[0][1][2];
+		self::assertCount(2, $versions, 'The earlier version and the new one');
+		self::assertSame($before, $versions[0]['items']);
+		self::assertCount(5, $versions[1]['items'], 'The new snapshot holds the five current items');
 		self::assertSame(
 			'Agenda changed: item 2 added, item 3 added, item 4 added, item 5 added',
-			PublicationEventRecorder::changeSummary(before: $this->recorded[0][1][2], after: $this->recorded[0][1][3])
+			PublicationEventRecorder::changeSummary(before: $versions[0]['items'], after: $versions[1]['items'])
 		);
 
 	}//end testAChangedPublishedAgendaRecordsOneEventWithTheSnapshots()

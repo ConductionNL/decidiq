@@ -71,6 +71,8 @@ class PublicationDigestJob extends TimedJob {
 	 *
 	 * @param mixed $argument Unused
 	 *
+	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the TimedJob signature
+	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly

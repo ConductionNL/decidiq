@@ -106,7 +106,7 @@ final class PublicationEventRecorderTest extends TestCase {
 		$before = [['id' => 'a', 'title' => 'Opening', 'orderNumber' => 1]];
 		$after  = [...$before, ['id' => 'b', 'title' => 'Motie vreemd aan de orde', 'orderNumber' => 4]];
 
-		$this->recorder(meeting: $this->meeting())->agendaChanged(meetingId: self::MEETING, meeting: $this->meeting(), before: $before, after: $after);
+		$this->recorder(meeting: $this->meeting())->agendaChanged(meetingId: self::MEETING, meeting: $this->meeting(), versions: [['version' => 1, 'items' => $before], ['version' => 2, 'items' => $after]]);
 
 		$this->assertCount(1, $this->saved);
 		$this->assertSame('agenda', $this->saved[0]['kind']);

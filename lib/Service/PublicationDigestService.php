@@ -34,12 +34,9 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\Decidiq\AppInfo\Application;
 use OCP\IConfig;
-use OCP\IURLGenerator;
 use OCP\IUserManager;
 use OCP\IUserSession;
-use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -60,35 +57,11 @@ class PublicationDigestService {
 	public const EVENT_TYPE = 'publicationDigest';
 
 	/**
-	 * An immediate subscriber waits this long, so an editing session arrives as one message.
-	 *
-	 * @var int
-	 */
-	public const IMMEDIATE_WAIT_SECONDS = 900;
-
-	/**
 	 * Events older than this are removed.
 	 *
 	 * @var int
 	 */
 	public const RETENTION_DAYS = 90;
-
-	/**
-	 * The hour daily and weekly digests go out.
-	 *
-	 * @var int
-	 */
-	private const DIGEST_HOUR = 7;
-
-	/**
-	 * The app-relative page per object type, for the links in a member's message.
-	 *
-	 * @var array<string, string>
-	 */
-	private const PAGES = [
-		'meeting'  => 'meetings',
-		'decision' => 'decisions',
-	];
 
 	/**
 	 * Construct the digest service.
@@ -98,8 +71,8 @@ class PublicationDigestService {
 	 * @param IUserManager                  $userManager   Looks up the member for the read check
 	 * @param IUserSession                  $userSession   Runs the read check as the member
 	 * @param IConfig                       $config        The instance time zone
-	 * @param IURLGenerator                 $urlGenerator  Absolute links in a member's message
-	 * @param IFactory                      $l10nFactory   Translations of the message
+	 * @param PublicationDigestComposer     $composer      Writes the title and message
+	 * @param PublicationDigestSchedule     $schedule      When a subscription is due and what it hears of
 	 * @param LoggerInterface               $logger        PSR-3 logger
 	 *
 	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
@@ -110,8 +83,8 @@ class PublicationDigestService {
 		private readonly IUserManager $userManager,
 		private readonly IUserSession $userSession,
 		private readonly IConfig $config,
-		private readonly IURLGenerator $urlGenerator,
-		private readonly IFactory $l10nFactory,
+		private readonly PublicationDigestComposer $composer,
+		private readonly PublicationDigestSchedule $schedule,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -133,83 +106,15 @@ class PublicationDigestService {
 			try {
 				$sent += $this->sendOne(subscription: $subscription, events: $events, now: $now);
 			} catch (Throwable $e) {
-				$this->logger->warning('Decidiq: publication digest failed for a subscription', ['subscription' => ($subscription['id'] ?? ''), 'error' => $e->getMessage()]);
+				$this->logger->warning(
+					'Decidiq: publication digest failed for a subscription',
+					['subscription' => ($subscription['id'] ?? ''), 'error' => $e->getMessage()]
+				);
 			}
 		}
 
 		return $sent;
 	}//end run()
-
-	/**
-	 * The last moment a subscription with this frequency was due, at or before now.
-	 *
-	 * Immediate is always due; daily is due from 07:00; weekly from Monday 07:00.
-	 *
-	 * @param string            $frequency immediate, daily or weekly
-	 * @param DateTimeImmutable $now       The run, in the instance time zone
-	 *
-	 * @return DateTimeImmutable
-	 *
-	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
-	 */
-	public static function lastDueMoment(string $frequency, DateTimeImmutable $now): DateTimeImmutable {
-		if ($frequency === 'immediate') {
-			return $now;
-		}
-
-		$moment = $now;
-		if ($frequency === 'weekly') {
-			// modify() with a day name resets the time, so the hour is set after it.
-			$moment = $moment->modify('monday this week');
-		}
-
-		$moment = $moment->setTime(self::DIGEST_HOUR, 0);
-
-		if ($moment > $now) {
-			$moment = $moment->modify('-1 ' . ($frequency === 'weekly' ? 'week' : 'day'));
-		}
-
-		return $moment;
-	}//end lastDueMoment()
-
-	/**
-	 * The events of one subscription since its last message, up to a moment.
-	 *
-	 * @param array<string,mixed>            $subscription The subscription
-	 * @param array<int,array<string,mixed>> $events       All retained events
-	 * @param int                            $until        Unix time; later events wait for the next run
-	 *
-	 * @return array<int,array<string,mixed>>
-	 *
-	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
-	 */
-	public static function matching(array $subscription, array $events, int $until): array {
-		$since  = self::time(value: ($subscription['lastSentAt'] ?? null));
-		$kinds  = (array)($subscription['kinds'] ?? []);
-		$bodies = (array)($subscription['governanceBodies'] ?? []);
-
-		$matched = [];
-		foreach ($events as $event) {
-			$at = self::time(value: ($event['occurredAt'] ?? null));
-			if ($at === null || $at > $until || ($since !== null && $at <= $since)) {
-				continue;
-			}
-
-			if (in_array(($event['kind'] ?? ''), $kinds, true) === false) {
-				continue;
-			}
-
-			if ($bodies !== [] && in_array(($event['governanceBody'] ?? ''), $bodies, true) === false) {
-				continue;
-			}
-
-			$matched[] = $event;
-		}
-
-		usort($matched, static fn(array $a, array $b): int => strcmp((string)$a['occurredAt'], (string)$b['occurredAt']));
-
-		return $matched;
-	}//end matching()
 
 	/**
 	 * Send one subscription its digest, if it is due and has news.
@@ -221,21 +126,15 @@ class PublicationDigestService {
 	 * @return int 1 when a message went out
 	 */
 	private function sendOne(array $subscription, array $events, int $now): int {
-		$frequency = (string)($subscription['frequency'] ?? 'daily');
-		$local     = (new DateTimeImmutable('@' . $now))->setTimezone($this->timeZone());
-		$due       = self::lastDueMoment(frequency: $frequency, now: $local)->getTimestamp();
-
-		$last = self::time(value: ($subscription['lastSentAt'] ?? null));
-		if ($frequency !== 'immediate' && $last !== null && $last >= $due) {
+		$until = $this->schedule->coversUntil(
+			subscription: $subscription,
+			now: (new DateTimeImmutable('@' . $now))->setTimezone($this->timeZone())
+		);
+		if ($until === null) {
 			return 0;
 		}
 
-		$until = $due;
-		if ($frequency === 'immediate') {
-			$until = ($now - self::IMMEDIATE_WAIT_SECONDS);
-		}
-
-		$matched = self::matching(subscription: $subscription, events: $events, until: $until);
+		$matched = $this->schedule->matching(subscription: $subscription, events: $events, until: $until);
 		if ($matched === []) {
 			return 0;
 		}
@@ -250,7 +149,7 @@ class PublicationDigestService {
 			$sent      = $this->sendToResident(subjectRef: $resident, events: $published, now: $now);
 		}
 
-		$this->stamp(subscription: $subscription, at: $until);
+		$this->stamp(subscription: $subscription, moment: $until);
 
 		return $sent;
 	}//end sendOne()
@@ -329,7 +228,7 @@ class PublicationDigestService {
 			return 0;
 		}
 
-		[$title, $message] = $this->compose(events: $events, withLinks: true);
+		[$title, $message] = $this->composer->compose(events: $events, withLinks: true);
 		$this->preferences->dispatch(personId: $uid, eventType: self::EVENT_TYPE, title: $title, message: $message);
 
 		return 1;
@@ -349,7 +248,7 @@ class PublicationDigestService {
 			return 0;
 		}
 
-		[$title, $message] = $this->compose(events: $events, withLinks: false);
+		[$title, $message] = $this->composer->compose(events: $events, withLinks: false);
 		$this->objectService->saveObject(
 			object: [
 				'recipientId' => $subjectRef,
@@ -368,117 +267,6 @@ class PublicationDigestService {
 
 		return 1;
 	}//end sendToResident()
-
-	/**
-	 * The title and the message, events grouped per body and meeting.
-	 *
-	 * @param array<int,array<string,mixed>> $events    The events, oldest first
-	 * @param bool                           $withLinks Whether to add a link to each meeting or decision
-	 *
-	 * @return array{0: string, 1: string}
-	 *
-	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
-	 */
-	private function compose(array $events, bool $withLinks): array {
-		$l10n   = $this->l10nFactory->get('decidiq');
-		$groups = [];
-		foreach ($events as $event) {
-			$body  = (string)($event['governanceBody'] ?? '');
-			$group = (string)($event['meeting'] ?? '');
-			if ($group === '') {
-				$group = (string)$event['objectId'];
-			}
-
-			$groups[$body][$group]['title']   = (string)($event['title'] ?? '');
-			$groups[$body][$group]['link']    = $this->link(event: $event);
-			$groups[$body][$group]['lines'][] = (string)($event['summary'] ?? '');
-		}
-
-		$bodyNames = [];
-		$lines     = [];
-		foreach ($groups as $body => $meetings) {
-			$bodyNames[$body] = $this->bodyName(id: (string)$body);
-			$lines[]          = ($bodyNames[$body] !== '' ? $bodyNames[$body] : $l10n->t('Other'));
-			foreach ($meetings as $meeting) {
-				$lines[] = '  ' . $meeting['title'];
-				foreach ($meeting['lines'] as $line) {
-					$lines[] = '  - ' . $line;
-				}
-
-				if ($withLinks === true && $meeting['link'] !== '') {
-					$lines[] = '  ' . $meeting['link'];
-				}
-			}
-
-			$lines[] = '';
-		}
-
-		$count = count($events);
-		// Plain t() per count: the catalogues carry no plural forms.
-		$body = '';
-		if (count($bodyNames) === 1) {
-			$body = (string)reset($bodyNames);
-		}
-
-		$title = $l10n->t('%d updates from the bodies you follow', [$count]);
-		if ($count === 1) {
-			$title = $l10n->t('1 update from the bodies you follow');
-		}
-
-		if ($body !== '') {
-			$title = $l10n->t('%1$d updates from %2$s', [$count, $body]);
-			if ($count === 1) {
-				$title = $l10n->t('1 update from %s', [$body]);
-			}
-		}
-
-		return [$title, rtrim(implode("\n", $lines))];
-	}//end compose()
-
-	/**
-	 * The absolute link to the meeting or decision of an event, or ''.
-	 *
-	 * @param array<string,mixed> $event The event
-	 *
-	 * @return string
-	 */
-	private function link(array $event): string {
-		$meeting = (string)($event['meeting'] ?? '');
-		$path    = '';
-		if ($meeting !== '') {
-			$path = self::PAGES['meeting'] . '/' . $meeting;
-		} else if (isset(self::PAGES[(string)$event['objectType']]) === true) {
-			$path = self::PAGES[(string)$event['objectType']] . '/' . (string)$event['objectId'];
-		}
-
-		if ($path === '') {
-			return '';
-		}
-
-		$base = $this->urlGenerator->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page');
-		return rtrim($base, '/') . '/' . $path;
-	}//end link()
-
-	/**
-	 * A body's name, or '' when it cannot be read.
-	 *
-	 * @param string $id The body
-	 *
-	 * @return string
-	 */
-	private function bodyName(string $id): string {
-		if ($id === '') {
-			return '';
-		}
-
-		try {
-			$found = $this->objectService->find(id: $id, register: 'decidiq', schema: 'governance-body', _rbac: false, _multitenancy: false);
-		} catch (Throwable) {
-			return '';
-		}
-
-		return (string)($found?->getObject()['name'] ?? '');
-	}//end bodyName()
 
 	/**
 	 * Every active subscription, in system context.
@@ -518,9 +306,15 @@ class PublicationDigestService {
 		$kept   = [];
 		foreach ($rows as $row) {
 			$event = self::plain(row: $row);
-			$at    = self::time(value: ($event['occurredAt'] ?? null));
-			if ($at !== null && $at < $cutoff && ($event['id'] ?? '') !== '') {
-				$this->objectService->deleteObject(uuid: (string)$event['id'], register: 'decidiq', schema: 'publication-event', _rbac: false, _multitenancy: false);
+			$moment    = $this->schedule->time(value: ($event['occurredAt'] ?? null));
+			if ($moment !== null && $moment < $cutoff && ($event['id'] ?? '') !== '') {
+				$this->objectService->deleteObject(
+					uuid: (string)$event['id'],
+					register: 'decidiq',
+					schema: 'publication-event',
+					_rbac: false,
+					_multitenancy: false
+				);
 				continue;
 			}
 
@@ -534,15 +328,15 @@ class PublicationDigestService {
 	 * Record when the subscriber last got a message.
 	 *
 	 * @param array<string,mixed> $subscription The subscription
-	 * @param int                 $at           Unix time the message covers up to
+	 * @param int                 $moment       Unix time the message covers up to
 	 *
 	 * @return void
 	 */
-	private function stamp(array $subscription, int $at): void {
+	private function stamp(array $subscription, int $moment): void {
 		$id   = (string)($subscription['id'] ?? '');
 		$data = $subscription;
 		unset($data['@self'], $data['id'], $data['_owner']);
-		$data['lastSentAt'] = (new DateTimeImmutable('@' . $at))->setTimezone($this->timeZone())->format(DateTimeInterface::ATOM);
+		$data['lastSentAt'] = (new DateTimeImmutable('@' . $moment))->setTimezone($this->timeZone())->format(DateTimeInterface::ATOM);
 
 		$this->objectService->saveObject(
 			object: $data,
@@ -596,23 +390,4 @@ class PublicationDigestService {
 		return $data;
 	}//end plain()
 
-	/**
-	 * A stored date-time as Unix time, or null.
-	 *
-	 * @param mixed $value The stored value
-	 *
-	 * @return int|null
-	 */
-	private static function time(mixed $value): ?int {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		$time = strtotime($value);
-		if ($time === false) {
-			return null;
-		}
-
-		return $time;
-	}//end time()
 }//end class

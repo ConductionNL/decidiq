@@ -116,41 +116,76 @@ class OfficePaperAddedListener implements IEventListener {
 			return;
 		}
 
-		$isOffice    = self::isOfficeName(name: $node->getName());
-		$converts    = ($isOffice === true && self::isSwitchedOn(value: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, 'true')) === true);
-		$isNewPaper  = ($event instanceof NodeCreatedEvent);
+		$converts = $this->converts(node: $node);
 		// A converted Office paper is reported once, through the PDF the conversion creates.
-		$reportPaper = ($isNewPaper === true && $converts === false);
+		$reportPaper = ($event instanceof NodeCreatedEvent && $converts === false);
 		if ($converts === false && $reportPaper === false) {
 			return;
 		}
 
-		try {
-			$folderName = $node->getParent()->getName();
-		} catch (\Throwable) {
-			return;
-		}
-
-		if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $folderName) !== 1) {
-			return;
-		}
-
-		$schema = $this->ownerSchema(uuid: $folderName);
-		if ($schema === null) {
+		$owner = $this->paperOwner(node: $node);
+		if ($owner === null) {
 			return;
 		}
 
 		if ($reportPaper === true) {
-			$this->eventRecorder->paperAdded(schema: $schema, objectId: $folderName, fileName: $node->getName());
+			$this->eventRecorder->paperAdded(schema: $owner['schema'], objectId: $owner['objectId'], fileName: $node->getName());
+			return;
 		}
 
-		if ($converts === true) {
-			$this->jobList->add(
-				ConvertPaperToPdfJob::class,
-				['fileId' => (int)$node->getId(), 'objectId' => $folderName, 'schema' => $schema]
-			);
-		}
+		$this->jobList->add(
+			ConvertPaperToPdfJob::class,
+			['fileId' => (int)$node->getId(), 'objectId' => $owner['objectId'], 'schema' => $owner['schema']]
+		);
 	}//end handle()
+
+	/**
+	 * Whether a file is an Office paper that is converted, with conversion switched on.
+	 *
+	 * @param File $node The file
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+	 */
+	private function converts(File $node): bool {
+		if (self::isOfficeName(name: $node->getName()) === false) {
+			return false;
+		}
+
+		return self::isSwitchedOn(value: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, 'true'));
+	}//end converts()
+
+	/**
+	 * The meeting or agenda item whose folder holds a file, or null.
+	 *
+	 * OpenRegister names an object's folder after its uuid; a uuid folder no
+	 * meeting or agenda item owns is left alone.
+	 *
+	 * @param File $node The file
+	 *
+	 * @return array{objectId: string, schema: string}|null
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
+	 */
+	private function paperOwner(File $node): ?array {
+		try {
+			$folderName = $node->getParent()->getName();
+		} catch (\Throwable) {
+			return null;
+		}
+
+		if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $folderName) !== 1) {
+			return null;
+		}
+
+		$schema = $this->ownerSchema(uuid: $folderName);
+		if ($schema === null) {
+			return null;
+		}
+
+		return ['objectId' => $folderName, 'schema' => $schema];
+	}//end paperOwner()
 
 	/**
 	 * Whether the stored switch value means on. The admin page stores it as a
