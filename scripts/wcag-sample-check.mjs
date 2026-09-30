@@ -13,7 +13,7 @@
  *
  * @spec openspec/changes/platform-accessibility-audit-report/specs/accessibility-baseline/spec.md#requirement-req-aar-001-the-evaluated-pages-are-a-structured-sample
  */
-import { readFileSync, readdirSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -32,12 +32,14 @@ export function manifestPages(root) {
 			.map((name) => `src/manifest.d/${name}`),
 	)
 	return files.flatMap((file) =>
-		(JSON.parse(readFileSync(join(root, file), 'utf8')).pages || []).map((page) => ({
-			id: page.id,
-			type: page.type,
-			route: page.route,
-			file,
-		})),
+		(JSON.parse(readFileSync(join(root, file), 'utf8')).pages || []).map(
+			(page) => ({
+				id: page.id,
+				type: page.type,
+				route: page.route,
+				file,
+			}),
+		),
 	)
 }
 
@@ -67,7 +69,9 @@ export function sampleProblems(pages, sample) {
 	}
 	for (const entry of entries) {
 		if (!byId.has(entry.pageId)) {
-			problems.push(`Sample entry ${entry.id} names page ${entry.pageId}, which no manifest declares.`)
+			problems.push(
+				`Sample entry ${entry.id} names page ${entry.pageId}, which no manifest declares.`,
+			)
 		}
 	}
 	return problems
@@ -76,7 +80,9 @@ export function sampleProblems(pages, sample) {
 const self = fileURLToPath(import.meta.url)
 if (process.argv[1] === self) {
 	const root = join(dirname(self), '..')
-	const sample = JSON.parse(readFileSync(join(root, 'tests/e2e/a11y/sample.json'), 'utf8'))
+	const sample = JSON.parse(
+		readFileSync(join(root, 'tests/e2e/a11y/sample.json'), 'utf8'),
+	)
 	const problems = sampleProblems(manifestPages(root), sample)
 	for (const line of problems) console.error(line)
 	if (problems.length > 0) process.exit(1)

@@ -43,11 +43,17 @@ export function axeTag(id) {
  * @spec openspec/changes/platform-accessibility-audit-report/specs/accessibility-baseline/spec.md#requirement-req-aar-003-criteria-axe-cannot-decide-are-checked-by-hand-and-never-assumed
  */
 export function auditRows({ criteria, scan, checklist }) {
-	const violations = scan ? [...(scan.violations || []), ...(scan.others || [])] : []
-	const manual = new Map((checklist?.entries || []).map((entry) => [entry.criterion, entry]))
+	const violations = scan
+		? [...(scan.violations || []), ...(scan.others || [])]
+		: []
+	const manual = new Map(
+		(checklist?.entries || []).map((entry) => [entry.criterion, entry]),
+	)
 	return criteria.criteria.map((criterion) => {
 		const findings = violations
-			.filter((violation) => (violation.tags || []).includes(axeTag(criterion.id)))
+			.filter((violation) =>
+				(violation.tags || []).includes(axeTag(criterion.id)),
+			)
 			.map((violation) => ({
 				page: violation.page || '',
 				rule: violation.id,
@@ -128,9 +134,16 @@ export function renderReport({ version, date, sample, rows, scanned, theme }) {
 		'',
 		'## Sample',
 		'',
-		...pages.map((page) => `- ${page.id}: ${page.path || `first row of ${page.from}${page.suffix ? `, then ${page.suffix}` : ''}`} (${page.owner})`),
-		...(sample.processes || []).map((process) => `- Process: ${process.title} (${process.pages.join(', ')})`),
-		...(sample.notApplicable || []).map((entry) => `- Not sampled: ${entry.id}. ${entry.reason}`),
+		...pages.map(
+			(page) =>
+				`- ${page.id}: ${page.path || `first row of ${page.from}${page.suffix ? `, then ${page.suffix}` : ''}`} (${page.owner})`,
+		),
+		...(sample.processes || []).map(
+			(process) => `- Process: ${process.title} (${process.pages.join(', ')})`,
+		),
+		...(sample.notApplicable || []).map(
+			(entry) => `- Not sampled: ${entry.id}. ${entry.reason}`,
+		),
 		'',
 		'## Success criteria',
 		'',
@@ -138,9 +151,15 @@ export function renderReport({ version, date, sample, rows, scanned, theme }) {
 		'| --- | --- | --- | --- | --- |',
 		...rows.map((row) => {
 			const findings = row.findings
-				.map((finding) => `${finding.page}: ${finding.rule} (${finding.impact}, ${finding.owner})`)
+				.map(
+					(finding) =>
+						`${finding.page}: ${finding.rule} (${finding.impact}, ${finding.owner})`,
+				)
 				.join('; ')
-			const checkedBy = row.source === 'manual' && row.tester ? `${row.tester}, ${row.date}` : row.source
+			const checkedBy =
+				row.source === 'manual' && row.tester
+					? `${row.tester}, ${row.date}`
+					: row.source
 			return `| ${row.id} ${row.name} | ${row.level} | ${LABELS[row.outcome]} | ${checkedBy} | ${findings || row.note} |`
 		}),
 		'',
@@ -153,7 +172,9 @@ if (process.argv[1] === self) {
 	const root = join(dirname(self), '..')
 	const read = (path) => JSON.parse(readFileSync(join(root, path), 'utf8'))
 	const scanPath = join(root, 'tests/axe/report.json')
-	const scan = existsSync(scanPath) ? JSON.parse(readFileSync(scanPath, 'utf8')) : null
+	const scan = existsSync(scanPath)
+		? JSON.parse(readFileSync(scanPath, 'utf8'))
+		: null
 	const rows = auditRows({
 		criteria: read('docs/compliance/wcag-2.1-criteria.json'),
 		scan,

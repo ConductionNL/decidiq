@@ -14,7 +14,8 @@
 /**
  * Selectors of Nextcloud's own chrome around an app.
  */
-export const NEXTCLOUD_CHROME = '#header, #skip-actions, #body-footer, footer, .header-menu, #unified-search, #notifications, #user-menu, #app-menu'
+export const NEXTCLOUD_CHROME =
+	'#header, #skip-actions, #body-footer, footer, .header-menu, #unified-search, #notifications, #user-menu, #app-menu'
 
 /**
  * The owner of one node.
@@ -82,7 +83,7 @@ export function reportOf(attributed, meta) {
 export function blocking(attributed) {
 	return attributed.filter(
 		(violation) =>
-			violation.owner === 'decidiq' &&
-			['serious', 'critical'].includes(violation.impact),
+			violation.owner === 'decidiq'
+			&& ['serious', 'critical'].includes(violation.impact),
 	)
 }

@@ -1,3 +1,5 @@
+import type { Page } from '@playwright/test'
+
 /*
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
@@ -15,7 +17,7 @@
  *
  * @spec openspec/changes/platform-accessibility-audit-report/specs/accessibility-baseline/spec.md#requirement-req-aar-002-axe-core-scans-every-sampled-page-and-attributes-each-finding
  */
-import { expect, test, type Page } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { BASE_URL as BASE } from '../base-url.ts'
@@ -51,28 +53,39 @@ async function open(page: Page, entry: Record<string, any>): Promise<void> {
 /**
  * Run axe on the open page and give each node its owner.
  */
-async function scan(page: Page, entry: Record<string, any>): Promise<Array<Record<string, any>>> {
-	await page.waitForLoadState('networkidle')
+async function scan(
+	page: Page,
+	entry: Record<string, any>,
+): Promise<Array<Record<string, any>>> {
+	await page.waitForLoadState('domcontentloaded')
+	await page.locator('#content').waitFor()
 	await page.addScriptTag({ content: axeSource })
-	const violations = await page.evaluate(async ([tags, chrome]) => {
-		// @ts-expect-error axe is the script just added.
-		const result = await window.axe.run(document, { runOnly: { type: 'tag', values: tags } })
-		return result.violations.map((violation: any) => ({
-			id: violation.id,
-			impact: violation.impact,
-			tags: violation.tags,
-			help: violation.help,
-			helpUrl: violation.helpUrl,
-			nodes: violation.nodes.map((node: any) => {
-				const element = document.querySelector(node.target[0])
-				return {
-					target: node.target,
-					html: node.html,
-					inNextcloudChrome: Boolean(element && element.closest(chrome)),
-				}
-			}),
-		}))
-	}, [TAGS, NEXTCLOUD_CHROME] as const)
+	const violations = await page.evaluate(
+		async ([tags, chrome]) => {
+			// @ts-expect-error axe is the script just added.
+			const result = await window.axe.run(document, {
+				runOnly: { type: 'tag', values: tags },
+			})
+			return result.violations.map((violation: any) => ({
+				id: violation.id,
+				impact: violation.impact,
+				tags: violation.tags,
+				help: violation.help,
+				helpUrl: violation.helpUrl,
+				nodes: violation.nodes.map((node: any) => {
+					const element = document.querySelector(node.target[0])
+					return {
+						target: node.target,
+						html: node.html,
+						inNextcloudChrome: Boolean(
+							element && element.closest(chrome),
+						),
+					}
+				}),
+			}))
+		},
+		[TAGS, NEXTCLOUD_CHROME] as const,
+	)
 	for (const violation of violations) {
 		for (const node of violation.nodes) {
 			node.owner = ownerOf(node, entry.owner)
@@ -88,7 +101,11 @@ for (const entry of entries) {
 		await open(page, entry)
 		const attributed = await scan(page, entry)
 		found.push(...attributed)
-		expect(blocking(attributed).map((violation) => `${violation.id}: ${violation.help}`)).toEqual([])
+		expect(
+			blocking(attributed).map(
+				(violation) => `${violation.id}: ${violation.help}`,
+			),
+		).toEqual([])
 	})
 }
 
@@ -102,7 +119,9 @@ for (const entry of sample.portal.pages) {
 }
 
 // @e2e accessibility-baseline::a-decidiq-violation-fails-the-scan
-test('a button without a name in the app root is a blocking decidiq finding', async ({ page }) => {
+test('a button without a name in the app root is a blocking decidiq finding', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/`)
 	await page.locator('#content').evaluate((content) => {
 		const button = document.createElement('button')
@@ -110,7 +129,9 @@ test('a button without a name in the app root is a blocking decidiq finding', as
 		content.appendChild(button)
 	})
 	const attributed = await scan(page, { id: 'fixture', owner: 'decidiq' })
-	expect(blocking(attributed).map((violation) => violation.id)).toContain('button-name')
+	expect(blocking(attributed).map((violation) => violation.id)).toContain(
+		'button-name',
+	)
 })
 
 test.afterAll(() => {
@@ -120,5 +141,8 @@ test.afterAll(() => {
 		theme: process.env.WCAG_THEME || 'default',
 		sample: entries.map((entry) => entry.id),
 	})
-	writeFileSync(path.join(root, 'tests/axe/report.json'), JSON.stringify(report, null, '\t'))
+	writeFileSync(
+		path.join(root, 'tests/axe/report.json'),
+		JSON.stringify(report, null, '\t'),
+	)
 })
