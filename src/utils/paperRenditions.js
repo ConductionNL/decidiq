@@ -97,3 +97,33 @@ export function retryUrl(schema, objectId, fileId) {
 		`/apps/decidiq/api/papers/${schema}/${objectId}/${fileId}/convert`,
 	)
 }
+
+/**
+ * The administrator switch as the admin page shows it. Conversion is on
+ * unless the setting reads as off, the same words OfficePaperAddedListener
+ * treats as off.
+ *
+ * @param {object} settings GET /api/settings.
+ * @return {{on: boolean, needsFilinq: boolean}}
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+ */
+export function conversionSetting(settings) {
+	const value = String(settings?.convert_office_papers ?? 'true')
+		.trim()
+		.toLowerCase()
+	return {
+		on: !['false', '0', 'no', 'off'].includes(value),
+		needsFilinq: settings?.filinq !== true,
+	}
+}
+
+/**
+ * The PUT /api/settings body for the switch.
+ *
+ * @param {boolean} on Whether conversion is on.
+ * @return {{convert_office_papers: string}}
+ * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+ */
+export function conversionPayload(on) {
+	return { convert_office_papers: on ? 'true' : 'false' }
+}

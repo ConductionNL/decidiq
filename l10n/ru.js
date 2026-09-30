@@ -1386,7 +1386,26 @@ OC.L10N.register(
         "What documents of this kind are.": "Что представляют собой документы этого вида.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Как поле называется на экране: подпись над полем ввода, когда кто-то заполняет сведения о документе.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Где предлагается тип: файлы заседания, файлы пункта повестки или и то и другое.",
-        "A kind of document with the extra fields its details carry.": "Вид документа с дополнительными полями его сведений."
+        "A kind of document with the extra fields its details carry.": "Вид документа с дополнительными полями его сведений.",
+        "Conversion needs filinq": "Для преобразования нужен filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Преобразовывать документы Word, Excel и PowerPoint в PDF при добавлении",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Установите и включите filinq, чтобы преобразовывать документы. До тех пор документы остаются в исходном виде.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Участники читают PDF каждого документа Word, Excel или PowerPoint. Оригинал остаётся рядом для секретариата.",
+        "No Office papers on this page.": "На этой странице нет документов Office.",
+        "Not converted: {reason}": "Не преобразовано: {reason}",
+        "Office papers as PDF": "Документы Office в PDF",
+        "Original": "Оригинал",
+        "Original ({kind})": "Оригинал ({kind})",
+        "Papers as PDF": "Документы в PDF",
+        "The conversion could not be queued.": "Не удалось поставить преобразование в очередь.",
+        "The conversion is queued. Reload the page in a few minutes.": "Преобразование в очереди. Обновите страницу через несколько минут.",
+        "The papers of this page could not be read.": "Не удалось прочитать документы этой страницы.",
+        "The setting was not saved": "Настройка не сохранена",
+        "Try again": "Повторить",
+        "Try again in a moment.": "Повторите попытку через минуту.",
+        "Try the conversion of {name} again": "Повторить преобразование {name}",
+        "no backend could convert this file": "ни один конвертер не смог преобразовать этот файл",
+        "the conversion stopped before a PDF was made": "преобразование остановилось до создания PDF"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -13,7 +13,7 @@ import { validatorFor } from './helpers/registerSchema.js'
 
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))
 
-const { paperEntries, retryUrl, splitName } = await import(
+const { conversionPayload, conversionSetting, paperEntries, retryUrl, splitName } = await import(
 	'../../src/utils/paperRenditions.js'
 )
 
@@ -95,4 +95,23 @@ describe('the register accepts what the job writes (REQ-OPDF-001)', () => {
 			).toBe(true)
 		})
 	}
+})
+
+describe('the administrator switch (REQ-OPDF-004)', () => {
+	it('reads conversion as on unless the setting says false', () => {
+		expect(conversionSetting({}).on).toBe(true)
+		expect(conversionSetting({ convert_office_papers: 'true' }).on).toBe(true)
+		expect(conversionSetting({ convert_office_papers: 'false' }).on).toBe(false)
+		expect(conversionSetting({ convert_office_papers: 'off' }).on).toBe(false)
+	})
+
+	it('says when filinq is missing', () => {
+		expect(conversionSetting({ filinq: false }).needsFilinq).toBe(true)
+		expect(conversionSetting({ filinq: true }).needsFilinq).toBe(false)
+	})
+
+	it('writes the switch as the listener reads it', () => {
+		expect(conversionPayload(false)).toEqual({ convert_office_papers: 'false' })
+		expect(conversionPayload(true)).toEqual({ convert_office_papers: 'true' })
+	})
 })
