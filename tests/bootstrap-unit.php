@@ -248,6 +248,13 @@ foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as
 	}
 }
 
+// filinq's ConversionFailedException (agenda-office-files-to-pdf). decidiq
+// recognises it by string class name through FleetAppId, so it stays
+// installable without filinq; the stub loads only when filinq is absent.
+if (class_exists('\\OCA\\Filinq\\Exception\\ConversionFailedException') === false) {
+	require_once __DIR__ . '/Stubs/Filinq/Exception/ConversionFailedException.php';
+}
+
 // ObjectService, ObjectEntity, Register and Schema need no require_once: the
 // PSR-4 root registered above resolves them to tests/Stubs/Service/ and
 // tests/Stubs/Db/ whenever the real OpenRegister app is absent, and to the real

@@ -6463,13 +6463,15 @@
 			"name": "Convert Word, Excel and PowerPoint files to PDF inside the system when they are added.",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -rniE 'IConversionManager|convert.*pdf|libreoffice|docx|toPdf|richdocuments|gotenberg' lib src: no hits; lib/Support/FilinqPdf.php:97 fromHtml() renders decidiq's own generated HTML (minutes, evaluation reports) to PDF through filinq, not uploaded files",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Listener/OfficePaperAddedListener.php (NodeCreatedEvent/NodeWrittenEvent on an Office file in a meeting or agenda item folder queues lib/BackgroundJob/ConvertPaperToPdfJob.php, registered by lib/AppInfo/Registrar/FilesEventRegistrar.php from CrossAppEventRegistrar); the job converts through filinq's PdfConversionService and records paperRenditions (lib/Settings/register.d/111-office-papers-to-pdf.json on AgendaItem and Meeting); lib/Service/PaperRenditionFilter.php makes MeetingPackageService bundle the PDF; src/components/tabs/AgendaPaperRenditionsTab.vue Papers as PDF widget with Try again (POST /api/papers/{schema}/{objectId}/{fileId}/convert, lib/Controller/PaperConversionController.php); admin switch convert_office_papers in src/views/settings/OfficePaperSettings.vue; tests: OfficePaperAddedListenerTest, ConvertPaperToPdfJobTest, PaperRenditionFilterTest, PaperConversionControllerTest, FilesEventRegistrarTest, SettingsServiceTest, tests/vitest/paperRenditions.spec.js",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-30-agenda-office-files-to-pdf",
+				"readOn": "2026-09-30"
 			},
-			"reachedOn": "nothing reaches it: uploaded files are stored as they are",
+			"reachedOn": "an Office file added to the Documents of an agenda item (/agenda-items/:id) or meeting is converted; the Papers as PDF widget on AgendaItemDetail and MeetingDetail shows it; the switch sits on the decidiq admin settings page",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "documents",

@@ -1385,7 +1385,26 @@
         "What documents of this kind are.": "Mis on seda liiki dokumendid.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Kuidas välja ekraanil nimetatakse: pealdis sisendi kohal, kui keegi täidab dokumendi üksikasju.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Kus liiki pakutakse: koosoleku failid, päevakorrapunkti failid või mõlemad.",
-        "A kind of document with the extra fields its details carry.": "Dokumendiliik koos selle üksikasjade lisaväljadega."
+        "A kind of document with the extra fields its details carry.": "Dokumendiliik koos selle üksikasjade lisaväljadega.",
+        "Conversion needs filinq": "Teisendamiseks on vaja filinqi",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Teisenda Wordi, Exceli ja PowerPointi dokumendid lisamisel PDF-iks",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Dokumentide teisendamiseks paigaldage ja lubage filinq. Seni jäävad dokumendid lisatud kujule.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Liikmed loevad iga Wordi, Exceli või PowerPointi dokumendi PDF-i. Originaal jääb selle kõrvale sekretariaadile.",
+        "No Office papers on this page.": "Sellel lehel pole Office'i dokumente.",
+        "Not converted: {reason}": "Teisendamata: {reason}",
+        "Office papers as PDF": "Office'i dokumendid PDF-ina",
+        "Original": "Originaal",
+        "Original ({kind})": "Originaal ({kind})",
+        "Papers as PDF": "Dokumendid PDF-ina",
+        "The conversion could not be queued.": "Teisendust ei õnnestunud järjekorda panna.",
+        "The conversion is queued. Reload the page in a few minutes.": "Teisendus on järjekorras. Laadige leht mõne minuti pärast uuesti.",
+        "The papers of this page could not be read.": "Selle lehe dokumente ei õnnestunud lugeda.",
+        "The setting was not saved": "Seadet ei salvestatud",
+        "Try again": "Proovi uuesti",
+        "Try again in a moment.": "Proovige hetke pärast uuesti.",
+        "Try the conversion of {name} again": "Proovi faili {name} teisendamist uuesti",
+        "no backend could convert this file": "ükski teisendaja ei suutnud seda faili teisendada",
+        "the conversion stopped before a PDF was made": "teisendus peatus enne PDF-i valmimist"
     },
     "plurals": null
 }

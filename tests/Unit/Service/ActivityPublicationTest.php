@@ -44,6 +44,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\AgendaPapers
  * @uses   \OCA\Decidiq\Service\ConfidentialityRestrictions
  * @uses   \OCA\Decidiq\Service\PublicationConfigService
+ * @uses   \OCA\Decidiq\Service\PublicationRepository
  *
  * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
  */

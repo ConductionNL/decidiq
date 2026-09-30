@@ -1385,7 +1385,26 @@
         "What documents of this kind are.": "Hvad dokumenter af denne type er.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Hvad feltet hedder på skærmen: teksten over indtastningen, når nogen udfylder et dokuments detaljer.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Hvor typen tilbydes: filer på et møde, filer på et dagsordenspunkt eller begge.",
-        "A kind of document with the extra fields its details carry.": "En dokumenttype med de ekstra felter, dens detaljer har."
+        "A kind of document with the extra fields its details carry.": "En dokumenttype med de ekstra felter, dens detaljer har.",
+        "Conversion needs filinq": "Konvertering kræver filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Konvertér Word-, Excel- og PowerPoint-dokumenter til PDF, når de tilføjes",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Installér og aktivér filinq for at konvertere dokumenter. Indtil da forbliver dokumenterne, som de blev tilføjet.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Medlemmer læser PDF'en af hvert Word-, Excel- eller PowerPoint-dokument. Originalen bliver liggende ved siden af til sekretariatet.",
+        "No Office papers on this page.": "Der er ingen Office-dokumenter på denne side.",
+        "Not converted: {reason}": "Ikke konverteret: {reason}",
+        "Office papers as PDF": "Office-dokumenter som PDF",
+        "Original": "Original",
+        "Original ({kind})": "Original ({kind})",
+        "Papers as PDF": "Dokumenter som PDF",
+        "The conversion could not be queued.": "Konverteringen kunne ikke sættes i kø.",
+        "The conversion is queued. Reload the page in a few minutes.": "Konverteringen er sat i kø. Genindlæs siden om et par minutter.",
+        "The papers of this page could not be read.": "Dokumenterne på denne side kunne ikke læses.",
+        "The setting was not saved": "Indstillingen blev ikke gemt",
+        "Try again": "Prøv igen",
+        "Try again in a moment.": "Prøv igen om et øjeblik.",
+        "Try the conversion of {name} again": "Prøv konverteringen af {name} igen",
+        "no backend could convert this file": "ingen konverter kunne konvertere denne fil",
+        "the conversion stopped before a PDF was made": "konverteringen stoppede, før der blev lavet en PDF"
     },
     "plurals": null
 }

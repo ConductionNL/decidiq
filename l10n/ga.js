@@ -1386,7 +1386,26 @@ OC.L10N.register(
         "What documents of this kind are.": "Cad is doiciméid den chineál seo ann.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Cad a thugtar ar an réimse ar an scáileán: an lipéad os cionn an ionchuir nuair a líonann duine sonraí doiciméid.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Cá háit a bhfuil an cineál ar fáil: comhaid cruinnithe, comhaid míre clár oibre, nó an dá cheann.",
-        "A kind of document with the extra fields its details carry.": "Cineál doiciméid leis na réimsí breise atá ina shonraí."
+        "A kind of document with the extra fields its details carry.": "Cineál doiciméid leis na réimsí breise atá ina shonraí.",
+        "Conversion needs filinq": "Teastaíonn filinq don tiontú",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Tiontaigh páipéir Word, Excel agus PowerPoint go PDF nuair a chuirtear leis iad",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Suiteáil agus cumasaigh filinq chun páipéir a thiontú. Go dtí sin, fanann páipéir mar a cuireadh leis iad.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Léann baill PDF gach páipéir Word, Excel nó PowerPoint. Fanann an bunleagan in aice leis don rúnaíocht.",
+        "No Office papers on this page.": "Níl aon pháipéir Office ar an leathanach seo.",
+        "Not converted: {reason}": "Níor tiontaíodh: {reason}",
+        "Office papers as PDF": "Páipéir Office mar PDF",
+        "Original": "Bunleagan",
+        "Original ({kind})": "Bunleagan ({kind})",
+        "Papers as PDF": "Páipéir mar PDF",
+        "The conversion could not be queued.": "Níorbh fhéidir an tiontú a chur sa scuaine.",
+        "The conversion is queued. Reload the page in a few minutes.": "Tá an tiontú sa scuaine. Athlódáil an leathanach i gceann cúpla nóiméad.",
+        "The papers of this page could not be read.": "Níorbh fhéidir páipéir an leathanaigh seo a léamh.",
+        "The setting was not saved": "Níor sábháladh an socrú",
+        "Try again": "Bain triail eile as",
+        "Try again in a moment.": "Bain triail eile as i gceann nóiméid.",
+        "Try the conversion of {name} again": "Bain triail eile as tiontú {name}",
+        "no backend could convert this file": "níorbh fhéidir le haon tiontaire an comhad seo a thiontú",
+        "the conversion stopped before a PDF was made": "stad an tiontú sular déanadh PDF"
     },
     "nplurals=2; plural=(n != 1);"
 )

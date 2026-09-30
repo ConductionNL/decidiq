@@ -1386,7 +1386,26 @@ OC.L10N.register(
         "What documents of this kind are.": "Što su dokumenti ove vrste.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Kako se polje zove na zaslonu: natpis iznad unosa kada netko ispunjava pojedinosti dokumenta.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Gdje se vrsta nudi: datoteke sjednice, datoteke točke dnevnog reda ili oboje.",
-        "A kind of document with the extra fields its details carry.": "Vrsta dokumenta s dodatnim poljima njezinih pojedinosti."
+        "A kind of document with the extra fields its details carry.": "Vrsta dokumenta s dodatnim poljima njezinih pojedinosti.",
+        "Conversion needs filinq": "Pretvorba zahtijeva filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Pretvori Word, Excel i PowerPoint dokumente u PDF pri dodavanju",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Instalirajte i omogućite filinq za pretvorbu dokumenata. Do tada dokumenti ostaju kakvi su dodani.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Članovi čitaju PDF svakog Word, Excel ili PowerPoint dokumenta. Izvornik ostaje pokraj njega za tajništvo.",
+        "No Office papers on this page.": "Na ovoj stranici nema Office dokumenata.",
+        "Not converted: {reason}": "Nije pretvoreno: {reason}",
+        "Office papers as PDF": "Office dokumenti kao PDF",
+        "Original": "Izvornik",
+        "Original ({kind})": "Izvornik ({kind})",
+        "Papers as PDF": "Dokumenti kao PDF",
+        "The conversion could not be queued.": "Pretvorba se nije mogla staviti u red.",
+        "The conversion is queued. Reload the page in a few minutes.": "Pretvorba je u redu. Ponovno učitajte stranicu za nekoliko minuta.",
+        "The papers of this page could not be read.": "Dokumenti ove stranice nisu se mogli pročitati.",
+        "The setting was not saved": "Postavka nije spremljena",
+        "Try again": "Pokušaj ponovno",
+        "Try again in a moment.": "Pokušajte ponovno za trenutak.",
+        "Try the conversion of {name} again": "Ponovno pokušaj pretvorbu datoteke {name}",
+        "no backend could convert this file": "nijedan pretvarač nije mogao pretvoriti ovu datoteku",
+        "the conversion stopped before a PDF was made": "pretvorba je stala prije nego što je nastao PDF"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -125,7 +125,22 @@
 						"itemType": "discussion",
 						"orderNumber": 4,
 						"estimatedDuration": 60,
-						"description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026"
+						"description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026",
+						"paperRenditions": [
+							{
+								"sourceFileId": 910001,
+								"sourceName": "Kadernota 2026.docx",
+								"pdfFileId": 910002,
+								"backend": "office",
+								"convertedAt": "2026-09-30T08:00:00+00:00"
+							},
+							{
+								"sourceFileId": 910003,
+								"sourceName": "Bijlage investeringen.xlsx",
+								"failedAt": "2026-09-30T08:01:00+00:00",
+								"failure": "No backend could convert this file"
+							}
+						]
 					},
 					{
 						"@self": {
