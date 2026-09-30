@@ -44,6 +44,13 @@ $extra = [
         ['name' => 'fullExport#start',    'url' => '/api/export/full',        'verb' => 'POST'],
         ['name' => 'fullExport#latest',   'url' => '/api/export/full',        'verb' => 'GET'],
         ['name' => 'fullExport#download', 'url' => '/api/export/full/{name}', 'verb' => 'GET'],
+        // platform-case-system-document-exchange (plt-23, plt-24): the case system through integriq.
+        ['name' => 'caseSystem#status',         'url' => '/api/case-system/status',                     'verb' => 'GET'],
+        ['name' => 'caseSystem#linkCase',       'url' => '/api/agenda-items/{id}/case',                 'verb' => 'POST'],
+        ['name' => 'caseSystem#listDocuments',  'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'GET'],
+        ['name' => 'caseSystem#fetchDocuments', 'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'POST'],
+        ['name' => 'caseSystem#send',           'url' => '/api/meetings/{id}/case-system/send',         'verb' => 'POST'],
+        ['name' => 'caseSystem#resend',         'url' => '/api/case-exchange-records/{id}/resend',      'verb' => 'POST'],
         ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
