@@ -157,6 +157,8 @@ $extra = [
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
         ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
+        // agenda-office-files-to-pdf (age-17): queue a new conversion of a paper whose conversion failed.
+        ['name' => 'paperConversion#convert', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/convert', 'verb' => 'POST'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

@@ -227,6 +227,48 @@ class SettingsServiceTest extends TestCase {
 	}//end testUpdateSettingsWritesToConfig()
 
 	/**
+	 * Automatic Office-to-PDF conversion is on until an administrator turns it off,
+	 * and the settings say whether filinq, which does the conversion, is there.
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+	 *
+	 * @return void
+	 */
+	public function testConversionIsOnByDefaultAndReportsFilinq(): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->appManager->method('isEnabledForAnyone')
+			->willReturnCallback(static fn (string $app): bool => $app !== 'filinq' && $app !== 'docudesk');
+
+		$settings = $this->service->getSettings();
+
+		self::assertSame(expected: 'true', actual: $settings['convert_office_papers']);
+		self::assertFalse(condition: $settings['filinq']);
+
+	}//end testConversionIsOnByDefaultAndReportsFilinq()
+
+	/**
+	 * An administrator turning conversion off writes the switch.
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+	 *
+	 * @return void
+	 */
+	public function testAnAdministratorTurnsConversionOff(): void {
+		$this->appConfig->expects($this->once())
+			->method('setValueString')
+			->with('decidiq', 'convert_office_papers', 'false');
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->appManager->method('isEnabledForAnyone')->willReturn(true);
+
+		$result = $this->service->updateSettings(['convert_office_papers' => 'false']);
+
+		self::assertTrue(condition: $result['filinq']);
+
+	}//end testAnAdministratorTurnsConversionOff()
+
+	/**
 	 * Test that loadConfiguration returns failure when OpenRegister is not available.
 	 *
 	 * @return void
