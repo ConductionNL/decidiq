@@ -31,7 +31,7 @@ Read at decidiq development `4d7430ff`, openregister development `555af72` and f
 
 ## Schema
 
-Fragment `lib/Settings/register.d/92-office-papers-to-pdf.json` adds to `AgendaItem` and `Meeting`:
+Fragment `lib/Settings/register.d/111-office-papers-to-pdf.json` adds to `AgendaItem` and `Meeting`:
 
 `paperRenditions`: array of objects `{ sourceFileId: integer, sourceName: string, pdfFileId: integer|null, backend: string|null, convertedAt: date-time|null, failedAt: date-time|null, failure: string|null }`, read-only in forms.
 
@@ -42,7 +42,15 @@ One agenda item in the municipality example set, "Begroting 2027", gets a `paper
 ## Files
 
 - `lib/Listener/OfficePaperAddedListener.php`, `lib/BackgroundJob/ConvertPaperToPdfJob.php`, `lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php`
-- `lib/Settings/register.d/92-office-papers-to-pdf.json`, `lib/Settings/profiles/municipality.json`
+- `lib/Settings/register.d/111-office-papers-to-pdf.json`, `lib/Settings/profiles/municipality.json`
 - `lib/Service/MeetingPackageService.php`, `lib/Service/SettingsService.php`, `src/views/settings/AdminRoot.vue` (the switch)
 - `src/components/tabs/AgendaPaperRenditionsTab.vue`, `src/registry.js`, `src/manifest.json` (`AgendaItemDetail`)
 - `tests/Unit/Listener/OfficePaperAddedListenerTest.php`, `tests/Unit/BackgroundJob/ConvertPaperToPdfJobTest.php`, `tests/e2e/office-papers-to-pdf.spec.ts`
+
+## Corrections at build (30 Sep 2026)
+
+- The fragment is `111-office-papers-to-pdf.json`; 92 was taken by then.
+- The listener is registered by its own `lib/AppInfo/Registrar/FilesEventRegistrar.php`, called from `CrossAppEventRegistrar`, not by `PlatformIntegrationRegistrar`.
+- The widget sits on both the agenda item and the meeting page, as `AgendaPaperRenditionsTab`. Try again is `POST /api/papers/{schema}/{objectId}/{fileId}/convert`, limited to the chair, the secretary and administrators, and only for a paper the page records.
+- The admin switch is its own panel, `src/views/settings/OfficePaperSettings.vue`, and `GET /api/settings` reports `filinq` so the panel can say conversion needs it.
+- The example set puts both states on the agenda item "Kadernota begroting 2026" (`Kadernota 2026.docx` converted, `Bijlage investeringen.xlsx` failed); the municipality profile has no "Begroting 2027" item.

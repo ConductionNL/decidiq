@@ -1385,7 +1385,26 @@
         "What documents of this kind are.": "Mik az ilyen típusú dokumentumok.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "A mező neve a képernyőn: a felirat a beviteli mező fölött, amikor valaki kitölti egy dokumentum részleteit.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Hol érhető el a típus: ülés fájljainál, napirendi pont fájljainál vagy mindkettőnél.",
-        "A kind of document with the extra fields its details carry.": "Dokumentumfajta a részleteihez tartozó további mezőkkel."
+        "A kind of document with the extra fields its details carry.": "Dokumentumfajta a részleteihez tartozó további mezőkkel.",
+        "Conversion needs filinq": "Az átalakításhoz filinq szükséges",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Word-, Excel- és PowerPoint-dokumentumok PDF-be alakítása hozzáadáskor",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Telepítse és engedélyezze a filinq-et a dokumentumok átalakításához. Addig a dokumentumok a hozzáadott formában maradnak.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "A tagok minden Word-, Excel- vagy PowerPoint-dokumentum PDF-jét olvassák. Az eredeti mellette marad a titkárság számára.",
+        "No Office papers on this page.": "Ezen az oldalon nincsenek Office-dokumentumok.",
+        "Not converted: {reason}": "Nincs átalakítva: {reason}",
+        "Office papers as PDF": "Office-dokumentumok PDF-ként",
+        "Original": "Eredeti",
+        "Original ({kind})": "Eredeti ({kind})",
+        "Papers as PDF": "Dokumentumok PDF-ként",
+        "The conversion could not be queued.": "Az átalakítást nem sikerült sorba állítani.",
+        "The conversion is queued. Reload the page in a few minutes.": "Az átalakítás sorban áll. Néhány perc múlva töltse újra az oldalt.",
+        "The papers of this page could not be read.": "Az oldal dokumentumait nem sikerült beolvasni.",
+        "The setting was not saved": "A beállítás nem lett mentve",
+        "Try again": "Próbálja újra",
+        "Try again in a moment.": "Próbálja újra egy pillanat múlva.",
+        "Try the conversion of {name} again": "A(z) {name} átalakításának újrapróbálása",
+        "no backend could convert this file": "egyik átalakító sem tudta átalakítani ezt a fájlt",
+        "the conversion stopped before a PDF was made": "az átalakítás leállt, mielőtt PDF készült volna"
     },
     "plurals": null
 }

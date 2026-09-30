@@ -1386,7 +1386,26 @@ OC.L10N.register(
         "What documents of this kind are.": "Was Dokumente dieser Art sind.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Wie das Feld auf dem Bildschirm heißt: die Beschriftung über der Eingabe, wenn jemand die Details eines Dokuments ausfüllt.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Wo der Typ angeboten wird: Dateien einer Sitzung, eines Tagesordnungspunkts oder beides.",
-        "A kind of document with the extra fields its details carry.": "Eine Dokumentart mit den zusätzlichen Feldern ihrer Details."
+        "A kind of document with the extra fields its details carry.": "Eine Dokumentart mit den zusätzlichen Feldern ihrer Details.",
+        "Conversion needs filinq": "Die Umwandlung benötigt filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Word-, Excel- und PowerPoint-Unterlagen beim Hinzufügen in PDF umwandeln",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Installieren und aktivieren Sie filinq, um Unterlagen umzuwandeln. Bis dahin bleiben Unterlagen so, wie sie hinzugefügt wurden.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Mitglieder lesen das PDF jeder Word-, Excel- oder PowerPoint-Unterlage. Das Original bleibt daneben für das Sekretariat.",
+        "No Office papers on this page.": "Keine Office-Unterlagen auf dieser Seite.",
+        "Not converted: {reason}": "Nicht umgewandelt: {reason}",
+        "Office papers as PDF": "Office-Unterlagen als PDF",
+        "Original": "Original",
+        "Original ({kind})": "Original ({kind})",
+        "Papers as PDF": "Unterlagen als PDF",
+        "The conversion could not be queued.": "Die Umwandlung konnte nicht eingereiht werden.",
+        "The conversion is queued. Reload the page in a few minutes.": "Die Umwandlung ist eingereiht. Laden Sie die Seite in ein paar Minuten neu.",
+        "The papers of this page could not be read.": "Die Unterlagen dieser Seite konnten nicht gelesen werden.",
+        "The setting was not saved": "Die Einstellung wurde nicht gespeichert",
+        "Try again": "Erneut versuchen",
+        "Try again in a moment.": "Versuchen Sie es gleich noch einmal.",
+        "Try the conversion of {name} again": "Umwandlung von {name} erneut versuchen",
+        "no backend could convert this file": "kein Konverter konnte diese Datei umwandeln",
+        "the conversion stopped before a PDF was made": "die Umwandlung brach ab, bevor ein PDF entstand"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1386,7 +1386,26 @@ OC.L10N.register(
         "What documents of this kind are.": "Какво представляват документите от този вид.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Как се казва полето на екрана: надписът над полето, когато някой попълва подробностите за документ.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Къде се предлага видът: файлове към заседание, към точка от дневния ред или и двете.",
-        "A kind of document with the extra fields its details carry.": "Вид документ с допълнителните полета на неговите подробности."
+        "A kind of document with the extra fields its details carry.": "Вид документ с допълнителните полета на неговите подробности.",
+        "Conversion needs filinq": "Преобразуването изисква filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Преобразувай документите на Word, Excel и PowerPoint в PDF при добавяне",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Инсталирайте и включете filinq, за да се преобразуват документите. Дотогава документите остават както са добавени.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Членовете четат PDF файла на всеки документ на Word, Excel или PowerPoint. Оригиналът остава до него за секретариата.",
+        "No Office papers on this page.": "На тази страница няма документи на Office.",
+        "Not converted: {reason}": "Не е преобразуван: {reason}",
+        "Office papers as PDF": "Документи на Office като PDF",
+        "Original": "Оригинал",
+        "Original ({kind})": "Оригинал ({kind})",
+        "Papers as PDF": "Документи като PDF",
+        "The conversion could not be queued.": "Преобразуването не можа да бъде поставено на опашка.",
+        "The conversion is queued. Reload the page in a few minutes.": "Преобразуването е на опашка. Презаредете страницата след няколко минути.",
+        "The papers of this page could not be read.": "Документите на тази страница не можаха да бъдат прочетени.",
+        "The setting was not saved": "Настройката не беше запазена",
+        "Try again": "Опитайте отново",
+        "Try again in a moment.": "Опитайте отново след малко.",
+        "Try the conversion of {name} again": "Опитайте отново преобразуването на {name}",
+        "no backend could convert this file": "нито един конвертор не можа да преобразува този файл",
+        "the conversion stopped before a PDF was made": "преобразуването спря, преди да бъде създаден PDF"
     },
     "nplurals=2; plural=(n != 1);"
 )

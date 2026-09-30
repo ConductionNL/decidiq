@@ -1385,7 +1385,26 @@
         "What documents of this kind are.": "Ce sunt documentele de acest tip.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Cum se numește câmpul pe ecran: eticheta de deasupra intrării când cineva completează detaliile unui document.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Unde este oferit tipul: fișierele unei ședințe, ale unui punct de pe ordinea de zi sau ambele.",
-        "A kind of document with the extra fields its details carry.": "Un tip de document cu câmpurile suplimentare ale detaliilor sale."
+        "A kind of document with the extra fields its details carry.": "Un tip de document cu câmpurile suplimentare ale detaliilor sale.",
+        "Conversion needs filinq": "Conversia necesită filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Convertește documentele Word, Excel și PowerPoint în PDF la adăugare",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Instalați și activați filinq pentru a converti documentele. Până atunci, documentele rămân așa cum au fost adăugate.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Membrii citesc PDF-ul fiecărui document Word, Excel sau PowerPoint. Originalul rămâne alături pentru secretariat.",
+        "No Office papers on this page.": "Nu există documente Office pe această pagină.",
+        "Not converted: {reason}": "Neconvertit: {reason}",
+        "Office papers as PDF": "Documente Office ca PDF",
+        "Original": "Original",
+        "Original ({kind})": "Original ({kind})",
+        "Papers as PDF": "Documente ca PDF",
+        "The conversion could not be queued.": "Conversia nu a putut fi pusă în coadă.",
+        "The conversion is queued. Reload the page in a few minutes.": "Conversia este în coadă. Reîncărcați pagina în câteva minute.",
+        "The papers of this page could not be read.": "Documentele acestei pagini nu au putut fi citite.",
+        "The setting was not saved": "Setarea nu a fost salvată",
+        "Try again": "Încearcă din nou",
+        "Try again in a moment.": "Încercați din nou peste câteva momente.",
+        "Try the conversion of {name} again": "Reîncearcă conversia fișierului {name}",
+        "no backend could convert this file": "niciun convertor nu a putut converti acest fișier",
+        "the conversion stopped before a PDF was made": "conversia s-a oprit înainte de crearea unui PDF"
     },
     "plurals": null
 }

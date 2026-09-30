@@ -1386,7 +1386,26 @@ OC.L10N.register(
         "What documents of this kind are.": "X'inhuma d-dokumenti ta' dan it-tip.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "X'jissejjaħ il-qasam fuq l-iskrin: it-tikketta fuq l-input meta xi ħadd jimla d-dettalji ta' dokument.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Fejn jiġi offrut it-tip: fajls ta' laqgħa, fajls ta' punt tal-aġenda, jew it-tnejn.",
-        "A kind of document with the extra fields its details carry.": "Tip ta' dokument bl-oqsma addizzjonali tad-dettalji tiegħu."
+        "A kind of document with the extra fields its details carry.": "Tip ta' dokument bl-oqsma addizzjonali tad-dettalji tiegħu.",
+        "Conversion needs filinq": "Il-konverżjoni teħtieġ filinq",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Ikkonverti d-dokumenti Word, Excel u PowerPoint għal PDF meta jiżdiedu",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Installa u attiva filinq biex tikkonverti d-dokumenti. Sa dak iż-żmien, id-dokumenti jibqgħu kif żdiedu.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Il-membri jaqraw il-PDF ta' kull dokument Word, Excel jew PowerPoint. L-oriġinal jibqa' ħdejh għas-segretarjat.",
+        "No Office papers on this page.": "M'hemmx dokumenti Office f'din il-paġna.",
+        "Not converted: {reason}": "Mhux ikkonvertit: {reason}",
+        "Office papers as PDF": "Dokumenti Office bħala PDF",
+        "Original": "Oriġinal",
+        "Original ({kind})": "Oriġinal ({kind})",
+        "Papers as PDF": "Dokumenti bħala PDF",
+        "The conversion could not be queued.": "Il-konverżjoni ma setgħetx titqiegħed fil-kju.",
+        "The conversion is queued. Reload the page in a few minutes.": "Il-konverżjoni qiegħda fil-kju. Erġa' tella' l-paġna fi ftit minuti.",
+        "The papers of this page could not be read.": "Id-dokumenti ta' din il-paġna ma setgħux jinqraw.",
+        "The setting was not saved": "L-issettjar ma ġiex issejvjat",
+        "Try again": "Erġa' pprova",
+        "Try again in a moment.": "Erġa' pprova ftit wara.",
+        "Try the conversion of {name} again": "Erġa' pprova l-konverżjoni ta' {name}",
+        "no backend could convert this file": "ebda konvertitur ma seta' jikkonverti dan il-fajl",
+        "the conversion stopped before a PDF was made": "il-konverżjoni waqfet qabel ma sar PDF"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1385,7 +1385,26 @@
         "What documents of this kind are.": "Bu türdeki belgelerin ne olduğu.",
         "What the field is called on screen: the caption above the input when someone fills in a document's details.": "Alanın ekrandaki adı: biri belge ayrıntılarını doldururken girişin üstündeki etiket.",
         "Where the type is offered: files of a meeting, files of an agenda item, or both.": "Türün sunulduğu yer: toplantı dosyaları, gündem maddesi dosyaları veya her ikisi.",
-        "A kind of document with the extra fields its details carry.": "Ayrıntılarının taşıdığı ek alanlarla bir belge türü."
+        "A kind of document with the extra fields its details carry.": "Ayrıntılarının taşıdığı ek alanlarla bir belge türü.",
+        "Conversion needs filinq": "Dönüştürme için filinq gerekir",
+        "Convert Word, Excel and PowerPoint papers to PDF when they are added": "Word, Excel ve PowerPoint belgelerini eklendiklerinde PDF'ye dönüştür",
+        "Install and enable filinq to convert papers. Until then, papers stay as they were added.": "Belgeleri dönüştürmek için filinq'i kurun ve etkinleştirin. O zamana kadar belgeler eklendikleri gibi kalır.",
+        "Members read the PDF of each Word, Excel or PowerPoint paper. The original stays next to it for the secretariat.": "Üyeler her Word, Excel veya PowerPoint belgesinin PDF'sini okur. Orijinal, sekreterya için yanında kalır.",
+        "No Office papers on this page.": "Bu sayfada Office belgesi yok.",
+        "Not converted: {reason}": "Dönüştürülmedi: {reason}",
+        "Office papers as PDF": "PDF olarak Office belgeleri",
+        "Original": "Orijinal",
+        "Original ({kind})": "Orijinal ({kind})",
+        "Papers as PDF": "PDF olarak belgeler",
+        "The conversion could not be queued.": "Dönüştürme kuyruğa alınamadı.",
+        "The conversion is queued. Reload the page in a few minutes.": "Dönüştürme kuyrukta. Sayfayı birkaç dakika sonra yeniden yükleyin.",
+        "The papers of this page could not be read.": "Bu sayfanın belgeleri okunamadı.",
+        "The setting was not saved": "Ayar kaydedilmedi",
+        "Try again": "Tekrar dene",
+        "Try again in a moment.": "Birazdan tekrar deneyin.",
+        "Try the conversion of {name} again": "{name} dönüştürmesini tekrar dene",
+        "no backend could convert this file": "hiçbir dönüştürücü bu dosyayı dönüştüremedi",
+        "the conversion stopped before a PDF was made": "dönüştürme, PDF oluşturulmadan durdu"
     },
     "plurals": null
 }
