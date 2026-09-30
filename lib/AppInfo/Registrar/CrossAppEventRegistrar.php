@@ -107,6 +107,12 @@ class CrossAppEventRegistrar {
 		// @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 		(new FlowNodeRegistrar())->register(context: $context);
 
+		// Nextcloud Files events: an Office paper added to a meeting or agenda
+		// item folder is queued for conversion to PDF, which filinq performs
+		// (agenda-office-files-to-pdf, REQ-OPDF-001). Its own registrar, like
+		// the flow nodes above.
+		(new FilesEventRegistrar())->register(context: $context);
+
 	}//end register()
 
 	/**
