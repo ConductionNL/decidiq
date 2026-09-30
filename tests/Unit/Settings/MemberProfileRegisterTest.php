@@ -74,6 +74,13 @@ class MemberProfileRegisterTest extends TestCase {
 		}
 
 		unset($data['@self'], $data['slug']);
+		// The import resolves a reference written as a slug to the object's uuid.
+		foreach ($schema['properties'] as $key => $property) {
+			if (isset($property['$ref'], $data[$key]) === true && is_string($data[$key]) === true) {
+				$data[$key] = '6f1c1c38-4d3c-4d0e-9a55-2b8b2b1f0e01';
+			}
+		}
+
 		$result = (new Validator())->validate(
 			json_decode((string)json_encode($data)),
 			json_decode((string)json_encode(['type' => 'object', 'required' => ($schema['required'] ?? []), 'properties' => $properties]))
