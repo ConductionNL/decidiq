@@ -134,3 +134,43 @@ In `lib/Settings/profiles/municipality.json`:
 - A case system that is slow or down: the job retries a failed line only when
   the clerk presses "Send again", so a broken mapping does not hammer the case
   system every few minutes.
+
+## Corrections at build (30 Sep 2026)
+
+The design was read against 4d7430ff; the build on ef52ec1a changed these:
+
+- **Fragment number.** `92-*` is taken (`92-citizen-advice-on-motions.json`);
+  the fragment is `112-case-system-exchange.json`.
+- **Five operations, not four.** Fetching a document needs its content, so
+  decidiq also asks integriq to read one document. The contract decidiq sends,
+  one POST per operation on the linked source: `/case-system/read-case`
+  `{reference}` → `{url, identification, title}` (no `url` = not found);
+  `/case-system/list-documents` `{case}` → `{documents: [{url, name}]}`;
+  `/case-system/read-document` `{document}` → `{name, content (base64)}`;
+  `/case-system/add-document` `{case, name, kind, content (base64),
+  confidential, ground}` → `{url}`; `/case-system/create-case` `{kind:
+  "meeting", title, date}` → `{url, identification}`. A status of 400 or more
+  is a refusal whose `message` is shown. integriq's half (source template
+  `zgw-zaken`, the ZGW and StUF-ZKN mapping) is drafted for integriq in
+  `for-ruben/integriq-case-system-operations.md`.
+- **Guard.** Every item and meeting action uses
+  `TranscriptionStaffGuard::forMeeting()` on the item's meeting (chair,
+  secretary or admin), after reading the item with the caller's own rights.
+  `AgendaAuthorizationGuard::requireChairOrAdminForAgendaItem()` reads
+  `@self.relations.meeting`, which an object entity does not carry.
+- **Approval hook.** The decision list and the send on approval run from an
+  `ObjectUpdatedEvent` listener on `minutes` (`MinutesApprovedListener`), so a
+  lifecycle change through any path triggers them, not only
+  `MinutesController::transition()`.
+- **Setting key.** `case_system_send_on_approval` (the app-config naming used
+  by the other keys), switched in the admin settings.
+- **Widget.** The Case system widget is a custom component
+  (`MeetingCaseSystemTab`) rather than a declared `object-list`: each record
+  shows its lines and their status, which the object list cannot.
+- **The case link** is set from a Case widget on the agenda item
+  (`AgendaItemCaseTab`), which also opens `CaseDocumentsModal`.
+- **Records are service owned.** `CaseExchangeRecord` declares `read` for the
+  secretariat and administrators and no write action, so the object API
+  cannot forge a sent line (RegisterAuthorizationTest).
+- **Seed data.** The municipality profile has no 12 March meeting; the
+  seeded item hangs off "Raadsvergadering 15 januari 2025".

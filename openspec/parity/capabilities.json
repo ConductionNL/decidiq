@@ -6621,9 +6621,11 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/415915",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -rniE 'stuf|zgw|zaken ?api|documenten ?api|drc|zrc|enkelvoudiginformatieobject' lib src: only a comment in lib/Event/DecisionConcludedEvent.php:9 naming a consumer's ZGW step; decisions link to cases only inside OpenRegister (lib/Service/DecisionIntegrationService.php:60 provenance fields)",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Service/CaseSystemClient.php (the case-system connection's linked integriq source, five operations over CallService), lib/Service/CaseDocumentService.php link/listDocuments/fetch (a document fetched once), lib/Controller/CaseSystemController.php (409 without a source, chair or secretary only), AgendaItemCaseTab + CaseDocumentsModal; integriq's zgw-zaken template and ZGW/StUF-ZKN mapping drafted to integriq (for-ruben/integriq-case-system-operations.md)",
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/archive/2026-09-30-platform-case-system-document-exchange",
+				"readOn": "2026-09-30"
 			},
 			"reachedOn": "nothing reaches it: no StUF-ZKN or ZGW client",
 			"provider": "decidiq",
@@ -7030,9 +7032,11 @@
 			"originUrl": "https://support.ibabs.com/docs/introductie-9.md",
 			"decidiq": "partial",
 			"built": {
-				"state": "specified",
-				"evidence": "src/components/tabs/MinutesDocumentTab.vue:280 calls POST /api/meetings/{id}/proof-package (appinfo/routes.php:124) -> lib/Service/ProofPackageService.php bundles convocation, quorum, votes and adopted decision texts, sealed with a SHA-256 hash, into the meeting's Files folder; the same tab generates the minutes PDF into that folder (lib/Service/MinutesDocumentService.php); the meeting package of agenda papers comes from the Agenda widget (MeetingPackageService); no connector to an external document store (plt-11)",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Service/DecisionListService.php (Besluitenlijst.pdf on approved and signed, via MinutesApprovedListener), lib/Service/MeetingFileService.php (agenda, item documents, decisions, decision list, minutes, proof package, confidentiality flag and ground), lib/Service/CaseSystemExchangeService.php + SendMeetingFileJob (item decisions to the item's case, the whole file to one meeting case, a line per document, Send again for failed lines only), MeetingCaseSystemTab, admin switch case_system_send_on_approval",
+				"owner": "ConductionNL/decidiq",
+				"change": "openspec/changes/archive/2026-09-30-platform-case-system-document-exchange",
+				"readOn": "2026-09-30"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget, proof package and generate document buttons; MeetingDetail Agenda widget 'Assemble meeting package'",
 			"provider": "decidiq",
