@@ -245,6 +245,7 @@ class PublicationConfidentialityTest extends TestCase {
 			$publisher,
 			$audit,
 			$objects,
+			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 	}//end service()
 

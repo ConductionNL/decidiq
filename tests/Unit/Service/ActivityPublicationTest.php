@@ -205,6 +205,7 @@ class ActivityPublicationTest extends TestCase {
 			$this->createMock(OpenCatalogiPublisher::class),
 			$audit,
 			$objects,
+			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 	}//end service()
 

@@ -25,6 +25,7 @@
 			<CommunicationSection
 				:preference="preference"
 				@updated="preference = $event" />
+			<SubscriptionsSection />
 		</template>
 	</div>
 </template>
@@ -35,6 +36,7 @@ import CommunicationSection from '../../components/userSettings/CommunicationSec
 import DelegationSection from '../../components/userSettings/DelegationSection.vue'
 import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
 import NotificationPreferencesSection from '../../components/userSettings/NotificationPreferencesSection.vue'
+import SubscriptionsSection from '../../components/userSettings/SubscriptionsSection.vue'
 import { fetchNotificationPreference } from '../../components/userSettings/userPreferences.js'
 
 export default {
@@ -45,6 +47,7 @@ export default {
 		DisplayPreferencesSection,
 		DelegationSection,
 		CommunicationSection,
+		SubscriptionsSection,
 	},
 
 	data() {

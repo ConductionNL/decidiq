@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Listener;
 use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Listener\OfficePaperAddedListener;
+use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -62,6 +63,13 @@ class OfficePaperAddedListenerTest extends TestCase {
 	 * @var list<array{0: string, 1: mixed}>
 	 */
 	private array $queued = [];
+
+	/**
+	 * Papers the listener reported to the publication event recorder: [schema, objectId, fileName].
+	 *
+	 * @var list<array{0: string, 1: string, 2: string}>
+	 */
+	private array $papers = [];
 
 	/**
 	 * A file double in a folder of the given name.
@@ -129,7 +137,14 @@ class OfficePaperAddedListenerTest extends TestCase {
 
 		$resolver = new ListenerSchemaResolver($this->createMock(ContainerInterface::class), new NullLogger());
 
-		return new OfficePaperAddedListener($objectService, $jobList, $appConfig, $resolver, new NullLogger());
+		$recorder = $this->createMock(PublicationEventRecorder::class);
+		$recorder->method('paperAdded')->willReturnCallback(
+			function (string $schema, string $objectId, string $fileName): void {
+				$this->papers[] = [$schema, $objectId, $fileName];
+			}
+		);
+
+		return new OfficePaperAddedListener($objectService, $jobList, $appConfig, $resolver, new NullLogger(), $recorder);
 	}//end listener()
 
 	/**
@@ -157,6 +172,41 @@ class OfficePaperAddedListenerTest extends TestCase {
 		$this->assertCount(1, $this->queued);
 		$this->assertSame('meeting', $this->queued[0][1]['schema']);
 	}//end testARewrittenSpreadsheetOnAMeetingQueuesAConversion()
+
+	/**
+	 * A PDF added to an agenda item's folder is reported as a new paper once, and not converted.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 */
+	public function testAPdfPaperIsReportedAsANewPaper(): void {
+		$this->listener([self::ITEM => 'agenda-item'])->handle(new NodeCreatedEvent($this->file('Motie vreemd aan de orde.pdf', self::ITEM)));
+
+		$this->assertSame([['agenda-item', self::ITEM, 'Motie vreemd aan de orde.pdf']], $this->papers);
+		$this->assertSame([], $this->queued);
+	}//end testAPdfPaperIsReportedAsANewPaper()
+
+	/**
+	 * An Office paper that will be converted is reported through its PDF, so once; with
+	 * conversion off it is reported itself. A rewrite or a file outside decidiq is no new paper.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 */
+	public function testEachPaperIsReportedOnce(): void {
+		$this->listener([self::ITEM => 'meeting'])->handle(new NodeCreatedEvent($this->file('Raadsvoorstel.docx', self::ITEM)));
+		$this->assertSame([], $this->papers, 'The converted PDF reports it');
+
+		$this->listener([self::ITEM => 'meeting'], enabled: false)->handle(new NodeCreatedEvent($this->file('Raadsvoorstel.docx', self::ITEM)));
+		$this->assertSame([['meeting', self::ITEM, 'Raadsvoorstel.docx']], $this->papers);
+
+		$this->papers = [];
+		$this->listener([self::ITEM => 'meeting'])->handle(new NodeWrittenEvent($this->file('Motie.pdf', self::ITEM)));
+		$this->listener([self::ITEM => 'meeting'])->handle(new NodeCreatedEvent($this->file('Motie.pdf', 'Documents')));
+		$this->assertSame([], $this->papers);
+	}//end testEachPaperIsReportedOnce()
 
 	/**
 	 * A file in a user's own folder, or in a uuid folder no meeting or agenda item owns, is left alone.

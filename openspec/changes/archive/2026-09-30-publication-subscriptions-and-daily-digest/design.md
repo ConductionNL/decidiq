@@ -19,7 +19,7 @@ Read at decidiq development `c0b2f5bb`.
 
 ### Schemas
 
-Fragment `lib/Settings/register.d/92-publication-subscriptions.json`:
+Fragment `lib/Settings/register.d/113-publication-subscriptions.json` (92 was taken by the time this was built):
 
 `PublicationSubscription` (slug `publication-subscription`):
 
@@ -74,7 +74,7 @@ Municipality example set: a member subscription of the admin user to the municip
 
 ## Files
 
-- `lib/Settings/register.d/92-publication-subscriptions.json`, `lib/Settings/profiles/municipality.json`
+- `lib/Settings/register.d/113-publication-subscriptions.json`, `lib/Settings/profiles/municipality.json`
 - `lib/Service/PublicationEventRecorder.php`, `lib/Service/AgendaService.php`, `lib/Service/PublicationService.php`, the paper listener from `agenda-office-files-to-pdf`
 - `lib/BackgroundJob/PublicationDigestJob.php`, `appinfo/info.xml`, `lib/Service/NotificationPreferenceService.php` (event type `publicationDigest`)
 - `lib/Portal/PortalContributionProvider.php`

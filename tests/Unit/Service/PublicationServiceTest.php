@@ -29,6 +29,7 @@ use OCA\Decidiq\Service\PublicationConfigService;
 use OCA\Decidiq\Service\PublicationEligibilityService;
 use OCA\Decidiq\Service\PublicationPayloadService;
 use OCA\Decidiq\Service\PublicationService;
+use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\App\IAppManager;
@@ -57,6 +58,13 @@ class PublicationServiceTest extends TestCase {
 	 * @var int
 	 */
 	private int $seq = 0;
+
+	/**
+	 * The event recorder double a test wants to see, or null for a silent one.
+	 *
+	 * @var PublicationEventRecorder|null
+	 */
+	private ?PublicationEventRecorder $recorder = null;
 
 	/**
 	 * Build a fully-wired PublicationService over an in-memory ObjectService.
@@ -132,7 +140,7 @@ class PublicationServiceTest extends TestCase {
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => '']);
 
-		return new PublicationService($logger, $appManager, $eligibility, $payload, $configService, $catalog, $audit, $objectService);
+		return new PublicationService($logger, $appManager, $eligibility, $payload, $configService, $catalog, $audit, $objectService, ($this->recorder ?? $this->createMock(PublicationEventRecorder::class)));
 	}//end makeService()
 
 	/**
@@ -145,6 +153,23 @@ class PublicationServiceTest extends TestCase {
 		$this->seq = 0;
 
 	}//end setUp()
+
+	/**
+	 * Publishing a decision records one published event for subscribers, with its body.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
+	 */
+	public function testPublishingADecisionRecordsOneEvent(): void {
+		$this->store['dec-1'] = ['id' => 'dec-1', 'title' => 'Begroting', 'lifecycle' => 'enacted', 'outcome' => 'adopted', 'governanceBody' => 'body-1', 'decisionType' => 'meeting-outcome'];
+
+		$this->recorder = $this->createMock(PublicationEventRecorder::class);
+		$this->recorder->expects($this->once())->method('published')->with('decision', 'dec-1', $this->callback(static fn(array $source): bool => ($source['title'] ?? '') === 'Begroting'), 'body-1');
+
+		$this->makeService(openCatalogi: false)->publish('decision', 'dec-1', 'j.bakker');
+
+	}//end testPublishingADecisionRecordsOneEvent()
 
 	/**
 	 * Publishing an enacted decision creates a record and a payload.

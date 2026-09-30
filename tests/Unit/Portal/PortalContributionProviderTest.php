@@ -136,7 +136,7 @@ final class PortalContributionProviderTest extends TestCase {
 
 		self::assertIsArray(actual: $manifest);
 		self::assertSame(expected: 'Decidiq', actual: $manifest['label']);
-		self::assertCount(expectedCount: 3, haystack: $manifest['actions'], message: 'Exactly createReaction, createBudgetProposal and castMotionAdvice');
+		self::assertCount(expectedCount: 5, haystack: $manifest['actions'], message: 'createReaction, createBudgetProposal, castMotionAdvice, subscribeToPublications and unsubscribeFromPublications');
 		self::assertSame(expected: [], actual: $manifest['notifications'], message: 'No manifest-level notification dispatch this wave');
 
 		$byId = [];
@@ -145,9 +145,9 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'publicCalendar'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar'],
 			actual: array_keys($byId),
-			message: 'Exactly the four documented citizen collections and the public calendar, in order'
+			message: 'Exactly the five documented citizen collections and the public calendar, in order'
 		);
 
 		// The public calendar is read without an account; it is tested on its own.
@@ -255,22 +255,22 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 */
-	public function testCitizenManifestDeclaresExactlyTheThreeCreateActions(): void {
-		$actionsById = $this->actionsById();
+	public function testCitizenManifestDeclaresExactlyTheFourCreateActions(): void {
+		$actionsById = array_filter($this->actionsById(), static fn(array $action): bool => $action['type'] === 'create');
 
 		self::assertSame(
-			expected: ['createReaction', 'createBudgetProposal', 'castMotionAdvice'],
+			expected: ['createReaction', 'createBudgetProposal', 'castMotionAdvice', 'subscribeToPublications'],
 			actual: array_keys($actionsById),
-			message: 'Exactly the three documented citizen create actions, in order'
+			message: 'Exactly the four documented citizen create actions, in order'
 		);
 
 		$minTrust = [
 			'createReaction' => 'low',
 			'createBudgetProposal' => 'low',
 			'castMotionAdvice' => 'substantial',
+			'subscribeToPublications' => 'low',
 		];
 		foreach ($actionsById as $actionId => $action) {
-			self::assertSame(expected: 'create', actual: $action['type']);
 			self::assertSame(expected: $minTrust[$actionId], actual: $action['minTrust'], message: "{$actionId}: minimum trust level");
 			self::assertSame(expected: 'decidiq', actual: $action['register']);
 		}
@@ -476,12 +476,18 @@ final class PortalContributionProviderTest extends TestCase {
 				);
 			}
 
-			foreach (array_keys($action['defaults']) as $field) {
+			foreach (array_keys($action['defaults'] ?? []) as $field) {
 				self::assertArrayHasKey(
 					key: $field,
 					array: $properties,
 					message: "{$actionId}: stamped default field '{$field}' must exist on schema '{$slug}'"
 				);
+			}
+
+			// A subscription follows bodies, not one open parent object.
+			if (isset($action['parentConstraint']) === false) {
+				self::assertStringStartsWith('publication-subscription', $slug, "{$actionId}: only the subscription actions go without a parent constraint");
+				continue;
 			}
 
 			$constraint = $action['parentConstraint'];
@@ -499,6 +505,52 @@ final class PortalContributionProviderTest extends TestCase {
 		}//end foreach
 
 	}//end testCreateActionsMatchShippedRegisterSchemas()
+
+	/**
+	 * A resident subscribes on the portal per body and kind, and chooses how often; the subject
+	 * reference is stamped by the portal, never sent by the client (REQ-PSD-001).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	public function testResidentsSubscribeToPublications(): void {
+		$action = ($this->actionsById()['subscribeToPublications'] ?? null);
+
+		self::assertIsArray($action, 'The citizen contribution offers subscribeToPublications');
+		self::assertSame('create', $action['type']);
+		self::assertSame('publication-subscription', $action['schema']);
+		self::assertSame('subscriberRef', $action['scopeField']);
+		self::assertSame('low', $action['minTrust']);
+		self::assertSame(['governanceBodies', 'kinds', 'frequency'], $action['fields']);
+		self::assertSame(['active' => true], $action['defaults']);
+		self::assertNotContains('subscriberUserId', $action['fields'], 'A resident cannot name a member account');
+	}//end testResidentsSubscribeToPublications()
+
+	/**
+	 * A resident lists his own subscriptions and stops one; stopping sets `active` to false and
+	 * changes nothing else (REQ-PSD-001).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-001-anyone-can-subscribe-per-body-and-kind-and-choose-how-often
+	 */
+	public function testResidentsListAndStopTheirSubscriptions(): void {
+		$collection = ($this->collectionsById()['citizenSubscriptions'] ?? null);
+		self::assertIsArray($collection, 'The citizen contribution lists citizenSubscriptions');
+		self::assertSame('publication-subscription', $collection['schema']);
+		self::assertSame('subscriberRef', $collection['scopeField']);
+		self::assertSame(['governanceBodies', 'kinds', 'frequency', 'active', 'lastSentAt'], $collection['fields']);
+		self::assertArrayNotHasKey('kind', $collection, 'Subscriptions are not an inbox');
+
+		$stop = ($this->actionsById()['unsubscribeFromPublications'] ?? null);
+		self::assertIsArray($stop, 'The citizen contribution offers unsubscribeFromPublications');
+		self::assertSame('update', $stop['type']);
+		self::assertSame('publication-subscription', $stop['schema']);
+		self::assertSame('subscriberRef', $stop['scopeField']);
+		self::assertSame(['active'], $stop['fields']);
+		self::assertSame(['active' => false], $stop['set']);
+	}//end testResidentsListAndStopTheirSubscriptions()
 
 	/**
 	 * Resolve the citizen manifest's collections keyed by their id.

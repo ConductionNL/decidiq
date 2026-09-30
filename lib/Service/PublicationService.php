@@ -68,6 +68,7 @@ class PublicationService {
 	 * @param OpenCatalogiPublisher $catalogPublisher OpenCatalogi catalog routing.
 	 * @param AuditLogService $auditLogService Immutable audit trail.
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
+	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
@@ -80,6 +81,7 @@ class PublicationService {
 		private readonly OpenCatalogiPublisher $catalogPublisher,
 		private readonly AuditLogService $auditLogService,
 		ObjectServiceInterface $objectService,
+		private readonly PublicationEventRecorder $eventRecorder,
 	) {
 		$this->repository = new PublicationRepository(logger: $logger, objectService: $objectService);
 
@@ -176,6 +178,7 @@ class PublicationService {
 			objectUids: [$sourceId, $payloadId],
 			payload: ['sourceType' => $sourceType, 'payloadVersion' => $version]
 		);
+		$this->eventRecorder->published(sourceType: $sourceType, sourceId: $sourceId, source: $source, bodyId: $bodyId);
 
 		return [
 			'record' => $record,
