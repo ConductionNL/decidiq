@@ -44,7 +44,7 @@ $extra = [
         ['name' => 'fullExport#start',    'url' => '/api/export/full',        'verb' => 'POST'],
         ['name' => 'fullExport#latest',   'url' => '/api/export/full',        'verb' => 'GET'],
         ['name' => 'fullExport#download', 'url' => '/api/export/full/{name}', 'verb' => 'GET'],
-        // platform-case-system-document-exchange (plt-23, plt-24): the case system through integriq.
+        // The case system through integriq (platform-case-system-document-exchange, plt-23, plt-24).
         ['name' => 'caseSystem#status',         'url' => '/api/case-system/status',                     'verb' => 'GET'],
         ['name' => 'caseSystem#linkCase',       'url' => '/api/agenda-items/{id}/case',                 'verb' => 'POST'],
         ['name' => 'caseSystem#listDocuments',  'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'GET'],
