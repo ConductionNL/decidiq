@@ -13,9 +13,8 @@ import { validatorFor } from './helpers/registerSchema.js'
 
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))
 
-const { conversionPayload, conversionSetting, paperEntries, retryUrl, splitName } = await import(
-	'../../src/utils/paperRenditions.js'
-)
+const { conversionPayload, conversionSetting, paperEntries, retryUrl, splitName } =
+	await import('../../src/utils/paperRenditions.js')
 
 // The two shapes ConvertPaperToPdfJob writes (ConvertPaperToPdfJobTest).
 const converted = {
@@ -119,7 +118,12 @@ describe('the administrator switch (REQ-OPDF-004)', () => {
 describe('the example set shows both states (REQ-OPDF-002)', async () => {
 	const { readFileSync } = await import('node:fs')
 	const profile = JSON.parse(
-		readFileSync(new URL('../../lib/Settings/profiles/municipality.json', import.meta.url)),
+		readFileSync(
+			new URL(
+				'../../lib/Settings/profiles/municipality.json',
+				import.meta.url,
+			),
+		),
 	)
 	const item = profile['x-openregister'].seedData.objects['agenda-item'].find(
 		(object) => object.slug === 'begroting-2026-bespreking',
@@ -136,8 +140,8 @@ describe('the example set shows both states (REQ-OPDF-002)', async () => {
 				error.instancePath.startsWith('/paperRenditions'),
 			),
 		).toEqual([])
-		expect(paperEntries(renditions, true).map((entry) => entry.failure)).toContain(
-			'No backend could convert this file',
-		)
+		expect(
+			paperEntries(renditions, true).map((entry) => entry.failure),
+		).toContain('No backend could convert this file')
 	})
 })

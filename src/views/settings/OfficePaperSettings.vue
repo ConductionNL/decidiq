@@ -37,7 +37,10 @@
 				)
 			}}
 		</CnNoteCard>
-		<CnNoteCard v-if="error" type="error" :title="t('decidiq', 'The setting was not saved')">
+		<CnNoteCard
+			v-if="error"
+			type="error"
+			:title="t('decidiq', 'The setting was not saved')">
 			{{ error }}
 		</CnNoteCard>
 
@@ -48,7 +51,12 @@
 			:disabled="saving"
 			data-testid="office-paper-settings-switch"
 			@update:modelValue="save">
-			{{ t('decidiq', 'Convert Word, Excel and PowerPoint papers to PDF when they are added') }}
+			{{
+				t(
+					'decidiq',
+					'Convert Word, Excel and PowerPoint papers to PDF when they are added',
+				)
+			}}
 		</NcCheckboxRadioSwitch>
 	</div>
 </template>
@@ -81,7 +89,9 @@ export default {
 		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off */
 		async load() {
 			try {
-				const { data } = await axios.get(generateUrl('/apps/decidiq/api/settings'))
+				const { data } = await axios.get(
+					generateUrl('/apps/decidiq/api/settings'),
+				)
 				this.apply(data)
 			} catch {
 				this.apply({})
@@ -107,7 +117,9 @@ export default {
 				)
 				this.apply(data?.config || conversionPayload(on))
 			} catch (e) {
-				this.error = e?.response?.data?.message || this.t('decidiq', 'Try again in a moment.')
+				this.error =
+					e?.response?.data?.message
+					|| this.t('decidiq', 'Try again in a moment.')
 			} finally {
 				this.saving = false
 			}

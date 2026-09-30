@@ -32,7 +32,9 @@ test('a failed conversion shows its reason and Try again', async ({ page }) => {
 	await expect(page.getByTestId('paper-renditions-failure')).toContainText(
 		'no backend could convert this file',
 	)
-	await expect(page.getByRole('button', { name: /Try the conversion of/ })).toBeVisible()
+	await expect(
+		page.getByRole('button', { name: /Try the conversion of/ }),
+	).toBeVisible()
 })
 
 // @e2e agenda-management::conversion-is-switched-off

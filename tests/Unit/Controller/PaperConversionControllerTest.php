@@ -127,6 +127,25 @@ class PaperConversionControllerTest extends TestCase {
 	}//end testOtherRecordTypesAreRefused()
 
 	/**
+	 * A page that cannot be read is answered 503, and nothing is queued.
+	 *
+	 * @return void
+	 */
+	public function testAnUnreadablePageIsAnswered503(): void {
+		$jobs = $this->createMock(IJobList::class);
+		$jobs->expects($this->never())->method('add');
+		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects->method('find')->willThrowException(new \RuntimeException('database gone'));
+		$guard = $this->createMock(AgendaAuthorizationGuard::class);
+		$guard->method('requireUser')->willReturn(null);
+
+		$controller = new PaperConversionController($this->createMock(IRequest::class), $objects, $guard, $jobs);
+		$response   = $controller->convert(schema: 'agenda-item', objectId: self::ITEM, fileId: 42);
+
+		self::assertSame(Http::STATUS_SERVICE_UNAVAILABLE, $response->getStatus());
+	}//end testAnUnreadablePageIsAnswered503()
+
+	/**
 	 * The Try again button reaches the controller through a route.
 	 *
 	 * @return void

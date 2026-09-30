@@ -84,19 +84,14 @@ class PaperConversionController extends Controller {
 			return new JSONResponse(['message' => 'Papers are converted for meetings and agenda items only.'], Http::STATUS_BAD_REQUEST);
 		}
 
-		$object = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
-		if ($object === null) {
-			return new JSONResponse(['message' => 'Not found.'], Http::STATUS_NOT_FOUND);
+		$data = $this->readObject(schema: $schema, objectId: $objectId);
+		if ($data instanceof JSONResponse) {
+			return $data;
 		}
 
-		$data      = $object->getObject();
 		$meetingId = $objectId;
 		if ($schema === 'agenda-item') {
 			$meetingId = (string)($data['meeting'] ?? '');
-		}
-
-		if ($meetingId === '') {
-			return new JSONResponse(['message' => 'Chair or secretary role required for this meeting'], Http::STATUS_FORBIDDEN);
 		}
 
 		$denied = $this->guard->requireChairOrAdmin(meetingId: $meetingId);
@@ -111,6 +106,30 @@ class PaperConversionController extends Controller {
 		$this->jobList->add(ConvertPaperToPdfJob::class, ['fileId' => $fileId, 'objectId' => $objectId, 'schema' => $schema]);
 		return new JSONResponse(['queued' => true], Http::STATUS_ACCEPTED);
 	}//end convert()
+
+	/**
+	 * Read the meeting or agenda item, or the response that refuses it.
+	 *
+	 * @param string $schema   `agenda-item` or `meeting`.
+	 * @param string $objectId The object uuid.
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-002-a-failed-or-impossible-conversion-is-visible-and-the-original-stays
+	 *
+	 * @return array<string, mixed>|JSONResponse
+	 */
+	private function readObject(string $schema, string $objectId): array|JSONResponse {
+		try {
+			$object = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		} catch (\Throwable) {
+			return new JSONResponse(['message' => 'The papers of this page could not be read.'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
+		if ($object === null) {
+			return new JSONResponse(['message' => 'Not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		return $object->getObject();
+	}//end readObject()
 
 	/**
 	 * Whether the object records the paper.

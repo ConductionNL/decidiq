@@ -106,6 +106,7 @@ export default {
 	},
 
 	computed: {
+		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
 		schema() {
 			if (this.targetType) return this.targetType
 			return String(this.$route?.name || '').startsWith('AgendaItem')
@@ -113,6 +114,7 @@ export default {
 				: 'meeting'
 		},
 
+		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
 		entries() {
 			return paperEntries(
 				this.object?.paperRenditions,
@@ -124,6 +126,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
+			/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
 			handler() {
 				this.load()
 			},
