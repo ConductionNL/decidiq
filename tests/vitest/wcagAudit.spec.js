@@ -182,9 +182,20 @@ describe('the audit report (REQ-AAR-004)', () => {
 		const rows = auditRows({ criteria, scan: null, checklist })
 		const withBraces = {
 			...sample,
-			notApplicable: [{ id: 'projection', reason: 'GET /api/voting-rounds/{id}/public-state <json>' }],
+			notApplicable: [
+				{
+					id: 'projection',
+					reason: 'GET /api/voting-rounds/{id}/public-state <json>',
+				},
+			],
 		}
-		const markdown = renderReport({ version: '1', date: 'd', sample: withBraces, rows, scanned: false })
+		const markdown = renderReport({
+			version: '1',
+			date: 'd',
+			sample: withBraces,
+			rows,
+			scanned: false,
+		})
 		expect(markdown).toContain('/api/voting-rounds/\\{id\\}/public-state')
 		expect(markdown).not.toMatch(/(^|[^\\])[{}]/)
 		expect(markdown).not.toMatch(/<(?!br>)/)
