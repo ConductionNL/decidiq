@@ -9,12 +9,17 @@
  @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
 -->
 <template>
-	<div v-if="connected && meetingId" class="case-send" data-testid="minutes-case-system">
+	<div
+		v-if="connected && meetingId"
+		class="case-send"
+		data-testid="minutes-case-system">
 		<h3 class="decidiq-tab__title">
 			{{ t('decidiq', 'Case system') }}
 		</h3>
 		<p v-if="!sendable" class="decidiq-tab__meta">
-			{{ t('decidiq', 'Approve the minutes before sending the meeting file.') }}
+			{{
+				t('decidiq', 'Approve the minutes before sending the meeting file.')
+			}}
 		</p>
 		<NcButton
 			:disabled="!sendable || working"
@@ -59,7 +64,7 @@ export default {
 		try {
 			const status = await axios.get(apiUrl('/case-system/status'))
 			this.connected = status.data?.connected === true
-		} catch (e) {
+		} catch {
 			this.connected = false
 		}
 	},
@@ -74,10 +79,17 @@ export default {
 			this.working = true
 			this.message = ''
 			try {
-				await axios.post(apiUrl(`/meetings/${this.meetingId}/case-system/send`))
-				this.message = this.t('decidiq', 'The meeting file is being sent. The Case system widget on the meeting page shows each document.')
+				await axios.post(
+					apiUrl(`/meetings/${this.meetingId}/case-system/send`),
+				)
+				this.message = this.t(
+					'decidiq',
+					'The meeting file is being sent. The Case system widget on the meeting page shows each document.',
+				)
 			} catch (e) {
-				this.message = e.response?.data?.message || this.t('decidiq', 'The meeting file could not be sent.')
+				this.message =
+					e.response?.data?.message
+					|| this.t('decidiq', 'The meeting file could not be sent.')
 			} finally {
 				this.working = false
 			}

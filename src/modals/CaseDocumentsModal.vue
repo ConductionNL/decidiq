@@ -21,14 +21,19 @@
 				{{ t('decidiq', 'The case holds no documents.') }}
 			</p>
 			<ul v-else class="case-documents__list">
-				<li v-for="document in documents" :key="document.url" data-testid="case-documents-row">
+				<li
+					v-for="document in documents"
+					:key="document.url"
+					data-testid="case-documents-row">
 					<NcCheckboxRadioSwitch
 						v-model="chosen"
 						:value="document.url"
 						:disabled="document.fetched"
 						type="checkbox">
 						{{ document.name }}
-						<span v-if="document.fetched" class="case-documents__fetched">
+						<span
+							v-if="document.fetched"
+							class="case-documents__fetched">
 							{{ t('decidiq', 'Fetched') }}
 						</span>
 					</NcCheckboxRadioSwitch>
@@ -106,10 +111,14 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const response = await axios.get(apiUrl(`/agenda-items/${this.itemId}/case-documents`))
+				const response = await axios.get(
+					apiUrl(`/agenda-items/${this.itemId}/case-documents`),
+				)
 				this.documents = response.data?.documents || []
 			} catch (e) {
-				this.error = e.response?.data?.message || this.t('decidiq', 'The case documents could not be listed.')
+				this.error =
+					e.response?.data?.message
+					|| this.t('decidiq', 'The case documents could not be listed.')
 			} finally {
 				this.loading = false
 			}
@@ -124,11 +133,16 @@ export default {
 			this.working = true
 			this.error = ''
 			try {
-				await axios.post(apiUrl(`/agenda-items/${this.itemId}/case-documents`), { urls: this.selection })
+				await axios.post(
+					apiUrl(`/agenda-items/${this.itemId}/case-documents`),
+					{ urls: this.selection },
+				)
 				this.chosen = []
 				await this.load()
 			} catch (e) {
-				this.error = e.response?.data?.message || this.t('decidiq', 'The documents could not be fetched.')
+				this.error =
+					e.response?.data?.message
+					|| this.t('decidiq', 'The documents could not be fetched.')
 			} finally {
 				this.working = false
 			}

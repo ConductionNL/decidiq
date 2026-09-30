@@ -16,7 +16,10 @@
 			{{ t('decidiq', 'No case system is connected.') }}
 		</p>
 		<template v-else>
-			<p v-if="label" class="case-tab__case" data-testid="agenda-item-case-label">
+			<p
+				v-if="label"
+				class="case-tab__case"
+				data-testid="agenda-item-case-label">
 				{{ label }}
 			</p>
 			<p v-else class="case-tab__empty">
@@ -119,7 +122,9 @@ export default {
 					this.caseReference = item.data?.caseReference || null
 				}
 			} catch (e) {
-				this.error = e.response?.data?.message || this.t('decidiq', 'The case could not be read.')
+				this.error =
+					e.response?.data?.message
+					|| this.t('decidiq', 'The case could not be read.')
 			} finally {
 				this.loading = false
 			}
@@ -141,7 +146,9 @@ export default {
 				this.caseReference = response.data?.caseReference || null
 				this.reference = ''
 			} catch (e) {
-				this.error = e.response?.data?.message || this.t('decidiq', 'The case could not be linked.')
+				this.error =
+					e.response?.data?.message
+					|| this.t('decidiq', 'The case could not be linked.')
 			} finally {
 				this.working = false
 			}

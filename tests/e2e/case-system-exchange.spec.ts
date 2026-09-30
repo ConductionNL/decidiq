@@ -33,9 +33,14 @@ async function openItem(page) {
 test('the griffier links a raadsvoorstel to its case', async ({ page }) => {
 	await openItem(page)
 	const tab = page.getByTestId('agenda-item-case')
-	await tab.getByTestId('agenda-item-case-reference').locator('input').fill('Z-2026-00412')
+	await tab
+		.getByTestId('agenda-item-case-reference')
+		.locator('input')
+		.fill('Z-2026-00412')
 	await tab.getByTestId('agenda-item-case-link').click()
-	await expect(tab.getByTestId('agenda-item-case-label')).toContainText('Z-2026-00412')
+	await expect(tab.getByTestId('agenda-item-case-label')).toContainText(
+		'Z-2026-00412',
+	)
 })
 
 // @e2e case-system-exchange::the-griffier-fetches-the-raadsvoorstel
@@ -54,7 +59,9 @@ test('the griffier fetches the raadsvoorstel', async ({ page }) => {
 })
 
 // @e2e case-system-exchange::the-griffier-sends-the-file-after-the-council-meeting
-test('the griffier sends the meeting file from the minutes page', async ({ page }) => {
+test('the griffier sends the meeting file from the minutes page', async ({
+	page,
+}) => {
 	await page.goto(`${BASE}/index.php/apps/decidiq/minutes`)
 	await page.getByText('Notulen').first().click()
 	const send = page.getByTestId('minutes-case-system-send')

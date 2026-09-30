@@ -22,9 +22,26 @@
 				class="case-system__record"
 				data-testid="meeting-case-system-record">
 				<div class="case-system__head">
-					<strong>{{ record.direction === 'fetch' ? t('decidiq', 'Fetched from {case}', { case: record.targetLabel || record.target }) : t('decidiq', 'Sent to {case}', { case: record.targetLabel || record.target || t('decidiq', 'a new case') }) }}</strong>
+					<strong>{{
+						record.direction === 'fetch'
+							? t('decidiq', 'Fetched from {case}', {
+									case: record.targetLabel || record.target,
+								})
+							: t('decidiq', 'Sent to {case}', {
+									case:
+										record.targetLabel
+										|| record.target
+										|| t('decidiq', 'a new case'),
+								})
+					}}</strong>
 					<span class="case-system__counts">
-						{{ t('decidiq', '{sent} sent, {failed} failed, {pending} waiting', counts(record)) }}
+						{{
+							t(
+								'decidiq',
+								'{sent} sent, {failed} failed, {pending} waiting',
+								counts(record),
+							)
+						}}
 					</span>
 					<NcButton
 						v-if="sendAgainOffered(record)"
@@ -35,8 +52,14 @@
 					</NcButton>
 				</div>
 				<ul class="case-system__lines">
-					<li v-for="line in record.lines" :key="line.source || line.name" :class="`case-system__line--${line.status}`">
-						{{ line.name }}: {{ statusLabel(line.status) }}<template v-if="line.confidential"> ({{ t('decidiq', 'confidential') }})</template><template v-if="line.error"> · {{ line.error }}</template>
+					<li
+						v-for="line in record.lines"
+						:key="line.source || line.name"
+						:class="`case-system__line--${line.status}`">
+						{{ line.name }}: {{ statusLabel(line.status)
+						}}<template v-if="line.confidential">
+							({{ t('decidiq', 'confidential') }})</template
+						><template v-if="line.error"> · {{ line.error }}</template>
 					</li>
 				</ul>
 			</li>
@@ -93,9 +116,12 @@ export default {
 			try {
 				const response = await axios.get(recordsUrl(String(this.objectId)))
 				this.records = newestFirst(response.data?.results || [])
-			} catch (e) {
+			} catch {
 				this.records = []
-				this.message = this.t('decidiq', 'The case system records could not be read.')
+				this.message = this.t(
+					'decidiq',
+					'The case system records could not be read.',
+				)
 			} finally {
 				this.loading = false
 			}
@@ -131,11 +157,13 @@ export default {
 		 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-006-every-exchange-is-recorded-and-a-failed-document-is-sent-again-on-request
 		 */
 		statusLabel(status) {
-			return {
-				pending: this.t('decidiq', 'waiting'),
-				sent: this.t('decidiq', 'sent'),
-				failed: this.t('decidiq', 'failed'),
-			}[status] || status
+			return (
+				{
+					pending: this.t('decidiq', 'waiting'),
+					sent: this.t('decidiq', 'sent'),
+					failed: this.t('decidiq', 'failed'),
+				}[status] || status
+			)
 		},
 
 		/**
@@ -148,10 +176,17 @@ export default {
 			this.working = record.id
 			this.message = ''
 			try {
-				await axios.post(apiUrl(`/case-exchange-records/${record.id}/resend`))
-				this.message = this.t('decidiq', 'The failed documents will be sent again in a moment.')
+				await axios.post(
+					apiUrl(`/case-exchange-records/${record.id}/resend`),
+				)
+				this.message = this.t(
+					'decidiq',
+					'The failed documents will be sent again in a moment.',
+				)
 			} catch (e) {
-				this.message = e.response?.data?.message || this.t('decidiq', 'The documents could not be sent again.')
+				this.message =
+					e.response?.data?.message
+					|| this.t('decidiq', 'The documents could not be sent again.')
 			} finally {
 				this.working = ''
 			}
