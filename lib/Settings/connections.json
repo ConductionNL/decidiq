@@ -25,6 +25,14 @@
             "order": 30,
             "reportedOnly": true,
             "unconfiguredMessage": "Not checked yet. Decidiq reports which translation service answers here once a day."
+        },
+        {
+            "key": "case-system",
+            "title": "Case system",
+            "description": "Documents fetched from the organisation's case system onto agenda items, and the meeting file sent back after the minutes are approved, over the ZGW APIs or StUF-ZKN.",
+            "order": 40,
+            "sourceTemplate": "zgw-zaken",
+            "unconfiguredMessage": "No case system is linked, so decidiq shows no case actions. Link a source to this connection to fetch case documents and send the meeting file."
         }
     ]
 }

@@ -59,6 +59,9 @@ class SettingsService {
 		'ori_endpoint',
 		'ori_bearer_secret',
 		'email_voting_enabled',
+		// @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
+		// 'true' sends the meeting file to the case system when minutes are approved.
+		'case_system_send_on_approval',
 		'minutesSchema',
 		'decisionSchema',
 		'actionItemSchema',
