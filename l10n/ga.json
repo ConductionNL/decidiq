@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Cad é an doiciméad: an clár oibre, doiciméad míre, cinneadh, an liosta cinntí, na miontuairiscí nó an pacáiste fianaise.",
         "When the fetch or send was asked for.": "Cathain a iarradh an fháil nó an seoladh.",
         "Where decidiq finds the document again when it is sent a second time.": "An áit a bhfaigheann decidiq an doiciméad arís nuair a sheoltar an dara huair é.",
-        "Why the case system refused the document.": "Cén fáth ar dhiúltaigh an córas cásbhainistíochta an doiciméad."
+        "Why the case system refused the document.": "Cén fáth ar dhiúltaigh an córas cásbhainistíochta an doiciméad.",
+        "Rights per record type": "Cearta de réir cineál taifid",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Socraíonn na rialacha thíos cé a fhéadfaidh gach cineál taifid a léamh agus a athrú. Ainmníonn siad róil decidiq. Cuir do ghrúpaí féin le ról agus gheobhaidh siad na cearta céanna; coinníonn grúpa an róil féin iad freisin.",
+        "Could not save": "Níorbh fhéidir sábháil",
+        "The rules now include the groups you added.": "Tá na grúpaí a chuir tú leis sna rialacha anois.",
+        "Save groups": "Sábháil grúpaí",
+        "Who may do what, per record type": "Cé a fhéadfaidh cad a dhéanamh, de réir cineál taifid",
+        "Record type": "Cineál taifid",
+        "Read": "Léamh",
+        "Change": "Athrú",
+        "(the app's general rules)": "(rialacha ginearálta na haipe)",
+        "The rights could not be loaded.": "Níorbh fhéidir na cearta a lódáil.",
+        "The groups could not be saved.": "Níorbh fhéidir na grúpaí a shábháil.",
+        "Record administrators": "Riarthóirí taifead",
+        "Secretariat": "Rúnaíocht",
+        "Publication flow": "Sreabhadh foilsithe",
+        "Groups with the role {role} ({groups})": "Grúpaí leis an ról {role} ({groups})",
+        "Everyone": "Gach duine",
+        "Signed-in users": "Úsáideoirí sínithe isteach",
+        "Nobody": "Duine ar bith",
+        "{who} (under a condition)": "{who} (faoi choinníoll)"
     },
     "plurals": null
 }

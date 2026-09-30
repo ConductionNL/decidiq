@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Qué es el documento: el orden del día, un documento de punto, una decisión, la lista de decisiones, el acta o el paquete de pruebas.",
         "When the fetch or send was asked for.": "Cuándo se solicitó la obtención o el envío.",
         "Where decidiq finds the document again when it is sent a second time.": "Dónde vuelve a encontrar decidiq el documento cuando se envía por segunda vez.",
-        "Why the case system refused the document.": "Por qué el sistema de expedientes rechazó el documento."
+        "Why the case system refused the document.": "Por qué el sistema de expedientes rechazó el documento.",
+        "Rights per record type": "Derechos por tipo de registro",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Las reglas siguientes deciden quién puede leer y cambiar cada tipo de registro. Nombran roles de decidiq. Añada sus propios grupos a un rol y obtendrán los mismos derechos; el grupo propio del rol también los conserva.",
+        "Could not save": "No se pudo guardar",
+        "The rules now include the groups you added.": "Las reglas ahora incluyen los grupos que ha añadido.",
+        "Save groups": "Guardar grupos",
+        "Who may do what, per record type": "Quién puede hacer qué, por tipo de registro",
+        "Record type": "Tipo de registro",
+        "Read": "Leer",
+        "Change": "Cambiar",
+        "(the app's general rules)": "(las reglas generales de la aplicación)",
+        "The rights could not be loaded.": "No se pudieron cargar los derechos.",
+        "The groups could not be saved.": "No se pudieron guardar los grupos.",
+        "Record administrators": "Administradores de registros",
+        "Secretariat": "Secretaría",
+        "Publication flow": "Flujo de publicación",
+        "Groups with the role {role} ({groups})": "Grupos con el rol {role} ({groups})",
+        "Everyone": "Todos",
+        "Signed-in users": "Usuarios con sesión iniciada",
+        "Nobody": "Nadie",
+        "{who} (under a condition)": "{who} (con una condición)"
     },
     "plurals": null
 }

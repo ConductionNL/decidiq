@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Что это за документ: повестка, документ пункта, решение, перечень решений, протокол или пакет доказательств.",
         "When the fetch or send was asked for.": "Когда были запрошены получение или отправка.",
         "Where decidiq finds the document again when it is sent a second time.": "Где decidiq снова находит документ при повторной отправке.",
-        "Why the case system refused the document.": "Почему система дел отклонила документ."
+        "Why the case system refused the document.": "Почему система дел отклонила документ.",
+        "Rights per record type": "Права по типу записи",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Правила ниже определяют, кто может читать и изменять каждый вид записи. В них указаны роли decidiq. Добавьте свои группы к роли, и они получат те же права; собственная группа роли их тоже сохраняет.",
+        "Could not save": "Не удалось сохранить",
+        "The rules now include the groups you added.": "Теперь правила включают добавленные вами группы.",
+        "Save groups": "Сохранить группы",
+        "Who may do what, per record type": "Кто что может, по типу записи",
+        "Record type": "Тип записи",
+        "Read": "Чтение",
+        "Change": "Изменение",
+        "(the app's general rules)": "(общие правила приложения)",
+        "The rights could not be loaded.": "Не удалось загрузить права.",
+        "The groups could not be saved.": "Не удалось сохранить группы.",
+        "Record administrators": "Администраторы записей",
+        "Secretariat": "Секретариат",
+        "Publication flow": "Поток публикации",
+        "Groups with the role {role} ({groups})": "Группы с ролью {role} ({groups})",
+        "Everyone": "Все",
+        "Signed-in users": "Вошедшие пользователи",
+        "Nobody": "Никто",
+        "{who} (under a condition)": "{who} (при условии)"
     },
     "nplurals=2; plural=(n != 1);"
 )

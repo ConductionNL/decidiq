@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Τι είναι το έγγραφο: η ημερήσια διάταξη, έγγραφο θέματος, απόφαση, ο κατάλογος αποφάσεων, τα πρακτικά ή το πακέτο αποδεικτικών.",
         "When the fetch or send was asked for.": "Πότε ζητήθηκε η ανάκτηση ή η αποστολή.",
         "Where decidiq finds the document again when it is sent a second time.": "Πού βρίσκει το decidiq ξανά το έγγραφο όταν αποστέλλεται για δεύτερη φορά.",
-        "Why the case system refused the document.": "Γιατί το σύστημα υποθέσεων απέρριψε το έγγραφο."
+        "Why the case system refused the document.": "Γιατί το σύστημα υποθέσεων απέρριψε το έγγραφο.",
+        "Rights per record type": "Δικαιώματα ανά τύπο εγγραφής",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Οι παρακάτω κανόνες ορίζουν ποιος μπορεί να διαβάζει και να αλλάζει κάθε είδος εγγραφής. Αναφέρουν ρόλους του decidiq. Προσθέστε δικές σας ομάδες σε έναν ρόλο και αποκτούν τα ίδια δικαιώματα· η δική του ομάδα του ρόλου τα διατηρεί επίσης.",
+        "Could not save": "Δεν ήταν δυνατή η αποθήκευση",
+        "The rules now include the groups you added.": "Οι κανόνες περιλαμβάνουν πλέον τις ομάδες που προσθέσατε.",
+        "Save groups": "Αποθήκευση ομάδων",
+        "Who may do what, per record type": "Ποιος μπορεί να κάνει τι, ανά τύπο εγγραφής",
+        "Record type": "Τύπος εγγραφής",
+        "Read": "Ανάγνωση",
+        "Change": "Αλλαγή",
+        "(the app's general rules)": "(οι γενικοί κανόνες της εφαρμογής)",
+        "The rights could not be loaded.": "Δεν ήταν δυνατή η φόρτωση των δικαιωμάτων.",
+        "The groups could not be saved.": "Δεν ήταν δυνατή η αποθήκευση των ομάδων.",
+        "Record administrators": "Διαχειριστές εγγραφών",
+        "Secretariat": "Γραμματεία",
+        "Publication flow": "Ροή δημοσίευσης",
+        "Groups with the role {role} ({groups})": "Ομάδες με τον ρόλο {role} ({groups})",
+        "Everyone": "Όλοι",
+        "Signed-in users": "Συνδεδεμένοι χρήστες",
+        "Nobody": "Κανείς",
+        "{who} (under a condition)": "{who} (υπό προϋπόθεση)"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Mikä asiakirja on: esityslista, kohdan asiakirja, päätös, päätösluettelo, pöytäkirja tai todistepaketti.",
         "When the fetch or send was asked for.": "Milloin haku tai lähetys pyydettiin.",
         "Where decidiq finds the document again when it is sent a second time.": "Mistä decidiq löytää asiakirjan uudelleen, kun se lähetetään toisen kerran.",
-        "Why the case system refused the document.": "Miksi asianhallintajärjestelmä hylkäsi asiakirjan."
+        "Why the case system refused the document.": "Miksi asianhallintajärjestelmä hylkäsi asiakirjan.",
+        "Rights per record type": "Oikeudet tietuetyypeittäin",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Alla olevat säännöt ratkaisevat, kuka saa lukea ja muuttaa kunkin tietuetyypin. Ne nimeävät decidiqin rooleja. Lisää rooliin omia ryhmiäsi, niin ne saavat samat oikeudet; roolin oma ryhmä säilyttää ne myös.",
+        "Could not save": "Tallennus epäonnistui",
+        "The rules now include the groups you added.": "Säännöt sisältävät nyt lisäämäsi ryhmät.",
+        "Save groups": "Tallenna ryhmät",
+        "Who may do what, per record type": "Kuka saa tehdä mitä, tietuetyypeittäin",
+        "Record type": "Tietuetyyppi",
+        "Read": "Lukea",
+        "Change": "Muuttaa",
+        "(the app's general rules)": "(sovelluksen yleiset säännöt)",
+        "The rights could not be loaded.": "Oikeuksia ei voitu ladata.",
+        "The groups could not be saved.": "Ryhmiä ei voitu tallentaa.",
+        "Record administrators": "Tietueiden ylläpitäjät",
+        "Secretariat": "Sihteeristö",
+        "Publication flow": "Julkaisun kulku",
+        "Groups with the role {role} ({groups})": "Ryhmät, joilla on rooli {role} ({groups})",
+        "Everyone": "Kaikki",
+        "Signed-in users": "Kirjautuneet käyttäjät",
+        "Nobody": "Ei kukaan",
+        "{who} (under a condition)": "{who} (ehdolla)"
     },
     "nplurals=2; plural=(n != 1);"
 )

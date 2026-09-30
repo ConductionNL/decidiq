@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "O que é o documento: a ordem de trabalhos, um documento de ponto, uma decisão, a lista de decisões, a ata ou o pacote de provas.",
         "When the fetch or send was asked for.": "Quando foi pedida a obtenção ou o envio.",
         "Where decidiq finds the document again when it is sent a second time.": "Onde o decidiq volta a encontrar o documento quando é enviado uma segunda vez.",
-        "Why the case system refused the document.": "Porque o sistema de processos recusou o documento."
+        "Why the case system refused the document.": "Porque o sistema de processos recusou o documento.",
+        "Rights per record type": "Direitos por tipo de registo",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "As regras abaixo decidem quem pode ler e alterar cada tipo de registo. Referem papéis do decidiq. Adicione os seus próprios grupos a um papel e eles obtêm os mesmos direitos; o grupo próprio do papel também os mantém.",
+        "Could not save": "Não foi possível guardar",
+        "The rules now include the groups you added.": "As regras incluem agora os grupos que adicionou.",
+        "Save groups": "Guardar grupos",
+        "Who may do what, per record type": "Quem pode fazer o quê, por tipo de registo",
+        "Record type": "Tipo de registo",
+        "Read": "Ler",
+        "Change": "Alterar",
+        "(the app's general rules)": "(as regras gerais da aplicação)",
+        "The rights could not be loaded.": "Não foi possível carregar os direitos.",
+        "The groups could not be saved.": "Não foi possível guardar os grupos.",
+        "Record administrators": "Administradores de registos",
+        "Secretariat": "Secretariado",
+        "Publication flow": "Fluxo de publicação",
+        "Groups with the role {role} ({groups})": "Grupos com o papel {role} ({groups})",
+        "Everyone": "Todos",
+        "Signed-in users": "Utilizadores com sessão iniciada",
+        "Nobody": "Ninguém",
+        "{who} (under a condition)": "{who} (sob uma condição)"
     },
     "nplurals=2; plural=(n != 1);"
 )

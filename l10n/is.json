@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Hvað skjalið er: dagskráin, skjal dagskrárliðar, ákvörðun, ákvarðanalistinn, fundargerðin eða sönnunargagnapakkinn.",
         "When the fetch or send was asked for.": "Hvenær var beðið um sókn eða sendingu.",
         "Where decidiq finds the document again when it is sent a second time.": "Hvar decidiq finnur skjalið aftur þegar það er sent í annað sinn.",
-        "Why the case system refused the document.": "Hvers vegna málakerfið hafnaði skjalinu."
+        "Why the case system refused the document.": "Hvers vegna málakerfið hafnaði skjalinu.",
+        "Rights per record type": "Réttindi eftir tegund færslu",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Reglurnar hér að neðan ákveða hver má lesa og breyta hverri tegund færslu. Þær nefna hlutverk í decidiq. Bættu eigin hópum við hlutverk og þeir fá sömu réttindi; eigin hópur hlutverksins heldur þeim líka.",
+        "Could not save": "Ekki tókst að vista",
+        "The rules now include the groups you added.": "Reglurnar ná nú yfir hópana sem þú bættir við.",
+        "Save groups": "Vista hópa",
+        "Who may do what, per record type": "Hver má gera hvað, eftir tegund færslu",
+        "Record type": "Tegund færslu",
+        "Read": "Lesa",
+        "Change": "Breyta",
+        "(the app's general rules)": "(almennar reglur forritsins)",
+        "The rights could not be loaded.": "Ekki tókst að hlaða réttindunum.",
+        "The groups could not be saved.": "Ekki tókst að vista hópana.",
+        "Record administrators": "Stjórnendur færslna",
+        "Secretariat": "Skrifstofa",
+        "Publication flow": "Útgáfuflæði",
+        "Groups with the role {role} ({groups})": "Hópar með hlutverkið {role} ({groups})",
+        "Everyone": "Allir",
+        "Signed-in users": "Innskráðir notendur",
+        "Nobody": "Enginn",
+        "{who} (under a condition)": "{who} (með skilyrði)"
     },
     "plurals": null
 }

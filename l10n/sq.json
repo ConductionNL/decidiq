@@ -1478,7 +1478,27 @@
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Çfarë është dokumenti: rendi i ditës, një dokument pike, një vendim, lista e vendimeve, procesverbali ose pakoja e provave.",
         "When the fetch or send was asked for.": "Kur u kërkua marrja ose dërgimi.",
         "Where decidiq finds the document again when it is sent a second time.": "Ku e gjen decidiq dokumentin kur dërgohet për herë të dytë.",
-        "Why the case system refused the document.": "Pse sistemi i lëndëve e refuzoi dokumentin."
+        "Why the case system refused the document.": "Pse sistemi i lëndëve e refuzoi dokumentin.",
+        "Rights per record type": "Të drejtat sipas llojit të regjistrimit",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Rregullat më poshtë vendosin se kush mund të lexojë dhe ndryshojë çdo lloj regjistrimi. Ato emërtojnë role të decidiq. Shtoni grupet tuaja te një rol dhe ato marrin të njëjtat të drejta; grupi i vetë rolit i ruan gjithashtu.",
+        "Could not save": "Nuk u ruajt dot",
+        "The rules now include the groups you added.": "Rregullat tani përfshijnë grupet që shtuat.",
+        "Save groups": "Ruaj grupet",
+        "Who may do what, per record type": "Kush mund të bëjë çfarë, sipas llojit të regjistrimit",
+        "Record type": "Lloji i regjistrimit",
+        "Read": "Lexim",
+        "Change": "Ndryshim",
+        "(the app's general rules)": "(rregullat e përgjithshme të aplikacionit)",
+        "The rights could not be loaded.": "Të drejtat nuk u ngarkuan dot.",
+        "The groups could not be saved.": "Grupet nuk u ruajtën dot.",
+        "Record administrators": "Administratorët e regjistrimeve",
+        "Secretariat": "Sekretaria",
+        "Publication flow": "Rrjedha e publikimit",
+        "Groups with the role {role} ({groups})": "Grupe me rolin {role} ({groups})",
+        "Everyone": "Të gjithë",
+        "Signed-in users": "Përdoruesit e identifikuar",
+        "Nobody": "Askush",
+        "{who} (under a condition)": "{who} (me një kusht)"
     },
     "plurals": null
 }

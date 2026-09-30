@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Czym jest dokument: porządek obrad, dokument punktu, decyzja, lista decyzji, protokół lub pakiet dowodowy.",
         "When the fetch or send was asked for.": "Kiedy zażądano pobrania lub wysłania.",
         "Where decidiq finds the document again when it is sent a second time.": "Gdzie decidiq ponownie znajduje dokument, gdy jest wysyłany po raz drugi.",
-        "Why the case system refused the document.": "Dlaczego system obsługi spraw odrzucił dokument."
+        "Why the case system refused the document.": "Dlaczego system obsługi spraw odrzucił dokument.",
+        "Rights per record type": "Uprawnienia według typu rekordu",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Poniższe reguły określają, kto może czytać i zmieniać każdy rodzaj rekordu. Wskazują role decidiq. Dodaj własne grupy do roli, a otrzymają te same uprawnienia; własna grupa roli też je zachowuje.",
+        "Could not save": "Nie udało się zapisać",
+        "The rules now include the groups you added.": "Reguły obejmują teraz dodane przez Ciebie grupy.",
+        "Save groups": "Zapisz grupy",
+        "Who may do what, per record type": "Kto może co, według typu rekordu",
+        "Record type": "Typ rekordu",
+        "Read": "Odczyt",
+        "Change": "Zmiana",
+        "(the app's general rules)": "(ogólne reguły aplikacji)",
+        "The rights could not be loaded.": "Nie udało się wczytać uprawnień.",
+        "The groups could not be saved.": "Nie udało się zapisać grup.",
+        "Record administrators": "Administratorzy rekordów",
+        "Secretariat": "Sekretariat",
+        "Publication flow": "Przepływ publikacji",
+        "Groups with the role {role} ({groups})": "Grupy z rolą {role} ({groups})",
+        "Everyone": "Wszyscy",
+        "Signed-in users": "Zalogowani użytkownicy",
+        "Nobody": "Nikt",
+        "{who} (under a condition)": "{who} (pod warunkiem)"
     },
     "nplurals=2; plural=(n != 1);"
 )

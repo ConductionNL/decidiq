@@ -1479,7 +1479,27 @@ OC.L10N.register(
         "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.": "Mis dokument on: päevakord, punkti dokument, otsus, otsuste loend, protokoll või tõendipakett.",
         "When the fetch or send was asked for.": "Millal toomist või saatmist taotleti.",
         "Where decidiq finds the document again when it is sent a second time.": "Kust decidiq dokumendi uuesti leiab, kui see saadetakse teist korda.",
-        "Why the case system refused the document.": "Miks toimikusüsteem dokumendi tagasi lükkas."
+        "Why the case system refused the document.": "Miks toimikusüsteem dokumendi tagasi lükkas.",
+        "Rights per record type": "Õigused kirjetüübi kaupa",
+        "The rules below decide who may read and change each kind of record. They name decidiq roles. Add your own groups to a role and they get the same rights; the role's own group keeps them too.": "Allolevad reeglid määravad, kes võib iga kirjetüüpi lugeda ja muuta. Need nimetavad decidiqi rolle. Lisage rollile oma grupid ja need saavad samad õigused; rolli enda grupp jääb samuti alles.",
+        "Could not save": "Salvestamine ebaõnnestus",
+        "The rules now include the groups you added.": "Reeglid sisaldavad nüüd teie lisatud gruppe.",
+        "Save groups": "Salvesta grupid",
+        "Who may do what, per record type": "Kes mida tohib, kirjetüübi kaupa",
+        "Record type": "Kirjetüüp",
+        "Read": "Lugeda",
+        "Change": "Muuta",
+        "(the app's general rules)": "(rakenduse üldreeglid)",
+        "The rights could not be loaded.": "Õigusi ei õnnestunud laadida.",
+        "The groups could not be saved.": "Gruppe ei õnnestunud salvestada.",
+        "Record administrators": "Kirjete haldurid",
+        "Secretariat": "Sekretariaat",
+        "Publication flow": "Avaldamise voog",
+        "Groups with the role {role} ({groups})": "Rolliga {role} grupid ({groups})",
+        "Everyone": "Kõik",
+        "Signed-in users": "Sisselogitud kasutajad",
+        "Nobody": "Mitte keegi",
+        "{who} (under a condition)": "{who} (tingimusel)"
     },
     "nplurals=2; plural=(n != 1);"
 )
