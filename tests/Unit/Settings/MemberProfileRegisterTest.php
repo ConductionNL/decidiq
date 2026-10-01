@@ -13,7 +13,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @coversNothing
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
  */
 class MemberProfileRegisterTest extends TestCase {
 

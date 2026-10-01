@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 /**
  * Read-only person to participant lookup.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
 class PersonParticipantLookup {
 
@@ -60,7 +60,7 @@ class PersonParticipantLookup {
 	 *
 	 * @return list<string> Participant ids, empty when nothing matches
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function participantIdsOf(array $person): array {
 		foreach (self::MATCH_ORDER as $field) {
@@ -77,6 +77,39 @@ class PersonParticipantLookup {
 
 		return [];
 	}//end participantIdsOf()
+
+	/**
+	 * The person a participant stands for, matched the same way round: the
+	 * Nextcloud user id first, then the email address.
+	 *
+	 * @param array<string, mixed> $participant The participant object
+	 *
+	 * @return string|null The person id, or null when no person matches
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	public function personIdOf(array $participant): ?string {
+		foreach (self::MATCH_ORDER as $field) {
+			$value = trim((string)($participant[$field] ?? ''));
+			if ($value === '') {
+				continue;
+			}
+
+			$people = $this->objectService->findAll(
+				config: ['filters' => ['register' => 'decidiq', 'schema' => 'person', $field => $value], 'limit' => 1],
+				_rbac: false,
+				_multitenancy: false
+			);
+			foreach ($people as $entity) {
+				$id = self::idOf(object: $entity->jsonSerialize());
+				if ($id !== null) {
+					return $id;
+				}
+			}
+		}//end foreach
+
+		return null;
+	}//end personIdOf()
 
 	/**
 	 * The ids of the participants whose field has this value.

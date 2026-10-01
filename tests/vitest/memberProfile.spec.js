@@ -6,7 +6,7 @@
  * person has a profile page with memberships, portfolio, outside positions and
  * voting record, and member lists link to it.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md
+ * @spec openspec/specs/person-and-membership/spec.md
  */
 import { readdirSync, readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'

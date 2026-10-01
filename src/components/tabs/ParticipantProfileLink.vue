@@ -6,7 +6,7 @@
  person, on the Nextcloud user id first and then the email address. Read
  only: it never creates a person.
 
- @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+ @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
 -->
 <template>
 	<div class="decidiq-tab" data-testid="participant-profile-link">
@@ -47,7 +47,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile */
+		/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile */
 		profile() {
 			return profilePath(this.personId)
 		},
@@ -56,7 +56,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile */
+			/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile */
 			handler() {
 				this.resolve()
 			},
@@ -68,7 +68,7 @@ export default {
 		 * Find the participant's person, strongest match first.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
 		 */
 		async resolve() {
 			if (!this.objectId) return

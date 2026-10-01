@@ -24,6 +24,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Controller\OriController;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Http;
@@ -75,6 +76,7 @@ class OriCommitmentsTest extends TestCase {
 			$container,
 			$this->createMock(LoggerInterface::class),
 			new OriSerializer(),
+			$this->createMock(OriVotePublicationRule::class),
 		);
 	}//end setUp()
 

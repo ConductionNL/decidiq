@@ -1,7 +1,7 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
 	"_note": "Member profile (bodies-member-profile-and-voting-record, rows bod-05 and vot-18), appended onto src/manifest.json by main.js::mergeManifestFragments (ADR-037). No menu entry: a profile is reached from a body's members widget and from the participant page.",
-	"_spec": "openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md",
+	"_spec": "openspec/specs/person-and-membership/spec.md",
 	"pages": [
 		{
 			"id": "PersonDetail",

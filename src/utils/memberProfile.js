@@ -6,7 +6,7 @@
  * voting record endpoint, initials in place of a missing photo, memberships
  * split into current and earlier, and the rows of the voting record.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md
+ * @spec openspec/specs/person-and-membership/spec.md
  */
 
 /**
@@ -14,7 +14,7 @@
  *
  * @param {string} personId The person id
  * @return {string}
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
  */
 export function profilePath(personId) {
 	return `/people/${personId}`
@@ -25,7 +25,7 @@ export function profilePath(personId) {
  *
  * @param {string} personId The person id
  * @return {string}
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
 export function votingRecordUrl(personId) {
 	return `/apps/decidiq/api/people/${encodeURIComponent(personId)}/voting-record`
@@ -36,7 +36,7 @@ export function votingRecordUrl(personId) {
  *
  * @param {string} name The person's name
  * @return {string}
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page
  */
 export function initials(name) {
 	const words = String(name || '')
@@ -56,7 +56,7 @@ export function initials(name) {
  * @param {object} bodiesById The bodies by id
  * @param {Date} now The moment that decides current or earlier
  * @return {{current: Array<object>, earlier: Array<object>}}
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
  */
 export function membershipSections(memberships, bodiesById, now = new Date()) {
 	const rows = (memberships || []).map((membership) => {
@@ -85,7 +85,7 @@ export function membershipSections(memberships, bodiesById, now = new Date()) {
  *
  * @param {object|null} answer The GET voting-record answer
  * @return {Array<object>}
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
 export function recordRows(answer) {
 	return (answer?.votes || []).map((vote) => ({
@@ -104,7 +104,7 @@ export function recordRows(answer) {
  *
  * @param {object} participant The participant
  * @return {Array<object>}
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
  */
 export function participantPersonQueries(participant) {
 	const queries = []

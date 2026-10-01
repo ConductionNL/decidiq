@@ -302,7 +302,7 @@ export default {
 		 *
 		 * @param {string} personId The person id
 		 * @return {string}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
 		 */
 		profilePath(personId) {
 			return profilePath(personId)

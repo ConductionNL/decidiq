@@ -43,6 +43,17 @@ it off. The setting decides what the public ORI API may publish; the profile
 page inside decidiq shows the voting record to every signed-in user who may
 read the person, either way.
 
+The public ORI API applies one rule to votes. A vote is published only when its
+round is closed and not secret, its decision is published, it has a value, and
+its body publishes voting records. `GET /apps/decidiq/api/ori/v1/votes` then
+lists each such vote with its voter, option (`yes`, `no` or `abstain`), vote
+event and the voter's party at the time; add `?voter=<personId>` to get one
+member's votes. `GET /apps/decidiq/api/ori/v1/voteevents` lists closed rounds on
+published decisions with their totals and never a member's own vote. Any other
+vote or round answers 404 by id. To check a council, turn on **Publish voting
+records** for its body and open `/apps/decidiq/api/ori/v1/votes` in a private
+browser window.
+
 ## For developers
 
 The voting record is read from `GET /apps/decidiq/api/people/<personId>/voting-record`.

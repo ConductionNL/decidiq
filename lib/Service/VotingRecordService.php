@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -34,7 +34,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
 /**
  * Reads a person's voting record.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
 class VotingRecordService {
 
@@ -63,7 +63,7 @@ class VotingRecordService {
 	 *
 	 * @return array<string, mixed>|null The person, or null when absent or not readable
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function findPerson(string $personId): ?array {
 		$entity = $this->objectService->find(id: $personId, register: self::REGISTER, schema: 'person');
@@ -85,7 +85,7 @@ class VotingRecordService {
 	 *
 	 * @throws DoesNotExistException When the caller cannot read the person
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function requireReadablePerson(string $personId): void {
 		if ($this->findPerson(personId: $personId) === null) {
@@ -100,7 +100,7 @@ class VotingRecordService {
 	 *
 	 * @return list<array<string, mixed>> Rows of vote, date, decision, choice, result, party and body
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function forPerson(string $personId): array {
 		$person = $this->context->object(schema: 'person', id: $personId);
@@ -150,7 +150,7 @@ class VotingRecordService {
 		$body = null;
 		$decisionRow = null;
 		if ($decision !== null) {
-			$body = $this->context->bodyOf(decision: $decision[1]);
+			$body = $this->context->bodyOfRound(roundId: $round[0], round: $round[1], decision: $decision[1]);
 			$decisionRow = ['id' => $decision[0], 'title' => (string)($decision[1]['title'] ?? '')];
 		}
 
@@ -171,8 +171,10 @@ class VotingRecordService {
 	 * @param string $participantId The participant id
 	 *
 	 * @return array<string, array<string, mixed>>
+	 *
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
-	private function votesOf(string $participantId): array {
+	public function votesOf(string $participantId): array {
 		$byProperty = $this->objectService->findAll(
 			config: ['filters' => ['register' => self::REGISTER, 'schema' => 'vote', 'participant' => $participantId]],
 			_rbac: false,
@@ -210,8 +212,10 @@ class VotingRecordService {
 	 * @param string      $date        The vote's date
 	 *
 	 * @return string|null
+	 *
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
-	private function partyAt(string $personId, string $participant, ?string $bodyId, string $date): ?string {
+	public function partyAt(string $personId, string $participant, ?string $bodyId, string $date): ?string {
 		if ($bodyId !== null) {
 			$memberships = $this->objectService->findAll(
 				config: ['filters' => ['register' => self::REGISTER, 'schema' => 'membership', 'person' => $personId, 'governanceBody' => $bodyId]],

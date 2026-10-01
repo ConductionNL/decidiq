@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 /**
  * Reads the member, round, decision and body of a ballot.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
 class VoteContextReader {
 
@@ -62,7 +62,7 @@ class VoteContextReader {
 	 *
 	 * @return string|null The participant id
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function memberOf(array $vote): ?string {
 		$found = [];
@@ -87,7 +87,7 @@ class VoteContextReader {
 	 *
 	 * @return array{0: string, 1: array<string, mixed>}|null The round id and round
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function roundOf(array $vote): ?array {
 		$roundId = ($vote['votingRound'] ?? null);
@@ -117,25 +117,10 @@ class VoteContextReader {
 	 *
 	 * @return array{0: string, 1: array<string, mixed>}|null The decision id and decision
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function decisionOf(string $roundId, array $round): ?array {
-		$stage = null;
-		$stageId = ($round['decisionStage'] ?? null);
-		if (is_string($stageId) === true && $stageId !== '') {
-			$stage = $this->object(schema: 'decision-stage', id: $stageId);
-		}
-
-		if ($stage === null) {
-			$stages = $this->objectService->findAll(
-				config: ['filters' => ['register' => self::REGISTER, 'schema' => 'decision-stage', 'votingRound' => $roundId], 'limit' => 1],
-				_rbac: false,
-				_multitenancy: false
-			);
-			if ($stages !== []) {
-				$stage = $stages[0]->jsonSerialize();
-			}
-		}
+		$stage = $this->stageOf(roundId: $roundId, round: $round);
 
 		$decisionId = ($stage['decision'] ?? null);
 		if (is_string($decisionId) === false || $decisionId === '') {
@@ -151,13 +136,70 @@ class VoteContextReader {
 	}//end decisionOf()
 
 	/**
+	 * The decision stage a round resolves: the round's own reference, else the
+	 * stage that names the round.
+	 *
+	 * @param string               $roundId The round id
+	 * @param array<string, mixed> $round   The round
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function stageOf(string $roundId, array $round): ?array {
+		$stageId = ($round['decisionStage'] ?? null);
+		if (is_string($stageId) === true && $stageId !== '') {
+			$stage = $this->object(schema: 'decision-stage', id: $stageId);
+			if ($stage !== null) {
+				return $stage;
+			}
+		}
+
+		$stages = $this->objectService->findAll(
+			config: ['filters' => ['register' => self::REGISTER, 'schema' => 'decision-stage', 'votingRound' => $roundId], 'limit' => 1],
+			_rbac: false,
+			_multitenancy: false
+		);
+		if ($stages === []) {
+			return null;
+		}
+
+		return $stages[0]->jsonSerialize();
+	}//end stageOf()
+
+	/**
+	 * The body that voted in a round: the body of the decision's meeting, else
+	 * the assigned body of the stage the round resolves. The register declares
+	 * no `decision.meeting`, so on imported data the stage is what names it.
+	 *
+	 * @param string               $roundId  The round id
+	 * @param array<string, mixed> $round    The round
+	 * @param array<string, mixed> $decision The decision
+	 *
+	 * @return string|null The governance body id
+	 *
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 */
+	public function bodyOfRound(string $roundId, array $round, array $decision): ?string {
+		$body = $this->bodyOf(decision: $decision);
+		if ($body !== null) {
+			return $body;
+		}
+
+		$assigned = ($this->stageOf(roundId: $roundId, round: $round)['assignedBody'] ?? null);
+		if (is_string($assigned) === true && $assigned !== '') {
+			return $assigned;
+		}
+
+		return null;
+	}//end bodyOfRound()
+
+	/**
 	 * The body that took a decision: the body of its meeting.
 	 *
 	 * @param array<string, mixed> $decision The decision
 	 *
 	 * @return string|null The governance body id
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function bodyOf(array $decision): ?string {
 		$meetingId = ($decision['meeting'] ?? null);
@@ -181,7 +223,7 @@ class VoteContextReader {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function object(string $schema, string $id): ?array {
 		if (array_key_exists($id, ($this->read[$schema] ?? [])) === false) {

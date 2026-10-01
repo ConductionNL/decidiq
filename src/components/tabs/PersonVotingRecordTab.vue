@@ -7,7 +7,7 @@
  time. Read from GET /api/people/{personId}/voting-record, which never lists
  a secret round or an anonymised vote.
 
- @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 -->
 <template>
 	<div
@@ -76,7 +76,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record */
+		/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record */
 		columns() {
 			return [
 				{ key: 'date', label: this.t('decidiq', 'Date') },
@@ -91,7 +91,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record */
+			/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record */
 			handler() {
 				this.refresh()
 			},
@@ -103,7 +103,7 @@ export default {
 		 * Load the person's voting record.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 		 */
 		async refresh() {
 			if (!this.objectId) return
@@ -136,7 +136,7 @@ export default {
 		 *
 		 * @param {?string} value An ISO date-time
 		 * @return {string}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 		 */
 		dateLabel(value) {
 			if (!value) return ''
@@ -149,7 +149,7 @@ export default {
 		 *
 		 * @param {string} value for, against or abstain
 		 * @return {string}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 		 */
 		choiceLabel(value) {
 			const labels = {
@@ -165,7 +165,7 @@ export default {
 		 *
 		 * @param {string} value adopted, rejected, tied or invalid
 		 * @return {string}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 		 */
 		resultLabel(value) {
 			const labels = {
