@@ -271,6 +271,27 @@ class OriSerializer {
 	}//end serialize()
 
 	/**
+	 * Wrap fields a publication rule already allow-listed in the ORI envelope.
+	 *
+	 * Votes and vote events are not mapped through FIELD_RULES: their fields
+	 * come from OriVotePublicationRule, which names exactly what an anonymous
+	 * caller may read, so nothing of the stored ballot is added here.
+	 *
+	 * @param string               $type   The ORI @type label
+	 * @param array<string, mixed> $fields The allow-listed fields, `id` first
+	 *
+	 * @return array<string, mixed> The serialized ORI resource
+	 *
+	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	public function serializeAllowed(string $type, array $fields): array {
+		return ([
+			'@context' => self::ORI_CONTEXT,
+			'@type' => $type,
+		] + $fields);
+	}//end serializeAllowed()
+
+	/**
 	 * Evaluate the RBAC published-predicate window for a PublicationPayload.
 	 *
 	 * A payload is "live" — and therefore visible on the anonymous ORI harvest

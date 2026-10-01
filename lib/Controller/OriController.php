@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -110,6 +111,18 @@ class OriController extends Controller {
 	];
 
 	/**
+	 * ORI resources whose visibility is OriVotePublicationRule's, not a filter:
+	 * `vote` and `voting-round` carry no lifecycle, so the published-lifecycle
+	 * gate listed nothing and refused every id (bodies-member-profile-and-voting-record).
+	 *
+	 * @var list<string>
+	 */
+	private const RULED_RESOURCES = [
+		'votes',
+		'voteevents',
+	];
+
+	/**
 	 * Map of ORI resource slug → ORI/Akoma Ntoso @type label.
 	 *
 	 * @var array<string, string>
@@ -150,6 +163,7 @@ class OriController extends Controller {
 	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param OriSerializer $serializer The ORI JSON-LD serializer
+	 * @param OriVotePublicationRule $voteRule The publication rule for votes and vote events
 	 *
 	 * @return void
 	 */
@@ -159,6 +173,7 @@ class OriController extends Controller {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly OriSerializer $serializer,
+		private readonly OriVotePublicationRule $voteRule,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -189,6 +204,10 @@ class OriController extends Controller {
 		$schema = self::RESOURCE_MAP[$resource] ?? null;
 		if ($schema === null) {
 			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
+		}
+
+		if (in_array(needle: $resource, haystack: self::RULED_RESOURCES, strict: true) === true) {
+			return $this->ruledIndex(resource: $resource);
 		}
 
 		try {
@@ -395,6 +414,10 @@ class OriController extends Controller {
 			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
 		}
 
+		if (in_array(needle: $resource, haystack: self::RULED_RESOURCES, strict: true) === true) {
+			return $this->ruledShow(resource: $resource, id: $id);
+		}
+
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
 			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
@@ -445,6 +468,80 @@ class OriController extends Controller {
 		// confirms that an unpublished object exists.
 		return $this->jsonLdResponse(payload: $this->serializer->serialize(type: $type, object: $object));
 	}//end show()
+
+	/**
+	 * List votes or vote events through the publication rule.
+	 *
+	 * `votes` accepts `?voter={personId}`.
+	 *
+	 * @param string $resource `votes` or `voteevents`
+	 *
+	 * @return JSONResponse JSON-LD list envelope or error
+	 *
+	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	private function ruledIndex(string $resource): JSONResponse {
+		$type = self::ORI_TYPE_MAP[$resource];
+		try {
+			$rows = $this->voteRule->voteEvents();
+			if ($resource === 'votes') {
+				$voter = $this->request->getParam('voter');
+				if (is_string($voter) === false) {
+					$voter = null;
+				}
+
+				$rows = $this->voteRule->votes(voter: $voter);
+			}
+		} catch (Throwable $e) {
+			$this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
+			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		$items = [];
+		foreach ($rows as $row) {
+			$items[] = $this->serializer->serializeAllowed(type: $type, fields: $row);
+		}
+
+		return $this->jsonLdResponse(
+			payload: [
+				'@context' => self::ORI_CONTEXT,
+				'@type' => $type,
+				'count' => count($items),
+				'items' => $items,
+			]
+		);
+	}//end ruledIndex()
+
+	/**
+	 * One vote or vote event through the publication rule; anything the rule
+	 * withholds is not found, so the endpoint never confirms it exists.
+	 *
+	 * @param string $resource `votes` or `voteevents`
+	 * @param string $id       The object id
+	 *
+	 * @return JSONResponse The JSON-LD entity or error
+	 *
+	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	private function ruledShow(string $resource, string $id): JSONResponse {
+		try {
+			$row = $this->voteRule->voteEvent(roundId: $id);
+			if ($resource === 'votes') {
+				$row = $this->voteRule->vote(voteId: $id);
+			}
+		} catch (DoesNotExistException $e) {
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		} catch (Throwable $e) {
+			$this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
+			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		if ($row === null) {
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		}
+
+		return $this->jsonLdResponse(payload: $this->serializer->serializeAllowed(type: self::ORI_TYPE_MAP[$resource], fields: $row));
+	}//end ruledShow()
 
 	/**
 	 * Wrap a payload in a CORS-decorated JSON-LD response.

@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\OriController;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
@@ -112,6 +113,7 @@ class OriControllerTest extends TestCase {
 			$this->container,
 			$this->logger,
 			new OriSerializer(),
+			$this->createMock(OriVotePublicationRule::class),
 		);
 
 	}//end setUp()
