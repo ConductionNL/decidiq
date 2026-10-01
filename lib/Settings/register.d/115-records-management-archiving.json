@@ -231,12 +231,10 @@
                         "description": "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.",
                         "properties": {
                             "certificate": {
-                                "type": "string",
-                                "description": "The certificate in OpenRegister."
+                                "type": "string"
                             },
                             "destructionList": {
-                                "type": "string",
-                                "description": "The destruction list it certifies."
+                                "type": "string"
                             },
                             "renderedAt": {
                                 "type": "string",
@@ -253,15 +251,13 @@
                                 "type": [
                                     "string",
                                     "null"
-                                ],
-                                "description": "The filed copy in the meeting folder."
+                                ]
                             },
                             "skipped": {
                                 "type": "object",
                                 "additionalProperties": {
                                     "type": "integer"
-                                },
-                                "description": "Records OpenRegister did not destroy, by reason."
+                                }
                             }
                         }
                     },
@@ -323,7 +319,40 @@
                     ],
                     "_note": "Declarative transition map (ADR-031). Closing goes through POST /api/dossiers/{id}/close, which checks completeness first; transferred and destroyed are set when OpenRegister has carried them out."
                 },
-                "_authorizationNote": "Every signed-in member reads dossiers. Writes are owned by ArchivalDossierService (create for a meeting, assemble, close), which checks records-management authority per object and saves in system context; the object API stays closed for writes so a closed dossier cannot be reopened around that check."
+                "_authorizationNote": "Every signed-in member reads dossiers. Writes are owned by ArchivalDossierService (create for a meeting, assemble, close), which checks records-management authority per object and saves in system context; the object API stays closed for writes so a closed dossier cannot be reopened around that check.",
+                "x-openregister-notifications": {
+                    "dossierWaitingForTransfer": {
+                        "trigger": {
+                            "type": "scheduled",
+                            "intervalSec": 604800,
+                            "filter": {
+                                "lifecycle": "closed",
+                                "disposition": "transfer"
+                            }
+                        },
+                        "enabled": true,
+                        "channels": [
+                            "nc-notification"
+                        ],
+                        "recipients": [
+                            {
+                                "kind": "object-acl",
+                                "permission": "read"
+                            },
+                            {
+                                "kind": "groups",
+                                "groups": [
+                                    "archivaris"
+                                ]
+                            }
+                        ],
+                        "subject": {
+                            "nl": "Dossier wacht op overbrenging naar het archief: {{title}}",
+                            "en": "Dossier waiting for transfer to the archive: {{title}}"
+                        },
+                        "_note": "Weekly rappel for closed dossiers on a transfer list that OpenRegister has not carried out yet (REQ-RMA-007, deferred from task 3). Recipients: readers and OpenRegister's archivist group. The trigger filter takes scalar equality only, so it cannot narrow to the Archiefwet ten-year deadline on retention.archiefactiedatum; every waiting dossier is reminded until OpenRegister reports the transfer."
+                    }
+                }
             },
             "Minutes": {
                 "slug": "minutes",
@@ -376,6 +405,16 @@
                         "default": "openbaar",
                         "facetable": true,
                         "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                },
+                "x-openregister-aggregations": {
+                    "archivalDossierCount": {
+                        "metric": "count",
+                        "schema": "ArchivalDossier",
+                        "filter": {
+                            "meeting": "@self.id"
+                        },
+                        "_note": "Whether the meeting has its archival dossier (records-management-archiving, REQ-RMA-007): 0 on a closed meeting is an archiving gap."
                     }
                 }
             },
