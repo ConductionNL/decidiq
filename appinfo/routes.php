@@ -207,6 +207,10 @@ $extra = [
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
         ['name' => 'votingRecord#forPerson', 'url' => '/api/people/{personId}/voting-record', 'verb' => 'GET'],
+        // A meeting's archival dossier: form, gather again, close (records-management-archiving, pub-11).
+        ['name' => 'archivalDossier#form',     'url' => '/api/meetings/{meetingId}/archival-dossier', 'verb' => 'POST'],
+        ['name' => 'archivalDossier#assemble', 'url' => '/api/dossiers/{id}/assemble', 'verb' => 'POST'],
+        ['name' => 'archivalDossier#close',    'url' => '/api/dossiers/{id}/close',    'verb' => 'POST'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
         ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],

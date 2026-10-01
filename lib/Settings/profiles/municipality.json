@@ -1439,7 +1439,8 @@
 						"outcome": "adopted",
 						"decisionDate": "2025-04-10T21:05:00Z",
 						"isPublished": "public",
-						"amends": "motie-duurzaamheid-2025"
+						"amends": "motie-duurzaamheid-2025",
+						"meeting": "raadsvergadering-2025-04-10"
 					},
 					{
 						"@self": {
@@ -2773,6 +2774,22 @@
 						"meetingMode": "in-person",
 						"isPublic": true,
 						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "raadsvergadering-2025-04-10",
+						"title": "Raadsvergadering 10 april 2025",
+						"meetingType": "regular",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2025-04-10T19:30:00Z",
+						"endDate": "2025-04-10T23:15:00Z",
+						"location": "Stadhuis Amsterdam, Raadzaal",
+						"meetingMode": "hybrid",
+						"lifecycle": "closed"
 					}
 				],
 				"membership": [
@@ -2972,7 +2989,8 @@
 							"Roos de Vries",
 							"Jan Bakker"
 						],
-						"version": 2
+						"version": 2,
+						"meeting": "raadsvergadering-2025-04-10"
 					}
 				],
 				"member-offboarding": [
@@ -4352,6 +4370,80 @@
 						"summary": "Decision published",
 						"isPublished": true,
 						"occurredAt": "2026-09-24T21:45:00+02:00"
+					}
+				],
+				"archival-dossier": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "archival-dossier"
+						},
+						"slug": "dossier-informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"meeting": "informatieavond-windpark-noord",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"lifecycle": "forming",
+						"minutes": [],
+						"decisions": [],
+						"votingRounds": [],
+						"documents": [],
+						"gaps": [
+							"minutes-missing",
+							"meeting-not-closed"
+						],
+						"assembledAt": "2026-09-30T09:00:00+02:00",
+						"securityClassification": "openbaar"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "archival-dossier"
+						},
+						"slug": "dossier-raadsvergadering-2025-04-10",
+						"title": "Raadsvergadering 10 april 2025",
+						"meeting": "raadsvergadering-2025-04-10",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"lifecycle": "closed",
+						"minutes": [
+							"notulen-raad-2025-04-10"
+						],
+						"decisions": [
+							"amendement-cultuursubsidie"
+						],
+						"votingRounds": [],
+						"documents": [],
+						"gaps": [],
+						"assembledAt": "2025-05-08T20:00:00Z",
+						"closedAt": "2025-05-08T20:05:00Z",
+						"closedBy": "admin",
+						"securityClassification": "openbaar"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "archival-dossier"
+						},
+						"slug": "dossier-raadsvergadering-2025-01-15",
+						"title": "Raadsvergadering 15 januari 2025",
+						"meeting": "raadsvergadering-2025-01-15",
+						"lifecycle": "closed",
+						"minutes": [],
+						"decisions": [
+							"besluit-verordening-parkeren-2026"
+						],
+						"votingRounds": [],
+						"documents": [],
+						"gaps": [
+							"minutes-missing"
+						],
+						"assembledAt": "2025-02-20T10:00:00Z",
+						"closedAt": "2025-02-20T10:10:00Z",
+						"closedBy": "admin",
+						"closeOverrideReason": "De notulen van deze vergadering zijn op papier vastgesteld en apart gearchiveerd.",
+						"securityClassification": "intern"
 					}
 				]
 			}

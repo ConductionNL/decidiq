@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Settings;
 
+use OCA\Decidiq\Service\DossierMemberCollector;
+use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -134,4 +136,83 @@ class RecordsManagementRegisterTest extends TestCase {
 			self::assertSame($enum, array_values(array_intersect($orLevels, $enum)), $slug . ' leaves OpenRegister\'s order');
 		}
 	}//end testArchivableRecordsCarryASecurityClassification()
+
+	/**
+	 * The dossier service finds a meeting's decisions through the decision's
+	 * own meeting and agenda item. Fragments merge by schema KEY, so fragment
+	 * 67's slug-less `Decision` block declares both on the decision schema.
+	 *
+	 * @return void
+	 */
+	public function testADecisionDeclaresItsMeetingAndAgendaItem(): void {
+		$decision = [];
+		foreach ($this->documents() as $doc) {
+			$decision = array_replace_recursive($decision, ($doc['components']['schemas']['Decision'] ?? []));
+		}
+
+		self::assertSame('decision', $decision['slug'] ?? null);
+		self::assertSame('uuid', $decision['properties']['meeting']['format'] ?? null);
+		self::assertSame('agenda-item', $decision['properties']['agendaItem']['$ref'] ?? null);
+	}//end testADecisionDeclaresItsMeetingAndAgendaItem()
+
+	/**
+	 * The municipality example set carries a forming dossier, a closed one
+	 * and one closed with a reason, each valid against the merged schema,
+	 * with gaps the service itself writes and no retention values of its own.
+	 *
+	 * @return void
+	 */
+	public function testTheExampleDossiersValidate(): void {
+		$profile = json_decode((string)file_get_contents(self::SETTINGS . 'profiles/municipality.json'), true);
+		$objects = $profile['x-openregister']['seedData']['objects'];
+		$dossiers = ($objects['archival-dossier'] ?? []);
+		self::assertSame(['forming', 'closed', 'closed'], array_column($dossiers, 'lifecycle'));
+
+		$meetings = array_column($objects['meeting'], 'slug');
+		$gaps = [DossierMemberCollector::GAP_MINUTES_MISSING, DossierMemberCollector::GAP_MINUTES_NOT_APPROVED, DossierMemberCollector::GAP_MEETING_NOT_CLOSED];
+		foreach ($dossiers as $row) {
+			self::assertContains($row['meeting'], $meetings, 'the dossier names a meeting of the example set');
+			self::assertSame([], array_diff($row['gaps'], $gaps));
+			self::assertArrayNotHasKey('retention', $row, 'OpenRegister resolves retention, the example set never authors it');
+			self::assertSame(($row['gaps'] !== [] && $row['lifecycle'] === 'closed'), isset($row['closeOverrideReason']));
+			$this->assertValid(row: $row);
+		}
+
+		$mock = json_decode((string)file_get_contents(self::SETTINGS . 'decidiq_mock_register.json'), true);
+		$demo = array_filter($mock['components']['objects'], static fn (array $object): bool => ($object['@self']['schema'] ?? '') === 'ArchivalDossier');
+		self::assertCount(3, $demo, 'the demo register carries three dossiers');
+		foreach ($demo as $row) {
+			$this->assertValid(row: $row);
+		}
+	}//end testTheExampleDossiersValidate()
+
+	/**
+	 * Validate one example dossier with Opis against the merged schema;
+	 * slugs stand in for uuids in the example set.
+	 *
+	 * @param array<string, mixed> $row The example object
+	 *
+	 * @return void
+	 */
+	private function assertValid(array $row): void {
+		$schema = $this->mergedSchema(slug: 'archival-dossier');
+		unset($row['@self'], $row['slug']);
+		$properties = array_map(
+			static function (array $property): array {
+				unset($property['$ref'], $property['facetable'], $property['items']['$ref'], $property['items']['format']);
+				if (($property['format'] ?? '') === 'uuid') {
+					unset($property['format']);
+				}
+
+				return $property;
+			},
+			$schema['properties']
+		);
+
+		$result = (new Validator())->validate(
+			json_decode((string)json_encode($row)),
+			json_decode((string)json_encode(['type' => 'object', 'properties' => $properties, 'required' => $schema['required'], 'additionalProperties' => false]))
+		);
+		self::assertTrue($result->isValid(), 'example dossier must validate: ' . json_encode($row));
+	}//end assertValid()
 }//end class

@@ -6,33 +6,35 @@
 
 ### Task 1: Register fragment — ArchivalDossier schema, archive config, classification
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly`
-- **files**: `lib/Settings/register.d/44-records-management-archiving.json`, `lib/Settings/decidesk_register.json`
+- **files**: `lib/Settings/register.d/115-records-management-archiving.json`, `src/icons.js`, `tests/Unit/Settings/RecordsManagementRegisterTest.php`
 - **acceptance_criteria**:
   - GIVEN the register is imported on a clean instance WHEN schemas are listed THEN `archival-dossier` exists with `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys), aggregations, calculations, notifications (ADR-031 dialect), and relations — and no `retention-rule`, `transfer-package`, or `destruction-list` schema is created
   - GIVEN archivable schemas WHEN their `archive` config (`enabled`, `classificatie`, afleidingswijze where needed) is imported THEN OR's `RetentionService::applyArchivalMetadata()` populates the persisted `retention` field on save
   - GIVEN existing Minutes/Decision/Meeting/DigitalDocument objects WHEN the additive `securityClassification` property is imported THEN existing objects validate unchanged (defaults to `openbaar`)
-- [ ] Implement
-- [ ] Test
+- Note (2 Oct): the lifecycle, archive block and classification ship here; the aggregations and the transfer-deadline notification ship with the dashboard in task 6, where their counters are read.
+- [x] Implement
+- [x] Test
 
 ### Task 2: Seed data — Selectielijst 2020 as OR SelectionList objects + example dossiers
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice`
-- **files**: `lib/Settings/register.d/44-records-management-archiving.json` (`x-openregister-seeds`)
+- **files**: `lib/Settings/register.d/115-records-management-archiving.json` (`components.selectionLists`), `lib/Settings/profiles/municipality.json`, `lib/Settings/decidiq_mock_register.json`
 - **acceptance_criteria**:
   - GIVEN a clean install WHEN seeds import THEN 4 OpenRegister `SelectionList` objects exist (categories 2.1/3.1 bewaren, 19.1/11.1 vernietigen, per design Seed Data) — no decidiq-local retention-rule objects
   - GIVEN the 3 seeded ArchivalDossiers (forming/closed/closed-due) WHEN they are saved THEN OR resolves `retention.classificatie`, `.archiefnominatie`, and `.archiefactiedatum` — the seeds MUST NOT author those values
   - GIVEN the seeded due dossier WHEN the compliance dashboard loads THEN the due-for-destruction and completeness counters are non-zero (seeds make the feature testable on install, ADR-016)
-- [ ] Implement
-- [ ] Test
+- Note (2 Oct): OpenRegister reads one category per schema (design.md, open question), so the example set holds a forming dossier, a closed one and one closed with a reason, all category 2.1; a destruction-due example waits on that decision.
+- [x] Implement
+- [x] Test
 
 ### Task 3: ArchivalDossierService — assembly, completeness, close
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly`
-- **files**: `lib/Service/ArchivalDossierService.php`, `lib/Controller/ArchivalDossierController.php`, `appinfo/routes.php`, `lib/AppInfo/Application.php`
+- **files**: `lib/Service/ArchivalDossierService.php`, `lib/Service/DossierMemberCollector.php`, `lib/Exception/DossierRefusedException.php`, `lib/Controller/ArchivalDossierController.php`, `appinfo/routes.php`, `tests/Unit/Service/ArchivalDossierServiceTest.php`, `tests/Unit/Controller/ArchivalDossierControllerTest.php`
 - **acceptance_criteria**:
   - GIVEN a completed meeting WHEN assemble runs THEN the dossier enumerates approved minutes, all linked decisions (incl. decisionType variants), voting rounds, and attachments by UUID
   - GIVEN a forming dossier with unapproved minutes WHEN close is called without override THEN it is refused naming the gap; WHEN called with an override reason THEN it closes and stores the reason
   - GIVEN a closed dossier WHEN a member mutation is attempted THEN it is rejected
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: MDTO fields + transfer/destruction hand-off to OpenRegister
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-004-transfer-via-openregister-transfer-lists-and-e-depot`

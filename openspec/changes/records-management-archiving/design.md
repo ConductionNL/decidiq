@@ -25,6 +25,21 @@ Verified first-hand against openregister at commit `ebedbdd5a`. Everything below
 1. **`_retention` is not the Archiefwet field.** `ObjectEntity::$archivalRetention` (`lib/Db/ObjectEntity.php` L531, surfaced as `_retention` at L1001) is a **transient, not-persisted, read-only** render-layer view from the `x-openregister-archival` TTL mechanism, shape `{effectiveRetention, matchedRule, expiresAt}`. It cannot be written. The persisted Archiefwet block is `retention` (`addType('retention', 'json')`, L713); the MDTO field is `tmlo` (L714). **`_tmlo` does not exist.**
 2. **`x-openregister-archival` is TTL/log-rotation, not Archiefwet.** `ArchivalAnnotationValidator` allows only `{default, rules}` / `{condition, retention, reason}` (L58/L65) and auto-deletes on expiry without approval — it cannot express waardering B/V, a Selectielijst category, archiefactiedatum, afleidingswijze, or a bewaren→overbrengen route. Do not target it for Archiefwet work.
 
+## Corrections after building against OpenRegister (2 Oct 2026)
+
+The sections below were written before the build. Where they disagree with this list, this list is what ships.
+
+- **Fragment and seeds.** The fragment is `lib/Settings/register.d/115-records-management-archiving.json` (44 was taken). Fragments merge by schema KEY, so the `securityClassification` property is added there under the keys `Minutes`, `Decision`, `Meeting` and `DigitalDocument`; the canonical `decidesk_register.json` is not edited. Example dossiers live in `lib/Settings/profiles/municipality.json` (`x-openregister.seedData.objects`), not in an `x-openregister-seeds` block, and the demo register carries three generated dossiers.
+- **Archive block.** OpenRegister reads `archive.enabled` and `archive.classification` (English), not `classificatie`.
+- **Selectielijst rows.** They ship as `components.selectionLists` in the fragment. OpenRegister's register import writes them into its configured Selectielijst register, idempotent by category, organisation and version (openregister#4228, branch `feat/archival-for-apps`). They are not rows of a `SelectionList` table.
+- **Dossier writes are service-owned.** The schema grants signed-in members read only. `ArchivalDossierService` checks authority per meeting (its chair or secretary, or an administrator) and writes in system context, so the object API cannot reopen a closed dossier around the close check.
+- **Forming endpoint.** `POST /api/meetings/{meetingId}/archival-dossier` forms a meeting's dossier, or answers the one it already has. A meeting has one dossier.
+- **Finding the records.** A decision reaches its meeting through its own `meeting` property or its `agendaItem` (both declared by fragment 67 under the key `Decision`). Voting rounds are found through the decisions' stages: a stage names its round, and a round names its stage. Only approved minutes (approved, signed or published) are members. The gaps are `minutes-missing`, `minutes-not-approved` and `meeting-not-closed`.
+
+### Open question for Ruben: one Selectielijst category per schema
+
+OpenRegister reads the category from the SCHEMA's archive block (`RetentionService`), not from the object. So every dossier carries category 2.1 (council decisions and minutes, kept), and the design's per-dossier categories (3.1, 11.1 on other dossiers) cannot be expressed. The category therefore lives in one place, the fragment's `archive.classification`, and decidiq reads it from there; nothing in decidiq hard-codes it. Options: (a) one category for council dossiers now and ask OpenRegister for a per-object category property [recommended]; (b) one dossier schema per category; (c) decidiq writes retention itself, against this design. Until Ruben decides, the example set holds no destruction-due dossier, and the dashboard's due-for-destruction counter stays at zero on install.
+
 ## Architecture Overview
 
 Decidiq contributes exactly one thing OR lacks: the **aggregate**. (`openspec/specs/document-zaakdossier/spec.md` in OR is a `status: redirect` stub owned by Procest; OR has no dossier concept.) Everything downstream of the dossier is an OR call.
