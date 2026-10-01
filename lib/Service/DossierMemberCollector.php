@@ -37,6 +37,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -90,15 +91,16 @@ class DossierMemberCollector {
 	public function collect(string $meetingId, array $meeting): array {
 		$items = $this->ids(rows: $this->rows(schema: 'agenda-item', filters: ['meeting' => $meetingId]));
 
-		$decisions = $this->ids(rows: $this->rows(schema: 'decision', filters: ['meeting' => $meetingId]));
-		$documents = $this->ids(rows: $this->rows(schema: 'digital-document', filters: ['meeting' => $meetingId]));
+		$decisionRows = $this->rows(schema: 'decision', filters: ['meeting' => $meetingId]);
+		$documentRows = $this->rows(schema: 'digital-document', filters: ['meeting' => $meetingId]);
 		foreach ($items as $itemId) {
-			$decisions = array_merge($decisions, $this->ids(rows: $this->rows(schema: 'decision', filters: ['agendaItem' => $itemId])));
-			$documents = array_merge($documents, $this->ids(rows: $this->rows(schema: 'digital-document', filters: ['agendaItem' => $itemId])));
+			$decisionRows = array_merge($decisionRows, $this->rows(schema: 'decision', filters: ['agendaItem' => $itemId]));
+			$documentRows = array_merge($documentRows, $this->rows(schema: 'digital-document', filters: ['agendaItem' => $itemId]));
 		}
 
-		$decisions = array_values(array_unique($decisions));
-		[$minutes, $gaps] = $this->minutes(meetingId: $meetingId);
+		$decisions = array_values(array_unique($this->ids(rows: $decisionRows)));
+		[$minuteRows, $gaps] = $this->minutes(meetingId: $meetingId);
+		$minutes = $this->ids(rows: $minuteRows);
 		if (($meeting['lifecycle'] ?? null) !== 'closed') {
 			$gaps[] = self::GAP_MEETING_NOT_CLOSED;
 		}
@@ -107,17 +109,43 @@ class DossierMemberCollector {
 			'minutes' => $minutes,
 			'decisions' => $decisions,
 			'votingRounds' => $this->votingRounds(decisions: $decisions),
-			'documents' => array_values(array_unique($documents)),
+			'documents' => array_values(array_unique($this->ids(rows: $documentRows))),
 			'gaps' => $gaps,
+			'restrictiveMember' => $this->mostRestrictive(kinds: ['minutes' => $minuteRows, 'decisions' => $decisionRows, 'documents' => $documentRows]),
 		];
 	}//end collect()
 
 	/**
-	 * The approved minutes, and the gap when there are none.
+	 * The member with the most restrictive security label, or null when
+	 * every member is public.
+	 *
+	 * @param array<string, list<array<string, mixed>>> $kinds Member rows by dossier kind
+	 *
+	 * @return array{member: string, kind: string, level: string}|null
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
+	 */
+	private function mostRestrictive(array $kinds): ?array {
+		$found = null;
+		foreach ($kinds as $kind => $rows) {
+			foreach ($rows as $row) {
+				$label = ($row['securityClassification'] ?? null);
+				$label = SecurityClassification::normalise(label: is_string($label) === true ? $label : null);
+				if (SecurityClassification::isMoreRestrictive(label: $label, than: ($found['level'] ?? 'openbaar')) === true) {
+					$found = ['member' => (string)$row['id'], 'kind' => $kind, 'level' => $label];
+				}
+			}
+		}
+
+		return $found;
+	}//end mostRestrictive()
+
+	/**
+	 * The approved minutes' rows, and the gap when there are none.
 	 *
 	 * @param string $meetingId The meeting
 	 *
-	 * @return array{0: list<string>, 1: list<string>}
+	 * @return array{0: list<array<string, mixed>>, 1: list<string>}
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
@@ -135,7 +163,7 @@ class DossierMemberCollector {
 			return [[], [self::GAP_MINUTES_NOT_APPROVED]];
 		}
 
-		return [$this->ids(rows: $approved), []];
+		return [array_values($approved), []];
 	}//end minutes()
 
 	/**

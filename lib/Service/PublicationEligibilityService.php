@@ -44,6 +44,7 @@ namespace OCA\Decidiq\Service;
 use DomainException;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -187,6 +188,13 @@ class PublicationEligibilityService {
 			if (in_array($candidate, self::DENY_TYPES, true) === true) {
 				return true;
 			}
+		}
+
+		// A record labelled above public (records-management-archiving,
+		// REQ-RMA-008) is never published, whatever its lifecycle.
+		$label = ($objectData['securityClassification'] ?? null);
+		if (SecurityClassification::isPublishable(label: is_string($label) === true ? $label : null) === false) {
+			return true;
 		}
 
 		// Confidential Resolution: a resolution carrying a confidentiality
