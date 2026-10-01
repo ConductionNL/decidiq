@@ -58,7 +58,7 @@ class DossierRefusedException extends RuntimeException {
 		private readonly string $reason,
 		private readonly array $gaps = [],
 	) {
-		parent::__construct($message);
+		parent::__construct(message: $message);
 	}//end __construct()
 
 	/**

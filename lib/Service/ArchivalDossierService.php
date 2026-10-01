@@ -97,7 +97,7 @@ class ArchivalDossierService {
 	public function formForMeeting(string $meetingId): array {
 		$meeting = $this->read(schema: 'meeting', id: $meetingId);
 		if ($meeting === null) {
-			throw new MissingObjectException('Meeting not found.');
+			throw new MissingObjectException(message: 'Meeting not found.');
 		}
 
 		$this->requireAuthority(meetingId: $meetingId);
@@ -166,9 +166,9 @@ class ArchivalDossierService {
 		$reason = trim((string)$overrideReason);
 		if ($dossier['gaps'] !== [] && $reason === '') {
 			throw new DossierRefusedException(
-				$this->l10n->t('The dossier cannot be closed yet: %1$s. Give a reason to close it anyway.', [$this->gapList(gaps: $dossier['gaps'])]),
-				DossierRefusedException::GAPS,
-				$dossier['gaps']
+				message: $this->l10n->t('The dossier cannot be closed yet: %1$s. Give a reason to close it anyway.', [$this->gapList(gaps: $dossier['gaps'])]),
+				reason: DossierRefusedException::GAPS,
+				gaps: $dossier['gaps']
 			);
 		}
 
@@ -199,7 +199,7 @@ class ArchivalDossierService {
 	private function formingDossier(string $dossierId): array {
 		$dossier = $this->read(schema: self::SCHEMA, id: $dossierId);
 		if ($dossier === null) {
-			throw new MissingObjectException('Dossier not found.');
+			throw new MissingObjectException(message: 'Dossier not found.');
 		}
 
 		$meetingId = (string)($dossier['meeting'] ?? '');
@@ -208,14 +208,14 @@ class ArchivalDossierService {
 		$state = (string)($dossier['lifecycle'] ?? self::FORMING);
 		if ($state !== self::FORMING) {
 			throw new DossierRefusedException(
-				$this->l10n->t('The dossier is %1$s: its records are frozen.', [$state]),
-				DossierRefusedException::FROZEN
+				message: $this->l10n->t('The dossier is %1$s: its records are frozen.', [$state]),
+				reason: DossierRefusedException::FROZEN
 			);
 		}
 
 		$meeting = $this->read(schema: 'meeting', id: $meetingId);
 		if ($meeting === null) {
-			throw new MissingObjectException('Meeting not found.');
+			throw new MissingObjectException(message: 'Meeting not found.');
 		}
 
 		unset($dossier['id'], $dossier['@self']);
@@ -277,7 +277,7 @@ class ArchivalDossierService {
 	private function requireAuthority(string $meetingId): void {
 		$uid = $this->userSession->getUser()?->getUID();
 		if ($uid === null) {
-			throw new AccessDeniedException('Not signed in.');
+			throw new AccessDeniedException(message: 'Not signed in.');
 		}
 
 		if ($this->groupManager->isAdmin($uid) === true) {
@@ -285,7 +285,7 @@ class ArchivalDossierService {
 		}
 
 		if ($meetingId === '' || $this->participants->hasRole(meetingId: $meetingId, nextcloudUid: $uid, roles: ['chair', 'secretary']) === false) {
-			throw new AccessDeniedException('Only the chair or secretary of the meeting keeps its archival dossier.');
+			throw new AccessDeniedException(message: 'Only the chair or secretary of the meeting keeps its archival dossier.');
 		}
 	}//end requireAuthority()
 

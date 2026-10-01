@@ -173,7 +173,9 @@ class DossierMemberCollector {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
 	private function ids(array $rows): array {
-		return array_values(array_filter(array_map(static fn (array $row): string => (string)$row['id'], $rows), static fn (string $id): bool => $id !== ''));
+		$ids = array_map(static fn (array $row): string => (string)$row['id'], $rows);
+
+		return array_values(array_filter($ids, static fn (string $id): bool => $id !== ''));
 	}//end ids()
 
 	/**
