@@ -81,6 +81,9 @@ import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
 import MotionStageTab from './components/tabs/MotionStageTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
+import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
+import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
@@ -215,6 +218,10 @@ export default {
 	// renderer, per the manifest-abstract-sidebar contract.
 	ConsultationReactionsTab: page(ConsultationReactionsTab),
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
+	// Member profile (bodies-member-profile-and-voting-record, bod-05 vot-18).
+	PersonMembershipsTab: page(PersonMembershipsTab),
+	PersonVotingRecordTab: page(PersonVotingRecordTab),
+	ParticipantProfileLink: page(ParticipantProfileLink),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
 	// trend, agenda completion, speaking distribution, cost trend and time

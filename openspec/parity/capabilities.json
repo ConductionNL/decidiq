@@ -542,13 +542,15 @@
 			"area": "bodies",
 			"name": "Give every member a profile page with party, photo, committees and portfolio.",
 			"origin": "competitor",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "specified",
-				"evidence": "Searched: no manifest page for schema 'person' (src/manifest.json, src/manifest.d/*); Person schema at lib/Settings/decidesk_register.json:183 has image/biography but no page renders it; members tab rows (src/components/tabs/GovernanceBodyMembersTab.vue) have no row link; 'portfolio' appears nowhere in schemas or src. Only the deprecated Participant has a detail page (src/manifest.json:751, /participants/:id, no menu entry) with party but no photo/committees/portfolio",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "src/manifest.d/member-profile.json PersonDetail /people/:id (data About; PersonMembershipsTab photo or initials, current and earlier memberships with body, role, party, portfolio; object-list ancillary-position); lib/Settings/register.d/114-member-profile.json membership.portfolio; GovernanceBodyMembersTab links names to the profile; ParticipantProfileLink on ParticipantDetail. Tests: tests/Unit/Settings/MemberProfileRegisterTest.php, tests/vitest/memberProfile.spec.js, tests/e2e/member-profile-and-voting-record.spec.ts",
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-member-profile-and-voting-record",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "nothing reaches it: no person/profile page; ParticipantDetail exists only for the deprecated Participant schema and has no menu entry",
+			"reachedOn": "a body's Members widget links each name to /people/:id; the participant page offers Open profile",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "member-profiles",
@@ -3303,14 +3305,15 @@
 			"area": "voting",
 			"name": "See how a member has voted across meetings.",
 			"origin": "code",
-			"decidiq": "no",
+			"decidiq": "yes",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Controller/VotingBehaviourController.php:107 getStats() at GET /api/voting-behaviour/{participantId}; grep 'voting-behaviour' in src/ finds no caller; ParticipantDetail (src/manifest.json:751) has only data/related/files widgets",
+				"state": "built",
+				"evidence": "GET /api/people/{personId}/voting-record (lib/Controller/VotingRecordController.php, lib/Service/VotingRecordService.php, lib/Service/PersonParticipantLookup.php): closed non-secret rounds, date, decision, choice, result, party at the time, creates nothing; PersonVotingRecordTab on /people/:id. Tests: tests/Unit/Service/VotingRecordServiceTest.php, tests/Unit/Controller/VotingRecordControllerTest.php, tests/e2e/member-profile-and-voting-record.spec.ts",
 				"owner": "ConductionNL/decidiq",
-				"change": "bodies-member-profile-and-voting-record"
+				"change": "bodies-member-profile-and-voting-record",
+				"readOn": "2026-09-28"
 			},
-			"reachedOn": "API only: GET /api/voting-behaviour/{participantId}",
+			"reachedOn": "the Voting record widget on /people/:id",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "voting",

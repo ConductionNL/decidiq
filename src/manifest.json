@@ -772,6 +772,9 @@
 			"id": "ParticipantDetail",
 			"route": "/participants/:id",
 			"type": "detail",
+			"slots": {
+				"widget-participant-profile": "ParticipantProfileLink"
+			},
 			"title": "Participant",
 			"config": {
 				"register": "decidiq",
@@ -780,12 +783,14 @@
 				"widgets": [
 					{ "id": "participant-data", "type": "data", "title": "Participant", "icon": "AccountBoxOutline", "content": { "columns": 2 } },
 					{ "id": "participant-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
-					{ "id": "participant-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" }
+					{ "id": "participant-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "participant-profile", "type": "custom", "component": "ParticipantProfileLink", "title": "Profile", "icon": "AccountBoxOutline" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "participant-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
 					{ "id": "2", "widgetId": "participant-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
-					{ "id": "3", "widgetId": "participant-files", "gridX": 0, "gridY": 7, "gridWidth": 8, "gridHeight": 4 }
+					{ "id": "3", "widgetId": "participant-files", "gridX": 0, "gridY": 7, "gridWidth": 8, "gridHeight": 4 },
+					{ "id": "4", "widgetId": "participant-profile", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 2 }
 				],
 				"sidebar": {
 					"enabled": true,
