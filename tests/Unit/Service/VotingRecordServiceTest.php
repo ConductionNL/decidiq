@@ -34,6 +34,7 @@ use OCA\Decidiq\Service\VoterTokenSecret;
 use OCA\Decidiq\Service\VotingRecordService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\AppFramework\Db\DoesNotExistException;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -337,4 +338,16 @@ class VotingRecordServiceTest extends TestCase {
 		self::assertNull($this->service()->findPerson(personId: 'ghost'));
 		self::assertSame('Marie Janssen', $this->service()->findPerson(personId: 'marie')['name']);
 	}//end testAnUnknownPersonIsNull()
+
+	/**
+	 * A person the caller cannot read is refused as not found; a readable one passes.
+	 *
+	 * @return void
+	 */
+	public function testAPersonTheCallerCannotReadIsRefused(): void {
+		$this->service()->requireReadablePerson(personId: 'marie');
+
+		$this->expectException(DoesNotExistException::class);
+		$this->service()->requireReadablePerson(personId: 'ghost');
+	}//end testAPersonTheCallerCannotReadIsRefused()
 }//end class

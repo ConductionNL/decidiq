@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Reads a person's voting record and the context of a single vote.
@@ -78,26 +79,30 @@ class VotingRecordService {
 	}//end findPerson()
 
 	/**
-	 * Whether the caller may read the person: OpenRegister answers with the
+	 * Refuse a person the caller may not read: OpenRegister answers with the
 	 * caller's own rights, so a person they cannot see is refused here before
-	 * any vote is read.
+	 * any vote is read, the same way as one that does not exist.
 	 *
 	 * @param string $personId The person id
 	 *
-	 * @return bool
+	 * @return void
+	 *
+	 * @throws DoesNotExistException When the caller cannot read the person
 	 *
 	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
-	public function mayReadPerson(string $personId): bool {
-		return $this->findPerson(personId: $personId) !== null;
-	}//end mayReadPerson()
+	public function requireReadablePerson(string $personId): void {
+		if ($this->findPerson(personId: $personId) === null) {
+			throw new DoesNotExistException('Person not found.');
+		}
+	}//end requireReadablePerson()
 
 	/**
 	 * A person's votes in closed rounds that were not secret, newest first.
 	 *
 	 * @param string $personId The person id
 	 *
-	 * @return list<array{vote: string, date: ?string, decision: ?array{id: string, title: string}, choice: string, result: ?string, party: ?string, body: ?string}>
+	 * @return list<array<string, mixed>> Rows of vote, date, decision, choice, result, party and body
 	 *
 	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */

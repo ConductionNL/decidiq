@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\VotingRecordService;
 use OCP\AppFramework\Controller;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -79,7 +80,9 @@ class VotingRecordController extends Controller {
 			return $auth;
 		}
 
-		if ($this->records->mayReadPerson(personId: $personId) === false) {
+		try {
+			$this->records->requireReadablePerson(personId: $personId);
+		} catch (DoesNotExistException) {
 			return new JSONResponse(['message' => 'Person not found.'], Http::STATUS_NOT_FOUND);
 		}
 

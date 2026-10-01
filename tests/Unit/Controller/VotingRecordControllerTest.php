@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\VotingRecordController;
 use OCA\Decidiq\Service\VotingRecordService;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\IRequest;
 use OCP\IUser;
@@ -52,7 +53,10 @@ class VotingRecordControllerTest extends TestCase {
 		$session = $this->createMock(IUserSession::class);
 		$session->method('getUser')->willReturn($loggedIn ? $this->createMock(IUser::class) : null);
 		$service = $this->createMock(VotingRecordService::class);
-		$service->method('mayReadPerson')->willReturn($person !== null);
+		if ($person === null) {
+			$service->method('requireReadablePerson')->willThrowException(new DoesNotExistException('Person not found.'));
+		}
+
 		$service->method('forPerson')->willReturn($record);
 
 		return new VotingRecordController($this->createMock(IRequest::class), $service, $session);
