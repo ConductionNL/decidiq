@@ -138,6 +138,7 @@ class RegisterAuthorizationTest extends TestCase {
 		'PublicationPayload'   => 'the publish flow',
 		'CaseExchangeRecord'   => 'CaseExchangeRecords (case system exchange)',
 		'PublicationEvent'     => 'PublicationEventRecorder (publication subscriptions)',
+		'ArchivalDossier'      => 'ArchivalDossierService (records management)',
 	];
 
 	/**
@@ -648,7 +649,7 @@ class RegisterAuthorizationTest extends TestCase {
 		// EvaluationResponse, 1 is PublicationSubscription, 17 are retired. A different number means schemas
 		// gained or lost their own block, which changes which ones the register
 		// baseline governs.
-		$this->assertCount(39, $blocks, 'Expected 39 schema-level authorization blocks.');
+		$this->assertCount(40, $blocks, 'Expected 40 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**

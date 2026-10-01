@@ -8644,6 +8644,87 @@
         "summary": "Decision published",
         "isPublished": true,
         "occurredAt": "2025-01-16T22:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ArchivalDossier",
+          "slug": "archival-dossier-voorbeeld-title-1-1"
+        },
+        "title": "Voorbeeld Title 1",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "lifecycle": "forming",
+        "minutes": [],
+        "decisions": [
+          "00000000-0000-4000-8000-000000000000"
+        ],
+        "votingRounds": [
+          "00000000-0000-4000-8000-000000000000"
+        ],
+        "documents": [
+          "00000000-0000-4000-8000-000000000000"
+        ],
+        "gaps": [
+          "minutes-not-approved"
+        ],
+        "assembledAt": "2026-03-01T09:00:00+00:00",
+        "securityClassification": "openbaar"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ArchivalDossier",
+          "slug": "archival-dossier-voorbeeld-title-2-2"
+        },
+        "title": "Voorbeeld Title 2",
+        "meeting": "00000000-0000-4000-8000-000000000001",
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "lifecycle": "closed",
+        "minutes": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "decisions": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "votingRounds": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "documents": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "gaps": [],
+        "assembledAt": "2026-03-02T09:00:00+00:00",
+        "closedAt": "2026-03-02T10:00:00+00:00",
+        "closedBy": "Voorbeeld Closedby 2",
+        "securityClassification": "openbaar"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ArchivalDossier",
+          "slug": "archival-dossier-voorbeeld-title-3-3"
+        },
+        "title": "Voorbeeld Title 3",
+        "meeting": "00000000-0000-4000-8000-000000000002",
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "lifecycle": "closed",
+        "minutes": [],
+        "decisions": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "votingRounds": [],
+        "documents": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "gaps": [
+          "minutes-missing"
+        ],
+        "assembledAt": "2026-03-03T09:00:00+00:00",
+        "closedAt": "2026-03-03T10:00:00+00:00",
+        "closedBy": "Voorbeeld Closedby 3",
+        "closeOverrideReason": "Voorbeeld Closeoverridereason 3",
+        "securityClassification": "intern"
       }
     ]
   }

@@ -1,0 +1,296 @@
+{
+    "x-openregister": {
+        "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+    },
+    "_comment": "ADR-037 register fragment, change records-management-archiving (REQ-RMA-001, REQ-RMA-003, REQ-RMA-008; matrix rows pub-11 and pub-18). ArchivalDossier (slug archival-dossier) is the aggregate OpenRegister lacks: the records of one meeting, frozen when closed. Retention is OpenRegister's: the schema's archive block names a Selectielijst category and RetentionService writes the persisted retention field on save. components.selectionLists ships the four Selectielijst 2020 categories through OpenRegister's register import (openregister#4228). securityClassification is added to the archivable schemas.",
+    "components": {
+        "registers": {
+            "decidiq": {
+                "schemas": [
+                    "archival-dossier"
+                ]
+            }
+        },
+        "selectionLists": [
+            {
+                "category": "2.1",
+                "action": "bewaren",
+                "retentionYears": null,
+                "description": "Raadsbesluiten en -verslagen",
+                "organisation": "gm0344"
+            },
+            {
+                "category": "3.1",
+                "action": "bewaren",
+                "retentionYears": null,
+                "description": "Verordeningen en beleidsregels",
+                "organisation": "gm0344"
+            },
+            {
+                "category": "19.1",
+                "action": "vernietigen",
+                "retentionYears": 5,
+                "description": "Ingetrokken voorstellen",
+                "organisation": "gm0344"
+            },
+            {
+                "category": "11.1",
+                "action": "vernietigen",
+                "retentionYears": 10,
+                "description": "Organisatie-interne verantwoording",
+                "organisation": "gm0344"
+            }
+        ],
+        "schemas": {
+            "ArchivalDossier": {
+                "slug": "archival-dossier",
+                "icon": "ArchiveOutline",
+                "version": "1.0.0",
+                "title": "Archival dossier",
+                "description": "The records of one meeting, kept together for the archive: its minutes, decisions, voting rounds and documents. Frozen when closed; OpenRegister decides how long it is kept and transfers or destroys it.",
+                "type": "object",
+                "archive": {
+                    "enabled": true,
+                    "classification": "2.1"
+                },
+                "_archiveNote": "OpenRegister reads the archive block per schema, so every dossier carries category 2.1 (council decisions and minutes, kept). A category per dossier needs OpenRegister to read it from the object (proposed follow-up).",
+                "authorization": {
+                    "read": [
+                        "authenticated"
+                    ]
+                },
+                "x-openregister": {
+                    "schemaType": "schema:Collection",
+                    "active": true,
+                    "hardDelete": false,
+                    "searchable": true
+                },
+                "required": [
+                    "title",
+                    "meeting"
+                ],
+                "properties": {
+                    "title": {
+                        "title": "Title",
+                        "type": "string",
+                        "description": "What the dossier holds, for example the meeting and its date."
+                    },
+                    "meeting": {
+                        "title": "Meeting",
+                        "type": "string",
+                        "format": "uuid",
+                        "$ref": "meeting",
+                        "facetable": true,
+                        "description": "The meeting whose records the dossier holds."
+                    },
+                    "governanceBody": {
+                        "title": "Body",
+                        "type": "string",
+                        "format": "uuid",
+                        "$ref": "governance-body",
+                        "facetable": true,
+                        "description": "The body that held the meeting."
+                    },
+                    "lifecycle": {
+                        "title": "Stage",
+                        "type": "string",
+                        "enum": [
+                            "forming",
+                            "closed",
+                            "transferred",
+                            "destroyed"
+                        ],
+                        "default": "forming",
+                        "facetable": true,
+                        "description": "Forming while records are added; closed when frozen; transferred or destroyed when OpenRegister has carried that out."
+                    },
+                    "minutes": {
+                        "title": "Minutes",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "$ref": "minutes"
+                        },
+                        "description": "The approved minutes of the meeting."
+                    },
+                    "decisions": {
+                        "title": "Decisions",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "$ref": "decision"
+                        },
+                        "description": "The decisions taken at the meeting."
+                    },
+                    "votingRounds": {
+                        "title": "Voting rounds",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "$ref": "voting-round"
+                        },
+                        "description": "The voting rounds held at the meeting."
+                    },
+                    "documents": {
+                        "title": "Documents",
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "format": "uuid",
+                            "$ref": "digital-document"
+                        },
+                        "description": "The documents of the meeting and its agenda items."
+                    },
+                    "gaps": {
+                        "title": "Gaps",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "What the dossier still lacks, for example minutes that are not approved yet."
+                    },
+                    "assembledAt": {
+                        "title": "Assembled on",
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the records were last gathered."
+                    },
+                    "closedAt": {
+                        "title": "Closed on",
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the dossier was frozen."
+                    },
+                    "closedBy": {
+                        "title": "Closed by",
+                        "type": "string",
+                        "description": "The account that closed the dossier."
+                    },
+                    "closeOverrideReason": {
+                        "title": "Reason for closing with gaps",
+                        "type": "string",
+                        "description": "Why the dossier was closed although it still had gaps."
+                    },
+                    "securityClassification": {
+                        "title": "Security classification",
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "intern",
+                            "vertrouwelijk",
+                            "geheim"
+                        ],
+                        "default": "openbaar",
+                        "facetable": true,
+                        "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                },
+                "x-openregister-lifecycle": {
+                    "field": "lifecycle",
+                    "initial": "forming",
+                    "states": [
+                        "forming",
+                        "closed",
+                        "transferred",
+                        "destroyed"
+                    ],
+                    "terminal": [
+                        "transferred",
+                        "destroyed"
+                    ],
+                    "transitions": [
+                        {
+                            "from": "forming",
+                            "to": "closed"
+                        },
+                        {
+                            "from": "closed",
+                            "to": "transferred"
+                        },
+                        {
+                            "from": "closed",
+                            "to": "destroyed"
+                        }
+                    ],
+                    "_note": "Declarative transition map (ADR-031). Closing goes through POST /api/dossiers/{id}/close, which checks completeness first; transferred and destroyed are set when OpenRegister has carried them out."
+                },
+                "_authorizationNote": "Every signed-in member reads dossiers. Writes are owned by ArchivalDossierService (create for a meeting, assemble, close), which checks records-management authority per object and saves in system context; the object API stays closed for writes so a closed dossier cannot be reopened around that check."
+            },
+            "Minutes": {
+                "slug": "minutes",
+                "properties": {
+                    "securityClassification": {
+                        "title": "Security classification",
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "intern",
+                            "vertrouwelijk",
+                            "geheim"
+                        ],
+                        "default": "openbaar",
+                        "facetable": true,
+                        "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                }
+            },
+            "Decision": {
+                "slug": "decision",
+                "properties": {
+                    "securityClassification": {
+                        "title": "Security classification",
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "intern",
+                            "vertrouwelijk",
+                            "geheim"
+                        ],
+                        "default": "openbaar",
+                        "facetable": true,
+                        "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                }
+            },
+            "Meeting": {
+                "slug": "meeting",
+                "properties": {
+                    "securityClassification": {
+                        "title": "Security classification",
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "intern",
+                            "vertrouwelijk",
+                            "geheim"
+                        ],
+                        "default": "openbaar",
+                        "facetable": true,
+                        "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                }
+            },
+            "DigitalDocument": {
+                "slug": "digital-document",
+                "properties": {
+                    "securityClassification": {
+                        "title": "Security classification",
+                        "type": "string",
+                        "enum": [
+                            "openbaar",
+                            "intern",
+                            "vertrouwelijk",
+                            "geheim"
+                        ],
+                        "default": "openbaar",
+                        "facetable": true,
+                        "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                }
+            }
+        }
+    }
+}
