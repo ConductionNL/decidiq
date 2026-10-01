@@ -13,7 +13,10 @@
 		<p v-if="loading" class="decidiq-tab__loading">
 			{{ t('decidiq', 'Looking for the profile…') }}
 		</p>
-		<router-link v-else-if="personId" :to="{ path: profile }" data-testid="participant-open-profile">
+		<router-link
+			v-else-if="personId"
+			:to="{ path: profile }"
+			data-testid="participant-open-profile">
 			{{ t('decidiq', 'Open profile') }}
 		</router-link>
 		<p v-else class="decidiq-tab__empty">
@@ -72,10 +75,15 @@ export default {
 			this.loading = true
 			this.personId = ''
 			try {
-				const participant = await ensureRelationType('participant').fetchObject('participant', this.objectId)
+				const participant = await ensureRelationType(
+					'participant',
+				).fetchObject('participant', this.objectId)
 				const personStore = ensureRelationType('person')
 				for (const query of participantPersonQueries(participant)) {
-					const found = await personStore.fetchCollection('person', { ...query, _limit: 1 })
+					const found = await personStore.fetchCollection('person', {
+						...query,
+						_limit: 1,
+					})
 					if (found?.length) {
 						this.personId = found[0].id
 						break

@@ -52,7 +52,7 @@ class VotingRecordControllerTest extends TestCase {
 		$session = $this->createMock(IUserSession::class);
 		$session->method('getUser')->willReturn($loggedIn ? $this->createMock(IUser::class) : null);
 		$service = $this->createMock(VotingRecordService::class);
-		$service->method('findPerson')->willReturn($person);
+		$service->method('mayReadPerson')->willReturn($person !== null);
 		$service->method('forPerson')->willReturn($record);
 
 		return new VotingRecordController($this->createMock(IRequest::class), $service, $session);

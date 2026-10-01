@@ -18,12 +18,14 @@
 				:src="photo"
 				:alt="t('decidiq', 'Photo of {name}', { name })"
 				data-testid="person-photo"
-				@error="photoFailed = true">
+				@error="photoFailed = true" />
 			<span
 				v-else
 				class="decidiq-person__initials"
 				aria-hidden="true"
-				data-testid="person-initials">{{ initialsText }}</span>
+				data-testid="person-initials"
+				>{{ initialsText }}</span
+			>
 			<h3 class="decidiq-person__name">
 				{{ name }}
 			</h3>
@@ -44,37 +46,72 @@
 			<p v-if="!sections.current.length" class="decidiq-person__empty">
 				{{ t('decidiq', 'No current memberships.') }}
 			</p>
-			<ul class="decidiq-person__list" data-testid="person-memberships-current">
-				<li v-for="row in sections.current" :key="row.id" class="decidiq-person__item">
+			<ul
+				class="decidiq-person__list"
+				data-testid="person-memberships-current">
+				<li
+					v-for="row in sections.current"
+					:key="row.id"
+					class="decidiq-person__item">
 					<router-link :to="{ path: `/governance-bodies/${row.bodyId}` }">
 						{{ row.bodyName || t('decidiq', 'Unnamed body') }}
 					</router-link>
 					<span class="decidiq-person__meta">
 						{{ [row.role, row.party].filter(Boolean).join(' · ') }}
 					</span>
-					<span v-if="row.portfolio" class="decidiq-person__portfolio" data-testid="person-portfolio">
-						{{ t('decidiq', 'Portfolio: {portfolio}', { portfolio: row.portfolio }) }}
+					<span
+						v-if="row.portfolio"
+						class="decidiq-person__portfolio"
+						data-testid="person-portfolio">
+						{{
+							t('decidiq', 'Portfolio: {portfolio}', {
+								portfolio: row.portfolio,
+							})
+						}}
 					</span>
 					<span class="decidiq-person__meta">
-						{{ t('decidiq', 'Since {date}', { date: dateLabel(row.startDate) }) }}
+						{{
+							t('decidiq', 'Since {date}', {
+								date: dateLabel(row.startDate),
+							})
+						}}
 					</span>
 				</li>
 			</ul>
 
 			<details v-if="sections.earlier.length" class="decidiq-person__earlier">
 				<summary>
-					{{ t('decidiq', 'Earlier memberships ({count})', { count: sections.earlier.length }) }}
+					{{
+						t('decidiq', 'Earlier memberships ({count})', {
+							count: sections.earlier.length,
+						})
+					}}
 				</summary>
-				<ul class="decidiq-person__list" data-testid="person-memberships-earlier">
-					<li v-for="row in sections.earlier" :key="row.id" class="decidiq-person__item">
-						<router-link :to="{ path: `/governance-bodies/${row.bodyId}` }">
+				<ul
+					class="decidiq-person__list"
+					data-testid="person-memberships-earlier">
+					<li
+						v-for="row in sections.earlier"
+						:key="row.id"
+						class="decidiq-person__item">
+						<router-link
+							:to="{ path: `/governance-bodies/${row.bodyId}` }">
 							{{ row.bodyName || t('decidiq', 'Unnamed body') }}
 						</router-link>
 						<span class="decidiq-person__meta">
-							{{ [row.role, row.party, row.portfolio].filter(Boolean).join(' · ') }}
+							{{
+								[row.role, row.party, row.portfolio]
+									.filter(Boolean)
+									.join(' · ')
+							}}
 						</span>
 						<span class="decidiq-person__meta">
-							{{ t('decidiq', '{from} to {to}', { from: dateLabel(row.startDate), to: dateLabel(row.endDate) }) }}
+							{{
+								t('decidiq', '{from} to {to}', {
+									from: dateLabel(row.startDate),
+									to: dateLabel(row.endDate),
+								})
+							}}
 						</span>
 					</li>
 				</ul>
@@ -150,16 +187,29 @@ export default {
 			this.photoFailed = false
 			try {
 				const [person, memberships] = await Promise.all([
-					ensureRelationType('person').fetchObject('person', this.objectId),
+					ensureRelationType('person').fetchObject(
+						'person',
+						this.objectId,
+					),
 					ensureRelationType('membership').fetchCollection('membership', {
 						person: this.objectId,
 						_limit: 100,
 					}),
 				])
-				const bodyIds = [...new Set((memberships || []).map((m) => m.governanceBody).filter(Boolean))]
+				const bodyIds = [
+					...new Set(
+						(memberships || [])
+							.map((m) => m.governanceBody)
+							.filter(Boolean),
+					),
+				]
 				const bodyStore = ensureRelationType('governance-body')
 				const bodies = await Promise.all(
-					bodyIds.map((id) => bodyStore.fetchObject('governance-body', id).catch(() => null)),
+					bodyIds.map((id) =>
+						bodyStore
+							.fetchObject('governance-body', id)
+							.catch(() => null),
+					),
 				)
 				const bodiesById = {}
 				bodyIds.forEach((id, i) => {
@@ -168,7 +218,8 @@ export default {
 				this.person = person
 				this.sections = membershipSections(memberships || [], bodiesById)
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'Failed to load memberships.')
+				this.error =
+					e?.message || this.t('decidiq', 'Failed to load memberships.')
 			} finally {
 				this.loading = false
 			}

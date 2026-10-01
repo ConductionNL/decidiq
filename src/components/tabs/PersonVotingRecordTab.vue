@@ -10,7 +10,9 @@
  @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 -->
 <template>
-	<div class="decidiq-tab decidiq-tab--voting-record" data-testid="person-voting-record">
+	<div
+		class="decidiq-tab decidiq-tab--voting-record"
+		data-testid="person-voting-record">
 		<CnNoteCard
 			v-if="error"
 			type="error"
@@ -30,10 +32,14 @@
 				{{ dateLabel(value) }}
 			</template>
 			<template #column-decision="{ row, value }">
-				<router-link v-if="row.decisionId" :to="{ path: `/decisions/${row.decisionId}` }">
+				<router-link
+					v-if="row.decisionId"
+					:to="{ path: `/decisions/${row.decisionId}` }">
 					{{ value }}
 				</router-link>
-				<span v-else>{{ t('decidiq', 'Vote without a linked decision') }}</span>
+				<span v-else>{{
+					t('decidiq', 'Vote without a linked decision')
+				}}</span>
 			</template>
 			<template #column-choice="{ value }">
 				{{ choiceLabel(value) }}
@@ -104,15 +110,22 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const response = await fetch(generateUrl(votingRecordUrl(String(this.objectId))), {
-					headers: { requesttoken: window.OC?.requestToken },
-				})
+				const response = await fetch(
+					generateUrl(votingRecordUrl(String(this.objectId))),
+					{
+						headers: { requesttoken: window.OC?.requestToken },
+					},
+				)
 				if (!response.ok) {
-					throw new Error(this.t('decidiq', 'The voting record could not be read.'))
+					throw new Error(
+						this.t('decidiq', 'The voting record could not be read.'),
+					)
 				}
 				this.rows = recordRows(await response.json())
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The voting record could not be read.')
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The voting record could not be read.')
 			} finally {
 				this.loading = false
 			}

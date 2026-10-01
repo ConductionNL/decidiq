@@ -79,7 +79,7 @@ class VotingRecordController extends Controller {
 			return $auth;
 		}
 
-		if ($this->records->findPerson(personId: $personId) === null) {
+		if ($this->records->mayReadPerson(personId: $personId) === false) {
 			return new JSONResponse(['message' => 'Person not found.'], Http::STATUS_NOT_FOUND);
 		}
 

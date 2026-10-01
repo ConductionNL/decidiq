@@ -78,6 +78,21 @@ class VotingRecordService {
 	}//end findPerson()
 
 	/**
+	 * Whether the caller may read the person: OpenRegister answers with the
+	 * caller's own rights, so a person they cannot see is refused here before
+	 * any vote is read.
+	 *
+	 * @param string $personId The person id
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 */
+	public function mayReadPerson(string $personId): bool {
+		return $this->findPerson(personId: $personId) !== null;
+	}//end mayReadPerson()
+
+	/**
 	 * A person's votes in closed rounds that were not secret, newest first.
 	 *
 	 * @param string $personId The person id
