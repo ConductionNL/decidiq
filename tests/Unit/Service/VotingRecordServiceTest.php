@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\PersonParticipantLookup;
 use OCA\Decidiq\Service\VoteBallotFactory;
+use OCA\Decidiq\Service\VoteContextReader;
 use OCA\Decidiq\Service\VoterTokenSecret;
 use OCA\Decidiq\Service\VotingRecordService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -44,6 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\Decidiq\Service\VotingRecordService
  * @covers \OCA\Decidiq\Service\PersonParticipantLookup
+ * @covers \OCA\Decidiq\Service\VoteContextReader
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\VoteBallotFactory
  * @uses   \OCA\Decidiq\Service\VoterTokenSecret
@@ -203,7 +205,8 @@ class VotingRecordServiceTest extends TestCase {
 		return new VotingRecordService(
 			objectService: $objectService,
 			participants: new PersonParticipantLookup(objectService: $objectService),
-			relationFilter: new ObjectRelationFilter()
+			relationFilter: new ObjectRelationFilter(),
+			context: new VoteContextReader(objectService: $objectService)
 		);
 	}//end service()
 

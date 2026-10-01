@@ -26,6 +26,7 @@ use OCA\Decidiq\Service\OriSerializer;
 use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\Decidiq\Service\PersonParticipantLookup;
 use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Service\VoteContextReader;
 use OCA\Decidiq\Service\VotingRecordService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -51,6 +52,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Service\OriVotePublicationRule
  * @covers \OCA\Decidiq\Service\OriSerializer
  * @uses   \OCA\Decidiq\Service\VotingRecordService
+ * @uses   \OCA\Decidiq\Service\VoteContextReader
  * @uses   \OCA\Decidiq\Service\PersonParticipantLookup
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\SettingsService
@@ -193,7 +195,13 @@ class OriVotePublicationTest extends TestCase {
 	private function controller(): OriController {
 		$objectService = $this->objectService();
 		$people = new PersonParticipantLookup(objectService: $objectService);
-		$records = new VotingRecordService(objectService: $objectService, participants: $people, relationFilter: new ObjectRelationFilter());
+		$context = new VoteContextReader(objectService: $objectService);
+		$records = new VotingRecordService(
+			objectService: $objectService,
+			participants: $people,
+			relationFilter: new ObjectRelationFilter(),
+			context: $context
+		);
 
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(fn (string $key) => ($key === 'voter' ? $this->voter : null));
@@ -206,7 +214,7 @@ class OriVotePublicationTest extends TestCase {
 			$container,
 			$this->createMock(LoggerInterface::class),
 			new OriSerializer(),
-			new OriVotePublicationRule(records: $records, people: $people, objectService: $objectService),
+			new OriVotePublicationRule(records: $records, context: $context, people: $people, objectService: $objectService),
 		);
 	}//end controller()
 

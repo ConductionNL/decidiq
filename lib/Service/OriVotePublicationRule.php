@@ -68,12 +68,14 @@ class OriVotePublicationRule {
 	/**
 	 * Constructor.
 	 *
-	 * @param VotingRecordService     $records       The record reader (round, decision, body, party)
+	 * @param VotingRecordService     $records       The record reader (a person's ballots, party)
+	 * @param VoteContextReader       $context       Member, round, decision and body of a ballot
 	 * @param PersonParticipantLookup $people        Person and participant matching
 	 * @param ObjectServiceInterface  $objectService OpenRegister object service
 	 */
 	public function __construct(
 		private readonly VotingRecordService $records,
+		private readonly VoteContextReader $context,
 		private readonly PersonParticipantLookup $people,
 		private readonly ObjectServiceInterface $objectService,
 	) {
@@ -95,7 +97,7 @@ class OriVotePublicationRule {
 				$ballots[$id] = $vote;
 			}
 		} else {
-			$person = $this->records->object(schema: 'person', id: $voter);
+			$person = $this->context->object(schema: 'person', id: $voter);
 			$participantIds = [];
 			if ($person !== null) {
 				$participantIds = $this->people->participantIdsOf(person: $person);
@@ -127,7 +129,7 @@ class OriVotePublicationRule {
 	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function vote(string $voteId): ?array {
-		$vote = $this->records->object(schema: 'vote', id: $voteId);
+		$vote = $this->context->object(schema: 'vote', id: $voteId);
 		if ($vote === null) {
 			return null;
 		}
@@ -164,7 +166,7 @@ class OriVotePublicationRule {
 	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function voteEvent(string $roundId): ?array {
-		$round = $this->records->object(schema: 'voting-round', id: $roundId);
+		$round = $this->context->object(schema: 'voting-round', id: $roundId);
 		if ($round === null) {
 			return null;
 		}
@@ -186,7 +188,7 @@ class OriVotePublicationRule {
 			return null;
 		}
 
-		$decision = $this->records->decisionOf(roundId: $roundId, round: $round);
+		$decision = $this->context->decisionOf(roundId: $roundId, round: $round);
 		if ($decision === null || ($decision[1]['isPublished'] ?? null) !== 'public') {
 			return null;
 		}
@@ -215,7 +217,7 @@ class OriVotePublicationRule {
 	 */
 	private function publicVote(string $voteId, array $vote): ?array {
 		$option = (self::OPTIONS[(string)($vote['value'] ?? '')] ?? null);
-		$round = $this->records->roundOf(vote: $vote);
+		$round = $this->context->roundOf(vote: $vote);
 		if ($option === null || $round === null || ($round[1]['isSecret'] ?? true) !== false) {
 			return null;
 		}
@@ -224,22 +226,22 @@ class OriVotePublicationRule {
 			return null;
 		}
 
-		$decision = $this->records->decisionOf(roundId: $round[0], round: $round[1]);
+		$decision = $this->context->decisionOf(roundId: $round[0], round: $round[1]);
 		if ($decision === null || ($decision[1]['isPublished'] ?? null) !== 'public') {
 			return null;
 		}
 
-		$bodyId = $this->records->bodyOfRound(roundId: $round[0], round: $round[1], decision: $decision[1]);
-		if ($bodyId === null || ($this->records->object(schema: 'governance-body', id: $bodyId)['publishVotingRecords'] ?? false) !== true) {
+		$bodyId = $this->context->bodyOfRound(roundId: $round[0], round: $round[1], decision: $decision[1]);
+		if ($bodyId === null || ($this->context->object(schema: 'governance-body', id: $bodyId)['publishVotingRecords'] ?? false) !== true) {
 			return null;
 		}
 
-		$participantId = $this->records->memberOf(vote: $vote);
+		$participantId = $this->context->memberOf(vote: $vote);
 		if ($participantId === null) {
 			return null;
 		}
 
-		$participant = ($this->records->object(schema: 'participant', id: $participantId) ?? []);
+		$participant = ($this->context->object(schema: 'participant', id: $participantId) ?? []);
 		$voter = $this->people->personIdOf(participant: $participant);
 
 		return [

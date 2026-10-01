@@ -29,6 +29,7 @@
  */
 import type { Page } from '@playwright/test'
 
+import { randomInt } from 'node:crypto'
 import { BASE_URL as BASE } from '../base-url.ts'
 
 const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
@@ -86,7 +87,7 @@ const TEARDOWN_ORDER = [
 ]
 
 export function newLedger(): SeedLedger {
-	const runId = `${Date.now()}-${Math.floor(Math.random() * 1e4)}`
+	const runId = `${Date.now()}-${randomInt(10_000)}`
 	return { runId, created: {} }
 }
 
