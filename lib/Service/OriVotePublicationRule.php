@@ -91,33 +91,45 @@ class OriVotePublicationRule {
 	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function votes(?string $voter): array {
-		$ballots = [];
-		if ($voter === null || $voter === '') {
-			foreach ($this->all(schema: 'vote') as $id => $vote) {
-				$ballots[$id] = $vote;
-			}
-		} else {
-			$person = $this->context->object(schema: 'person', id: $voter);
-			$participantIds = [];
-			if ($person !== null) {
-				$participantIds = $this->people->participantIdsOf(person: $person);
-			}
-
-			foreach ($participantIds as $participantId) {
-				$ballots += $this->records->votesOf(participantId: $participantId);
-			}
+		if ($voter === '') {
+			$voter = null;
 		}
 
 		$items = [];
-		foreach ($ballots as $id => $vote) {
+		foreach ($this->ballots(voter: $voter) as $id => $vote) {
 			$fields = $this->publicVote(voteId: (string)$id, vote: $vote);
-			if ($fields !== null && ($voter === null || $voter === '' || $fields['voter'] === $voter)) {
+			if ($fields !== null && ($voter === null || $fields['voter'] === $voter)) {
 				$items[] = $fields;
 			}
 		}
 
 		return $items;
 	}//end votes()
+
+	/**
+	 * The ballots to judge: every ballot, or the ballots of one person's participants.
+	 *
+	 * @param string|null $voter A person id, or null for every voter
+	 *
+	 * @return array<string, array<string, mixed>> Ballots by id
+	 */
+	private function ballots(?string $voter): array {
+		if ($voter === null) {
+			return $this->all(schema: 'vote');
+		}
+
+		$person = $this->context->object(schema: 'person', id: $voter);
+		if ($person === null) {
+			return [];
+		}
+
+		$ballots = [];
+		foreach ($this->people->participantIdsOf(person: $person) as $participantId) {
+			$ballots += $this->records->votesOf(participantId: $participantId);
+		}
+
+		return $ballots;
+	}//end ballots()
 
 	/**
 	 * One public vote by id, or null when the rule withholds it.
@@ -217,25 +229,12 @@ class OriVotePublicationRule {
 	 */
 	private function publicVote(string $voteId, array $vote): ?array {
 		$option = (self::OPTIONS[(string)($vote['value'] ?? '')] ?? null);
-		$round = $this->context->roundOf(vote: $vote);
-		if ($option === null || $round === null || ($round[1]['isSecret'] ?? true) !== false) {
+		$context = $this->publicContext(vote: $vote);
+		if ($option === null || $context === null) {
 			return null;
 		}
 
-		if (empty($round[1]['closedAt']) === true) {
-			return null;
-		}
-
-		$decision = $this->context->decisionOf(roundId: $round[0], round: $round[1]);
-		if ($decision === null || ($decision[1]['isPublished'] ?? null) !== 'public') {
-			return null;
-		}
-
-		$bodyId = $this->context->bodyOfRound(roundId: $round[0], round: $round[1], decision: $decision[1]);
-		if ($bodyId === null || ($this->context->object(schema: 'governance-body', id: $bodyId)['publishVotingRecords'] ?? false) !== true) {
-			return null;
-		}
-
+		[$round, $bodyId] = $context;
 		$participantId = $this->context->memberOf(vote: $vote);
 		if ($participantId === null) {
 			return null;
@@ -257,6 +256,34 @@ class OriVotePublicationRule {
 			),
 		];
 	}//end publicVote()
+
+	/**
+	 * The round and body of a ballot when both may be published: the round is
+	 * closed and not secret, its decision is published and the body publishes
+	 * voting records. Null when any of that fails or cannot be resolved.
+	 *
+	 * @param array<string, mixed> $vote The ballot
+	 *
+	 * @return array{0: array{0: string, 1: array<string, mixed>}, 1: string}|null The round and the body id
+	 */
+	private function publicContext(array $vote): ?array {
+		$round = $this->context->roundOf(vote: $vote);
+		if ($round === null || ($round[1]['isSecret'] ?? true) !== false || empty($round[1]['closedAt']) === true) {
+			return null;
+		}
+
+		$decision = $this->context->decisionOf(roundId: $round[0], round: $round[1]);
+		if ($decision === null || ($decision[1]['isPublished'] ?? null) !== 'public') {
+			return null;
+		}
+
+		$bodyId = $this->context->bodyOfRound(roundId: $round[0], round: $round[1], decision: $decision[1]);
+		if ($bodyId === null || ($this->context->object(schema: 'governance-body', id: $bodyId)['publishVotingRecords'] ?? false) !== true) {
+			return null;
+		}
+
+		return [$round, $bodyId];
+	}//end publicContext()
 
 	/**
 	 * Objects of one schema, read in system context, by id.
