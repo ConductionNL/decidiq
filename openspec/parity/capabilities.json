@@ -547,7 +547,7 @@
 				"state": "built",
 				"evidence": "src/manifest.d/member-profile.json PersonDetail /people/:id (data About; PersonMembershipsTab photo or initials, current and earlier memberships with body, role, party, portfolio; object-list ancillary-position); lib/Settings/register.d/114-member-profile.json membership.portfolio; GovernanceBodyMembersTab links names to the profile; ParticipantProfileLink on ParticipantDetail. Tests: tests/Unit/Settings/MemberProfileRegisterTest.php, tests/vitest/memberProfile.spec.js, tests/e2e/member-profile-and-voting-record.spec.ts",
 				"owner": "ConductionNL/decidiq",
-				"change": "bodies-member-profile-and-voting-record",
+				"change": "2026-10-01-bodies-member-profile-and-voting-record",
 				"readOn": "2026-09-28"
 			},
 			"reachedOn": "a body's Members widget links each name to /people/:id; the participant page offers Open profile",
@@ -3310,7 +3310,7 @@
 				"state": "built",
 				"evidence": "GET /api/people/{personId}/voting-record (lib/Controller/VotingRecordController.php, lib/Service/VotingRecordService.php, lib/Service/PersonParticipantLookup.php): closed non-secret rounds, date, decision, choice, result, party at the time, creates nothing; PersonVotingRecordTab on /people/:id. Tests: tests/Unit/Service/VotingRecordServiceTest.php, tests/Unit/Controller/VotingRecordControllerTest.php, tests/e2e/member-profile-and-voting-record.spec.ts",
 				"owner": "ConductionNL/decidiq",
-				"change": "bodies-member-profile-and-voting-record",
+				"change": "2026-10-01-bodies-member-profile-and-voting-record",
 				"readOn": "2026-09-28"
 			},
 			"reachedOn": "the Voting record widget on /people/:id",
@@ -4979,9 +4979,11 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "lib/Controller/VotingBehaviourController.php:106 getStats() is #[NoAdminRequired], own participant or admin only, no src caller; lib/Service/OriPublicationService.php:232 buildJsonLd() pushes totals only; lib/Controller/OriController.php:70 'votes' resource filters lifecycle=published but the vote schema (decidesk_register.json Vote) has no lifecycle field",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "lib/Service/OriVotePublicationRule.php decides /api/ori/v1/votes and /voteevents (round closed and not secret, decision isPublished public, value set, body publishVotingRecords true; ?voter=; by id 404 for anything withheld), read in system context, allow-listed fields only via OriSerializer::serializeAllowed(); lib/Controller/OriController.php routes votes/voteevents to it (the lifecycle filter listed nothing). Tests: tests/Unit/Controller/OriVotePublicationTest.php (fixtures Opis-valid against the merged register), tests/integration/decidiq-ori-public-votes.postman_collection.json. Missing half: not proven live (no instance serves the branch), and anonymous /api/ori/v1/persons answers 0 of 7 persons on the local instance (OpenRegister's own object API also 0 anonymously), so a portal cannot resolve a voter id to a name; a defect of its own.",
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-10-01-bodies-member-profile-and-voting-record",
+				"readOn": "2026-10-01"
 			},
 			"reachedOn": "nothing reaches it: no public per-member voting record page",
 			"provider": "decidiq",

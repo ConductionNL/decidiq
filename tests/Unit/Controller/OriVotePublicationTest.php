@@ -58,7 +58,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+ * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */
 class OriVotePublicationTest extends TestCase {
 

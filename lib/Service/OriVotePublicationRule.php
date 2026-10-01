@@ -20,7 +20,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+ * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  * the allow-listed fields below ever leave this class. Anything the rule
  * cannot resolve is withheld.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+ * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */
 class OriVotePublicationRule {
 
@@ -88,7 +88,7 @@ class OriVotePublicationRule {
 	 *
 	 * @return list<array<string, mixed>> The ORI vote fields
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function votes(?string $voter): array {
 		$ballots = [];
@@ -126,7 +126,7 @@ class OriVotePublicationRule {
 	 *
 	 * @return array<string, mixed>|null The ORI vote fields
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function vote(string $voteId): ?array {
 		$vote = $this->context->object(schema: 'vote', id: $voteId);
@@ -142,7 +142,7 @@ class OriVotePublicationRule {
 	 *
 	 * @return list<array<string, mixed>> The ORI vote event fields
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function voteEvents(): array {
 		$items = [];
@@ -163,7 +163,7 @@ class OriVotePublicationRule {
 	 *
 	 * @return array<string, mixed>|null The ORI vote event fields
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function voteEvent(string $roundId): ?array {
 		$round = $this->context->object(schema: 'voting-round', id: $roundId);

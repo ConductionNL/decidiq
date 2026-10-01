@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 /**
  * Read-only person to participant lookup.
  *
- * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+ * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
 class PersonParticipantLookup {
 
@@ -60,7 +60,7 @@ class PersonParticipantLookup {
 	 *
 	 * @return list<string> Participant ids, empty when nothing matches
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function participantIdsOf(array $person): array {
 		foreach (self::MATCH_ORDER as $field) {
@@ -86,7 +86,7 @@ class PersonParticipantLookup {
 	 *
 	 * @return string|null The person id, or null when no person matches
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function personIdOf(array $participant): ?string {
 		foreach (self::MATCH_ORDER as $field) {

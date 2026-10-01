@@ -478,7 +478,7 @@ class OriController extends Controller {
 	 *
 	 * @return JSONResponse JSON-LD list envelope or error
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	private function ruledIndex(string $resource): JSONResponse {
 		$type = self::ORI_TYPE_MAP[$resource];
@@ -521,7 +521,7 @@ class OriController extends Controller {
 	 *
 	 * @return JSONResponse The JSON-LD entity or error
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	private function ruledShow(string $resource, string $id): JSONResponse {
 		try {

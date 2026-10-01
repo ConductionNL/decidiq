@@ -282,7 +282,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The serialized ORI resource
 	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
 	public function serializeAllowed(string $type, array $fields): array {
 		return ([
