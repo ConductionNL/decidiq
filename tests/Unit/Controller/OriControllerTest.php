@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\OriController;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
@@ -112,6 +113,7 @@ class OriControllerTest extends TestCase {
 			$this->container,
 			$this->logger,
 			new OriSerializer(),
+			$this->createMock(OriVotePublicationRule::class),
 		);
 
 	}//end setUp()
@@ -659,4 +661,53 @@ class OriControllerTest extends TestCase {
 
 	}//end testShowWithholdsDraftMinutes()
 
+	/**
+	 * A controller whose vote rule throws, to prove the ruled resources fail closed.
+	 *
+	 * @param \Throwable $error What the rule throws
+	 *
+	 * @return OriController
+	 */
+	private function controllerWithFailingVoteRule(\Throwable $error): OriController {
+		$rule = $this->createMock(OriVotePublicationRule::class);
+		$rule->method('votes')->willThrowException($error);
+		$rule->method('vote')->willThrowException($error);
+		$rule->method('voteEvents')->willThrowException($error);
+		$rule->method('voteEvent')->willThrowException($error);
+
+		return new OriController(
+			$this->request,
+			$this->config,
+			$this->container,
+			$this->logger,
+			new OriSerializer(),
+			$rule,
+		);
+	}//end controllerWithFailingVoteRule()
+
+	/**
+	 * A vote rule that cannot read answers 500 on the list and by id, never a partial list.
+	 *
+	 * @return void
+	 */
+	public function testAFailingVoteRuleAnswers500(): void {
+		$controller = $this->controllerWithFailingVoteRule(error: new \RuntimeException('store down'));
+		$this->logger->expects($this->exactly(4))->method('error');
+
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->index(resource: 'votes')->getStatus());
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->index(resource: 'voteevents')->getStatus());
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->show(resource: 'votes', id: 'v-1')->getStatus());
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->show(resource: 'voteevents', id: 'r-1')->getStatus());
+	}//end testAFailingVoteRuleAnswers500()
+
+	/**
+	 * A vote the store reports as gone is not found by id.
+	 *
+	 * @return void
+	 */
+	public function testAVoteTheStoreCannotFindIsNotFound(): void {
+		$controller = $this->controllerWithFailingVoteRule(error: new \OCP\AppFramework\Db\DoesNotExistException('gone'));
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $controller->show(resource: 'votes', id: 'v-1')->getStatus());
+	}//end testAVoteTheStoreCannotFindIsNotFound()
 }//end class

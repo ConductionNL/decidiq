@@ -44,8 +44,9 @@
   - GIVEN a seeded instance on development WHEN the collection runs anonymously THEN the counts per resource are recorded in the PR body
   - GIVEN `persons` returns nothing anonymously WHEN that is found THEN it is reported as its own defect and task 5 does not claim publication
   - Verification: the Newman run output attached to the PR
-- [ ] Implement
-- [ ] Test
+  - Done as: the collection is `tests/integration/decidiq-ori-public-votes.postman_collection.json` (the folder CI's Newman job runs; `tests/newman/` does not exist). Run anonymously on the local instance (decidiq 1.2.0 of development, 1 Oct): persons 0, votes 0, voteevents 0, unknown vote 404, 12 of 12 assertions. Signed in as admin the same instance lists 7 persons. Anonymous `persons` returning nothing is its own defect: OpenRegister's own object API also answers 0 of 7 anonymously, so the ORI persons resource names no one. Task 5 therefore does not claim that votes are published live.
+- [x] Implement
+- [x] Test
 
 ### Task 5: Publish public votes through ORI
 
@@ -57,5 +58,6 @@
   - GIVEN a body with `publishVotingRecords: false` WHEN its votes are listed THEN none are returned (REQ-MPR-005)
   - GIVEN `/voteevents` WHEN listed THEN closed rounds on published decisions appear with totals and no per-member values
   - Verification: PHPUnit per condition, written red first; the Newman collection of task 4 rerun and its new counts added to the PR
-- [ ] Implement
-- [ ] Test
+  - Done as: `OriVotePublicationRule` decides both resources and reads in system context; `OriController` sends `votes` and `voteevents` to it instead of the lifecycle filter (the vote and voting round schemas have no lifecycle, so the filter listed nothing and refused every id); `OriSerializer::serializeAllowed()` wraps only the rule's allow-listed fields. The body of a round falls back to the assigned body of its decision stage, because the register declares no `decision.meeting`. `tests/Unit/Controller/OriVotePublicationTest.php` (12 tests, fixtures validated with Opis against the merged register) was red on the code of #1572 (11 errors) and is green. The Newman rerun on this branch needs an instance that serves the branch; none does, so the counts after the change are not measured and the change is not claimed live.
+- [x] Implement
+- [x] Test

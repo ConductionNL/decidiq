@@ -7,7 +7,7 @@
  memberships are listed apart. Read-only: memberships are managed on the
  body's members widget.
 
- @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page
+ @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page
 -->
 <template>
 	<div class="decidiq-tab decidiq-person" data-testid="person-memberships">
@@ -147,17 +147,17 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
+		/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
 		name() {
 			return this.person?.name || ''
 		},
 
-		/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
+		/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
 		photo() {
 			return this.photoFailed ? '' : this.person?.image || ''
 		},
 
-		/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
+		/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
 		initialsText() {
 			return initials(this.name)
 		},
@@ -166,7 +166,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
+			/** @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-001-every-person-has-a-profile-page */
 			handler() {
 				this.refresh()
 			},
@@ -178,7 +178,7 @@ export default {
 		 * Load the person, their memberships and the bodies they sit on.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
 		 */
 		async refresh() {
 			if (!this.objectId) return
@@ -230,7 +230,7 @@ export default {
 		 *
 		 * @param {?string} value An ISO date-time
 		 * @return {string}
-		 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
 		 */
 		dateLabel(value) {
 			if (!value) return ''
