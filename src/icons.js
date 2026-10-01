@@ -30,6 +30,7 @@ import AccountVoice from 'vue-material-design-icons/AccountVoice.vue'
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import Api from 'vue-material-design-icons/Api.vue'
+import ArchiveOutline from 'vue-material-design-icons/ArchiveOutline.vue'
 import BellCogOutline from 'vue-material-design-icons/BellCogOutline.vue'
 import BellOutline from 'vue-material-design-icons/BellOutline.vue'
 import BookOpenVariant from 'vue-material-design-icons/BookOpenVariant.vue'
@@ -153,6 +154,7 @@ export default {
 	AlertOctagonOutline,
 	AlertOutline,
 	Api,
+	ArchiveOutline,
 	BellCogOutline,
 	BellOutline,
 	BookOpenVariant,
