@@ -51,9 +51,9 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Controller\OriController
  * @covers \OCA\Decidiq\Service\OriVotePublicationRule
  * @covers \OCA\Decidiq\Service\OriSerializer
- * @uses   \OCA\Decidiq\Service\VotingRecordService
- * @uses   \OCA\Decidiq\Service\VoteContextReader
- * @uses   \OCA\Decidiq\Service\PersonParticipantLookup
+ * @covers \OCA\Decidiq\Service\VotingRecordService
+ * @covers \OCA\Decidiq\Service\VoteContextReader
+ * @covers \OCA\Decidiq\Service\PersonParticipantLookup
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
