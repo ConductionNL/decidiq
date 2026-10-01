@@ -6,7 +6,8 @@
  * A person's voting record: their votes in closed rounds that were not
  * secret, newest first, with the decision, the choice, the round's result and
  * the party they voted for at the time. Votes point at participants, so the
- * person's participants are found first, read-only, by PersonParticipantLookup.
+ * person's participants are found first, read-only, by PersonParticipantLookup;
+ * the context of each ballot comes from VoteContextReader.
  *
  * @category Service
  * @package  OCA\Decidiq\Service
@@ -31,7 +32,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
- * Reads a person's voting record and the context of a single vote.
+ * Reads a person's voting record.
  *
  * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */
@@ -40,23 +41,18 @@ class VotingRecordService {
 	private const REGISTER = 'decidiq';
 
 	/**
-	 * Objects already read in this request: schema => id => data (null = absent).
-	 *
-	 * @var array<string, array<string, array<string, mixed>|null>>
-	 */
-	private array $read = [];
-
-	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface  $objectService  OpenRegister object service
 	 * @param PersonParticipantLookup $participants   Person to participant lookup
 	 * @param ObjectRelationFilter    $relationFilter Relation filter for app-cast ballots
+	 * @param VoteContextReader       $context        Member, round, decision and body of a ballot
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly PersonParticipantLookup $participants,
 		private readonly ObjectRelationFilter $relationFilter,
+		private readonly VoteContextReader $context,
 	) {
 	}//end __construct()
 
@@ -107,7 +103,7 @@ class VotingRecordService {
 	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
 	 */
 	public function forPerson(string $personId): array {
-		$person = $this->object(schema: 'person', id: $personId);
+		$person = $this->context->object(schema: 'person', id: $personId);
 		if ($person === null) {
 			return [];
 		}
@@ -129,152 +125,6 @@ class VotingRecordService {
 	}//end forPerson()
 
 	/**
-	 * The member a ballot belongs to: the delegator of a proxy ballot, else the caster.
-	 *
-	 * @param array<string, mixed> $vote The ballot
-	 *
-	 * @return string|null The participant id
-	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
-	 */
-	public function memberOf(array $vote): ?string {
-		$found = [];
-		foreach ($this->relationsOf(object: $vote) as $relation) {
-			if (($relation['schema'] ?? '') === 'participant' && is_string($relation['id'] ?? null) === true) {
-				$found[(string)($relation['type'] ?? 'participant')] = $relation['id'];
-			}
-		}
-
-		$member = ($found['delegator'] ?? ($found['participant'] ?? ($vote['participant'] ?? null)));
-		if (is_string($member) === true && $member !== '') {
-			return $member;
-		}
-
-		return null;
-	}//end memberOf()
-
-	/**
-	 * The round a ballot was cast in.
-	 *
-	 * @param array<string, mixed> $vote The ballot
-	 *
-	 * @return array{0: string, 1: array<string, mixed>}|null The round id and round
-	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
-	 */
-	public function roundOf(array $vote): ?array {
-		$roundId = ($vote['votingRound'] ?? null);
-		foreach ($this->relationsOf(object: $vote) as $relation) {
-			if (($relation['schema'] ?? '') === 'voting-round' && is_string($relation['id'] ?? null) === true) {
-				$roundId = $relation['id'];
-			}
-		}
-
-		if (is_string($roundId) === false || $roundId === '') {
-			return null;
-		}
-
-		$round = $this->object(schema: 'voting-round', id: $roundId);
-		if ($round === null) {
-			return null;
-		}
-
-		return [$roundId, $round];
-	}//end roundOf()
-
-	/**
-	 * The decision a round resolves, through its decision stage.
-	 *
-	 * @param string               $roundId The round id
-	 * @param array<string, mixed> $round   The round
-	 *
-	 * @return array{0: string, 1: array<string, mixed>}|null The decision id and decision
-	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
-	 */
-	public function decisionOf(string $roundId, array $round): ?array {
-		$stage = null;
-		$stageId = ($round['decisionStage'] ?? null);
-		if (is_string($stageId) === true && $stageId !== '') {
-			$stage = $this->object(schema: 'decision-stage', id: $stageId);
-		}
-
-		if ($stage === null) {
-			$stages = $this->objectService->findAll(
-				config: ['filters' => ['register' => self::REGISTER, 'schema' => 'decision-stage', 'votingRound' => $roundId], 'limit' => 1],
-				_rbac: false,
-				_multitenancy: false
-			);
-			if ($stages !== []) {
-				$stage = $stages[0]->jsonSerialize();
-			}
-		}
-
-		$decisionId = ($stage['decision'] ?? null);
-		if (is_string($decisionId) === false || $decisionId === '') {
-			return null;
-		}
-
-		$decision = $this->object(schema: 'decision', id: $decisionId);
-		if ($decision === null) {
-			return null;
-		}
-
-		return [$decisionId, $decision];
-	}//end decisionOf()
-
-	/**
-	 * The body that took a decision: the body of its meeting.
-	 *
-	 * @param array<string, mixed> $decision The decision
-	 *
-	 * @return string|null The governance body id
-	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
-	 */
-	public function bodyOf(array $decision): ?string {
-		$meetingId = ($decision['meeting'] ?? null);
-		if (is_string($meetingId) === false || $meetingId === '') {
-			return null;
-		}
-
-		$body = ($this->object(schema: 'meeting', id: $meetingId)['governanceBody'] ?? null);
-		if (is_string($body) === true && $body !== '') {
-			return $body;
-		}
-
-		return null;
-	}//end bodyOf()
-
-	/**
-	 * An object by id, read once per request and without the caller's RBAC.
-	 *
-	 * @param string $schema The schema slug
-	 * @param string $id     The object id
-	 *
-	 * @return array<string, mixed>|null
-	 *
-	 * @spec openspec/changes/bodies-member-profile-and-voting-record/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
-	 */
-	public function object(string $schema, string $id): ?array {
-		if (array_key_exists($id, ($this->read[$schema] ?? [])) === false) {
-			$entity = $this->objectService->find(
-				id: $id,
-				register: self::REGISTER,
-				schema: $schema,
-				_rbac: false,
-				_multitenancy: false
-			);
-			$this->read[$schema][$id] = null;
-			if ($entity !== null) {
-				$this->read[$schema][$id] = $entity->jsonSerialize();
-			}
-		}
-
-		return $this->read[$schema][$id];
-	}//end object()
-
-	/**
 	 * One record row, or null when the vote is not part of the record.
 	 *
 	 * @param string               $personId    The person id
@@ -286,21 +136,21 @@ class VotingRecordService {
 	 */
 	private function row(string $personId, string $participant, string $voteId, array $vote): ?array {
 		$choice = ($vote['value'] ?? null);
-		if ($this->memberOf(vote: $vote) !== $participant || is_string($choice) === false || $choice === '') {
+		if ($this->context->memberOf(vote: $vote) !== $participant || is_string($choice) === false || $choice === '') {
 			return null;
 		}
 
-		$round = $this->roundOf(vote: $vote);
+		$round = $this->context->roundOf(vote: $vote);
 		if ($round === null || ($round[1]['isSecret'] ?? false) !== false || empty($round[1]['closedAt']) === true) {
 			return null;
 		}
 
 		$date = ($vote['castAt'] ?? $round[1]['closedAt']);
-		$decision = $this->decisionOf(roundId: $round[0], round: $round[1]);
+		$decision = $this->context->decisionOf(roundId: $round[0], round: $round[1]);
 		$body = null;
 		$decisionRow = null;
 		if ($decision !== null) {
-			$body = $this->bodyOf(decision: $decision[1]);
+			$body = $this->context->bodyOf(decision: $decision[1]);
 			$decisionRow = ['id' => $decision[0], 'title' => (string)($decision[1]['title'] ?? '')];
 		}
 
@@ -377,7 +227,7 @@ class VotingRecordService {
 			}
 		}
 
-		$party = trim((string)($this->object(schema: 'participant', id: $participant)['party'] ?? ''));
+		$party = trim((string)($this->context->object(schema: 'participant', id: $participant)['party'] ?? ''));
 		if ($party === '') {
 			return null;
 		}
@@ -400,28 +250,4 @@ class VotingRecordService {
 
 		return ($start === '' || $start <= $day) && ($end === '' || $end >= $day);
 	}//end activeOn()
-
-	/**
-	 * The relation entries of an object, in either place OpenRegister keeps them.
-	 *
-	 * @param array<string, mixed> $object The object
-	 *
-	 * @return list<array<string, mixed>>
-	 */
-	private function relationsOf(array $object): array {
-		$entries = [];
-		foreach ([($object['relations'] ?? []), ($object['@self']['relations'] ?? [])] as $relations) {
-			if (is_array($relations) === false) {
-				continue;
-			}
-
-			foreach ($relations as $relation) {
-				if (is_array($relation) === true) {
-					$entries[] = $relation;
-				}
-			}
-		}
-
-		return $entries;
-	}//end relationsOf()
 }//end class
