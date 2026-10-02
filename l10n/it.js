@@ -1694,7 +1694,8 @@ OC.L10N.register(
         "under 40": "sotto i 40",
         "What the body expects (optional)": "Cosa si aspetta l'organo (facoltativo)",
         "Where it comes from (optional)": "Da dove proviene (facoltativo)",
-        "yes": "sì"
+        "yes": "sì",
+        "Composition": "Composizione"
     },
     "nplurals=2; plural=(n != 1);"
 )

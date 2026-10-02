@@ -124,15 +124,21 @@ export default {
 			this.saving = true
 			this.error = ''
 			try {
-				await competenceRequest('POST', competencePath('member-competences'), {
-					membership: this.seat.id,
-					competence: this.competence.id,
-					level: this.level.id,
-					note: this.note.trim(),
-				})
+				await competenceRequest(
+					'POST',
+					competencePath('member-competences'),
+					{
+						membership: this.seat.id,
+						competence: this.competence.id,
+						level: this.level.id,
+						note: this.note.trim(),
+					},
+				)
 				this.$emit('saved')
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The competence could not be saved.')
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The competence could not be saved.')
 			} finally {
 				this.saving = false
 			}

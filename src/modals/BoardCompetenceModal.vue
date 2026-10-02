@@ -96,7 +96,9 @@ export default {
 				})
 				this.$emit('saved')
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The competence could not be saved.')
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The competence could not be saved.')
 			} finally {
 				this.saving = false
 			}

@@ -60,7 +60,11 @@ export function isConfirmed(held) {
 export function activeCompetences(competences) {
 	return (competences || [])
 		.filter((competence) => competence.active !== false)
-		.sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || String(a.name).localeCompare(String(b.name)))
+		.sort(
+			(a, b) =>
+				(a.order ?? 0) - (b.order ?? 0)
+				|| String(a.name).localeCompare(String(b.name)),
+		)
 }
 
 /**
@@ -118,11 +122,11 @@ export function skillsMatrix(memberships, personsById, competences, held) {
 				)
 				cells[column.id] = found
 					? {
-						id: found.id,
-						level: found.level,
-						confirmed: isConfirmed(found),
-						confirmedBy: found.confirmedBy || '',
-					}
+							id: found.id,
+							level: found.level,
+							confirmed: isConfirmed(found),
+							confirmedBy: found.confirmedBy || '',
+						}
 					: null
 			}
 			return {
@@ -136,7 +140,11 @@ export function skillsMatrix(memberships, personsById, competences, held) {
 	return {
 		columns,
 		rows,
-		gaps: competenceGaps(competences, held, seats.map((seat) => seat.id)),
+		gaps: competenceGaps(
+			competences,
+			held,
+			seats.map((seat) => seat.id),
+		),
 	}
 }
 
@@ -155,7 +163,10 @@ export function ageBand(birthDate, today) {
 	if (!match) return null
 	const [year, month, day] = match.slice(1).map(Number)
 	let age = today.getFullYear() - year
-	if (today.getMonth() + 1 < month || (today.getMonth() + 1 === month && today.getDate() < day)) {
+	if (
+		today.getMonth() + 1 < month
+		|| (today.getMonth() + 1 === month && today.getDate() < day)
+	) {
 		age -= 1
 	}
 	if (age < 40) return 'under-40'
@@ -223,7 +234,9 @@ export function compositionFigures(memberships, personsById, today) {
 	const personOf = (seat) => personsById?.[seat.person] || {}
 	return {
 		gender: figure(seats.map((seat) => personOf(seat).gender || null)),
-		ageBand: figure(seats.map((seat) => ageBand(personOf(seat).birthDate, today))),
+		ageBand: figure(
+			seats.map((seat) => ageBand(personOf(seat).birthDate, today)),
+		),
 		nationality: figure(seats.map((seat) => personOf(seat).nationality || null)),
 		independence: figure(seats.map((seat) => seat.independenceStatus || null)),
 		external: figure(seats.map(externalValue)),
@@ -244,7 +257,8 @@ export function targetResults(figures, targets) {
 	return (targets || []).map((target) => {
 		const dimension = figures?.[TARGET_DIMENSIONS[target.dimension]]
 		const total = dimension?.total || 0
-		const count = dimension?.values.find((v) => v.value === target.value)?.count || 0
+		const count =
+			dimension?.values.find((v) => v.value === target.value)?.count || 0
 		const share = total > 0 ? count / total : 0
 		return {
 			...target,

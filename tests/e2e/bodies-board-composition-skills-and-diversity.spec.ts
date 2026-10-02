@@ -75,7 +75,10 @@ test('the Composition widget shows the gaps and the figures against the target',
 	const water = await competence('Water management', 2)
 	const legal = await competence('Legal', 3)
 	await competence('IT and cybersecurity', 4)
-	const confirmed = { confirmedBy: 'admin', confirmedAt: '2026-01-15T10:00:00+00:00' }
+	const confirmed = {
+		confirmedBy: 'admin',
+		confirmedAt: '2026-01-15T10:00:00+00:00',
+	}
 	await createObject(page, ledger, 'member-competence', {
 		membership: seats.Janneke,
 		competence: finance,

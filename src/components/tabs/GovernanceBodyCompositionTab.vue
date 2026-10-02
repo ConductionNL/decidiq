@@ -20,11 +20,15 @@
 			{{ error }}
 		</p>
 		<template v-else>
-			<section class="body-composition__section" :aria-label="t('decidiq', 'Skills matrix')">
+			<section
+				class="body-composition__section"
+				:aria-label="t('decidiq', 'Skills matrix')">
 				<div class="body-composition__header">
 					<h3>{{ t('decidiq', 'Skills matrix') }}</h3>
 					<div class="body-composition__actions">
-						<NcButton data-testid="body-composition-add-competence" @click="competenceOpen = true">
+						<NcButton
+							data-testid="body-composition-add-competence"
+							@click="competenceOpen = true">
 							{{ t('decidiq', 'Add competence') }}
 						</NcButton>
 						<NcButton
@@ -37,19 +41,34 @@
 					</div>
 				</div>
 				<p v-if="!matrix.columns.length" class="body-composition__muted">
-					{{ t('decidiq', 'This body has not listed the competences it needs yet.') }}
+					{{
+						t(
+							'decidiq',
+							'This body has not listed the competences it needs yet.',
+						)
+					}}
 				</p>
 				<div v-else class="body-composition__scroll">
-					<table class="body-composition__matrix" data-testid="body-composition-matrix">
+					<table
+						class="body-composition__matrix"
+						data-testid="body-composition-matrix">
 						<caption class="hidden-visually">
-							{{ t('decidiq', 'Members against the competences the body needs') }}
+							{{
+								t(
+									'decidiq',
+									'Members against the competences the body needs',
+								)
+							}}
 						</caption>
 						<thead>
 							<tr>
 								<th scope="col">
 									{{ t('decidiq', 'Member') }}
 								</th>
-								<th v-for="column in matrix.columns" :key="column.id" scope="col">
+								<th
+									v-for="column in matrix.columns"
+									:key="column.id"
+									scope="col">
 									{{ column.name }}
 								</th>
 							</tr>
@@ -59,38 +78,72 @@
 								<th scope="row">
 									{{ row.name }}
 								</th>
-								<td v-for="column in matrix.columns" :key="column.id">
+								<td
+									v-for="column in matrix.columns"
+									:key="column.id">
 									<template v-if="row.cells[column.id]">
-										<span>{{ levelLabel(row.cells[column.id].level) }}</span>
-										<span v-if="!row.cells[column.id].confirmed" class="body-composition__unconfirmed">
+										<span>{{
+											levelLabel(row.cells[column.id].level)
+										}}</span>
+										<span
+											v-if="!row.cells[column.id].confirmed"
+											class="body-composition__unconfirmed">
 											{{ t('decidiq', 'unconfirmed') }}
 										</span>
 										<NcButton
 											v-if="!row.cells[column.id].confirmed"
 											variant="tertiary"
-											:aria-label="t('decidiq', 'Confirm {competence} of {member}', { competence: column.name, member: row.name })"
+											:aria-label="
+												t(
+													'decidiq',
+													'Confirm {competence} of {member}',
+													{
+														competence: column.name,
+														member: row.name,
+													},
+												)
+											"
 											:disabled="busy"
 											data-testid="body-composition-confirm"
-											@click="confirm(row.cells[column.id].id)">
+											@click="
+												confirm(row.cells[column.id].id)
+											">
 											{{ t('decidiq', 'Confirm') }}
 										</NcButton>
 									</template>
-									<span v-else class="body-composition__muted" :aria-label="t('decidiq', 'Not held')">–</span>
+									<span
+										v-else
+										class="body-composition__muted"
+										:aria-label="t('decidiq', 'Not held')"
+										>–</span
+									>
 								</td>
 							</tr>
 						</tbody>
 						<tfoot>
 							<tr>
 								<th scope="row">
-									{{ t('decidiq', 'Confirmed experienced or expert') }}
+									{{
+										t(
+											'decidiq',
+											'Confirmed experienced or expert',
+										)
+									}}
 								</th>
 								<td
 									v-for="gap in matrix.gaps"
 									:key="gap.id"
 									:class="{ 'body-composition__gap': gap.gap }"
 									data-testid="body-composition-holders">
-									{{ t('decidiq', '{holders} of {required}', { holders: gap.holders, required: gap.required }) }}
-									<strong v-if="gap.gap">{{ t('decidiq', 'Gap') }}</strong>
+									{{
+										t('decidiq', '{holders} of {required}', {
+											holders: gap.holders,
+											required: gap.required,
+										})
+									}}
+									<strong v-if="gap.gap">{{
+										t('decidiq', 'Gap')
+									}}</strong>
 								</td>
 							</tr>
 						</tfoot>
@@ -101,10 +154,17 @@
 				</p>
 			</section>
 
-			<section class="body-composition__section" :aria-label="t('decidiq', 'Composition figures')">
+			<section
+				class="body-composition__section"
+				:aria-label="t('decidiq', 'Composition figures')">
 				<h3>{{ t('decidiq', 'Composition figures') }}</h3>
 				<p class="body-composition__muted">
-					{{ t('decidiq', 'Counts of the current members, without names. Age bands are worked out today.') }}
+					{{
+						t(
+							'decidiq',
+							'Counts of the current members, without names. Age bands are worked out today.',
+						)
+					}}
 				</p>
 				<div class="body-composition__figures">
 					<table
@@ -112,7 +172,11 @@
 						:key="dimension.key"
 						class="body-composition__figure"
 						:data-testid="`body-composition-figure-${dimension.key}`">
-						<caption>{{ dimension.label }}</caption>
+						<caption>
+							{{
+								dimension.label
+							}}
+						</caption>
 						<thead>
 							<tr>
 								<th scope="col">
@@ -127,7 +191,9 @@
 							</tr>
 						</thead>
 						<tbody>
-							<tr v-for="entry in figures[dimension.key].values" :key="entry.value">
+							<tr
+								v-for="entry in figures[dimension.key].values"
+								:key="entry.value">
 								<th scope="row">
 									{{ valueLabel(dimension.key, entry.value) }}
 								</th>
@@ -148,16 +214,36 @@
 				<p v-if="!targets.length" class="body-composition__muted">
 					{{ t('decidiq', 'This body has set no diversity targets.') }}
 				</p>
-				<ul v-else class="body-composition__targets" data-testid="body-composition-targets">
-					<li v-for="target in targets" :key="`${target.dimension}-${target.value}`">
-						{{ t('decidiq', 'At least {minimum} {value} ({dimension}): now {share}', {
-							minimum: percent(target.minimumShare),
-							value: target.value,
-							dimension: dimensionLabel(target.dimension),
-							share: percent(target.share),
-						}) }}
-						<strong :class="target.met ? 'body-composition__met' : 'body-composition__gap'">
-							{{ target.met ? t('decidiq', 'met') : t('decidiq', 'not met') }}
+				<ul
+					v-else
+					class="body-composition__targets"
+					data-testid="body-composition-targets">
+					<li
+						v-for="target in targets"
+						:key="`${target.dimension}-${target.value}`">
+						{{
+							t(
+								'decidiq',
+								'At least {minimum} {value} ({dimension}): now {share}',
+								{
+									minimum: percent(target.minimumShare),
+									value: target.value,
+									dimension: dimensionLabel(target.dimension),
+									share: percent(target.share),
+								},
+							)
+						}}
+						<strong
+							:class="
+								target.met
+									? 'body-composition__met'
+									: 'body-composition__gap'
+							">
+							{{
+								target.met
+									? t('decidiq', 'met')
+									: t('decidiq', 'not met')
+							}}
 						</strong>
 					</li>
 				</ul>
@@ -172,7 +258,7 @@
 			@saved="onSaved" />
 		<BoardCompetenceModal
 			v-if="competenceOpen"
-			:body-id="String(objectId)"
+			:bodyId="String(objectId)"
 			@close="competenceOpen = false"
 			@saved="onSaved" />
 	</div>
@@ -222,7 +308,12 @@ export default {
 	computed: {
 		/** @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-003-the-skills-matrix-shows-where-the-body-falls-short */
 		matrix() {
-			return skillsMatrix(this.memberships, this.persons, this.competences, this.held)
+			return skillsMatrix(
+				this.memberships,
+				this.persons,
+				this.competences,
+				this.held,
+			)
 		},
 
 		/** @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-004-the-body-sees-its-composition-figures-against-its-own-targets */
@@ -272,17 +363,37 @@ export default {
 			try {
 				const bodyId = String(this.objectId)
 				const [body, memberships, competences] = await Promise.all([
-					ensureRelationType('governance-body').fetchObject('governance-body', bodyId),
-					ensureRelationType('membership').fetchCollection('membership', { governanceBody: bodyId, _limit: 100 }),
-					ensureRelationType('board-competence').fetchCollection('board-competence', { governanceBody: bodyId, _limit: 100 }),
+					ensureRelationType('governance-body').fetchObject(
+						'governance-body',
+						bodyId,
+					),
+					ensureRelationType('membership').fetchCollection('membership', {
+						governanceBody: bodyId,
+						_limit: 100,
+					}),
+					ensureRelationType('board-competence').fetchCollection(
+						'board-competence',
+						{ governanceBody: bodyId, _limit: 100 },
+					),
 				])
 				const seats = currentSeats(memberships || [])
-				const personIds = [...new Set(seats.map((seat) => seat.person).filter(Boolean))]
+				const personIds = [
+					...new Set(seats.map((seat) => seat.person).filter(Boolean)),
+				]
 				const [people, held] = await Promise.all([
-					Promise.all(personIds.map((id) => ensureRelationType('person').fetchObject('person', id))),
-					Promise.all(seats.map((seat) =>
-						ensureRelationType('member-competence').fetchCollection('member-competence', { membership: seat.id, _limit: 100 }),
-					)),
+					Promise.all(
+						personIds.map((id) =>
+							ensureRelationType('person').fetchObject('person', id),
+						),
+					),
+					Promise.all(
+						seats.map((seat) =>
+							ensureRelationType('member-competence').fetchCollection(
+								'member-competence',
+								{ membership: seat.id, _limit: 100 },
+							),
+						),
+					),
 				])
 				const persons = {}
 				personIds.forEach((id, i) => {
@@ -294,7 +405,9 @@ export default {
 				this.competences = competences || []
 				this.held = held.flat().filter(Boolean)
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The composition could not be loaded.')
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The composition could not be loaded.')
 			} finally {
 				this.loading = false
 			}
@@ -312,7 +425,10 @@ export default {
 			this.busy = true
 			this.notice = ''
 			try {
-				await competenceRequest('POST', competencePath('member-competences', id, 'confirm'))
+				await competenceRequest(
+					'POST',
+					competencePath('member-competences', id, 'confirm'),
+				)
 				this.notice = this.t('decidiq', 'The competence is confirmed.')
 				await this.refresh()
 			} catch (e) {
@@ -341,11 +457,13 @@ export default {
 		 * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-002-a-members-competences-are-recorded-and-confirmed
 		 */
 		levelLabel(level) {
-			return {
-				basic: this.t('decidiq', 'basic'),
-				experienced: this.t('decidiq', 'experienced'),
-				expert: this.t('decidiq', 'expert'),
-			}[level] || level
+			return (
+				{
+					basic: this.t('decidiq', 'basic'),
+					experienced: this.t('decidiq', 'experienced'),
+					expert: this.t('decidiq', 'expert'),
+				}[level] || level
+			)
 		},
 
 		/**
@@ -364,6 +482,7 @@ export default {
 					'55-69': this.t('decidiq', '55 to 69'),
 					'70-plus': this.t('decidiq', '70 and over'),
 				},
+
 				external: {
 					yes: this.t('decidiq', 'yes'),
 					no: this.t('decidiq', 'no'),
@@ -428,7 +547,8 @@ export default {
 
 .body-composition th,
 .body-composition td {
-	padding: calc(var(--default-grid-baseline) * 1) calc(var(--default-grid-baseline) * 2);
+	padding: calc(var(--default-grid-baseline) * 1)
+		calc(var(--default-grid-baseline) * 2);
 	border-bottom: 1px solid var(--color-border);
 	text-align: start;
 	vertical-align: top;

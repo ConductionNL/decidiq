@@ -451,6 +451,7 @@ OC.L10N.register(
         "Completed": "Completed",
         "Component body": "Component body",
         "Composite body": "Composite body",
+        "Composition": "Composition",
         "Composition figures": "Composition figures",
         "Composition type": "Composition type",
         "Conclude vote": "Conclude vote",

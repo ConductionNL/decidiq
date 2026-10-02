@@ -1694,7 +1694,8 @@ OC.L10N.register(
         "under 40": "unter 40",
         "What the body expects (optional)": "Was das Gremium erwartet (optional)",
         "Where it comes from (optional)": "Woher sie stammt (optional)",
-        "yes": "ja"
+        "yes": "ja",
+        "Composition": "Zusammensetzung"
     },
     "nplurals=2; plural=(n != 1);"
 )

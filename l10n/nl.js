@@ -489,6 +489,7 @@ OC.L10N.register(
         "Completed": "Afgerond",
         "Component body": "Samenstellend orgaan",
         "Composite body": "Samengesteld orgaan",
+        "Composition": "Samenstelling",
         "Composition figures": "Samenstellingscijfers",
         "Composition type": "Samenstellingstype",
         "Concept": "Concept",
