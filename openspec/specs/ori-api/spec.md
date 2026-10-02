@@ -160,6 +160,9 @@ MUST remain unchanged.
 - AND no `Participant` objects are returned
 
 #### Scenario: Persons are read through the person publication rule
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
 - GIVEN a Person carries an `email`
 - WHEN GET `/api/ori/v1/persons` is called anonymously
 - THEN the serialized Person carries no `email`: persons are published by REQ-ORI-007, with their name, image and biography only
@@ -175,11 +178,15 @@ MUST remain unchanged.
 
 #### Scenario: A portal resolves a council member's name
 
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
 - GIVEN Marie Janssen is a member of Gemeenteraad Amsterdam, which publishes its voting records, with an image, a biography, an email and a birth date
 - WHEN an anonymous caller requests `/api/ori/v1/persons` or `/api/ori/v1/persons/{Marie's id}`
 - THEN Marie is returned with her id, name, image and biography only
 
 #### Scenario: Nobody without a public role is named
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
 
 - GIVEN Bas Smit has no membership, Kees Bakker is a member of a supervisory board that does not publish its voting records, and Gerda Gast is a guest of the council
 - WHEN an anonymous caller requests `/api/ori/v1/persons`, or any of them by id

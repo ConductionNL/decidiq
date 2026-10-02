@@ -12,11 +12,15 @@ Matrix row: pub-14 (decidiq `openspec/parity/capabilities.json`).
 
 #### Scenario: A portal resolves a council member's name
 
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
 - GIVEN Marie Janssen is a member of Gemeenteraad Amsterdam, which publishes its voting records
 - WHEN an anonymous caller requests `/api/ori/v1/persons`
 - THEN Marie is returned with her id, name, image and biography only
 
 #### Scenario: Nobody without a public role is named
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
 
 - GIVEN a person without a membership, a member of a body that does not publish its voting records, and a guest
 - WHEN an anonymous caller requests any of them by id
@@ -27,6 +31,9 @@ Matrix row: pub-14 (decidiq `openspec/parity/capabilities.json`).
 ### Requirement: REQ-ORI-006 — ORI persons and memberships sourced from Popolo schemas
 
 #### Scenario: Persons are read through the person publication rule
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
 - GIVEN a Person carries an `email`
 - WHEN GET `/api/ori/v1/persons` is called anonymously
 - THEN the serialized Person carries no `email`
