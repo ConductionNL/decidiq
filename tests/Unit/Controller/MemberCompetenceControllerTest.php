@@ -42,6 +42,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Controller\MemberCompetenceController
  * @uses   \OCA\Decidiq\Service\CompetenceConfirmationGuard
  * @uses   \OCA\Decidiq\Service\GovernanceScopeGuard
+ * @uses   \OCA\Decidiq\Service\MemberCompetenceService
  */
 class MemberCompetenceControllerTest extends TestCase {
 
