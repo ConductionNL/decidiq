@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriPersonPublicationRule;
 use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -106,7 +107,6 @@ class OriController extends Controller {
 	 * @var list<string>
 	 */
 	private const NO_LIFECYCLE_GATE = [
-		'persons',
 		'memberships',
 	];
 
@@ -120,6 +120,7 @@ class OriController extends Controller {
 	private const RULED_RESOURCES = [
 		'votes',
 		'voteevents',
+		'persons',
 	];
 
 	/**
@@ -164,6 +165,7 @@ class OriController extends Controller {
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param OriSerializer $serializer The ORI JSON-LD serializer
 	 * @param OriVotePublicationRule $voteRule The publication rule for votes and vote events
+	 * @param OriPersonPublicationRule $personRule The publication rule for persons
 	 *
 	 * @return void
 	 */
@@ -174,6 +176,7 @@ class OriController extends Controller {
 		private readonly LoggerInterface $logger,
 		private readonly OriSerializer $serializer,
 		private readonly OriVotePublicationRule $voteRule,
+		private readonly OriPersonPublicationRule $personRule,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -286,7 +289,8 @@ class OriController extends Controller {
 		}
 
 		if (in_array(needle: $resource, haystack: self::NO_LIFECYCLE_GATE, strict: true) === false) {
-			// Person/Membership are public reference data without a lifecycle field;
+			// Membership is public reference data without a lifecycle field (persons
+			// go through OriPersonPublicationRule);
 			// all other resources require the published lifecycle gate (#316).
 			$filters['lifecycle'] = 'published';
 		}
@@ -483,15 +487,7 @@ class OriController extends Controller {
 	private function ruledIndex(string $resource): JSONResponse {
 		$type = self::ORI_TYPE_MAP[$resource];
 		try {
-			$rows = $this->voteRule->voteEvents();
-			if ($resource === 'votes') {
-				$voter = $this->request->getParam('voter');
-				if (is_string($voter) === false) {
-					$voter = null;
-				}
-
-				$rows = $this->voteRule->votes(voter: $voter);
-			}
+			$rows = $this->ruledRows(resource: $resource);
 		} catch (Throwable $e) {
 			$this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
 			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -513,6 +509,32 @@ class OriController extends Controller {
 	}//end ruledIndex()
 
 	/**
+	 * The rows a ruled collection publishes.
+	 *
+	 * @param string $resource `votes`, `voteevents` or `persons`
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-ori-007-the-public-ori-api-names-public-role-holders-only
+	 */
+	private function ruledRows(string $resource): array {
+		if ($resource === 'persons') {
+			return $this->personRule->persons();
+		}
+
+		if ($resource === 'voteevents') {
+			return $this->voteRule->voteEvents();
+		}
+
+		$voter = $this->request->getParam('voter');
+		if (is_string($voter) === false) {
+			$voter = null;
+		}
+
+		return $this->voteRule->votes(voter: $voter);
+	}//end ruledRows()
+
+	/**
 	 * One vote or vote event through the publication rule; anything the rule
 	 * withholds is not found, so the endpoint never confirms it exists.
 	 *
@@ -525,10 +547,11 @@ class OriController extends Controller {
 	 */
 	private function ruledShow(string $resource, string $id): JSONResponse {
 		try {
-			$row = $this->voteRule->voteEvent(roundId: $id);
-			if ($resource === 'votes') {
-				$row = $this->voteRule->vote(voteId: $id);
-			}
+			$row = match ($resource) {
+				'votes' => $this->voteRule->vote(voteId: $id),
+				'persons' => $this->personRule->person(personId: $id),
+				default => $this->voteRule->voteEvent(roundId: $id),
+			};
 		} catch (DoesNotExistException $e) {
 			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
 		} catch (Throwable $e) {
