@@ -58,20 +58,20 @@ class ArchivistGuard {
 	/**
 	 * Refuse a caller who is neither an archivist nor an administrator.
 	 *
-	 * @return string The caller's uid
+	 * @return void
 	 *
 	 * @throws AccessDeniedException When the caller is neither
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-004-transfer-via-openregister-transfer-lists-and-e-depot
 	 */
-	public function requireArchivist(): string {
+	public function requireArchivist(): void {
 		$uid = $this->userSession->getUser()?->getUID();
 		if ($uid === null) {
 			throw new AccessDeniedException(message: 'Not signed in.');
 		}
 
 		if ($this->groupManager->isAdmin($uid) === true || $this->groupManager->isInGroup($uid, self::GROUP) === true) {
-			return $uid;
+			return;
 		}
 
 		throw new AccessDeniedException(message: 'Only an archivist or an administrator sends a dossier to the archive or to destruction.');

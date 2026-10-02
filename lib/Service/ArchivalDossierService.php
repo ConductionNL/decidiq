@@ -251,9 +251,8 @@ class ArchivalDossierService {
 		// record; when it is not, the warning names that record (REQ-RMA-008).
 		$restrictive = $gathered['restrictiveMember'];
 		unset($gathered['restrictiveMember'], $dossier['classificationWarning']);
-		if ($restrictive !== null
-			&& SecurityClassification::isMoreRestrictive(label: $restrictive['level'], than: (string)($dossier['securityClassification'] ?? 'openbaar')) === true
-		) {
+		$label = (string)($dossier['securityClassification'] ?? 'openbaar');
+		if ($restrictive !== null && (new SecurityClassification())->isMoreRestrictive(label: $restrictive['level'], than: $label) === true) {
 			$gathered['classificationWarning'] = $restrictive;
 		}
 

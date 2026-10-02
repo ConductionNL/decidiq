@@ -80,7 +80,20 @@ class SelectionCategoryReader {
 			return null;
 		}
 
-		$rows = ($config['components']['selectionLists'] ?? []);
+		return $this->row(rows: ($config['components']['selectionLists'] ?? []), category: $category);
+	}//end forSchema()
+
+	/**
+	 * The Selectielijst row of a category, or null when the register ships none.
+	 *
+	 * @param mixed  $rows     The register's selectionLists
+	 * @param string $category The category
+	 *
+	 * @return array{category: string, action: string, retentionYears: int|null, description: string}|null
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
+	 */
+	private function row(mixed $rows, string $category): ?array {
 		if (is_array($rows) === false) {
 			return null;
 		}
@@ -95,15 +108,19 @@ class SelectionCategoryReader {
 				return null;
 			}
 
-			$years = ($row['retentionYears'] ?? null);
+			$years = null;
+			if (is_int($row['retentionYears'] ?? null) === true) {
+				$years = $row['retentionYears'];
+			}
+
 			return [
 				'category' => $category,
 				'action' => $action,
-				'retentionYears' => is_int($years) === true ? $years : null,
+				'retentionYears' => $years,
 				'description' => (string)($row['description'] ?? ''),
 			];
 		}
 
 		return null;
-	}//end forSchema()
+	}//end row()
 }//end class

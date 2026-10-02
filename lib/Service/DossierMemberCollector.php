@@ -84,7 +84,10 @@ class DossierMemberCollector {
 	 * @param string               $meetingId The meeting
 	 * @param array<string, mixed> $meeting   The meeting object
 	 *
-	 * @return array{minutes: list<string>, decisions: list<string>, votingRounds: list<string>, documents: list<string>, gaps: list<string>}
+	 * @return array{
+	 *     minutes: list<string>, decisions: list<string>, votingRounds: list<string>, documents: list<string>,
+	 *     gaps: list<string>, restrictiveMember: array{member: string, kind: string, level: string}|null
+	 * }
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
@@ -129,9 +132,8 @@ class DossierMemberCollector {
 		$found = null;
 		foreach ($kinds as $kind => $rows) {
 			foreach ($rows as $row) {
-				$label = ($row['securityClassification'] ?? null);
-				$label = SecurityClassification::normalise(label: is_string($label) === true ? $label : null);
-				if (SecurityClassification::isMoreRestrictive(label: $label, than: ($found['level'] ?? 'openbaar')) === true) {
+				$label = (new SecurityClassification())->normalise(label: (string)($row['securityClassification'] ?? ''));
+				if ((new SecurityClassification())->isMoreRestrictive(label: $label, than: ($found['level'] ?? 'openbaar')) === true) {
 					$found = ['member' => (string)$row['id'], 'kind' => $kind, 'level' => $label];
 				}
 			}

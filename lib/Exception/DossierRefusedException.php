@@ -83,7 +83,14 @@ class DossierRefusedException extends RuntimeException {
 	 * The reasons that are a conflict with the dossier's or OpenRegister's
 	 * state (409) rather than a request that cannot be met (422).
 	 */
-	private const CONFLICTS = [self::FROZEN, self::NOT_CLOSED, self::ALREADY_PROPOSED, self::TRANSFER_UNAVAILABLE, self::DESTRUCTION_UNAVAILABLE, self::CERTIFICATE_MISSING];
+	private const CONFLICTS = [
+		self::FROZEN,
+		self::NOT_CLOSED,
+		self::ALREADY_PROPOSED,
+		self::TRANSFER_UNAVAILABLE,
+		self::DESTRUCTION_UNAVAILABLE,
+		self::CERTIFICATE_MISSING,
+	];
 
 	/**
 	 * Constructor.

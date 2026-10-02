@@ -49,7 +49,7 @@ class SecurityClassificationTest extends TestCase {
 	public function testTheLabelsAreAnOrderedSubsetOfOpenRegistersOrdinal(): void {
 		$positions = [];
 		foreach (SecurityClassification::LABELS as $label) {
-			$level = SecurityClassification::openRegisterLevel(label: $label);
+			$level = (new SecurityClassification())->openRegisterLevel(label: $label);
 			self::assertContains($level, self::OPENREGISTER_LEVELS, $label);
 			$positions[] = array_search($level, self::OPENREGISTER_LEVELS, true);
 		}
@@ -72,12 +72,12 @@ class SecurityClassificationTest extends TestCase {
 	 * @return void
 	 */
 	public function testRestrictivenessAndPublishability(): void {
-		self::assertTrue(SecurityClassification::isMoreRestrictive(label: 'vertrouwelijk', than: 'openbaar'));
-		self::assertFalse(SecurityClassification::isMoreRestrictive(label: 'intern', than: 'geheim'));
-		self::assertFalse(SecurityClassification::isMoreRestrictive(label: null, than: 'openbaar'));
-		self::assertSame('openbaar', SecurityClassification::normalise(label: 'onbekend'));
-		self::assertTrue(SecurityClassification::isPublishable(label: null));
-		self::assertTrue(SecurityClassification::isPublishable(label: 'openbaar'));
-		self::assertFalse(SecurityClassification::isPublishable(label: 'intern'));
+		self::assertTrue((new SecurityClassification())->isMoreRestrictive(label: 'vertrouwelijk', than: 'openbaar'));
+		self::assertFalse((new SecurityClassification())->isMoreRestrictive(label: 'intern', than: 'geheim'));
+		self::assertFalse((new SecurityClassification())->isMoreRestrictive(label: null, than: 'openbaar'));
+		self::assertSame('openbaar', (new SecurityClassification())->normalise(label: 'onbekend'));
+		self::assertTrue((new SecurityClassification())->isPublishable(label: null));
+		self::assertTrue((new SecurityClassification())->isPublishable(label: 'openbaar'));
+		self::assertFalse((new SecurityClassification())->isPublishable(label: 'intern'));
 	}//end testRestrictivenessAndPublishability()
 }//end class

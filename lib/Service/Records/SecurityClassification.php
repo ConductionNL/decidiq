@@ -3,7 +3,7 @@
 /**
  * Decidiq Security Classification
  *
- * decidiq's four security labels and how they map onto OpenRegister's
+ * The four security labels of decidiq and how they map onto OpenRegister's
  * confidentiality ordinal (ZaaktypeAuthorizationService::
  * VERTROUWELIJKHEIDAANDUIDING_LEVELS). The labels are a strict subset of that
  * ordinal in the same relative order, so "more restrictive" means the same
@@ -40,7 +40,7 @@ namespace OCA\Decidiq\Service\Records;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
  */
-final class SecurityClassification {
+class SecurityClassification {
 	/**
 	 * The labels, least restrictive first. The register fragment's enum.
 	 */
@@ -66,7 +66,7 @@ final class SecurityClassification {
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
 	 */
-	public static function normalise(?string $label): string {
+	public function normalise(?string $label): string {
 		$label = strtolower(trim((string)$label));
 		if (in_array($label, self::LABELS, true) === true) {
 			return $label;
@@ -84,8 +84,8 @@ final class SecurityClassification {
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
 	 */
-	public static function openRegisterLevel(?string $label): string {
-		return self::OPENREGISTER_LEVELS[self::normalise(label: $label)];
+	public function openRegisterLevel(?string $label): string {
+		return self::OPENREGISTER_LEVELS[$this->normalise(label: $label)];
 	}//end openRegisterLevel()
 
 	/**
@@ -98,8 +98,8 @@ final class SecurityClassification {
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
 	 */
-	public static function isMoreRestrictive(?string $label, ?string $than): bool {
-		return self::rank(label: $label) > self::rank(label: $than);
+	public function isMoreRestrictive(?string $label, ?string $than): bool {
+		return $this->rank(label: $label) > $this->rank(label: $than);
 	}//end isMoreRestrictive()
 
 	/**
@@ -111,8 +111,8 @@ final class SecurityClassification {
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
 	 */
-	public static function isPublishable(?string $label): bool {
-		return self::rank(label: $label) === 0;
+	public function isPublishable(?string $label): bool {
+		return $this->rank(label: $label) === 0;
 	}//end isPublishable()
 
 	/**
@@ -124,7 +124,7 @@ final class SecurityClassification {
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
 	 */
-	private static function rank(?string $label): int {
-		return (int)array_search(self::normalise(label: $label), self::LABELS, true);
+	private function rank(?string $label): int {
+		return (int)array_search($this->normalise(label: $label), self::LABELS, true);
 	}//end rank()
 }//end class

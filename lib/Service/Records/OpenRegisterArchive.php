@@ -170,7 +170,11 @@ class OpenRegisterArchive {
 			$refused[] = ['uuid' => (string)($row['uuid'] ?? ''), 'reason' => (string)($row['reason'] ?? '')];
 		}
 
-		return ['list' => is_array($list) === true ? $list : null, 'refused' => $refused];
+		if (is_array($list) === false) {
+			$list = null;
+		}
+
+		return ['list' => $list, 'refused' => $refused];
 	}//end createDestructionList()
 
 	/**

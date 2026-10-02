@@ -222,8 +222,12 @@ class DestructionCertificateRenderer {
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering
 	 */
 	private function value(mixed $value): string {
-		if (is_bool($value) === true) {
-			return $value === true ? 'true' : 'false';
+		if ($value === true) {
+			return 'true';
+		}
+
+		if ($value === false) {
+			return 'false';
 		}
 
 		if (is_array($value) === true && array_is_list($value) === true && array_filter($value, 'is_scalar') === $value) {

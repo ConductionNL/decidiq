@@ -94,7 +94,7 @@ class DossierDisposition {
 	 *
 	 * @param string $dossierId The dossier
 	 *
-	 * @return array<string, mixed> {id, lifecycle, route, category, action, transferAvailable, settingsUrl, transferList, destructionList}
+	 * @return array<string, mixed> The id, lifecycle, route, category, action, transferAvailable, settingsUrl, transferList and destructionList
 	 *
 	 * @throws MissingObjectException When the dossier does not exist
 	 * @throws AccessDeniedException  When the caller is not an archivist or administrator
@@ -173,7 +173,7 @@ class DossierDisposition {
 	 *
 	 * @param string $dossierId The dossier
 	 *
-	 * @return array<string, mixed> {id, lifecycle, listStatus}
+	 * @return array<string, mixed> The id, lifecycle and listStatus
 	 *
 	 * @throws MissingObjectException When the dossier does not exist
 	 * @throws AccessDeniedException  When the caller is not an archivist or administrator
@@ -206,17 +206,40 @@ class DossierDisposition {
 	private function listOutcome(array $dossier): array {
 		if (is_string($dossier['transferList'] ?? null) === true) {
 			$status = $this->archive->transferListStatus(uuid: $dossier['transferList']);
-			return [$status, $status === 'completed' ? 'transferred' : null];
+			return [$status, $this->stageFor(status: $status, done: 'completed', stage: 'transferred')];
 		}
 
 		if (is_string($dossier['destructionList'] ?? null) === true) {
 			$list = $this->archive->destructionList(uuid: $dossier['destructionList']);
-			$status = ($list === null) ? null : (string)($list['status'] ?? '');
-			return [$status, $status === 'executed' ? 'destroyed' : null];
+			$status = null;
+			if ($list !== null) {
+				$status = (string)($list['status'] ?? '');
+			}
+
+			return [$status, $this->stageFor(status: $status, done: 'executed', stage: 'destroyed')];
 		}
 
 		return [null, null];
 	}//end listOutcome()
+
+	/**
+	 * The stage a list status means: the given stage once OpenRegister is done.
+	 *
+	 * @param string|null $status The list's status in OpenRegister
+	 * @param string      $done   The status that means carried out
+	 * @param string      $stage  The dossier stage it leads to
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-005-destruction-via-openregister-destruction-lists
+	 */
+	private function stageFor(?string $status, string $done, string $stage): ?string {
+		if ($status === $done) {
+			return $stage;
+		}
+
+		return null;
+	}//end stageFor()
 
 	/**
 	 * The dossier with an OpenRegister transfer list over its records.
@@ -285,7 +308,7 @@ class DossierDisposition {
 	/**
 	 * The route a category means, or null when there is none.
 	 *
-	 * @param array{action: string}|null $category The category
+	 * @param array{action: string, category: string, description: string, retentionYears: int|null}|null $category The category
 	 *
 	 * @return string|null
 	 *
