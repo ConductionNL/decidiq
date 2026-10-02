@@ -45,6 +45,7 @@ import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
+import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -222,6 +223,8 @@ export default {
 	PersonMembershipsTab: page(PersonMembershipsTab),
 	PersonVotingRecordTab: page(PersonVotingRecordTab),
 	ParticipantProfileLink: page(ParticipantProfileLink),
+	// Archival dossier route, hand-over and certificate (records-management-archiving, pub-11).
+	DossierDispositionPanel: page(DossierDispositionPanel),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
 	// trend, agenda completion, speaking distribution, cost trend and time

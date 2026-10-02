@@ -44,6 +44,7 @@ namespace OCA\Decidiq\Service;
 use DomainException;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -189,6 +190,12 @@ class PublicationEligibilityService {
 			}
 		}
 
+		// A record labelled above public (records-management-archiving,
+		// REQ-RMA-008) is never published, whatever its lifecycle.
+		if ($this->isClassified(objectData: $objectData) === true) {
+			return true;
+		}
+
 		// Confidential Resolution: a resolution carrying a confidentiality
 		// classification is never publishable (board confidentiality wins).
 		$classification = strtolower((string)($objectData['confidentiality'] ?? $objectData['classification'] ?? ''));
@@ -200,6 +207,20 @@ class PublicationEligibilityService {
 
 		return false;
 	}//end isDeniedType()
+
+	/**
+	 * Whether the record carries a security label above public
+	 * (records-management-archiving, REQ-RMA-008).
+	 *
+	 * @param array<string,mixed> $objectData The object payload
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
+	 */
+	private function isClassified(array $objectData): bool {
+		return (new SecurityClassification())->isPublishable(label: (string)($objectData['securityClassification'] ?? '')) === false;
+	}//end isClassified()
 
 	/**
 	 * Whether a schema slug is on the structural publication deny-list.

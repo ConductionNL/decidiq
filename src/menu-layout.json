@@ -6,6 +6,7 @@
 	},
 	"relocations": {
 		"AncillaryPositions": "GovernanceBodies",
+		"Archive": "Registers",
 		"AuditStatements": "Meetings",
 		"AuthorityDelegations": "Registers",
 		"Commitments": "ActionItems",
