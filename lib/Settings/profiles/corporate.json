@@ -181,6 +181,64 @@
 						"lifecycle": "internal"
 					}
 				],
+				"board-competence": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-finance",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "Finance and audit",
+						"description": "Reads the annual accounts and the auditor's report and chairs the audit discussion.",
+						"requiredHolders": 1,
+						"order": 1,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-water",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "Water management",
+						"description": "Knows flood defence, water quality and the water board's statutory tasks.",
+						"requiredHolders": 1,
+						"order": 2,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-legal",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "Legal",
+						"description": "Knows corporate and administrative law and the articles of association.",
+						"requiredHolders": 1,
+						"order": 3,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-it",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "IT and cybersecurity",
+						"description": "Can judge the information security and the digital resilience of the organisation.",
+						"requiredHolders": 1,
+						"order": 4,
+						"active": true
+					}
+				],
 				"board-evaluation": [
 					{
 						"@self": {
@@ -1324,7 +1382,14 @@
 						"domain": "water-authority",
 						"votingDefault": "for-against-abstain",
 						"termStart": "2023-01-01T00:00:00Z",
-						"termEnd": "2026-12-31T00:00:00Z"
+						"termEnd": "2026-12-31T00:00:00Z",
+						"diversityTargets": [
+							{
+								"dimension": "gender",
+								"value": "female",
+								"minimumShare": 0.33
+							}
+						]
 					}
 				],
 				"governance-body-composition": [
@@ -1469,6 +1534,48 @@
 						"uuid": "c7d10000-0000-4000-a000-000000000031"
 					}
 				],
+				"member-competence": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "member-competence"
+						},
+						"slug": "mc-janneke-finance",
+						"membership": "m-janneke-rvc",
+						"competence": "bc-rvc-finance",
+						"level": "expert",
+						"note": "Former CFO of a regional utility.",
+						"confirmedBy": "admin",
+						"confirmedAt": "2026-01-15T10:00:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "member-competence"
+						},
+						"slug": "mc-jan-legal",
+						"membership": "m-jan-amstel",
+						"competence": "bc-rvc-legal",
+						"level": "experienced",
+						"note": "Clerk to the council since 2021.",
+						"confirmedBy": "admin",
+						"confirmedAt": "2026-01-15T10:00:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "member-competence"
+						},
+						"slug": "mc-mark-water",
+						"membership": "m-mark-rvb",
+						"competence": "bc-rvc-water",
+						"level": "expert",
+						"note": "Hydrologist, fifteen years at Rijkswaterstaat."
+					}
+				],
 				"membership": [
 					{
 						"@self": {
@@ -1496,7 +1603,6 @@
 						"label": "Voorzitter RvC",
 						"votingWeight": 1,
 						"startDate": "2022-04-01T00:00:00Z",
-						"endDate": "2026-04-01T00:00:00Z",
 						"independenceStatus": "independent",
 						"otherPositions": [
 							"RvC Stedin (vice-voorzitter)",
@@ -1517,7 +1623,6 @@
 						"label": "Lid RvB",
 						"votingWeight": 1,
 						"startDate": "2020-01-01T00:00:00Z",
-						"endDate": "2025-12-31T00:00:00Z",
 						"independenceStatus": "non-independent",
 						"otherPositions": [
 							"Bestuur Branchevereniging Tech NL"
