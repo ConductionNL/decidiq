@@ -94,7 +94,8 @@ class DossierDisposition {
 	 *
 	 * @param string $dossierId The dossier
 	 *
-	 * @return array<string, mixed> The id, lifecycle, route, category, action, overridden, transferAvailable, settingsUrl, transferList and destructionList
+	 * @return array<string, mixed> The id, lifecycle, route, category, action, overridden, transferAvailable,
+	 *                              settingsUrl, transferList and destructionList
 	 *
 	 * @throws MissingObjectException When the dossier does not exist
 	 * @throws AccessDeniedException  When the caller is not an archivist or administrator
@@ -309,7 +310,7 @@ class DossierDisposition {
 	/**
 	 * The route a category means, or null when there is none.
 	 *
-	 * @param array{action: string, category: string, description: string, retentionYears: int|null}|null $category The category
+	 * @param array{action: string, category: string, description: string, retentionYears: int|null, overridden?: bool}|null $category The category
 	 *
 	 * @return string|null
 	 *
