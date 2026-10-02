@@ -54,7 +54,7 @@
                     "classification": "2.1",
                     "classificationProperty": "selectielijstCategorie"
                 },
-                "_archiveNote": "The Selectielijst category is the schema's (2.1, council decisions and minutes, kept) unless the dossier sets its own in selectielijstCategorie (Ruben, 2 Oct, DECISIONS row 48). classificationProperty names that property for OpenRegister's per-object override (openregister#4228 follow-up, provisional name until OpenRegister lands it); decidiq reads the same pointer in SelectionCategoryReader::forObject().",
+                "_archiveNote": "The Selectielijst category is the schema's (2.1, council decisions and minutes, kept) unless the dossier sets its own in selectielijstCategorie (Ruben, 2 Oct, DECISIONS row 48). classificationProperty names that property for OpenRegister's per-object override (the same key openregister#4261 reads); decidiq reads the same pointer in SelectionCategoryReader::forObject().",
                 "authorization": {
                     "read": [
                         "authenticated"

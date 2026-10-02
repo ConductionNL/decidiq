@@ -49,8 +49,8 @@ class SelectionCategoryReader {
 
 	/**
 	 * The archive block key that names the property holding an object's own
-	 * category: the pointer OpenRegister's per-object override reads
-	 * (openregister#4228 follow-up; provisional until OpenRegister lands it).
+	 * category, the pointer OpenRegister's per-object override reads
+	 * (openregister#4261).
 	 */
 	public const POINTER = 'classificationProperty';
 
