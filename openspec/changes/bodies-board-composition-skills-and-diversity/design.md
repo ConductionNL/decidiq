@@ -59,6 +59,13 @@ In `lib/Settings/profiles/corporate.json`, for body `rvc-waterschap-amstel` and 
 
 With those seeds the matrix shows a gap for "IT and cybersecurity", and one for "Water management" until Mark's level is confirmed; the figures show one woman of three, which meets the target.
 
+
+## Corrections at build time (2 Oct, lane 29)
+
+- **Writes go through the controller.** OpenRegister cannot name a per-body scope group in a static authorization block, so D2 is not declared as property and object authorization. Both schemas declare `read: authenticated` only, and every write goes through `MemberCompetenceController` (POST `/api/competences`, PUT `/api/competences/{id}`, POST `/api/member-competences`, PUT `/api/member-competences/{id}`, POST `/api/member-competences/{id}/confirm`). `MemberCompetenceService` saves in system context after `CompetenceConfirmationGuard` says yes. The guard refuses a holder who confirms their own competence even when they are a signatory, and lets an administrator manage a body's competences but not confirm.
+- **Current members are seats without an end date**, as on the Members widget. The corporate seeds had end dates on Janneke's and Mark's seats, which made them past members; the seeds now leave those out so the board has the three current members the design counts.
+- **Fragment number** 116.
+
 ## Risks
 
 - Gender is free text on `Person`. The figures group by the stored value, so "F" and "female" count apart. The widget lists values as stored, and cleaning the vocabulary is a data task for the body, not a rule this change imposes.

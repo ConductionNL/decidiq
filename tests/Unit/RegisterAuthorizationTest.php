@@ -139,6 +139,8 @@ class RegisterAuthorizationTest extends TestCase {
 		'CaseExchangeRecord'   => 'CaseExchangeRecords (case system exchange)',
 		'PublicationEvent'     => 'PublicationEventRecorder (publication subscriptions)',
 		'ArchivalDossier'      => 'ArchivalDossierService (records management)',
+		'BoardCompetence'      => 'MemberCompetenceService (board composition)',
+		'MemberCompetence'     => 'MemberCompetenceService (board composition)',
 	];
 
 	/**
@@ -645,11 +647,11 @@ class RegisterAuthorizationTest extends TestCase {
 
 		// The count is the positive control: without it the loop above passes
 		// vacuously if the schemas move, are renamed, or stop being found at all.
-		// 14 restate the baseline writes, 6 are service owned, 1 is
+		// 14 restate the baseline writes, 9 are service owned, 1 is
 		// EvaluationResponse, 1 is PublicationSubscription, 17 are retired. A different number means schemas
 		// gained or lost their own block, which changes which ones the register
 		// baseline governs.
-		$this->assertCount(40, $blocks, 'Expected 40 schema-level authorization blocks.');
+		$this->assertCount(42, $blocks, 'Expected 42 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**

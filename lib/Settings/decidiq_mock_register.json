@@ -8725,6 +8725,82 @@
         "closedBy": "Voorbeeld Closedby 3",
         "closeOverrideReason": "Voorbeeld Closeoverridereason 3",
         "securityClassification": "intern"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "BoardCompetence",
+          "slug": "board-competence-voorbeeld-1"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "name": "Finance and audit",
+        "description": "Voorbeeld competentie 1",
+        "requiredHolders": 1,
+        "order": 1,
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "BoardCompetence",
+          "slug": "board-competence-voorbeeld-2"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "name": "Legal",
+        "description": "Voorbeeld competentie 2",
+        "requiredHolders": 1,
+        "order": 2,
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "BoardCompetence",
+          "slug": "board-competence-voorbeeld-3"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "name": "IT and cybersecurity",
+        "description": "Voorbeeld competentie 3",
+        "requiredHolders": 1,
+        "order": 3,
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MemberCompetence",
+          "slug": "member-competence-voorbeeld-1"
+        },
+        "membership": "00000000-0000-4000-8000-000000000001",
+        "competence": "00000000-0000-4000-8000-000000000001",
+        "level": "basic",
+        "note": "Voorbeeld 1"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MemberCompetence",
+          "slug": "member-competence-voorbeeld-2"
+        },
+        "membership": "00000000-0000-4000-8000-000000000002",
+        "competence": "00000000-0000-4000-8000-000000000002",
+        "level": "experienced",
+        "note": "Voorbeeld 2",
+        "confirmedBy": "admin",
+        "confirmedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MemberCompetence",
+          "slug": "member-competence-voorbeeld-3"
+        },
+        "membership": "00000000-0000-4000-8000-000000000003",
+        "competence": "00000000-0000-4000-8000-000000000003",
+        "level": "expert",
+        "note": "Voorbeeld 3",
+        "confirmedBy": "admin",
+        "confirmedAt": "2026-03-01T09:00:00+00:00"
       }
     ]
   }
