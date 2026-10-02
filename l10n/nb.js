@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Destruksjonserklæring",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Hvor kopien av OpenRegisters verklaring van vernietiging er arkivert, og hva OpenRegister hoppet over. Selve erklæringen blir i OpenRegister.",
         "Classification warning": "Klassifiseringsvarsel",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Settes når et dokument i mappen er mer fortrolig enn mappen selv: nevner dokumentet og nivået. Hev mappens klassifisering for å fjerne den."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Settes når et dokument i mappen er mer fortrolig enn mappen selv: nevner dokumentet og nivået. Hev mappens klassifisering for å fjerne den.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Mappen står allerede på en liste i OpenRegister, så kategorien ligger fast.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Registeret inneholder ingen Selectielijst-kategori %1$s for mapper.",
+        "Selectielijst category": "Selectielijst-kategori"
     },
     "nplurals=2; plural=(n != 1);"
 )

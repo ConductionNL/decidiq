@@ -28,6 +28,7 @@ use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
+use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\DossierDisposition;
 use OCP\IRequest;
 use OCP\IUser;
@@ -52,11 +53,18 @@ class DossierDispositionControllerTest extends TestCase {
 	 *
 	 * @return DossierDispositionController
 	 */
-	private function controller(DossierDisposition $disposition, bool $signedIn = true, ?DestructionCertificateRenderer $certificates = null): DossierDispositionController {
+	private function controller(DossierDisposition $disposition, bool $signedIn = true, ?DestructionCertificateRenderer $certificates = null, ?DossierCategory $categories = null, ?IRequest $request = null): DossierDispositionController {
 		$session = $this->createMock(IUserSession::class);
 		$session->method('getUser')->willReturn($signedIn === true ? $this->createMock(IUser::class) : null);
 
-		return new DossierDispositionController($this->createMock(IRequest::class), $disposition, ($certificates ?? $this->createMock(DestructionCertificateRenderer::class)), $session, new NullLogger());
+		return new DossierDispositionController(
+			($request ?? $this->createMock(IRequest::class)),
+			$disposition,
+			($certificates ?? $this->createMock(DestructionCertificateRenderer::class)),
+			($categories ?? $this->createMock(DossierCategory::class)),
+			$session,
+			new NullLogger()
+		);
 	}//end controller()
 
 	/**
@@ -122,4 +130,32 @@ class DossierDispositionControllerTest extends TestCase {
 		$disposition->expects(self::never())->method('describe');
 		self::assertSame(401, $this->controller(disposition: $disposition, signedIn: false)->show(id: 'd-1')->getStatus());
 	}//end testRefusalsAnswerTheirStatus()
+
+	/**
+	 * Setting the category passes the body's trimmed category to the service
+	 * and answers the dossier; an unknown category is 422, no authority 403.
+	 *
+	 * @return void
+	 */
+	public function testSettingTheCategory(): void {
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')->with('category')->willReturn(' 11.1 ');
+		$categories = $this->createMock(DossierCategory::class);
+		$categories->expects($this->once())->method('set')->with('d-1', '11.1')->willReturn(['id' => 'd-1', 'selectielijstCategorie' => '11.1']);
+		$disposition = $this->createMock(DossierDisposition::class);
+
+		$response = $this->controller(disposition: $disposition, categories: $categories, request: $request)->category(id: 'd-1');
+		self::assertSame(200, $response->getStatus());
+		self::assertSame('11.1', $response->getData()['dossier']['selectielijstCategorie']);
+
+		$missing = $this->createMock(IRequest::class);
+		$missing->method('getParam')->willReturn(null);
+		$refusing = $this->createMock(DossierCategory::class);
+		$refusing->method('set')->with('d-1', '')->willThrowException(new DossierRefusedException('category?', DossierRefusedException::NO_CATEGORY));
+		self::assertSame(422, $this->controller(disposition: $disposition, categories: $refusing, request: $missing)->category(id: 'd-1')->getStatus());
+
+		$denying = $this->createMock(DossierCategory::class);
+		$denying->method('set')->willThrowException(new AccessDeniedException('no'));
+		self::assertSame(403, $this->controller(disposition: $disposition, categories: $denying, request: $request)->category(id: 'd-1')->getStatus());
+	}//end testSettingTheCategory()
 }//end class

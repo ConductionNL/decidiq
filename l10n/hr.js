@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Potvrda o uništenju",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Gdje je pohranjena kopija OpenRegisterove verklaring van vernietiging i što je OpenRegister preskočio. Sama potvrda ostaje u OpenRegisteru.",
         "Classification warning": "Upozorenje o klasifikaciji",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Postavlja se kada je zapis u spisu povjerljiviji od samog spisa: navodi taj zapis i njegovu razinu. Povisite klasifikaciju spisa da biste ga uklonili."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Postavlja se kada je zapis u spisu povjerljiviji od samog spisa: navodi taj zapis i njegovu razinu. Povisite klasifikaciju spisa da biste ga uklonili.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Spis je već na popisu u OpenRegisteru, pa je njegova kategorija utvrđena.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Registar ne sadrži kategoriju Selectielijst %1$s za spise.",
+        "Selectielijst category": "Kategorija Selectielijst"
     },
     "nplurals=2; plural=(n != 1);"
 )

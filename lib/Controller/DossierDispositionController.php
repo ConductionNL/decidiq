@@ -31,6 +31,7 @@ use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
+use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\DossierDisposition;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -55,6 +56,7 @@ class DossierDispositionController extends Controller {
 	 * @param IRequest           $request      HTTP request
 	 * @param DossierDisposition $disposition  The routing rules
 	 * @param DestructionCertificateRenderer $certificates Renders OpenRegister's certificate
+	 * @param DossierCategory    $categories   Sets a dossier's own Selectielijst category
 	 * @param IUserSession       $userSession  User session
 	 * @param LoggerInterface    $logger       Logger
 	 *
@@ -64,6 +66,7 @@ class DossierDispositionController extends Controller {
 		IRequest $request,
 		private readonly DossierDisposition $disposition,
 		private readonly DestructionCertificateRenderer $certificates,
+		private readonly DossierCategory $categories,
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
@@ -137,6 +140,30 @@ class DossierDispositionController extends Controller {
 	public function certificate(string $id): JSONResponse {
 		return $this->respond(action: fn (): array => $this->certificates->render(dossierId: $id), created: true);
 	}//end certificate()
+
+	/**
+	 * Set the dossier's own Selectielijst category (body: `category`). A
+	 * category equal to the schema's clears the dossier's own one.
+	 *
+	 * The service refuses anyone but an archivist or an administrator.
+	 *
+	 * @param string $id The dossier
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function category(string $id): JSONResponse {
+		$category = $this->request->getParam('category');
+		if (is_string($category) === false) {
+			$category = '';
+		}
+
+		return $this->respond(action: fn (): array => $this->categories->set(dossierId: $id, category: trim($category)), created: false);
+	}//end category()
 
 	/**
 	 * Run an action and map its outcome: 401 signed out, 403 no authority,

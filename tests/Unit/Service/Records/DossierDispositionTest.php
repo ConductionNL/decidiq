@@ -40,6 +40,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\Records\ArchivistGuard;
 use OCA\Decidiq\Service\Records\DossierDisposition;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
+use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\SelectionCategoryReader;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -62,6 +63,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\Records\DossierDisposition
  * @covers \OCA\Decidiq\Service\Records\OpenRegisterArchive
  * @covers \OCA\Decidiq\Service\Records\SelectionCategoryReader
+ * @covers \OCA\Decidiq\Service\Records\DossierCategory
  * @covers \OCA\Decidiq\Service\Records\ArchivistGuard
  * @covers \OCA\Decidiq\Exception\DossierRefusedException
  */
@@ -670,4 +672,109 @@ class DossierDispositionTest extends TestCase {
 		);
 		return $container;
 	}//end containerWith()
+
+	/**
+	 * The category setter under test, over the same store and register.
+	 *
+	 * @return DossierCategory
+	 */
+	private function category(): DossierCategory {
+		$settings = $this->createMock(SettingsService::class);
+		$settings->method('mergedRegisterConfig')->willReturnCallback(fn (): array => $this->mergedRegister());
+		$user = $this->createMock(IUser::class);
+		$user->method('getUID')->willReturn('archivaris1');
+		$session = $this->createMock(IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+		$groups = $this->createMock(IGroupManager::class);
+		$groups->method('isAdmin')->willReturnCallback(fn (): bool => $this->admin);
+		$groups->method('isInGroup')->willReturnCallback(fn (string $uid, string $group): bool => in_array($group, $this->groups, true));
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(static fn (string $text, array $params = []): string => vsprintf($text, $params));
+
+		return new DossierCategory(
+			objectService: $this->objectService(),
+			categories: new SelectionCategoryReader(settings: $settings),
+			guard: new ArchivistGuard(userSession: $session, groupManager: $groups),
+			l10n: $l10n,
+		);
+	}//end category()
+
+	/**
+	 * A dossier whose own category differs from its schema's is routed on its
+	 * own: the shipped schema keeps (2.1), this dossier destroys (11.1).
+	 *
+	 * @return void
+	 */
+	public function testADossiersOwnCategoryOverridesTheSchemas(): void {
+		$this->store['archival-dossier'][self::DOSSIER]['selectielijstCategorie'] = '11.1';
+
+		$described = $this->disposition()->describe(dossierId: self::DOSSIER);
+		self::assertSame(['11.1', 'vernietigen', 'destruction', true], [$described['category'], $described['action'], $described['route'], $described['overridden']]);
+
+		$dossier = $this->disposition()->propose(dossierId: self::DOSSIER);
+		self::assertSame('destruction', $dossier['disposition']);
+		self::assertSame([], $this->transferLists);
+	}//end testADossiersOwnCategoryOverridesTheSchemas()
+
+	/**
+	 * A category the register ships no row for is not an override: the
+	 * schema's category stands, never a guess.
+	 *
+	 * @return void
+	 */
+	public function testAnUnknownOwnCategoryFallsBackToTheSchemas(): void {
+		$this->store['archival-dossier'][self::DOSSIER]['selectielijstCategorie'] = '99.9';
+
+		$described = $this->disposition()->describe(dossierId: self::DOSSIER);
+		self::assertSame(['2.1', 'transfer', false], [$described['category'], $described['route'], $described['overridden']]);
+	}//end testAnUnknownOwnCategoryFallsBackToTheSchemas()
+
+	/**
+	 * An archivist sets the dossier's category: a category that differs from
+	 * the schema's is written on the dossier, the schema's own category
+	 * removes the override, and an unknown category is refused.
+	 *
+	 * @return void
+	 */
+	public function testAnArchivistSetsTheCategoryOnlyWhenItDiffers(): void {
+		$dossier = $this->category()->set(dossierId: self::DOSSIER, category: '11.1');
+		self::assertSame('11.1', $dossier['selectielijstCategorie']);
+		self::assertValidDossier(dossier: $this->saves[0][0]);
+		self::assertSame([false, false], [$this->saves[0][2], $this->saves[0][3]], 'written in system context');
+
+		$this->store['archival-dossier'][self::DOSSIER]['selectielijstCategorie'] = '11.1';
+		$dossier = $this->category()->set(dossierId: self::DOSSIER, category: '2.1');
+		self::assertArrayNotHasKey('selectielijstCategorie', $dossier, 'the schema category is no override');
+		self::assertArrayNotHasKey('selectielijstCategorie', $this->saves[1][0]);
+
+		try {
+			$this->category()->set(dossierId: self::DOSSIER, category: '99.9');
+			self::fail('An unknown category is refused.');
+		} catch (DossierRefusedException $e) {
+			self::assertSame(DossierRefusedException::NO_CATEGORY, $e->getReason());
+		}
+
+		self::assertCount(2, $this->saves);
+	}//end testAnArchivistSetsTheCategoryOnlyWhenItDiffers()
+
+	/**
+	 * The category is frozen once the dossier is on a list, and only an
+	 * archivist or administrator sets it.
+	 *
+	 * @return void
+	 */
+	public function testTheCategoryIsFrozenOnAListAndOnlyForArchivists(): void {
+		$this->store['archival-dossier'][self::DOSSIER]['destructionList'] = 'list-1';
+		try {
+			$this->category()->set(dossierId: self::DOSSIER, category: '11.1');
+			self::fail('A dossier on a list keeps its category.');
+		} catch (DossierRefusedException $e) {
+			self::assertSame(DossierRefusedException::ALREADY_PROPOSED, $e->getReason());
+		}
+
+		unset($this->store['archival-dossier'][self::DOSSIER]['destructionList']);
+		$this->groups = [];
+		$this->expectException(AccessDeniedException::class);
+		$this->category()->set(dossierId: self::DOSSIER, category: '11.1');
+	}//end testTheCategoryIsFrozenOnAListAndOnlyForArchivists()
 }//end class

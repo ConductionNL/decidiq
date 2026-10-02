@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Certificat de destruction",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Où est classée la copie de la verklaring van vernietiging d'OpenRegister, et ce qu'OpenRegister a ignoré. Le certificat lui-même reste dans OpenRegister.",
         "Classification warning": "Avertissement de classification",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Défini lorsqu'un document du dossier est plus confidentiel que le dossier lui-même : nomme ce document et son niveau. Relevez la classification du dossier pour l'effacer."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Défini lorsqu'un document du dossier est plus confidentiel que le dossier lui-même : nomme ce document et son niveau. Relevez la classification du dossier pour l'effacer.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Le dossier figure déjà sur une liste dans OpenRegister, sa catégorie est donc figée.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Le registre ne contient pas de catégorie de la Selectielijst %1$s pour les dossiers.",
+        "Selectielijst category": "Catégorie de la Selectielijst"
     },
     "nplurals=2; plural=(n != 1);"
 )

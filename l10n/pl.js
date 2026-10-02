@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Świadectwo zniszczenia",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Gdzie złożono kopię verklaring van vernietiging z OpenRegister i co OpenRegister pominął. Samo świadectwo pozostaje w OpenRegister.",
         "Classification warning": "Ostrzeżenie o klauzuli",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Ustawiane, gdy dokument w teczce jest bardziej poufny niż sama teczka: wskazuje dokument i jego poziom. Podnieś klauzulę teczki, aby je usunąć."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Ustawiane, gdy dokument w teczce jest bardziej poufny niż sama teczka: wskazuje dokument i jego poziom. Podnieś klauzulę teczki, aby je usunąć.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Teczka jest już na liście w OpenRegister, więc jej kategoria jest ustalona.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Rejestr nie zawiera kategorii Selectielijst %1$s dla teczek.",
+        "Selectielijst category": "Kategoria Selectielijst"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -94,7 +94,8 @@ class DossierDisposition {
 	 *
 	 * @param string $dossierId The dossier
 	 *
-	 * @return array<string, mixed> The id, lifecycle, route, category, action, transferAvailable, settingsUrl, transferList and destructionList
+	 * @return array<string, mixed> The id, lifecycle, route, category, action, overridden, transferAvailable,
+	 *                              settingsUrl, transferList and destructionList
 	 *
 	 * @throws MissingObjectException When the dossier does not exist
 	 * @throws AccessDeniedException  When the caller is not an archivist or administrator
@@ -104,7 +105,7 @@ class DossierDisposition {
 	public function describe(string $dossierId): array {
 		$this->guard->requireArchivist();
 		$dossier = $this->dossier(dossierId: $dossierId);
-		$category = $this->categories->forSchema(schemaKey: self::SCHEMA_KEY);
+		$category = $this->categories->forObject(schemaKey: self::SCHEMA_KEY, object: $dossier);
 
 		return [
 			'id' => $dossierId,
@@ -112,6 +113,7 @@ class DossierDisposition {
 			'route' => $this->route(category: $category),
 			'category' => $category['category'] ?? null,
 			'action' => $category['action'] ?? null,
+			'overridden' => $category['overridden'] ?? false,
 			'transferAvailable' => $this->archive->transferAvailable(),
 			'settingsUrl' => $this->urlGenerator->linkToRoute('settings.AdminSettings.index', ['section' => 'openregister']),
 			'transferList' => $dossier['transferList'] ?? null,
@@ -151,7 +153,7 @@ class DossierDisposition {
 			);
 		}
 
-		$route = $this->route(category: $this->categories->forSchema(schemaKey: self::SCHEMA_KEY));
+		$route = $this->route(category: $this->categories->forObject(schemaKey: self::SCHEMA_KEY, object: $dossier));
 		if ($route === null) {
 			throw new DossierRefusedException(
 				message: $this->l10n->t('The dossier schema names no Selectielijst category, so it cannot be routed.'),
@@ -308,7 +310,7 @@ class DossierDisposition {
 	/**
 	 * The route a category means, or null when there is none.
 	 *
-	 * @param array{action: string, category: string, description: string, retentionYears: int|null}|null $category The category
+	 * @param array{action: string, category: string, description: string, retentionYears: int|null, overridden?: bool}|null $category The category
 	 *
 	 * @return string|null
 	 *
