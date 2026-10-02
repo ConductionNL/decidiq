@@ -834,6 +834,53 @@
 						"type": "related",
 						"title": "Related",
 						"icon": "LinkVariant"
+					},
+					{
+						"id": "hold-remuneration",
+						"type": "object-list",
+						"title": "Remuneration",
+						"icon": "CashMultiple",
+						"content": {
+							"register": "decidiq",
+							"schema": "mandate-remuneration",
+							"filter": {
+								"positionHold": "@objectId"
+							},
+							"sort": {
+								"field": "year",
+								"dir": "desc"
+							},
+							"columns": [
+								{
+									"key": "year",
+									"label": "Year"
+								},
+								{
+									"key": "fixedFee",
+									"label": "Fixed fee"
+								},
+								{
+									"key": "meetingFee",
+									"label": "Meeting fee"
+								},
+								{
+									"key": "expenseAllowance",
+									"label": "Expense allowance"
+								},
+								{
+									"key": "currency",
+									"label": "Currency"
+								},
+								{
+									"key": "disclosed",
+									"label": "Disclosed",
+									"widget": "badge"
+								}
+							],
+							"limit": 20,
+							"allowCreate": true,
+							"emptyText": "No remuneration recorded, or none you can read."
+						}
 					}
 				],
 				"layout": [
@@ -852,6 +899,14 @@
 						"gridY": 0,
 						"gridWidth": 4,
 						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "hold-remuneration",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 5
 					}
 				],
 				"sidebar": {

@@ -8801,6 +8801,56 @@
         "note": "Voorbeeld 3",
         "confirmedBy": "admin",
         "confirmedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateRemuneration",
+          "slug": "mandate-remuneration-voorbeeld-1"
+        },
+        "positionHold": "00000000-0000-4000-8000-000000000001",
+        "person": "00000000-0000-4000-8000-000000000001",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "year": 2026,
+        "fixedFee": 32000,
+        "meetingFee": 0,
+        "expenseAllowance": 500,
+        "currency": "EUR",
+        "disclosed": true,
+        "publicationDate": "2026-04-30"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateRemuneration",
+          "slug": "mandate-remuneration-voorbeeld-2"
+        },
+        "positionHold": "00000000-0000-4000-8000-000000000002",
+        "person": "00000000-0000-4000-8000-000000000002",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "year": 2026,
+        "fixedFee": 24000,
+        "meetingFee": 0,
+        "expenseAllowance": 1000,
+        "currency": "EUR",
+        "disclosed": true,
+        "publicationDate": "2026-04-30"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateRemuneration",
+          "slug": "mandate-remuneration-voorbeeld-3"
+        },
+        "positionHold": "00000000-0000-4000-8000-000000000003",
+        "person": "00000000-0000-4000-8000-000000000003",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "year": 2026,
+        "fixedFee": 0,
+        "meetingFee": 0,
+        "expenseAllowance": 1500,
+        "currency": "EUR",
+        "disclosed": false
       }
     ]
   }

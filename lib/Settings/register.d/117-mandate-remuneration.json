@@ -1,0 +1,143 @@
+{
+	"_note": "bodies-director-remuneration (bod-17): what a position holder is paid, per year. Declarative only: a schema with its read rule, and manifest widgets. Members do not read each other's pay unless it is disclosed, so the read rule names the secretariat and administrators plus a public rule on disclosed records whose publication date has passed, and deliberately not authenticated.",
+	"_spec": "openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md",
+	"components": {
+		"schemas": {
+			"MandateRemuneration": {
+				"slug": "mandate-remuneration",
+				"icon": "CashMultiple",
+				"version": "0.1.0",
+				"title": "Remuneration",
+				"description": "What the holder of a position on a body is paid in one year: a fixed fee, a fee per meeting attended and an expense allowance, with the decision that set it and whether it is disclosed.",
+				"type": "object",
+				"x-schema-org": "schema:MonetaryAmount",
+				"x-openregister": {
+					"schemaType": "schema:MonetaryAmount",
+					"active": true,
+					"hardDelete": false,
+					"searchable": false,
+					"mailEnabled": false
+				},
+				"required": [
+					"positionHold",
+					"person",
+					"governanceBody",
+					"year"
+				],
+				"properties": {
+					"positionHold": {
+						"title": "Position held",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "position-hold",
+						"description": "The position hold this remuneration is for."
+					},
+					"person": {
+						"title": "Person",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "person",
+						"facetable": true,
+						"description": "The person who holds the position."
+					},
+					"governanceBody": {
+						"title": "Body",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "governance-body",
+						"facetable": true,
+						"description": "The body the position is on."
+					},
+					"year": {
+						"title": "Year",
+						"type": "integer",
+						"minimum": 1900,
+						"facetable": true,
+						"description": "The calendar year the amounts are for."
+					},
+					"fixedFee": {
+						"title": "Fixed fee",
+						"type": "number",
+						"minimum": 0,
+						"description": "The annual fee."
+					},
+					"meetingFee": {
+						"title": "Meeting fee",
+						"type": "number",
+						"minimum": 0,
+						"description": "The fee per meeting attended."
+					},
+					"expenseAllowance": {
+						"title": "Expense allowance",
+						"type": "number",
+						"minimum": 0,
+						"description": "The fixed annual expense allowance."
+					},
+					"currency": {
+						"title": "Currency",
+						"type": "string",
+						"pattern": "^[A-Z]{3}$",
+						"default": "EUR",
+						"facetable": true,
+						"description": "ISO 4217 currency code."
+					},
+					"setByDecision": {
+						"title": "Set by decision",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "decision",
+						"description": "The decision that set these amounts."
+					},
+					"disclosed": {
+						"title": "Disclosed",
+						"type": "boolean",
+						"default": false,
+						"description": "Whether the remuneration is public. Anyone can read a disclosed record once its publication date has passed."
+					},
+					"publicationDate": {
+						"title": "Publication date",
+						"type": "string",
+						"format": "date",
+						"description": "The day disclosure starts."
+					},
+					"note": {
+						"title": "Note",
+						"type": "string",
+						"description": "For example a statutory maximum that was applied."
+					}
+				},
+				"authorization": {
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"read": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators",
+						{
+							"group": "public",
+							"match": {
+								"disclosed": true,
+								"publicationDate": {
+									"$lte": "$now"
+								}
+							}
+						}
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				}
+			}
+		}
+	}
+}
