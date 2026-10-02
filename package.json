@@ -81,7 +81,7 @@
     "@nextcloud/webpack-vue-config": "^6.0.1",
     "@playwright/test": "^1.63.0",
     "@typescript-eslint/parser": "^8.69.0",
-    "@vitest/coverage-v8": "^5.0.0",
+    "@vitest/coverage-v8": "^5.0.2",
     "@vue/compiler-sfc": "^3.5.43",
     "css-loader": "~7.1.5",
     "eslint": "^10.10.0",
