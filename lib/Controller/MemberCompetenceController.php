@@ -80,7 +80,11 @@ class MemberCompetenceController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function createCompetence(): JSONResponse {
-		return $this->respond(key: 'competence', created: true, action: fn (): array => $this->competences->saveCompetence(data: $this->bodyParams(request: $this->request), id: null));
+		return $this->respond(
+			key: 'competence',
+			created: true,
+			action: fn (): array => $this->competences->saveCompetence(data: $this->bodyParams(request: $this->request), id: null)
+		);
 	}//end createCompetence()
 
 	/**
@@ -97,7 +101,11 @@ class MemberCompetenceController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function updateCompetence(string $id): JSONResponse {
-		return $this->respond(key: 'competence', created: false, action: fn (): array => $this->competences->saveCompetence(data: $this->bodyParams(request: $this->request), id: $id));
+		return $this->respond(
+			key: 'competence',
+			created: false,
+			action: fn (): array => $this->competences->saveCompetence(data: $this->bodyParams(request: $this->request), id: $id)
+		);
 	}//end updateCompetence()
 
 	/**
@@ -113,7 +121,11 @@ class MemberCompetenceController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function record(): JSONResponse {
-		return $this->respond(key: 'memberCompetence', created: true, action: fn (): array => $this->competences->record(data: $this->bodyParams(request: $this->request), id: null));
+		return $this->respond(
+			key: 'memberCompetence',
+			created: true,
+			action: fn (): array => $this->competences->record(data: $this->bodyParams(request: $this->request), id: null)
+		);
 	}//end record()
 
 	/**
@@ -130,7 +142,11 @@ class MemberCompetenceController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function update(string $id): JSONResponse {
-		return $this->respond(key: 'memberCompetence', created: false, action: fn (): array => $this->competences->record(data: $this->bodyParams(request: $this->request), id: $id));
+		return $this->respond(
+			key: 'memberCompetence',
+			created: false,
+			action: fn (): array => $this->competences->record(data: $this->bodyParams(request: $this->request), id: $id)
+		);
 	}//end update()
 
 	/**

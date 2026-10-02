@@ -132,7 +132,7 @@ class MemberCompetenceService {
 
 		$level = (string)($data['level'] ?? ($held['level'] ?? ''));
 		if (in_array($level, self::LEVELS, true) === false) {
-			throw new CompetenceRefusedException('The level is basic, experienced or expert.');
+			throw new CompetenceRefusedException(message: 'The level is basic, experienced or expert.');
 		}
 
 		if (($held['level'] ?? $level) !== $level) {
@@ -188,7 +188,7 @@ class MemberCompetenceService {
 		$competence = $this->existing(schema: 'board-competence', id: (string)($held['competence'] ?? ''));
 		$bodyId = (string)($membership['governanceBody'] ?? '');
 		if ($bodyId === '' || (string)($competence['governanceBody'] ?? '') !== $bodyId) {
-			throw new CompetenceRefusedException('The competence must be one of the same body as the membership.');
+			throw new CompetenceRefusedException(message: 'The competence must be one of the same body as the membership.');
 		}
 
 		$person = $this->read(schema: 'person', id: (string)($membership['person'] ?? ''));
@@ -209,7 +209,7 @@ class MemberCompetenceService {
 	private function checkedCompetence(array $competence): array {
 		$competence['name'] = trim((string)($competence['name'] ?? ''));
 		if ($competence['name'] === '') {
-			throw new CompetenceRefusedException('A competence needs a name.');
+			throw new CompetenceRefusedException(message: 'A competence needs a name.');
 		}
 
 		foreach (['requiredHolders', 'order'] as $field) {
@@ -219,7 +219,7 @@ class MemberCompetenceService {
 		}
 
 		if (isset($competence['requiredHolders']) === true && (is_int($competence['requiredHolders']) === false || $competence['requiredHolders'] < 1)) {
-			throw new CompetenceRefusedException('A competence needs at least one required holder.');
+			throw new CompetenceRefusedException(message: 'A competence needs at least one required holder.');
 		}
 
 		if (isset($competence['active']) === true) {
@@ -262,7 +262,7 @@ class MemberCompetenceService {
 	private function existing(string $schema, string $id): array {
 		$object = $this->read(schema: $schema, id: $id);
 		if ($object === null) {
-			throw new MissingObjectException(sprintf('No %s %s.', $schema, $id));
+			throw new MissingObjectException(message: "No {$schema} {$id}.");
 		}
 
 		return $object;
