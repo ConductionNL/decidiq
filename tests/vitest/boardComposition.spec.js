@@ -13,7 +13,17 @@
 
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// boardComposition.js reuses isActiveMembership from useRelationStore.js,
+// whose module-level store import pulls in apexcharts, which needs a window
+// this node environment does not have. Only pure functions are under test,
+// so the store is stubbed, as memberRelations.spec.js does.
+vi.mock('../../src/store/store.js', () => ({
+	useObjectStore: () => ({}),
+	useSettingsStore: () => ({}),
+}))
+
 import { competencePath } from '../../src/utils/competenceApi.js'
 import {
 	ageBand,

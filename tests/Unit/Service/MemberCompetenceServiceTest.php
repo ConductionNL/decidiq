@@ -46,6 +46,7 @@ use Psr\Log\NullLogger;
 /**
  * @covers \OCA\Decidiq\Service\MemberCompetenceService
  * @covers \OCA\Decidiq\Service\CompetenceConfirmationGuard
+ * @uses   \OCA\Decidiq\Service\GovernanceScopeGuard
  */
 class MemberCompetenceServiceTest extends TestCase {
 
