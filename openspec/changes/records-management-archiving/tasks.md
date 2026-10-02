@@ -70,6 +70,18 @@
 - [ ] Implement
 - [ ] Test
 
+### Task 7: A dossier's own Selectielijst category (DECISIONS row 48)
+- **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice`
+- **files**: `lib/Settings/register.d/115-records-management-archiving.json`, `lib/Service/Records/{SelectionCategoryReader,DossierCategory,DossierDisposition}.php`, `lib/Controller/DossierDispositionController.php`
+- **acceptance_criteria**:
+  - GIVEN the dossier schema's category 2.1 and a dossier whose own `selectielijstCategorie` is 11.1 WHEN it is routed THEN it goes to destruction, and the disposition says the category is the dossier's own
+  - GIVEN an own category the register ships no row for WHEN the dossier is routed THEN the schema's category stands
+  - GIVEN an archivist WHEN they set a category THEN a category that differs from the schema's is written on the dossier, the schema's own clears it, an unknown one is refused, and a dossier on a list keeps its category
+- Note (2 Oct): `SelectionCategoryReader::forObject()` is the one place a dossier's category is decided (design.md). OpenRegister's per-object read of `archive.classificationProperty` is the openregister lane's (openregister#4228 follow-up), so the live check, that OpenRegister writes the dossier's own retention, stays open.
+- [x] Implement
+- [x] Test
+- [ ] Live check once OpenRegister reads the per-object category
+
 ## Verification
 - All tasks checked off; `openspec validate` passes
 - Register-import verified on a clean Postgres instance (lifecycle dialect actually applied — no silent-ignore; `retention` actually resolved by OR — no phantom seed values)

@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Teastas scriosta",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Cá bhfuil cóip de verklaring van vernietiging OpenRegister comhdaithe, agus cad a d'fhág OpenRegister ar lár. Fanann an teastas féin ag OpenRegister.",
         "Classification warning": "Rabhadh aicmithe",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Socraítear é nuair a bhíonn taifead sa chomhad níos rúnda ná an comhad féin: ainmníonn sé an taifead agus a leibhéal. Ardaigh aicmiú an chomhaid chun é a ghlanadh."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Socraítear é nuair a bhíonn taifead sa chomhad níos rúnda ná an comhad féin: ainmníonn sé an taifead agus a leibhéal. Ardaigh aicmiú an chomhaid chun é a ghlanadh.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Tá an comhad ar liosta in OpenRegister cheana, mar sin tá a chatagóir socraithe.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Níl catagóir %1$s den Selectielijst sa chlár do chomhaid.",
+        "Selectielijst category": "Catagóir Selectielijst"
     },
     "nplurals=2; plural=(n != 1);"
 )

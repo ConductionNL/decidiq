@@ -80,7 +80,12 @@ class RecordsManagementRegisterTest extends TestCase {
 	public function testTheDossierIsDeclaredWithOpenRegistersArchiveBlock(): void {
 		$dossier = $this->mergedSchema(slug: 'archival-dossier');
 		self::assertNotSame([], $dossier, 'archival-dossier is not declared');
-		self::assertSame(['enabled' => true, 'classification' => '2.1'], $dossier['archive'] ?? null);
+		self::assertSame(
+			['enabled' => true, 'classification' => '2.1', 'classificationProperty' => 'selectielijstCategorie'],
+			$dossier['archive'] ?? null
+		);
+		// The pointer names a real property: a dossier's own category (DECISIONS row 48).
+		self::assertSame('string', $dossier['properties']['selectielijstCategorie']['type'] ?? null);
 
 		$lifecycle = ($dossier['x-openregister-lifecycle'] ?? []);
 		self::assertSame('lifecycle', $lifecycle['field'] ?? null);

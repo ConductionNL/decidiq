@@ -51,9 +51,10 @@
                 "type": "object",
                 "archive": {
                     "enabled": true,
-                    "classification": "2.1"
+                    "classification": "2.1",
+                    "classificationProperty": "selectielijstCategorie"
                 },
-                "_archiveNote": "OpenRegister reads the archive block per schema, so every dossier carries category 2.1 (council decisions and minutes, kept). A category per dossier needs OpenRegister to read it from the object (proposed follow-up).",
+                "_archiveNote": "The Selectielijst category is the schema's (2.1, council decisions and minutes, kept) unless the dossier sets its own in selectielijstCategorie (Ruben, 2 Oct, DECISIONS row 48). classificationProperty names that property for OpenRegister's per-object override (openregister#4228 follow-up, provisional name until OpenRegister lands it); decidiq reads the same pointer in SelectionCategoryReader::forObject().",
                 "authorization": {
                     "read": [
                         "authenticated"
@@ -276,6 +277,11 @@
                                 }
                             }
                         }
+                    },
+                    "selectielijstCategorie": {
+                        "title": "Selectielijst category",
+                        "type": "string",
+                        "description": "This dossier's own Selectielijst category, set by an archivist only when it differs from the dossier schema's category. Empty means the schema's category applies. Must be a category the register ships a Selectielijst row for."
                     },
                     "classificationWarning": {
                         "title": "Classification warning",

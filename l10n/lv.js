@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Iznīcināšanas apliecība",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Kur iesniegta OpenRegister verklaring van vernietiging kopija un ko OpenRegister izlaida. Pati apliecība paliek OpenRegister.",
         "Classification warning": "Klasifikācijas brīdinājums",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Tiek iestatīts, ja lietas dokuments ir konfidenciālāks par pašu lietu: nosauc dokumentu un tā līmeni. Lai to noņemtu, paaugstiniet lietas klasifikāciju."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Tiek iestatīts, ja lietas dokuments ir konfidenciālāks par pašu lietu: nosauc dokumentu un tā līmeni. Lai to noņemtu, paaugstiniet lietas klasifikāciju.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Lieta jau ir OpenRegister sarakstā, tāpēc tās kategorija ir nemainīga.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Reģistrā nav Selectielijst kategorijas %1$s lietām.",
+        "Selectielijst category": "Selectielijst kategorija"
     },
     "nplurals=2; plural=(n != 1);"
 )

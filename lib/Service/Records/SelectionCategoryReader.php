@@ -3,10 +3,11 @@
 /**
  * Decidiq Selection Category Reader
  *
- * Reads the Selectielijst category of the archival dossier from the one place
- * it is declared: the dossier schema's `archive.classification` in the merged
- * register, matched against the rows the register ships under
- * `components.selectionLists`. OpenRegister reads the same two keys when it
+ * Reads the Selectielijst category of an archival dossier: the dossier's own
+ * category when the schema's archive block points at a property for it
+ * (`classificationProperty`) and the dossier sets one, otherwise the schema's
+ * `archive.classification`, each matched against the rows the register ships
+ * under `components.selectionLists`. OpenRegister reads the same keys when it
  * resolves a dossier's retention, so decidiq never keeps a second copy.
  *
  * @category Service
@@ -47,6 +48,13 @@ class SelectionCategoryReader {
 	public const DESTROY = 'vernietigen';
 
 	/**
+	 * The archive block key that names the property holding an object's own
+	 * category: the pointer OpenRegister's per-object override reads
+	 * (openregister#4228 follow-up; provisional until OpenRegister lands it).
+	 */
+	public const POINTER = 'classificationProperty';
+
+	/**
 	 * Constructor.
 	 *
 	 * @param SettingsService $settings The merged register
@@ -82,6 +90,80 @@ class SelectionCategoryReader {
 
 		return $this->row(rows: ($config['components']['selectionLists'] ?? []), category: $category);
 	}//end forSchema()
+
+	/**
+	 * The category one object is archived under: its own category when its
+	 * schema points at one (`archive.classificationProperty`) and the register
+	 * ships a row for it, otherwise the schema's. This is the one place decidiq
+	 * decides a dossier's category; OpenRegister reads the same pointer.
+	 *
+	 * @param string               $schemaKey The schema's key in the register, for example ArchivalDossier
+	 * @param array<string, mixed> $object    The object
+	 *
+	 * @return array{category: string, action: string, retentionYears: int|null, description: string, overridden: bool}|null
+	 *         Null when neither the object nor its schema names a category with a row
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
+	 */
+	public function forObject(string $schemaKey, array $object): ?array {
+		$schemaRow = $this->forSchema(schemaKey: $schemaKey);
+		$property = $this->overrideProperty(schemaKey: $schemaKey);
+		$own = '';
+		if ($property !== null && is_string($object[$property] ?? null) === true) {
+			$own = $object[$property];
+		}
+
+		$ownRow = null;
+		if ($own !== '' && $own !== ($schemaRow['category'] ?? null)) {
+			$ownRow = $this->row(rows: ($this->settings->mergedRegisterConfig()['components']['selectionLists'] ?? []), category: $own);
+		}
+
+		if ($ownRow !== null) {
+			return $ownRow + ['overridden' => true];
+		}
+
+		if ($schemaRow === null) {
+			return null;
+		}
+
+		return $schemaRow + ['overridden' => false];
+	}//end forObject()
+
+	/**
+	 * The property a schema names for an object's own category, or null when it names none.
+	 *
+	 * @param string $schemaKey The schema's key in the register
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
+	 */
+	public function overrideProperty(string $schemaKey): ?string {
+		$archive = ($this->settings->mergedRegisterConfig()['components']['schemas'][$schemaKey]['archive'] ?? []);
+		$property = null;
+		if (is_array($archive) === true) {
+			$property = ($archive[self::POINTER] ?? null);
+		}
+
+		if (is_string($property) === false || $property === '') {
+			return null;
+		}
+
+		return $property;
+	}//end overrideProperty()
+
+	/**
+	 * Whether the register ships a usable Selectielijst row for a category.
+	 *
+	 * @param string $category The category
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice
+	 */
+	public function isKnown(string $category): bool {
+		return $this->row(rows: ($this->settings->mergedRegisterConfig()['components']['selectionLists'] ?? []), category: $category) !== null;
+	}//end isKnown()
 
 	/**
 	 * The Selectielijst row of a category, or null when the register ships none.

@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Hävitamistõend",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Kuhu on talletatud OpenRegisteri verklaring van vernietiging koopia ja mille OpenRegister vahele jättis. Tõend ise jääb OpenRegisterisse.",
         "Classification warning": "Liigitushoiatus",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Seatakse, kui toimiku dokument on konfidentsiaalsem kui toimik ise: nimetab dokumendi ja selle taseme. Eemaldamiseks tõstke toimiku liigitust."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Seatakse, kui toimiku dokument on konfidentsiaalsem kui toimik ise: nimetab dokumendi ja selle taseme. Eemaldamiseks tõstke toimiku liigitust.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Toimik on juba OpenRegisteri loendis, seega selle kategooria on fikseeritud.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Register ei sisalda toimikute jaoks Selectielijsti kategooriat %1$s.",
+        "Selectielijst category": "Selectielijsti kategooria"
     },
     "nplurals=2; plural=(n != 1);"
 )

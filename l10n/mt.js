@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Ċertifikat tal-qerda",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Fejn hija ppreżentata l-kopja tal-verklaring van vernietiging ta' OpenRegister, u x'qabeż OpenRegister. Iċ-ċertifikat innifsu jibqa' ta' OpenRegister.",
         "Classification warning": "Twissija dwar il-klassifikazzjoni",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Jiġi ssettjat meta rekord fil-fajl ikun aktar kunfidenzjali mill-fajl innifsu: isemmi r-rekord u l-livell tiegħu. Għolli l-klassifikazzjoni tal-fajl biex tneħħih."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Jiġi ssettjat meta rekord fil-fajl ikun aktar kunfidenzjali mill-fajl innifsu: isemmi r-rekord u l-livell tiegħu. Għolli l-klassifikazzjoni tal-fajl biex tneħħih.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "Il-fajl diġà jinsab f'lista f'OpenRegister, għalhekk il-kategorija tiegħu hija fissa.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "Ir-reġistru ma fihx kategorija tas-Selectielijst %1$s għall-fajls.",
+        "Selectielijst category": "Kategorija tas-Selectielijst"
     },
     "nplurals=2; plural=(n != 1);"
 )

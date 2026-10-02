@@ -1649,7 +1649,10 @@ OC.L10N.register(
         "Destruction certificate": "Megsemmisítési igazolás",
         "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.": "Hol van iktatva az OpenRegister verklaring van vernietiging dokumentumának másolata, és mit hagyott ki az OpenRegister. Maga az igazolás az OpenRegisterben marad.",
         "Classification warning": "Minősítési figyelmeztetés",
-        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Akkor jelenik meg, ha a dosszié egy irata bizalmasabb, mint maga a dosszié: megnevezi az iratot és szintjét. A törléshez emelje a dosszié minősítését."
+        "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Akkor jelenik meg, ha a dosszié egy irata bizalmasabb, mint maga a dosszié: megnevezi az iratot és szintjét. A törléshez emelje a dosszié minősítését.",
+        "The dossier is already on a list in OpenRegister, so its category is fixed.": "A dosszié már szerepel egy listán az OpenRegisterben, ezért a kategóriája rögzített.",
+        "The register ships no Selectielijst category %1$s for dossiers.": "A nyilvántartás nem tartalmaz %1$s Selectielijst-kategóriát dossziékhoz.",
+        "Selectielijst category": "Selectielijst-kategória"
     },
     "nplurals=2; plural=(n != 1);"
 )
