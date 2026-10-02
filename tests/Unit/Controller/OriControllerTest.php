@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\OriController;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriPersonPublicationRule;
 use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
@@ -114,6 +115,7 @@ class OriControllerTest extends TestCase {
 			$this->logger,
 			new OriSerializer(),
 			$this->createMock(OriVotePublicationRule::class),
+			$this->createMock(OriPersonPublicationRule::class),
 		);
 
 	}//end setUp()
@@ -614,7 +616,7 @@ class OriControllerTest extends TestCase {
 	}//end testShowServesAPublicMotion()
 
 	/**
-	 * Second positive control: `persons` is deliberately ungated public reference
+	 * Second positive control: `memberships` is deliberately ungated public reference
 	 * data (NO_LIFECYCLE_GATE), and must keep passing through.
 	 *
 	 * @return void
@@ -624,7 +626,7 @@ class OriControllerTest extends TestCase {
 	public function testShowStillServesUngatedReferenceData(): void {
 		self::assertSame(
 			expected: Http::STATUS_OK,
-			actual: $this->showStatus(resource: 'persons', object: ['uuid' => 'p-1', 'name' => 'A. Raadslid'])
+			actual: $this->showStatus(resource: 'memberships', object: ['uuid' => 'm-1', 'role' => 'member'])
 		);
 
 	}//end testShowStillServesUngatedReferenceData()
@@ -682,6 +684,7 @@ class OriControllerTest extends TestCase {
 			$this->logger,
 			new OriSerializer(),
 			$rule,
+			$this->createMock(OriPersonPublicationRule::class),
 		);
 	}//end controllerWithFailingVoteRule()
 

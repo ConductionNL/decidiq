@@ -159,15 +159,31 @@ MUST remain unchanged.
 - AND `items` contains the seeded Memberships
 - AND no `Participant` objects are returned
 
-#### Scenario: Person email is exposed on public ORI serialization
+#### Scenario: Persons are read through the person publication rule
 - GIVEN a Person carries an `email`
 - WHEN GET `/api/ori/v1/persons` is called anonymously
-- THEN the serialized Person exposes `email` (open-government transparency for officeholders; the `serializeOri` email gate allows Person in addition to Organization)
+- THEN the serialized Person carries no `email`: persons are published by REQ-ORI-007, with their name, image and biography only
 
 #### Scenario: Endpoint paths and envelope unchanged
 - GIVEN an external ORI consumer
 - WHEN it requests `/api/ori/v1/persons` or `/api/ori/v1/memberships`
 - THEN the path and the `@context`/`@type`/`count`/`items` envelope are identical to before this change
+
+### Requirement: REQ-ORI-007 The public ORI API names public role holders only
+
+`GET /api/ori/v1/persons` SHALL return, to anonymous callers, every person who holds or held a public role: a membership with the role chair, vice-chair, secretary, treasurer or member (not observer or guest) in a governance body with `publishVotingRecords: true`, the body flag REQ-MPR-005 sets. The people are read in system context, so the caller's rights do not decide, and each person SHALL carry exactly `id`, `name`, `image` and `biography` (null when not set), never another field. `GET /api/ori/v1/persons/{id}` SHALL return exactly the people the collection returns and answer 404 for every other id. This lets a portal resolve the voter of a public vote (REQ-MPR-006) to a name.
+
+#### Scenario: A portal resolves a council member's name
+
+- GIVEN Marie Janssen is a member of Gemeenteraad Amsterdam, which publishes its voting records, with an image, a biography, an email and a birth date
+- WHEN an anonymous caller requests `/api/ori/v1/persons` or `/api/ori/v1/persons/{Marie's id}`
+- THEN Marie is returned with her id, name, image and biography only
+
+#### Scenario: Nobody without a public role is named
+
+- GIVEN Bas Smit has no membership, Kees Bakker is a member of a supervisory board that does not publish its voting records, and Gerda Gast is a guest of the council
+- WHEN an anonymous caller requests `/api/ori/v1/persons`, or any of them by id
+- THEN none of them is returned, and the request by id answers 404
 
 ### Requirement: REQ-FPP-001 The public sees commitment and motion progress
 

@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\OriController;
 use OCA\Decidiq\Service\ObjectRelationFilter;
+use OCA\Decidiq\Service\OriPersonPublicationRule;
 use OCA\Decidiq\Service\OriSerializer;
 use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\Decidiq\Service\PersonParticipantLookup;
@@ -50,6 +51,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\Decidiq\Controller\OriController
  * @covers \OCA\Decidiq\Service\OriVotePublicationRule
+ * @covers \OCA\Decidiq\Service\OriPersonPublicationRule
  * @covers \OCA\Decidiq\Service\OriSerializer
  * @covers \OCA\Decidiq\Service\VotingRecordService
  * @covers \OCA\Decidiq\Service\VoteContextReader
@@ -215,6 +217,7 @@ class OriVotePublicationTest extends TestCase {
 			$this->createMock(LoggerInterface::class),
 			new OriSerializer(),
 			new OriVotePublicationRule(records: $records, context: $context, people: $people, objectService: $objectService),
+			new OriPersonPublicationRule(context: $context, objectService: $objectService),
 		);
 	}//end controller()
 
@@ -251,6 +254,13 @@ class OriVotePublicationTest extends TestCase {
 		$this->put('voting-round', 'r-open', ['votingMethod' => 'for-against-abstain', 'isSecret' => false, 'openedAt' => '2025-04-10T20:55:00Z', 'closedAt' => '2025-04-10T21:05:00Z', 'result' => 'adopted', 'decisionStage' => 'stage-groen-dak', 'votesFor' => 23, 'votesAgainst' => 8, 'votesAbstain' => 1]);
 		$this->put('vote', 'v-marie', ['value' => 'for', 'castAt' => '2025-04-10T21:01:00Z', 'votingRound' => 'r-open', 'participant' => 'p-marie', 'authorizationRef' => 'secret-ref']);
 		$this->put('vote', 'v-bas', ['value' => 'against', 'castAt' => '2025-04-10T21:02:00Z', 'votingRound' => 'r-open', 'participant' => 'p-bas']);
+		// People for the persons rule: a member of a body that publishes no
+		// voting records, and a guest of the council.
+		$this->put('governance-body', 'rvc', ['name' => 'Raad van commissarissen', 'bodyType' => 'supervisory-board', 'domain' => 'corporate']);
+		$this->put('person', 'kees', ['name' => 'Kees Bakker', 'biography' => 'Commissaris.', 'email' => 'k.bakker@example.nl']);
+		$this->put('membership', 'm-kees', ['role' => 'member', 'person' => 'kees', 'governanceBody' => 'rvc', 'startDate' => '2023-01-01T00:00:00Z']);
+		$this->put('person', 'gast', ['name' => 'Gerda Gast', 'biography' => 'Inspreker.', 'email' => 'g.gast@example.nl']);
+		$this->put('membership', 'm-gast', ['role' => 'guest', 'person' => 'gast', 'governanceBody' => 'raad', 'startDate' => '2025-01-01T00:00:00Z']);
 	}//end setUp()
 
 	/**
@@ -468,4 +478,67 @@ class OriVotePublicationTest extends TestCase {
 		$this->patch(schema: 'voting-round', id: 'r-open', fields: ['closedAt' => null]);
 		self::assertSame([], $this->listed(resource: 'voteevents'));
 	}//end testAnUnpublishedOrOpenRoundIsNoVoteEvent()
+
+	/**
+	 * People with and without a public role, for the persons tests.
+	 *
+	 * @return void
+	 */
+	private function seedPeople(): void {
+		$this->patch(schema: 'person', id: 'marie', fields: ['image' => 'https://raad.example.nl/foto/marie.jpg', 'biography' => 'Raadslid voor D66.', 'birthDate' => '1980-02-01']);
+	}//end seedPeople()
+
+	/**
+	 * An anonymous caller gets exactly the id, name, image and biography of a
+	 * public role holder, and nobody else: not a person without a membership,
+	 * not a member of a body that publishes no voting records, not a guest.
+	 *
+	 * @return void
+	 */
+	public function testAnonymousPersonsAreThePublicRoleHoldersWithThreeFields(): void {
+		$this->seedPeople();
+		$data = $this->controller()->index(resource: 'persons')->getData();
+
+		self::assertSame(1, $data['count']);
+		self::assertSame(
+			[
+				'@context' => OriSerializer::ORI_CONTEXT,
+				'@type' => 'Person',
+				'id' => 'marie',
+				'name' => 'Marie Janssen',
+				'image' => 'https://raad.example.nl/foto/marie.jpg',
+				'biography' => 'Raadslid voor D66.',
+			],
+			$data['items'][0]
+		);
+	}//end testAnonymousPersonsAreThePublicRoleHoldersWithThreeFields()
+
+	/**
+	 * One person by id: a public role holder is served with the same fields,
+	 * anyone else is not found, so the endpoint never confirms they exist.
+	 *
+	 * @return void
+	 */
+	public function testAPersonIsServedByIdOnlyWhenTheyHoldAPublicRole(): void {
+		$this->seedPeople();
+		$response = $this->controller()->show(resource: 'persons', id: 'marie');
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame(['@context', '@type', 'id', 'name', 'image', 'biography'], array_keys($response->getData()));
+
+		foreach (['bas', 'kees', 'gast', 'nobody'] as $id) {
+			self::assertSame(Http::STATUS_NOT_FOUND, $this->controller()->show(resource: 'persons', id: $id)->getStatus(), $id);
+		}
+	}//end testAPersonIsServedByIdOnlyWhenTheyHoldAPublicRole()
+
+	/**
+	 * A person without an image or biography gets nulls, never another field.
+	 *
+	 * @return void
+	 */
+	public function testAMissingFieldIsNullAndNoOtherFieldAppears(): void {
+		$item = $this->controller()->index(resource: 'persons')->getData()['items'][0];
+		self::assertSame(['@context', '@type', 'id', 'name', 'image', 'biography'], array_keys($item));
+		self::assertNull($item['image']);
+		self::assertNull($item['biography']);
+	}//end testAMissingFieldIsNullAndNoOtherFieldAppears()
 }//end class
