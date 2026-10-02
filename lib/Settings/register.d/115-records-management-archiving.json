@@ -51,9 +51,10 @@
                 "type": "object",
                 "archive": {
                     "enabled": true,
-                    "classification": "2.1"
+                    "classification": "2.1",
+                    "classificationProperty": "selectielijstCategorie"
                 },
-                "_archiveNote": "OpenRegister reads the archive block per schema, so every dossier carries category 2.1 (council decisions and minutes, kept). A category per dossier needs OpenRegister to read it from the object (proposed follow-up).",
+                "_archiveNote": "The Selectielijst category is the schema's (2.1, council decisions and minutes, kept) unless the dossier sets its own in selectielijstCategorie (Ruben, 2 Oct, DECISIONS row 48). classificationProperty names that property for OpenRegister's per-object override (the same key openregister#4261 reads); decidiq reads the same pointer in SelectionCategoryReader::forObject().",
                 "authorization": {
                     "read": [
                         "authenticated"
@@ -186,6 +187,135 @@
                         "default": "openbaar",
                         "facetable": true,
                         "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    },
+                    "disposition": {
+                        "title": "Route",
+                        "type": "string",
+                        "enum": [
+                            "transfer",
+                            "destruction"
+                        ],
+                        "facetable": true,
+                        "description": "Where the dossier went after closing: transfer to the archive or destruction, as its Selectielijst category says."
+                    },
+                    "transferList": {
+                        "title": "Transfer list",
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The OpenRegister transfer list that carries the dossier's records to the e-depot."
+                    },
+                    "destructionList": {
+                        "title": "Destruction list",
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "The OpenRegister destruction list that holds the dossier's records."
+                    },
+                    "dispositionRefused": {
+                        "title": "Records OpenRegister refused",
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "uuid": {
+                                    "title": "Record",
+                                    "description": "The record OpenRegister left off the destruction list.",
+                                    "type": "string"
+                                },
+                                "reason": {
+                                    "title": "Reason",
+                                    "description": "Why OpenRegister left the record off, as OpenRegister reported it.",
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "description": "Records OpenRegister left off the destruction list, each with its reason, for example a legal hold."
+                    },
+                    "destructionCertificate": {
+                        "title": "Destruction certificate",
+                        "type": "object",
+                        "description": "Where the rendered copy of OpenRegister's verklaring van vernietiging is filed, and what OpenRegister skipped. The certificate itself stays OpenRegister's.",
+                        "properties": {
+                            "certificate": {
+                                "title": "Certificate",
+                                "description": "The verklaring van vernietiging in OpenRegister.",
+                                "type": "string"
+                            },
+                            "destructionList": {
+                                "title": "Destruction list",
+                                "description": "The OpenRegister destruction list the certificate is for.",
+                                "type": "string"
+                            },
+                            "renderedAt": {
+                                "title": "Written at",
+                                "description": "When decidiq wrote out the certificate.",
+                                "type": "string",
+                                "format": "date-time"
+                            },
+                            "format": {
+                                "title": "Format",
+                                "description": "How the copy was written: PDF through filinq, or markdown.",
+                                "type": "string",
+                                "enum": [
+                                    "pdf",
+                                    "markdown"
+                                ]
+                            },
+                            "path": {
+                                "title": "File",
+                                "description": "Where the copy is filed in the meeting's Archive folder.",
+                                "type": [
+                                    "string",
+                                    "null"
+                                ]
+                            },
+                            "skipped": {
+                                "title": "Skipped records",
+                                "description": "How many records OpenRegister skipped, by reason.",
+                                "type": "object",
+                                "additionalProperties": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "selectielijstCategorie": {
+                        "title": "Selectielijst category",
+                        "type": "string",
+                        "description": "This dossier's own Selectielijst category, set by an archivist only when it differs from the dossier schema's category. Empty means the schema's category applies. Must be a category the register ships a Selectielijst row for."
+                    },
+                    "classificationWarning": {
+                        "title": "Classification warning",
+                        "type": "object",
+                        "description": "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.",
+                        "properties": {
+                            "member": {
+                                "title": "Record",
+                                "description": "The record more confidential than the dossier.",
+                                "type": "string",
+                                "format": "uuid"
+                            },
+                            "kind": {
+                                "title": "Kind",
+                                "description": "Whether that record is minutes, a decision or a document.",
+                                "type": "string",
+                                "enum": [
+                                    "minutes",
+                                    "decisions",
+                                    "documents"
+                                ]
+                            },
+                            "level": {
+                                "title": "Level",
+                                "description": "The security classification of that record.",
+                                "type": "string",
+                                "enum": [
+                                    "openbaar",
+                                    "intern",
+                                    "vertrouwelijk",
+                                    "geheim"
+                                ]
+                            }
+                        }
                     }
                 },
                 "x-openregister-lifecycle": {
@@ -217,7 +347,40 @@
                     ],
                     "_note": "Declarative transition map (ADR-031). Closing goes through POST /api/dossiers/{id}/close, which checks completeness first; transferred and destroyed are set when OpenRegister has carried them out."
                 },
-                "_authorizationNote": "Every signed-in member reads dossiers. Writes are owned by ArchivalDossierService (create for a meeting, assemble, close), which checks records-management authority per object and saves in system context; the object API stays closed for writes so a closed dossier cannot be reopened around that check."
+                "_authorizationNote": "Every signed-in member reads dossiers. Writes are owned by ArchivalDossierService (create for a meeting, assemble, close), which checks records-management authority per object and saves in system context; the object API stays closed for writes so a closed dossier cannot be reopened around that check.",
+                "x-openregister-notifications": {
+                    "dossierWaitingForTransfer": {
+                        "trigger": {
+                            "type": "scheduled",
+                            "intervalSec": 604800,
+                            "filter": {
+                                "lifecycle": "closed",
+                                "disposition": "transfer"
+                            }
+                        },
+                        "enabled": true,
+                        "channels": [
+                            "nc-notification"
+                        ],
+                        "recipients": [
+                            {
+                                "kind": "object-acl",
+                                "permission": "read"
+                            },
+                            {
+                                "kind": "groups",
+                                "groups": [
+                                    "archivaris"
+                                ]
+                            }
+                        ],
+                        "subject": {
+                            "nl": "Dossier wacht op overbrenging naar het archief: {{title}}",
+                            "en": "Dossier waiting for transfer to the archive: {{title}}"
+                        },
+                        "_note": "Weekly rappel for closed dossiers on a transfer list that OpenRegister has not carried out yet (REQ-RMA-007, deferred from task 3). Recipients: readers and OpenRegister's archivist group. The trigger filter takes scalar equality only, so it cannot narrow to the Archiefwet ten-year deadline on retention.archiefactiedatum; every waiting dossier is reminded until OpenRegister reports the transfer."
+                    }
+                }
             },
             "Minutes": {
                 "slug": "minutes",
@@ -270,6 +433,16 @@
                         "default": "openbaar",
                         "facetable": true,
                         "description": "How confidential the record is: public, internal, confidential or secret. A strict subset of OpenRegister's confidentiality levels, in the same order. Anything above public is never published."
+                    }
+                },
+                "x-openregister-aggregations": {
+                    "archivalDossierCount": {
+                        "metric": "count",
+                        "schema": "ArchivalDossier",
+                        "filter": {
+                            "meeting": "@self.id"
+                        },
+                        "_note": "Whether the meeting has its archival dossier (records-management-archiving, REQ-RMA-007): 0 on a closed meeting is an archiving gap."
                     }
                 }
             },

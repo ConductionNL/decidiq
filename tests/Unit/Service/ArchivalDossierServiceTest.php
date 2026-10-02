@@ -34,6 +34,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\ArchivalDossierService;
 use OCA\Decidiq\Service\DossierMemberCollector;
 use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IGroupManager;
@@ -42,7 +43,10 @@ use OCP\IUser;
 use OCP\IUserSession;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\NullLogger;
+use RuntimeException;
 
 /**
  * Tests for the archival dossier of a meeting.
@@ -50,7 +54,9 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Service\ArchivalDossierService
  * @covers \OCA\Decidiq\Service\DossierMemberCollector
  * @covers \OCA\Decidiq\Exception\DossierRefusedException
+ * @covers \OCA\Decidiq\Service\Records\OpenRegisterArchive
  * @uses   \OCA\Decidiq\Service\ParticipantResolver
+ * @uses   \OCA\Decidiq\Service\Records\SecurityClassification
  */
 class ArchivalDossierServiceTest extends TestCase {
 
@@ -92,6 +98,14 @@ class ArchivalDossierServiceTest extends TestCase {
 	 * @var bool
 	 */
 	private bool $admin = false;
+
+	/**
+	 * The decidiq register's tmloEnabled in OpenRegister; null when
+	 * OpenRegister's RegisterMapper cannot be resolved.
+	 *
+	 * @var bool|null
+	 */
+	private ?bool $tmlo = null;
 
 	/**
 	 * A stable uuid for a fixture name, so the written dossier is checked
@@ -220,6 +234,36 @@ class ArchivalDossierServiceTest extends TestCase {
 		$l10n = $this->createMock(IL10N::class);
 		$l10n->method('t')->willReturnCallback(static fn (string $text, array $params = []): string => vsprintf($text, $params));
 
+		// OpenRegister's RegisterMapper::find(slug) answers the Register entity;
+		// its getConfiguration() holds tmloEnabled (TmloService::isTmloEnabled).
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			function (string $id): object {
+				if ($id !== 'OCA\OpenRegister\Db\RegisterMapper' || $this->tmlo === null) {
+					throw new class('not here') extends RuntimeException implements NotFoundExceptionInterface {
+					};
+				}
+
+				$tmlo = $this->tmlo;
+				return new class($tmlo) {
+					public function __construct(private bool $tmlo) {
+					}
+
+					public function find(int|string $id): object {
+						$tmlo = $this->tmlo;
+						return new class($id, $tmlo) {
+							public function __construct(public int|string $slug, private bool $tmlo) {
+							}
+
+							public function getConfiguration(): ?array {
+								return ['tmloEnabled' => $this->tmlo];
+							}
+						};
+					}
+				};
+			}
+		);
+
 		return new ArchivalDossierService(
 			objectService: $objectService,
 			members: new DossierMemberCollector(objectService: $objectService),
@@ -227,6 +271,7 @@ class ArchivalDossierServiceTest extends TestCase {
 			userSession: $session,
 			groupManager: $groups,
 			l10n: $l10n,
+			archive: new OpenRegisterArchive(container: $container, logger: new NullLogger()),
 		);
 	}//end service()
 
@@ -259,6 +304,7 @@ class ArchivalDossierServiceTest extends TestCase {
 	 * @return void
 	 */
 	private static function assertValidDossier(array $dossier): void {
+		unset($dossier['@self']);
 		$schema = self::dossierSchema();
 		self::assertNotSame([], $schema, 'archival-dossier is declared');
 		$properties = $schema['properties'];
@@ -285,6 +331,7 @@ class ArchivalDossierServiceTest extends TestCase {
 		$this->saves = [];
 		$this->uid = 'griffier';
 		$this->admin = false;
+		$this->tmlo = null;
 		$this->put('meeting', self::MEETING, ['title' => 'Raadsvergadering 10 april 2025', 'lifecycle' => 'closed', 'governanceBody' => self::BODY, 'relations' => [['schema' => 'governance-body', 'id' => self::BODY]]]);
 		$this->put('participant', 'p-griffier', ['displayName' => 'De griffier', 'role' => 'secretary', 'nextcloudUserId' => 'griffier', 'relations' => ['governanceBody' => self::BODY]]);
 		$this->put('participant', 'p-lid', ['displayName' => 'Een raadslid', 'role' => 'member', 'nextcloudUserId' => 'raadslid', 'relations' => ['governanceBody' => self::BODY]]);
@@ -413,6 +460,59 @@ class ArchivalDossierServiceTest extends TestCase {
 		self::assertNotContains(self::u('dec-late'), $this->store['archival-dossier'][$dossier['id']]['decisions']);
 		self::assertCount(2, $this->saves);
 	}//end testAClosedDossierIsFrozen()
+
+	/**
+	 * Closing marks the dossier semi-static in OpenRegister's TMLO block, on
+	 * the update and only when the register keeps TMLO; forming (a create,
+	 * where OpenRegister strips @self.tmlo) never sends it.
+	 *
+	 * @return void
+	 */
+	public function testClosingMarksTheDossierSemiStaticWhereTheRegisterKeepsTmlo(): void {
+		foreach ([true, false, null] as $tmlo) {
+			$this->setUp();
+			$this->tmlo = $tmlo;
+			$service = $this->service();
+			$dossier = $service->formForMeeting(meetingId: self::MEETING);
+			$service->close(dossierId: $dossier['id'], overrideReason: null);
+
+			self::assertArrayNotHasKey('@self', $this->saves[0][1], 'no tmlo on the create');
+			$closing = $this->saves[1][1];
+			self::assertValidDossier(dossier: $closing);
+			if ($tmlo !== true) {
+				self::assertArrayNotHasKey('@self', $closing, 'no tmlo without tmloEnabled: ' . var_export($tmlo, true));
+				continue;
+			}
+
+			self::assertSame(['tmlo' => ['archiefstatus' => 'semi_statisch']], $closing['@self']);
+			// TmloService: archiefstatus actief -> semi_statisch is the one move a close makes.
+			self::assertContains($closing['@self']['tmlo']['archiefstatus'], ['actief', 'semi_statisch', 'overgebracht', 'vernietigd']);
+		}
+	}//end testClosingMarksTheDossierSemiStaticWhereTheRegisterKeepsTmlo()
+
+	/**
+	 * A dossier less restrictive than one of its records carries the
+	 * computed-classification warning naming that record; a dossier at least
+	 * as restrictive carries none (REQ-RMA-008).
+	 *
+	 * @return void
+	 */
+	public function testALessRestrictiveDossierWarnsNamingTheMember(): void {
+		$this->put('decision', self::u('dec-item'), ['title' => 'Motie groen dak', 'decisionType' => 'motion', 'agendaItem' => self::u('ai-begroting'), 'securityClassification' => 'vertrouwelijk']);
+		$this->put('digital-document', self::u('doc-item'), ['name' => 'Bijlage.pdf', 'documentType' => 'annex', 'agendaItem' => self::u('ai-begroting'), 'securityClassification' => 'intern']);
+		$dossier = $this->service()->formForMeeting(meetingId: self::MEETING);
+
+		self::assertSame('openbaar', $dossier['securityClassification']);
+		self::assertSame(['member' => self::u('dec-item'), 'kind' => 'decisions', 'level' => 'vertrouwelijk'], $dossier['classificationWarning']);
+		self::assertValidDossier(dossier: $this->saves[0][1]);
+
+		$this->setUp();
+		$this->put('meeting', self::MEETING, ['title' => 'Besloten vergadering', 'lifecycle' => 'closed', 'governanceBody' => self::BODY, 'relations' => [['schema' => 'governance-body', 'id' => self::BODY]], 'securityClassification' => 'geheim']);
+		$this->put('decision', self::u('dec-item'), ['title' => 'Motie groen dak', 'decisionType' => 'motion', 'agendaItem' => self::u('ai-begroting'), 'securityClassification' => 'vertrouwelijk']);
+		$secret = $this->service()->formForMeeting(meetingId: self::MEETING);
+		self::assertSame('geheim', $secret['securityClassification']);
+		self::assertArrayNotHasKey('classificationWarning', $secret);
+	}//end testALessRestrictiveDossierWarnsNamingTheMember()
 
 	/**
 	 * Gathering a forming dossier again picks up records added since.

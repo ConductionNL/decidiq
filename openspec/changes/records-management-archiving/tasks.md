@@ -44,8 +44,9 @@
   - GIVEN a transfer-routed dossier and a configured OR e-depot transport WHEN transfer is triggered THEN decidiq creates an OR transfer list over the member UUIDs via `TransferListService` and OR performs packaging/delivery; on OR success the dossier becomes `transferred`
   - GIVEN an unconfigured OR e-depot WHEN staff open a transfer-routed dossier THEN the UI states automated transfer is unavailable and points to OR's e-depot settings; no dossier state change and no decidiq-side package
   - GIVEN a dossier past its `retention.archiefactiedatum` with a destruction nominatie WHEN destruction is proposed THEN it is an OR destruction list approved via OR's routes; decidiq implements no approval, deletion, or sweep job; the dossier reflects `destroyed` on OR execution
-- [ ] Implement
-- [ ] Test
+- Note (2 Oct): built against openregister#4228 (branch feat/archival-for-apps @42995c06de, not landed) with fakes that follow it: `lib/Service/Records/{SelectionCategoryReader,OpenRegisterArchive,DossierDisposition,ArchivistGuard}.php`, `lib/Controller/DossierDispositionController.php` (GET/POST `/api/dossiers/{id}/disposition`, POST `/api/dossiers/{id}/outcome`). Closing sets `@self.tmlo.archiefstatus` to `semi_statisch` (an update; only with the register's `tmloEnabled`). The live check waits for that branch to land.
+- [x] Implement
+- [x] Test
 
 ### Task 5: Vernietigingsverklaring rendering + security classification
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering`
@@ -54,8 +55,9 @@
   - GIVEN an OR destruction execution has produced a `verklaring_van_vernietiging` certificate WHEN decidiq renders it THEN it is fetched from OR's certificates route, rendered (Docudesk PDF, markdown fallback), persisted with permanent retention, never destruction-eligible, and OR-reported skipped objects are visible — decidiq does not compose or re-derive the certificate
   - GIVEN a `vertrouwelijk` object WHEN a publish request targets it THEN the payload builder refuses structurally before eligibility evaluation
   - GIVEN a dossier classification WHEN it is validated THEN it maps onto OR's `VERTROUWELIJKHEIDAANDUIDING_LEVELS` at the same relative position, and a dossier less restrictive than a member surfaces the computed-classification warning
-- [ ] Implement
-- [ ] Test
+- Note (2 Oct): `lib/Service/Records/{DestructionCertificateRenderer,SecurityClassification}.php`, POST `/api/dossiers/{id}/certificate`; the copy is filed in the meeting's Archive folder and referenced from the dossier (`destructionCertificate`), whose schema is a keep category and which never sits on a destruction list itself. `PublicationEligibilityService::isDeniedType()` refuses any label above openbaar; the dossier carries `classificationWarning` naming the most restrictive member.
+- [x] Implement
+- [x] Test
 
 ### Task 6: Manifest fragment — pages, compliance dashboard, i18n, docs
 - **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-007-archive-completeness-and-compliance-dashboard`
@@ -64,8 +66,21 @@
   - GIVEN the manifest fragment (schema refs by slug) WHEN the app loads THEN dossier index/detail pages and dashboard widgets render with counters from declarative aggregations (dossiers per state, overdue transfers, unresolved retention, meetings without dossier, pending OR destruction lists)
   - GIVEN the seeded overdue/gap data WHEN the dashboard is viewed THEN counters read OR's `retention.archiefactiedatum` / `.archiefstatus`, match the underlying objects, and link to filtered lists
   - GIVEN the UI WHEN strings render THEN Dutch and English are available (statutory Dutch terms kept with English gloss) and pages meet WCAG 2.1 AA
+- Note (2 Oct): shipped `src/manifest.d/records-management.json` (Archive dashboard, dossier index and detail with the `DossierDispositionPanel` route panel), the weekly `dossierWaitingForTransfer` notification, the Meeting `archivalDossierCount` aggregation, 41 strings in 24 locales and `docs/features/records-management.md`. NOT yet: the overdue-transfer, unresolved-retention and meeting-without-dossier counters. OpenRegister's count endpoint takes scalar equality only (the open-commitments-overdue note in `src/manifest.json`), so they wait for range filters on `retention.archiefactiedatum`. Not ticked until those land and the pages are checked live.
 - [ ] Implement
 - [ ] Test
+
+### Task 7: A dossier's own Selectielijst category (DECISIONS row 48)
+- **spec_ref**: `openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-003-retention-via-openregister-selectielijst-and-retentionservice`
+- **files**: `lib/Settings/register.d/115-records-management-archiving.json`, `lib/Service/Records/{SelectionCategoryReader,DossierCategory,DossierDisposition}.php`, `lib/Controller/DossierDispositionController.php`
+- **acceptance_criteria**:
+  - GIVEN the dossier schema's category 2.1 and a dossier whose own `selectielijstCategorie` is 11.1 WHEN it is routed THEN it goes to destruction, and the disposition says the category is the dossier's own
+  - GIVEN an own category the register ships no row for WHEN the dossier is routed THEN the schema's category stands
+  - GIVEN an archivist WHEN they set a category THEN a category that differs from the schema's is written on the dossier, the schema's own clears it, an unknown one is refused, and a dossier on a list keeps its category
+- Note (2 Oct): `SelectionCategoryReader::forObject()` is the one place a dossier's category is decided (design.md). OpenRegister's per-object read of `archive.classificationProperty` is the openregister lane's (openregister#4228 follow-up), so the live check, that OpenRegister writes the dossier's own retention, stays open.
+- [x] Implement
+- [x] Test
+- [ ] Live check once OpenRegister reads the per-object category
 
 ## Verification
 - All tasks checked off; `openspec validate` passes

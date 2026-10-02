@@ -217,6 +217,13 @@ $extra = [
         ['name' => 'archivalDossier#form',     'url' => '/api/meetings/{meetingId}/archival-dossier', 'verb' => 'POST'],
         ['name' => 'archivalDossier#assemble', 'url' => '/api/dossiers/{id}/assemble', 'verb' => 'POST'],
         ['name' => 'archivalDossier#close',    'url' => '/api/dossiers/{id}/close',    'verb' => 'POST'],
+        // Where a closed dossier goes, handing it to OpenRegister's list, and what OpenRegister did (pub-11).
+        ['name' => 'dossierDisposition#show',    'url' => '/api/dossiers/{id}/disposition', 'verb' => 'GET'],
+        ['name' => 'dossierDisposition#propose', 'url' => '/api/dossiers/{id}/disposition', 'verb' => 'POST'],
+        ['name' => 'dossierDisposition#outcome', 'url' => '/api/dossiers/{id}/outcome',     'verb' => 'POST'],
+        ['name' => 'dossierDisposition#certificate', 'url' => '/api/dossiers/{id}/certificate', 'verb' => 'POST'],
+        // A dossier's own Selectielijst category, when it differs from the schema's (DECISIONS row 48).
+        ['name' => 'dossierDisposition#category',    'url' => '/api/dossiers/{id}/category',    'verb' => 'PUT'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
         ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],

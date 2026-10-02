@@ -39,6 +39,8 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\Records\OpenRegisterArchive;
+use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IL10N;
@@ -69,6 +71,7 @@ class ArchivalDossierService {
 	 * @param IUserSession           $userSession   The signed-in account
 	 * @param IGroupManager          $groupManager  Administrator check
 	 * @param IL10N                  $l10n          Translations
+	 * @param OpenRegisterArchive    $archive       The register's TMLO switch
 	 *
 	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
 	 */
@@ -79,6 +82,7 @@ class ArchivalDossierService {
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly IL10N $l10n,
+		private readonly OpenRegisterArchive $archive,
 	) {
 	}//end __construct()
 
@@ -180,6 +184,13 @@ class ArchivalDossierService {
 			$dossier['closeOverrideReason'] = $reason;
 		}
 
+		// A closed dossier is semi-static in TMLO terms. OpenRegister takes
+		// @self.tmlo on an update only, and keeps it only in a register with
+		// tmloEnabled; its MdtoXmlGenerator derives the rest from the object.
+		if ($this->archive->tmloEnabled(register: 'decidiq') === true) {
+			$dossier['@self'] = ['tmlo' => ['archiefstatus' => 'semi_statisch']];
+		}
+
 		return $this->write(dossier: $dossier, uuid: $dossierId);
 	}//end close()
 
@@ -235,6 +246,15 @@ class ArchivalDossierService {
 	private function gathered(array $dossier, array $meeting): array {
 		$gathered = $this->members->collect(meetingId: (string)$dossier['meeting'], meeting: $meeting);
 		$gathered['assembledAt'] = (new DateTimeImmutable())->format(DATE_ATOM);
+
+		// The dossier must be at least as restrictive as its most restrictive
+		// record; when it is not, the warning names that record (REQ-RMA-008).
+		$restrictive = $gathered['restrictiveMember'];
+		unset($gathered['restrictiveMember'], $dossier['classificationWarning']);
+		$label = (string)($dossier['securityClassification'] ?? 'openbaar');
+		if ($restrictive !== null && (new SecurityClassification())->isMoreRestrictive(label: $restrictive['level'], than: $label) === true) {
+			$gathered['classificationWarning'] = $restrictive;
+		}
 
 		return array_merge($dossier, $gathered);
 	}//end gathered()
