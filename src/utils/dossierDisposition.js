@@ -76,5 +76,7 @@ export function panelState(described) {
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-006-vernietigingsverklaring-rendering
  */
 export function canRenderCertificate(described) {
-	return described?.lifecycle === 'destroyed' && Boolean(described?.destructionList)
+	return (
+		described?.lifecycle === 'destroyed' && Boolean(described?.destructionList)
+	)
 }
