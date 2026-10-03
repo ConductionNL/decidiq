@@ -9,7 +9,7 @@
   - GIVEN the register is imported WHEN `paper-summary` is read THEN the schema, its lifecycle and its read rule are present
   - GIVEN a member WHEN he lists paper summaries THEN only `shown` ones return
   - GIVEN a `draft` summary WHEN someone saves it as `requested` THEN OpenRegister rejects the transition
-- [ ] Implement
+- [x] Implement (fragment 119, not 92: 92 was taken; seeds on the existing budget item `begroting-2026-bespreking` and its papers, not a new Begroting 2027 item; `reviewedBy` holds the clerk's display name)
 - [ ] Test (Newman: member and clerk read the same collection and get different counts)
 
 ### Task 2: Request a summary or a comparison
