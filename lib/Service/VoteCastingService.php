@@ -43,13 +43,6 @@ use Psr\Log\LoggerInterface;
 class VoteCastingService {
 
 	/**
-	 * Derives the secret-ballot voter and delegator tokens.
-	 *
-	 * @var VoterTokenSecret
-	 */
-	private readonly VoterTokenSecret $tokens;
-
-	/**
 	 * Fail-closed eligibility rules a cast must pass.
 	 *
 	 * @var VoteCastGuard
@@ -94,17 +87,14 @@ class VoteCastingService {
 		ContainerInterface $container,
 		private readonly RecusalGuard $recusal,
 	) {
-		$this->tokens = new VoterTokenSecret(container: $container);
-		$this->ballots = new VoteBallotFactory(
-			container: $container,
-			logger: $logger,
-			tokens: $this->tokens
-		);
+		// The ballot factory owns the token secret; the guard and the dedup
+		// lookup below use the same one.
+		$this->ballots = new VoteBallotFactory(container: $container, logger: $logger);
 		$this->guard = new VoteCastGuard(
 			container: $container,
 			logger: $logger,
 			relationFilter: $relationFilter,
-			tokens: $this->tokens,
+			tokens: $this->ballots->tokens(),
 			participantResolver: $participantResolver,
 			amendmentOrder: $amendmentOrder,
 			objectService: $objectService
@@ -257,7 +247,7 @@ class VoteCastingService {
 			return $this->votesInRound(
 				votingRoundId: $votingRoundId,
 				extraFilters: [
-					'voterToken' => $this->tokens->voterToken(
+					'voterToken' => $this->ballots->tokens()->voterToken(
 						participantId: $participantId,
 						votingRoundId: $votingRoundId
 					),

@@ -211,12 +211,9 @@ class VotingRoundOpener {
 		}
 
 		// Preset UUIDs are validated against active memberships; the eligible
-		// ones become participant relations on the round. A preset member whose
-		// seat a substitute holds counts as the substitute (REQ-MSW-002).
-		$presets = $this->preflight->splitPresetParticipants(
-			meetingId: $meetingId,
-			presetIds: $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $presetParticipantIds)
-		);
+		// ones become participant relations, a substituted seat as its substitute (REQ-MSW-002).
+		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $presetParticipantIds);
+		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetIds);
 		$votingRound = $this->preflight->buildRoundPayload(
 			motionId: $motionId,
 			subjectType: $subjectType,
