@@ -8904,6 +8904,58 @@
         "recordedBy": "admin",
         "reason": "Voorbeeld 3",
         "endedAt": "2026-05-13T22:10:00+02:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PaperSummary",
+          "slug": "paper-summary-voorbeeld-1"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000001",
+        "paperFileId": 900411,
+        "paperTitle": "Raadsvoorstel voorbeeld 1.pdf",
+        "provider": "llm2",
+        "taskId": 41,
+        "chunked": false,
+        "kind": "summary",
+        "status": "shown",
+        "text": "Het college vraagt de raad de kaders voor de begroting vast te stellen.",
+        "reviewedBy": "Jan de Vries",
+        "reviewedAt": "2026-09-30T10:15:00+02:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PaperSummary",
+          "slug": "paper-summary-voorbeeld-2"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000002",
+        "paperFileId": 900412,
+        "paperTitle": "Raadsvoorstel voorbeeld 2.pdf",
+        "provider": "llm2",
+        "taskId": 42,
+        "chunked": false,
+        "kind": "comparison",
+        "status": "draft",
+        "comparedFileId": 910001,
+        "comparedTitle": "Kadernota 2026.docx",
+        "text": "Het raadsvoorstel volgt de kadernota op hoofdlijnen."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PaperSummary",
+          "slug": "paper-summary-voorbeeld-3"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000003",
+        "paperFileId": 900413,
+        "paperTitle": "Raadsvoorstel voorbeeld 3.pdf",
+        "provider": "llm2",
+        "taskId": 43,
+        "chunked": false,
+        "kind": "summary",
+        "status": "failed",
+        "failure": "The provider timed out."
       }
     ]
   }

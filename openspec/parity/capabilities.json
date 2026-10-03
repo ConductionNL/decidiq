@@ -1853,9 +1853,11 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "Searched 'summar', 'TaskProcessing', 'llm' in lib/Service, src: TaskProcessing is used only for minutes drafts from transcripts (lib/Service/MinutesDraftService.php, MinutesDraftComposer.php); no paper-summary feature or openspec change found",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change agenda-ai-paper-summaries: paper-summary schema with a review lifecycle and a member read rule (shown only) (lib/Settings/register.d/119-paper-summaries.json), PaperSummaryService + PaperSummaryController (POST /api/agenda-items/{id}/paper-summaries, GET /api/paper-summaries/availability; secretariat only, refused outside a confidentiality restriction's circle, 422 for a paper not on the item, 503 without a TaskProcessing provider), PaperText (OpenRegister text extraction, long papers summarised in parts), PaperSummaryTaskListener (the AI answer lands as draft, a failure as failed) and the Summaries of the papers widget on AgendaItemDetail (src/components/tabs/AgendaPaperSummariesTab.vue). PHPUnit and vitest green; the Newman read-rule run and the Playwright run (tests/e2e/paper-summaries.spec.ts) are still owed, so not yet built. This row: Summarise on a paper of the item (TextToTextSummary).",
+				"owner": "ConductionNL/decidiq",
+				"change": "agenda-ai-paper-summaries",
+				"readOn": "2026-10-03"
 			},
 			"reachedOn": "nothing reaches it: no AI summary of meeting papers",
 			"provider": "decidiq",
@@ -7560,9 +7562,11 @@
 			"originUrl": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwa.htm",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -rniE 'summar|ITextProcessing|TaskProcessing|LLM' lib src: no AI summary of meeting papers (matrix row age-16)",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change agenda-ai-paper-summaries: paper-summary schema with a review lifecycle and a member read rule (shown only) (lib/Settings/register.d/119-paper-summaries.json), PaperSummaryService + PaperSummaryController (POST /api/agenda-items/{id}/paper-summaries, GET /api/paper-summaries/availability; secretariat only, refused outside a confidentiality restriction's circle, 422 for a paper not on the item, 503 without a TaskProcessing provider), PaperText (OpenRegister text extraction, long papers summarised in parts), PaperSummaryTaskListener (the AI answer lands as draft, a failure as failed) and the Summaries of the papers widget on AgendaItemDetail (src/components/tabs/AgendaPaperSummariesTab.vue). PHPUnit and vitest green; the Newman read-rule run and the Playwright run (tests/e2e/paper-summaries.spec.ts) are still owed, so not yet built. This row: a clerk edits a draft, shows it to members (labelled AI-generated, checked by the clerk with the date) or hides it.",
+				"owner": "ConductionNL/decidiq",
+				"change": "agenda-ai-paper-summaries",
+				"readOn": "2026-10-03"
 			},
 			"reachedOn": "nothing reaches it: no AI summaries exist to review",
 			"provider": "decidiq",
@@ -7871,9 +7875,11 @@
 			"originUrl": "https://www.gemeenteoplossingen.nl/producten/papierloos_vergaderen/go._digitale_assistent/",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -rniE 'summar|ITextProcessing|TaskProcessing|LLM' lib src: no AI; the only text comparison is the amendment-against-motion diff (src/components/tabs/AmendmentDiffTab.vue, src/manifest.json:970), which is not AI and does not compare two arbitrary documents or versions",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change agenda-ai-paper-summaries: paper-summary schema with a review lifecycle and a member read rule (shown only) (lib/Settings/register.d/119-paper-summaries.json), PaperSummaryService + PaperSummaryController (POST /api/agenda-items/{id}/paper-summaries, GET /api/paper-summaries/availability; secretariat only, refused outside a confidentiality restriction's circle, 422 for a paper not on the item, 503 without a TaskProcessing provider), PaperText (OpenRegister text extraction, long papers summarised in parts), PaperSummaryTaskListener (the AI answer lands as draft, a failure as failed) and the Summaries of the papers widget on AgendaItemDetail (src/components/tabs/AgendaPaperSummariesTab.vue). PHPUnit and vitest green; the Newman read-rule run and the Playwright run (tests/e2e/paper-summaries.spec.ts) are still owed, so not yet built. This row: Compare with on a paper of the item (TextToText with a comparison instruction over both papers).",
+				"owner": "ConductionNL/decidiq",
+				"change": "agenda-ai-paper-summaries",
+				"readOn": "2026-10-03"
 			},
 			"reachedOn": "nothing reaches it: only AmendmentDetail (/amendments/:id) shows a plain text diff of an amendment",
 			"provider": "decidiq",

@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 213,
+			"objectCount": 215,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -4525,6 +4525,44 @@
 						"endedAt": "2026-03-04T21:40:00Z",
 						"recordedBy": "griffier1",
 						"reason": "Mr Bos left for another appointment"
+					}
+				],
+				"paper-summary": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "paper-summary"
+						},
+						"slug": "samenvatting-raadsvoorstel-kadernota-2026",
+						"agendaItem": "begroting-2026-bespreking",
+						"paperFileId": 900412,
+						"paperTitle": "Raadsvoorstel kadernota 2026.pdf",
+						"kind": "summary",
+						"text": "Het college vraagt de raad de financiële kaders voor de begroting 2026 vast te stellen.\n\nDe kadernota gaat uit van een sluitende meerjarenraming met een structureel overschot van 1,2 miljoen euro vanaf 2027.\n\nNieuw beleid is beperkt tot drie posten: onderhoud van bruggen, extra handhaving in het centrum en een bijdrage aan het regionale woningbouwfonds.\n\nDe raad wordt gevraagd in te stemmen met een verhoging van de onroerendezaakbelasting met 2 procent, gelijk aan de inflatie.",
+						"provider": "llm2",
+						"chunked": false,
+						"status": "shown",
+						"reviewedBy": "Jan de Vries",
+						"reviewedAt": "2026-09-30T10:15:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "paper-summary"
+						},
+						"slug": "vergelijking-raadsvoorstel-en-kadernota-2026",
+						"agendaItem": "begroting-2026-bespreking",
+						"paperFileId": 900412,
+						"paperTitle": "Raadsvoorstel kadernota 2026.pdf",
+						"kind": "comparison",
+						"comparedFileId": 910001,
+						"comparedTitle": "Kadernota 2026.docx",
+						"text": "Het raadsvoorstel volgt de kadernota op hoofdlijnen.\n\nVerschillen: het raadsvoorstel noemt een structureel overschot van 1,2 miljoen euro waar de kadernota nog 0,9 miljoen noemt, en het raadsvoorstel voegt de bijdrage aan het regionale woningbouwfonds toe.",
+						"provider": "llm2",
+						"chunked": false,
+						"status": "draft"
 					}
 				]
 			}
