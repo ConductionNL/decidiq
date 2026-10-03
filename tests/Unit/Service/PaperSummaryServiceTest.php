@@ -432,6 +432,11 @@ class PaperSummaryServiceTest extends TestCase {
 		$availability = (new PaperSummaryController(request: $request, summaries: $this->service(taskTypes: [])))->availability();
 		$this->assertSame(200, $availability->getStatus());
 		$this->assertFalse($availability->getData()['available']);
+		$this->assertTrue($availability->getData()['canRequest'], 'the griffier gets the Summarise and Compare actions');
+
+		$memberView = (new PaperSummaryController(request: $request, summaries: $this->service(uid: 'pieter', groups: ['decidesk-members'])))->availability();
+		$this->assertTrue($memberView->getData()['available']);
+		$this->assertFalse($memberView->getData()['canRequest'], 'a member gets no actions');
 	}//end testTheControllerAnswersWithTheServicesOutcome()
 
 	/**

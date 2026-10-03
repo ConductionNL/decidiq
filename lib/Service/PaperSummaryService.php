@@ -110,6 +110,17 @@ class PaperSummaryService {
 	}//end availability()
 
 	/**
+	 * Whether the signed-in user may ask for summaries and review them.
+	 *
+	 * @return bool True for a clerk.
+	 *
+	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+	 */
+	public function canRequest(): bool {
+		return $this->access->currentUserIsClerk();
+	}//end canRequest()
+
+	/**
 	 * Ask for a summary of a paper, or a comparison of it with a second paper.
 	 *
 	 * @param string $agendaItemId The agenda item the papers are attached to

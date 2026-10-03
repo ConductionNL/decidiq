@@ -138,6 +138,20 @@ class PaperSummaryAccess {
 	}//end keepsOut()
 
 	/**
+	 * Whether the signed-in user may ask for summaries at all, for the page
+	 * to show or leave out the actions.
+	 *
+	 * @return bool True for a signed-in clerk.
+	 *
+	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it
+	 */
+	public function currentUserIsClerk(): bool {
+		$uid = $this->userSession->getUser()?->getUID();
+
+		return $uid !== null && $this->isClerk(uid: $uid) === true;
+	}//end currentUserIsClerk()
+
+	/**
 	 * Whether the user is an administrator or in a clerk group.
 	 *
 	 * @param string $uid The user id

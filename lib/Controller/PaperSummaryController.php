@@ -99,20 +99,21 @@ class PaperSummaryController extends Controller {
 	}//end create()
 
 	/**
-	 * Whether an installed TaskProcessing provider can summarise and compare.
+	 * Whether an installed TaskProcessing provider can summarise and compare,
+	 * and whether the caller may ask.
 	 *
 	 * GET /api/paper-summaries/availability
 	 *
-	 * Access control: any signed-in user (NC middleware); the answer is three
-	 * booleans about the instance and names no object, so no per-object guard
-	 * applies. Asking for a summary is guarded in create().
+	 * Access control: any signed-in user (NC middleware); the answer is four
+	 * booleans about the instance and the caller and names no object, so no
+	 * per-object guard applies. Asking for a summary is guarded in create().
 	 *
-	 * @return JSONResponse 200 { available, summary, comparison }
+	 * @return JSONResponse 200 { available, summary, comparison, canRequest }
 	 *
 	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
 	 */
 	#[NoAdminRequired]
 	public function availability(): JSONResponse {
-		return new JSONResponse($this->summaries->availability());
+		return new JSONResponse($this->summaries->availability() + ['canRequest' => $this->summaries->canRequest()]);
 	}//end availability()
 }//end class
