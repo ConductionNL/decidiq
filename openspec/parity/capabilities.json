@@ -920,9 +920,11 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "Searched 'salary', 'director pay', 'WNT', 'remunerat' in schemas and src: only AncillaryPosition.remunerated (boolean, lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json) whose description says it deliberately carries no remuneration amount",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change bodies-director-remuneration: mandate-remuneration schema with its read rule (secretariat and administrators, plus public on disclosed records past their publication date; lib/Settings/register.d/117-mandate-remuneration.json), corporate and association seeds, the body page's remuneration list and fixed-fee total and the position hold's list over the years (src/manifest.json, src/manifest.d/configurable-types.json). Register tests green (tests/Unit/Settings/MandateRemunerationRegisterTest.php); the Newman read-rule run with three users and the Playwright runs are still owed, so not yet built.",
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-director-remuneration",
+				"readOn": "2026-10-03"
 			},
 			"reachedOn": "nothing reaches it: no remuneration data for directors",
 			"provider": "decidiq",
