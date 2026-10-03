@@ -19,8 +19,8 @@
   - GIVEN no linked source WHEN any broadcast action runs THEN 409 with "No streaming service is connected" (PHPUnit, red then green)
   - GIVEN the connections file WHEN hydra gate `connections-declaration` runs THEN it passes
   - GIVEN the service WHEN grepped THEN it never calls `Db\SourceMapper`
-- [ ] Implement
-- [ ] Test
+- [x] Implement (design correction: the integriq call lives in its own `lib/Service/StreamingClient.php`, the way `CaseSystemClient` holds the case-system call; `MeetingBroadcastService` calls it. Refusals are `BroadcastRefusedException` with the HTTP status)
+- [x] Test (tests/Unit/Service/MeetingBroadcastServiceTest.php: 409 on all six actions with nothing sent, no `SourceMapper` in either file; tests/Unit/Settings/ConnectionsDeclarationTest.php `testTheStreamingServiceIsALinkedSource`; hydra checker check_connections_declaration.js 0 findings)
 
 ### Task 3: Test broadcast, go live, pause, resume, stop
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-002-the-clerk-runs-a-test-broadcast-that-only-staff-can-see`
@@ -39,8 +39,8 @@
 - **files**: `lib/Service/MeetingBroadcastService.php`
 - **acceptance_criteria**:
   - GIVEN a stubbed service that refuses captions WHEN the broadcast goes live THEN `liveCaptions` is `unavailable` (PHPUnit)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (operation `live-captions` on the linked source; `accepted: true` is `requested`, a no or an error answer is `unavailable`, and the broadcast goes live either way)
+- [x] Test (MeetingBroadcastServiceTest `testLiveCaptionsAreRequestedFromTheService`, `testAServiceWithoutLiveCaptions`)
 
 ### Task 5: The Broadcast widget on the meeting page
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-002-the-clerk-runs-a-test-broadcast-that-only-staff-can-see`

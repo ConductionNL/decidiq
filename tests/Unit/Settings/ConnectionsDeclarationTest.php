@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Settings;
 
 use OCA\Decidiq\Service\ConnectionReportService;
+use OCA\Decidiq\Service\StreamingClient;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -141,7 +142,7 @@ class ConnectionsDeclarationTest extends TestCase {
 	}//end testTheFileNamesThisApp()
 
 	/**
-	 * The four connections, in order, each key once.
+	 * The five connections, in order, each key once.
 	 *
 	 * A row is keyed by app and key, so a second entry with the same key would
 	 * overwrite the first, and a renamed key orphans a row.
@@ -152,8 +153,26 @@ class ConnectionsDeclarationTest extends TestCase {
 		$keys = array_column($this->declaration()['connections'], 'key');
 
 		$this->assertSame(expected: array_values(array_unique($keys)), actual: $keys);
-		$this->assertSame(expected: ['ori', 'eidas', 'translation', 'case-system'], actual: $keys);
+		$this->assertSame(expected: ['ori', 'eidas', 'translation', 'case-system', 'streaming'], actual: $keys);
 	}//end testTheKeysAreUniqueAndTheOnesDecidiqReports()
+
+	/**
+	 * The streaming service is a linked integriq source: the key the client
+	 * looks up, a source template offered first, and the client's refusal as
+	 * the overview's text.
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service
+	 *
+	 * @return void
+	 */
+	public function testTheStreamingServiceIsALinkedSource(): void {
+		$streaming = ($this->connectionsByKey()[StreamingClient::CONNECTION_KEY] ?? []);
+
+		$this->assertSame(expected: 'streaming', actual: ($streaming['sourceTemplate'] ?? null));
+		$this->assertArrayNotHasKey(key: 'reportedOnly', array: $streaming);
+		$this->assertArrayNotHasKey(key: 'requiredConfig', array: $streaming);
+		$this->assertStringStartsWith(prefix: StreamingClient::NOT_CONNECTED, string: (string)($streaming['unconfiguredMessage'] ?? ''));
+	}//end testTheStreamingServiceIsALinkedSource()
 
 	/**
 	 * Every entry uses only schema fields with the schema's types, and a rising order.
