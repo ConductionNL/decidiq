@@ -2,7 +2,8 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * Playwright e2e: a body's Composition widget shows its skills matrix with
+ * Playwright e2e: a body's Composition widget (GovernanceBodyCompositionTab
+ * on the GovernanceBodyDetail page) shows its skills matrix with
  * the gaps and its composition figures against its own target (change
  * bodies-board-composition-skills-and-diversity, matrix rows bod-11 bod-12).
  * The fixture builds the design's supervisory board as admin (a superuser
