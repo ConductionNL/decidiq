@@ -207,6 +207,12 @@ $extra = [
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
         ['name' => 'votingRecord#forPerson', 'url' => '/api/people/{personId}/voting-record', 'verb' => 'GET'],
+        // Board composition: a body's competences, members' competences and their confirmation (bod-11).
+        ['name' => 'memberCompetence#createCompetence', 'url' => '/api/competences',                      'verb' => 'POST'],
+        ['name' => 'memberCompetence#updateCompetence', 'url' => '/api/competences/{id}',                 'verb' => 'PUT'],
+        ['name' => 'memberCompetence#record',           'url' => '/api/member-competences',               'verb' => 'POST'],
+        ['name' => 'memberCompetence#update',           'url' => '/api/member-competences/{id}',          'verb' => 'PUT'],
+        ['name' => 'memberCompetence#confirm',          'url' => '/api/member-competences/{id}/confirm',  'verb' => 'POST'],
         // A meeting's archival dossier: form, gather again, close (records-management-archiving, pub-11).
         ['name' => 'archivalDossier#form',     'url' => '/api/meetings/{meetingId}/archival-dossier', 'verb' => 'POST'],
         ['name' => 'archivalDossier#assemble', 'url' => '/api/dossiers/{id}/assemble', 'verb' => 'POST'],

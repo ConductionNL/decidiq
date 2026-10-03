@@ -1,0 +1,195 @@
+{
+    "x-openregister": {
+        "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+    },
+    "_comment": "ADR-037 register fragment, change bodies-board-composition-skills-and-diversity (REQ-BCS-001 to REQ-BCS-004; matrix rows bod-11 and bod-12). the competences a body needs, the competences its members hold, and the diversity targets the body sets itself. The skills matrix and the composition figures are computed in the GovernanceBodyCompositionTab widget; they are not declared aggregations, because each figure groups persons reached through a membership and each gap compares a count on one schema with a number on another.",
+    "components": {
+        "registers": {
+            "decidiq": {
+                "schemas": [
+                    "board-competence",
+                    "member-competence"
+                ]
+            }
+        },
+        "schemas": {
+            "BoardCompetence": {
+                "slug": "board-competence",
+                "icon": "LightbulbOnOutline",
+                "version": "1.0.0",
+                "title": "Board competence",
+                "description": "A competence a body needs among its members, such as Finance and audit, and how many members should hold it.",
+                "type": "object",
+                "_authorizationNote": "Every signed-in member reads competences. Writes are owned by MemberCompetenceController, which lets only users in the body's signatory scope (or an administrator) create and change a body's competences and saves in system context. OpenRegister cannot express a per-body scope group in a static block, so the write verbs are left out on purpose (RegisterAuthorizationTest, SERVICE_OWNED_WRITES_STAY_CLOSED).",
+                "authorization": {
+                    "read": [
+                        "authenticated"
+                    ]
+                },
+                "x-openregister": {
+                    "active": true,
+                    "hardDelete": false,
+                    "searchable": true
+                },
+                "required": [
+                    "governanceBody",
+                    "name"
+                ],
+                "properties": {
+                    "governanceBody": {
+                        "title": "Body",
+                        "type": "string",
+                        "format": "uuid",
+                        "$ref": "governance-body",
+                        "facetable": true,
+                        "description": "The body that needs this competence."
+                    },
+                    "name": {
+                        "title": "Name",
+                        "type": "string",
+                        "maxLength": 120,
+                        "description": "The competence, such as Finance and audit or Water management."
+                    },
+                    "description": {
+                        "title": "Description",
+                        "type": "string",
+                        "description": "What the body expects of a member who holds this competence."
+                    },
+                    "requiredHolders": {
+                        "title": "Required holders",
+                        "type": "integer",
+                        "minimum": 1,
+                        "default": 1,
+                        "description": "How many members should hold this competence confirmed at level experienced or expert."
+                    },
+                    "order": {
+                        "title": "Order",
+                        "type": "integer",
+                        "default": 0,
+                        "description": "The position of the competence among the body's columns in the skills matrix."
+                    },
+                    "active": {
+                        "title": "Active",
+                        "type": "boolean",
+                        "default": true,
+                        "facetable": true,
+                        "description": "Whether the body still needs this competence. An inactive competence leaves the skills matrix but keeps its history."
+                    }
+                }
+            },
+            "MemberCompetence": {
+                "slug": "member-competence",
+                "icon": "AccountCheckOutline",
+                "version": "1.0.0",
+                "title": "Member competence",
+                "description": "A competence a member brings to the body they sit on, at a level, and whether a signatory of the body confirmed it.",
+                "type": "object",
+                "_authorizationNote": "Every signed-in member reads member competences. Writes are owned by MemberCompetenceController: a member records their own competence, a signatory of the membership's body records one for any member, and only that signatory confirms one; changing the level clears the confirmation. It saves in system context, and the write verbs are left out on purpose so the object API cannot set confirmedBy around that check.",
+                "authorization": {
+                    "read": [
+                        "authenticated"
+                    ]
+                },
+                "x-openregister": {
+                    "active": true,
+                    "hardDelete": false,
+                    "searchable": false
+                },
+                "required": [
+                    "membership",
+                    "competence",
+                    "level"
+                ],
+                "properties": {
+                    "membership": {
+                        "title": "Membership",
+                        "type": "string",
+                        "format": "uuid",
+                        "$ref": "membership",
+                        "facetable": true,
+                        "description": "The membership the competence counts for. It ends with the membership."
+                    },
+                    "competence": {
+                        "title": "Competence",
+                        "type": "string",
+                        "format": "uuid",
+                        "$ref": "board-competence",
+                        "facetable": true,
+                        "description": "The competence of the membership's body."
+                    },
+                    "level": {
+                        "title": "Level",
+                        "type": "string",
+                        "enum": [
+                            "basic",
+                            "experienced",
+                            "expert"
+                        ],
+                        "facetable": true,
+                        "description": "How far the member brings the competence: basic, experienced or expert."
+                    },
+                    "note": {
+                        "title": "Note",
+                        "type": "string",
+                        "description": "Where the competence comes from, such as a former position or a qualification."
+                    },
+                    "confirmedBy": {
+                        "title": "Confirmed by",
+                        "type": "string",
+                        "description": "The Nextcloud account of the signatory who confirmed the competence. Empty while unconfirmed."
+                    },
+                    "confirmedAt": {
+                        "title": "Confirmed at",
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "When the competence was confirmed. Empty while unconfirmed."
+                    }
+                }
+            },
+            "GovernanceBody": {
+                "slug": "governance-body",
+                "version": "0.5.0",
+                "properties": {
+                    "diversityTargets": {
+                        "title": "Diversity targets",
+                        "type": "array",
+                        "description": "The minimum shares the body sets itself for the make-up of its current members, such as at least a third women.",
+                        "items": {
+                            "type": "object",
+                            "required": [
+                                "dimension",
+                                "value",
+                                "minimumShare"
+                            ],
+                            "properties": {
+                                "dimension": {
+                                    "title": "Dimension",
+                                    "type": "string",
+                                    "enum": [
+                                        "gender",
+                                        "age-band",
+                                        "nationality",
+                                        "independence"
+                                    ],
+                                    "description": "What the target counts: gender, age band, nationality or independence."
+                                },
+                                "value": {
+                                    "title": "Value",
+                                    "type": "string",
+                                    "description": "The value counted, as stored on the person or membership, such as female or independent."
+                                },
+                                "minimumShare": {
+                                    "title": "Minimum share",
+                                    "type": "number",
+                                    "minimum": 0,
+                                    "maximum": 1,
+                                    "description": "The smallest share of current members with that value, between 0 and 1."
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

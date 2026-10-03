@@ -731,9 +731,11 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "Searched 'skill', 'expertise', 'competenc' in schemas, src and services: no skills/expertise schema or matrix. Only hit: a seeded self-evaluation question 'What skills or perspectives is the board missing?' in lib/Settings/profiles/corporate.json:1123",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change bodies-board-composition-skills-and-diversity: board-competence and member-competence schemas (lib/Settings/register.d/116-board-composition.json), guarded writes (MemberCompetenceController + CompetenceConfirmationGuard), skills matrix and gaps (src/utils/boardComposition.js skillsMatrix/competenceGaps, GovernanceBodyCompositionTab.vue). Unit + vitest green; the Playwright run on the seeded board is still owed, so not yet built.",
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-board-composition-skills-and-diversity",
+				"readOn": "2026-10-02"
 			},
 			"reachedOn": "nothing reaches it: no skills matrix; the nearest thing is a free question in the board self-evaluation (GovernanceBodyEvaluationsTab)",
 			"provider": "decidiq",
@@ -761,9 +763,11 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "Searched 'diversity', 'gender' in lib/Service, src: Person.gender exists (lib/Settings/decidesk_register.json:183 Person) and seed data fills it, but nothing aggregates it; GovernanceReportingService computes independenceRatio only and no frontend calls /api/governance-reports (grep under src/: none)",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change bodies-board-composition-skills-and-diversity: governance-body.diversityTargets (116-board-composition.json), composition figures, age bands and target results (src/utils/boardComposition.js compositionFigures/ageBand/targetResults) on GovernanceBodyCompositionTab.vue, no names per value. vitest green; the Playwright run on the seeded board is still owed, so not yet built.",
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-board-composition-skills-and-diversity",
+				"readOn": "2026-10-02"
 			},
 			"reachedOn": "nothing reaches it: gender is stored on Person, no figures are computed or shown",
 			"provider": "decidiq",

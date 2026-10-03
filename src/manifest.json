@@ -459,7 +459,8 @@
 				"widget-body-template": "GovernanceBodyTemplateTab",
 				"widget-body-efficiency": "GovernanceBodyEfficiencyTab",
 				"widget-body-retention": "GovernanceBodyRetentionTab",
-				"widget-body-evaluations": "GovernanceBodyEvaluationsTab"
+				"widget-body-evaluations": "GovernanceBodyEvaluationsTab",
+				"widget-body-composition": "GovernanceBodyCompositionTab"
 			},
 			"title": "Governance body",
 			"config": {
@@ -475,6 +476,7 @@
 					{ "id": "body-template", "type": "custom", "component": "GovernanceBodyTemplateTab", "title": "Process template", "icon": "Sitemap" },
 					{ "id": "body-efficiency", "type": "custom", "component": "GovernanceBodyEfficiencyTab", "title": "Efficiency", "icon": "ChartBar" },
 					{ "id": "body-retention", "type": "custom", "component": "GovernanceBodyRetentionTab", "title": "Recording retention", "icon": "ShieldCheckOutline" },
+					{ "id": "body-composition", "type": "custom", "component": "GovernanceBodyCompositionTab", "title": "Composition", "icon": "AccountGroup" },
 					{ "id": "body-evaluations", "type": "custom", "component": "GovernanceBodyEvaluationsTab", "title": "Self-evaluation", "icon": "ClipboardCheckOutline" },
 					{ "id": "body-position-holders", "type": "object-list", "title": "Position holders", "icon": "AccountGroup", "content": { "register": "decidiq", "schema": "position-hold", "filter": { "governanceBody": "@objectId" }, "sort": { "field": "endDate", "dir": "asc" }, "columns": [ { "key": "membership", "label": "Member", "widget": "link" }, { "key": "position", "label": "Position" }, { "key": "termNumber", "label": "Term" }, { "key": "endDate", "label": "Until", "widget": "date" } ], "limit": 10, "allowCreate": false, "rowRoute": "PositionHoldDetail", "viewAllRoute": "PositionHolds", "viewAllQuery": { "governanceBody": "@objectId" }, "emptyText": "Nobody holds a position on this body yet." } },
 					{ "id": "body-positions", "type": "object-list", "title": "Positions", "icon": "AccountBoxOutline", "content": { "register": "decidiq", "schema": "position-type", "filter": { "governanceBody": "@objectId" }, "sort": { "field": "order", "dir": "asc" }, "columns": [ { "key": "name", "label": "Position", "widget": "link" }, { "key": "seats", "label": "Seats" }, { "key": "termDurationMonths", "label": "Term (months)" }, { "key": "maxConsecutiveTerms", "label": "Max consecutive terms" } ], "limit": 10, "allowCreate": false, "rowRoute": "PositionTypeDetail", "viewAllRoute": "PositionTypes", "viewAllQuery": { "governanceBody": "@objectId" }, "emptyText": "No positions configured for this body yet." } },
@@ -502,7 +504,8 @@
 					{ "id": "14", "widgetId": "body-shared-participations", "gridX": 6, "gridY": 37, "gridWidth": 6, "gridHeight": 4 },
 					{ "id": "15", "widgetId": "body-consultations", "gridX": 0, "gridY": 41, "gridWidth": 6, "gridHeight": 4 },
 					{ "id": "16", "widgetId": "body-factions", "gridX": 6, "gridY": 41, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "17", "widgetId": "body-workspace", "gridX": 0, "gridY": 45, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "17", "widgetId": "body-workspace", "gridX": 0, "gridY": 45, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "18", "widgetId": "body-composition", "gridX": 0, "gridY": 49, "gridWidth": 12, "gridHeight": 7 }
 				],
 				"sidebar": {
 					"enabled": true,

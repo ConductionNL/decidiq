@@ -46,6 +46,7 @@ import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
+import GovernanceBodyCompositionTab from './components/tabs/GovernanceBodyCompositionTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -245,6 +246,7 @@ export default {
 	MeetingMinutesTab: page(MeetingMinutesTab),
 	MeetingTranscriptionTab: page(MeetingTranscriptionTab),
 	GovernanceBodyRetentionTab: page(GovernanceBodyRetentionTab),
+	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	// Meeting-scoped facet composition (meeting-facet-composition): mode-gated
