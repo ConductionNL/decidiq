@@ -1709,7 +1709,19 @@ OC.L10N.register(
         "Position held": "Fonction occupée",
         "Set by decision": "Fixé par décision",
         "Publication date": "Date de publication",
-        "Note": "Note"
+        "Note": "Note",
+        "Seats": "Sièges",
+        "No seats to show for this meeting.": "Aucun siège à afficher pour cette réunion.",
+        "substitute for {name}": "remplace {name}",
+        "Swap {name} with a substitute": "Remplacer {name} par un suppléant",
+        "Swap with substitute": "Remplacer par un suppléant",
+        "End the substitution of {name}": "Mettre fin au remplacement de {name}",
+        "End substitution": "Mettre fin au remplacement",
+        "The seats could not be loaded.": "Les sièges n'ont pas pu être chargés.",
+        "The substitution could not be ended.": "Le remplacement n'a pas pu être terminé.",
+        "Seat {seat}: {name}": "Siège {seat} : {name}",
+        "Swap": "Remplacer",
+        "The swap could not be saved.": "Le remplacement n'a pas pu être enregistré."
     },
     "nplurals=2; plural=(n != 1);"
 )
