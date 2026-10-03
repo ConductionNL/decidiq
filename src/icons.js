@@ -41,6 +41,7 @@ import BookOpenVariantOutline from 'vue-material-design-icons/BookOpenVariantOut
 import Briefcase from 'vue-material-design-icons/Briefcase.vue'
 import BriefcaseAccountOutline from 'vue-material-design-icons/BriefcaseAccountOutline.vue'
 import BriefcaseOutline from 'vue-material-design-icons/BriefcaseOutline.vue'
+import Broadcast from 'vue-material-design-icons/Broadcast.vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import Calendar from 'vue-material-design-icons/Calendar.vue'
 import CalendarAccountOutline from 'vue-material-design-icons/CalendarAccountOutline.vue'
@@ -171,6 +172,7 @@ export default {
 	Briefcase,
 	BriefcaseAccountOutline,
 	BriefcaseOutline,
+	Broadcast,
 	BullhornOutline,
 	Calendar,
 	CalendarAccountOutline,
