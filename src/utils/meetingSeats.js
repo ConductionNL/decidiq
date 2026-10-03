@@ -27,13 +27,20 @@ export function seatRows(seats) {
 	const participants = seats?.participants ?? []
 	const byId = Object.fromEntries(participants.map((p) => [p.id, p]))
 	const active = (seats?.substitutions ?? []).filter((s) => !s.endedAt)
-	const activeByOutgoing = Object.fromEntries(active.map((s) => [s.outgoingParticipant, s]))
+	const activeByOutgoing = Object.fromEntries(
+		active.map((s) => [s.outgoingParticipant, s]),
+	)
 
 	return participants
 		.filter((p) => VOTING_ROLES.includes(p.role))
 		.map((p) => {
 			const substitution = activeByOutgoing[p.id] ?? null
-			const holder = substitution ? (byId[substitution.incomingParticipant] ?? { id: substitution.incomingParticipant, displayName: '' }) : p
+			const holder = substitution
+				? (byId[substitution.incomingParticipant] ?? {
+						id: substitution.incomingParticipant,
+						displayName: '',
+					})
+				: p
 			return {
 				seat: substitution?.seatNumber ?? p.seatNumber ?? null,
 				id: holder.id,
@@ -45,7 +52,12 @@ export function seatRows(seats) {
 				canSwap: p.role === 'member' && !substitution,
 			}
 		})
-		.sort((a, b) => (a.seat ?? Number.MAX_SAFE_INTEGER) - (b.seat ?? Number.MAX_SAFE_INTEGER) || a.name.localeCompare(b.name))
+		.sort(
+			(a, b) =>
+				(a.seat ?? Number.MAX_SAFE_INTEGER)
+					- (b.seat ?? Number.MAX_SAFE_INTEGER)
+				|| a.name.localeCompare(b.name),
+		)
 }
 
 /**
@@ -58,10 +70,17 @@ export function seatRows(seats) {
  * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-003-a-swap-is-refused-when-it-would-change-a-vote-in-progress-or-break-the-seat-plan
  */
 export function substituteOptions(seats) {
-	const holding = new Set((seats?.substitutions ?? []).filter((s) => !s.endedAt).map((s) => s.incomingParticipant))
+	const holding = new Set(
+		(seats?.substitutions ?? [])
+			.filter((s) => !s.endedAt)
+			.map((s) => s.incomingParticipant),
+	)
 	return (seats?.participants ?? [])
 		.filter((p) => !VOTING_ROLES.includes(p.role) && !holding.has(p.id))
-		.map((p) => ({ id: p.id, label: p.party ? `${p.displayName} (${p.party})` : p.displayName }))
+		.map((p) => ({
+			id: p.id,
+			label: p.party ? `${p.displayName} (${p.party})` : p.displayName,
+		}))
 }
 
 /**
@@ -76,14 +95,19 @@ export function substituteOptions(seats) {
  * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-004-ending-a-substitution-returns-the-seat-to-the-member
  */
 export async function seatsRequest(method, meetingId, tail, body = null) {
-	const response = await fetch(generateUrl(`/apps/decidiq/api/meetings/${encodeURIComponent(meetingId)}/${tail}`), {
-		method,
-		headers: {
-			requesttoken: window.OC?.requestToken,
-			'Content-Type': 'application/json',
+	const response = await fetch(
+		generateUrl(
+			`/apps/decidiq/api/meetings/${encodeURIComponent(meetingId)}/${tail}`,
+		),
+		{
+			method,
+			headers: {
+				requesttoken: window.OC?.requestToken,
+				'Content-Type': 'application/json',
+			},
+			body: body === null ? undefined : JSON.stringify(body),
 		},
-		body: body === null ? undefined : JSON.stringify(body),
-	})
+	)
 	const data = await response.json().catch(() => ({}))
 	if (!response.ok) {
 		throw new Error(data.message || response.statusText)

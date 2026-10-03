@@ -206,11 +206,9 @@ class SubstitutionResolver {
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function activeSubstitutes(string $meetingId): array {
-		return array_values(
-			array_map(
-				fn (array $record): string => $this->refId(ref: ($record['incomingParticipant'] ?? null)),
-				$this->activeFor(meetingId: $meetingId)
-			)
+		return array_map(
+			fn (array $record): string => $this->refId(ref: ($record['incomingParticipant'] ?? null)),
+			$this->activeFor(meetingId: $meetingId)
 		);
 	}//end activeSubstitutes()
 

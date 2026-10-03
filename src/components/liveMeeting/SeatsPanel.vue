@@ -34,19 +34,29 @@
 				role="listitem">
 				<span class="seats-panel__number">{{ row.seat ?? '-' }}</span>
 				<span class="seats-panel__name">{{ row.name }}</span>
-				<span v-if="row.party" class="seats-panel__party">{{ row.party }}</span>
+				<span v-if="row.party" class="seats-panel__party">{{
+					row.party
+				}}</span>
 				<span
 					v-if="row.substitution"
 					class="seats-panel__substitute"
 					data-testid="seats-panel-substitute-for">
-					{{ t('decidiq', 'substitute for {name}', { name: row.substituteFor }) }}
+					{{
+						t('decidiq', 'substitute for {name}', {
+							name: row.substituteFor,
+						})
+					}}
 				</span>
 				<template v-if="canSubstitute">
 					<NcButton
 						v-if="row.canSwap"
 						size="small"
 						data-testid="seats-panel-swap"
-						:aria-label="t('decidiq', 'Swap {name} with a substitute', { name: row.name })"
+						:aria-label="
+							t('decidiq', 'Swap {name} with a substitute', {
+								name: row.name,
+							})
+						"
 						@click="swapping = row">
 						{{ t('decidiq', 'Swap with substitute') }}
 					</NcButton>
@@ -55,7 +65,11 @@
 						size="small"
 						data-testid="seats-panel-end"
 						:disabled="ending"
-						:aria-label="t('decidiq', 'End the substitution of {name}', { name: row.substituteFor })"
+						:aria-label="
+							t('decidiq', 'End the substitution of {name}', {
+								name: row.substituteFor,
+							})
+						"
 						@click="end(row)">
 						{{ t('decidiq', 'End substitution') }}
 					</NcButton>
@@ -76,7 +90,11 @@
 <script>
 import { NcButton } from '@nextcloud/vue'
 import MandateSwapModal from '../../modals/MandateSwapModal.vue'
-import { seatRows, seatsRequest, substituteOptions } from '../../utils/meetingSeats.js'
+import {
+	seatRows,
+	seatsRequest,
+	substituteOptions,
+} from '../../utils/meetingSeats.js'
 
 export default {
 	name: 'SeatsPanel',
@@ -103,10 +121,12 @@ export default {
 		rows() {
 			return seatRows(this.seats)
 		},
+
 		/** @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-003-a-swap-is-refused-when-it-would-change-a-vote-in-progress-or-break-the-seat-plan */
 		options() {
 			return substituteOptions(this.seats)
 		},
+
 		/** @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-001-the-chair-or-secretary-swaps-a-member-for-a-substitute-during-a-meeting */
 		canSubstitute() {
 			return this.seats.canSubstitute === true
@@ -131,7 +151,8 @@ export default {
 				this.seats = await seatsRequest('GET', this.meetingId, 'seats')
 				this.error = ''
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The seats could not be loaded.')
+				this.error =
+					e?.message || this.t('decidiq', 'The seats could not be loaded.')
 			} finally {
 				this.loading = false
 			}
@@ -158,10 +179,16 @@ export default {
 		async end(row) {
 			this.ending = true
 			try {
-				await seatsRequest('POST', this.meetingId, `substitutions/${encodeURIComponent(row.substitution.id)}/end`)
+				await seatsRequest(
+					'POST',
+					this.meetingId,
+					`substitutions/${encodeURIComponent(row.substitution.id)}/end`,
+				)
 				await this.load()
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The substitution could not be ended.')
+				this.error =
+					e?.message
+					|| this.t('decidiq', 'The substitution could not be ended.')
 			} finally {
 				this.ending = false
 			}

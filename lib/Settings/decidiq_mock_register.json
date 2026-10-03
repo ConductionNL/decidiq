@@ -8851,6 +8851,59 @@
         "expenseAllowance": 1500,
         "currency": "EUR",
         "disclosed": false
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateSubstitution",
+          "slug": "mandate-substitution-voorbeeld-1"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000001",
+        "outgoingParticipant": "00000000-0000-4000-8000-000000000001",
+        "incomingParticipant": "00000000-0000-4000-8000-000000000002",
+        "seatNumber": 3,
+        "party": "VVD",
+        "role": "member",
+        "votingWeight": 1,
+        "startedAt": "2026-03-04T20:15:00+01:00",
+        "recordedBy": "admin",
+        "reason": "Voorbeeld 1",
+        "endedAt": "2026-03-04T21:40:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateSubstitution",
+          "slug": "mandate-substitution-voorbeeld-2"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000002",
+        "outgoingParticipant": "00000000-0000-4000-8000-000000000001",
+        "incomingParticipant": "00000000-0000-4000-8000-000000000002",
+        "seatNumber": 4,
+        "party": "VVD",
+        "role": "member",
+        "votingWeight": 1,
+        "startedAt": "2026-04-08T19:45:00+02:00",
+        "recordedBy": "admin",
+        "reason": "Voorbeeld 2"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateSubstitution",
+          "slug": "mandate-substitution-voorbeeld-3"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000003",
+        "outgoingParticipant": "00000000-0000-4000-8000-000000000001",
+        "incomingParticipant": "00000000-0000-4000-8000-000000000002",
+        "seatNumber": 5,
+        "party": "VVD",
+        "role": "member",
+        "votingWeight": 1,
+        "startedAt": "2026-05-13T20:05:00+02:00",
+        "recordedBy": "admin",
+        "reason": "Voorbeeld 3",
+        "endedAt": "2026-05-13T22:10:00+02:00"
       }
     ]
   }

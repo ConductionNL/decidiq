@@ -94,7 +94,8 @@ class MandateSubstitutionService {
 
 		usort(
 			$participants,
-			static fn (array $a, array $b): int => [($a['seatNumber'] ?? PHP_INT_MAX), $a['displayName']] <=> [($b['seatNumber'] ?? PHP_INT_MAX), $b['displayName']]
+			static fn (array $a, array $b): int => [($a['seatNumber'] ?? PHP_INT_MAX), $a['displayName']]
+				<=> [($b['seatNumber'] ?? PHP_INT_MAX), $b['displayName']]
 		);
 
 		return [
@@ -128,33 +129,7 @@ class MandateSubstitutionService {
 			throw new SubstitutionRefusedException(message: 'A member cannot be swapped for themselves.', status: 400);
 		}
 
-		$resolver = $this->resolver();
-		$byId = [];
-		foreach ($this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId) as $row) {
-			$byId[$resolver->idOf(row: $row)] = $row;
-		}
-
-		$outgoing = ($byId[$outgoingId] ?? null);
-		if ($outgoing === null || ($outgoing['role'] ?? '') !== 'member') {
-			throw new SubstitutionRefusedException(message: 'Only members can be substituted.', status: 400);
-		}
-
-		if ($resolver->isSubstitutedOut(meetingId: $meetingId, participantId: $outgoingId) === true) {
-			throw new SubstitutionRefusedException(message: 'This member\'s seat is already held by a substitute.', status: 409);
-		}
-
-		$incoming = ($byId[$incomingId] ?? null);
-		if ($incoming === null) {
-			throw new SubstitutionRefusedException(message: 'The substitute is not a participant of the meeting\'s body.', status: 400);
-		}
-
-		if (in_array(($incoming['role'] ?? ''), self::VOTING_ROLES, true) === true) {
-			throw new SubstitutionRefusedException(message: 'The substitute already votes in this body.', status: 400);
-		}
-
-		if (in_array($incomingId, $resolver->activeSubstitutes(meetingId: $meetingId), true) === true) {
-			throw new SubstitutionRefusedException(message: 'The substitute already holds another seat.', status: 409);
-		}
+		$outgoing = $this->checkedSeat(meetingId: $meetingId, outgoingId: $outgoingId, incomingId: $incomingId);
 
 		$record = [
 			'meeting'             => $meetingId,
@@ -172,6 +147,50 @@ class MandateSubstitutionService {
 		return $this->write(object: array_filter($record, static fn (mixed $value): bool => $value !== null && $value !== ''), id: null);
 
 	}//end start()
+
+	/**
+	 * Check the seat plan for a swap and answer the outgoing member's row.
+	 *
+	 * @param string $meetingId  The meeting
+	 * @param string $outgoingId The member who leaves
+	 * @param string $incomingId The substitute
+	 *
+	 * @return array<string, mixed> The outgoing member's participant row
+	 *
+	 * @throws SubstitutionRefusedException 400 the seat plan does not allow it, 409 a seat is already taken
+	 *
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-003-a-swap-is-refused-when-it-would-change-a-vote-in-progress-or-break-the-seat-plan
+	 */
+	private function checkedSeat(string $meetingId, string $outgoingId, string $incomingId): array {
+		$resolver = $this->resolver();
+		$byId = [];
+		foreach ($this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId) as $row) {
+			$byId[$resolver->idOf(row: $row)] = $row;
+		}
+
+		$outgoing = ($byId[$outgoingId] ?? []);
+		if (($outgoing['role'] ?? '') !== 'member') {
+			throw new SubstitutionRefusedException(message: 'Only members can be substituted.', status: 400);
+		}
+
+		if ($resolver->isSubstitutedOut(meetingId: $meetingId, participantId: $outgoingId) === true) {
+			throw new SubstitutionRefusedException(message: 'This member\'s seat is already held by a substitute.', status: 409);
+		}
+
+		if (isset($byId[$incomingId]) === false) {
+			throw new SubstitutionRefusedException(message: 'The substitute is not a participant of the meeting\'s body.', status: 400);
+		}
+
+		if (in_array(($byId[$incomingId]['role'] ?? ''), self::VOTING_ROLES, true) === true) {
+			throw new SubstitutionRefusedException(message: 'The substitute already votes in this body.', status: 400);
+		}
+
+		if (in_array($incomingId, $resolver->activeSubstitutes(meetingId: $meetingId), true) === true) {
+			throw new SubstitutionRefusedException(message: 'The substitute already holds another seat.', status: 409);
+		}
+
+		return $outgoing;
+	}//end checkedSeat()
 
 	/**
 	 * End a substitution: the seat goes back to the member, and the record stays.

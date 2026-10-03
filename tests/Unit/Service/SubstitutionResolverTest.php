@@ -3,8 +3,8 @@
 /**
  * Voting follows the seat (bodies-substitute-mandate-swap task 3): who may
  * cast, the quorum and a voting group preset each ask the substitutions of
- * the meeting, through the real VoteCastGuard, MeetingRuleSource and
- * VotingRoundPreflight.
+ * the meeting, through the real VoteCastingService (via SeatHolderGuard),
+ * MeetingRuleSource and VotingRoundOpener.
  *
  * @category Test
  * @package  OCA\Decidiq\Tests\Unit\Service
@@ -31,10 +31,14 @@ use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ProcessTemplateService;
+use OCA\Decidiq\Service\RecusalGuard;
+use OCA\Decidiq\Service\SeatHolderGuard;
 use OCA\Decidiq\Service\SubstitutionResolver;
-use OCA\Decidiq\Service\VoteCastGuard;
-use OCA\Decidiq\Service\VoterTokenSecret;
+use OCA\Decidiq\Service\VoteCastingService;
+use OCA\Decidiq\Service\VotingOpenedNotifier;
+use OCA\Decidiq\Service\VotingRoundOpener;
 use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundRules;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
@@ -46,11 +50,21 @@ use RuntimeException;
  * Mr Bos (seat 3) left the audit committee; Mrs De Wit holds his seat.
  *
  * @covers \OCA\Decidiq\Service\SubstitutionResolver
- * @covers \OCA\Decidiq\Service\VoteCastGuard
+ * @covers \OCA\Decidiq\Service\SeatHolderGuard
  * @covers \OCA\Decidiq\Service\MeetingRuleSource
- * @covers \OCA\Decidiq\Service\VotingRoundPreflight
+ * @covers \OCA\Decidiq\Service\VoteCastingService
+ * @covers \OCA\Decidiq\Service\VotingRoundOpener
  * @uses   \OCA\Decidiq\Service\BodyQuorum
  * @uses   \OCA\Decidiq\Service\MeetingAttendanceReader
+ * @uses   \OCA\Decidiq\Service\VoteCastGuard
+ * @uses   \OCA\Decidiq\Service\VotingRoundPreflight
+ * @uses   \OCA\Decidiq\Service\AmendmentOrderService
+ * @uses   \OCA\Decidiq\Service\RankedBallotRules
+ * @uses   \OCA\Decidiq\Service\SavedObjectNormaliser
+ * @uses   \OCA\Decidiq\Service\VotingOpenedNotifier
+ * @uses   \OCA\Decidiq\Service\VotingRoundRules
+ * @uses   \OCA\Decidiq\Service\VoteBallotFactory
+ * @uses   \OCA\Decidiq\Service\VoterTokenSecret
  */
 class SubstitutionResolverTest extends TestCase {
 
@@ -137,7 +151,11 @@ class SubstitutionResolverTest extends TestCase {
 			)
 		);
 		$objectService->method('find')->willReturnCallback(
-			fn (int|string $id, mixed ...$rest): ?ObjectEntity => $id === self::MEETING ? $this->entity(['id' => self::MEETING, 'governanceBody' => 'body-audit', 'quorumRequired' => 3]) : null
+			fn (int|string $id, mixed ...$rest): ?ObjectEntity => match ((string)$id) {
+				self::MEETING => $this->entity(['id' => self::MEETING, 'governanceBody' => 'body-audit', 'quorumRequired' => 3, '@self' => ['relations' => ['governanceBody' => 'body-audit']]]),
+				'r-1' => $this->entity(['id' => 'r-1', 'openedAt' => '2026-03-04T20:30:00+01:00', 'votingMethod' => 'for-against-abstain']),
+				default => $this->entity(['id' => (string)$id, 'decisionType' => 'motion', 'lifecycle' => 'deliberating']),
+			}
 		);
 		return $objectService;
 	}//end objectService()
@@ -155,35 +173,27 @@ class SubstitutionResolverTest extends TestCase {
 	}//end participantResolver()
 
 	/**
-	 * The real cast guard, its round resolving to the meeting.
+	 * The amendment-order double: every round belongs to the meeting.
 	 *
-	 * @return VoteCastGuard
+	 * @return AmendmentOrderService
 	 */
-	private function guard(): VoteCastGuard {
+	private function order(): AmendmentOrderService {
 		$order = $this->createMock(AmendmentOrderService::class);
 		$order->method('resolveMeetingIdForRound')->willReturn(self::MEETING);
-
-		return new VoteCastGuard(
-			container: $this->createMock(ContainerInterface::class),
-			logger: new NullLogger(),
-			relationFilter: $this->createMock(ObjectRelationFilter::class),
-			tokens: $this->createMock(VoterTokenSecret::class),
-			participantResolver: $this->participantResolver(),
-			amendmentOrder: $order,
-			objectService: $this->objectService(),
-		);
-	}//end guard()
+		return $order;
+	}//end order()
 
 	/**
-	 * Whether the guard lets a participant cast in the meeting's round.
+	 * Whether the seat guard lets a participant cast in the meeting's round.
 	 *
 	 * @param string $participantId The caster
 	 *
 	 * @return string|null Null when accepted, else the refusal
 	 */
 	private function refusalFor(string $participantId): ?string {
+		$guard = new SeatHolderGuard(amendmentOrder: $this->order(), participantResolver: $this->participantResolver(), objectService: $this->objectService(), logger: new NullLogger());
 		try {
-			$this->guard()->assertMeetingMembership(round: ['id' => 'r-1'], participantId: $participantId);
+			$guard->assertHoldsSeat(round: ['id' => 'r-1'], participantId: $participantId);
 		} catch (RuntimeException $e) {
 			return $e->getMessage();
 		}
@@ -207,6 +217,30 @@ class SubstitutionResolverTest extends TestCase {
 		self::assertNull($this->refusalFor('p-bos'));
 		self::assertNotNull($this->refusalFor('p-dewit'), 'Once the swap ended the observer does not vote');
 	}//end testTheSubstituteCastsAndTheMemberWhoLeftCannot()
+
+	/**
+	 * The casting path asks the seat guard: Mr Bos's ballot through the real
+	 * VoteCastingService is refused before anything is written.
+	 *
+	 * @return void
+	 */
+	public function testTheCastingPathRefusesTheMemberWhoLeft(): void {
+		$objectService = $this->objectService();
+		$objectService->expects($this->never())->method('saveObject');
+		$caster = new VoteCastingService(
+			logger: new NullLogger(),
+			participantResolver: $this->participantResolver(),
+			amendmentOrder: $this->order(),
+			relationFilter: new ObjectRelationFilter(),
+			objectService: $objectService,
+			container: $this->createMock(ContainerInterface::class),
+			recusal: $this->createMock(RecusalGuard::class),
+		);
+
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('plaatsvervanger');
+		$caster->castVote(votingRoundId: 'r-1', participantId: 'p-bos', value: 'for', isProxy: false, delegatorId: null);
+	}//end testTheCastingPathRefusesTheMemberWhoLeft()
 
 	/**
 	 * Scenario "The quorum does not drop when a seat is filled": quorum 3,
@@ -241,20 +275,64 @@ class SubstitutionResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testAVotingGroupFollowsTheSwap(): void {
-		$preflight = new VotingRoundPreflight(
-			logger: new NullLogger(),
-			motionService: $this->createMock(MotionService::class),
-			participantResolver: $this->participantResolver(),
-			templateService: $this->createMock(ProcessTemplateService::class),
-			objectService: $this->objectService(),
-		);
+		$rule = new MeetingRuleSource(objectService: $this->objectService(), participantResolver: $this->participantResolver());
+		self::assertSame(['p-dewit', 'p-kaya'], $rule->seatHoldersFor(meetingId: self::MEETING, participantIds: ['p-bos', 'p-kaya', 'p-dewit']));
 
-		$split = $preflight->splitPresetParticipants(meetingId: self::MEETING, presetIds: ['p-bos', 'p-kaya']);
-		self::assertSame(['p-dewit', 'p-kaya'], array_values($split['eligible']));
-		self::assertSame([], $split['excluded']);
+		self::assertSame(['p-dewit', 'p-kaya'], $this->votersOfARoundWith(presetIds: ['p-bos', 'p-kaya']), 'The round lists the substitute, not Mr Bos');
 
 		$this->endTheSwap();
-		$split = $preflight->splitPresetParticipants(meetingId: self::MEETING, presetIds: ['p-bos', 'p-kaya']);
-		self::assertSame(['p-bos', 'p-kaya'], array_values($split['eligible']));
+		self::assertSame(['p-bos', 'p-kaya'], $this->votersOfARoundWith(presetIds: ['p-bos', 'p-kaya']));
 	}//end testAVotingGroupFollowsTheSwap()
+
+	/**
+	 * Open a round in the meeting with a voting group preset, through the real
+	 * VotingRoundOpener, and answer the participants the saved round lists.
+	 *
+	 * @param list<string> $presetIds The preset's participants
+	 *
+	 * @return list<string>
+	 */
+	private function votersOfARoundWith(array $presetIds): array {
+		$saved = [];
+		$objectService = $this->objectService();
+		$objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$saved): ObjectEntity {
+				$saved[] = $object;
+				return $this->entity($object);
+			}
+		);
+		$logger = new NullLogger();
+		$motionService = $this->createMock(MotionService::class);
+		$participants = $this->participantResolver();
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new RuntimeException('not wired'));
+
+		$opener = new VotingRoundOpener(
+			motionService: $motionService,
+			participantResolver: $participants,
+			preflight: new VotingRoundPreflight(
+				logger: $logger,
+				motionService: $motionService,
+				participantResolver: $participants,
+				templateService: $this->createMock(ProcessTemplateService::class),
+				objectService: $objectService,
+			),
+			notifier: new VotingOpenedNotifier(logger: $logger, participantResolver: $participants, container: $container),
+			objectService: $objectService,
+		);
+		$opener->openVotingRound(
+			motionId: 'motion-1',
+			meetingId: self::MEETING,
+			votingMethod: 'for-against-abstain',
+			isSecret: false,
+			closedAt: null,
+			presetParticipantIds: $presetIds,
+			roundRules: new VotingRoundRules()
+		);
+
+		$rounds = array_values(array_filter($saved, static fn (array $o): bool => isset($o['votingMethod']) === true));
+		self::assertNotSame([], $rounds, 'A round was saved');
+		$relations = array_filter(($rounds[0]['relations'] ?? []), static fn (array $rel): bool => ($rel['schema'] ?? '') === 'participant');
+		return array_values(array_column($relations, 'id'));
+	}//end votersOfARoundWith()
 }//end class

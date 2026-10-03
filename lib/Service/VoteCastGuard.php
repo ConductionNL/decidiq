@@ -147,7 +147,6 @@ class VoteCastGuard {
 	 * @throws RuntimeException When the participant is not a meeting member.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function assertMeetingMembership(array $round, string $participantId): void {
 		$meetingId = $this->amendmentOrder->resolveMeetingIdForRound(round: $round);
@@ -155,26 +154,10 @@ class VoteCastGuard {
 			return;
 		}
 
-		// A member whose seat a substitute holds does not vote in this meeting;
-		// the substitute does (bodies-substitute-mandate-swap, REQ-MSW-002).
-		$substitutions = new SubstitutionResolver(objectService: $this->objectService, logger: $this->logger);
-		if ($substitutions->isSubstitutedOut(meetingId: $meetingId, participantId: $participantId) === true) {
-			throw new RuntimeException('Uw zetel wordt in deze vergadering ingenomen door uw plaatsvervanger; u kunt niet stemmen zolang de vervanging loopt');
-		}
-
 		$meetingParticipants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
 		$memberIds = array_column($meetingParticipants, 'id');
 		if (in_array($participantId, $memberIds, true) === false) {
 			throw new RuntimeException('Deelnemer is geen lid van de vergadering');
-		}
-
-		// An observer or guest votes only while holding a member's seat as
-		// their substitute; once the swap ends the seat is the member's again.
-		$roles = array_column($meetingParticipants, 'role', 'id');
-		if (in_array(($roles[$participantId] ?? ''), ['observer', 'guest'], true) === true
-			&& in_array($participantId, $substitutions->activeSubstitutes(meetingId: $meetingId), true) === false
-		) {
-			throw new RuntimeException('Deelnemer heeft geen stemrecht in deze vergadering');
 		}
 
 	}//end assertMeetingMembership()

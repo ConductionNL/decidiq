@@ -18,7 +18,12 @@
 		<template #default>
 			<div class="mandate-swap__form">
 				<p>
-					{{ t('decidiq', 'Seat {seat}: {name}', { seat: row.seat ?? '-', name: row.name }) }}
+					{{
+						t('decidiq', 'Seat {seat}: {name}', {
+							seat: row.seat ?? '-',
+							name: row.name,
+						})
+					}}
 				</p>
 				<NcSelect
 					v-model="substitute"
@@ -98,7 +103,8 @@ export default {
 				})
 				this.$emit('saved')
 			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'The swap could not be saved.')
+				this.error =
+					e?.message || this.t('decidiq', 'The swap could not be saved.')
 			} finally {
 				this.saving = false
 			}

@@ -157,6 +157,7 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/process-configuration/spec.md
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function openVotingRound(
 		string $motionId,
@@ -210,8 +211,12 @@ class VotingRoundOpener {
 		}
 
 		// Preset UUIDs are validated against active memberships; the eligible
-		// ones become participant relations on the round.
-		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetParticipantIds);
+		// ones become participant relations on the round. A preset member whose
+		// seat a substitute holds counts as the substitute (REQ-MSW-002).
+		$presets = $this->preflight->splitPresetParticipants(
+			meetingId: $meetingId,
+			presetIds: $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $presetParticipantIds)
+		);
 		$votingRound = $this->preflight->buildRoundPayload(
 			motionId: $motionId,
 			subjectType: $subjectType,

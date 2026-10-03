@@ -227,24 +227,11 @@ class VotingRoundPreflight {
 	 * @return array<string, array<int, string>> Keys: `eligible` and `excluded`.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function splitPresetParticipants(string $meetingId, array $presetIds): array {
 		if (count($presetIds) === 0) {
 			return ['eligible' => [], 'excluded' => []];
 		}
-
-		// A preset member whose seat a substitute holds resolves to the
-		// substitute for this meeting (bodies-substitute-mandate-swap, REQ-MSW-002).
-		$substitutions = new SubstitutionResolver(objectService: $this->objectService, logger: $this->logger);
-		$presetIds = array_values(
-			array_unique(
-				array_map(
-					static fn (string $uuid): string => $substitutions->seatHolderFor(meetingId: $meetingId, participantId: $uuid),
-					$presetIds
-				)
-			)
-		);
 
 		$participantArrays = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
 		$activeMembers = array_column($participantArrays, 'id', 'id');

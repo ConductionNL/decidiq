@@ -89,6 +89,33 @@ final class MeetingRuleSource {
 	}//end quorumMet()
 
 	/**
+	 * The participants who vote for these seats in the meeting: a member whose
+	 * seat a substitute holds resolves to the substitute (a voting group preset
+	 * follows the swap, REQ-MSW-002).
+	 *
+	 * @param string       $meetingId      The meeting
+	 * @param list<string> $participantIds The preset's participants
+	 *
+	 * @return list<string> In the preset's order, without duplicates
+	 *
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
+	 */
+	public function seatHoldersFor(string $meetingId, array $participantIds): array {
+		if ($participantIds === []) {
+			return [];
+		}
+
+		$substitutions = new SubstitutionResolver(objectService: $this->objectService);
+		$holders = [];
+		foreach ($participantIds as $participantId) {
+			$holders[] = $substitutions->seatHolderFor(meetingId: $meetingId, participantId: (string)$participantId);
+		}
+
+		return array_values(array_unique($holders));
+
+	}//end seatHoldersFor()
+
+	/**
 	 * The governance body of the meeting, or null (fails soft).
 	 *
 	 * @param string $meetingId The meeting

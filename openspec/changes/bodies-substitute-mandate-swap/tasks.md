@@ -29,7 +29,7 @@
 ### Task 3: Voting follows the seat
 
 - **spec_ref**: `openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat`
-- **files**: `lib/Service/SubstitutionResolver.php` (new), `lib/Service/VoteCastGuard.php`, `lib/Service/MeetingRuleSource.php` (`quorumMet()`, which `VotingRoundOpener::checkQuorum()` calls), `lib/Service/VotingRoundPreflight.php` (`splitPresetParticipants()`), `tests/Unit/Service/SubstitutionResolverTest.php` (new, drives the real VoteCastGuard, MeetingRuleSource and VotingRoundPreflight)
+- **files**: `lib/Service/SubstitutionResolver.php` (new), `lib/Service/SeatHolderGuard.php` (new, called by `VoteCastingService` after `VoteCastGuard::assertMeetingMembership()`), `lib/Service/MeetingRuleSource.php` (`quorumMet()`, which `VotingRoundOpener::checkQuorum()` calls, and `seatHoldersFor()`, which `VotingRoundOpener` applies to a preset before `VotingRoundPreflight::splitPresetParticipants()`), `tests/Unit/Service/SubstitutionResolverTest.php` (new, drives the real VoteCastGuard, MeetingRuleSource and VotingRoundPreflight)
 - **acceptance_criteria**:
   - GIVEN an active substitution WHEN the outgoing member casts THEN the cast is refused with the substitution named, and the substitute's cast is stored
   - GIVEN quorum 3 with one substituted seat WHEN a round opens THEN quorum passes
