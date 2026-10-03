@@ -167,6 +167,10 @@ $extra = [
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
         ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
+        // bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004): the seats and the mandate swap.
+        ['name' => 'mandate_substitution#seats',           'url' => '/api/meetings/{meetingId}/seats', 'verb' => 'GET'],
+        ['name' => 'mandate_substitution#substitute',      'url' => '/api/meetings/{meetingId}/substitutions', 'verb' => 'POST'],
+        ['name' => 'mandate_substitution#endSubstitution', 'url' => '/api/meetings/{meetingId}/substitutions/{id}/end', 'verb' => 'POST'],
         // agenda-office-files-to-pdf (age-17): queue a new conversion of a paper whose conversion failed.
         ['name' => 'paperConversion#convert', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/convert', 'verb' => 'POST'],
 

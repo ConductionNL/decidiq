@@ -62,6 +62,7 @@ final class MeetingRuleSource {
 	 *
 	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function quorumMet(string $meetingId): bool {
 		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
@@ -76,9 +77,12 @@ final class MeetingRuleSource {
 		return (new BodyQuorum())->isMet(
 			meeting: (array)$entity->jsonSerialize(),
 			body: $this->loadBody(bodyId: $this->bodyIdOf(meetingId: $meetingId)),
-			participants: $attendance->overlay(
-				participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId),
-				statuses: $attendance->statusesFor(meetingId: $meetingId)
+			participants: (new SubstitutionResolver(objectService: $this->objectService))->seatsForQuorum(
+				meetingId: $meetingId,
+				participants: $attendance->overlay(
+					participants: $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId),
+					statuses: $attendance->statusesFor(meetingId: $meetingId)
+				)
 			)
 		);
 
