@@ -41,6 +41,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
  * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
  * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
+ * @uses   \OCA\Decidiq\AppInfo\Registrar\TaskProcessingEventRegistrar
  *
  * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
  */

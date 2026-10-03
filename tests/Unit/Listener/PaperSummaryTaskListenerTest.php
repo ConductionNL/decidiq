@@ -48,6 +48,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
  * @uses   \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
  * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
+ * @uses   \OCA\Decidiq\AppInfo\OpenRegisterAutoloader
  */
 class PaperSummaryTaskListenerTest extends TestCase {
 
