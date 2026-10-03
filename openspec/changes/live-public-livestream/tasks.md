@@ -9,8 +9,8 @@
   - GIVEN the fragment WHEN the register imports THEN `meeting-broadcast` is attached to the decidiq register and `RegisterDescriptorTest` passes
   - GIVEN a broadcast without `publicationDate` WHEN an anonymous Newman request lists `meeting-broadcast` THEN the row is absent (red before the rule, green after)
   - GIVEN `ended` WHEN any transition is attempted THEN OpenRegister refuses it
-- [ ] Implement
-- [ ] Test
+- [x] Implement (fragment 120, not 92: 92 was taken; seeds on the seeded meetings raadsvergadering-2025-01-15 (ended), informatieavond-windpark-noord (planned, test found a problem) and raadsvergadering-2025-04-10 (planned, not announced), since the municipality set has no meetings on 12, 19 and 26 March; schema shape, lifecycle, read rule and seeds asserted in tests/Unit/Settings/MeetingBroadcastRegisterTest.php)
+- [ ] Test (Newman: an anonymous list of meeting-broadcast leaves out the row without publicationDate; needs the live instance)
 
 ### Task 2: The streaming connection
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service`
