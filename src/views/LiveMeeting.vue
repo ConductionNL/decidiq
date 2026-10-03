@@ -226,6 +226,9 @@
 				:participants="participants"
 				:isChair="isChair" />
 
+			<!-- Seats and the mandate swap (bodies-substitute-mandate-swap) -->
+			<SeatsPanel :meetingId="id" />
+
 			<!-- Real-time minute taking (minutes-ui-v1) -->
 			<MinutesPanel
 				v-if="canTakeMinutes"
@@ -274,6 +277,7 @@ import AgendaBuilder from '../components/AgendaBuilder.vue'
 import AgendaItemTimer from '../components/liveMeeting/AgendaItemTimer.vue'
 import MeetingCostPanel from '../components/liveMeeting/MeetingCostPanel.vue'
 import MeetingScreen from '../components/liveMeeting/MeetingScreen.vue'
+import SeatsPanel from '../components/liveMeeting/SeatsPanel.vue'
 import SpeakerQueuePanel from '../components/liveMeeting/SpeakerQueuePanel.vue'
 import MinutesPanel from '../components/minutesEditor/MinutesPanel.vue'
 import AdoptConsentAgendaDialog from '../dialogs/AdoptConsentAgendaDialog.vue'
@@ -318,6 +322,7 @@ export default {
 		MeetingCostPanel,
 		LiveDecisionDialog,
 		MeetingScreen,
+		SeatsPanel,
 	},
 
 	props: {

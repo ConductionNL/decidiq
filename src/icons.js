@@ -25,6 +25,7 @@ import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import AccountPlusOutline from 'vue-material-design-icons/AccountPlusOutline.vue'
 import AccountQuestionOutline from 'vue-material-design-icons/AccountQuestionOutline.vue'
 import AccountRemoveOutline from 'vue-material-design-icons/AccountRemoveOutline.vue'
+import AccountSwitch from 'vue-material-design-icons/AccountSwitch.vue'
 import AccountTieOutline from 'vue-material-design-icons/AccountTieOutline.vue'
 import AccountVoice from 'vue-material-design-icons/AccountVoice.vue'
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
@@ -152,6 +153,7 @@ export default {
 	AccountPlusOutline,
 	AccountQuestionOutline,
 	AccountRemoveOutline,
+	AccountSwitch,
 	AccountTieOutline,
 	AccountVoice,
 	AlertOctagonOutline,

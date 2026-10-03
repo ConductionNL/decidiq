@@ -43,21 +43,43 @@ use Throwable;
  * @spec openspec/specs/voting-system/spec.md
  */
 class VoteBallotFactory {
+
+	/**
+	 * Derives the secret-ballot tokens. The factory owns it: the slug of a
+	 * secret ballot and the dedup lookup before a cast must use the same one.
+	 *
+	 * @var VoterTokenSecret
+	 */
+	private readonly VoterTokenSecret $tokens;
+
 	/**
 	 * Constructor for the VoteBallotFactory.
 	 *
 	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 * @param LoggerInterface $logger The logger
-	 * @param VoterTokenSecret $tokens Derives secret-ballot tokens
+	 * @param VoterTokenSecret|null $tokens Derives secret-ballot tokens; built from the container when null
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
-		private readonly VoterTokenSecret $tokens,
+		?VoterTokenSecret $tokens = null,
 	) {
+		$this->tokens = ($tokens ?? new VoterTokenSecret(container: $container));
 	}//end __construct()
+
+	/**
+	 * The token secret this factory signs secret ballots with, for the guards
+	 * and lookups of the same cast.
+	 *
+	 * @return VoterTokenSecret The token secret.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function tokens(): VoterTokenSecret {
+		return $this->tokens;
+	}//end tokens()
 
 	/**
 	 * Assemble the ballot payload, including the idempotency slug.
