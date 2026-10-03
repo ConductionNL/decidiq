@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar;
+use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Listener\PaperSummaryTaskListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -44,7 +44,10 @@ use Psr\Log\LoggerInterface;
 
 /**
  * @covers \OCA\Decidiq\Listener\PaperSummaryTaskListener
- * @covers \OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar
+ * @covers \OCA\Decidiq\AppInfo\Registrar\TaskProcessingEventRegistrar
+ * @uses   \OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar
+ * @uses   \OCA\Decidiq\AppInfo\Registrar\FlowNodeRegistrar
+ * @uses   \OCA\Decidiq\AppInfo\Registrar\FilesEventRegistrar
  */
 class PaperSummaryTaskListenerTest extends TestCase {
 
@@ -172,7 +175,7 @@ class PaperSummaryTaskListenerTest extends TestCase {
 	}//end testALateResultLeavesAReviewedSummaryAlone()
 
 	/**
-	 * The registrar the app boots wires both task events to the listener.
+	 * The registrar the app boots (Application calls CrossAppEventRegistrar) wires both task events to the listener.
 	 *
 	 * @return void
 	 */
@@ -185,7 +188,7 @@ class PaperSummaryTaskListenerTest extends TestCase {
 			}
 		);
 
-		(new PlatformIntegrationRegistrar())->register(context: $context);
+		(new CrossAppEventRegistrar())->register(context: $context);
 
 		self::assertContains([TaskSuccessfulEvent::class, PaperSummaryTaskListener::class], $registered);
 		self::assertContains([TaskFailedEvent::class, PaperSummaryTaskListener::class], $registered);

@@ -113,6 +113,11 @@ class CrossAppEventRegistrar {
 		// the flow nodes above.
 		(new FilesEventRegistrar())->register(context: $context);
 
+		// Nextcloud TaskProcessing events: the AI answer to a paper summary
+		// request lands as a draft (agenda-ai-paper-summaries, REQ-APS-004).
+		// Its own registrar, like the two above.
+		(new TaskProcessingEventRegistrar())->register(context: $context);
+
 	}//end register()
 
 	/**

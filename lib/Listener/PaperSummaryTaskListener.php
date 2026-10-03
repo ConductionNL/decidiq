@@ -87,7 +87,7 @@ class PaperSummaryTaskListener implements IEventListener {
 		}
 
 		$task = $event->getTask();
-		$customId = (string)($task->getCustomId() ?? '');
+		$customId = ($task->getCustomId() ?? '');
 		if ($task->getAppId() !== self::APP_ID || str_starts_with($customId, self::CUSTOM_ID_PREFIX) === false) {
 			return;
 		}
