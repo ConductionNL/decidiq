@@ -140,9 +140,10 @@ class MandateSubstitutionServiceTest extends TestCase {
 			fn (int|string $id, mixed ...$rest): ?ObjectEntity => isset($this->substitutions[$id]) === true ? $this->entity($this->substitutions[$id]) : null
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array|ObjectEntity $object, mixed ...$rest): ObjectEntity {
-				$this->assertFalse($rest['_rbac'] ?? true, 'A substitution is written in system context');
-				$id = ($rest['uuid'] ?? null) ?? 'sub-' . (count($this->substitutions) + 1);
+			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
+				$this->assertFalse($_rbac, 'A substitution is written in system context');
+				$this->assertSame('mandate-substitution', $schema);
+				$id = ($uuid ?? 'sub-' . (count($this->substitutions) + 1));
 				$this->saved[] = $object;
 				$this->substitutions[$id] = ['id' => $id] + $object;
 				return $this->entity($this->substitutions[$id]);
