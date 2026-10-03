@@ -27,6 +27,7 @@ export const EVENT_TYPES = [
 	'taskAssigned',
 	'commentMention',
 	'meetingReminder',
+	'agendaChanged',
 ]
 
 /** Valid meeting-reminder timing tokens (mirrors the schema enum). */

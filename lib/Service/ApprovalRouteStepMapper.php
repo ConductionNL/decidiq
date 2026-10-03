@@ -202,4 +202,66 @@ class ApprovalRouteStepMapper {
 		return 'pending';
 	}//end initialStatus()
 
+	/**
+	 * The configuration a step declares, copied onto the stage.
+	 *
+	 * Named `silenceFields()` until 2026-09-18, when it grew the four fields
+	 * that decide how a step CLOSES rather than what its silence means. The old
+	 * name would have sent the next reader looking for the threshold somewhere
+	 * else, which is how thresholdKind came to live only on the template in the
+	 * first place.
+	 *
+	 * Copied and not read back off the route: editing a route must never change
+	 * what the silence of a stage already in flight means. Someone who lowers a
+	 * step to `approve` on Friday would otherwise have approved, retroactively,
+	 * every stage that went quiet that week.
+	 *
+	 * Only keys the step actually declares are returned, so a step that says
+	 * nothing writes nothing and each schema default stands.
+	 *
+	 * @param array<string, mixed> $step The route step.
+	 *
+	 * @return array<string, mixed> The stage fields.
+	 *
+	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+	 */
+	public function declaredStepFields(array $step): array {
+		$fields = [];
+
+		foreach (['actorRule', 'actorRuleSubject', 'onSilence', 'thresholdKind', 'stepKind'] as $key) {
+			$value = trim((string)($step[$key] ?? ''));
+			if ($value !== '') {
+				$fields[$key] = $value;
+			}
+		}
+
+		foreach (['askSubstituteAfter', 'thresholdValue'] as $key) {
+			$number = ($step[$key] ?? null);
+			if (is_numeric($number) === true) {
+				$fields[$key] = (float)$number;
+			}
+		}
+
+		// An EMPTY basis is not the same as no basis: an empty one never
+		// withdraws anything, which is what keeps staleness opt-in, so an empty
+		// array is dropped here and the stage carries nothing rather than a
+		// basis that reads as declared-and-empty.
+		$basis = ($step['approvalBasis'] ?? null);
+		if (is_array($basis) === true && $basis !== []) {
+			$fields['approvalBasis'] = array_values(
+				array_filter(
+					array_map(static fn (mixed $path): string => trim((string)$path), $basis),
+					static fn (string $path): bool => ($path !== '')
+				)
+			);
+		}
+
+		$dueAt = trim((string)($step['dueAt'] ?? ''));
+		if ($dueAt !== '') {
+			$fields['dueAt'] = $dueAt;
+		}
+
+		return $fields;
+	}//end declaredStepFields()
+
 }//end class

@@ -41,6 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\AppInfo\Registrar;
 
+use OCA\Decidiq\Listener\RegisterApprovalChainLeafListener;
 use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -81,6 +82,12 @@ class IntegrationLeafRegistrar {
 		$context->registerEventListener(
 			event: RegisterLeafProvidersEvent::class,
 			listener: RegisterDecisionsLeafListener::class
+		);
+
+		// @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
+		$context->registerEventListener(
+			event: RegisterLeafProvidersEvent::class,
+			listener: RegisterApprovalChainLeafListener::class
 		);
 
 	}//end register()

@@ -74,3 +74,9 @@ Set enforcement mode to `off` and scan-on-upload to off — publish flows behave
 
 1. Default enforcement mode on upgrade: provisional `warn` (visible but non-breaking); `block` would surprise existing installs.
 2. "Long document" threshold for the bookmarks check: provisional 20 pages, admin-tunable later if needed.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- age-15: Check that documents are accessible before they are published with the agenda.

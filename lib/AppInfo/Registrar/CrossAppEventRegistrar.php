@@ -92,6 +92,7 @@ class CrossAppEventRegistrar {
 	 * @return void
 	 *
 	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function register(IRegistrationContext $context): void {
 		foreach (self::COMMANDS as $event => $listener) {
@@ -99,6 +100,23 @@ class CrossAppEventRegistrar {
 		}
 
 		$this->registerTaskDecisionListener(context: $context);
+
+		// OpenRegister's flow engine asks decidiq for its nodes, and a flow
+		// decision's conclusion wakes the run that asked. Its own registrar,
+		// guarded on the engine, so decidiq boots without OpenRegister.
+		// @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+		(new FlowNodeRegistrar())->register(context: $context);
+
+		// Nextcloud Files events: an Office paper added to a meeting or agenda
+		// item folder is queued for conversion to PDF, which filinq performs
+		// (agenda-office-files-to-pdf, REQ-OPDF-001). Its own registrar, like
+		// the flow nodes above.
+		(new FilesEventRegistrar())->register(context: $context);
+
+		// Nextcloud TaskProcessing events: the AI answer to a paper summary
+		// request lands as a draft (agenda-ai-paper-summaries, REQ-APS-004).
+		// Its own registrar, like the two above.
+		(new TaskProcessingEventRegistrar())->register(context: $context);
 
 	}//end register()
 

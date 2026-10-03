@@ -26,7 +26,8 @@
 			<VotingRoundPanel
 				:motionId="motionId"
 				:motionLifecycle="motionLifecycle"
-				:meetingId="meetingId" />
+				:meetingId="meetingId"
+				:agendaItemId="agendaItemId" />
 		</template>
 	</div>
 </template>
@@ -47,6 +48,7 @@ export default {
 			loading: false,
 			motionLifecycle: '',
 			meetingId: '',
+			agendaItemId: '',
 		}
 	},
 
@@ -115,9 +117,14 @@ export default {
 				// (register.d/67-model-debt-cleanup.json); the object shape is a
 				// bare uuid or an expanded object depending on `_extend`.
 				this.meetingId = String(motion?.meeting?.id ?? motion?.meeting ?? '')
-			} catch (e) {
+				// Recusals on the agenda item cover its motions (bod-10).
+				this.agendaItemId = String(
+					motion?.agendaItem?.id ?? motion?.agendaItem ?? '',
+				)
+			} catch {
 				this.motionLifecycle = ''
 				this.meetingId = ''
+				this.agendaItemId = ''
 			} finally {
 				this.loading = false
 			}

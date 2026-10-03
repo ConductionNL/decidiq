@@ -143,6 +143,18 @@
 					</NcButton>
 					<NcButton
 						size="small"
+						variant="secondary"
+						data-testid="speaker-queue-question"
+						:aria-label="
+							t('decidiq', 'Log a question by {name}', {
+								name: entry.displayName,
+							})
+						"
+						@click="recordQuestion(entry)">
+						{{ t('decidiq', 'Question raised') }}
+					</NcButton>
+					<NcButton
+						size="small"
 						variant="tertiary"
 						data-testid="speaker-queue-remove"
 						:aria-label="
@@ -159,11 +171,37 @@
 		<p v-else class="speaker-queue__empty" data-testid="speaker-queue-empty">
 			{{ t('decidiq', 'No speakers in the queue.') }}
 		</p>
+
+		<div
+			v-if="contributions.length"
+			class="speaker-queue__contributions"
+			data-testid="speaker-queue-contributions">
+			<h5 class="speaker-queue__contributions-title">
+				{{ t('decidiq', 'Contributions on this item') }}
+			</h5>
+			<ul>
+				<li
+					v-for="(contribution, idx) in contributions"
+					:key="`${contribution.participantId}-${contribution.kind}-${idx}`">
+					{{
+						contribution.kind === 'speech'
+							? t('decidiq', '{name} spoke for {time}', {
+									name: contribution.name,
+									time: durationLabel(contribution.duration),
+								})
+							: t('decidiq', '{name} raised a question', {
+									name: contribution.name,
+								})
+					}}
+				</li>
+			</ul>
+		</div>
 	</section>
 </template>
 
 <script>
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import { contributionsOn, engagementBody } from '../../utils/liveMeeting.js'
 import { formatClock } from '../../utils/meetingTimer.js'
 import {
 	addSpeaker,
@@ -185,6 +223,9 @@ export default {
 
 	props: {
 		meetingId: { type: String, required: true },
+		// The agenda item being dealt with; speeches and questions carry it
+		// (live-meeting-shared-current-item).
+		currentItemId: { type: String, default: null },
 		participants: { type: Array, default: () => [] },
 		isChair: { type: Boolean, default: false },
 	},
@@ -196,6 +237,9 @@ export default {
 			limitMinutes: 3,
 			now: Date.now(),
 			intervalId: null,
+			// This meeting's engagement records, for the contributions on
+			// the current item (live-meeting-shared-current-item).
+			records: [],
 		}
 	},
 
@@ -206,12 +250,41 @@ export default {
 			return Number.isFinite(m) && m > 0 ? m * 60 : null
 		},
 
+		/**
+		 * Who spoke and who raised a question on the current item.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		contributions() {
+			return contributionsOn(
+				this.records,
+				this.currentItemId,
+				this.participants,
+			)
+		},
+
 		/** @spec openspec/specs/meeting-efficiency/spec.md */
 		participantOptions() {
 			const queued = new Set(this.queue.map((e) => e.participantId))
 			return this.participants
 				.filter((p) => !queued.has(p.id))
 				.map((p) => ({ id: p.id, label: p.displayName || p.name || p.id }))
+		},
+	},
+
+	watch: {
+		/**
+		 * Read the contributions again when the chair moves to another item.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		currentItemId: {
+			/** @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item */
+			handler() {
+				this.loadRecords()
+			},
+
+			immediate: true,
 		},
 	},
 
@@ -303,6 +376,7 @@ export default {
 		 * @param {{participantId: string, durationSeconds: number}} stopped The recorded speech.
 		 *
 		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
 		 */
 		async recordSpeech(stopped) {
 			if (!stopped || stopped.durationSeconds <= 0) return
@@ -313,16 +387,86 @@ export default {
 						'Content-Type': 'application/json',
 						requesttoken: OC.requestToken,
 					},
-					body: JSON.stringify({
-						meeting: this.meetingId,
-						participant: stopped.participantId,
-						eventType: 'speech',
-						eventData: { duration: stopped.durationSeconds },
-					}),
+					body: JSON.stringify(
+						engagementBody(
+							this.meetingId,
+							stopped.participantId,
+							'speech',
+							this.currentItemId,
+							{ duration: stopped.durationSeconds },
+						),
+					),
 				})
 				this.$emit('speech-recorded', stopped)
+				await this.loadRecords()
 			} catch (e) {
+				// eslint-disable-next-line no-console
 				console.error('Failed to record speech:', e)
+			}
+		},
+
+		/**
+		 * Log that a member raised a question on the current item.
+		 *
+		 * @param {{participantId: string}} entry The queue entry.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		async recordQuestion(entry) {
+			try {
+				await fetch(OC.generateUrl('/apps/decidiq/api/engagement'), {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						requesttoken: OC.requestToken,
+					},
+					body: JSON.stringify(
+						engagementBody(
+							this.meetingId,
+							entry.participantId,
+							'question',
+							this.currentItemId,
+						),
+					),
+				})
+				await this.loadRecords()
+			} catch (e) {
+				// eslint-disable-next-line no-console
+				console.error('Failed to record question:', e)
+			}
+		},
+
+		/**
+		 * A speech's length as m:ss.
+		 *
+		 * @param {number} seconds The duration.
+		 *
+		 * @return {string} The clock text.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		durationLabel(seconds) {
+			return formatClock(seconds)
+		},
+
+		/**
+		 * Read this meeting's engagement records; the server narrows them to
+		 * the caller's own unless the caller chairs or takes the minutes.
+		 *
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		async loadRecords() {
+			try {
+				const response = await fetch(
+					OC.generateUrl('/apps/decidiq/api/engagement')
+						+ '?meeting='
+						+ encodeURIComponent(this.meetingId),
+					{ headers: { requesttoken: OC.requestToken } },
+				)
+				const data = response.ok ? await response.json() : {}
+				this.records = Array.isArray(data?.records) ? data.records : []
+			} catch {
+				this.records = []
 			}
 		},
 	},
@@ -427,5 +571,15 @@ export default {
 .speaker-queue__empty {
 	color: var(--color-text-maxcontrast);
 	margin: 0;
+}
+
+.speaker-queue__contributions-title {
+	margin: 0 0 calc(var(--default-grid-baseline) * 1);
+}
+
+.speaker-queue__contributions ul {
+	margin: 0;
+	padding-inline-start: calc(var(--default-grid-baseline) * 5);
+	list-style: disc;
 }
 </style>

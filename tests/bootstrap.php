@@ -158,3 +158,11 @@ if (class_exists(\OCA\OpenRegister\Event\DeepLinkRegistrationEvent::class) === f
 if (class_exists(\OCA\OpenRegister\Service\CalendarEventService::class) === false) {
 	include_once __DIR__ . '/Stubs/OpenRegisterServices.php';
 }
+
+// Integriq's connection-registry events (adopt-connection-registry), resolved by
+// name in ConnectionReportService (ADR-041). Loaded only when integriq is absent.
+foreach (['ConnectionStatusReportedEvent', 'ConnectionRefreshRequestedEvent'] as $integriqStubEvent) {
+	if (class_exists('\\OCA\\Integriq\\Event\\' . $integriqStubEvent) === false) {
+		include_once __DIR__ . '/Stubs/Integriq/Event/' . $integriqStubEvent . '.php';
+	}
+}

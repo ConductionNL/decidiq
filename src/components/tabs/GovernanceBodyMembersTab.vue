@@ -30,6 +30,19 @@
 				>
 			</h3>
 			<div class="decidiq-tab__actions">
+				<NcCheckboxRadioSwitch
+					v-model="showPast"
+					type="switch"
+					data-testid="body-members-past">
+					{{ t('decidiq', 'Past members') }}
+				</NcCheckboxRadioSwitch>
+				<NcButton
+					variant="secondary"
+					data-testid="body-contact-details"
+					:aria-label="t('decidiq', 'Contact details of this body')"
+					@click="bodyContactOpen = true">
+					{{ t('decidiq', 'Contact details') }}
+				</NcButton>
 				<NcActions :aria-label="t('decidiq', 'Import members')">
 					<template #icon>
 						<AccountMultiplePlus :size="20" />
@@ -80,6 +93,14 @@
 			rowKey="id"
 			:emptyText="t('decidiq', 'No members linked to this body yet.')"
 			:loadingText="t('decidiq', 'Loading members…')">
+			<template #column-displayName="{ row, value }">
+				<router-link
+					v-if="row.person"
+					:to="{ path: profilePath(row.person) }">
+					{{ value }}
+				</router-link>
+				<span v-else>{{ value }}</span>
+			</template>
 			<template #row-actions="{ row }">
 				<CnRowActions :row="row" :actions="rowActions" />
 			</template>
@@ -111,6 +132,18 @@
 			@imported="refresh"
 			@close="csvImportOpen = false" />
 
+		<ContactDetailsDialog
+			v-if="contactTarget"
+			:personId="contactTarget.person"
+			:name="contactTarget.displayName"
+			@saved="refresh"
+			@close="contactTarget = null" />
+
+		<ContactDetailsDialog
+			v-if="bodyContactOpen"
+			:bodyId="String(objectId)"
+			@close="bodyContactOpen = false" />
+
 		<CnDeleteDialog
 			v-if="removeTarget"
 			ref="removeDialog"
@@ -129,22 +162,31 @@ import {
 	CnNoteCard,
 	CnRowActions,
 } from '@conduction/nextcloud-vue'
-import { NcActionButton, NcActions, NcButton } from '@nextcloud/vue'
+import {
+	NcActionButton,
+	NcActions,
+	NcButton,
+	NcCheckboxRadioSwitch,
+} from '@nextcloud/vue'
 import AccountEdit from 'vue-material-design-icons/AccountEdit.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import CardAccountDetailsOutline from 'vue-material-design-icons/CardAccountDetailsOutline.vue'
 import FileDelimited from 'vue-material-design-icons/FileDelimited.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import ContactDetailsDialog from '../../modals/ContactDetailsDialog.vue'
 import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
 import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
 import MemberRoleDialog from '../../modals/MemberRoleDialog.vue'
 import {
-	buildMemberRows,
-	ensureRelationType,
-	isActiveMembership,
-} from './useRelationStore.js'
+	contactSummary,
+	factionsOf,
+	memberRowsFor,
+} from '../../utils/bodyMembership.js'
+import { profilePath } from '../../utils/memberProfile.js'
+import { buildMembershipPayload, ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'GovernanceBodyMembersTab',
@@ -155,6 +197,7 @@ export default {
 		CnDeleteDialog,
 		CnNoteCard,
 		CnRowActions,
+		ContactDetailsDialog,
 		FileDelimited,
 		MemberAddDialog,
 		MemberCsvImportDialog,
@@ -163,6 +206,7 @@ export default {
 		NcActionButton,
 		NcActions,
 		NcButton,
+		NcCheckboxRadioSwitch,
 		Plus,
 	},
 
@@ -183,17 +227,29 @@ export default {
 			csvImportOpen: false,
 			roleTarget: null,
 			removeTarget: null,
+			// bodies-membership-terms-contacts-and-factions
+			showPast: false,
+			contactTarget: null,
+			bodyContactOpen: false,
 		}
 	},
 
 	computed: {
 		/** @spec openspec/specs/admin-settings/spec.md */
 		columns() {
-			return [
+			const columns = [
 				{ key: 'displayName', label: this.t('decidiq', 'Name') },
 				{ key: 'role', label: this.t('decidiq', 'Role') },
+				{ key: 'factionName', label: this.t('decidiq', 'Faction') },
 				{ key: 'party', label: this.t('decidiq', 'Party') },
+				{ key: 'email', label: this.t('decidiq', 'Email') },
+				{ key: 'phone', label: this.t('decidiq', 'Phone') },
+				{ key: 'fromLabel', label: this.t('decidiq', 'From') },
 			]
+			if (this.showPast) {
+				columns.push({ key: 'toLabel', label: this.t('decidiq', 'To') })
+			}
+			return columns
 		},
 
 		/** @spec openspec/specs/admin-settings/spec.md */
@@ -204,6 +260,13 @@ export default {
 					icon: AccountEdit,
 					handler: (row) => {
 						this.roleTarget = { ...row }
+					},
+				},
+				{
+					label: this.t('decidiq', 'Contact details'),
+					icon: CardAccountDetailsOutline,
+					handler: (row) => {
+						this.contactTarget = { ...row }
 					},
 				},
 				{
@@ -219,6 +282,11 @@ export default {
 	},
 
 	watch: {
+		/** @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when */
+		showPast() {
+			this.refresh()
+		},
+
 		objectId: {
 			immediate: true,
 			/** @spec openspec/specs/admin-settings/spec.md */
@@ -230,12 +298,24 @@ export default {
 
 	methods: {
 		/**
+		 * The profile route of a member (REQ-MPR-003).
+		 *
+		 * @param {string} personId The person id
+		 * @return {string}
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-003-member-lists-link-to-the-profile
+		 */
+		profilePath(personId) {
+			return profilePath(personId)
+		},
+
+		/**
 		 * Load every active Membership for this body and join each to its
 		 * Person for the displayed name (spec.md "Members tab lists active
 		 * memberships, not Participant rows").
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async refresh() {
 			if (!this.objectId) return
@@ -244,22 +324,68 @@ export default {
 			try {
 				const membershipStore = ensureRelationType('membership')
 				const personStore = ensureRelationType('person')
-				const memberships = await membershipStore.fetchCollection(
-					'membership',
-					{ governanceBody: this.objectId, _limit: 100 },
-				)
-				const active = (memberships || []).filter(isActiveMembership)
-				const personIds = [
-					...new Set(active.map((m) => m.person).filter(Boolean)),
+				// The body's own memberships, and on a faction page the
+				// council memberships that name this faction.
+				const [own, byFaction, factions] = await Promise.all([
+					membershipStore.fetchCollection('membership', {
+						governanceBody: this.objectId,
+						_limit: 100,
+					}),
+					membershipStore.fetchCollection('membership', {
+						faction: this.objectId,
+						_limit: 100,
+					}),
+					ensureRelationType('governance-body').fetchCollection(
+						'governance-body',
+						{
+							parentBody: this.objectId,
+							bodyType: 'faction',
+							_limit: 100,
+						},
+					),
+				])
+				const memberships = [
+					...new Map(
+						[...(own || []), ...(byFaction || [])].map((m) => [m.id, m]),
+					).values(),
 				]
-				const persons = await Promise.all(
-					personIds.map((id) => personStore.fetchObject('person', id)),
-				)
+				const personIds = [
+					...new Set(memberships.map((m) => m.person).filter(Boolean)),
+				]
+				const [persons, contacts] = await Promise.all([
+					Promise.all(
+						personIds.map((id) => personStore.fetchObject('person', id)),
+					),
+					Promise.all(
+						personIds.map((id) =>
+							ensureRelationType('contact-detail')
+								.fetchCollection('contact-detail', {
+									person: id,
+									_limit: 20,
+								})
+								.catch(() => []),
+						),
+					),
+				])
 				const personsById = {}
+				const contactsById = {}
 				personIds.forEach((id, i) => {
 					personsById[id] = persons[i]
+					contactsById[id] = contactSummary(contacts[i])
 				})
-				this.rows = buildMemberRows(active, personsById)
+				const factionNames = Object.fromEntries(
+					factionsOf(factions, this.objectId).map((f) => [f.id, f.label]),
+				)
+				this.rows = memberRowsFor(memberships, personsById, {
+					past: this.showPast,
+				}).map((row) => ({
+					...row,
+					email: contactsById[row.person]?.email || row.email,
+					phone: contactsById[row.person]?.phone || '',
+					factionName: factionNames[row.faction] || '',
+					fromLabel: this.dateLabel(row.startDate),
+					toLabel: this.dateLabel(row.endDate),
+				}))
 			} catch (e) {
 				this.error =
 					e?.message || this.t('decidiq', 'Failed to load members.')
@@ -269,22 +395,45 @@ export default {
 		},
 
 		/**
+		 * A membership date as the user's short date.
+		 *
+		 * @param {?string} value An ISO date-time.
+		 *
+		 * @return {string} The date, or '' when there is none.
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
+		 */
+		dateLabel(value) {
+			if (!value) return ''
+			const date = new Date(value)
+			return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString()
+		},
+
+		/**
 		 * "Remove from body": sets the Membership's endDate to today
 		 * (Popolo departure semantics) rather than deleting the row or
 		 * nulling a governanceBody pointer.
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async confirmRemove() {
 			const store = ensureRelationType('membership')
 			const target = this.removeTarget
 			try {
+				// Keep what the membership already says (start date,
+				// faction, party): the save replaces the object.
 				await store.saveObject('membership', {
-					id: target.id,
-					person: target.person,
-					governanceBody: target.governanceBody,
-					role: target.role,
+					...buildMembershipPayload({
+						id: target.id,
+						personId: target.person,
+						governanceBodyId: target.governanceBody,
+						role: target.role,
+						party: target.party,
+						votingWeight: target.votingWeight ?? null,
+						startDate: target.startDate || '',
+						faction: target.faction || '',
+					}),
 					endDate: new Date().toISOString(),
 				})
 				this.$refs.removeDialog?.setResult({ success: true })

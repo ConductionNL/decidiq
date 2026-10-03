@@ -136,6 +136,12 @@ class RegisterAuthorizationTest extends TestCase {
 		'ConflictOfInterest'   => 'ConflictOfInterestService',
 		'ConsultationReaction' => 'ReactionIntakeService',
 		'PublicationPayload'   => 'the publish flow',
+		'CaseExchangeRecord'   => 'CaseExchangeRecords (case system exchange)',
+		'PublicationEvent'     => 'PublicationEventRecorder (publication subscriptions)',
+		'ArchivalDossier'      => 'ArchivalDossierService (records management)',
+		'BoardCompetence'      => 'MemberCompetenceService (board composition)',
+		'MemberCompetence'     => 'MemberCompetenceService (board composition)',
+		'MandateSubstitution'  => 'MandateSubstitutionService (substitute mandate swap)',
 	];
 
 	/**
@@ -583,6 +589,34 @@ class RegisterAuthorizationTest extends TestCase {
 				continue;
 			}
 
+			// PublicationSubscription (publication-subscriptions-and-daily-digest,
+			// REQ-PSD-001): any member may subscribe, and reads, changes and
+			// removes only the rows naming his own account.
+			if ($name === 'PublicationSubscription') {
+				$own = [['group' => 'authenticated', 'match' => ['subscriberUserId' => '$userId']], 'decidiq-administrators', 'decidesk-administrators'];
+				$this->assertSame(['authenticated'], $block['create'] ?? null, 'PublicationSubscription opens `create` to members and nothing wider.');
+				foreach (['update', 'delete'] as $action) {
+					$this->assertSame($own, $block[$action] ?? null, sprintf('PublicationSubscription must scope `%s` to the subscriber and administrators.', $action));
+				}
+
+				continue;
+			}
+
+			// MandateRemuneration (bodies-director-remuneration, REQ-DRM-001):
+			// pay is written by the secretariat and administrators only, the
+			// SPA writes it through the object API, and members never do.
+			// PaperSummary (agenda-ai-paper-summaries, REQ-APS-001/005): the
+			// clerk reviews a summary through the object API, guarded by the
+			// lifecycle; members never write one.
+			if ($name === 'MandateRemuneration' || $name === 'PaperSummary') {
+				$writers = ['decidiq-secretariat', 'decidiq-administrators', 'decidesk-administrators'];
+				foreach (self::WRITE_ACTIONS as $action) {
+					$this->assertSame($writers, $block[$action] ?? null, sprintf('%s must grant `%s` to the secretariat and administrators only.', $name, $action));
+				}
+
+				continue;
+			}
+
 			if ($name === 'EvaluationResponse') {
 				$this->assertSame(
 					['authenticated'],
@@ -623,17 +657,17 @@ class RegisterAuthorizationTest extends TestCase {
 		}//end foreach
 
 		// Every listed schema really has a block, so a list entry cannot go stale unnoticed.
-		foreach (array_merge(self::RESTATES_THE_BASELINE_WRITES, array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED), self::RETIRED_READ_ONLY, ['EvaluationResponse']) as $listed) {
+		foreach (array_merge(self::RESTATES_THE_BASELINE_WRITES, array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED), self::RETIRED_READ_ONLY, ['EvaluationResponse', 'PublicationSubscription', 'MandateRemuneration', 'PaperSummary']) as $listed) {
 			$this->assertArrayHasKey($listed, $blocks, sprintf('`%s` is classified here but declares no block.', $listed));
 		}
 
 		// The count is the positive control: without it the loop above passes
 		// vacuously if the schemas move, are renamed, or stop being found at all.
-		// 14 restate the baseline writes, 4 are service owned, 1 is
-		// EvaluationResponse, 17 are retired. A different number means schemas
+		// 14 restate the baseline writes, 10 are service owned, 1 is
+		// EvaluationResponse, 1 is PublicationSubscription, 1 is MandateRemuneration, 1 is PaperSummary, 17 are retired. A different number means schemas
 		// gained or lost their own block, which changes which ones the register
 		// baseline governs.
-		$this->assertCount(36, $blocks, 'Expected 36 schema-level authorization blocks.');
+		$this->assertCount(45, $blocks, 'Expected 45 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**

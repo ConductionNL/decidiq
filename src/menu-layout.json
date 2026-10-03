@@ -6,6 +6,7 @@
 	},
 	"relocations": {
 		"AncillaryPositions": "GovernanceBodies",
+		"Archive": "Registers",
 		"AuditStatements": "Meetings",
 		"AuthorityDelegations": "Registers",
 		"Commitments": "ActionItems",
@@ -31,9 +32,12 @@
 		"PositionTypes",
 		"PositionHolds",
 		"AgendaItemTypes",
+		"DocumentTypes",
 		"MeetingTypes",
+		"AgendaTemplates",
 		"BodyConfigurations",
 		"ConfidentialityGrounds",
+		"Themes",
 		"ModerationQueue",
 		"MyDeclarations",
 		"UserSettingsMenu"

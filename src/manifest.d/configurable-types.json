@@ -18,6 +18,13 @@
 			"order": 72
 		},
 		{
+			"id": "DocumentTypes",
+			"label": "Document types",
+			"icon": "FileCogOutline",
+			"route": "DocumentTypes",
+			"order": 73
+		},
+		{
 			"id": "PositionTypes",
 			"label": "Position types",
 			"icon": "AccountBoxOutline",
@@ -84,6 +91,10 @@
 					{
 						"key": "defaultDurationMinutes",
 						"label": "Duration (min)"
+					},
+					{
+						"key": "audiences",
+						"label": "Audiences"
 					},
 					{
 						"key": "isPublic",
@@ -310,6 +321,142 @@
 					{
 						"id": "3",
 						"widgetId": "agenda-item-type-items",
+						"gridX": 0,
+						"gridY": 7,
+						"gridWidth": 12,
+						"gridHeight": 6
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "DocumentTypes",
+			"route": "/document-types",
+			"type": "index",
+			"title": "Document types",
+			"_note": "platform-document-metadata-fields (plt-20): the kinds of document a file on a meeting or an agenda item can be, and the extra fields its details carry. Same field shape as agenda item types, so an administrator adds a field without a supplier.",
+			"config": {
+				"register": "decidiq",
+				"schema": "document-type",
+				"sortKey": "name",
+				"sortOrder": "asc",
+				"quickFilterMode": "dropdown",
+				"quickFilters": [
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "In use",
+						"filter": {
+							"active": true
+						}
+					}
+				],
+				"columns": [
+					{
+						"key": "name",
+						"label": "Name",
+						"widget": "link"
+					},
+					{
+						"key": "appliesTo",
+						"label": "Offered on"
+					},
+					{
+						"key": "active",
+						"label": "In use",
+						"widget": "boolean"
+					}
+				],
+				"rowRoute": "DocumentTypeDetail",
+				"allowCreate": true,
+				"emptyText": "No document types yet. Add one to give the files on meetings and agenda items their own fields."
+			}
+		},
+		{
+			"id": "DocumentTypeDetail",
+			"route": "/document-types/:id",
+			"type": "detail",
+			"title": "Document type",
+			"config": {
+				"register": "decidiq",
+				"schema": "document-type",
+				"widgets": [
+					{
+						"id": "document-type-data",
+						"type": "data",
+						"title": "Document type",
+						"icon": "FileCogOutline",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "document-type-documents",
+						"type": "object-list",
+						"title": "Documents of this type",
+						"icon": "FileDocumentOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "digital-document",
+							"filter": {
+								"type": "@objectId"
+							},
+							"sort": {
+								"field": "name",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "name",
+									"label": "Name"
+								},
+								{
+									"key": "meeting",
+									"label": "Meeting"
+								},
+								{
+									"key": "agendaItem",
+									"label": "Agenda item"
+								}
+							],
+							"limit": 25,
+							"allowCreate": false,
+							"emptyText": "No documents of this type yet."
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "document-type-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 7
+					},
+					{
+						"id": "2",
+						"widgetId": "document-type-documents",
 						"gridX": 0,
 						"gridY": 7,
 						"gridWidth": 12,
@@ -687,6 +834,53 @@
 						"type": "related",
 						"title": "Related",
 						"icon": "LinkVariant"
+					},
+					{
+						"id": "hold-remuneration",
+						"type": "object-list",
+						"title": "Remuneration",
+						"icon": "CashMultiple",
+						"content": {
+							"register": "decidiq",
+							"schema": "mandate-remuneration",
+							"filter": {
+								"positionHold": "@objectId"
+							},
+							"sort": {
+								"field": "year",
+								"dir": "desc"
+							},
+							"columns": [
+								{
+									"key": "year",
+									"label": "Year"
+								},
+								{
+									"key": "fixedFee",
+									"label": "Fixed fee"
+								},
+								{
+									"key": "meetingFee",
+									"label": "Meeting fee"
+								},
+								{
+									"key": "expenseAllowance",
+									"label": "Expense allowance"
+								},
+								{
+									"key": "currency",
+									"label": "Currency"
+								},
+								{
+									"key": "disclosed",
+									"label": "Disclosed",
+									"widget": "badge"
+								}
+							],
+							"limit": 20,
+							"allowCreate": true,
+							"emptyText": "No remuneration recorded, or none you can read."
+						}
 					}
 				],
 				"layout": [
@@ -705,6 +899,14 @@
 						"gridY": 0,
 						"gridWidth": 4,
 						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "hold-remuneration",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 5
 					}
 				],
 				"sidebar": {

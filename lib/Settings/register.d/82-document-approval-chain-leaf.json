@@ -1,0 +1,35 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - document-approval-chain-leaf. Patches DecisionStage by key union with the two fields an ad-hoc review route needs: where it came from, and when this step is due. `dueAt` is REQ-AR-009's field and is declared identically in fragment 81, which needs it to measure silence against; fragments union by key, so the two declarations merge without conflict and neither may drift from the other. See openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md, REQ-AR-008 and REQ-AR-009.",
+  "components": {
+    "schemas": {
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "version": "1.2.0",
+        "description": "Patched by document-approval-chain-leaf: a stage says whether its route was held from named people rather than from a template, and when this step is due.",
+        "properties": {
+          "origin": {
+            "title": "Origin",
+            "type": "string",
+            "enum": [
+              "template",
+              "adhoc"
+            ],
+            "default": "template",
+            "example": "adhoc",
+            "description": "Where the route came from. `adhoc` means it was held from a list of named people with no stored ApprovalRoute behind it, which is the everyday review: a clerk, a document and three colleagues. Without this a surface that finds no route row cannot tell an ad-hoc route from a template somebody deleted under a route still in flight (REQ-AR-008)."
+          },
+          "dueAt": {
+            "title": "Due at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-25T17:00:00Z",
+            "description": "When this step is due. One deadline for the whole route is divided over its steps in working days, the last step landing exactly on the deadline, because the deadline is the promise made to whoever asked for the review. A step past this date with nothing recorded renders as overdue; that is a computed view and not a stored state, so nothing has to unset it when the step is signed (REQ-AR-009)."
+          }
+        }
+      }
+    }
+  }
+}

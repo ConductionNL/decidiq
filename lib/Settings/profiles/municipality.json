@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 185,
+			"objectCount": 215,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -125,7 +125,22 @@
 						"itemType": "discussion",
 						"orderNumber": 4,
 						"estimatedDuration": 60,
-						"description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026"
+						"description": "Eerste bespreking van de financiële kaders voor begrotingsjaar 2026",
+						"paperRenditions": [
+							{
+								"sourceFileId": 910001,
+								"sourceName": "Kadernota 2026.docx",
+								"pdfFileId": 910002,
+								"backend": "office",
+								"convertedAt": "2026-09-30T08:00:00+00:00"
+							},
+							{
+								"sourceFileId": 910003,
+								"sourceName": "Bijlage investeringen.xlsx",
+								"failedAt": "2026-09-30T08:01:00+00:00",
+								"failure": "No backend could convert this file"
+							}
+						]
 					},
 					{
 						"@self": {
@@ -596,6 +611,25 @@
 							"setOn": "2026-03-08",
 							"lifecycle": "put"
 						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "vaststelling-omgevingsvisie",
+						"title": "Vaststelling omgevingsvisie",
+						"itemType": "decision",
+						"orderNumber": 9,
+						"estimatedDuration": 45,
+						"description": "Raadsvoorstel tot vaststelling van de omgevingsvisie 2040.",
+						"meeting": "raadsvergadering-2025-01-15",
+						"caseReference": {
+							"url": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+							"identification": "Z-2026-00412",
+							"title": "Omgevingsvisie 2040"
+						}
 					}
 				],
 				"agenda-item-type": [
@@ -800,6 +834,39 @@
 						"slug": "type-technische-vraag",
 						"name": "Technische vraag",
 						"description": "Een technische vraag van een raadslid over een raadsinformatiebrief, met het antwoord erbij.",
+						"fields": [
+							{
+								"key": "question",
+								"label": "Vraag",
+								"fieldType": "text",
+								"required": true
+							},
+							{
+								"key": "answer",
+								"label": "Antwoord",
+								"fieldType": "text"
+							},
+							{
+								"key": "answeredBy",
+								"label": "Beantwoord door",
+								"fieldType": "reference"
+							},
+							{
+								"key": "answeredOn",
+								"label": "Beantwoord op",
+								"fieldType": "date"
+							},
+							{
+								"key": "assignedTo",
+								"label": "Ambtenaar",
+								"fieldType": "user"
+							},
+							{
+								"key": "answerDeadline",
+								"label": "Antwoord uiterlijk",
+								"fieldType": "date"
+							}
+						],
 						"owningBody": "gemeenteraad-amsterdam",
 						"votable": false,
 						"order": 40,
@@ -1372,7 +1439,8 @@
 						"outcome": "adopted",
 						"decisionDate": "2025-04-10T21:05:00Z",
 						"isPublished": "public",
-						"amends": "motie-duurzaamheid-2025"
+						"amends": "motie-duurzaamheid-2025",
+						"meeting": "raadsvergadering-2025-04-10"
 					},
 					{
 						"@self": {
@@ -2186,7 +2254,8 @@
 						"domain": "municipality",
 						"votingDefault": "for-against-abstain",
 						"termStart": "2022-03-16T00:00:00Z",
-						"termEnd": "2026-03-15T00:00:00Z"
+						"termEnd": "2026-03-15T00:00:00Z",
+						"publishVotingRecords": true
 					},
 					{
 						"@self": {
@@ -2262,6 +2331,18 @@
 						"votingDefault": "for-against-abstain",
 						"termStart": "2023-01-01T00:00:00Z",
 						"termEnd": "2026-12-31T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-body"
+						},
+						"slug": "college-van-b-en-w-amsterdam",
+						"name": "College van B&W Amsterdam",
+						"bodyType": "executive-board",
+						"domain": "municipality",
+						"workflowTemplate": "legislative"
 					}
 				],
 				"governance-commitment": [
@@ -2676,6 +2757,55 @@
 						"location": "Stadhuis Amsterdam, Raadzaal",
 						"meetingMode": "hybrid",
 						"lifecycle": "closed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"type": "meeting-type-informatieavond",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2027-04-08T19:30:00+02:00",
+						"endDate": "2027-04-08T21:30:00+02:00",
+						"location": "Dorpshuis De Linde",
+						"meetingMode": "in-person",
+						"isPublic": true,
+						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "raadsvergadering-2025-04-10",
+						"title": "Raadsvergadering 10 april 2025",
+						"meetingType": "regular",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2025-04-10T19:30:00Z",
+						"endDate": "2025-04-10T23:15:00Z",
+						"location": "Stadhuis Amsterdam, Raadzaal",
+						"meetingMode": "hybrid",
+						"lifecycle": "closed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "auditcommissie-2026-03-04",
+						"title": "Auditcommissie 4 maart 2026",
+						"meetingType": "committee",
+						"governanceBody": "auditcommissie-provincie-nh",
+						"scheduledDate": "2026-03-04T19:30:00Z",
+						"endDate": "2026-03-04T22:00:00Z",
+						"location": "Provinciehuis Haarlem, commissiekamer",
+						"meetingMode": "in-person",
+						"lifecycle": "closed"
 					}
 				],
 				"membership": [
@@ -2722,6 +2852,24 @@
 						"person": "femke-halsema",
 						"governanceBody": "gemeenteraad-amsterdam",
 						"post": "post-voorzitter-amsterdam"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "membership"
+						},
+						"slug": "m-femke-college-amsterdam",
+						"role": "chair",
+						"label": "Burgemeester",
+						"votingWeight": 1,
+						"startDate": "2018-07-12T00:00:00Z",
+						"person": "femke-halsema",
+						"governanceBody": "college-van-b-en-w-amsterdam",
+						"portfolio": [
+							"Public order and safety",
+							"Communication"
+						]
 					},
 					{
 						"@self": {
@@ -2857,7 +3005,8 @@
 							"Roos de Vries",
 							"Jan Bakker"
 						],
-						"version": 2
+						"version": 2,
+						"meeting": "raadsvergadering-2025-04-10"
 					}
 				],
 				"member-offboarding": [
@@ -3218,6 +3367,50 @@
 						"email": "p.bakker@utrecht.nl",
 						"joinedAt": "2020-06-01T00:00:00Z",
 						"votingWeight": 1
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "participant"
+						},
+						"slug": "pt-bos-auditcommissie",
+						"displayName": "H. Bos",
+						"role": "member",
+						"party": "VVD",
+						"governanceBody": "auditcommissie-provincie-nh",
+						"seatNumber": 3,
+						"joinedAt": "2023-04-12T00:00:00Z",
+						"votingWeight": 1
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "participant"
+						},
+						"slug": "pt-kaya-auditcommissie",
+						"displayName": "S. Kaya",
+						"role": "member",
+						"party": "D66",
+						"governanceBody": "auditcommissie-provincie-nh",
+						"seatNumber": 4,
+						"joinedAt": "2023-04-12T00:00:00Z",
+						"votingWeight": 1
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "participant"
+						},
+						"slug": "pt-de-wit-auditcommissie",
+						"displayName": "A. de Wit",
+						"role": "observer",
+						"party": "VVD",
+						"governanceBody": "auditcommissie-provincie-nh",
+						"joinedAt": "2023-04-12T00:00:00Z",
+						"votingWeight": 0
 					}
 				],
 				"person": [
@@ -3880,6 +4073,496 @@
 						"votesFor": 28,
 						"votesAgainst": 3,
 						"votesAbstain": 2
+					}
+				],
+				"meeting-type": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-type"
+						},
+						"slug": "meeting-type-raadsvergadering",
+						"name": "Raadsvergadering",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"isPublic": true,
+						"isDraft": false,
+						"active": true,
+						"audiences": [
+							"council",
+							"residents"
+						],
+						"description": "The formal council meeting. Residents can come and listen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-type"
+						},
+						"slug": "meeting-type-collegevergadering",
+						"name": "Collegevergadering",
+						"governanceBody": "college-van-b-en-w-amsterdam",
+						"isPublic": false,
+						"isDraft": false,
+						"active": true,
+						"audiences": [
+							"executive"
+						],
+						"description": "The weekly meeting of the mayor and aldermen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-type"
+						},
+						"slug": "meeting-type-informatieavond",
+						"name": "Informatieavond",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"isPublic": true,
+						"isDraft": false,
+						"active": true,
+						"audiences": [
+							"residents",
+							"council"
+						],
+						"description": "An evening where residents hear about a plan and ask questions. No formal agenda."
+					}
+				],
+				"document-type": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "document-type"
+						},
+						"slug": "document-type-raadsvoorstel",
+						"name": "Raadsvoorstel",
+						"description": "A proposal from the college to the council.",
+						"appliesTo": [
+							"agenda-item"
+						],
+						"active": true,
+						"fields": [
+							{
+								"key": "zaaknummer",
+								"label": "Zaaknummer",
+								"fieldType": "string",
+								"required": true
+							},
+							{
+								"key": "portefeuillehouder",
+								"label": "Portefeuillehouder",
+								"fieldType": "string",
+								"required": false
+							},
+							{
+								"key": "status",
+								"label": "Status",
+								"fieldType": "enum",
+								"required": false,
+								"enumValues": [
+									"concept",
+									"definitief"
+								]
+							}
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "document-type"
+						},
+						"slug": "document-type-presentatie",
+						"name": "Presentatie",
+						"description": "Slides shown at a meeting.",
+						"appliesTo": [
+							"meeting"
+						],
+						"active": true,
+						"fields": [
+							{
+								"key": "spreker",
+								"label": "Spreker",
+								"fieldType": "string",
+								"required": false
+							}
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "document-type"
+						},
+						"slug": "document-type-brief",
+						"name": "Brief",
+						"description": "A letter to or from the council.",
+						"appliesTo": [
+							"meeting",
+							"agenda-item"
+						],
+						"active": true,
+						"fields": [
+							{
+								"key": "afzender",
+								"label": "Afzender",
+								"fieldType": "string",
+								"required": true
+							},
+							{
+								"key": "verzonden",
+								"label": "Verzonden op",
+								"fieldType": "date",
+								"required": false
+							}
+						]
+					}
+				],
+				"digital-document": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "digital-document"
+						},
+						"slug": "document-raadsvoorstel-kadernota-2026",
+						"name": "Raadsvoorstel kadernota 2026.pdf",
+						"documentType": "Raadsvoorstel",
+						"encodingFormat": "application/pdf",
+						"fileId": 900412,
+						"agendaItem": "begroting-2026-bespreking",
+						"type": "document-type-raadsvoorstel",
+						"typeFields": {
+							"zaaknummer": "Z-2026-00412",
+							"status": "definitief"
+						}
+					}
+				],
+				"case-exchange-record": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "case-exchange-record"
+						},
+						"slug": "zaakuitwisseling-ophalen-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15",
+						"agendaItem": "vaststelling-omgevingsvisie",
+						"direction": "fetch",
+						"target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+						"targetLabel": "Z-2026-00412",
+						"requestedBy": "griffier",
+						"requestedAt": "2025-01-08T10:00:00+01:00",
+						"lines": [
+							{
+								"name": "Raadsvoorstel omgevingsvisie.pdf",
+								"kind": "item-document",
+								"source": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+								"remoteUrl": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+								"status": "sent"
+							}
+						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "case-exchange-record"
+						},
+						"slug": "zaakuitwisseling-vergaderdossier-2025-01-15",
+						"meeting": "raadsvergadering-2025-01-15",
+						"direction": "send",
+						"target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000500",
+						"targetLabel": "Z-2026-00500",
+						"requestedBy": "griffier",
+						"requestedAt": "2025-02-13T09:00:00+01:00",
+						"lines": [
+							{
+								"name": "Agenda.pdf",
+								"kind": "agenda",
+								"source": "agenda",
+								"remoteUrl": "https://documenten.example.org/agenda",
+								"status": "sent"
+							},
+							{
+								"name": "Raadsvoorstel omgevingsvisie.pdf",
+								"kind": "item-document",
+								"source": "file:501",
+								"remoteUrl": "https://documenten.example.org/raadsvoorstel",
+								"status": "sent"
+							},
+							{
+								"name": "Besluitenlijst.pdf",
+								"kind": "decision-list",
+								"source": "decision-list",
+								"remoteUrl": "https://documenten.example.org/besluitenlijst",
+								"status": "sent"
+							},
+							{
+								"name": "Notulen.pdf",
+								"kind": "minutes",
+								"source": "minutes",
+								"remoteUrl": "https://documenten.example.org/notulen",
+								"status": "sent"
+							},
+							{
+								"name": "Bewijspakket.json",
+								"kind": "proof-package",
+								"source": "proof-package",
+								"remoteUrl": "https://documenten.example.org/bewijspakket",
+								"status": "sent"
+							},
+							{
+								"name": "Bijlage geheime grondaankoop.pdf",
+								"kind": "item-document",
+								"source": "file:502",
+								"status": "failed",
+								"error": "The case system refused the document: informatieobjecttype not configured",
+								"confidential": true,
+								"ground": "Gemeentewet artikel 25"
+							}
+						]
+					}
+				],
+				"publication-subscription": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-subscription"
+						},
+						"slug": "volgen-gemeenteraad-admin",
+						"subscriberUserId": "admin",
+						"governanceBodies": [
+							"gemeenteraad-amsterdam"
+						],
+						"kinds": [
+							"agenda",
+							"paper"
+						],
+						"frequency": "immediate",
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-subscription"
+						},
+						"slug": "volgen-alle-organen-inwoner",
+						"subscriberRef": "example-resident",
+						"governanceBodies": [],
+						"kinds": [
+							"agenda",
+							"decision"
+						],
+						"frequency": "daily",
+						"active": true
+					}
+				],
+				"publication-event": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-agenda-windpark-gepubliceerd",
+						"kind": "agenda",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meeting": "informatieavond-windpark-noord",
+						"objectType": "meeting",
+						"objectId": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"summary": "Agenda published",
+						"isPublished": true,
+						"occurredAt": "2026-09-21T09:00:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-agenda-windpark-gewijzigd",
+						"kind": "agenda",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meeting": "informatieavond-windpark-noord",
+						"objectType": "meeting",
+						"objectId": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"summary": "Agenda changed: item 4 added",
+						"isPublished": false,
+						"occurredAt": "2026-09-22T14:30:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-stuk-windpark",
+						"kind": "paper",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meeting": "informatieavond-windpark-noord",
+						"objectType": "meeting",
+						"objectId": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"summary": "Paper added: Geluidsonderzoek windpark Noord.pdf",
+						"isPublished": false,
+						"occurredAt": "2026-09-23T10:15:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "publication-event"
+						},
+						"slug": "gebeurtenis-besluit-begroting-2026",
+						"kind": "decision",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"objectType": "decision",
+						"objectId": "besluit-begroting-2026",
+						"title": "Vaststelling Programmabegroting 2026",
+						"summary": "Decision published",
+						"isPublished": true,
+						"occurredAt": "2026-09-24T21:45:00+02:00"
+					}
+				],
+				"archival-dossier": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "archival-dossier"
+						},
+						"slug": "dossier-informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"meeting": "informatieavond-windpark-noord",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"lifecycle": "forming",
+						"minutes": [],
+						"decisions": [],
+						"votingRounds": [],
+						"documents": [],
+						"gaps": [
+							"minutes-missing",
+							"meeting-not-closed"
+						],
+						"assembledAt": "2026-09-30T09:00:00+02:00",
+						"securityClassification": "openbaar"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "archival-dossier"
+						},
+						"slug": "dossier-raadsvergadering-2025-04-10",
+						"title": "Raadsvergadering 10 april 2025",
+						"meeting": "raadsvergadering-2025-04-10",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"lifecycle": "closed",
+						"minutes": [
+							"notulen-raad-2025-04-10"
+						],
+						"decisions": [
+							"amendement-cultuursubsidie"
+						],
+						"votingRounds": [],
+						"documents": [],
+						"gaps": [],
+						"assembledAt": "2025-05-08T20:00:00Z",
+						"closedAt": "2025-05-08T20:05:00Z",
+						"closedBy": "admin",
+						"securityClassification": "openbaar"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "archival-dossier"
+						},
+						"slug": "dossier-raadsvergadering-2025-01-15",
+						"title": "Raadsvergadering 15 januari 2025",
+						"meeting": "raadsvergadering-2025-01-15",
+						"lifecycle": "closed",
+						"minutes": [],
+						"decisions": [
+							"besluit-verordening-parkeren-2026"
+						],
+						"votingRounds": [],
+						"documents": [],
+						"gaps": [
+							"minutes-missing"
+						],
+						"assembledAt": "2025-02-20T10:00:00Z",
+						"closedAt": "2025-02-20T10:10:00Z",
+						"closedBy": "admin",
+						"closeOverrideReason": "De notulen van deze vergadering zijn op papier vastgesteld en apart gearchiveerd.",
+						"securityClassification": "intern"
+					}
+				],
+				"mandate-substitution": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "mandate-substitution"
+						},
+						"slug": "wissel-bos-de-wit-2026-03-04",
+						"meeting": "auditcommissie-2026-03-04",
+						"outgoingParticipant": "pt-bos-auditcommissie",
+						"incomingParticipant": "pt-de-wit-auditcommissie",
+						"seatNumber": 3,
+						"party": "VVD",
+						"role": "member",
+						"votingWeight": 1,
+						"startedAt": "2026-03-04T20:15:00Z",
+						"endedAt": "2026-03-04T21:40:00Z",
+						"recordedBy": "griffier1",
+						"reason": "Mr Bos left for another appointment"
+					}
+				],
+				"paper-summary": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "paper-summary"
+						},
+						"slug": "samenvatting-raadsvoorstel-kadernota-2026",
+						"agendaItem": "begroting-2026-bespreking",
+						"paperFileId": 900412,
+						"paperTitle": "Raadsvoorstel kadernota 2026.pdf",
+						"kind": "summary",
+						"text": "Het college vraagt de raad de financiële kaders voor de begroting 2026 vast te stellen.\n\nDe kadernota gaat uit van een sluitende meerjarenraming met een structureel overschot van 1,2 miljoen euro vanaf 2027.\n\nNieuw beleid is beperkt tot drie posten: onderhoud van bruggen, extra handhaving in het centrum en een bijdrage aan het regionale woningbouwfonds.\n\nDe raad wordt gevraagd in te stemmen met een verhoging van de onroerendezaakbelasting met 2 procent, gelijk aan de inflatie.",
+						"provider": "llm2",
+						"chunked": false,
+						"status": "shown",
+						"reviewedBy": "Jan de Vries",
+						"reviewedAt": "2026-09-30T10:15:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "paper-summary"
+						},
+						"slug": "vergelijking-raadsvoorstel-en-kadernota-2026",
+						"agendaItem": "begroting-2026-bespreking",
+						"paperFileId": 900412,
+						"paperTitle": "Raadsvoorstel kadernota 2026.pdf",
+						"kind": "comparison",
+						"comparedFileId": 910001,
+						"comparedTitle": "Kadernota 2026.docx",
+						"text": "Het raadsvoorstel volgt de kadernota op hoofdlijnen.\n\nVerschillen: het raadsvoorstel noemt een structureel overschot van 1,2 miljoen euro waar de kadernota nog 0,9 miljoen noemt, en het raadsvoorstel voegt de bijdrage aan het regionale woningbouwfonds toe.",
+						"provider": "llm2",
+						"chunked": false,
+						"status": "draft"
 					}
 				]
 			}

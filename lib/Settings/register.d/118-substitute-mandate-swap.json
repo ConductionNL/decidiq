@@ -1,0 +1,124 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment, change bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004; matrix row bod-18). A member who leaves a meeting is replaced in their seat by a substitute: the swap is a record of its own (design D1), so both participants stay as they are for every other meeting, and the voting paths ask the record who holds the seat (SubstitutionResolver).",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"mandate-substitution"
+				]
+			}
+		},
+		"schemas": {
+			"MandateSubstitution": {
+				"slug": "mandate-substitution",
+				"icon": "AccountSwitch",
+				"version": "0.1.0",
+				"title": "Mandate substitution",
+				"description": "A substitute takes a member's seat in one meeting: who left, who took the seat, the seat, party, role and voting weight copied from the member, and when the swap started and ended.",
+				"type": "object",
+				"_authorizationNote": "Every signed-in member reads substitutions, so the seats panel and the minutes can say who sat where. Writes are owned by MandateSubstitutionService behind MeetingController::substitute() and endSubstitution(): only the meeting's chair or secretary (MeetingRoleGate) starts or ends one, never while a vote of the meeting is open, and the service copies the seat from the outgoing member. It saves in system context, and the write verbs are left out on purpose so the object API cannot start or end a swap around those checks.",
+				"authorization": {
+					"read": [
+						"authenticated"
+					]
+				},
+				"x-openregister": {
+					"active": true,
+					"hardDelete": false,
+					"searchable": false
+				},
+				"required": [
+					"meeting",
+					"outgoingParticipant",
+					"incomingParticipant",
+					"startedAt"
+				],
+				"properties": {
+					"meeting": {
+						"title": "Meeting",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "meeting",
+						"facetable": true,
+						"description": "The meeting the substitution applies to. It does not carry over to another meeting."
+					},
+					"outgoingParticipant": {
+						"title": "Member who left",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "participant",
+						"facetable": true,
+						"description": "The member whose seat is taken. They cannot vote in the meeting while the substitution is active."
+					},
+					"incomingParticipant": {
+						"title": "Substitute",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "participant",
+						"facetable": true,
+						"description": "The substitute who holds the seat and votes for it while the substitution is active."
+					},
+					"seatNumber": {
+						"title": "Seat",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The member's seat, copied when the swap starts."
+					},
+					"party": {
+						"title": "Party",
+						"type": "string",
+						"description": "The member's party, copied when the swap starts."
+					},
+					"role": {
+						"title": "Role",
+						"type": "string",
+						"description": "The member's role, copied when the swap starts. Only a member is substituted."
+					},
+					"votingWeight": {
+						"title": "Voting weight",
+						"type": "number",
+						"minimum": 0,
+						"description": "The member's voting weight, copied when the swap starts."
+					},
+					"startedAt": {
+						"title": "Started at",
+						"type": "string",
+						"format": "date-time",
+						"description": "When the substitute took the seat."
+					},
+					"endedAt": {
+						"title": "Ended at",
+						"type": "string",
+						"format": "date-time",
+						"description": "When the seat went back to the member. Empty while the substitution is active; an ended substitution stays on record."
+					},
+					"recordedBy": {
+						"title": "Recorded by",
+						"type": "string",
+						"description": "The Nextcloud account of the chair or secretary who started the swap."
+					},
+					"reason": {
+						"title": "Reason",
+						"type": "string",
+						"description": "Why the member left, as the chair or secretary entered it."
+					}
+				}
+			},
+			"Participant": {
+				"slug": "participant",
+				"version": "0.4.0",
+				"properties": {
+					"seatNumber": {
+						"title": "Seat",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The member's standing seat in the body. The seats panel of a live meeting lists seats in this order, and a substitution copies it."
+					}
+				}
+			}
+		}
+	}
+}

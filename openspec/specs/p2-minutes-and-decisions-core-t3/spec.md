@@ -371,3 +371,12 @@ The Motion entity (Popolo: `opengov:Motion`) SHALL expose the decision outcome f
 - **GIVEN** an adopted Motion with `isPublished: true`, `decisionText: "Vastgesteld"`, `decisionDate: "2026-01-20T20:15:00Z"`, `legalBasis: "Wro 3.1"`
 - **WHEN** the ORI endpoint `GET /api/ori/v1/motions?isPublished=true` is called
 - **THEN** the response SHALL contain `"decision_text": "Vastgesteld"`, `"decision_date": "2026-01-20"`, `"legal_basis": "Wro 3.1"` in the ORI Motion object
+
+### Requirement: REQ-SES-001 Send for signature in a chosen order and store the signed copy
+
+Minutes, decision lists and motions SHALL be sendable to the external signing service with signers in a chosen order, and the signed copy SHALL be stored back on the record.
+
+#### Scenario: The decision list is signed
+- GIVEN the decision list of 14 October with signers chair then griffier
+- WHEN the griffier presses Send for signature
+- THEN the signing service receives both signers in that order and, once signed, the signed copy is linked on the decision list

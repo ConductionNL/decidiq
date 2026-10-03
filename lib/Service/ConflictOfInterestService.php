@@ -47,6 +47,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
+use RuntimeException;
 
 /**
  * Service for managing conflict-of-interest declarations and their effect on
@@ -116,11 +117,13 @@ class ConflictOfInterestService {
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the
 	 *                               authorization check (admin path, mirroring
 	 *                               `ProxyVoteService`'s convention)
+	 * @param string $initialAction 'no-action-needed', or 'recused-from-vote' when the member keeps herself out of the vote
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
 	public function declare(
@@ -130,6 +133,7 @@ class ConflictOfInterestService {
 		string $description,
 		string $severity = 'material',
 		?string $callerUid = null,
+		string $initialAction = 'no-action-needed',
 	): array {
 		$validationFailure = $this->validateDeclarationInput(type: $type, severity: $severity);
 		if ($validationFailure !== null) {
@@ -147,14 +151,35 @@ class ConflictOfInterestService {
 			];
 		}
 
+		// A member who declares may keep herself out of the vote at once; any
+		// other action is the chair's to record later (bod-10).
+		$actionTaken = 'no-action-needed';
+		if ($initialAction === 'recused-from-vote') {
+			$actionTaken = 'recused-from-vote';
+		}
+
 		return $this->persistDeclaration(
 			membershipId: $membershipId,
 			agendaItemId: $agendaItemId,
 			type: $type,
 			description: $description,
-			severity: $severity
+			severity: $severity,
+			actionTaken: $actionTaken
 		);
 	}//end declare()
+
+	/**
+	 * The Membership UUID of a Nextcloud user, or null when she has none.
+	 *
+	 * @param string $uid Nextcloud UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+	 */
+	public function membershipForUser(string $uid): ?string {
+		return $this->authorizationGuard->membershipForUser(uid: $uid);
+	}//end membershipForUser()
 
 	/**
 	 * Validate `declare()`'s enum-typed inputs before any authorization check
@@ -194,10 +219,18 @@ class ConflictOfInterestService {
 	 * @param string $type One of self::DECLARATION_TYPES
 	 * @param string $description Free-text rationale
 	 * @param string $severity 'material' or 'non-material'
+	 * @param string $actionTaken One of self::ACTIONS
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
-	private function persistDeclaration(string $membershipId, string $agendaItemId, string $type, string $description, string $severity): array {
+	private function persistDeclaration(
+		string $membershipId,
+		string $agendaItemId,
+		string $type,
+		string $description,
+		string $severity,
+		string $actionTaken,
+	): array {
 		try {
 			// The ConflictOfInterest schema declares 'boardMember'/'agendaItem'
 			// (decidesk_register.json); this previously wrote 'boardMemberKoppeling'/
@@ -212,7 +245,7 @@ class ConflictOfInterestService {
 				'declarationType' => $type,
 				'description' => $description,
 				'severity' => $severity,
-				'actionTaken' => 'no-action-needed',
+				'actionTaken' => $actionTaken,
 				'declarationTimestamp' => gmdate('Y-m-d\TH:i:s\Z'),
 			];
 
@@ -376,6 +409,8 @@ class ConflictOfInterestService {
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array<string, mixed>|null
+	 *
+	 * @throws RuntimeException When the declarations cannot be read (fail closed).
 	 */
 	public function getActiveConflicts(string $membershipId, string $agendaItemId): ?array {
 		$matches = $this->findDeclarations(membershipId: $membershipId, agendaItemId: $agendaItemId);
@@ -407,6 +442,8 @@ class ConflictOfInterestService {
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
 	 * @return array<int, array<string, mixed>>
+	 *
+	 * @throws RuntimeException When the declarations cannot be read (fail closed).
 	 */
 	private function findDeclarations(string $membershipId, string $agendaItemId): array {
 		try {
@@ -428,11 +465,14 @@ class ConflictOfInterestService {
 				]
 			);
 		} catch (\Throwable $e) {
+			// Fail closed: an empty answer here would read as "no declaration"
+			// and let a recused member vote (RecusalGuard), so the failure
+			// travels to the caller instead.
 			$this->logger->error(
 				'Decidiq: failed to query conflict declarations',
 				['exception' => $e->getMessage()]
 			);
-			return [];
+			throw new RuntimeException('Conflict-of-interest declarations could not be read.', 0, $e);
 		}//end try
 
 		$out = [];

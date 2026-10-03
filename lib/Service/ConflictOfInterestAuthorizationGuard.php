@@ -141,6 +141,31 @@ class ConflictOfInterestAuthorizationGuard {
 	}//end isChairOrSecretary()
 
 	/**
+	 * The Membership UUID of a Nextcloud user (UID -> Participant -> Membership),
+	 * or null when the user has no participant record. Lets a member declare
+	 * from a page without knowing her own Membership id.
+	 *
+	 * @param string $uid Nextcloud UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+	 */
+	public function membershipForUser(string $uid): ?string {
+		$participantId = $this->resolveParticipantUuid(nextcloudUid: $uid);
+		if ($participantId === null) {
+			return null;
+		}
+
+		$membership = (string)($this->participantCrosswalk->resolve(participantId: $participantId)['membership'] ?? '');
+		if ($membership === '') {
+			return null;
+		}
+
+		return $membership;
+	}//end membershipForUser()
+
+	/**
 	 * Whether the caller IS the Membership the declaration is about. Resolves
 	 * the caller's own identity (Nextcloud UID -> Participant -> Person/
 	 * Membership, via the same crosswalk `ProxyVoteService` uses) and compares
@@ -209,6 +234,12 @@ class ConflictOfInterestAuthorizationGuard {
 
 		try {
 			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+			if ($entity === null) {
+				// A declaration made on a motion's page names the motion (a
+				// Decision) as its subject; the motion carries the same
+				// `meeting` reference an agenda item does (bod-10).
+				$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'decision');
+			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',

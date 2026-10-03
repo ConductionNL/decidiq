@@ -603,6 +603,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			groupManager: $groupManager,
 			appConfig: $appConfig,
 			participantResolver: $this->createMock(ParticipantResolver::class),
+			motionStages: $this->createMock(\OCA\Decidiq\Service\MotionStages::class),
 		);
 
 		return $controller->amendmentOrder(id: $motionId);

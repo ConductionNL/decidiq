@@ -101,6 +101,7 @@ class VotingServiceTallyMatrixTest extends TestCase {
 				relationFilter: $relationFilter,
 				objectService: $this->createMock(ObjectServiceInterface::class),
 				container: $container,
+				recusal: $this->createMock(\OCA\Decidiq\Service\RecusalGuard::class),
 			),
 			closer: new VotingRoundCloser(
 				logger: $logger,

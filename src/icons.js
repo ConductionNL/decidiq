@@ -15,6 +15,7 @@
 import Account from 'vue-material-design-icons/Account.vue'
 import AccountArrowRightOutline from 'vue-material-design-icons/AccountArrowRightOutline.vue'
 import AccountBoxOutline from 'vue-material-design-icons/AccountBoxOutline.vue'
+import AccountCheckOutline from 'vue-material-design-icons/AccountCheckOutline.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import AccountKeyOutline from 'vue-material-design-icons/AccountKeyOutline.vue'
@@ -24,11 +25,15 @@ import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import AccountPlusOutline from 'vue-material-design-icons/AccountPlusOutline.vue'
 import AccountQuestionOutline from 'vue-material-design-icons/AccountQuestionOutline.vue'
 import AccountRemoveOutline from 'vue-material-design-icons/AccountRemoveOutline.vue'
+import AccountSwitch from 'vue-material-design-icons/AccountSwitch.vue'
 import AccountTieOutline from 'vue-material-design-icons/AccountTieOutline.vue'
 import AccountVoice from 'vue-material-design-icons/AccountVoice.vue'
 import AlertOctagonOutline from 'vue-material-design-icons/AlertOctagonOutline.vue'
 import AlertOutline from 'vue-material-design-icons/AlertOutline.vue'
 import Api from 'vue-material-design-icons/Api.vue'
+import ArchiveArrowUpOutline from 'vue-material-design-icons/ArchiveArrowUpOutline.vue'
+import ArchiveCheckOutline from 'vue-material-design-icons/ArchiveCheckOutline.vue'
+import ArchiveOutline from 'vue-material-design-icons/ArchiveOutline.vue'
 import BellCogOutline from 'vue-material-design-icons/BellCogOutline.vue'
 import BellOutline from 'vue-material-design-icons/BellOutline.vue'
 import BookOpenVariant from 'vue-material-design-icons/BookOpenVariant.vue'
@@ -69,6 +74,7 @@ import CommentQuoteOutline from 'vue-material-design-icons/CommentQuoteOutline.v
 import CommentTextOutline from 'vue-material-design-icons/CommentTextOutline.vue'
 import CurrencyEur from 'vue-material-design-icons/CurrencyEur.vue'
 import DatabaseOutline from 'vue-material-design-icons/DatabaseOutline.vue'
+import DeleteClockOutline from 'vue-material-design-icons/DeleteClockOutline.vue'
 import Domain from 'vue-material-design-icons/Domain.vue'
 import Earth from 'vue-material-design-icons/Earth.vue'
 import Email from 'vue-material-design-icons/Email.vue'
@@ -77,11 +83,13 @@ import EmailArrowRightOutline from 'vue-material-design-icons/EmailArrowRightOut
 import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
 import FileChartOutline from 'vue-material-design-icons/FileChartOutline.vue'
+import FileCogOutline from 'vue-material-design-icons/FileCogOutline.vue'
 import FileDocument from 'vue-material-design-icons/FileDocument.vue'
 import FileDocumentCheckOutline from 'vue-material-design-icons/FileDocumentCheckOutline.vue'
 import FileDocumentMultipleOutline from 'vue-material-design-icons/FileDocumentMultipleOutline.vue'
 import FileDocumentOutline from 'vue-material-design-icons/FileDocumentOutline.vue'
 import FileLockOutline from 'vue-material-design-icons/FileLockOutline.vue'
+import FilePdfBox from 'vue-material-design-icons/FilePdfBox.vue'
 import FileReplaceOutline from 'vue-material-design-icons/FileReplaceOutline.vue'
 import FileSign from 'vue-material-design-icons/FileSign.vue'
 import FolderOutline from 'vue-material-design-icons/FolderOutline.vue'
@@ -107,6 +115,7 @@ import OfficeBuilding from 'vue-material-design-icons/OfficeBuilding.vue'
 import OfficeBuildingOutline from 'vue-material-design-icons/OfficeBuildingOutline.vue'
 import Package from 'vue-material-design-icons/Package.vue'
 import PackageVariantClosed from 'vue-material-design-icons/PackageVariantClosed.vue'
+import PowerPlugOutline from 'vue-material-design-icons/PowerPlugOutline.vue'
 import ReceiptOutline from 'vue-material-design-icons/ReceiptOutline.vue'
 import ScaleBalance from 'vue-material-design-icons/ScaleBalance.vue'
 import SeatOutline from 'vue-material-design-icons/SeatOutline.vue'
@@ -121,10 +130,13 @@ import SwapHorizontal from 'vue-material-design-icons/SwapHorizontal.vue'
 import TableColumn from 'vue-material-design-icons/TableColumn.vue'
 import TagOutline from 'vue-material-design-icons/TagOutline.vue'
 import TargetVariant from 'vue-material-design-icons/TargetVariant.vue'
+import TextBoxCheckOutline from 'vue-material-design-icons/TextBoxCheckOutline.vue'
+import TextBoxSearchOutline from 'vue-material-design-icons/TextBoxSearchOutline.vue'
 import ThumbUpOutline from 'vue-material-design-icons/ThumbUpOutline.vue'
 import Timeline from 'vue-material-design-icons/Timeline.vue'
 import TransitConnectionVariant from 'vue-material-design-icons/TransitConnectionVariant.vue'
 import TrayFull from 'vue-material-design-icons/TrayFull.vue'
+import Video from 'vue-material-design-icons/Video.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
 import Web from 'vue-material-design-icons/Web.vue'
@@ -133,6 +145,7 @@ export default {
 	Account,
 	AccountArrowRightOutline,
 	AccountBoxOutline,
+	AccountCheckOutline,
 	AccountGroup,
 	AccountGroupOutline,
 	AccountKeyOutline,
@@ -142,11 +155,15 @@ export default {
 	AccountPlusOutline,
 	AccountQuestionOutline,
 	AccountRemoveOutline,
+	AccountSwitch,
 	AccountTieOutline,
 	AccountVoice,
 	AlertOctagonOutline,
 	AlertOutline,
 	Api,
+	ArchiveArrowUpOutline,
+	ArchiveCheckOutline,
+	ArchiveOutline,
 	BellCogOutline,
 	BellOutline,
 	BookOpenVariant,
@@ -187,6 +204,7 @@ export default {
 	CommentTextOutline,
 	CurrencyEur,
 	DatabaseOutline,
+	DeleteClockOutline,
 	Domain,
 	Earth,
 	Email,
@@ -198,8 +216,10 @@ export default {
 	FileDocument,
 	FileDocumentCheckOutline,
 	FileDocumentMultipleOutline,
+	FileCogOutline,
 	FileDocumentOutline,
 	FileLockOutline,
+	FilePdfBox,
 	FileReplaceOutline,
 	FileSign,
 	FolderOutline,
@@ -225,6 +245,7 @@ export default {
 	OfficeBuildingOutline,
 	Package,
 	PackageVariantClosed,
+	PowerPlugOutline,
 	ReceiptOutline,
 	ScaleBalance,
 	SeatOutline,
@@ -239,10 +260,13 @@ export default {
 	TableColumn,
 	TagOutline,
 	TargetVariant,
+	TextBoxCheckOutline,
+	TextBoxSearchOutline,
 	ThumbUpOutline,
 	Timeline,
 	TransitConnectionVariant,
 	TrayFull,
+	Video,
 	ViewDashboardOutline,
 	VoteOutline,
 	Web,

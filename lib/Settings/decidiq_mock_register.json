@@ -4837,45 +4837,72 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "transitions": {
-            "draft": [
-              "open",
-              "published",
-              "proposals-open",
-              "closed"
-            ],
-            "open": [
-              "closed"
-            ],
-            "proposals-open": [
-              "voting",
-              "closed"
-            ],
-            "voting": [
-              "closed"
-            ],
-            "published": [
-              "questions",
-              "submission",
-              "evaluation"
-            ],
-            "questions": [
-              "submission"
-            ],
-            "submission": [
-              "evaluation"
-            ],
-            "evaluation": [
-              "awarded"
-            ],
-            "closed": [
-              "results-published",
-              "report-published"
-            ],
-            "results-published": [],
-            "report-published": [],
-            "awarded": []
-          }
+          "transitions": [
+            {
+              "from": "draft",
+              "to": "open"
+            },
+            {
+              "from": "draft",
+              "to": "published"
+            },
+            {
+              "from": "draft",
+              "to": "proposals-open"
+            },
+            {
+              "from": "draft",
+              "to": "closed"
+            },
+            {
+              "from": "open",
+              "to": "closed"
+            },
+            {
+              "from": "proposals-open",
+              "to": "voting"
+            },
+            {
+              "from": "proposals-open",
+              "to": "closed"
+            },
+            {
+              "from": "voting",
+              "to": "closed"
+            },
+            {
+              "from": "published",
+              "to": "questions"
+            },
+            {
+              "from": "published",
+              "to": "submission"
+            },
+            {
+              "from": "published",
+              "to": "evaluation"
+            },
+            {
+              "from": "questions",
+              "to": "submission"
+            },
+            {
+              "from": "submission",
+              "to": "evaluation"
+            },
+            {
+              "from": "evaluation",
+              "to": "awarded"
+            },
+            {
+              "from": "closed",
+              "to": "results-published"
+            },
+            {
+              "from": "closed",
+              "to": "report-published"
+            }
+          ]
         }
       },
       "PublicationPayload": {
@@ -8212,6 +8239,723 @@
         "revoteOfRound": "Voorbeeld Revoteofround 3",
         "voteBase": 3,
         "decisionStage": "00000000-0000-4000-8000-000000000002"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MotionTheme",
+          "slug": "motiontheme-wonen-1"
+        },
+        "name": "Wonen",
+        "description": "Woningbouw, huur en de woningmarkt."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MotionTheme",
+          "slug": "motiontheme-klimaat-2"
+        },
+        "name": "Klimaat",
+        "description": "Energie, duurzaamheid en klimaatadaptatie."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MotionTheme",
+          "slug": "motiontheme-mobiliteit-3"
+        },
+        "name": "Mobiliteit",
+        "description": "Verkeer, openbaar vervoer en fietsbeleid."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingAttendance",
+          "slug": "meetingattendance-1"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "participant": "00000000-0000-4000-8000-000000000000",
+        "status": "present",
+        "arrivedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingAttendance",
+          "slug": "meetingattendance-2"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "participant": "00000000-0000-4000-8000-000000000001",
+        "status": "excused"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingAttendance",
+          "slug": "meetingattendance-3"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "participant": "00000000-0000-4000-8000-000000000002",
+        "status": "absent"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-raadsvergadering-1"
+        },
+        "name": "Raadsvergadering",
+        "description": "De vaste opbouw van een gewone raadsvergadering.",
+        "items": [
+          { "title": "Opening en mededelingen", "itemType": "informational", "isFormality": true },
+          { "title": "Vaststellen van de agenda", "itemType": "decision", "isFormality": true },
+          { "title": "Vragenhalfuur", "itemType": "discussion", "estimatedDuration": 30 },
+          { "title": "Hamerstukken", "itemType": "decision", "isFormality": true },
+          { "title": "Bespreekstukken", "itemType": "decision", "estimatedDuration": 90 },
+          { "title": "Sluiting", "itemType": "informational" }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-commissievergadering-2"
+        },
+        "name": "Commissievergadering",
+        "description": "De vaste opbouw van een commissievergadering.",
+        "items": [
+          { "title": "Opening", "itemType": "informational" },
+          { "title": "Inspreken", "itemType": "discussion" },
+          { "title": "Bespreekpunten", "itemType": "discussion" },
+          { "title": "Sluiting", "itemType": "informational" }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "AgendaTemplate",
+          "slug": "agendatemplate-bestuursvergadering-3"
+        },
+        "name": "Bestuursvergadering",
+        "description": "De vaste opbouw van een bestuursvergadering.",
+        "items": [
+          { "title": "Opening", "itemType": "informational" },
+          { "title": "Notulen vorige vergadering", "itemType": "decision" },
+          { "title": "Besluiten", "itemType": "decision" },
+          { "title": "Rondvraag", "itemType": "informational" }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingType",
+          "slug": "meetingtype-raadsvergadering-1"
+        },
+        "name": "Raadsvergadering",
+        "description": "Een gewone vergadering van de raad.",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "defaultDurationMinutes": 120
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingType",
+          "slug": "meetingtype-commissievergadering-2"
+        },
+        "name": "Commissievergadering",
+        "description": "Een vergadering van een raadscommissie.",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "defaultDurationMinutes": 120
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingType",
+          "slug": "meetingtype-bestuursvergadering-3"
+        },
+        "name": "Bestuursvergadering",
+        "description": "Een vergadering van het bestuur.",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "defaultDurationMinutes": 120
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "DocumentType",
+          "slug": "documenttype-raadsvoorstel-1"
+        },
+        "name": "Raadsvoorstel",
+        "description": "Een voorstel van het college aan de raad.",
+        "appliesTo": [
+          "meeting",
+          "agenda-item"
+        ],
+        "active": true,
+        "fields": [
+          {
+            "key": "zaaknummer",
+            "label": "Zaaknummer",
+            "fieldType": "string",
+            "required": true
+          },
+          {
+            "key": "status",
+            "label": "Status",
+            "fieldType": "enum",
+            "required": false,
+            "enumValues": [
+              "concept",
+              "definitief"
+            ]
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "DocumentType",
+          "slug": "documenttype-ingekomen-stuk-2"
+        },
+        "name": "Ingekomen stuk",
+        "description": "Een brief of stuk dat de raad ontvangt.",
+        "appliesTo": [
+          "agenda-item"
+        ],
+        "active": true,
+        "fields": [
+          {
+            "key": "afzender",
+            "label": "Afzender",
+            "fieldType": "string",
+            "required": true
+          },
+          {
+            "key": "ontvangen",
+            "label": "Ontvangen op",
+            "fieldType": "date",
+            "required": false
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "DocumentType",
+          "slug": "documenttype-notulen-3"
+        },
+        "name": "Notulen",
+        "description": "Het verslag van een vergadering.",
+        "appliesTo": [
+          "meeting"
+        ],
+        "active": true,
+        "fields": [
+          {
+            "key": "vastgesteld",
+            "label": "Vastgesteld",
+            "fieldType": "boolean",
+            "required": false
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "CaseExchangeRecord",
+          "slug": "case-exchange-fetch-omgevingsvisie-1"
+        },
+        "direction": "fetch",
+        "target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+        "targetLabel": "Z-2026-00412",
+        "requestedBy": "griffier",
+        "requestedAt": "2025-01-08T10:00:00+01:00",
+        "lines": [
+          {
+            "name": "Raadsvoorstel omgevingsvisie.pdf",
+            "kind": "item-document",
+            "source": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+            "remoteUrl": "https://documenten.example.org/raadsvoorstel-omgevingsvisie",
+            "status": "sent"
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "CaseExchangeRecord",
+          "slug": "case-exchange-send-omgevingsvisie-2"
+        },
+        "direction": "send",
+        "target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000000",
+        "targetLabel": "Z-2026-00412",
+        "requestedBy": "griffier",
+        "requestedAt": "2025-02-13T09:00:00+01:00",
+        "lines": [
+          {
+            "name": "Besluit Omgevingsvisie 2040 vastgesteld.pdf",
+            "kind": "decision",
+            "source": "decision:omgevingsvisie",
+            "remoteUrl": "https://documenten.example.org/besluit-omgevingsvisie",
+            "status": "sent"
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "CaseExchangeRecord",
+          "slug": "case-exchange-send-raadsvergadering-3"
+        },
+        "direction": "send",
+        "target": "https://zaken.example.org/api/v1/zaken/00000000-0000-0000-0000-000000000500",
+        "targetLabel": "Z-2026-00500",
+        "requestedBy": "griffier",
+        "requestedAt": "2025-02-13T09:00:00+01:00",
+        "lines": [
+          {
+            "name": "Agenda.pdf",
+            "kind": "agenda",
+            "source": "agenda",
+            "remoteUrl": "https://documenten.example.org/agenda",
+            "status": "sent"
+          },
+          {
+            "name": "Raadsvoorstel omgevingsvisie.pdf",
+            "kind": "item-document",
+            "source": "file:501",
+            "remoteUrl": "https://documenten.example.org/raadsvoorstel",
+            "status": "sent"
+          },
+          {
+            "name": "Besluitenlijst.pdf",
+            "kind": "decision-list",
+            "source": "decision-list",
+            "remoteUrl": "https://documenten.example.org/besluitenlijst",
+            "status": "sent"
+          },
+          {
+            "name": "Notulen.pdf",
+            "kind": "minutes",
+            "source": "minutes",
+            "remoteUrl": "https://documenten.example.org/notulen",
+            "status": "sent"
+          },
+          {
+            "name": "Bewijspakket.json",
+            "kind": "proof-package",
+            "source": "proof-package",
+            "remoteUrl": "https://documenten.example.org/bewijspakket",
+            "status": "sent"
+          },
+          {
+            "name": "Bijlage geheime grondaankoop.pdf",
+            "kind": "item-document",
+            "source": "file:502",
+            "status": "failed",
+            "error": "The case system refused the document: informatieobjecttype not configured",
+            "confidential": true,
+            "ground": "Gemeentewet artikel 25"
+          }
+        ]
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationSubscription",
+          "slug": "publication-subscription-member-immediate"
+        },
+        "subscriberUserId": "admin",
+        "governanceBodies": [],
+        "kinds": [
+          "agenda",
+          "paper"
+        ],
+        "frequency": "immediate",
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationSubscription",
+          "slug": "publication-subscription-member-weekly"
+        },
+        "subscriberUserId": "griffier",
+        "governanceBodies": [],
+        "kinds": [
+          "decision",
+          "minutes"
+        ],
+        "frequency": "weekly",
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationSubscription",
+          "slug": "publication-subscription-resident-daily"
+        },
+        "subscriberRef": "example-resident",
+        "governanceBodies": [],
+        "kinds": [
+          "agenda",
+          "decision"
+        ],
+        "frequency": "daily",
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationEvent",
+          "slug": "publication-event-agenda-published"
+        },
+        "kind": "agenda",
+        "objectType": "meeting",
+        "objectId": "meeting-1",
+        "title": "Council meeting",
+        "summary": "Agenda published",
+        "isPublished": true,
+        "occurredAt": "2025-01-08T09:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationEvent",
+          "slug": "publication-event-paper-added"
+        },
+        "kind": "paper",
+        "objectType": "agenda-item",
+        "objectId": "agenda-item-1",
+        "title": "Budget 2026",
+        "summary": "Paper added: Budget 2026.pdf",
+        "isPublished": false,
+        "occurredAt": "2025-01-09T10:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PublicationEvent",
+          "slug": "publication-event-decision-published"
+        },
+        "kind": "decision",
+        "objectType": "decision",
+        "objectId": "decision-1",
+        "title": "Budget 2026 adopted",
+        "summary": "Decision published",
+        "isPublished": true,
+        "occurredAt": "2025-01-16T22:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ArchivalDossier",
+          "slug": "archival-dossier-voorbeeld-title-1-1"
+        },
+        "title": "Voorbeeld Title 1",
+        "meeting": "00000000-0000-4000-8000-000000000000",
+        "governanceBody": "00000000-0000-4000-8000-000000000000",
+        "lifecycle": "forming",
+        "minutes": [],
+        "decisions": [
+          "00000000-0000-4000-8000-000000000000"
+        ],
+        "votingRounds": [
+          "00000000-0000-4000-8000-000000000000"
+        ],
+        "documents": [
+          "00000000-0000-4000-8000-000000000000"
+        ],
+        "gaps": [
+          "minutes-not-approved"
+        ],
+        "assembledAt": "2026-03-01T09:00:00+00:00",
+        "securityClassification": "openbaar"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ArchivalDossier",
+          "slug": "archival-dossier-voorbeeld-title-2-2"
+        },
+        "title": "Voorbeeld Title 2",
+        "meeting": "00000000-0000-4000-8000-000000000001",
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "lifecycle": "closed",
+        "minutes": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "decisions": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "votingRounds": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "documents": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "gaps": [],
+        "assembledAt": "2026-03-02T09:00:00+00:00",
+        "closedAt": "2026-03-02T10:00:00+00:00",
+        "closedBy": "Voorbeeld Closedby 2",
+        "securityClassification": "openbaar"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ArchivalDossier",
+          "slug": "archival-dossier-voorbeeld-title-3-3"
+        },
+        "title": "Voorbeeld Title 3",
+        "meeting": "00000000-0000-4000-8000-000000000002",
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "lifecycle": "closed",
+        "minutes": [],
+        "decisions": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "votingRounds": [],
+        "documents": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "gaps": [
+          "minutes-missing"
+        ],
+        "assembledAt": "2026-03-03T09:00:00+00:00",
+        "closedAt": "2026-03-03T10:00:00+00:00",
+        "closedBy": "Voorbeeld Closedby 3",
+        "closeOverrideReason": "Voorbeeld Closeoverridereason 3",
+        "securityClassification": "intern"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "BoardCompetence",
+          "slug": "board-competence-voorbeeld-1"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "name": "Finance and audit",
+        "description": "Voorbeeld competentie 1",
+        "requiredHolders": 1,
+        "order": 1,
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "BoardCompetence",
+          "slug": "board-competence-voorbeeld-2"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "name": "Legal",
+        "description": "Voorbeeld competentie 2",
+        "requiredHolders": 1,
+        "order": 2,
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "BoardCompetence",
+          "slug": "board-competence-voorbeeld-3"
+        },
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "name": "IT and cybersecurity",
+        "description": "Voorbeeld competentie 3",
+        "requiredHolders": 1,
+        "order": 3,
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MemberCompetence",
+          "slug": "member-competence-voorbeeld-1"
+        },
+        "membership": "00000000-0000-4000-8000-000000000001",
+        "competence": "00000000-0000-4000-8000-000000000001",
+        "level": "basic",
+        "note": "Voorbeeld 1"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MemberCompetence",
+          "slug": "member-competence-voorbeeld-2"
+        },
+        "membership": "00000000-0000-4000-8000-000000000002",
+        "competence": "00000000-0000-4000-8000-000000000002",
+        "level": "experienced",
+        "note": "Voorbeeld 2",
+        "confirmedBy": "admin",
+        "confirmedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MemberCompetence",
+          "slug": "member-competence-voorbeeld-3"
+        },
+        "membership": "00000000-0000-4000-8000-000000000003",
+        "competence": "00000000-0000-4000-8000-000000000003",
+        "level": "expert",
+        "note": "Voorbeeld 3",
+        "confirmedBy": "admin",
+        "confirmedAt": "2026-03-01T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateRemuneration",
+          "slug": "mandate-remuneration-voorbeeld-1"
+        },
+        "positionHold": "00000000-0000-4000-8000-000000000001",
+        "person": "00000000-0000-4000-8000-000000000001",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "year": 2026,
+        "fixedFee": 32000,
+        "meetingFee": 0,
+        "expenseAllowance": 500,
+        "currency": "EUR",
+        "disclosed": true,
+        "publicationDate": "2026-04-30"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateRemuneration",
+          "slug": "mandate-remuneration-voorbeeld-2"
+        },
+        "positionHold": "00000000-0000-4000-8000-000000000002",
+        "person": "00000000-0000-4000-8000-000000000002",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "year": 2026,
+        "fixedFee": 24000,
+        "meetingFee": 0,
+        "expenseAllowance": 1000,
+        "currency": "EUR",
+        "disclosed": true,
+        "publicationDate": "2026-04-30"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateRemuneration",
+          "slug": "mandate-remuneration-voorbeeld-3"
+        },
+        "positionHold": "00000000-0000-4000-8000-000000000003",
+        "person": "00000000-0000-4000-8000-000000000003",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "year": 2026,
+        "fixedFee": 0,
+        "meetingFee": 0,
+        "expenseAllowance": 1500,
+        "currency": "EUR",
+        "disclosed": false
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateSubstitution",
+          "slug": "mandate-substitution-voorbeeld-1"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000001",
+        "outgoingParticipant": "00000000-0000-4000-8000-000000000001",
+        "incomingParticipant": "00000000-0000-4000-8000-000000000002",
+        "seatNumber": 3,
+        "party": "VVD",
+        "role": "member",
+        "votingWeight": 1,
+        "startedAt": "2026-03-04T20:15:00+01:00",
+        "recordedBy": "admin",
+        "reason": "Voorbeeld 1",
+        "endedAt": "2026-03-04T21:40:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateSubstitution",
+          "slug": "mandate-substitution-voorbeeld-2"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000002",
+        "outgoingParticipant": "00000000-0000-4000-8000-000000000001",
+        "incomingParticipant": "00000000-0000-4000-8000-000000000002",
+        "seatNumber": 4,
+        "party": "VVD",
+        "role": "member",
+        "votingWeight": 1,
+        "startedAt": "2026-04-08T19:45:00+02:00",
+        "recordedBy": "admin",
+        "reason": "Voorbeeld 2"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MandateSubstitution",
+          "slug": "mandate-substitution-voorbeeld-3"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000003",
+        "outgoingParticipant": "00000000-0000-4000-8000-000000000001",
+        "incomingParticipant": "00000000-0000-4000-8000-000000000002",
+        "seatNumber": 5,
+        "party": "VVD",
+        "role": "member",
+        "votingWeight": 1,
+        "startedAt": "2026-05-13T20:05:00+02:00",
+        "recordedBy": "admin",
+        "reason": "Voorbeeld 3",
+        "endedAt": "2026-05-13T22:10:00+02:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PaperSummary",
+          "slug": "paper-summary-voorbeeld-1"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000001",
+        "paperFileId": 900411,
+        "paperTitle": "Raadsvoorstel voorbeeld 1.pdf",
+        "provider": "llm2",
+        "taskId": 41,
+        "chunked": false,
+        "kind": "summary",
+        "status": "shown",
+        "text": "Het college vraagt de raad de kaders voor de begroting vast te stellen.",
+        "reviewedBy": "Jan de Vries",
+        "reviewedAt": "2026-09-30T10:15:00+02:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PaperSummary",
+          "slug": "paper-summary-voorbeeld-2"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000002",
+        "paperFileId": 900412,
+        "paperTitle": "Raadsvoorstel voorbeeld 2.pdf",
+        "provider": "llm2",
+        "taskId": 42,
+        "chunked": false,
+        "kind": "comparison",
+        "status": "draft",
+        "comparedFileId": 910001,
+        "comparedTitle": "Kadernota 2026.docx",
+        "text": "Het raadsvoorstel volgt de kadernota op hoofdlijnen."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "PaperSummary",
+          "slug": "paper-summary-voorbeeld-3"
+        },
+        "agendaItem": "00000000-0000-4000-8000-000000000003",
+        "paperFileId": 900413,
+        "paperTitle": "Raadsvoorstel voorbeeld 3.pdf",
+        "provider": "llm2",
+        "taskId": 43,
+        "chunked": false,
+        "kind": "summary",
+        "status": "failed",
+        "failure": "The provider timed out."
       }
     ]
   }

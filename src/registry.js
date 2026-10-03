@@ -24,19 +24,30 @@
  */
 
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
+import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
+import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
+import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
+import AgendaPaperSummariesTab from './components/tabs/AgendaPaperSummariesTab.vue'
 import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
+import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
+import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 // Public-publication tabs (publish-decisions-via-opencatalogi): publish /
 // withdraw / rectify actions on the decision, meeting (agenda), and minutes
 // detail views. Three thin wrappers around the shared PublicationActionsTab.
+import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue'
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
+import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
+import GovernanceBodyCompositionTab from './components/tabs/GovernanceBodyCompositionTab.vue'
 import GovernanceBodyEfficiencyTab from './components/tabs/GovernanceBodyEfficiencyTab.vue'
 import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvaluationsTab.vue'
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
@@ -48,21 +59,34 @@ import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 // meeting's agenda (two-hop join). See design.md Decisions 3/4 for why each
 // needs a thin wrapper rather than a pure declarative object-list widget.
 import MeetingAuditStatementTab from './components/tabs/MeetingAuditStatementTab.vue'
+import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
+import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
+import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
+import MeetingVideoCallTab from './components/tabs/MeetingVideoCallTab.vue'
 import MeetingVotesTab from './components/tabs/MeetingVotesTab.vue'
+import MinutesActionsTab from './components/tabs/MinutesActionsTab.vue'
 import MinutesApprovalTab from './components/tabs/MinutesApprovalTab.vue'
 import MinutesDocumentTab from './components/tabs/MinutesDocumentTab.vue'
+import MinutesItemNotesTab from './components/tabs/MinutesItemNotesTab.vue'
 import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
+import MotionConflictsTab from './components/tabs/MotionConflictsTab.vue'
+import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
+import MotionStageTab from './components/tabs/MotionStageTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
+import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
+import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
@@ -197,6 +221,12 @@ export default {
 	// renderer, per the manifest-abstract-sidebar contract.
 	ConsultationReactionsTab: page(ConsultationReactionsTab),
 	GovernanceBodyMembersTab: page(GovernanceBodyMembersTab),
+	// Member profile (bodies-member-profile-and-voting-record, bod-05 vot-18).
+	PersonMembershipsTab: page(PersonMembershipsTab),
+	PersonVotingRecordTab: page(PersonVotingRecordTab),
+	ParticipantProfileLink: page(ParticipantProfileLink),
+	// Archival dossier route, hand-over and certificate (records-management-archiving, pub-11).
+	DossierDispositionPanel: page(DossierDispositionPanel),
 	GovernanceBodyTemplateTab: page(GovernanceBodyTemplateTab),
 	// Meeting-efficiency analytics tab (meeting-efficiency): per-body duration
 	// trend, agenda completion, speaking distribution, cost trend and time
@@ -217,22 +247,45 @@ export default {
 	MeetingMinutesTab: page(MeetingMinutesTab),
 	MeetingTranscriptionTab: page(MeetingTranscriptionTab),
 	GovernanceBodyRetentionTab: page(GovernanceBodyRetentionTab),
+	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	// Meeting-scoped facet composition (meeting-facet-composition): mode-gated
 	// kascommissie facet + the routed-incoming-documents two-hop join.
 	MeetingAuditStatementTab: page(MeetingAuditStatementTab),
 	MeetingRoutedDocumentsTab: page(MeetingRoutedDocumentsTab),
+	AgendaItemTypeFieldsTab: page(AgendaItemTypeFieldsTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
 	// Chair-controlled amendment voting order (motion-amendment spec).
 	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
 	MotionVotingRoundTab: page(MotionVotingRoundTab),
+	AmendmentVotingRoundTab: page(AmendmentVotingRoundTab),
+	MotionCitizenAdviceTab: page(MotionCitizenAdviceTab),
 	AmendmentParentMotionTab: page(AmendmentParentMotionTab),
 	// Visual diff against the parent motion text (motion-amendment spec).
 	AmendmentDiffTab: page(AmendmentDiffTab),
 	MinutesSignersTab: page(MinutesSignersTab),
+	MinutesActionsTab: page(MinutesActionsTab),
+	// signing-external-service-with-order (min-17): the same Signers widget on
+	// motions and on a meeting's decision list.
+	MotionSignersTab: page(MotionSignersTab),
+	MotionConflictsTab: page(MotionConflictsTab),
+	// motions-stages-and-themes (mot-08): stage buttons on the motion page.
+	MotionStageTab: page(MotionStageTab),
+	// followup-public-progress (fol-06): progress entries on a commitment.
+	CommitmentProgressTab: page(CommitmentProgressTab),
+	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	// The case system on the agenda item and meeting pages
+	// (platform-case-system-document-exchange).
+	AgendaItemCaseTab: page(AgendaItemCaseTab),
+	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
+	DecisionListSignersTab: page(DecisionListSignersTab),
+	MinutesItemNotesTab: page(MinutesItemNotesTab),
+	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),
+	MeetingStageTab: page(MeetingStageTab),
+	MeetingVideoCallTab: page(MeetingVideoCallTab),
 	// Minutes approval workflow + document generation (minutes-ui-v1):
 	// lifecycle timeline with guarded submit/approve/reject actions and
 	// participant correction suggestions; document generation into the
@@ -363,6 +416,14 @@ export default {
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).
 	DecisionPublicationTab: page(DecisionPublicationTab),
 	AgendaPublicationTab: page(AgendaPublicationTab),
+
+	// Document details on meeting and agenda item pages
+	// (platform-document-metadata-fields).
+	DocumentMetadataTab: page(DocumentMetadataTab),
+	// Office papers as PDF on meeting and agenda item pages
+	// (agenda-office-files-to-pdf).
+	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
+	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
 
 	// --- User settings (user-settings-v1). ---

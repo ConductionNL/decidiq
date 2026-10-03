@@ -68,6 +68,7 @@ class PublicationService {
 	 * @param OpenCatalogiPublisher $catalogPublisher OpenCatalogi catalog routing.
 	 * @param AuditLogService $auditLogService Immutable audit trail.
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
+	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
@@ -80,6 +81,7 @@ class PublicationService {
 		private readonly OpenCatalogiPublisher $catalogPublisher,
 		private readonly AuditLogService $auditLogService,
 		ObjectServiceInterface $objectService,
+		private readonly PublicationEventRecorder $eventRecorder,
 	) {
 		$this->repository = new PublicationRepository(logger: $logger, objectService: $objectService);
 
@@ -108,6 +110,8 @@ class PublicationService {
 
 		$version = 1;
 		$payload = $this->payloadService->build($sourceType, $source, $bodyId, $version);
+		$papers  = ($payload['_publishedPapers'] ?? []);
+		unset($payload['_publishedPapers']);
 
 		// Set publicationDate on the payload so OR's public-group RBAC rule
 		// (publicationDate <= $now) makes it anonymously readable through the
@@ -116,7 +120,10 @@ class PublicationService {
 		$publishedAt = $this->now();
 
 		$payload['publicationDate'] = $publishedAt;
-		$payload['depublicationDate'] = null;
+		// No depublicationDate key: the schema types it as a date-time string that
+		// is not nullable, so an explicit null fails the register's validation.
+		// Absent means not withdrawn; withdraw() sets it.
+		unset($payload['depublicationDate']);
 		$payloadId = $this->repository->persistPayload(payload: $payload);
 
 		$warnings = [];
@@ -154,6 +161,7 @@ class PublicationService {
 			'catalogRetractionStatus' => 'none',
 			'publishedBy' => $actorId,
 			'publishedAt' => $publishedAt,
+			'publishedPapers' => $papers,
 		];
 		$recordId = $this->repository->persistRecord(record: $record);
 		$record['id'] = $recordId;
@@ -170,6 +178,7 @@ class PublicationService {
 			objectUids: [$sourceId, $payloadId],
 			payload: ['sourceType' => $sourceType, 'payloadVersion' => $version]
 		);
+		$this->eventRecorder->published(sourceType: $sourceType, sourceId: $sourceId, source: $source, bodyId: $bodyId);
 
 		return [
 			'record' => $record,
@@ -190,15 +199,17 @@ class PublicationService {
 	 * @param string $recordId UUID of the PublicationRecord.
 	 * @param string $actorId Nextcloud UID of the withdrawing staff member.
 	 * @param string $reason Mandatory withdraw reason.
+	 * @param array<int,mixed> $keepPapers Papers a rectified version still publishes.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
 	 *
 	 * @throws InvalidArgumentException When the reason is empty.
 	 * @throws MissingObjectException When the record does not exist.
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
-	public function withdraw(string $recordId, string $actorId, string $reason): array {
+	public function withdraw(string $recordId, string $actorId, string $reason, array $keepPapers=[]): array {
 		if (trim($reason) === '') {
 			throw new InvalidArgumentException('A withdraw reason is required.');
 		}
@@ -226,6 +237,15 @@ class PublicationService {
 				$retractionStatus = 'pending';
 				$warnings[] = 'catalog-retraction-failed';
 			}
+		}
+
+		// The papers this publication made public go offline with it.
+		$papersLeftOnline = $this->payloadService->withdrawPapers(
+			refs: (array)($record['publishedPapers'] ?? []),
+			keep: $keepPapers
+		);
+		if ($papersLeftOnline > 0) {
+			$warnings[] = 'papers-still-public';
 		}
 
 		$record['status'] = 'withdrawn';
@@ -282,8 +302,10 @@ class PublicationService {
 		$publishedAt = $this->now();
 
 		$payload = $this->payloadService->build($sourceType, $source, $bodyId, $newVersion);
+		$papers  = ($payload['_publishedPapers'] ?? []);
+		unset($payload['_publishedPapers']);
 		$payload['publicationDate'] = $publishedAt;
-		$payload['depublicationDate'] = null;
+		unset($payload['depublicationDate']);
 		$payloadId = $this->repository->persistPayload(payload: $payload);
 
 		$warnings = [];
@@ -317,6 +339,7 @@ class PublicationService {
 			'rectifiesVersion' => (int)($prior['payloadVersion'] ?? 1),
 			'publishedBy' => $actorId,
 			'publishedAt' => $publishedAt,
+			'publishedPapers' => $papers,
 		];
 		$newRecordId = $this->repository->persistRecord(record: $newRecord);
 		$newRecord['id'] = $newRecordId;
@@ -327,7 +350,7 @@ class PublicationService {
 			$withdrawReason = 'Superseded by rectified version ' . $newVersion;
 		}
 
-		$withdrawResult = $this->withdraw(recordId: $recordId, actorId: $actorId, reason: $withdrawReason);
+		$withdrawResult = $this->withdraw(recordId: $recordId, actorId: $actorId, reason: $withdrawReason, keepPapers: $papers);
 		$warnings = array_values(array_unique(array_merge($warnings, $withdrawResult['warnings'])));
 
 		$this->repository->markSourcePublished(

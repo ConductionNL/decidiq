@@ -16,6 +16,8 @@
     </projectFiles>
     <stubs>
         <file name="vendor/nextcloud/ocp/OCP/Capabilities/ICapability.php" preloadClasses="true" />
+        <!-- OCP\Files\IRootFolder extends the server-private OC\Hooks\Emitter, absent from nextcloud/ocp. -->
+        <file name="tests/stubs/OcHooksEmitter.php" />
         <!--
             OpenRegister's data-access contract, which this app's lib/ typehints
             but does not own. OpenRegister supplies it at RUNTIME; these are
@@ -72,6 +74,40 @@
             route table and carry the same call.
         -->
         <file name="vendor/conduction/hydra-gates/hydra-gates/stubs/openregister-apphost-bootstrap.stub.php" />
+        <!--
+            Integriq's connection-registry events (adopt-connection-registry).
+            ConnectionReportService names them by string behind class_exists
+            (ADR-041). Declaration-only stubs, so psalm sees the constructor the
+            service builds instead of reading the guarded branch as dead.
+        -->
+        <file name="tests/Stubs/Integriq/Event/ConnectionStatusReportedEvent.php" />
+        <file name="tests/Stubs/Integriq/Event/ConnectionRefreshRequestedEvent.php" />
+        <!--
+            OpenRegister's flow engine (flow-request-decision-node). decidiq
+            contributes a node to it and wakes a run through its signal seam.
+            The value classes the node drives are verbatim copies of
+            openregister development; the services are declaration stubs.
+            Stubs, not referencedClass suppressions, so the node's calls into
+            the engine stay type-checked.
+
+            preloadClasses is load-bearing. Without it psalm reads the node,
+            which implements the stubbed IFlowNode, as never analysed once the
+            listener names it: every private method and property came back
+            "unused" (measured 2026-09-28, 17 false errors). Preloaded, the
+            node is analysed like any other class.
+        -->
+        <file name="tests/Stubs/Service/Flow/IFlowNode.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/IFlowNodeConfigKeys.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowNodeRegistry.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowResumeState.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowNodeResumeState.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowSuspension.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowRunService.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowRunSignalService.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/FlowRun.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/FlowRunMapper.php" preloadClasses="true" />
+        <file name="tests/Stubs/Exception/FlowSignalRefused.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--
@@ -221,6 +257,7 @@
                 <referencedClass name="OCA\OpenRegister\Event\ObjectCreatingEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectDeletedEvent"/>
                 <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatedEvent"/>
+                <referencedClass name="OCA\OpenRegister\Event\ObjectUpdatingEvent"/>
                 <!-- ADR-066 sibling-app leaf registration (RegisterDecisionsLeafListener). -->
                 <referencedClass name="OCA\OpenRegister\Event\RegisterLeafProvidersEvent"/>
                 <referencedClass name="OCA\OpenRegister\Service\Integration\LeafDescriptor"/>

@@ -56,6 +56,20 @@ class VotingRoundOpener {
 	private readonly SavedObjectNormaliser $normaliser;
 
 	/**
+	 * The shape of a ranked-choice round's options.
+	 *
+	 * @var RankedBallotRules
+	 */
+	private readonly RankedBallotRules $rankedRules;
+
+	/**
+	 * The meeting's type and body rules (quorum, vote threshold).
+	 *
+	 * @var MeetingRuleSource
+	 */
+	private readonly MeetingRuleSource $ruleSource;
+
+	/**
 	 * Constructor for VotingRoundOpener.
 	 *
 	 * @param MotionService $motionService The motion service for lifecycle transitions
@@ -70,7 +84,7 @@ class VotingRoundOpener {
 	 */
 	public function __construct(
 		MotionService $motionService,
-		private readonly ParticipantResolver $participantResolver,
+		ParticipantResolver $participantResolver,
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
 		private readonly ObjectServiceInterface $objectService,
@@ -88,55 +102,28 @@ class VotingRoundOpener {
 		);
 
 		$this->normaliser = new SavedObjectNormaliser();
+		$this->rankedRules = new RankedBallotRules();
+		$this->ruleSource = new MeetingRuleSource(objectService: $objectService, participantResolver: $participantResolver);
 
 	}//end __construct()
 
 	/**
 	 * Check whether quorum is met for a given meeting.
 	 *
-	 * Counts Participants whose leftAt is null (active) in the GovernanceBody, and
-	 * compares against Meeting.quorumRequired.
+	 * The threshold is Meeting.quorumRequired, else the body's quorum, else
+	 * the body's quorumRule over its current members (BodyQuorum). Members
+	 * marked present or proxy count; with no attendance taken, every member
+	 * who has not left counts.
 	 *
 	 * @param string $meetingId The meeting UUID
 	 *
-	 * @return bool True if quorum is met or quorumRequired is null/0
+	 * @return bool True if quorum is met or no quorum is set
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/specs/meeting-management/spec.md#requirement-req-mrb-002-votes-follow-the-body-rules
 	 */
 	public function checkQuorum(string $meetingId): bool {
-		$meetingEntity = $this->objectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-		$meeting = null;
-		if ($meetingEntity !== null) {
-			$meeting = $meetingEntity->jsonSerialize();
-		}
-
-		if ($meeting === null) {
-			return false;
-		}
-
-		$quorumRequired = (int)($meeting['quorumRequired'] ?? 0);
-		if ($quorumRequired === 0) {
-			return true;
-		}
-
-		// Count active participants (leftAt is null) via the shared
-		// ParticipantResolver, which resolves the meeting → governance-body link
-		// and the participant memberships from BOTH the structured relation list
-		// and the flat field-keyed relation map ('@self.relations.governanceBody')
-		// produced by the standard OpenRegister object API. The previous inline
-		// logic read '$meeting["relations"]' as a structured list and filtered on
-		// '_relations.governance-body', neither of which matches OR-object-API
-		// data, so it always counted 0 active participants and failed closed.
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		$activeCount = 0;
-		foreach ($participants as $participant) {
-			if (($participant['leftAt'] ?? null) === null) {
-				$activeCount++;
-			}
-		}
-
-		return $activeCount >= $quorumRequired;
+		return $this->ruleSource->quorumMet(meetingId: $meetingId);
 	}//end checkQuorum()
 
 	/**
@@ -169,6 +156,8 @@ class VotingRoundOpener {
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/process-configuration/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function openVotingRound(
 		string $motionId,
@@ -183,13 +172,12 @@ class VotingRoundOpener {
 		$roundRules = ($roundRules ?? new VotingRoundRules());
 		$subjectType = $roundRules->subjectType;
 
-		// Process-configuration: resolution order per rule is caller value (non-null) ->
-		// body template default -> built-in default. The caller (controller) always passes
-		// explicit values, so it always wins; the template only fills nulls. Unknown rule
-		// values are rejected, never silently defaulted.
+		// Resolution order per rule: the chair's pick (non-null), then the meeting
+		// type's threshold, then the template of the body (named, else the
+		// meeting's), then the built-in default. Unknown values are rejected.
 		$rules = $this->preflight->resolveRules(
-			governanceBodyId: $roundRules->governanceBodyId,
-			voteThreshold: $roundRules->voteThreshold,
+			governanceBodyId: ($roundRules->governanceBodyId ?? $this->ruleSource->bodyIdOf(meetingId: $meetingId)),
+			voteThreshold: ($roundRules->voteThreshold ?? $this->ruleSource->meetingTypeThreshold(meetingId: $meetingId)),
 			abstentionHandling: $roundRules->abstentionHandling,
 			tieBreakRule: $roundRules->tieBreakRule,
 			subjectType: $subjectType
@@ -206,6 +194,14 @@ class VotingRoundOpener {
 			$this->preflight->assertRevoteAllowed(revoteOfRoundId: $revoteOfRoundId);
 		}
 
+		// Checked before anything is written, so a refusal leaves no round.
+		$options = $this->roundOptions(
+			votingMethod: $votingMethod,
+			requested: $roundRules->options,
+			revoteOfRoundId: $revoteOfRoundId,
+			tieBreakRule: (string)$rules['tieBreakRule']
+		);
+
 		// Parliamentary ordering (motion-amendment spec) and the lifecycle
 		// transition below apply to fresh rounds only: a revote re-opens a
 		// question that was already in order and never left 'voting'.
@@ -215,8 +211,9 @@ class VotingRoundOpener {
 		}
 
 		// Preset UUIDs are validated against active memberships; the eligible
-		// ones become participant relations on the round.
-		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetParticipantIds);
+		// ones become participant relations, a substituted seat as its substitute (REQ-MSW-002).
+		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $presetParticipantIds);
+		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetIds);
 		$votingRound = $this->preflight->buildRoundPayload(
 			motionId: $motionId,
 			subjectType: $subjectType,
@@ -228,6 +225,9 @@ class VotingRoundOpener {
 			revoteOfRoundId: $revoteOfRoundId,
 			participantIds: $presets['eligible']
 		);
+		if ($options !== []) {
+			$votingRound['options'] = $options;
+		}
 
 		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
 
@@ -256,6 +256,34 @@ class VotingRoundOpener {
 
 		return $result;
 	}//end openVotingRound()
+
+	/**
+	 * The options a round opens with: the requested ones for a ranked-choice
+	 * round (REQ-PRF-001), or the tied options of the round a ranked revote
+	 * repeats (REQ-RPB-001); none for any other method.
+	 *
+	 * @param string $votingMethod The round's voting method.
+	 * @param array<int, mixed> $requested The options as requested.
+	 * @param string|null $revoteOfRoundId The tied round this round revotes, or null.
+	 * @param string $tieBreakRule The round's resolved tie-break rule.
+	 *
+	 * @return array<int, array<string, string>> The checked options.
+	 *
+	 * @throws \InvalidArgumentException When the options do not fit the method.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 */
+	private function roundOptions(string $votingMethod, array $requested, ?string $revoteOfRoundId, string $tieBreakRule): array {
+		if ($revoteOfRoundId !== null && $votingMethod === RankedBallotRules::METHOD) {
+			$requested = ($this->preflight->tiedOptionsOf(revoteOfRoundId: $revoteOfRoundId) ?? $requested);
+		}
+
+		return $this->rankedRules->openingOptions(
+			votingMethod: $votingMethod,
+			options: $requested,
+			tieBreakRule: $tieBreakRule
+		);
+	}//end roundOptions()
 
 	/**
 	 * Resolve OpenRegister ObjectService.

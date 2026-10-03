@@ -41,8 +41,23 @@ $extra = [
         // `run-action` step that follows reads it back, because runAction()
         // carries no body and so cannot carry the answer itself.
         ['name' => 'setup#saveConfig', 'url' => '/api/setup/config',           'verb' => 'POST'],
+        ['name' => 'fullExport#start',    'url' => '/api/export/full',        'verb' => 'POST'],
+        ['name' => 'fullExport#latest',   'url' => '/api/export/full',        'verb' => 'GET'],
+        ['name' => 'fullExport#download', 'url' => '/api/export/full/{name}', 'verb' => 'GET'],
+        // The case system through integriq (platform-case-system-document-exchange, plt-23, plt-24).
+        ['name' => 'caseSystem#status',         'url' => '/api/case-system/status',                     'verb' => 'GET'],
+        ['name' => 'caseSystem#linkCase',       'url' => '/api/agenda-items/{id}/case',                 'verb' => 'POST'],
+        ['name' => 'caseSystem#listDocuments',  'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'GET'],
+        ['name' => 'caseSystem#fetchDocuments', 'url' => '/api/agenda-items/{id}/case-documents',       'verb' => 'POST'],
+        ['name' => 'caseSystem#send',           'url' => '/api/meetings/{id}/case-system/send',         'verb' => 'POST'],
+        ['name' => 'caseSystem#resend',         'url' => '/api/case-exchange-records/{id}/resend',      'verb' => 'POST'],
+        ['name' => 'exportBundle#formats', 'url' => '/api/exports/decision-bundle/formats', 'verb' => 'GET'],
+        ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
+        // Rights per record type (platform-role-rights-per-record-type, plt-03).
+        ['name' => 'roleRights#index', 'url' => '/api/settings/role-rights', 'verb' => 'GET'],
+        ['name' => 'roleRights#update', 'url' => '/api/settings/role-rights', 'verb' => 'PUT'],
 
         // Publication action endpoints — publish/withdraw/rectify ONLY (ADR-022; CRUD stays on OR object API).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
@@ -57,6 +72,11 @@ $extra = [
         // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
         ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
         ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
+        // The one question a sibling app gates closure on: has everything that
+        // had to sign off signed off. A consumer that cannot reach this reads
+        // the subject as NOT cleared; absence of an engine is not an approval.
+        // @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md
+        ['name' => 'approvalRoute#clearance',   'url' => '/api/approval-routes/clearance',   'verb' => 'GET'],
 
         // Process template management (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/process-configuration/spec.md
@@ -124,6 +144,8 @@ $extra = [
         ['name' => 'transcription#attach',          'url' => '/api/meetings/{meetingId}/transcription/attach',  'verb' => 'POST'],
         ['name' => 'transcription#transcribe',      'url' => '/api/transcripts/{transcriptId}/transcribe',      'verb' => 'POST'],
         ['name' => 'transcription#realign',         'url' => '/api/transcripts/{transcriptId}/re-align',        'verb' => 'POST'],
+        // Play the recording, seekable (live-recording-jump-to-item, liv-08).
+        ['name' => 'recording#play',                'url' => '/api/transcripts/{transcriptId}/recording',       'verb' => 'GET'],
         ['name' => 'transcription#generateDraft',   'url' => '/api/transcripts/{transcriptId}/generate-draft',  'verb' => 'POST'],
         ['name' => 'transcription#retentionConfig', 'url' => '/api/governance-bodies/{bodyId}/retention-config', 'verb' => 'PUT'],
 
@@ -138,11 +160,22 @@ $extra = [
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
+        ['name' => 'meeting#transitions', 'url' => '/api/meetings/{id}/transitions', 'verb' => 'GET'],
 
         // Recurring series generation + document package assembly
         // (meeting-agenda-gaps-v1). @spec openspec/specs/meeting-management/spec.md
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
+        ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
+        // bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004): the seats and the mandate swap.
+        ['name' => 'mandateSubstitution#seats',           'url' => '/api/meetings/{meetingId}/seats', 'verb' => 'GET'],
+        ['name' => 'mandateSubstitution#substitute',      'url' => '/api/meetings/{meetingId}/substitutions', 'verb' => 'POST'],
+        ['name' => 'mandateSubstitution#endSubstitution', 'url' => '/api/meetings/{meetingId}/substitutions/{id}/end', 'verb' => 'POST'],
+        // agenda-office-files-to-pdf (age-17): queue a new conversion of a paper whose conversion failed.
+        ['name' => 'paperConversion#convert', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/convert', 'verb' => 'POST'],
+        // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
+        ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
+        ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
@@ -150,9 +183,17 @@ $extra = [
         ['name' => 'agenda#advanceBobPhase',     'url' => '/api/agenda-items/{id}/bob-phase',      'verb' => 'PUT'],
         ['name' => 'agenda#processHamerstukken', 'url' => '/api/agendas/{meetingId}/hamerstukken', 'verb' => 'POST'],
         ['name' => 'agenda#reorder',             'url' => '/api/agendas/{meetingId}/reorder',      'verb' => 'PUT'],
+        // Mark an agenda item as a formality (agenda-formalities-hamerstukken, age-07).
+        ['name' => 'agenda#formality',           'url' => '/api/agendas/{meetingId}/items/{itemId}/formality', 'verb' => 'PUT'],
+        // The chair's current agenda item on the live meeting (live-meeting-shared-current-item, liv-01).
+        ['name' => 'agenda#currentItem',         'url' => '/api/agendas/{meetingId}/current-item', 'verb' => 'PUT'],
+        // The clerk adds a progress entry to a commitment (followup-public-progress, fol-06).
+        ['name' => 'commitment#addProgress',     'url' => '/api/commitments/{id}/progress', 'verb' => 'POST'],
 
         // Motion lifecycle and co-signature routes (specific before wildcard).
         ['name' => 'motion#transition',     'url' => '/api/motions/{id}/transition',      'verb' => 'POST'],
+        // Motion stage buttons (mot-08) — @spec openspec/specs/motion-status-management/spec.md#requirement-req-mst-001-move-a-motion-through-its-stages-on-its-page
+        ['name' => 'motion#transitions',    'url' => '/api/motions/{id}/transitions',     'verb' => 'GET'],
         ['name' => 'motion#coSignRequest',  'url' => '/api/motions/{id}/co-sign-request', 'verb' => 'POST'],
         ['name' => 'motion#coSignConfirm',  'url' => '/api/motions/{id}/co-sign-confirm', 'verb' => 'POST'],
         ['name' => 'motion#budgetImpact',   'url' => '/api/motions/{id}/budget-impact',   'verb' => 'POST'],
@@ -169,8 +210,31 @@ $extra = [
         ['name' => 'voting#close',       'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
+        // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
+        ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
+        // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
+        ['name' => 'votingRecord#forPerson', 'url' => '/api/people/{personId}/voting-record', 'verb' => 'GET'],
+        // Board composition: a body's competences, members' competences and their confirmation (bod-11).
+        ['name' => 'memberCompetence#createCompetence', 'url' => '/api/competences',                      'verb' => 'POST'],
+        ['name' => 'memberCompetence#updateCompetence', 'url' => '/api/competences/{id}',                 'verb' => 'PUT'],
+        ['name' => 'memberCompetence#record',           'url' => '/api/member-competences',               'verb' => 'POST'],
+        ['name' => 'memberCompetence#update',           'url' => '/api/member-competences/{id}',          'verb' => 'PUT'],
+        ['name' => 'memberCompetence#confirm',          'url' => '/api/member-competences/{id}/confirm',  'verb' => 'POST'],
+        // A meeting's archival dossier: form, gather again, close (records-management-archiving, pub-11).
+        ['name' => 'archivalDossier#form',     'url' => '/api/meetings/{meetingId}/archival-dossier', 'verb' => 'POST'],
+        ['name' => 'archivalDossier#assemble', 'url' => '/api/dossiers/{id}/assemble', 'verb' => 'POST'],
+        ['name' => 'archivalDossier#close',    'url' => '/api/dossiers/{id}/close',    'verb' => 'POST'],
+        // Where a closed dossier goes, handing it to OpenRegister's list, and what OpenRegister did (pub-11).
+        ['name' => 'dossierDisposition#show',    'url' => '/api/dossiers/{id}/disposition', 'verb' => 'GET'],
+        ['name' => 'dossierDisposition#propose', 'url' => '/api/dossiers/{id}/disposition', 'verb' => 'POST'],
+        ['name' => 'dossierDisposition#outcome', 'url' => '/api/dossiers/{id}/outcome',     'verb' => 'POST'],
+        ['name' => 'dossierDisposition#certificate', 'url' => '/api/dossiers/{id}/certificate', 'verb' => 'POST'],
+        // A dossier's own Selectielijst category, when it differs from the schema's (DECISIONS row 48).
+        ['name' => 'dossierDisposition#category',    'url' => '/api/dossiers/{id}/category',    'verb' => 'PUT'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
+        ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],
+        ['name' => 'voting#globalPermissions', 'url' => '/api/voting-permissions', 'verb' => 'GET'],
 
         // Voting behaviour (stats) routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
         ['name' => 'votingBehaviour#getStats', 'url' => '/api/voting-behaviour/{participantId}', 'verb' => 'GET'],
@@ -180,6 +244,9 @@ $extra = [
 
         // Motion forwarding routes — @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
         ['name' => 'motion#forward', 'url' => '/api/motions/{id}/forward', 'verb' => 'POST'],
+        // Residents' advisory vote on a motion (#1418) — @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md
+        ['name' => 'citizenAdvice#open',  'url' => '/api/motions/{id}/citizen-advice/open',  'verb' => 'POST'],
+        ['name' => 'citizenAdvice#close', 'url' => '/api/motions/{id}/citizen-advice/close', 'verb' => 'POST'],
 
         // Governance services (retained from the retired board portal,
         // retargeted onto the unified entities per ADR-006).
@@ -198,6 +265,11 @@ $extra = [
         ['name' => 'eIDASSignature#verify',     'url' => '/api/minutes/{minutesId}/eidas/verify',    'verb' => 'POST'],
         ['name' => 'eIDASSignature#finalize',   'url' => '/api/minutes/{minutesId}/eidas/finalize',  'verb' => 'POST'],
         ['name' => 'eIDASSignature#certStatus', 'url' => '/api/eidas/validate-cert',                 'verb' => 'POST'],
+
+        // Send minutes, a meeting's decision list or a motion for signature in order,
+        // and collect the signed copy (signing-external-service-with-order, min-17).
+        ['name' => 'signing#send',    'url' => '/api/signing/{subjectType}/{subjectId}/send',    'verb' => 'POST'],
+        ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
 
         // Proxy voting (task-5.1).
         ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],

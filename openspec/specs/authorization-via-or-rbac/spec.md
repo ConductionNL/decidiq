@@ -2,7 +2,9 @@
 
 ## Purpose
 TBD - created by archiving change consume-or-rbac-authorization. Update Purpose after archive.
+
 ## Requirements
+
 ### Requirement: REQ-RBAC-001 Governance-body roles project into OpenRegister RBAC scopes
 decidiq SHALL maintain, per GovernanceBody, two OpenRegister RBAC scopes derived from the body's
 member roles: a **chair scope** (`decidesk:body:{bodyId}:chair`) containing members whose role is
@@ -126,7 +128,6 @@ caller as "check skipped".
 
 @e2e exclude fail-closed edge (unresolvable body scope) with no distinct UI flow; unit-proven in GovernanceScopeGuardTest (fails closed when the body is unresolvable / on OR error) and MeetingServiceTest (chair-only transition denied when the governanceBody cannot be resolved).
 
-
 ### Requirement: REQ-RBAC-006 The register declares an authorization baseline so an absent block cannot grant writes
 The `decidesk` register row SHALL declare an `authorization` block naming EVERY canonical
 OpenRegister action (`read`, `list`, `create`, `update`, `delete`). `read`, `list` and `create`
@@ -247,3 +248,12 @@ enforce its own access server-side, and nothing SHALL depend on the guard for au
 - **THEN** the list is `["user", "admin"]` for boolean `true` and `["user"]` for every other value, never empty
 
 @e2e exclude The server only ever publishes a real boolean (see the scenario above, which a Playwright test covers), so the absent and string values this scenario guards against cannot be produced by a page load, and the list itself is a module-local value no browser test can read. Pinned by `tests/vitest/navPermissions.spec.js` ("never returns an empty list" and "grants admin only for a real boolean true").
+
+### Requirement: REQ-PRR-001 Administrators see and map rights per record type
+
+The admin settings SHALL list, per record type, which roles may read, create, change and delete it, and SHALL let the administrator map each role to Nextcloud groups.
+
+#### Scenario: The administrator checks who can edit minutes
+- GIVEN the administrator opens Rights per record type
+- WHEN she reads the row for Minutes and maps role griffie to group Griffie
+- THEN the page shows who may change minutes, and members of Griffie can now edit them

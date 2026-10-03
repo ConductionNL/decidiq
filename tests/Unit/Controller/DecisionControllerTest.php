@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\DecisionController;
+use OCA\Decidiq\Service\ConfidentialityRestrictions;
 use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -313,9 +314,14 @@ class DecisionControllerTest extends TestCase {
 	public function testPublishSucceedsReturns200(): void {
 		$this->groupManager->method('isAdmin')->with('admin')->willReturn(true);
 
+		// The publish action also reads the confidentiality restrictions; none
+		// target this decision (findAll answers no rows).
 		$this->container->method('get')
-			->with('OCA\OpenRegister\Service\ObjectService')
-			->willReturn($this->objectService);
+			->willReturnCallback(
+				fn (string $id): object => $id === ConfidentialityRestrictions::class
+					? new ConfidentialityRestrictions($this->objectService)
+					: $this->objectService
+			);
 
 		$entity = $this->createMock(ObjectEntity::class);
 		$entity->method('getObject')->willReturn(

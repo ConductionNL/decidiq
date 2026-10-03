@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\AgendaController;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
@@ -56,6 +57,13 @@ class AgendaControllerTest extends TestCase {
 	 * @var AgendaService&MockObject
 	 */
 	private AgendaService&MockObject $agendaService;
+
+	/**
+	 * Mock CurrentAgendaItemService.
+	 *
+	 * @var CurrentAgendaItemService&MockObject
+	 */
+	private CurrentAgendaItemService&MockObject $currentItems;
 
 	/**
 	 * Mock ObjectService.
@@ -102,6 +110,7 @@ class AgendaControllerTest extends TestCase {
 
 		$this->request = $this->createMock(IRequest::class);
 		$this->agendaService = $this->createMock(AgendaService::class);
+		$this->currentItems = $this->createMock(CurrentAgendaItemService::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->groupManager = $this->createMock(IGroupManager::class);
 		$this->logger = $this->createMock(LoggerInterface::class);
@@ -135,11 +144,105 @@ class AgendaControllerTest extends TestCase {
 		return new AgendaController(
 			request: $this->request,
 			agendaService: $this->agendaService,
+			currentItems: $this->currentItems,
 			guard: $guard,
 			logger: $this->logger,
 		);
 
 	}//end buildController()
+
+	/**
+	 * A session for a logged-in user who is a chair or secretary of the
+	 * meeting, or not.
+	 *
+	 * @param bool $chair Whether the participant resolver says chair/secretary
+	 *
+	 * @return IUserSession
+	 */
+	private function sessionFor(bool $chair): IUserSession {
+		$user = $this->createMock(\OCP\IUser::class);
+		$user->method('getUID')->willReturn('clerk');
+		$session = $this->createMock(IUserSession::class);
+		$session->method('getUser')->willReturn($user);
+		$this->groupManager->method('isAdmin')->willReturn(false);
+		$this->participantResolver->method('hasRole')->willReturn($chair);
+		return $session;
+	}//end sessionFor()
+
+	/**
+	 * The chair or secretary marks an item as a formality.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testTheSecretaryMarksAFormality(): void {
+		$this->request->method('getParam')->with('isFormality')->willReturn(true);
+		$this->agendaService->expects($this->once())->method('setFormality')->with('meeting-uuid-001', 'item-4', true);
+
+		$result = $this->buildController($this->sessionFor(chair: true))->formality('meeting-uuid-001', 'item-4');
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+	}//end testTheSecretaryMarksAFormality()
+
+	/**
+	 * A member who is not chair or secretary cannot mark formalities.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testAMemberCannotMarkAFormality(): void {
+		$this->agendaService->expects($this->never())->method('setFormality');
+
+		$result = $this->buildController($this->sessionFor(chair: false))->formality('meeting-uuid-001', 'item-4');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+	}//end testAMemberCannotMarkAFormality()
+
+	/**
+	 * An item of another meeting reads as a bad request, with the reason.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testAnItemOfAnotherMeetingIsABadRequest(): void {
+		$this->request->method('getParam')->willReturn(true);
+		$this->agendaService->method('setFormality')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
+
+		$result = $this->buildController($this->sessionFor(chair: true))->formality('meeting-uuid-001', 'item-4');
+
+		self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+		self::assertSame('This agenda item is not on this meeting.', $result->getData()['message']);
+	}//end testAnItemOfAnotherMeetingIsABadRequest()
+
+	/**
+	 * Adopting the formalities answers how many were adopted.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 *
+	 * @return void
+	 */
+	public function testAdoptingAnswersHowManyWereAdopted(): void {
+		$this->agendaService->method('processHamerstukken')->willReturn(3);
+
+		$result = $this->buildController($this->sessionFor(chair: true))->processHamerstukken('meeting-uuid-001');
+
+		self::assertSame(['success' => true, 'adopted' => 3], $result->getData());
+	}//end testAdoptingAnswersHowManyWereAdopted()
+
+	/**
+	 * The formality route reaches the method.
+	 *
+	 * @return void
+	 */
+	public function testTheFormalityRouteReachesTheController(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$byName = array_column($routes['routes'], 'url', 'name');
+
+		self::assertSame('/api/agendas/{meetingId}/items/{itemId}/formality', ($byName['agenda#formality'] ?? null));
+	}//end testTheFormalityRouteReachesTheController()
 
 	/**
 	 * publish() returns 401 for unauthenticated requests.
@@ -222,4 +325,67 @@ class AgendaControllerTest extends TestCase {
 		self::assertArrayHasKey('message', $result->getData());
 
 	}//end testReviseUnauthenticatedReturns401()
+
+	/**
+	 * The chair makes an item current; the choice is saved on the meeting.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testTheChairMakesAnItemCurrent(): void {
+		$this->request->method('getParam')->with('agendaItem')->willReturn('item-5');
+		$this->currentItems->expects($this->once())->method('setCurrentItem')->with('meeting-uuid-001', 'item-5');
+
+		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_OK, $result->getStatus());
+		self::assertSame(['success' => true, 'currentAgendaItem' => 'item-5'], $result->getData());
+	}//end testTheChairMakesAnItemCurrent()
+
+	/**
+	 * A member who is not chair or secretary cannot move the meeting on.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testAMemberCannotMakeAnItemCurrent(): void {
+		$this->currentItems->expects($this->never())->method('setCurrentItem');
+
+		$result = $this->buildController($this->sessionFor(chair: false))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_FORBIDDEN, $result->getStatus());
+	}//end testAMemberCannotMakeAnItemCurrent()
+
+	/**
+	 * An item of another meeting cannot be made current here.
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
+	 *
+	 * @return void
+	 */
+	public function testAnItemOfAnotherMeetingCannotBeMadeCurrent(): void {
+		$this->request->method('getParam')->willReturn('item-9');
+		$this->currentItems->method('setCurrentItem')->willThrowException(new \InvalidArgumentException('This agenda item is not on this meeting.'));
+
+		$result = $this->buildController($this->sessionFor(chair: true))->currentItem('meeting-uuid-001');
+
+		self::assertSame(Http::STATUS_BAD_REQUEST, $result->getStatus());
+	}//end testAnItemOfAnotherMeetingCannotBeMadeCurrent()
+
+	/**
+	 * The current-item route reaches the method.
+	 *
+	 * @return void
+	 */
+	public function testTheCurrentItemRouteReachesTheController(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$byName = array_column($routes['routes'], 'url', 'name');
+		$verbs = array_column($routes['routes'], 'verb', 'name');
+
+		self::assertSame('/api/agendas/{meetingId}/current-item', ($byName['agenda#currentItem'] ?? null));
+		self::assertSame('PUT', ($verbs['agenda#currentItem'] ?? null));
+	}//end testTheCurrentItemRouteReachesTheController()
+
 }//end class

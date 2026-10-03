@@ -61,6 +61,7 @@ use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\IL10N;
 use Psr\Log\LoggerInterface;
+use ReflectionClass;
 use Throwable;
 
 /**
@@ -172,7 +173,34 @@ class RegisterDecisionsLeafListener implements IEventListener {
 		}
 
 		try {
+			$optional = [];
+			if ($this->descriptorSupportsLoadStrategy() === true) {
+				// 🔴 SAID OUT LOUD BECAUSE IT WAS NEARLY INFERRED WRONGLY.
+				// decidiq ships no `decidiq-leaves.js` and does not need one: it
+				// loads `decidiq-integration-init.js` itself, on EVERY Nextcloud
+				// page, via `Util::addInitScript` in `Application::boot()`, so
+				// this leaf registers on the shared registry wherever a host
+				// object renders rather than only on decidiq's own pages.
+				//
+				// openregister#3954 read the missing `decidiq-leaves.js` as
+				// proof the surface was dark and refused the registration;
+				// #3955 reverted that and #3956 replaced the inference with this
+				// declaration. Declaring it is what stops the next reader
+				// re-deriving the wrong answer from the filesystem.
+				$optional['loadStrategy'] = LeafDescriptor::LOADS_VIA_OWN_SCRIPT;
+			}
+
+			// The optional half is UNPACKED FIRST and every agreed field stays a
+			// written-out named argument, for two reasons that pull the same way.
+			// PHP refuses unpacking after a named argument, and
+			// `scripts/check-integration-parity.js` reads this call as SOURCE: it
+			// correlates the two halves of the leaf by matching `name: value`
+			// arguments here against the JS registration. Building the whole
+			// argument list as an array leaves the gate nothing to read: measured,
+			// it dropped from 8 field assertions to 0 and reported the leaf as
+			// having no id at all.
 			$descriptor = new LeafDescriptor(
+				...$optional,
 				id: self::LEAF_ID,
 				label: $this->l10n->t(self::LABEL_SOURCE),
 				icon: self::ICON,
@@ -201,4 +229,49 @@ class RegisterDecisionsLeafListener implements IEventListener {
 		}//end try
 
 	}//end handle()
+
+	/**
+	 * Whether the OpenRegister beside us understands the `loadStrategy` argument.
+	 *
+	 * 🔴 A DECLARATION ABOUT HOW A LEAF LOADS MUST NEVER BE WHY IT DOES NOT LOAD.
+	 *
+	 * `loadStrategy` and the `LOADS_*` constants arrived together in
+	 * openregister#3956. Decidiq does not choose which OpenRegister an admin runs
+	 * it beside, and reading a constant that version does not declare is an
+	 * `Error`. The catch in `handle()` then swallows it, the leaf is simply
+	 * absent, and a warning in nextcloud.log is the only trace. hermiq measured
+	 * exactly that on a live instance: seven occurrences in the log and the leaf
+	 * never registered at all.
+	 *
+	 * Both halves are checked rather than one standing in for the other: the
+	 * constant is what this listener reads, the parameter is what it passes, and
+	 * a stub or a partial backport can carry one without the other.
+	 *
+	 * `protected` so a test can drive the negative branch. Two versions of one
+	 * class cannot both be loaded to be compared directly, so the seam is the
+	 * only way to assert what happens beside the older one.
+	 *
+	 * @return bool Whether the descriptor accepts a load strategy.
+	 *
+	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
+	 */
+	protected function descriptorSupportsLoadStrategy(): bool {
+		if (defined(LeafDescriptor::class . '::LOADS_VIA_OWN_SCRIPT') === false) {
+			return false;
+		}
+
+		$constructor = (new ReflectionClass(LeafDescriptor::class))->getConstructor();
+		if ($constructor === null) {
+			return false;
+		}
+
+		foreach ($constructor->getParameters() as $parameter) {
+			if ($parameter->getName() === 'loadStrategy') {
+				return true;
+			}
+		}
+
+		return false;
+
+	}//end descriptorSupportsLoadStrategy()
 }//end class

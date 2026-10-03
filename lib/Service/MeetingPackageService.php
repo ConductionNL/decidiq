@@ -517,7 +517,7 @@ class MeetingPackageService {
 			return [];
 		}
 
-		return array_values(
+		$nodes = array_values(
 			array_filter(
 				(array)$nodes,
 				static fn (mixed $node): bool => is_object($node) === true
@@ -525,6 +525,8 @@ class MeetingPackageService {
 					&& method_exists($node, 'getContent') === true
 			)
 		);
+
+		return (new PaperRenditionFilter())->preferPdf(nodes: $nodes, renditions: (array)($item['paperRenditions'] ?? []));
 
 	}//end resolveItemFiles()
 

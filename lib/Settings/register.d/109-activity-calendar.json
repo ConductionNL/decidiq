@@ -1,0 +1,63 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment (list values concatenate on merge, so an enum here names only the value it adds), change planning-activity-calendar-by-audience (REQ-ACAL-001, REQ-ACAL-004, matrix row pla-16). A kind of meeting declares who it is for, so the calendar can filter on audience, and a public meeting can be published to the residents' calendar as an activity without a formal agenda.",
+	"components": {
+		"schemas": {
+			"MeetingType": {
+				"slug": "meeting-type",
+				"version": "0.2.0",
+				"properties": {
+					"audiences": {
+						"type": "array",
+						"title": "Audiences",
+						"description": "Who meetings of this kind are for. The meeting calendar filters on it.",
+						"items": {
+							"type": "string",
+							"enum": ["council", "executive", "joint-arrangement", "residents", "staff"]
+						},
+						"facetable": true
+					}
+				}
+			},
+			"PublicationRecord": {
+				"slug": "publication-record",
+				"version": "0.3.0",
+				"properties": {
+					"sourceType": {
+						"title": "Source type",
+						"description": "The kind of governance output published, or a calendar entry for a public meeting.",
+						"enum": ["activity"]
+					}
+				}
+			},
+			"PublicationPayload": {
+				"slug": "publication-payload",
+				"version": "0.3.0",
+				"properties": {
+					"documentType": {
+						"title": "Document type",
+						"description": "What was published: an agenda, a decision, minutes or a calendar entry. Citizens filter on it.",
+						"enum": ["activity"]
+					},
+					"location": {
+						"type": "string",
+						"title": "Location",
+						"description": "Where the meeting takes place, as residents read it on the calendar."
+					},
+					"audiences": {
+						"type": "array",
+						"title": "Audiences",
+						"description": "Who the meeting is for, taken from its kind of meeting.",
+						"items": {
+							"type": "string",
+							"enum": ["council", "executive", "joint-arrangement", "residents", "staff"]
+						},
+						"facetable": true
+					}
+				}
+			}
+		}
+	}
+}

@@ -92,3 +92,55 @@ The app SHALL allow export of the full agenda for a meeting to CSV via `ExportSe
 - **GIVEN** an AgendaItem with `orderNumber: 3` and `title: "Bestemmingsplan Centrum"`
 - **WHEN** the CSV export is downloaded
 - **THEN** the Titel column contains "Bestemmingsplan Centrum" (not "3. Bestemmingsplan Centrum")
+
+### Requirement: REQ-APIM-001 Publishing the agenda invites the members
+
+The chair or secretary SHALL be able to publish the agenda from the meeting page; each member SHALL receive an invitation with the date, place and agenda items by the delivery they chose.
+
+#### Scenario: Members are invited
+- GIVEN a council meeting with five agenda items and 30 members
+- WHEN the secretary presses Publish agenda
+- THEN each member finds an invitation in the bell, and members who chose email get one listing the five items
+
+### Requirement: REQ-APIM-002 A published agenda of a public meeting can go public
+
+Publishing the agenda SHALL record when the convocation was sent, and a public meeting SHALL then be publishable to the public catalogue.
+
+#### Scenario: The public sees the agenda
+- GIVEN a public meeting whose agenda was published
+- WHEN the clerk presses Publish in the Publication widget
+- THEN the agenda appears in the public catalogue
+
+### Requirement: REQ-PPS-001 Public papers are published with the agenda
+
+Publishing an agenda SHALL publish the non-confidential papers of its public items, with the body, date and document type citizens filter on.
+
+#### Scenario: A resident reads the papers
+- GIVEN the council agenda of 14 October has papers on three items, one confidential
+- WHEN the clerk publishes the agenda
+- THEN a resident finds the papers of the two public items in the public catalogue and can filter on the council and the date
+- AND each publication names its document type (agenda, decision or minutes), and body and meeting date are facetable
+
+#### Scenario: Withdrawing the agenda takes its papers offline
+- GIVEN the agenda of 14 October was published with the papers of two items
+- WHEN the clerk withdraws the publication
+- THEN those papers are no longer public, and a rectified version keeps online the papers it still publishes
+
+### Requirement: REQ-PPS-002 A confidential item never reaches the public
+
+An agenda item under an imposed or ratified confidentiality restriction (scope item) SHALL NOT appear on any public surface: not its title in the published agenda, not its papers, not in what the catalogue indexes. A paper labelled confidential on a public item SHALL NOT be published. Restrictions are read in system context, so the answer does not depend on what the publishing clerk may read. When the restrictions cannot be read, the agenda SHALL NOT be published.
+
+#### Scenario: A confidential item stays out
+- GIVEN item 2 of the agenda is under an imposed restriction and item 4 under a ratified one
+- WHEN the clerk publishes the agenda
+- THEN neither title nor any paper of items 2 and 4 is in the stored payload, the publication record or the catalogue publication
+
+#### Scenario: A dissolved restriction no longer keeps the item out
+- GIVEN the restriction on item 3 is dissolved
+- WHEN the clerk publishes the agenda
+- THEN item 3 is on the published agenda with its papers
+
+#### Scenario: Unreadable restrictions stop the publication
+- GIVEN the confidentiality restrictions cannot be read
+- WHEN the clerk publishes the agenda
+- THEN the publication is refused with a message, no payload is stored, nothing reaches the catalogue and no paper is made public

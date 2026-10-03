@@ -184,6 +184,78 @@ class GovernanceScopeGuard {
 	}//end isSignatoryForMinutes()
 
 	/**
+	 * The "is this actor a signatory" determination for any record that can be
+	 * sent for signature: minutes (Minutes -> Meeting -> body), a meeting's
+	 * decision list (Meeting -> body) and a motion (Decision -> Meeting ->
+	 * body). Same scope as the minutes flow, so the same people sign; fails
+	 * CLOSED on an unknown schema, an unresolvable hop or any error.
+	 *
+	 * @param string $userId Nextcloud UID of the actor
+	 * @param string $schema minutes, meeting or decision
+	 * @param string $subjectId UUID of the record
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 */
+	public function isSignatoryForSubject(string $userId, string $schema, string $subjectId): bool {
+		if ($schema === 'minutes') {
+			return $this->isSignatoryForMinutes(userId: $userId, minutesId: $subjectId);
+		}
+
+		if ($userId === '' || $subjectId === '' || in_array($schema, ['meeting', 'decision'], true) === false) {
+			return false;
+		}
+
+		try {
+			$meetingId = $this->meetingOf(schema: $schema, subjectId: $subjectId);
+			if ($meetingId === null) {
+				return false;
+			}
+
+			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			if ($meeting === null) {
+				return false;
+			}
+
+			$bodyId = $this->extractRelation(record: $meeting->jsonSerialize(), key: 'GovernanceBody');
+			if ($bodyId === null) {
+				return false;
+			}
+
+			return $this->isInBodyScope(userId: $userId, bodyId: $bodyId, scope: self::SCOPE_SIGNATORY);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'GovernanceScopeGuard::isSignatoryForSubject failed; denying',
+				['exception' => $e->getMessage(), 'schema' => $schema, 'subjectId' => $subjectId, 'userId' => $userId]
+			);
+			return false;
+		}//end try
+	}//end isSignatoryForSubject()
+
+	/**
+	 * The meeting a meeting or decision record belongs to: a meeting is its
+	 * own, a decision names its meeting.
+	 *
+	 * @param string $schema meeting or decision
+	 * @param string $subjectId UUID of the record
+	 *
+	 * @return string|null
+	 */
+	private function meetingOf(string $schema, string $subjectId): ?string {
+		if ($schema === 'meeting') {
+			return $subjectId;
+		}
+
+		$decision = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: 'decision');
+		if ($decision === null) {
+			return null;
+		}
+
+		return $this->extractRelation(record: $decision->jsonSerialize(), key: 'Meeting');
+	}//end meetingOf()
+
+	/**
 	 * Resolve the owning GovernanceBody UUID for a Minutes record by walking
 	 * Minutes -> Meeting -> GovernanceBody. Pure data resolution (selects the
 	 * scope to consult); returns null when any hop is missing.

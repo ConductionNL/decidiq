@@ -170,7 +170,7 @@ class MeetingControllerTest extends TestCase {
 			->with(meetingId: $uuid, action: 'open')
 			->willReturn(['success' => true, 'meeting' => $meeting, 'message' => "Meeting transitioned to 'opened'."]);
 
-		$result = $this->controller->lifecycle(id: $uuid);
+		$result = $this->chairController()->lifecycle(id: $uuid);
 
 		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
 		self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
@@ -199,7 +199,7 @@ class MeetingControllerTest extends TestCase {
 				'message' => "Cannot 'pause' a meeting in 'draft' state.",
 			]);
 
-		$result = $this->controller->lifecycle(id: $uuid);
+		$result = $this->chairController()->lifecycle(id: $uuid);
 
 		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
 		self::assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $result->getStatus());
@@ -220,7 +220,7 @@ class MeetingControllerTest extends TestCase {
 		$this->meetingService->expects($this->never())
 			->method('transition');
 
-		$result = $this->controller->lifecycle(id: 'some-uuid');
+		$result = $this->chairController()->lifecycle(id: 'some-uuid');
 
 		self::assertInstanceOf(expected: JSONResponse::class, actual: $result);
 		self::assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $result->getStatus());
@@ -248,7 +248,7 @@ class MeetingControllerTest extends TestCase {
 				'message' => "Meeting '$uuid' not found.",
 			]);
 
-		$result = $this->controller->lifecycle(id: $uuid);
+		$result = $this->chairController()->lifecycle(id: $uuid);
 
 		self::assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $result->getStatus());
 		self::assertStringContainsString(
@@ -630,4 +630,262 @@ class MeetingControllerTest extends TestCase {
 
 	}//end testAssemblePackageReturnsUnauthorizedWhenNotAuthenticated()
 
+	/**
+	 * Build a controller whose role gate runs the REAL ParticipantResolver::hasRole()
+	 * over the given participant rows, so the answer comes from the same code the
+	 * server guards use.
+	 *
+	 * @param array<int, array<string, mixed>> $participants Participant rows of the meeting
+	 * @param bool                             $isAdmin      Whether the caller is an NC admin
+	 * @param IUserSession|null                $session      Session override (null keeps the default)
+	 *
+	 * @return MeetingController
+	 */
+	private function controllerWithParticipants(array $participants, bool $isAdmin=false, ?IUserSession $session=null): MeetingController {
+		$resolver = $this->getMockBuilder(className: ParticipantResolver::class)
+			->disableOriginalConstructor()
+			->onlyMethods(methods: ['resolveMeetingParticipants'])
+			->getMock();
+		$resolver->method('resolveMeetingParticipants')->willReturn($participants);
+
+		$groupManager = $this->createMock(originalClassName: IGroupManager::class);
+		$groupManager->method('isAdmin')->willReturn($isAdmin);
+
+		return new MeetingController(
+			request: $this->request,
+			meetingService: $this->meetingService,
+			meetingSeriesService: $this->seriesService,
+			packageService: $this->packageService,
+			userSession: ($session ?? $this->userSession),
+			roleGate: new MeetingRoleGate(
+				groupManager: $groupManager,
+				participantResolver: $resolver
+			),
+			proofPackageService: $this->proofPackageService,
+		);
+
+	}//end controllerWithParticipants()
+
+	/**
+	 * My roles: a secretary of the meeting is answered as secretary, not chair.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesAnswersSecretary(): void {
+		$controller = $this->controllerWithParticipants(
+			participants: [
+				['nextcloudUserId' => 'someone-else', 'role' => 'chair'],
+				['nextcloudUserId' => 'testuser', 'role' => 'secretary'],
+			]
+		);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+		self::assertSame(
+			expected: ['chair' => false, 'secretary' => true, 'admin' => false],
+			actual: $result->getData()
+		);
+
+	}//end testMyRolesAnswersSecretary()
+
+	/**
+	 * My roles: a plain member holds none of the roles.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesAnswersNoRoleForAMember(): void {
+		$controller = $this->controllerWithParticipants(
+			participants: [
+				['nextcloudUserId' => 'testuser', 'role' => 'member'],
+			]
+		);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(
+			expected: ['chair' => false, 'secretary' => false, 'admin' => false],
+			actual: $result->getData()
+		);
+
+	}//end testMyRolesAnswersNoRoleForAMember()
+
+	/**
+	 * My roles: an NC admin is answered as admin (the reorder endpoint accepts admins).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesAnswersAdmin(): void {
+		$controller = $this->controllerWithParticipants(participants: [], isAdmin: true);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(
+			expected: ['chair' => false, 'secretary' => false, 'admin' => true],
+			actual: $result->getData()
+		);
+
+	}//end testMyRolesAnswersAdmin()
+
+	/**
+	 * My roles: an anonymous request gets 401 and no roles.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function testMyRolesReturnsUnauthorizedWhenNotAuthenticated(): void {
+		$unauthSession = $this->createMock(originalClassName: IUserSession::class);
+		$unauthSession->method('getUser')->willReturn(null);
+
+		$controller = $this->controllerWithParticipants(
+			participants: [['nextcloudUserId' => 'testuser', 'role' => 'chair']],
+			session: $unauthSession
+		);
+
+		$result = $controller->myRoles(meetingId: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
+		self::assertArrayNotHasKey(key: 'chair', array: $result->getData());
+
+	}//end testMyRolesReturnsUnauthorizedWhenNotAuthenticated()
+
+	/**
+	 * A controller whose caller (testuser) chairs the meeting.
+	 *
+	 * @return MeetingController
+	 */
+	private function chairController(): MeetingController {
+		return $this->controllerWithParticipants(participants: [['nextcloudUserId' => 'testuser', 'role' => 'chair']]);
+
+	}//end chairController()
+
+	/**
+	 * Stage buttons: the chair is told the stage and the steps the server allows.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function testTransitionsAnswersTheChairsSteps(): void {
+		$this->meetingService->expects($this->once())
+			->method('availableActionsFor')
+			->with(meetingId: 'meeting-1', userId: 'testuser')
+			->willReturn(['lifecycle' => 'scheduled', 'actions' => ['open', 'close']]);
+
+		$result = $this->chairController()->transitions(id: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+		self::assertSame(
+			expected: ['lifecycle' => 'scheduled', 'actions' => ['open', 'close']],
+			actual: $result->getData()
+		);
+
+	}//end testTransitionsAnswersTheChairsSteps()
+
+	/**
+	 * Stage buttons: a plain member is told the stage and no steps.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function testTransitionsAnswersNoStepsForAMember(): void {
+		$this->meetingService->method('availableActionsFor')
+			->willReturn(['lifecycle' => 'scheduled', 'actions' => ['open', 'close']]);
+
+		$controller = $this->controllerWithParticipants(
+			participants: [['nextcloudUserId' => 'testuser', 'role' => 'member']]
+		);
+		$result = $controller->transitions(id: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_OK, actual: $result->getStatus());
+		self::assertSame(
+			expected: ['lifecycle' => 'scheduled', 'actions' => []],
+			actual: $result->getData()
+		);
+
+	}//end testTransitionsAnswersNoStepsForAMember()
+
+	/**
+	 * Stage buttons: a meeting the caller cannot read answers 404.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function testTransitionsAnswersNotFound(): void {
+		$this->meetingService->method('availableActionsFor')->willReturn(null);
+
+		$result = $this->chairController()->transitions(id: 'meeting-x');
+
+		self::assertSame(expected: Http::STATUS_NOT_FOUND, actual: $result->getStatus());
+
+	}//end testTransitionsAnswersNotFound()
+
+	/**
+	 * Stage buttons: an anonymous caller gets 401.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function testTransitionsReturnsUnauthorizedWhenNotAuthenticated(): void {
+		$unauthSession = $this->createMock(originalClassName: IUserSession::class);
+		$unauthSession->method('getUser')->willReturn(null);
+		$this->meetingService->expects($this->never())->method('availableActionsFor');
+
+		$controller = $this->controllerWithParticipants(participants: [], session: $unauthSession);
+
+		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $controller->transitions(id: 'meeting-1')->getStatus());
+
+	}//end testTransitionsReturnsUnauthorizedWhenNotAuthenticated()
+
+	/**
+	 * Stage buttons: a member who posts a step anyway is refused, and the
+	 * meeting is not touched.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function testLifecycleIsRefusedForAMember(): void {
+		$this->request->method('getParam')->with('action', '')->willReturn('open');
+		$this->meetingService->expects($this->never())->method('transition');
+
+		$controller = $this->controllerWithParticipants(
+			participants: [['nextcloudUserId' => 'testuser', 'role' => 'member']]
+		);
+		$result = $controller->lifecycle(id: 'meeting-1');
+
+		self::assertSame(expected: Http::STATUS_FORBIDDEN, actual: $result->getStatus());
+
+	}//end testLifecycleIsRefusedForAMember()
+
+	/**
+	 * Stage buttons: the transitions route is registered as a GET.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function testTransitionsRouteIsRegistered(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		$found = array_filter(
+			$routes['routes'],
+			static fn (array $r): bool => $r['name'] === 'meeting#transitions'
+		);
+
+		self::assertCount(1, $found);
+		$route = array_values($found)[0];
+		self::assertSame('/api/meetings/{id}/transitions', $route['url']);
+		self::assertSame('GET', $route['verb']);
+
+	}//end testTransitionsRouteIsRegistered()
 }//end class

@@ -152,6 +152,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 				relationFilter: $relationFilter,
 				objectService: $this->objectService,
 				container: $this->container,
+				recusal: $this->createMock(\OCA\Decidiq\Service\RecusalGuard::class),
 			),
 			closer: new VotingRoundCloser(
 				logger: $this->logger,

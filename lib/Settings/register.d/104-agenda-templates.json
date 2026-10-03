@@ -1,0 +1,106 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-templates-and-copy (REQ-ATC-001 and REQ-ATC-002, matrix rows age-04 and pla-14). AgendaTemplate (slug agenda-template) is a named, ordered list of agenda items a secretary starts a meeting's agenda from; each entry carries what a copied agenda item keeps (title, kind, description, duration, configured type, formality). MeetingType.defaultAgendaTemplate names the template the Agenda widget offers first for meetings of that type.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "agenda-template"
+        ]
+      }
+    },
+    "schemas": {
+      "AgendaTemplate": {
+        "slug": "agenda-template",
+        "icon": "FileDocumentMultipleOutline",
+        "version": "1.0.0",
+        "title": "Agenda template",
+        "description": "A named list of agenda items a meeting's agenda can start from.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:CreativeWork",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true
+        },
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string",
+            "description": "The template as the secretary picks it, such as Council meeting."
+          },
+          "description": {
+            "title": "Description",
+            "type": "string",
+            "description": "What kind of meeting this template is for."
+          },
+          "items": {
+            "title": "Agenda items",
+            "type": "array",
+            "description": "The agenda items in order.",
+            "items": {
+              "type": "object",
+              "required": [
+                "title"
+              ],
+              "properties": {
+                "title": {
+                  "title": "Title",
+                  "type": "string",
+                  "description": "The title of the agenda item."
+                },
+                "itemType": {
+                  "title": "Kind",
+                  "type": "string",
+                  "enum": [
+                    "informational",
+                    "discussion",
+                    "decision"
+                  ],
+                  "description": "Whether the item informs, is discussed or is decided."
+                },
+                "description": {
+                  "title": "Description",
+                  "type": "string",
+                  "description": "The text the agenda item starts with."
+                },
+                "estimatedDuration": {
+                  "title": "Estimated duration",
+                  "type": "integer",
+                  "description": "Minutes planned for the item."
+                },
+                "type": {
+                  "title": "Agenda item type",
+                  "type": "string",
+                  "description": "The configured agenda item type, by id."
+                },
+                "isFormality": {
+                  "title": "Formality",
+                  "type": "boolean",
+                  "description": "Whether the item is adopted without debate."
+                }
+              }
+            }
+          }
+        }
+      },
+      "MeetingType": {
+        "slug": "meeting-type",
+        "version": "0.2.0",
+        "properties": {
+          "defaultAgendaTemplate": {
+            "title": "Default agenda template",
+            "type": "string",
+            "$ref": "agenda-template",
+            "description": "The agenda template offered first for meetings of this type."
+          }
+        }
+      }
+    }
+  }
+}

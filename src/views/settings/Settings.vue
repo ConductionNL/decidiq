@@ -170,7 +170,9 @@
 
 		<!-- ORI publication settings -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+		<!-- The id is the anchor lib/Settings/connections.json links to (adopt-connection-registry). -->
 		<CnSettingsSection
+			id="section-ori"
 			:name="t('decidiq', 'ORI endpoint')"
 			:description="t('decidiq', 'ORI API endpoint URL')">
 			<form @submit.prevent="saveOri">
@@ -200,6 +202,7 @@
 		<!-- Email voting toggle -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
+			id="section-email-voting"
 			:name="t('decidiq', 'Email voting')"
 			:description="t('decidiq', 'Enable voting by email reply')">
 			<div class="form-group form-group--checkbox">

@@ -5,8 +5,10 @@
  Sidebar tab: votes cast on a Motion (post-vote audit surface).
 
  Posture: read-only. Votes are cast through the LiveMeeting view, not
- here — this tab walks the motion → voting-round → vote chain and
- lists each cast vote with caster + value + timestamp. The deleted
+ here. This tab lists the motion's voting rounds and, per round, asks the
+ server for its breakdown (GET /api/voting-rounds/{id}/breakdown): each
+ member's vote by name and a line per faction with its counts. A secret
+ round shows its totals only (vot-03). The deleted
  MotionDetail.vue likewise didn't author votes from the detail page;
  the VotingRoundPanel component drove vote casting only when a round
  was open inside a meeting context, which is now LiveMeeting-only.
@@ -53,6 +55,34 @@
 						)
 					}}
 				</p>
+				<p
+					v-if="breakdowns[round.id] && breakdowns[round.id].secret"
+					class="decidiq-tab__round-secret">
+					{{ t('decidiq', 'Secret vote: only the totals are shown.') }}
+				</p>
+				<table
+					v-else-if="factionRows(breakdowns[round.id]).length"
+					class="decidiq-tab__factions"
+					data-testid="motion-votes-factions">
+					<thead>
+						<tr>
+							<th scope="col">{{ t('decidiq', 'Faction') }}</th>
+							<th scope="col">{{ t('decidiq', 'For') }}</th>
+							<th scope="col">{{ t('decidiq', 'Against') }}</th>
+							<th scope="col">{{ t('decidiq', 'Abstain') }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr
+							v-for="faction in factionRows(breakdowns[round.id])"
+							:key="faction.id">
+							<th scope="row">{{ faction.faction }}</th>
+							<td>{{ faction.for }}</td>
+							<td>{{ faction.against }}</td>
+							<td>{{ faction.abstain }}</td>
+						</tr>
+					</tbody>
+				</table>
 			</div>
 		</div>
 
@@ -63,11 +93,24 @@
 			rowKey="id"
 			:emptyText="t('decidiq', 'No votes recorded for this motion yet.')"
 			:loadingText="t('decidiq', 'Loading votes…')">
-			<template #column-caster="{ row }">
-				{{ casterDisplayName(row) }}
+			<template #column-voter="{ row }">
+				{{
+					row.castBy
+						? t('decidiq', '{name} (cast by {proxy})', {
+								name: row.voter,
+								proxy: row.castBy,
+							})
+						: row.voter
+				}}
 			</template>
-			<template #column-value="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :colorMap="voteColors" />
+			<template #column-value="{ row, value }">
+				<span v-if="row.rankingText" data-testid="vote-ranking">{{
+					row.rankingText
+				}}</span>
+				<CnStatusBadge
+					v-else-if="value"
+					:label="value"
+					:colorMap="voteColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -75,6 +118,8 @@
 
 <script>
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
+import { breakdownUrl, factionRows, memberRows } from '../../utils/voteBreakdown.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -90,7 +135,7 @@ export default {
 			error: '',
 			rounds: [],
 			votes: [],
-			casterById: Object.create(null),
+			breakdowns: {},
 		}
 	},
 
@@ -98,7 +143,8 @@ export default {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		columns() {
 			return [
-				{ key: 'caster', label: this.t('decidiq', 'Voter') },
+				{ key: 'voter', label: this.t('decidiq', 'Voter') },
+				{ key: 'faction', label: this.t('decidiq', 'Faction') },
 				{ key: 'value', label: this.t('decidiq', 'Vote') },
 				{ key: 'castAt', label: this.t('decidiq', 'Cast at') },
 			]
@@ -144,17 +190,15 @@ export default {
 					return
 				}
 
-				const voteStore = ensureRelationType('vote')
 				const all = []
+				const breakdowns = {}
 				for (const round of this.rounds) {
-					const list = await voteStore.fetchCollection('vote', {
-						votingRound: round.id,
-						_limit: 200,
-					})
-					if (Array.isArray(list)) all.push(...list)
+					const breakdown = await this.fetchBreakdown(round.id)
+					breakdowns[round.id] = breakdown
+					all.push(...memberRows(breakdown, round))
 				}
+				this.breakdowns = breakdowns
 				this.votes = all
-				await this.hydrateCasters(all)
 			} catch (e) {
 				this.error = e?.message || this.t('decidiq', 'Failed to load votes.')
 			} finally {
@@ -162,53 +206,20 @@ export default {
 			}
 		},
 
-		// Resolve raw `caster` foreign keys to participant display names.
-		// Builds a per-id lookup once per refresh; falls back to the raw
-		// value (or "—") when a participant can't be resolved (deleted /
-		// not in this register).
+		factionRows,
 		/**
-		 * @param votes
-		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 * The breakdown of one round, or null when it cannot be read.
+		 *
+		 * @param {string} roundId The voting round id
+		 * @return {Promise<object|null>}
+		 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
 		 */
-		async hydrateCasters(votes) {
-			const ids = new Set()
-			for (const v of votes) {
-				const id = v && (v.caster?.id || v.caster)
-				if (id != null && id !== '') ids.add(String(id))
-			}
-			if (!ids.size) {
-				this.casterById = Object.create(null)
-				return
-			}
-			try {
-				const partStore = ensureRelationType('participant')
-				const list = await partStore.fetchCollection('participant', {
-					_limit: Math.max(50, ids.size),
-				})
-				const map = Object.create(null)
-				for (const p of list || []) {
-					if (!p) continue
-					const key = String(p.id ?? p.uuid ?? '')
-					if (!key) continue
-					map[key] =
-						p.displayName || p.name || p.fullName || p.email || key
-				}
-				this.casterById = map
-			} catch {
-				// Non-fatal: column falls back to the raw caster value.
-				this.casterById = Object.create(null)
-			}
-		},
-
-		/**
-		 * @param row
-		 * @spec openspec/specs/relation-tab-ui/spec.md
-		 */
-		casterDisplayName(row) {
-			const raw = row && (row.caster?.id || row.caster)
-			if (raw == null || raw === '') return '—'
-			const key = String(raw)
-			return this.casterById[key] || key
+		async fetchBreakdown(roundId) {
+			const response = await fetch(generateUrl(breakdownUrl(roundId)), {
+				headers: { requesttoken: window.OC?.requestToken },
+			})
+			if (!response.ok) return null
+			return response.json()
 		},
 	},
 }
@@ -239,6 +250,22 @@ export default {
 	color: var(--color-text-maxcontrast);
 	font-weight: normal;
 	margin-inline-start: 4px;
+}
+
+.decidiq-tab__factions {
+	border-collapse: collapse;
+	margin-top: 4px;
+}
+
+.decidiq-tab__factions th,
+.decidiq-tab__factions td {
+	padding: 2px 8px;
+	text-align: start;
+}
+
+.decidiq-tab__round-secret {
+	color: var(--color-text-maxcontrast);
+	margin: 4px 0 0;
 }
 
 .decidiq-tab__rounds {

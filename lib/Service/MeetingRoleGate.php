@@ -88,4 +88,36 @@ class MeetingRoleGate {
 		);
 
 	}//end isChairOrSecretary()
+
+	/**
+	 * Say which presiding roles the user holds on one meeting.
+	 *
+	 * Reads the same ParticipantResolver::hasRole() and IGroupManager::isAdmin()
+	 * that isChairOrSecretary() and AgendaAuthorizationGuard::requireChairOrAdmin()
+	 * use, so a page that shows a control from this answer shows it exactly when
+	 * the server would accept the call behind it.
+	 *
+	 * @param string $meetingId UUID of the meeting
+	 * @param string $userId    Nextcloud user id of the caller
+	 *
+	 * @return array{chair: bool, secretary: bool, admin: bool}
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	public function rolesOf(string $meetingId, string $userId): array {
+		return [
+			'chair'     => $this->participantResolver->hasRole(
+				meetingId: $meetingId,
+				nextcloudUid: $userId,
+				roles: ['chair'],
+			),
+			'secretary' => $this->participantResolver->hasRole(
+				meetingId: $meetingId,
+				nextcloudUid: $userId,
+				roles: ['secretary'],
+			),
+			'admin'     => $this->groupManager->isAdmin($userId),
+		];
+
+	}//end rolesOf()
 }//end class

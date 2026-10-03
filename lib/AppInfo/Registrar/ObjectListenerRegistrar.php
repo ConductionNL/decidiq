@@ -32,12 +32,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\AppInfo\Registrar;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
-use OCA\Decidiq\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\Listener\MinutesApprovedListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
-use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -122,21 +122,52 @@ class ObjectListenerRegistrar {
 			);
 		}
 
-		// Submission deadline gate (motion-amendment spec). Declared interest is
-		// the handler's own literal schema guard verbatim —
-		// `$slug !== 'decision'` — so the declaration cannot be
-		// narrower than the guard it fronts. ADR-005 retired the `motion` and
-		// `amendment` schemas into `decision`; subscribing to the deleted slugs
-		// subscribed the listener to nothing, so the deadline never fired.
-		// The motion/amendment narrowing now happens inside the handler on the
-		// `decisionType` discriminator, which no schema subscription can express.
+		// Technical questions (motions-technical-questions-to-officials, mot-17):
+		// assigning tells the official, answering tells the member who asked.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $questionEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $questionEvent,
+				listener: TechnicalQuestionListener::class,
+				registers: null,
+				schemas: [TechnicalQuestionListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+
+		// Agenda change notices (#1396). Declared interest is the handler's
+		// own schema guard verbatim, AgendaItemChangeListener::SCHEMA_AGENDA_ITEM.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $agendaEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $agendaEvent,
+				listener: AgendaItemChangeListener::class,
+				registers: null,
+				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+
+		// Platform-case-system-document-exchange (plt-24): minutes reaching
+		// approved or signed render the decision list, and may send the
+		// meeting file. Declared interest is the handler's own schema guard.
 		$this->subscribe(
 			dispatcher: $dispatcher,
-			event: ObjectCreatingEvent::class,
-			listener: SubmissionDeadlineListener::class,
+			event: ObjectUpdatedEvent::class,
+			listener: MinutesApprovedListener::class,
 			registers: null,
-			schemas: ['decision']
+			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
 		);
+
+		// Before-save guards (SaveGuardSubscriptions): submission deadline,
+		// meeting defaults, submission window and document details.
+		foreach (SaveGuardSubscriptions::ALL as $guard) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $guard['event'],
+				listener: $guard['listener'],
+				registers: null,
+				schemas: $guard['schemas']
+			);
+		}
 
 	}//end register()
 
@@ -185,7 +216,7 @@ class ObjectListenerRegistrar {
 			'OpenRegister ObjectEventSubscription unavailable: ' . $listener
 			. ' fell back to an UNFILTERED registration for ' . $event
 			. ' and will be invoked on every object write instance-wide.',
-			['app' => Application::APP_ID]
+			['app' => 'decidiq']
 		);
 
 		$dispatcher->addServiceListener($event, $listener);
