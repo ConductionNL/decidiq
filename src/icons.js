@@ -130,6 +130,7 @@ import SwapHorizontal from 'vue-material-design-icons/SwapHorizontal.vue'
 import TableColumn from 'vue-material-design-icons/TableColumn.vue'
 import TagOutline from 'vue-material-design-icons/TagOutline.vue'
 import TargetVariant from 'vue-material-design-icons/TargetVariant.vue'
+import TextBoxCheckOutline from 'vue-material-design-icons/TextBoxCheckOutline.vue'
 import TextBoxSearchOutline from 'vue-material-design-icons/TextBoxSearchOutline.vue'
 import ThumbUpOutline from 'vue-material-design-icons/ThumbUpOutline.vue'
 import Timeline from 'vue-material-design-icons/Timeline.vue'
@@ -259,6 +260,7 @@ export default {
 	TableColumn,
 	TagOutline,
 	TargetVariant,
+	TextBoxCheckOutline,
 	TextBoxSearchOutline,
 	ThumbUpOutline,
 	Timeline,
