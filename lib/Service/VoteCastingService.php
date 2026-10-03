@@ -43,13 +43,6 @@ use Psr\Log\LoggerInterface;
 class VoteCastingService {
 
 	/**
-	 * Derives the secret-ballot voter and delegator tokens.
-	 *
-	 * @var VoterTokenSecret
-	 */
-	private readonly VoterTokenSecret $tokens;
-
-	/**
 	 * Fail-closed eligibility rules a cast must pass.
 	 *
 	 * @var VoteCastGuard
@@ -64,6 +57,14 @@ class VoteCastingService {
 	private readonly VoteBallotFactory $ballots;
 
 	/**
+	 * Refuses a member whose seat a substitute holds, and a non-voting
+	 * participant who holds no seat (bodies-substitute-mandate-swap).
+	 *
+	 * @var SeatHolderGuard
+	 */
+	private readonly SeatHolderGuard $seats;
+
+	/**
 	 * Constructor for the VoteCastingService.
 	 *
 	 * @param LoggerInterface $logger The logger
@@ -75,6 +76,7 @@ class VoteCastingService {
 	 * @param RecusalGuard $recusal Keeps a member recused on the matter out of the vote (bod-10)
 	 *
 	 * @return void
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function __construct(
 		LoggerInterface $logger,
@@ -85,20 +87,23 @@ class VoteCastingService {
 		ContainerInterface $container,
 		private readonly RecusalGuard $recusal,
 	) {
-		$this->tokens = new VoterTokenSecret(container: $container);
-		$this->ballots = new VoteBallotFactory(
-			container: $container,
-			logger: $logger,
-			tokens: $this->tokens
-		);
+		// The ballot factory owns the token secret; the guard and the dedup
+		// lookup below use the same one.
+		$this->ballots = new VoteBallotFactory(container: $container, logger: $logger);
 		$this->guard = new VoteCastGuard(
 			container: $container,
 			logger: $logger,
 			relationFilter: $relationFilter,
-			tokens: $this->tokens,
+			tokens: $this->ballots->tokens(),
 			participantResolver: $participantResolver,
 			amendmentOrder: $amendmentOrder,
 			objectService: $objectService
+		);
+		$this->seats = new SeatHolderGuard(
+			amendmentOrder: $amendmentOrder,
+			participantResolver: $participantResolver,
+			objectService: $objectService,
+			logger: $logger
 		);
 
 	}//end __construct()
@@ -128,6 +133,7 @@ class VoteCastingService {
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function castVote(
 		string $votingRoundId,
@@ -149,6 +155,7 @@ class VoteCastingService {
 		}
 
 		$this->guard->assertMeetingMembership(round: $round, participantId: $participantId);
+		$this->seats->assertHoldsSeat(round: $round, participantId: $participantId);
 
 		// The ballot counts for the delegator on a proxy vote, for the caster
 		// otherwise; a member recused on the matter does not vote (bod-10).
@@ -240,7 +247,7 @@ class VoteCastingService {
 			return $this->votesInRound(
 				votingRoundId: $votingRoundId,
 				extraFilters: [
-					'voterToken' => $this->tokens->voterToken(
+					'voterToken' => $this->ballots->tokens()->voterToken(
 						participantId: $participantId,
 						votingRoundId: $votingRoundId
 					),

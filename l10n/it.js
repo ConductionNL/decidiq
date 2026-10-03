@@ -1709,7 +1709,19 @@ OC.L10N.register(
         "Position held": "Carica ricoperta",
         "Set by decision": "Stabilito con delibera",
         "Publication date": "Data di pubblicazione",
-        "Note": "Nota"
+        "Note": "Nota",
+        "Seats": "Seggi",
+        "No seats to show for this meeting.": "Nessun seggio da mostrare per questa riunione.",
+        "substitute for {name}": "sostituisce {name}",
+        "Swap {name} with a substitute": "Sostituire {name} con un supplente",
+        "Swap with substitute": "Sostituire con supplente",
+        "End the substitution of {name}": "Terminare la sostituzione di {name}",
+        "End substitution": "Terminare sostituzione",
+        "The seats could not be loaded.": "Impossibile caricare i seggi.",
+        "The substitution could not be ended.": "Impossibile terminare la sostituzione.",
+        "Seat {seat}: {name}": "Seggio {seat}: {name}",
+        "Swap": "Sostituire",
+        "The swap could not be saved.": "Impossibile salvare la sostituzione."
     },
     "nplurals=2; plural=(n != 1);"
 )
