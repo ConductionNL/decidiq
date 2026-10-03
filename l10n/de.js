@@ -1695,7 +1695,21 @@ OC.L10N.register(
         "What the body expects (optional)": "Was das Gremium erwartet (optional)",
         "Where it comes from (optional)": "Woher sie stammt (optional)",
         "yes": "ja",
-        "Composition": "Zusammensetzung"
+        "Composition": "Zusammensetzung",
+        "Remuneration this year": "Vergütung dieses Jahr",
+        "Remuneration total": "Gesamtvergütung",
+        "Fixed fees this year": "Feste Vergütungen dieses Jahr",
+        "Fixed fee": "Feste Vergütung",
+        "Meeting fee": "Sitzungsgeld",
+        "Expense allowance": "Aufwandsentschädigung",
+        "Disclosed": "Offengelegt",
+        "Remuneration": "Vergütung",
+        "No remuneration recorded for this year, or none you can read.": "Für dieses Jahr ist keine Vergütung erfasst, oder keine, die du lesen darfst.",
+        "No remuneration recorded, or none you can read.": "Keine Vergütung erfasst, oder keine, die du lesen darfst.",
+        "Position held": "Ausgeübte Funktion",
+        "Set by decision": "Festgelegt durch Beschluss",
+        "Publication date": "Veröffentlichungsdatum",
+        "Note": "Notiz"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1695,7 +1695,21 @@ OC.L10N.register(
         "What the body expects (optional)": "Ce que l'organe attend (facultatif)",
         "Where it comes from (optional)": "D'où elle vient (facultatif)",
         "yes": "oui",
-        "Composition": "Composition"
+        "Composition": "Composition",
+        "Remuneration this year": "Rémunération de cette année",
+        "Remuneration total": "Rémunération totale",
+        "Fixed fees this year": "Indemnités fixes de cette année",
+        "Fixed fee": "Indemnité fixe",
+        "Meeting fee": "Jeton de présence",
+        "Expense allowance": "Indemnité de frais",
+        "Disclosed": "Publié",
+        "Remuneration": "Rémunération",
+        "No remuneration recorded for this year, or none you can read.": "Aucune rémunération enregistrée pour cette année, ou aucune que vous pouvez lire.",
+        "No remuneration recorded, or none you can read.": "Aucune rémunération enregistrée, ou aucune que vous pouvez lire.",
+        "Position held": "Fonction occupée",
+        "Set by decision": "Fixé par décision",
+        "Publication date": "Date de publication",
+        "Note": "Note"
     },
     "nplurals=2; plural=(n != 1);"
 )

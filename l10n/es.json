@@ -1694,7 +1694,21 @@
         "What the body expects (optional)": "Lo que espera el órgano (opcional)",
         "Where it comes from (optional)": "De dónde procede (opcional)",
         "yes": "sí",
-        "Composition": "Composición"
+        "Composition": "Composición",
+        "Remuneration this year": "Remuneración de este año",
+        "Remuneration total": "Remuneración total",
+        "Fixed fees this year": "Honorarios fijos de este año",
+        "Fixed fee": "Honorario fijo",
+        "Meeting fee": "Dieta por reunión",
+        "Expense allowance": "Asignación para gastos",
+        "Disclosed": "Publicado",
+        "Remuneration": "Remuneración",
+        "No remuneration recorded for this year, or none you can read.": "No hay remuneración registrada para este año, o ninguna que puedas leer.",
+        "No remuneration recorded, or none you can read.": "No hay remuneración registrada, o ninguna que puedas leer.",
+        "Position held": "Cargo ocupado",
+        "Set by decision": "Fijado por decisión",
+        "Publication date": "Fecha de publicación",
+        "Note": "Nota"
     },
     "plurals": null
 }
