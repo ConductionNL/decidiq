@@ -49,8 +49,8 @@
   - GIVEN a draft summary WHEN the clerk edits the text and chooses Show to members THEN it is `shown` with her name and the time
   - GIVEN a shown summary WHEN a member opens the item THEN he reads it with the AI-generated label and the reviewer
   - GIVEN no provider WHEN the clerk opens the item THEN the Summarise and Compare actions are absent
-- [ ] Implement
-- [ ] Test (Playwright with a stub TaskProcessing provider in CI)
+- [x] Implement (widget `agenda-paper-summaries`; the availability answer carries `canRequest`, so a member gets no actions; edit is inline in the widget, no modal; review rules and payloads in src/utils/paperSummaries.js with tests/vitest/paperSummaries.spec.js, payloads validated against the PaperSummary schema)
+- [ ] Test (Playwright tests/e2e/paper-summaries.spec.ts, written, not run: needs the live instance with the municipality example set; the provider-dependent tests skip with a named reason)
 
 ## Verification
 
