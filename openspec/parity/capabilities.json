@@ -7438,9 +7438,11 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/CHANGELOG.md#L20",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -rniE 'substitute|plaatsvervang|seatNumber|replaceMember|swapMandate' in the register files and src: only approval-route substitutes (lib/Settings/register.d/81-resolve-a-manager-and-declare-silence.json:57); PositionHold.holdType (lib/Settings/register.d/70-configurable-types.json:514) can record an 'acting' hold, but nothing swaps a mandate during a meeting or moves groups and seat",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change bodies-substitute-mandate-swap: mandate-substitution schema and Participant.seatNumber (lib/Settings/register.d/118-substitute-mandate-swap.json), MandateSubstitutionService + MandateSubstitutionController (seats read, start, end; refused during an open vote, for a non-presiding caller and against the seat plan), SubstitutionResolver consulted by VoteCastGuard, MeetingRuleSource::quorumMet and VotingRoundPreflight::splitPresetParticipants, and the Seats panel on the live meeting page (src/components/liveMeeting/SeatsPanel.vue, src/modals/MandateSwapModal.vue). PHPUnit and vitest green; the Newman start/end run and the Playwright run (tests/e2e/workflows/substitute-mandate-swap.spec.ts) are still owed, so not yet built.",
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-substitute-mandate-swap",
+				"readOn": "2026-10-03"
 			},
 			"reachedOn": "nothing reaches it: an acting position hold can be added on GovernanceBodyDetail, without any swap during a meeting",
 			"provider": "decidiq",
