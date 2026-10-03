@@ -384,7 +384,7 @@ class PaperSummaryServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testALongPaperIsSummarisedInParts(): void {
-		$chunk = str_repeat('Begrotingstekst. ', (int)(PaperText::PART_LENGTH / 34));
+		$chunk = trim(str_repeat('Begrotingstekst. ', (int)(PaperText::PART_LENGTH / 34)));
 		$this->service(texts: array_fill(0, 5, $chunk))->request(agendaItemId: self::ITEM, fileId: self::PAPER, kind: 'summary');
 
 		$this->assertCount(3, $this->ran, 'five chunks of half a part make three parts');

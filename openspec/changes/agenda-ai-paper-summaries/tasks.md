@@ -20,8 +20,8 @@
   - GIVEN a file not attached to that item WHEN requested THEN 422 and no task
   - GIVEN a member without the secretariat group WHEN he posts THEN 403
   - GIVEN no TaskProcessing provider WHEN availability is read THEN it says unavailable and a request answers 503
-- [ ] Implement
-- [ ] Test (PHPUnit red-then-green, doubles built with `onlyMethods`)
+- [x] Implement (PaperSummaryService schedules first and saves only after, so a refused schedule leaves no object; the file check and the text read are PaperText, the caller checks are PaperSummaryAccess; route `paperSummary#create`)
+- [x] Test (PHPUnit red-then-green over the real PaperSummaryAccess, PaperText and OCP Task: PaperSummaryServiceTest, PaperTextTest)
 
 ### Task 3: Confidential papers stay inside their circle
 - **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-003-a-confidential-paper-is-not-summarised-outside-its-circle`
@@ -29,8 +29,8 @@
 - **acceptance_criteria**:
   - GIVEN an active restriction on the agenda item WHEN a clerk outside its circle requests THEN 403 naming the restriction
   - GIVEN the restriction is lifted WHEN she requests again THEN the task is scheduled
-- [ ] Implement
-- [ ] Test
+- [x] Implement (a comparison checks both papers)
+- [x] Test
 
 ### Task 4: The task result lands as a draft
 - **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts`

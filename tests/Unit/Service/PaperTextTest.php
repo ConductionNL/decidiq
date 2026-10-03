@@ -170,7 +170,7 @@ class PaperTextTest extends TestCase {
 	 * @return void
 	 */
 	public function testALongPaperIsCutIntoPartsThatFit(): void {
-		$chunk = str_repeat('Begrotingstekst. ', (int)(PaperText::PART_LENGTH / 34));
+		$chunk = trim(str_repeat('Begrotingstekst. ', (int)(PaperText::PART_LENGTH / 34)));
 		$reader = $this->reader([], array_fill(0, 5, $chunk));
 
 		$parts = $reader->parts(fileId: 900412);
