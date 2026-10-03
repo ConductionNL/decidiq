@@ -32,6 +32,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Dashboard\DecidiqDashboardWidget;
+use OCA\Decidiq\Listener\PaperSummaryTaskListener;
 use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
 use OCA\Decidiq\Notification\Notifier;
 use OCA\Decidiq\Search\DecidiqSearchProvider;
@@ -42,6 +43,8 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
+use OCP\TaskProcessing\Events\TaskFailedEvent;
+use OCP\TaskProcessing\Events\TaskSuccessfulEvent;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -71,11 +74,15 @@ class PlatformIntegrationRegistrar {
 	 * @return void
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
 	 */
 	public function register(IRegistrationContext $context): void {
 		$this->registerSearch(context: $context);
 		$this->registerObjectWriteGuards(context: $context);
 		$this->registerDashboardWidget(context: $context);
+		// The AI answer to a paper summary request lands as a draft (REQ-APS-004).
+		$context->registerEventListener(event: TaskSuccessfulEvent::class, listener: PaperSummaryTaskListener::class);
+		$context->registerEventListener(event: TaskFailedEvent::class, listener: PaperSummaryTaskListener::class);
 		// Decidiq's only notifier: without it no notice decidiq sends can be
 		// rendered in the bell (agenda-change-notices-reach-members, #1381).
 		$context->registerNotifierService(Notifier::class);

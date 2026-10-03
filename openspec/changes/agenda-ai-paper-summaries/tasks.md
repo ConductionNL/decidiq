@@ -39,8 +39,8 @@
   - GIVEN a real `TaskSuccessfulEvent` with custom id `paper-summary:<uuid>` WHEN handled THEN that summary becomes `draft` with the output text and the provider id
   - GIVEN a `TaskFailedEvent` WHEN handled THEN the summary becomes `failed`
   - GIVEN an event with another app's custom id WHEN handled THEN nothing changes
-- [ ] Implement
-- [ ] Test (construct the real OCP event classes, not a fake)
+- [x] Implement (registered in PlatformIntegrationRegistrar; a summary no longer `requested` is never overwritten by a late answer; the part-by-part summary of a long paper is the service's, task 2)
+- [x] Test (construct the real OCP event classes, not a fake)
 
 ### Task 5: Review and show on the agenda item page
 - **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it`
