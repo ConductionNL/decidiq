@@ -139,6 +139,7 @@ class PaperSummaryServiceTest extends TestCase {
 	 * @param array<int, string>        $taskTypes The available task type ids
 	 * @param array<int, string>        $texts     The chunk texts of every paper
 	 * @param \Throwable|null           $schedule  What scheduleTask() throws, if anything
+	 * @param \Throwable|null           $run       What runTask() throws, if anything
 	 *
 	 * @return PaperSummaryService The service.
 	 */
@@ -149,6 +150,7 @@ class PaperSummaryServiceTest extends TestCase {
 		array $taskTypes=[TextToTextSummary::ID, TextToText::ID],
 		array $texts=['De kadernota gaat uit van een sluitende meerjarenraming.'],
 		?\Throwable $schedule=null,
+		?\Throwable $run=null,
 	): PaperSummaryService {
 		$rows = ($rows ?? $this->rows());
 		$user = $this->createMock(IUser::class);
@@ -196,7 +198,11 @@ class PaperSummaryServiceTest extends TestCase {
 		$container->method('get')->willReturnCallback(static fn (string $id): object => $services[$id]);
 
 		$manager = $this->createMock(IManager::class);
-		$manager->method('getAvailableTaskTypeIds')->willReturn($taskTypes);
+		if ($taskTypes === ['throws']) {
+			$manager->method('getAvailableTaskTypeIds')->willThrowException(new \RuntimeException('task types unreadable'));
+		} else {
+			$manager->method('getAvailableTaskTypeIds')->willReturn($taskTypes);
+		}
 		$manager->method('hasProviders')->willReturn($taskTypes !== []);
 		$manager->method('scheduleTask')->willReturnCallback(
 			function (Task $task) use ($schedule): void {
@@ -209,7 +215,11 @@ class PaperSummaryServiceTest extends TestCase {
 			}
 		);
 		$manager->method('runTask')->willReturnCallback(
-			function (Task $task): Task {
+			function (Task $task) use ($run): Task {
+				if ($run !== null) {
+					throw $run;
+				}
+
 				$this->ran[] = $task;
 				$task->setOutput(['output' => 'Deel ' . count($this->ran) . ' samengevat.']);
 				return $task;
@@ -407,6 +417,26 @@ class PaperSummaryServiceTest extends TestCase {
 	public function testAScheduleThatFailsLeavesNoSummary(): void {
 		$this->assertRefused(503, fn () => $this->service(schedule: new \RuntimeException('no provider for this type'))->request(agendaItemId: self::ITEM, fileId: self::PAPER, kind: 'summary'));
 	}//end testAScheduleThatFailsLeavesNoSummary()
+
+	/**
+	 * When the task types cannot be read, nothing is available.
+	 *
+	 * @return void
+	 */
+	public function testUnreadableTaskTypesMeanNothingIsAvailable(): void {
+		$this->assertSame(['available' => false, 'summary' => false, 'comparison' => false], $this->service(taskTypes: ['throws'])->availability());
+	}//end testUnreadableTaskTypesMeanNothingIsAvailable()
+
+	/**
+	 * When a part of a long paper cannot be summarised, the request answers 503
+	 * and nothing is scheduled or saved.
+	 *
+	 * @return void
+	 */
+	public function testAPartThatCannotBeSummarisedAnswers503(): void {
+		$chunk = trim(str_repeat('Begrotingstekst. ', (int)(PaperText::PART_LENGTH / 34)));
+		$this->assertRefused(503, fn () => $this->service(texts: array_fill(0, 3, $chunk), run: new \RuntimeException('provider down'))->request(agendaItemId: self::ITEM, fileId: self::PAPER, kind: 'summary'));
+	}//end testAPartThatCannotBeSummarisedAnswers503()
 
 	/**
 	 * The controller hands the request to the service: 201 with the summary,

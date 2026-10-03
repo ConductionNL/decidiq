@@ -195,4 +195,25 @@ class PaperTextTest extends TestCase {
 		$this->expectExceptionMessage('No text could be read from this paper.');
 		$reader->parts(fileId: 900412);
 	}//end testAPaperWithoutTextIsRefused()
+
+	/**
+	 * When OpenRegister cannot list the item's files or read the paper, the
+	 * request is refused with 422 rather than failing.
+	 *
+	 * @return void
+	 */
+	public function testUnreadableFilesOrTextAreRefused(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new \RuntimeException('OpenRegister is not installed'));
+		$reader = new PaperText(container: $container, logger: $this->createMock(LoggerInterface::class));
+
+		foreach ([fn () => $reader->titleOf(agendaItemId: self::ITEM, fileId: 900412), fn () => $reader->parts(fileId: 900412)] as $call) {
+			try {
+				$call();
+				$this->fail('An unreadable paper must be refused.');
+			} catch (PaperSummaryRefusedException $e) {
+				$this->assertSame(422, $e->getStatus());
+			}
+		}
+	}//end testUnreadableFilesOrTextAreRefused()
 }//end class
