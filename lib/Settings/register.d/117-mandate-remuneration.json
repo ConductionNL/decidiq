@@ -2,6 +2,13 @@
 	"_note": "bodies-director-remuneration (bod-17): what a position holder is paid, per year. Declarative only: a schema with its read rule, and manifest widgets. Members do not read each other's pay unless it is disclosed, so the read rule names the secretariat and administrators plus a public rule on disclosed records whose publication date has passed, and deliberately not authenticated.",
 	"_spec": "openspec/changes/bodies-director-remuneration/specs/governance-bodies/spec.md",
 	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"mandate-remuneration"
+				]
+			}
+		},
 		"schemas": {
 			"MandateRemuneration": {
 				"slug": "mandate-remuneration",
