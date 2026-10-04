@@ -49,7 +49,7 @@
   - GIVEN no linked source WHEN the meeting page opens THEN the widget reads "No streaming service is connected" and shows no buttons
   - GIVEN a test result WHEN the page reloads THEN result, note, author and time are shown
   - GIVEN the Playwright spec WHEN it runs THEN it carries `@e2e` references to the UI scenarios of REQ-LSTR-002, 003 and 004
-- [ ] Implement
+- [x] Implement (MeetingBroadcastTab, widget `meeting-broadcast` on MeetingDetail with layout row 27 and a slots entry, registry entry; the buttons per state come from src/utils/meetingBroadcast.js and are checked against the schema lifecycle in tests/vitest/meetingBroadcast.spec.js; the test result shows with or without a connection; tests/e2e/meeting-broadcast.spec.ts written, not run; 25 strings in en, nl, de, fr, es, it)
 - [ ] Test
 
 ### Task 6: Subtitles derived from the aligned transcript
