@@ -31,8 +31,8 @@
   - GIVEN `isPublic: false` WHEN start is called THEN 422
   - GIVEN pause at 5400 and resume at 6300 WHEN windows are read THEN they match REQ-LSTR-004 (PHPUnit, fixed clock)
   - GIVEN hydra gates `route-auth`, `no-admin-idor` and `route-reachability` WHEN they run THEN they pass
-- [ ] Implement
-- [ ] Test
+- [x] Implement (BroadcastController: status, test, testResult, start, pause, resume, stop, every one `#[NoAdminRequired]` behind `TranscriptionStaffGuard::forMeeting()` on the broadcast's meeting; seven routes in appinfo/routes.php)
+- [x] Test (tests/Unit/Controller/BroadcastControllerTest.php: 403 on every route for a member with nothing sent or written, 401 without a session, 403 for an unknown broadcast, the secretary's full run, 422 on a meeting that is not public, every route registered; windows at 5400/6300 in MeetingBroadcastServiceTest. The Newman IDOR request is owed live with task 1's Newman run)
 
 ### Task 4: Live captions from the service
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-005-live-captions-come-from-the-streaming-service`
