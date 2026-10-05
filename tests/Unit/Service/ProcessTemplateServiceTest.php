@@ -27,10 +27,12 @@ use OCA\Decidiq\Service\ProcessTemplateService;
 use OCA\Decidiq\Service\StateMachineValidator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -173,6 +175,189 @@ class ProcessTemplateServiceTest extends TestCase {
 	}//end testValidateRejectsUnknownGuard()
 
 	/**
+	 * A template without a stateMachine object is refused, and the error says so.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsMissingStateMachine(): void {
+		$template = $this->validTemplate();
+		unset($template['stateMachine']);
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'stateMachine', haystack: implode(' ', $result['errors']));
+
+	}//end testValidateRejectsMissingStateMachine()
+
+	/**
+	 * A graph without a named state is refused.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsEmptyStates(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['states'] = [];
+		$template['stateMachine']['transitions'] = [];
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'state', haystack: strtolower(implode(' ', $result['errors'])));
+
+	}//end testValidateRejectsEmptyStates()
+
+	/**
+	 * A template without an initial state is refused.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsMissingInitialState(): void {
+		$template = $this->validTemplate();
+		unset($template['initialState']);
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'initial', haystack: strtolower(implode(' ', $result['errors'])));
+
+	}//end testValidateRejectsMissingInitialState()
+
+	/**
+	 * An initial state that is not one of the declared states is refused by name.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsUndeclaredInitialState(): void {
+		$template = $this->validTemplate();
+		$template['initialState'] = 'nowhere';
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'nowhere', haystack: implode(' ', $result['errors']));
+
+	}//end testValidateRejectsUndeclaredInitialState()
+
+	/**
+	 * A transition that is not an object, or lacks its to-state, is refused.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsMalformedTransitions(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][] = 'draft-to-decided';
+		$notAnObject = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $notAnObject['valid']);
+
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][] = ['from' => 'draft'];
+		$noTo = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $noTo['valid']);
+
+	}//end testValidateRejectsMalformedTransitions()
+
+	/**
+	 * A transition whose from is a LIST of states is refused (fail closed).
+	 *
+	 * ProcessTemplatePolicyResolver reads a single from-state per edge and
+	 * skips anything else, so a chair_only guard on a list-from transition would
+	 * silently guard nothing if the graph were accepted.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsListFromState(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][] = [
+			'from' => ['draft', 'proposed'],
+			'to' => 'decided',
+			'guards' => ['chair_only'],
+		];
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertNotSame([], $result['errors']);
+
+	}//end testValidateRejectsListFromState()
+
+	/**
+	 * Every token of the guard catalogue is accepted.
+	 *
+	 * @return void
+	 */
+	public function testValidateAcceptsEveryKnownGuard(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][0]['guards'] = ProcessTemplateService::KNOWN_GUARDS;
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertTrue(condition: $result['valid'], message: implode(' ', $result['errors']));
+		self::assertSame(
+			['quorum_met', 'chair_only', 'all_amendments_resolved', 'legal_review_complete'],
+			ProcessTemplateService::KNOWN_GUARDS
+		);
+
+	}//end testValidateAcceptsEveryKnownGuard()
+
+	/**
+	 * The graph rules are OpenRegister's: the service asks the container for
+	 * OpenRegister's LifecycleTransitionsValidator and applies its verdict.
+	 *
+	 * @return void
+	 */
+	public function testValidateAsksOpenRegisterForTheGraphRules(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->expects(self::once())
+			->method('get')
+			->with(LifecycleTransitionsValidator::class)
+			->willReturn(new LifecycleTransitionsValidator());
+		$service = $this->serviceWith(container: $container);
+
+		$template = $this->validTemplate();
+		$template['stateMachine']['states'][] = ['name' => 'orphan'];
+		$result = $service->validateStateMachine(template: $template);
+
+		self::assertFalse(condition: $result['valid']);
+		self::assertSame(
+			['State "orphan" is unreachable: no transition starts or ends in it.'],
+			$result['errors']
+		);
+
+	}//end testValidateAsksOpenRegisterForTheGraphRules()
+
+	/**
+	 * Without OpenRegister's validator the template is refused, never waved through.
+	 *
+	 * @return void
+	 */
+	public function testValidateFailsClosedWithoutOpenRegisterValidator(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(
+			new class('not registered') extends \RuntimeException implements NotFoundExceptionInterface {
+			}
+		);
+		$service = $this->serviceWith(container: $container);
+
+		$result = $service->validateStateMachine(template: $this->validTemplate());
+
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'OpenRegister', haystack: implode(' ', $result['errors']));
+
+	}//end testValidateFailsClosedWithoutOpenRegisterValidator()
+
+	/**
+	 * Build the service with a given DI container.
+	 *
+	 * @param ContainerInterface $container The container the service resolves OpenRegister's validator from
+	 *
+	 * @return ProcessTemplateService
+	 */
+	private function serviceWith(ContainerInterface $container): ProcessTemplateService {
+		return new ProcessTemplateService(
+			logger: $this->createMock(LoggerInterface::class),
+			resolver: new ProcessTemplatePolicyResolver(),
+			container: $container,
+			objectService: $this->objectService,
+		);
+
+	}//end serviceWith()
+
+	/**
 	 * create() refuses an invalid graph (fail closed) and never persists.
 	 *
 	 * @return void
@@ -181,6 +366,7 @@ class ProcessTemplateServiceTest extends TestCase {
 		$this->objectService->expects(self::never())->method('saveObject');
 
 		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Invalid state machine: ');
 		$this->service->create(template: ['name' => 'x', 'stateMachine' => ['states' => [], 'transitions' => []]]);
 
 	}//end testCreateRejectsInvalidGraph()
