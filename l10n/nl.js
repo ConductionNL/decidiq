@@ -3414,9 +3414,10 @@ OC.L10N.register(
         "What now? Put the decision into effect": "Wat nu? Stel het besluit in werking",
         "Write the text": "Schrijf de tekst",
         "Steps of this decision": "Stappen van dit besluit",
-        "done": "klaar",
         "This decision was withdrawn.": "Dit besluit is ingetrokken.",
-        "Key facts": "Kerngegevens"
+        "Key facts": "Kerngegevens",
+        "Now": "Nu",
+        "Next": "Volgt"
     },
     "nplurals=2; plural=(n != 1);"
 )

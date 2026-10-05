@@ -3123,8 +3123,9 @@ OC.L10N.register(
         "No page is removed. Both menus open the same pages.": "No page is removed. Both menus open the same pages.",
         "The menu could not be saved. Try again.": "The menu could not be saved. Try again.",
         "Steps of this decision": "Steps of this decision",
-        "done": "done",
-        "This decision was withdrawn.": "This decision was withdrawn."
+        "This decision was withdrawn.": "This decision was withdrawn.",
+        "Now": "Now",
+        "Next": "Next"
     },
     "nplurals=2; plural=(n != 1);"
 )
