@@ -129,3 +129,35 @@ describe('Broadcast widget reads', () => {
 		expect(captionsNotice({ lifecycle: 'planned' })).toBe('')
 	})
 })
+
+describe('Broadcast widget subtitles', async () => {
+	const { captionTracksOf, releaseUrl, subtitleActions, subtitlesUrl } =
+		await import('../../src/utils/meetingBroadcast.js')
+
+	it('names the subtitle routes BroadcastController serves', () => {
+		const routes = readFileSync(new URL('../../appinfo/routes.php', import.meta.url), 'utf8')
+		expect(subtitlesUrl('b1')).toBe('/index.php/apps/decidiq/api/meeting-broadcasts/b1/captions')
+		expect(releaseUrl('b1', 'nl')).toBe('/index.php/apps/decidiq/api/meeting-broadcasts/b1/captions/nl/release')
+		expect(routes).toContain("'/api/meeting-broadcasts/{id}/captions'")
+		expect(routes).toContain("'/api/meeting-broadcasts/{id}/captions/{language}/release'")
+	})
+
+	it('offers making and releasing subtitles only once the broadcast ended', () => {
+		expect(subtitleActions(null)).toEqual([])
+		expect(subtitleActions({ lifecycle: 'live' })).toEqual([])
+		expect(subtitleActions({ lifecycle: 'paused' })).toEqual([])
+		expect(subtitleActions({ lifecycle: 'ended' })).toEqual(['makeSubtitles', 'releaseSubtitles'])
+	})
+
+	it('lists the released tracks with their link, reviewer and time', () => {
+		expect(captionTracksOf({})).toEqual([])
+		expect(
+			captionTracksOf({
+				captionTracks: [
+					{ language: 'nl', shareUrl: 'https://cloud.example.org/s/t', reviewedBy: 'Griffier', releasedAt: '2026-03-20T10:00:00+00:00' },
+					{ filePath: 'no language' },
+				],
+			}),
+		).toEqual([{ language: 'nl', url: 'https://cloud.example.org/s/t', by: 'Griffier', at: '2026-03-20T10:00:00+00:00' }])
+	})
+})
