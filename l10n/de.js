@@ -1791,7 +1791,8 @@ OC.L10N.register(
         "Broadcast paused": "Übertragung pausiert",
         "Broadcast ended": "Übertragung beendet",
         "Failed to load the sessions.": "Die Sitzungen konnten nicht geladen werden.",
-        "The session could not be saved.": "Die Sitzung konnte nicht gespeichert werden."
+        "The session could not be saved.": "Die Sitzung konnte nicht gespeichert werden.",
+        "Sessions": "Sitzungen"
     },
     "nplurals=2; plural=(n != 1);"
 )

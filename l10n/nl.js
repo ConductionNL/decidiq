@@ -3342,7 +3342,8 @@ OC.L10N.register(
         "Evening": "Avond",
         "The evening this meeting is a session of. Empty for a meeting that stands on its own or that holds sessions itself.": "De avond waarvan deze vergadering een sessie is. Leeg voor een vergadering die op zichzelf staat of die zelf sessies heeft.",
         "The room the session takes place in, shown beside the location of the evening.": "De zaal waarin de sessie plaatsvindt, getoond naast de locatie van de avond.",
-        "The title of the evening the broadcast meeting is a session of, copied when the broadcast is made, so residents find an evening's sessions together.": "De titel van de avond waarvan de uitgezonden vergadering een sessie is, overgenomen bij het maken van de uitzending, zodat inwoners de sessies van een avond bij elkaar vinden."
+        "The title of the evening the broadcast meeting is a session of, copied when the broadcast is made, so residents find an evening's sessions together.": "De titel van de avond waarvan de uitgezonden vergadering een sessie is, overgenomen bij het maken van de uitzending, zodat inwoners de sessies van een avond bij elkaar vinden.",
+        "Sessions": "Sessies"
     },
     "nplurals=2; plural=(n != 1);"
 )
