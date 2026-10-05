@@ -30,7 +30,9 @@ const read = (...parts) => fs.readFileSync(path.join(ROOT, ...parts), 'utf8')
 const readJson = (...parts) => JSON.parse(read(...parts))
 
 const declaration = readJson('appinfo', 'attention.json')
-const item = declaration.items.find((entry) => entry.id === 'decisions-open-for-voting')
+const item = declaration.items.find(
+	(entry) => entry.id === 'decisions-open-for-voting',
+)
 
 const fragments = fs
 	.readdirSync(path.join(ROOT, 'src', 'manifest.d'))
