@@ -184,6 +184,8 @@ $extra = [
         ['name' => 'broadcast#pause',      'url' => '/api/meeting-broadcasts/{id}/pause',        'verb' => 'POST'],
         ['name' => 'broadcast#resume',     'url' => '/api/meeting-broadcasts/{id}/resume',       'verb' => 'POST'],
         ['name' => 'broadcast#stop',       'url' => '/api/meeting-broadcasts/{id}/stop',         'verb' => 'POST'],
+        ['name' => 'broadcast#captions',        'url' => '/api/meeting-broadcasts/{id}/captions',                    'verb' => 'POST'],
+        ['name' => 'broadcast#releaseCaptions', 'url' => '/api/meeting-broadcasts/{id}/captions/{language}/release', 'verb' => 'POST'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

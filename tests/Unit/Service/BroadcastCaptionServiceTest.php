@@ -62,6 +62,7 @@ use RuntimeException;
  * @uses \OCA\Decidiq\Service\PublicationEligibilityService
  * @uses \OCA\Decidiq\Service\SigningAnswer
  * @uses \OCA\Decidiq\Service\StreamingClient
+ * @uses \OCA\Decidiq\Support\FleetAppId
  */
 final class BroadcastCaptionServiceTest extends TestCase {
 

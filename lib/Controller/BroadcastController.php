@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Controller;
 use Closure;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
+use OCA\Decidiq\Service\BroadcastCaptionService;
 use OCA\Decidiq\Service\MeetingBroadcastService;
 use OCA\Decidiq\Service\TranscriptionStaffGuard;
 use OCP\AppFramework\Controller;
@@ -58,6 +59,7 @@ class BroadcastController extends Controller {
 	 * @param IRequest                $request    The request
 	 * @param MeetingBroadcastService $broadcasts Runs the broadcast
 	 * @param TranscriptionStaffGuard $guard      Chair, secretary or admin of the meeting
+	 * @param BroadcastCaptionService $captions   Makes and releases the subtitles
 	 *
 	 * @return void
 	 */
@@ -65,6 +67,7 @@ class BroadcastController extends Controller {
 		IRequest $request,
 		private readonly MeetingBroadcastService $broadcasts,
 		private readonly TranscriptionStaffGuard $guard,
+		private readonly BroadcastCaptionService $captions,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 	}//end __construct()
@@ -218,6 +221,51 @@ class BroadcastController extends Controller {
 			action: fn (): array => $this->broadcasts->stop(broadcastId: $id)
 		);
 	}//end stop()
+
+	/**
+	 * Make the subtitles of the broadcast from the meeting's aligned transcript.
+	 *
+	 * POST /api/meeting-broadcasts/{id}/captions, body `language` (default nl)
+	 *
+	 * Access control: chair or secretary of the broadcast's meeting.
+	 *
+	 * @param string $id The broadcast
+	 *
+	 * @return JSONResponse 201 the caption file; 401, 403, 404, 409, 422 or 500 with a message
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows
+	 */
+	#[NoAdminRequired]
+	public function captions(string $id): JSONResponse {
+		$language = (string)$this->request->getParam('language', 'nl');
+		return $this->guarded(
+			meetingId: $this->broadcasts->meetingOf(broadcastId: $id),
+			action: fn (): array => $this->captions->derive(broadcastId: $id, language: $language),
+			status: Http::STATUS_CREATED
+		);
+	}//end captions()
+
+	/**
+	 * Release the reviewed subtitles of an ended public broadcast.
+	 *
+	 * POST /api/meeting-broadcasts/{id}/captions/{language}/release
+	 *
+	 * Access control: chair or secretary of the broadcast's meeting.
+	 *
+	 * @param string $id       The broadcast
+	 * @param string $language The track's language code
+	 *
+	 * @return JSONResponse 200 the broadcast; 401, 403, 404, 409 or 422 with a message
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+	 */
+	#[NoAdminRequired]
+	public function releaseCaptions(string $id, string $language): JSONResponse {
+		return $this->guarded(
+			meetingId: $this->broadcasts->meetingOf(broadcastId: $id),
+			action: fn (): array => $this->captions->release(broadcastId: $id, language: $language)
+		);
+	}//end releaseCaptions()
 
 	/**
 	 * Run an action for the meeting's staff only; a refusal comes back with its status.

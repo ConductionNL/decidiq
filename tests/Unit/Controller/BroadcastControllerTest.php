@@ -23,7 +23,9 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use DateTime;
 use OCA\Decidiq\Controller\BroadcastController;
+use OCA\Decidiq\Service\BroadcastCaptionService;
 use OCA\Decidiq\Service\MeetingBroadcastService;
+use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\SigningAnswer;
 use OCA\Decidiq\Service\StreamingClient;
@@ -36,10 +38,13 @@ use OCP\AppFramework\Http\JSONResponse;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IGroupManager;
 use OCP\IRequest;
+use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\IUserSession;
+use OCP\Share\IManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * The broadcast routes: only the meeting's chair or secretary acts, and a
@@ -53,6 +58,8 @@ use Psr\Container\ContainerInterface;
  * @uses \OCA\Decidiq\Service\TranscriptionStaffGuard
  * @uses \OCA\Decidiq\Exception\BroadcastRefusedException
  * @uses \OCA\Decidiq\Support\FleetAppId
+ * @uses \OCA\Decidiq\Service\BroadcastCaptionService
+ * @uses \OCA\Decidiq\Service\MeetingFolderService
  */
 final class BroadcastControllerTest extends TestCase {
 	/**
@@ -140,6 +147,15 @@ final class BroadcastControllerTest extends TestCase {
 				userSession: $session,
 			),
 			guard: new TranscriptionStaffGuard(objectService: $objects, participantResolver: $participants, userSession: $session, groupManager: $groups),
+			captions: new BroadcastCaptionService(
+				objectService: $objects,
+				folders: new MeetingFolderService(container: $container, logger: $this->createMock(LoggerInterface::class)),
+				shares: $this->createMock(IManager::class),
+				urls: $this->createMock(IURLGenerator::class),
+				userSession: $session,
+				time: $time,
+				streaming: new StreamingClient(objectService: $objects, container: $container, answers: new SigningAnswer()),
+			),
 		);
 	}//end controller()
 
@@ -176,6 +192,8 @@ final class BroadcastControllerTest extends TestCase {
 			'pause' => $controller->pause(id: $broadcast),
 			'resume' => $controller->resume(id: $broadcast),
 			'stop' => $controller->stop(id: $broadcast),
+			'captions' => $controller->captions(id: $broadcast),
+			'releaseCaptions' => $controller->releaseCaptions(id: $broadcast, language: 'nl'),
 		];
 	}//end everyRoute()
 
@@ -269,6 +287,32 @@ final class BroadcastControllerTest extends TestCase {
 	}//end testAMeetingThatIsNotPublicAnswers422()
 
 	/**
+	 * The secretary's subtitle requests reach the caption service, and its
+	 * refusals come back with their status and message.
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows
+	 *
+	 * @return void
+	 */
+	public function testTheSecretaryAsksForSubtitles(): void {
+		$broadcast = $this->world->put(schema: 'meeting-broadcast', data: ['meeting' => $this->meeting, 'lifecycle' => 'live', 'publicWindows' => [['start' => 0, 'recordingStart' => 0]]]);
+		$this->world->put(schema: 'transcript', data: ['meeting' => $this->meeting, 'status' => 'done', 'segments' => []]);
+		$controller = $this->controller(uid: 'griffier');
+
+		$this->params = ['language' => 'nl'];
+		$made         = $controller->captions(id: $broadcast);
+		$this->assertSame(422, $made->getStatus());
+		$this->assertSame(['message' => 'Align the transcript with the agenda first'], $made->getData());
+
+		$this->params = ['language' => '../x'];
+		$this->assertSame(422, $controller->captions(id: $broadcast)->getStatus());
+
+		$released = $controller->releaseCaptions(id: $broadcast, language: 'nl');
+		$this->assertSame(409, $released->getStatus());
+		$this->assertSame(['message' => 'Subtitles are released after the broadcast has ended'], $released->getData());
+	}//end testTheSecretaryAsksForSubtitles()
+
+	/**
 	 * Every broadcast route is registered, so none is unreachable.
 	 *
 	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-002-the-clerk-runs-a-test-broadcast-that-only-staff-can-see
@@ -281,7 +325,7 @@ final class BroadcastControllerTest extends TestCase {
 
 		$this->assertSame('/api/meetings/{meetingId}/broadcast', $names['broadcast#status'] ?? null);
 		$this->assertSame('/api/meetings/{meetingId}/broadcast/test', $names['broadcast#test'] ?? null);
-		foreach (['testResult' => 'test-result', 'start' => 'start', 'pause' => 'pause', 'resume' => 'resume', 'stop' => 'stop'] as $method => $path) {
+		foreach (['testResult' => 'test-result', 'start' => 'start', 'pause' => 'pause', 'resume' => 'resume', 'stop' => 'stop', 'captions' => 'captions', 'releaseCaptions' => 'captions/{language}/release'] as $method => $path) {
 			$this->assertSame('/api/meeting-broadcasts/{id}/' . $path, $names['broadcast#' . $method] ?? null, $method);
 		}
 	}//end testEveryRouteIsRegistered()
