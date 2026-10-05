@@ -107,6 +107,7 @@ import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.v
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
 import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
+import IncomingDocumentsWidget from './views/dashboard/widgets/IncomingDocumentsWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
@@ -118,7 +119,6 @@ import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeeting
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
 import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
-import IncomingDocumentsView from './views/agenda/IncomingDocumentsView.vue'
 import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
 import ModerationQueuePage from './views/participation/ModerationQueuePage.vue'
@@ -193,7 +193,6 @@ export default {
 	// toggle rides the index page's actionsComponent slot and routes
 	// between the two pages, leaving the table surface untouched.
 	MeetingCalendarView: page(MeetingCalendarView),
-	IncomingDocumentsView: page(IncomingDocumentsView),
 	MeetingViewToggle: page(MeetingViewToggle),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
@@ -369,6 +368,14 @@ export default {
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
 		defaultSize: { w: 6, h: 4 },
 		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
+	}),
+	// @custom-widget-ratchet exclude the incoming documents waiting list filters on the agenda item type's incomingDocument flag, a two-object condition no built-in widget's filter can express (age-13)
+	IncomingDocumentsWidget: widget(IncomingDocumentsWidget, {
+		_note: 'agenda-incoming-documents-list (age-13): incoming documents without a meeting, with Put on agenda. object-table cannot filter on a property of the referenced agenda item type.',
+		defaultSize: { w: 12, h: 4 },
+		minSize: { w: 6, h: 3 },
 		maxSize: { w: 12, h: 8 },
 		allowedSlots: ['dashboard'],
 	}),

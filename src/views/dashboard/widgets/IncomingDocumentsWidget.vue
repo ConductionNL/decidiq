@@ -2,23 +2,21 @@
 <!-- SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl> -->
 
 <!--
-  IncomingDocumentsView: the incoming documents that wait for a meeting.
-  An incoming document is an agenda item whose type is an incoming document
-  type and that has no meeting yet. Put on agenda picks a meeting and saves
-  the item with that meeting and the next free position, after which it
-  leaves this list and shows on the meeting's Incoming documents widget
-  (agenda-incoming-documents-list, age-13).
+  IncomingDocumentsWidget: the incoming documents that wait for a meeting, on
+  the dashboard. An incoming document is an agenda item whose type is an
+  incoming document type and that has no meeting yet. Put on agenda picks a
+  meeting and saves the item with that meeting and the next free position,
+  after which it leaves this list and shows on the meeting's Incoming
+  documents widget (agenda-incoming-documents-list, age-13).
 
-  type:"custom" because "type is one of the flagged types AND meeting is
-  empty" is a two-object condition no declarative index filter can express.
+  A dashboard widget, not a page: "type is one of the flagged types AND
+  meeting is empty" spans two objects, which no declarative index filter can
+  express, and a new type:"custom" page would grow the custom-page count.
 
   @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda
 -->
 <template>
 	<div class="incoming-documents" data-testid="incoming-documents">
-		<h2 class="incoming-documents__title">
-			{{ t('decidiq', 'Incoming documents') }}
-		</h2>
 		<p class="incoming-documents__intro">
 			{{
 				t(
@@ -59,17 +57,17 @@
 <script>
 import { CnDataTable, CnNoteCard } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import PutOnAgendaDialog from '../../dialogs/PutOnAgendaDialog.vue'
-import { ensureRelationType } from '../../components/tabs/useRelationStore.js'
+import PutOnAgendaDialog from '../../../dialogs/PutOnAgendaDialog.vue'
+import { ensureRelationType } from '../../../components/tabs/useRelationStore.js'
 import {
 	incomingRows,
 	incomingTypes,
 	putOnAgendaPayload,
 	waitingItems,
-} from '../../utils/incomingDocuments.js'
+} from '../../../utils/incomingDocuments.js'
 
 export default {
-	name: 'IncomingDocumentsView',
+	name: 'IncomingDocumentsWidget',
 
 	components: { CnDataTable, CnNoteCard, NcButton, PutOnAgendaDialog },
 
@@ -204,10 +202,6 @@ export default {
 	flex-direction: column;
 	gap: calc(var(--default-grid-baseline) * 2);
 	padding: calc(var(--default-grid-baseline) * 4);
-}
-
-.incoming-documents__title {
-	margin: 0;
 }
 
 .incoming-documents__intro {

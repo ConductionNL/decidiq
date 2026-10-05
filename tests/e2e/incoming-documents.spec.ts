@@ -9,7 +9,7 @@
  * against the merged agenda-item schema.
  *
  * Needs the municipality example set: its Ingekomen stuk items have no
- * meeting, so they wait on the Incoming documents list. Runs as the
+ * meeting, so they wait on the dashboard's Incoming documents widget. Runs as the
  * administrator. The test puts the first waiting letter on the first
  * upcoming meeting and finds it on that meeting's Incoming documents widget.
  *
@@ -19,10 +19,10 @@ import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from './base-url.ts'
 
 // @e2e agenda-management::putting-a-letter-on-the-agenda
-test('IncomingDocumentsView: a waiting letter put on a meeting leaves the list and shows on the meeting', async ({
+test('IncomingDocumentsWidget: a waiting letter put on a meeting leaves the list and shows on the meeting', async ({
 	page,
 }) => {
-	await page.goto(`${BASE}/index.php/apps/decidiq/incoming-documents`)
+	await page.goto(`${BASE}/index.php/apps/decidiq/`)
 	const list = page.getByTestId('incoming-documents')
 	await expect(list).toBeVisible()
 	await expect(

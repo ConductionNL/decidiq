@@ -5,7 +5,7 @@
  * Incoming documents reach the agenda (age-13): the meeting's widget reads
  * agenda items of an incoming document type instead of the retired
  * raadsinformatiebrief and ingekomen-stuk schemas, the Incoming documents
- * page lists those without a meeting, and Put on agenda saves a payload the
+ * dashboard widget lists those without a meeting, and Put on agenda saves a payload the
  * real agenda-item schema accepts. This repo's vitest cannot mount a `.vue`
  * file, so the wiring is asserted against the sources.
  *
@@ -166,17 +166,26 @@ describe('Put on agenda', () => {
 		expect(putOnAgendaPayload(letter, COUNCIL_14_OCT, []).orderNumber).toBe(1)
 	})
 
-	it('the page, its menu place and the dialog are wired', () => {
-		const fragment = JSON.parse(source('src/manifest.d/incoming-documents.json'))
-		const page = fragment.pages.find((p) => p.id === 'IncomingDocuments')
-		expect(page.type).toBe('custom')
-		expect(page.component).toBe('IncomingDocumentsView')
+	it('the dashboard widget and the dialog are wired', () => {
+		const manifest = JSON.parse(source('src/manifest.json'))
+		const dashboard = manifest.pages.find((p) => p.id === 'Dashboard')
+		expect(dashboard.slots['widget-incoming-documents']).toBe(
+			'IncomingDocumentsWidget',
+		)
 		expect(
-			JSON.parse(source('src/menu-layout.json')).relocations.IncomingDocuments,
-		).toBe('Meetings')
-		expect(source('src/registry.js')).toContain('IncomingDocumentsView')
-		const view = source('src/views/agenda/IncomingDocumentsView.vue')
-		expect(view).toContain("from '../../dialogs/PutOnAgendaDialog.vue'")
+			dashboard.config.widgets.find((w) => w.id === 'incoming-documents')
+				?.type,
+		).toBe('custom')
+		expect(
+			dashboard.config.layout.some((l) => l.widgetId === 'incoming-documents'),
+		).toBe(true)
+		expect(source('src/registry.js')).toContain(
+			'IncomingDocumentsWidget: widget(IncomingDocumentsWidget',
+		)
+		const view = source(
+			'src/views/dashboard/widgets/IncomingDocumentsWidget.vue',
+		)
+		expect(view).toContain("from '../../../dialogs/PutOnAgendaDialog.vue'")
 		expect(view).toContain('putOnAgendaPayload')
 		expect(view).toContain('waitingItems')
 		expect(source('src/dialogs/PutOnAgendaDialog.vue')).toContain('inputLabel')

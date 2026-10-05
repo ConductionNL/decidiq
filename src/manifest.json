@@ -279,6 +279,12 @@
 						"id": "dashboard-empty-state",
 						"type": "custom",
 						"title": "Welcome"
+					},
+					{
+						"_note": "agenda-incoming-documents-list (age-13), REQ-AIDL-001: incoming documents that wait for a meeting, with Put on agenda. Rendered by the IncomingDocumentsWidget slot.",
+						"id": "incoming-documents",
+						"type": "custom",
+						"title": "Incoming documents"
 					}
 				],
 				"dateRange": {
@@ -407,6 +413,15 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "13",
+						"widgetId": "incoming-documents",
+						"gridX": 0,
+						"gridY": 20,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
@@ -424,7 +439,8 @@
 				"widget-running-processes": "RunningProcessesWidget",
 				"widget-running-processes-actions": "StartProcessAction",
 				"widget-my-action-items": "MyActionItemsWidget",
-				"widget-dashboard-empty-state": "DashboardEmptyState"
+				"widget-dashboard-empty-state": "DashboardEmptyState",
+				"widget-incoming-documents": "IncomingDocumentsWidget"
 			}
 		},
 		{
