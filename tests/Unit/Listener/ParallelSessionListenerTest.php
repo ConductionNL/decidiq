@@ -30,10 +30,13 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\AbstractLogger;
 use Psr\Log\NullLogger;
+use RuntimeException;
 
 /**
  * An evening holds parallel sessions; each session is a meeting that points at
@@ -247,6 +250,115 @@ class ParallelSessionListenerTest extends TestCase {
 		self::assertSame(ParallelSessionListener::MISSING_PARENT_MESSAGE, $event->getErrors()['message']);
 
 	}//end testSessionOfAMissingEveningIsRefused()
+
+	/**
+	 * Only pre-save events and only meetings are looked at: any other event,
+	 * and an object of another schema that happens to carry parentMeeting,
+	 * pass untouched without a lookup.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 *
+	 * @return void
+	 */
+	public function testOtherEventsAndOtherSchemasAreNotLookedAt(): void {
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->expects(self::never())->method('find');
+		$listener = new ParallelSessionListener(logger: new NullLogger(), objectService: $objectService);
+
+		$other = new Event();
+		$listener->handle($other);
+		self::assertFalse($other->isPropagationStopped());
+
+		$item = new ObjectCreatingEvent($this->entity(row: $this->session(['_schemaSlug' => 'agendaItem'])));
+		$listener->handle($item);
+		self::assertFalse($item->isPropagationStopped());
+		self::assertSame([], $item->getModifiedData());
+
+	}//end testOtherEventsAndOtherSchemasAreNotLookedAt()
+
+	/**
+	 * A parentMeeting stored as an expanded object is read by its id, so the
+	 * window check still applies.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 *
+	 * @return void
+	 */
+	public function testExpandedEveningReferenceIsReadByItsId(): void {
+		$event = new ObjectCreatingEvent(
+			$this->entity(row: $this->session(['parentMeeting' => ['id' => 'evening-1'], 'scheduledDate' => '2026-11-03T23:30:00+01:00', 'endDate' => null]))
+		);
+		$this->listener(['evening-1' => self::EVENING])->handle($event);
+
+		self::assertTrue($event->isPropagationStopped());
+		self::assertStringStartsWith('A session must take place within its evening', $event->getErrors()['message']);
+
+	}//end testExpandedEveningReferenceIsReadByItsId()
+
+	/**
+	 * An evening without a start, or a session with an unreadable start, has no
+	 * window to check: the session saves.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 *
+	 * @return void
+	 */
+	public function testUndatedEveningOrUnreadableStartHasNoWindowToCheck(): void {
+		$undated = self::EVENING;
+		unset($undated['scheduledDate']);
+		$event = new ObjectCreatingEvent($this->entity(row: $this->session(['scheduledDate' => '2026-11-04T09:00:00+01:00'])));
+		$this->listener(['evening-1' => $undated])->handle($event);
+		self::assertFalse($event->isPropagationStopped());
+
+		$garbled = new ObjectCreatingEvent($this->entity(row: $this->session(['scheduledDate' => 'not a date'])));
+		$this->listener(['evening-1' => self::EVENING])->handle($garbled);
+		self::assertFalse($garbled->isPropagationStopped());
+
+	}//end testUndatedEveningOrUnreadableStartHasNoWindowToCheck()
+
+	/**
+	 * When the evening cannot be loaded (the store throws), the check is
+	 * skipped with a warning instead of breaking the save.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 *
+	 * @return void
+	 */
+	public function testStoreFailureSkipsTheCheckWithAWarning(): void {
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('find')->willThrowException(new RuntimeException('database gone'));
+		$logger = new class extends AbstractLogger {
+			/**
+			 * Recorded messages.
+			 *
+			 * @var array<int, array{0: mixed, 1: string, 2: array<string, mixed>}>
+			 */
+			public array $records = [];
+
+			/**
+			 * Record one log line.
+			 *
+			 * @param mixed                $level   Level
+			 * @param string|\Stringable   $message Message
+			 * @param array<string, mixed> $context Context
+			 *
+			 * @return void
+			 */
+			public function log($level, string|\Stringable $message, array $context=[]): void {
+				$this->records[] = [$level, (string)$message, $context];
+			}//end log()
+		};
+
+		$event = new ObjectCreatingEvent($this->entity(row: $this->session()));
+		(new ParallelSessionListener(logger: $logger, objectService: $objectService))->handle($event);
+
+		self::assertFalse($event->isPropagationStopped());
+		self::assertSame([], $event->getModifiedData());
+		self::assertCount(1, $logger->records);
+		self::assertSame('warning', $logger->records[0][0]);
+		self::assertSame('database gone', $logger->records[0][2]['exception']);
+
+	}//end testStoreFailureSkipsTheCheckWithAWarning()
 
 	/**
 	 * A new session without a body takes the evening's body, publicity and
