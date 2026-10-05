@@ -119,10 +119,7 @@ class ParallelSessionListener implements IEventListener {
 			}
 
 			if ($event instanceof ObjectCreatingEvent && $parent !== null) {
-				$patch = $this->inherited(meeting: $meeting, filled: $event->getModifiedData(), parent: $parent);
-				if ($patch !== []) {
-					$event->setModifiedData(array_merge($event->getModifiedData(), $patch));
-				}
+				$this->fillDefaults(event: $event, meeting: $meeting, parent: $parent);
 			}
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: parallel session check skipped', ['exception' => $e->getMessage()]);
@@ -213,6 +210,25 @@ class ParallelSessionListener implements IEventListener {
 	}//end outsideEvening()
 
 	/**
+	 * Give a new session the evening's values for the fields it was created without.
+	 *
+	 * @param ObjectCreatingEvent  $event   The creating event
+	 * @param array<string, mixed> $meeting The new session
+	 * @param array<string, mixed> $parent  Its evening
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 */
+	private function fillDefaults(ObjectCreatingEvent $event, array $meeting, array $parent): void {
+		$patch = $this->inherited(meeting: $meeting, filled: $event->getModifiedData(), parent: $parent);
+		if ($patch !== []) {
+			$event->setModifiedData(array_merge($event->getModifiedData(), $patch));
+		}
+
+	}//end fillDefaults()
+
+	/**
 	 * The evening's values for the fields a new session was created without.
 	 *
 	 * @param array<string, mixed> $meeting The new session
@@ -276,7 +292,7 @@ class ParallelSessionListener implements IEventListener {
 			return null;
 		}
 
-		return (array)$entity->getObject();
+		return $entity->getObject();
 
 	}//end load()
 
