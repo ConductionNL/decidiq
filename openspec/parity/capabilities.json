@@ -2041,9 +2041,11 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -i livestream/stream/broadcast in src/ and lib/: only file StreamResponse hits (exports), no streaming code, page or integration",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change live-public-livestream: meeting-broadcast schema with a declared lifecycle (planned, testing, live, paused, ended) and a public read rule once publicationDate passed (lib/Settings/register.d/120-meeting-broadcast.json), the streaming service as an integriq connection (lib/Settings/connections.json, StreamingClient), MeetingBroadcastService and BroadcastController (nine routes, chair or secretary only), BroadcastCaptionService (subtitles from the aligned transcript over the public windows, released as a read-only link), the Broadcast widget on MeetingDetail (src/components/tabs/MeetingBroadcastTab.vue) and the anonymous publicBroadcasts portal collection. PHPUnit and vitest green; the Newman anonymous-read run and the Playwright run (tests/e2e/meeting-broadcast.spec.ts) are still owed, so not yet built. This row: go live, pause for a closed session, resume, stop; residents watch through the portal.",
+				"owner": "ConductionNL/decidiq",
+				"change": "live-public-livestream",
+				"readOn": "2026-10-05"
 			},
 			"reachedOn": "nothing reaches it: no streaming feature",
 			"provider": "decidiq",
@@ -2163,9 +2165,11 @@
 			"origin": "competitor",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -i subtitle/caption/webvtt/.vtt/.srt in src/ and lib/: no hits",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change live-public-livestream: meeting-broadcast schema with a declared lifecycle (planned, testing, live, paused, ended) and a public read rule once publicationDate passed (lib/Settings/register.d/120-meeting-broadcast.json), the streaming service as an integriq connection (lib/Settings/connections.json, StreamingClient), MeetingBroadcastService and BroadcastController (nine routes, chair or secretary only), BroadcastCaptionService (subtitles from the aligned transcript over the public windows, released as a read-only link), the Broadcast widget on MeetingDetail (src/components/tabs/MeetingBroadcastTab.vue) and the anonymous publicBroadcasts portal collection. PHPUnit and vitest green; the Newman anonymous-read run and the Playwright run (tests/e2e/meeting-broadcast.spec.ts) are still owed, so not yet built. This row: Make subtitles and Release subtitles (captions-<language>.vtt, public windows only, no speaker labels).",
+				"owner": "ConductionNL/decidiq",
+				"change": "live-public-livestream",
+				"readOn": "2026-10-05"
 			},
 			"reachedOn": "nothing reaches it: no subtitle output",
 			"provider": "decidiq",
@@ -7021,9 +7025,11 @@
 			"originUrl": "https://www.notubiz.nl/nieuws/samen-werken-aan-een-geintegreerd-systeem-voor-raad-en-college",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -rniE 'livestream|broadcast|test ?stream|rtmp|hls' lib src: no hits",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change live-public-livestream: meeting-broadcast schema with a declared lifecycle (planned, testing, live, paused, ended) and a public read rule once publicationDate passed (lib/Settings/register.d/120-meeting-broadcast.json), the streaming service as an integriq connection (lib/Settings/connections.json, StreamingClient), MeetingBroadcastService and BroadcastController (nine routes, chair or secretary only), BroadcastCaptionService (subtitles from the aligned transcript over the public windows, released as a read-only link), the Broadcast widget on MeetingDetail (src/components/tabs/MeetingBroadcastTab.vue) and the anonymous publicBroadcasts portal collection. PHPUnit and vitest green; the Newman anonymous-read run and the Playwright run (tests/e2e/meeting-broadcast.spec.ts) are still owed, so not yet built. This row: the staff-only test broadcast and its recorded result.",
+				"owner": "ConductionNL/decidiq",
+				"change": "live-public-livestream",
+				"readOn": "2026-10-05"
 			},
 			"reachedOn": "nothing reaches it: no broadcast",
 			"provider": "decidiq",

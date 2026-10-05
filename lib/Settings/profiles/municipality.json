@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 215,
+			"objectCount": 218,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -4563,6 +4563,82 @@
 						"provider": "llm2",
 						"chunked": false,
 						"status": "draft"
+					}
+				],
+				"meeting-broadcast": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-broadcast"
+						},
+						"slug": "uitzending-raadsvergadering-2025-01-15",
+						"meeting": "raadsvergadering-2025-01-15",
+						"title": "Raadsvergadering 15 januari 2025",
+						"bodyName": "Gemeenteraad Amsterdam",
+						"scheduledDate": "2025-01-15T19:30:00Z",
+						"lifecycle": "ended",
+						"playerUrl": "https://stream.example.org/player/raad-2025-01-15",
+						"recordingUrl": "https://stream.example.org/recording/raad-2025-01-15",
+						"liveCaptions": "unavailable",
+						"testedAt": "2025-01-14T16:00:00Z",
+						"testedBy": "griffier1",
+						"testResult": "ok",
+						"publicWindows": [
+							{
+								"start": 0,
+								"end": 5400,
+								"recordingStart": 0
+							},
+							{
+								"start": 6300,
+								"end": 10800,
+								"recordingStart": 5400
+							}
+						],
+						"captionTracks": [
+							{
+								"language": "nl",
+								"filePath": "/Decidiq/Uitzendingen/raad-2025-01-15.nl.vtt",
+								"shareUrl": "https://stream.example.org/captions/raad-2025-01-15.nl.vtt",
+								"reviewedBy": "griffier1",
+								"releasedAt": "2025-01-20T10:00:00Z"
+							}
+						],
+						"publicationDate": "2025-01-08T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-broadcast"
+						},
+						"slug": "uitzending-informatieavond-windpark-noord",
+						"meeting": "informatieavond-windpark-noord",
+						"title": "Informatieavond windpark Noord",
+						"bodyName": "Gemeenteraad Amsterdam",
+						"scheduledDate": "2027-04-08T19:30:00+02:00",
+						"lifecycle": "planned",
+						"liveCaptions": "requested",
+						"testedAt": "2027-04-07T15:00:00+02:00",
+						"testedBy": "griffier1",
+						"testResult": "problems",
+						"testNote": "Microfoon 4 gaf geen geluid, vervangen.",
+						"publicationDate": "2027-04-01T09:00:00+02:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-broadcast"
+						},
+						"slug": "uitzending-raadsvergadering-2025-04-10",
+						"meeting": "raadsvergadering-2025-04-10",
+						"title": "Raadsvergadering 10 april 2025",
+						"bodyName": "Gemeenteraad Amsterdam",
+						"scheduledDate": "2025-04-10T19:30:00Z",
+						"lifecycle": "planned",
+						"liveCaptions": "off"
 					}
 				]
 			}

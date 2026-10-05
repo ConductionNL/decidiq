@@ -187,6 +187,38 @@ class MeetingFolderService {
 	}//end writeMeetingFile()
 
 	/**
+	 * Find a file in a meeting subfolder, or null when it is not there.
+	 *
+	 * @param array<string, mixed> $meeting   Meeting object payload
+	 * @param string               $subfolder Subfolder name
+	 * @param string               $fileName  File name including extension
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+	 *
+	 * @return \OCP\Files\File|null The file, or null when it does not exist or Files is unavailable
+	 */
+	public function meetingFile(array $meeting, string $subfolder, string $fileName): ?\OCP\Files\File {
+		$meetingPath = $this->ensureMeetingFolders(meeting: $meeting);
+		if ($meetingPath === null) {
+			return null;
+		}
+
+		try {
+			$folder = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder($meetingPath . '/' . $this->sanitize(name: $subfolder));
+			$node   = $folder->get($this->sanitize(name: $fileName));
+		} catch (\Throwable) {
+			return null;
+		}
+
+		if (($node instanceof \OCP\Files\File) === false) {
+			return null;
+		}
+
+		return $node;
+
+	}//end meetingFile()
+
+	/**
 	 * Read back a file this service wrote, by the path writeMeetingFile() returned.
 	 *
 	 * @param string $path The path.

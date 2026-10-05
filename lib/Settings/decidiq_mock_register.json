@@ -8956,6 +8956,58 @@
         "kind": "summary",
         "status": "failed",
         "failure": "The provider timed out."
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingBroadcast",
+          "slug": "meeting-broadcast-voorbeeld-1"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000001",
+        "title": "Raadsvergadering voorbeeld 1",
+        "bodyName": "Gemeenteraad",
+        "scheduledDate": "2026-03-10T19:30:00+01:00",
+        "lifecycle": "ended",
+        "playerUrl": "https://stream.example.org/player/voorbeeld-1",
+        "recordingUrl": "https://stream.example.org/recording/voorbeeld-1",
+        "publicWindows": [
+          {
+            "start": 0,
+            "end": 5400,
+            "recordingStart": 0
+          }
+        ],
+        "publicationDate": "2026-03-01T09:00:00+01:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingBroadcast",
+          "slug": "meeting-broadcast-voorbeeld-2"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000002",
+        "title": "Raadsvergadering voorbeeld 2",
+        "bodyName": "Gemeenteraad",
+        "scheduledDate": "2026-04-10T19:30:00+01:00",
+        "lifecycle": "planned",
+        "testedAt": "2026-04-07T15:00:00+02:00",
+        "testedBy": "admin",
+        "testResult": "problems",
+        "testNote": "Microfoon 4 gaf geen geluid.",
+        "publicationDate": "2026-04-01T09:00:00+02:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "MeetingBroadcast",
+          "slug": "meeting-broadcast-voorbeeld-3"
+        },
+        "meeting": "00000000-0000-4000-8000-000000000003",
+        "title": "Raadsvergadering voorbeeld 3",
+        "bodyName": "Gemeenteraad",
+        "scheduledDate": "2026-05-10T19:30:00+01:00",
+        "lifecycle": "planned",
+        "liveCaptions": "off"
       }
     ]
   }
