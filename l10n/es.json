@@ -1774,7 +1774,15 @@
         "released by {name} at {time}": "publicados por {name} a las {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Subtítulos creados con {count} líneas en {path}. Revísalos antes de publicarlos.",
         "The subtitles are released.": "Los subtítulos están publicados.",
-        "The subtitles could not be made or released.": "No se pudieron crear ni publicar los subtítulos."
+        "The subtitles could not be made or released.": "No se pudieron crear ni publicar los subtítulos.",
+        "Put on agenda": "Incluir en el orden del día",
+        "Choose the meeting that deals with \"{title}\".": "Elija la reunión que trata \"{title}\".",
+        "There is no upcoming meeting to put it on.": "No hay ninguna reunión próxima en la que incluirlo.",
+        "Letters and documents that came in and wait for a meeting.": "Cartas y documentos recibidos que esperan una reunión.",
+        "No incoming documents wait for a meeting.": "Ningún documento recibido espera una reunión.",
+        "Loading incoming documents…": "Cargando documentos recibidos…",
+        "Failed to load incoming documents.": "No se pudieron cargar los documentos recibidos.",
+        "The document could not be put on the agenda.": "No se pudo incluir el documento en el orden del día."
     },
     "plurals": null
 }

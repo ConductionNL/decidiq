@@ -1775,7 +1775,15 @@ OC.L10N.register(
         "released by {name} at {time}": "freigegeben von {name} um {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Untertitel mit {count} Zeilen in {path} erstellt. Prüfe sie, bevor du sie freigibst.",
         "The subtitles are released.": "Die Untertitel sind freigegeben.",
-        "The subtitles could not be made or released.": "Die Untertitel konnten nicht erstellt oder freigegeben werden."
+        "The subtitles could not be made or released.": "Die Untertitel konnten nicht erstellt oder freigegeben werden.",
+        "Put on agenda": "Auf die Tagesordnung setzen",
+        "Choose the meeting that deals with \"{title}\".": "Wählen Sie die Sitzung, die \"{title}\" behandelt.",
+        "There is no upcoming meeting to put it on.": "Es gibt keine bevorstehende Sitzung, auf die es gesetzt werden kann.",
+        "Letters and documents that came in and wait for a meeting.": "Eingegangene Briefe und Dokumente, die auf eine Sitzung warten.",
+        "No incoming documents wait for a meeting.": "Keine eingegangenen Dokumente warten auf eine Sitzung.",
+        "Loading incoming documents…": "Eingegangene Dokumente werden geladen…",
+        "Failed to load incoming documents.": "Eingegangene Dokumente konnten nicht geladen werden.",
+        "The document could not be put on the agenda.": "Das Dokument konnte nicht auf die Tagesordnung gesetzt werden."
     },
     "nplurals=2; plural=(n != 1);"
 )

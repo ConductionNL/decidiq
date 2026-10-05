@@ -8,6 +8,7 @@
 		"AncillaryPositions": "GovernanceBodies",
 		"Archive": "Registers",
 		"AuditStatements": "Meetings",
+		"IncomingDocuments": "Meetings",
 		"AuthorityDelegations": "Registers",
 		"Commitments": "ActionItems",
 		"ConfidentialityRestrictions": "Registers",

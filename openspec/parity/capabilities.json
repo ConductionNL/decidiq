@@ -1762,9 +1762,10 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "building",
-				"evidence": "Incoming documents are AgendaItems of a configurable type since register.d/85-documents-as-agenda-items.json (IngekomenStuk superseded, x-openregister active:false); seeded type 'Ingekomen stuk' in lib/Settings/profiles/municipality.json:771; migration lib/Migration/MigrateDocumentsToAgendaItems.php:78-81; added through the agenda form (src/components/tabs/MeetingAgendaTab.vue, Type column :229); src/components/tabs/MeetingRoutedDocumentsTab.vue:168-174 still reads the retired raadsinformatiebrief and ingekomen-stuk schemas",
+				"evidence": "src/utils/incomingDocuments.js (incoming = AgendaItemType.incomingDocument, register.d/122-incoming-documents.json; seeded Ingekomen stuk + Raadsinformatiebrief flagged); MeetingRoutedDocumentsTab reads the meeting's agenda items of an incoming type; Incoming documents page src/views/agenda/IncomingDocumentsView.vue (src/manifest.d/incoming-documents.json, under Meetings) lists those without a meeting with Put on agenda (src/dialogs/PutOnAgendaDialog.vue); tests/vitest/incomingDocuments.spec.js; Playwright tests/e2e/incoming-documents.spec.ts owed live",
 				"owner": "ConductionNL/decidiq",
-				"change": "agenda-incoming-documents-list"
+				"change": "agenda-incoming-documents-list",
+				"readOn": "2026-10-05"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget, add item with an 'incoming document' type",
 			"provider": "decidiq",

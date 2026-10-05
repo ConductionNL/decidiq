@@ -806,6 +806,7 @@
 						"description": "Post die bij de griffie binnenkomt en op de lijst van ingekomen stukken wordt geplaatst.",
 						"owningBody": "gemeenteraad-amsterdam",
 						"votable": false,
+						"incomingDocument": true,
 						"order": 10,
 						"isDraft": false,
 						"active": true
@@ -821,6 +822,7 @@
 						"description": "Een brief van het college aan de raad, ter kennisname of ter bespreking geagendeerd.",
 						"owningBody": "gemeenteraad-amsterdam",
 						"votable": false,
+						"incomingDocument": true,
 						"order": 30,
 						"isDraft": false,
 						"active": true

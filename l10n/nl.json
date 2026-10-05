@@ -3321,7 +3321,16 @@
         "Released by": "Vrijgegeven door",
         "Who checked and released the subtitles.": "Wie de ondertitels heeft gecontroleerd en vrijgegeven.",
         "Released at": "Vrijgegeven op",
-        "When the subtitles were released.": "Wanneer de ondertitels zijn vrijgegeven."
+        "When the subtitles were released.": "Wanneer de ondertitels zijn vrijgegeven.",
+        "Put on agenda": "Op de agenda zetten",
+        "Choose the meeting that deals with \"{title}\".": "Kies de vergadering die \"{title}\" behandelt.",
+        "There is no upcoming meeting to put it on.": "Er is geen komende vergadering om het op te zetten.",
+        "Letters and documents that came in and wait for a meeting.": "Brieven en stukken die zijn binnengekomen en op een vergadering wachten.",
+        "No incoming documents wait for a meeting.": "Er wachten geen ingekomen stukken op een vergadering.",
+        "Loading incoming documents…": "Ingekomen stukken laden…",
+        "Failed to load incoming documents.": "Ingekomen stukken konden niet worden geladen.",
+        "The document could not be put on the agenda.": "Het stuk kon niet op de agenda worden gezet.",
+        "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda.": "Agendapunten van deze soort zijn ingekomen brieven of stukken: ze staan op de lijst Ingekomen stukken tot ze op de agenda van een vergadering worden gezet."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

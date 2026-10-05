@@ -1775,7 +1775,15 @@ OC.L10N.register(
         "released by {name} at {time}": "publiés par {name} à {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Sous-titres créés avec {count} lignes dans {path}. Vérifiez-les avant de les publier.",
         "The subtitles are released.": "Les sous-titres sont publiés.",
-        "The subtitles could not be made or released.": "Les sous-titres n'ont pas pu être créés ou publiés."
+        "The subtitles could not be made or released.": "Les sous-titres n'ont pas pu être créés ou publiés.",
+        "Put on agenda": "Inscrire à l'ordre du jour",
+        "Choose the meeting that deals with \"{title}\".": "Choisissez la réunion qui traite « {title} ».",
+        "There is no upcoming meeting to put it on.": "Aucune réunion à venir ne permet de l'inscrire.",
+        "Letters and documents that came in and wait for a meeting.": "Courriers et documents reçus qui attendent une réunion.",
+        "No incoming documents wait for a meeting.": "Aucun document reçu n'attend de réunion.",
+        "Loading incoming documents…": "Chargement des documents reçus…",
+        "Failed to load incoming documents.": "Impossible de charger les documents reçus.",
+        "The document could not be put on the agenda.": "Le document n'a pas pu être inscrit à l'ordre du jour."
     },
     "nplurals=2; plural=(n != 1);"
 )

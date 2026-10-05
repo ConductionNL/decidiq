@@ -3080,7 +3080,17 @@
         "Released by": "Released by",
         "Who checked and released the subtitles.": "Who checked and released the subtitles.",
         "Released at": "Released at",
-        "When the subtitles were released.": "When the subtitles were released."
+        "When the subtitles were released.": "When the subtitles were released.",
+        "Put on agenda": "Put on agenda",
+        "Choose the meeting that deals with \"{title}\".": "Choose the meeting that deals with \"{title}\".",
+        "There is no upcoming meeting to put it on.": "There is no upcoming meeting to put it on.",
+        "Letters and documents that came in and wait for a meeting.": "Letters and documents that came in and wait for a meeting.",
+        "No incoming documents wait for a meeting.": "No incoming documents wait for a meeting.",
+        "Loading incoming documents…": "Loading incoming documents…",
+        "Failed to load incoming documents.": "Failed to load incoming documents.",
+        "The document could not be put on the agenda.": "The document could not be put on the agenda.",
+        "Incoming document": "Incoming document",
+        "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda.": "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
