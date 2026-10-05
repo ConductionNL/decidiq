@@ -49,6 +49,7 @@ import CalendarCheckOutline from 'vue-material-design-icons/CalendarCheckOutline
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import CalendarClockOutline from 'vue-material-design-icons/CalendarClockOutline.vue'
 import CalendarMonthOutline from 'vue-material-design-icons/CalendarMonthOutline.vue'
+import CalendarMultiple from 'vue-material-design-icons/CalendarMultiple.vue'
 import CalendarTextOutline from 'vue-material-design-icons/CalendarTextOutline.vue'
 import CardAccountDetailsOutline from 'vue-material-design-icons/CardAccountDetailsOutline.vue'
 import CartOutline from 'vue-material-design-icons/CartOutline.vue'
@@ -180,6 +181,7 @@ export default {
 	CalendarClock,
 	CalendarClockOutline,
 	CalendarMonthOutline,
+	CalendarMultiple,
 	CalendarTextOutline,
 	CardAccountDetailsOutline,
 	CartOutline,

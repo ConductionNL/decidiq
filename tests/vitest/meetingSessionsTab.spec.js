@@ -37,8 +37,23 @@ const evening = {
 	isPublic: true,
 }
 const sessions = [
-	{ id: 's1', title: 'Commissie Bestuur', parentMeeting: 'ev', room: 'Commissiekamer 1', chair: 'p-jansen', lifecycle: 'scheduled', scheduledDate: '2026-11-03T19:30:00+01:00' },
-	{ id: 's2', title: 'Commissie Ruimte', parentMeeting: 'ev', room: 'Raadzaal', lifecycle: 'opened', scheduledDate: '2026-11-03T19:30:00+01:00' },
+	{
+		id: 's1',
+		title: 'Commissie Bestuur',
+		parentMeeting: 'ev',
+		room: 'Commissiekamer 1',
+		chair: 'p-jansen',
+		lifecycle: 'scheduled',
+		scheduledDate: '2026-11-03T19:30:00+01:00',
+	},
+	{
+		id: 's2',
+		title: 'Commissie Ruimte',
+		parentMeeting: 'ev',
+		room: 'Raadzaal',
+		lifecycle: 'opened',
+		scheduledDate: '2026-11-03T19:30:00+01:00',
+	},
 ]
 
 describe('sessionColumns', () => {
@@ -47,7 +62,11 @@ describe('sessionColumns', () => {
 			agendaItems: {
 				s1: [
 					{ id: 'a3', title: 'Rondvraag', orderNumber: 9 },
-					{ id: 'a1', title: 'Evaluatie burgerparticipatie', orderNumber: 1 },
+					{
+						id: 'a1',
+						title: 'Evaluatie burgerparticipatie',
+						orderNumber: 1,
+					},
 					{ id: 'a2', title: 'Verordening rekenkamer', orderNumber: 2 },
 					{ id: 'a4', title: 'Sluiting', orderNumber: 10 },
 				],
@@ -78,17 +97,29 @@ describe('sessionColumns', () => {
 
 describe('siblingsOf', () => {
 	it('lists the other sessions of the same evening', () => {
-		const third = { id: 's3', title: 'Commissie Samenleving', parentMeeting: { id: 'ev' } }
+		const third = {
+			id: 's3',
+			title: 'Commissie Samenleving',
+			parentMeeting: { id: 'ev' },
+		}
 		const other = { id: 'x', title: 'Elders', parentMeeting: 'ev-2' }
 
-		expect(siblingsOf(sessions[0], [...sessions, third, other]).map((s) => s.id)).toEqual(['s2', 's3'])
+		expect(
+			siblingsOf(sessions[0], [...sessions, third, other]).map((s) => s.id),
+		).toEqual(['s2', 's3'])
 		expect(siblingsOf(evening, sessions)).toEqual([])
 	})
 })
 
 describe('newSession', () => {
 	it('presets the evening, its date, body, mode and publicity, at the time entered', () => {
-		expect(newSession(evening, { title: 'Commissie Bestuur', room: 'Commissiekamer 1', time: '19:30' })).toEqual({
+		expect(
+			newSession(evening, {
+				title: 'Commissie Bestuur',
+				room: 'Commissiekamer 1',
+				time: '19:30',
+			}),
+		).toEqual({
 			title: 'Commissie Bestuur',
 			room: 'Commissiekamer 1',
 			parentMeeting: 'ev',
@@ -99,7 +130,7 @@ describe('newSession', () => {
 		})
 	})
 
-	it('keeps the evening\'s own notation of the time zone and leaves out what the evening lacks', () => {
+	it("keeps the evening's own notation of the time zone and leaves out what the evening lacks", () => {
 		const utc = { id: 'ev', scheduledDate: '2026-11-03T17:00:00Z' }
 		expect(newSession(utc, { title: 'X', room: '', time: '18:15' })).toEqual({
 			title: 'X',
@@ -115,10 +146,19 @@ describe('the meeting page', () => {
 		const detail = manifest.pages.find((p) => p.id === 'MeetingDetail')
 		const widget = detail.config.widgets.find((w) => w.id === 'meeting-sessions')
 
-		expect(widget).toMatchObject({ type: 'custom', component: 'MeetingSessionsTab' })
-		expect(detail.config.layout.some((l) => l.widgetId === 'meeting-sessions')).toBe(true)
-		expect(source('src/registry.js')).toMatch(/MeetingSessionsTab: page\(MeetingSessionsTab\)/)
-		expect(JSON.stringify(manifest)).toContain('"widget-meeting-sessions":"MeetingSessionsTab"')
+		expect(widget).toMatchObject({
+			type: 'custom',
+			component: 'MeetingSessionsTab',
+		})
+		expect(
+			detail.config.layout.some((l) => l.widgetId === 'meeting-sessions'),
+		).toBe(true)
+		expect(source('src/registry.js')).toMatch(
+			/MeetingSessionsTab: page\(MeetingSessionsTab\)/,
+		)
+		expect(JSON.stringify(manifest)).toContain(
+			'"widget-meeting-sessions":"MeetingSessionsTab"',
+		)
 	})
 
 	it('draws a column per session, names the evening on a session, and saves a new session with the presets', () => {
@@ -129,6 +169,6 @@ describe('the meeting page', () => {
 		expect(tab).toContain('meeting-sessions-evening-link')
 		expect(tab).toMatch(/v-for="sibling in siblings"/)
 		expect(tab).toMatch(/newSession\(/)
-		expect(tab).toMatch(/saveObject\('meeting'/)
+		expect(tab).toMatch(/saveObject\(\s*'meeting'/)
 	})
 })
