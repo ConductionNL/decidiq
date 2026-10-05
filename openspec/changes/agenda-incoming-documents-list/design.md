@@ -22,3 +22,10 @@ Schema changes go in a new `lib/Settings/register.d/` fragment (ADR-037) and are
 ## Tests
 
 - vitest: widget lists an incoming document item of the meeting; the list shows unplanned ones; the agenda item payload is valid against the agenda-item schema.
+
+## Built (5 Oct 2026)
+
+- Incoming means: the item's type has `incomingDocument: true` (new property on AgendaItemType, `lib/Settings/register.d/122-incoming-documents.json`), or, for a type stored before that property existed, its slug is one of the two seeded kinds (`type-ingekomen-stuk`, `type-raadsinformatiebrief`). Both seeds now carry the flag.
+- `MeetingRoutedDocumentsTab` reads the meeting's agenda items and the agenda item types; the old two-hop join (`routedDocumentsJoin.js`) and its test are removed. Rows open the agenda item.
+- The waiting list is a dashboard widget (`IncomingDocumentsWidget`, Dashboard slot `widget-incoming-documents`), not a new page: the condition spans two objects, which no declarative index filter expresses, and a new `type: custom` page fails the custom-page ratchet (hydra gate-69). The registry entry carries a `_note` and a reason-bearing `@custom-widget-ratchet exclude`. This replaces the planned `src/manifest.d/incoming-documents.json`. Put on agenda only offers upcoming meetings and saves the item with the meeting and the position after the meeting's last item; `orderNumber` is required on AgendaItem.
+- The payload is validated in vitest against the merged agenda-item schema (`tests/vitest/helpers/registerSchema.js`).

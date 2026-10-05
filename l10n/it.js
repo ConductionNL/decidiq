@@ -1792,7 +1792,15 @@ OC.L10N.register(
         "Broadcast ended": "Trasmissione terminata",
         "Failed to load the sessions.": "Impossibile caricare le sessioni.",
         "The session could not be saved.": "Non è stato possibile salvare la sessione.",
-        "Sessions": "Sessioni"
+        "Sessions": "Sessioni",
+        "Put on agenda": "Mettere all'ordine del giorno",
+        "Choose the meeting that deals with \"{title}\".": "Scegli la riunione che tratta \"{title}\".",
+        "There is no upcoming meeting to put it on.": "Non c'è nessuna riunione in programma a cui aggiungerlo.",
+        "Letters and documents that came in and wait for a meeting.": "Lettere e documenti arrivati che attendono una riunione.",
+        "No incoming documents wait for a meeting.": "Nessun documento in arrivo attende una riunione.",
+        "Loading incoming documents…": "Caricamento dei documenti in arrivo…",
+        "Failed to load incoming documents.": "Impossibile caricare i documenti in arrivo.",
+        "The document could not be put on the agenda.": "Non è stato possibile mettere il documento all'ordine del giorno."
     },
     "nplurals=2; plural=(n != 1);"
 )

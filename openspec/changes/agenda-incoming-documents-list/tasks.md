@@ -7,16 +7,17 @@
 - **files**: `src/components/tabs/MeetingRoutedDocumentsTab.vue`, `src/utils/incomingDocuments.js`
 - **acceptance_criteria**:
   - vitest red first
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Incoming documents list and Put on agenda
 - **spec_ref**: `openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda`
 - **files**: `src/manifest.d/incoming-documents.json`, `src/dialogs/PutOnAgendaDialog.vue`
 - **acceptance_criteria**:
   - payload valid against agenda-item
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
+- [ ] Playwright `tests/e2e/incoming-documents.spec.ts` green on the municipality example set (owed live)
 
 ## Verification
 
