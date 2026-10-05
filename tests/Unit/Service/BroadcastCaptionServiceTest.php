@@ -413,6 +413,7 @@ final class BroadcastCaptionServiceTest extends TestCase {
 		$entity = $this->createMock(ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturnCallback(fn (): array => ['id' => $id] + $this->world->objects[$id]['data']);
 		$entity->method('getUuid')->willReturn($id);
+		$entity->method('getObject')->willReturnCallback(fn (): array => $this->world->objects[$id]['data']);
 		return $entity;
 
 	}//end entity()
@@ -516,11 +517,11 @@ final class BroadcastCaptionServiceTest extends TestCase {
 		$manager = $this->createMock(IManager::class);
 		$manager->method('newShare')->willReturnCallback(
 			function (): IShare {
-				$state = ['type' => null, 'permissions' => null, 'path' => null, 'by' => null];
+				$state = ['type' => null, 'permissions' => null, 'node' => null, 'by' => null];
 				$share = $this->createMock(IShare::class);
 				$share->method('setNode')->willReturnCallback(
 					function (File $node) use (&$state, $share): IShare {
-						$state['path'] = $node->getPath();
+						$state['node'] = $node;
 						return $share;
 					}
 				);
@@ -543,16 +544,24 @@ final class BroadcastCaptionServiceTest extends TestCase {
 					}
 				);
 				$share->method('getToken')->willReturnCallback(fn (): string => 'tok-' . count($this->shares));
-				$share->method('getShareType')->willReturnCallback(fn () => $state['type']);
-				$share->method('getPermissions')->willReturnCallback(fn () => $state['permissions']);
-				$share->method('getNode')->willReturnCallback(fn () => $state['path']);
-				$share->method('getSharedBy')->willReturnCallback(fn () => $state['by']);
+				$share->method('getShareType')->willReturnCallback(function () use (&$state) {
+					return $state['type'];
+				});
+				$share->method('getPermissions')->willReturnCallback(function () use (&$state) {
+					return $state['permissions'];
+				});
+				$share->method('getNode')->willReturnCallback(function () use (&$state) {
+					return $state['node'];
+				});
+				$share->method('getSharedBy')->willReturnCallback(function () use (&$state) {
+					return $state['by'];
+				});
 				return $share;
 			}
 		);
 		$manager->method('createShare')->willReturnCallback(
 			function (IShare $share): IShare {
-				$this->shares[] = ['type' => $share->getShareType(), 'permissions' => $share->getPermissions(), 'path' => $share->getNode(), 'by' => $share->getSharedBy()];
+				$this->shares[] = ['type' => $share->getShareType(), 'permissions' => $share->getPermissions(), 'path' => $share->getNode()->getPath(), 'by' => $share->getSharedBy()];
 				return $share;
 			}
 		);
