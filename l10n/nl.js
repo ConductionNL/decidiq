@@ -3418,7 +3418,8 @@ OC.L10N.register(
         "No proposals yet.": "Nog geen voorstellen.",
         "Commitments with a deadline": "Toezeggingen met termijn",
         "No open commitments.": "Geen open toezeggingen.",
-        "All proposals": "Alle voorstellen"
+        "All proposals": "Alle voorstellen",
+        "Past the deadline": "Over de termijn"
     },
     "nplurals=2; plural=(n != 1);"
 )

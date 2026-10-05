@@ -3124,7 +3124,8 @@
         "No proposals yet.": "No proposals yet.",
         "Commitments with a deadline": "Commitments with a deadline",
         "No open commitments.": "No open commitments.",
-        "All proposals": "All proposals"
+        "All proposals": "All proposals",
+        "Past the deadline": "Past the deadline"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

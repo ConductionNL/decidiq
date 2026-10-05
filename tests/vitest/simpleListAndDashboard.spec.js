@@ -104,8 +104,21 @@ describe('the dashboard in the simple structure', () => {
 
 	it('keeps every widget the full dashboard has, as it was', () => {
 		for (const widget of before.widgets) {
+			if (widget.id === 'open-commitments-overdue') continue
 			expect(widgets.get(widget.id), widget.id).toEqual(widget)
 		}
+		// One tile is reworded, because its label was cut off in a
+		// three-column tile. Its count, its filter and its link are untouched.
+		const old = before.widgets.find(
+			(widget) => widget.id === 'open-commitments-overdue',
+		)
+		const now = widgets.get('open-commitments-overdue')
+		expect(now.content.label).toBe('Past the deadline')
+		expect({
+			...now,
+			title: old.title,
+			content: { ...now.content, label: old.content.label },
+		}).toEqual(old)
 		expect(config.widgets).toHaveLength(before.widgets.length + 4)
 	})
 
@@ -169,6 +182,34 @@ describe('the dashboard in the simple structure', () => {
 			expect(item.gridWidth).toBe(3)
 			expect(item.gridY).toBe(4)
 		}
+	})
+
+	it('gives every tile on the page a label short enough not to be cut, in English and in Dutch', () => {
+		// A tile is three columns wide. "Commitments over deadline" was cut to
+		// "Commitments over de" in the live check, and the first version of
+		// this spec only looked at the tiles it had added. So: EVERY stat
+		// widget the page declares, old or new.
+		const tiles = config.widgets.filter((widget) => widget.type === 'stat')
+		expect(tiles.length).toBeGreaterThan(0)
+		for (const tile of tiles) {
+			const label = tile.content.label
+			expect(label.length, label).toBeLessThanOrEqual(18)
+			expect(dutch[label], label).toBeTruthy()
+			expect(dutch[label].length, dutch[label]).toBeLessThanOrEqual(18)
+		}
+		// The control: the manifest's own label is the one that was cut.
+		expect(
+			before.widgets.find((widget) => widget.id === 'open-commitments-overdue')
+				.content.label.length,
+		).toBeGreaterThan(18)
+	})
+
+	it('gives the proposals bar room for its legend and the counts under it', () => {
+		const bar = config.layout.find(
+			(item) => item.widgetId === 'simple-proposals-per-step',
+		)
+		expect(bar.gridHeight).toBeGreaterThanOrEqual(3)
+		expect(bar.sizeToContent).toBe(true)
 	})
 
 	it('counts with plain equality on fields the schema has', () => {
