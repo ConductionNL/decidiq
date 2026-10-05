@@ -61,6 +61,13 @@ class MeetingBroadcastService {
 	private const TEST_RESULTS = ['ok', 'problems'];
 
 	/**
+	 * The public-window arithmetic.
+	 *
+	 * @var BroadcastWindows
+	 */
+	private readonly BroadcastWindows $windows;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister's object facade
@@ -76,6 +83,7 @@ class MeetingBroadcastService {
 		private readonly ITimeFactory $time,
 		private readonly IUserSession $userSession,
 	) {
+		$this->windows = new BroadcastWindows();
 	}//end __construct()
 
 	/**
@@ -213,7 +221,8 @@ class MeetingBroadcastService {
 			$broadcast['publicationDate'] = $this->time->getDateTime()->format(DATE_ATOM);
 		}
 
-		$broadcast['publicWindows'] = $this->openWindow(broadcast: $broadcast, meeting: $meeting, answer: $answer);
+		$second                     = $this->offset(meeting: $meeting);
+		$broadcast['publicWindows'] = $this->windows->open(broadcast: $broadcast, second: $second, answer: $answer);
 		$broadcast['liveCaptions']  = $this->requestLiveCaptions(meetingId: $meetingId);
 		$broadcast['lifecycle']     = 'live';
 		return $this->write(broadcast: $broadcast);
@@ -238,7 +247,8 @@ class MeetingBroadcastService {
 		$meetingId = (string)($broadcast['meeting'] ?? '');
 		$this->streaming->call(operation: 'pause', body: ['meeting' => $meetingId]);
 
-		$broadcast['publicWindows'] = $this->closeWindow(broadcast: $broadcast, meeting: ($this->read(schema: 'meeting', id: $meetingId) ?? []));
+		$second                     = $this->offset(meeting: ($this->read(schema: 'meeting', id: $meetingId) ?? []));
+		$broadcast['publicWindows'] = $this->windows->close(broadcast: $broadcast, second: $second);
 		$broadcast['lifecycle']     = 'paused';
 		return $this->write(broadcast: $broadcast);
 	}//end pause()
@@ -262,7 +272,8 @@ class MeetingBroadcastService {
 		$meetingId = (string)($broadcast['meeting'] ?? '');
 		$answer    = $this->streaming->call(operation: 'resume', body: ['meeting' => $meetingId]);
 
-		$broadcast['publicWindows'] = $this->openWindow(broadcast: $broadcast, meeting: ($this->read(schema: 'meeting', id: $meetingId) ?? []), answer: $answer);
+		$second                     = $this->offset(meeting: ($this->read(schema: 'meeting', id: $meetingId) ?? []));
+		$broadcast['publicWindows'] = $this->windows->open(broadcast: $broadcast, second: $second, answer: $answer);
 		$broadcast['lifecycle']     = 'live';
 		return $this->write(broadcast: $broadcast);
 	}//end resume()
@@ -287,8 +298,9 @@ class MeetingBroadcastService {
 		$meetingId = (string)($broadcast['meeting'] ?? '');
 		$answer    = $this->streaming->call(operation: 'stop', body: ['meeting' => $meetingId]);
 
-		$broadcast['publicWindows'] = $this->closeWindow(broadcast: $broadcast, meeting: ($this->read(schema: 'meeting', id: $meetingId) ?? []));
-		$recording = (string)($answer['recordingUrl'] ?? '');
+		$second                     = $this->offset(meeting: ($this->read(schema: 'meeting', id: $meetingId) ?? []));
+		$broadcast['publicWindows'] = $this->windows->close(broadcast: $broadcast, second: $second);
+		$recording                  = (string)($answer['recordingUrl'] ?? '');
 		if ($recording !== '') {
 			$broadcast['recordingUrl'] = $recording;
 		}
@@ -320,74 +332,6 @@ class MeetingBroadcastService {
 
 		return 'unavailable';
 	}//end requestLiveCaptions()
-
-	/**
-	 * The windows with a new open one at the second the meeting is at.
-	 *
-	 * @param array<string, mixed> $broadcast The broadcast
-	 * @param array<string, mixed> $meeting   Its meeting
-	 * @param array<string, mixed> $answer    The service's answer, which may name recordingStart
-	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-004-a-closed-session-pauses-the-broadcast-and-closes-the-public-window
-	 *
-	 * @return list<array<string, int>>
-	 */
-	private function openWindow(array $broadcast, array $meeting, array $answer): array {
-		$windows   = $this->windows(broadcast: $broadcast);
-		$recording = 0;
-		foreach ($windows as $window) {
-			$recording += max(0, (int)($window['end'] ?? $window['start']) - (int)$window['start']);
-		}
-
-		if (is_int($answer['recordingStart'] ?? null) === true && $answer['recordingStart'] >= 0) {
-			$recording = $answer['recordingStart'];
-		}
-
-		$windows[] = ['start' => $this->offset(meeting: $meeting), 'recordingStart' => $recording];
-		return $windows;
-	}//end openWindow()
-
-	/**
-	 * The windows with the open one closed at the second the meeting is at.
-	 *
-	 * @param array<string, mixed> $broadcast The broadcast
-	 * @param array<string, mixed> $meeting   Its meeting
-	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-004-a-closed-session-pauses-the-broadcast-and-closes-the-public-window
-	 *
-	 * @return list<array<string, int>>
-	 */
-	private function closeWindow(array $broadcast, array $meeting): array {
-		$windows = $this->windows(broadcast: $broadcast);
-		$last    = (count($windows) - 1);
-		if ($last >= 0 && isset($windows[$last]['end']) === false) {
-			$windows[$last]['end'] = max((int)$windows[$last]['start'], $this->offset(meeting: $meeting));
-		}
-
-		return $windows;
-	}//end closeWindow()
-
-	/**
-	 * The stored windows as a list of integer maps.
-	 *
-	 * @param array<string, mixed> $broadcast The broadcast
-	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-004-a-closed-session-pauses-the-broadcast-and-closes-the-public-window
-	 *
-	 * @return list<array<string, int>>
-	 */
-	private function windows(array $broadcast): array {
-		$windows = [];
-		foreach ((array)($broadcast['publicWindows'] ?? []) as $window) {
-			if (is_array($window) === false || isset($window['start']) === false) {
-				continue;
-			}
-
-			$windows[] = array_map('intval', $window);
-		}
-
-		return $windows;
-	}//end windows()
 
 	/**
 	 * Seconds from the meeting's opening (else its scheduled start) to now, never negative.

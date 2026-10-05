@@ -3067,7 +3067,20 @@
         "released by {name} at {time}": "released by {name} at {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Subtitles made with {count} lines in {path}. Check them before you release them.",
         "The subtitles are released.": "The subtitles are released.",
-        "The subtitles could not be made or released.": "The subtitles could not be made or released."
+        "The subtitles could not be made or released.": "The subtitles could not be made or released.",
+        "Seconds from the meeting's opening at which this public part began.": "Seconds from the meeting's opening at which this public part began.",
+        "End": "End",
+        "Seconds from the meeting's opening at which this public part ended.": "Seconds from the meeting's opening at which this public part ended.",
+        "Start in the recording": "Start in the recording",
+        "Second in the recording at which this public part begins.": "Second in the recording at which this public part begins.",
+        "Language code of the subtitles, for example nl.": "Language code of the subtitles, for example nl.",
+        "Path of the subtitle file in the meeting folder.": "Path of the subtitle file in the meeting folder.",
+        "Public link": "Public link",
+        "Read-only public link to the subtitle file.": "Read-only public link to the subtitle file.",
+        "Released by": "Released by",
+        "Who checked and released the subtitles.": "Who checked and released the subtitles.",
+        "Released at": "Released at",
+        "When the subtitles were released.": "When the subtitles were released."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

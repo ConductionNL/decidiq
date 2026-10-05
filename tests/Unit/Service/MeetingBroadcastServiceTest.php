@@ -45,6 +45,7 @@ use RuntimeException;
  * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service
  *
  * @uses \OCA\Decidiq\Service\StreamingClient
+ * @uses \OCA\Decidiq\Service\BroadcastWindows
  * @uses \OCA\Decidiq\Service\SigningAnswer
  * @uses \OCA\Decidiq\Exception\BroadcastRefusedException
  * @uses \OCA\Decidiq\Support\FleetAppId

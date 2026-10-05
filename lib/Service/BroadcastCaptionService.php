@@ -110,7 +110,12 @@ class BroadcastCaptionService {
 		$windows  = (array)($broadcast['publicWindows'] ?? []);
 		$vtt      = $this->webVtt(segments: $segments, windows: $windows);
 		$meeting  = (['id' => $meetingId] + ($this->read(schema: 'meeting', id: $meetingId) ?? []));
-		$path     = $this->folders->writeMeetingFile(meeting: $meeting, subfolder: self::SUBFOLDER, fileName: $this->fileName(language: $language), content: $vtt);
+		$path     = $this->folders->writeMeetingFile(
+			meeting: $meeting,
+			subfolder: self::SUBFOLDER,
+			fileName: $this->fileName(language: $language),
+			content: $vtt
+		);
 		if ($path === null) {
 			throw new BroadcastRefusedException(message: 'The caption file could not be written', status: 500);
 		}
@@ -128,7 +133,7 @@ class BroadcastCaptionService {
 	 *
 	 * @throws BroadcastRefusedException 404 unknown broadcast, 409 not ended or no file yet, 422 meeting not public
 	 *
-	 * @return array<string, mixed> The stored broadcast, with its id
+	 * @return array<string, mixed> The stored broadcast, with its id and whether the service attached the track
 	 */
 	public function release(string $broadcastId, string $language): array {
 		$this->requireLanguage(language: $language);
@@ -176,7 +181,7 @@ class BroadcastCaptionService {
 		];
 		$broadcast['captionTracks'] = $tracks;
 		$stored = $this->write(broadcast: $broadcast);
-		$this->attach(language: $language, url: $url);
+		$stored['attachedToRecording'] = $this->attach(language: $language, url: $url);
 
 		return $stored;
 	}//end release()

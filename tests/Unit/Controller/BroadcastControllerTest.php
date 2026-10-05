@@ -53,6 +53,7 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-002-the-clerk-runs-a-test-broadcast-that-only-staff-can-see
  *
  * @uses \OCA\Decidiq\Service\MeetingBroadcastService
+ * @uses \OCA\Decidiq\Service\BroadcastWindows
  * @uses \OCA\Decidiq\Service\StreamingClient
  * @uses \OCA\Decidiq\Service\SigningAnswer
  * @uses \OCA\Decidiq\Service\TranscriptionStaffGuard

@@ -129,16 +129,22 @@
 							"type": "object",
 							"properties": {
 								"start": {
+									"title": "Start",
 									"type": "integer",
-									"minimum": 0
+									"minimum": 0,
+									"description": "Seconds from the meeting's opening at which this public part began."
 								},
 								"end": {
+									"title": "End",
 									"type": "integer",
-									"minimum": 0
+									"minimum": 0,
+									"description": "Seconds from the meeting's opening at which this public part ended."
 								},
 								"recordingStart": {
+									"title": "Start in the recording",
 									"type": "integer",
-									"minimum": 0
+									"minimum": 0,
+									"description": "Second in the recording at which this public part begins."
 								}
 							},
 							"required": [
@@ -154,21 +160,31 @@
 							"type": "object",
 							"properties": {
 								"language": {
-									"type": "string"
+									"title": "Language",
+									"type": "string",
+									"description": "Language code of the subtitles, for example nl."
 								},
 								"filePath": {
-									"type": "string"
+									"title": "File",
+									"type": "string",
+									"description": "Path of the subtitle file in the meeting folder."
 								},
 								"shareUrl": {
+									"title": "Public link",
 									"type": "string",
-									"format": "uri"
+									"format": "uri",
+									"description": "Read-only public link to the subtitle file."
 								},
 								"reviewedBy": {
-									"type": "string"
+									"title": "Released by",
+									"type": "string",
+									"description": "Who checked and released the subtitles."
 								},
 								"releasedAt": {
+									"title": "Released at",
 									"type": "string",
-									"format": "date-time"
+									"format": "date-time",
+									"description": "When the subtitles were released."
 								}
 							},
 							"required": [

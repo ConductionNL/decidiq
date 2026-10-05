@@ -3309,7 +3309,20 @@ OC.L10N.register(
         "released by {name} at {time}": "vrijgegeven door {name} om {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Ondertitels gemaakt met {count} regels in {path}. Controleer ze voordat je ze vrijgeeft.",
         "The subtitles are released.": "De ondertitels zijn vrijgegeven.",
-        "The subtitles could not be made or released.": "De ondertitels konden niet worden gemaakt of vrijgegeven."
+        "The subtitles could not be made or released.": "De ondertitels konden niet worden gemaakt of vrijgegeven.",
+        "Seconds from the meeting's opening at which this public part began.": "Seconden vanaf de opening van de vergadering waarop dit openbare deel begon.",
+        "End": "Einde",
+        "Seconds from the meeting's opening at which this public part ended.": "Seconden vanaf de opening van de vergadering waarop dit openbare deel eindigde.",
+        "Start in the recording": "Begin in de opname",
+        "Second in the recording at which this public part begins.": "Seconde in de opname waarop dit openbare deel begint.",
+        "Language code of the subtitles, for example nl.": "Taalcode van de ondertitels, bijvoorbeeld nl.",
+        "Path of the subtitle file in the meeting folder.": "Pad van het ondertitelbestand in de vergadermap.",
+        "Public link": "Openbare link",
+        "Read-only public link to the subtitle file.": "Openbare link om het ondertitelbestand alleen te lezen.",
+        "Released by": "Vrijgegeven door",
+        "Who checked and released the subtitles.": "Wie de ondertitels heeft gecontroleerd en vrijgegeven.",
+        "Released at": "Vrijgegeven op",
+        "When the subtitles were released.": "Wanneer de ondertitels zijn vrijgegeven."
     },
     "nplurals=2; plural=(n != 1);"
 )
