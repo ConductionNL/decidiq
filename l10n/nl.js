@@ -3417,7 +3417,19 @@ OC.L10N.register(
         "This decision was withdrawn.": "Dit besluit is ingetrokken.",
         "Key facts": "Kerngegevens",
         "Now": "Nu",
-        "Next": "Volgt"
+        "Next": "Volgt",
+        "Greeting": "Begroeting",
+        "First today": "Vandaag eerst",
+        "Decisions wait for the vote": "Besluiten wachten op de stemming",
+        "{value} decisions are open for voting.": "{value} besluiten staan open voor stemming.",
+        "Open these decisions": "Deze besluiten openen",
+        "Open the meetings": "De vergaderingen openen",
+        "Proposals per step": "Voorstellen per stap",
+        "No proposals yet.": "Nog geen voorstellen.",
+        "Commitments with a deadline": "Toezeggingen met termijn",
+        "No open commitments.": "Geen open toezeggingen.",
+        "All proposals": "Alle voorstellen",
+        "Past the deadline": "Over de termijn"
     },
     "nplurals=2; plural=(n != 1);"
 )

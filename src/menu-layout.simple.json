@@ -136,6 +136,59 @@
 						"route": "UrgentDecisions"
 					}
 				]
+			},
+			"config": {
+				"quickFilterMaxVisible": 5,
+				"quickFilters": [
+					{
+						"label": "All proposals",
+						"filter": {},
+						"default": true,
+						"showCount": true
+					},
+					{
+						"label": "Draft",
+						"filter": {
+							"lifecycle": "draft"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Proposed",
+						"filter": {
+							"lifecycle": "proposed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Deliberating",
+						"filter": {
+							"lifecycle": "deliberating"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Voting",
+						"filter": {
+							"lifecycle": "voting"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Decision taken",
+						"filter": {
+							"lifecycle": "decided"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Urgent",
+						"filter": {
+							"isUrgent": true
+						},
+						"showCount": true
+					}
+				]
 			}
 		},
 		{
@@ -902,6 +955,420 @@
 						"group": "Motion",
 						"target": "/motions/@objectId/integrations"
 					}
+				]
+			}
+		},
+		{
+			"id": "Dashboard",
+			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE, at the same width and height, moved down by a fixed number of rows. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
+			"config": {
+				"layout": [
+					{
+						"id": "s1",
+						"widgetId": "simple-greeting",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "s2",
+						"widgetId": "simple-first-today",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "s3",
+						"widgetId": "simple-proposals-per-step",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 3,
+						"showTitle": true,
+						"sizeToContent": true
+					},
+					{
+						"id": "s4",
+						"widgetId": "simple-commitments-due",
+						"gridX": 0,
+						"gridY": 15,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "1",
+						"widgetId": "active-decisions",
+						"gridX": 0,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "2",
+						"widgetId": "upcoming-meetings-kpi",
+						"gridX": 3,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "3",
+						"widgetId": "pending-votes-kpi",
+						"gridX": 6,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "4",
+						"widgetId": "overdue-actions-kpi",
+						"gridX": 9,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "5",
+						"widgetId": "upcoming-meetings-list",
+						"gridX": 0,
+						"gridY": 11,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "6",
+						"widgetId": "pending-votes-list",
+						"gridX": 6,
+						"gridY": 11,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "7",
+						"widgetId": "running-processes",
+						"gridX": 0,
+						"gridY": 19,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "8",
+						"widgetId": "my-action-items",
+						"gridX": 6,
+						"gridY": 19,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "9",
+						"widgetId": "recent-decisions",
+						"gridX": 0,
+						"gridY": 23,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "10",
+						"widgetId": "minutes-in-review",
+						"gridX": 3,
+						"gridY": 9,
+						"gridWidth": 9,
+						"gridHeight": 2,
+						"showTitle": true
+					},
+					{
+						"id": "11",
+						"widgetId": "governance-health",
+						"gridX": 0,
+						"gridY": 27,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"_note": "Moved down from gridY=14 to make room for the spec'd Row 5 (minutes-in-review + governance-health, which together span all 12 columns at gridY=14). This KPI is an addition from the toezeggingen change and is not part of the five-row v2 layout in openspec/specs/dashboard/spec.md, so it gets its own band below it rather than displacing a spec'd widget.",
+						"id": "12",
+						"widgetId": "open-commitments-overdue",
+						"gridX": 0,
+						"gridY": 9,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "13",
+						"widgetId": "incoming-documents",
+						"gridX": 0,
+						"gridY": 31,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "simple-greeting",
+						"type": "header",
+						"title": "Greeting",
+						"content": {
+							"greeting": true,
+							"showDate": true,
+							"plain": true
+						}
+					},
+					{
+						"id": "simple-first-today",
+						"type": "banner",
+						"title": "First today",
+						"content": {
+							"layout": "attention",
+							"variant": "error",
+							"kicker": "First today",
+							"title": "Decisions wait for the vote",
+							"reason": "{value} decisions are open for voting.",
+							"visibleWhen": {
+								"source": {
+									"register": "decidiq",
+									"schema": "decision",
+									"filter": {
+										"lifecycle": "voting"
+									}
+								},
+								"op": "gt",
+								"value": 0
+							},
+							"actions": [
+								{
+									"label": "Open these decisions",
+									"route": {
+										"name": "Decisions",
+										"query": {
+											"lifecycle": "voting"
+										}
+									}
+								},
+								{
+									"label": "Open the meetings",
+									"route": "Meetings"
+								}
+							],
+							"text": "Decisions wait for the vote"
+						}
+					},
+					{
+						"id": "simple-proposals-per-step",
+						"type": "stacked-bar",
+						"title": "Proposals per step",
+						"content": {
+							"source": {
+								"register": "decidiq",
+								"schema": "decision",
+								"groupBy": "lifecycle",
+								"filter": {
+									"decisionType": "motion"
+								}
+							},
+							"order": [
+								"draft",
+								"proposed",
+								"deliberating",
+								"voting",
+								"decided",
+								"enacted",
+								"archived",
+								"withdrawn"
+							],
+							"labels": {
+								"draft": "Draft",
+								"proposed": "Proposed",
+								"deliberating": "Deliberating",
+								"voting": "Voting",
+								"decided": "Decision taken",
+								"enacted": "Enacted",
+								"archived": "Archived",
+								"withdrawn": "Withdrawn"
+							},
+							"emptyText": "No proposals yet."
+						}
+					},
+					{
+						"id": "simple-commitments-due",
+						"type": "object-list",
+						"title": "Commitments with a deadline",
+						"icon": "ClipboardCheckOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "governance-commitment",
+							"filter": {
+								"lifecycle": "open"
+							},
+							"sort": {
+								"field": "deadline",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "text",
+									"label": "Commitment",
+									"widget": "link"
+								},
+								{
+									"key": "deadline",
+									"label": "Deadline",
+									"widget": "date",
+									"widgetProps": {
+										"variantWhen": [
+											{
+												"op": "lte",
+												"value": 0,
+												"variant": "error"
+											},
+											{
+												"op": "lte",
+												"value": 7,
+												"variant": "warning"
+											}
+										]
+									}
+								}
+							],
+							"limit": 5,
+							"rowRoute": "CommitmentDetail",
+							"viewAllRoute": "Commitments",
+							"viewAllQuery": {
+								"lifecycle": "open"
+							},
+							"emptyText": "No open commitments."
+						}
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"open-commitments-overdue": {
+						"title": "Past the deadline",
+						"content": {
+							"label": "Past the deadline",
+							"icon": "AlertOutline",
+							"variant": "warning",
+							"route": {
+								"name": "Commitments",
+								"query": {
+									"lifecycle": [
+										"open",
+										"in-execution"
+									]
+								}
+							},
+							"format": {
+								"style": "number"
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "governance-commitment",
+								"metric": "count",
+								"filter": {
+									"lifecycle": {
+										"in": [
+											"open",
+											"in-execution"
+										]
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"id": "Decisions",
+			"_note": "The decisions list in the simple structure: five counted views in front, the rest behind the overflow chip. No view is dropped: Decisions and Motions are the manifest's own and keep their place in the list. Urgent is the view the design asks for instead of a menu entry; the Urgent decisions page still exists and Proposals links to it.",
+			"config": {
+				"quickFilterMaxVisible": 5
+			},
+			"configPatch": {
+				"quickFilters": {
+					"Decisions": {
+						"showCount": true
+					}
+				}
+			},
+			"configAppend": {
+				"quickFilters": [
+					{
+						"label": "Voting",
+						"filter": {
+							"lifecycle": "voting"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Decision taken",
+						"filter": {
+							"lifecycle": "decided"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Enacted",
+						"filter": {
+							"lifecycle": "enacted"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Urgent",
+						"filter": {
+							"isUrgent": true
+						},
+						"showCount": true
+					},
+					{
+						"label": "Adopted",
+						"filter": {
+							"outcome": "adopted"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Rejected",
+						"filter": {
+							"outcome": "rejected"
+						},
+						"showCount": true
+					}
+				]
+			},
+			"configOrder": {
+				"quickFilters": [
+					"Decisions",
+					"Voting",
+					"Decision taken",
+					"Enacted",
+					"Urgent"
 				]
 			}
 		}

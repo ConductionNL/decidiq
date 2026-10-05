@@ -3125,7 +3125,19 @@ OC.L10N.register(
         "Steps of this decision": "Steps of this decision",
         "This decision was withdrawn.": "This decision was withdrawn.",
         "Now": "Now",
-        "Next": "Next"
+        "Next": "Next",
+        "Greeting": "Greeting",
+        "First today": "First today",
+        "Decisions wait for the vote": "Decisions wait for the vote",
+        "{value} decisions are open for voting.": "{value} decisions are open for voting.",
+        "Open these decisions": "Open these decisions",
+        "Open the meetings": "Open the meetings",
+        "Proposals per step": "Proposals per step",
+        "No proposals yet.": "No proposals yet.",
+        "Commitments with a deadline": "Commitments with a deadline",
+        "No open commitments.": "No open commitments.",
+        "All proposals": "All proposals",
+        "Past the deadline": "Past the deadline"
     },
     "nplurals=2; plural=(n != 1);"
 )
