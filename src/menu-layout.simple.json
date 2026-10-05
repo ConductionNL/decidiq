@@ -960,7 +960,7 @@
 		},
 		{
 			"id": "Dashboard",
-			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE, at the same width and height, moved down by a fixed number of rows. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole.",
+			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE, at the same width and height, moved down by a fixed number of rows. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
 			"config": {
 				"layout": [
 					{
@@ -1114,6 +1114,15 @@
 						"gridHeight": 2,
 						"showTitle": false,
 						"dateChip": false
+					},
+					{
+						"id": "13",
+						"widgetId": "incoming-documents",
+						"gridX": 0,
+						"gridY": 31,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
 					}
 				]
 			},
