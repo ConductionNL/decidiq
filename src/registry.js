@@ -91,6 +91,7 @@ import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
+import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
@@ -427,6 +428,9 @@ export default {
 	// as a widget `type` in src/menu-layout.simple.json, which the detail
 	// page resolves here.
 	DecisionStepBar: page(DecisionStepBar),
+	// The step bar of the simple meeting page (simple-meeting-page), named
+	// the same way.
+	MeetingStepBar: page(MeetingStepBar),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
