@@ -145,13 +145,13 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts'],
 			actual: array_keys($byId),
-			message: 'Exactly the five documented citizen collections and the public calendar, in order'
+			message: 'Exactly the five documented citizen collections, the public calendar and the public broadcasts, in order'
 		);
 
-		// The public calendar is read without an account; it is tested on its own.
-		unset($byId['publicCalendar']);
+		// The public calendar and broadcasts are read without an account; they are tested on their own.
+		unset($byId['publicCalendar'], $byId['publicBroadcasts']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
@@ -231,6 +231,36 @@ final class PortalContributionProviderTest extends TestCase {
 		self::assertSame(expected: ['field' => 'meetingDate', 'direction' => 'asc'], actual: $calendar['defaultSort']);
 
 	}//end testThePublicCalendarIsAnonymousWithCalendarFieldsOnly()
+
+	/**
+	 * Residents see live and recent broadcasts without an account, and the
+	 * whitelist never holds a staff field (REQ-LSTR-008).
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-008-residents-see-live-and-recent-broadcasts-through-portaliq
+	 *
+	 * @return void
+	 */
+	public function testPublicBroadcastsAreAnonymousWithoutStaffFields(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'publicBroadcasts', array: $byId);
+		$broadcasts = $byId['publicBroadcasts'];
+		self::assertSame(expected: 'decidiq', actual: $broadcasts['register']);
+		self::assertSame(expected: 'meeting-broadcast', actual: $broadcasts['schema']);
+		self::assertTrue(condition: $broadcasts['anonymous']);
+		self::assertTrue(condition: $broadcasts['listable']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $broadcasts, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(
+			expected: ['title', 'bodyName', 'scheduledDate', 'lifecycle', 'playerUrl', 'recordingUrl', 'captionTracks'],
+			actual: $broadcasts['fields']
+		);
+		foreach (['previewUrl', 'testNote', 'testedBy', 'testResult', 'publicWindows'] as $staffField) {
+			self::assertNotContains(needle: $staffField, haystack: $broadcasts['fields'], message: $staffField . ' is staff-only');
+		}
+
+		self::assertSame(expected: ['field' => 'scheduledDate', 'direction' => 'desc'], actual: $broadcasts['defaultSort']);
+
+	}//end testPublicBroadcastsAreAnonymousWithoutStaffFields()
 
 	/**
 	 * Only `citizenNotifications` carries `kind: inbox`; the read collections do not.

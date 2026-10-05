@@ -33,6 +33,14 @@
             "order": 40,
             "sourceTemplate": "zgw-zaken",
             "unconfiguredMessage": "No case system is linked, so decidiq shows no case actions. Link a source to this connection to fetch case documents and send the meeting file."
+        },
+        {
+            "key": "streaming",
+            "title": "Streaming service",
+            "description": "Public meetings broadcast live to residents, with a staff-only test beforehand, pauses for closed sessions and the recording afterwards.",
+            "order": 50,
+            "sourceTemplate": "streaming",
+            "unconfiguredMessage": "No streaming service is connected, so meetings cannot be broadcast. Link a source to this connection to test, start and stop a broadcast from the meeting page."
         }
     ]
 }

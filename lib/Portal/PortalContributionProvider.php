@@ -295,6 +295,7 @@ class PortalContributionProvider {
 			],
 			$this->subscriptionsCollection(),
 			$this->publicCalendarCollection(),
+			$this->publicBroadcastsCollection(),
 		];
 
 	}//end citizenCollections()
@@ -330,6 +331,39 @@ class PortalContributionProvider {
 		];
 
 	}//end publicCalendarCollection()
+
+	/**
+	 * Live and recent broadcasts residents read without an account
+	 * (live-public-livestream, REQ-LSTR-008). OpenRegister's read rule on
+	 * meeting-broadcast already hides a broadcast until its publicationDate;
+	 * the whitelist holds what the public row shows and never a staff field
+	 * (previewUrl, testResult, testNote, testedBy, publicWindows).
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-008-residents-see-live-and-recent-broadcasts-through-portaliq
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function publicBroadcastsCollection(): array {
+		return [
+			'id' => 'publicBroadcasts',
+			'register' => self::REGISTER,
+			'schema' => 'meeting-broadcast',
+			'anonymous' => true,
+			'label' => 'Live and recent meetings',
+			'listable' => true,
+			'fields' => [
+				'title',
+				'bodyName',
+				'scheduledDate',
+				'lifecycle',
+				'playerUrl',
+				'recordingUrl',
+				'captionTracks',
+			],
+			'defaultSort' => ['field' => 'scheduledDate', 'direction' => 'desc'],
+		];
+
+	}//end publicBroadcastsCollection()
 
 	/**
 	 * The three `type: create` actions on the `citizen` manifest (see

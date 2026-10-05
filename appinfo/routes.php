@@ -176,6 +176,16 @@ $extra = [
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
+        // live-public-livestream (REQ-LSTR-002 to REQ-LSTR-004): test, go live, pause, resume and stop a meeting's broadcast.
+        ['name' => 'broadcast#status',     'url' => '/api/meetings/{meetingId}/broadcast',       'verb' => 'GET'],
+        ['name' => 'broadcast#test',       'url' => '/api/meetings/{meetingId}/broadcast/test',  'verb' => 'POST'],
+        ['name' => 'broadcast#testResult', 'url' => '/api/meeting-broadcasts/{id}/test-result',  'verb' => 'POST'],
+        ['name' => 'broadcast#start',      'url' => '/api/meeting-broadcasts/{id}/start',        'verb' => 'POST'],
+        ['name' => 'broadcast#pause',      'url' => '/api/meeting-broadcasts/{id}/pause',        'verb' => 'POST'],
+        ['name' => 'broadcast#resume',     'url' => '/api/meeting-broadcasts/{id}/resume',       'verb' => 'POST'],
+        ['name' => 'broadcast#stop',       'url' => '/api/meeting-broadcasts/{id}/stop',         'verb' => 'POST'],
+        ['name' => 'broadcast#captions',        'url' => '/api/meeting-broadcasts/{id}/captions',                    'verb' => 'POST'],
+        ['name' => 'broadcast#releaseCaptions', 'url' => '/api/meeting-broadcasts/{id}/captions/{language}/release', 'verb' => 'POST'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
