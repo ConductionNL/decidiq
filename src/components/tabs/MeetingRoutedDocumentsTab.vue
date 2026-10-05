@@ -2,27 +2,20 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- Meeting-scoped facet: incoming documents routed onto this meeting's agenda
- — meeting-facet-composition, REQ-MDV-013. Read-only.
+  Meeting-scoped facet: the incoming documents on this meeting's agenda.
+  Read-only. Since documents-as-agenda-items an incoming letter or council
+  information letter is an agenda item whose type is an incoming document
+  type, so this widget reads the meeting's agenda items and the agenda item
+  types, and keeps the items of an incoming type (src/utils/incomingDocuments.js).
+  It used to read the retired raadsinformatiebrief and ingekomen-stuk schemas
+  and showed nothing new (agenda-incoming-documents-list, age-13).
 
- Two-hop join no declarative object-list `filter` can express (design.md
- Decision 4): (1) fetch this meeting's own agenda items, (2) fetch
- raadsinformatiebrief scoped server-side by `agendaItem` IN those ids, (3)
- fetch ingekomen-stuk and filter client-side for `targetAgendaItem` /
- `listAgendaItem` membership (two possible ref fields — no single-request
- OR filter exists). Three sequential network fetches total, accepted per
- design.md's Trade-offs (typical agenda size is small, and this is a
- per-page-load cost, not a per-row cost). The join/merge logic itself lives
- in the importable, Vitest-covered routedDocumentsJoin.js sibling module —
- this component only owns the fetch sequencing and rendering.
+  Uses the `cnObjectContext` inject (the same channel CnObjectListWidget
+  itself resolves `@objectId` from) rather than relying solely on an
+  `objectId` prop, so the fetch does not depend on which body-widget render
+  path mounts it.
 
- Uses the `cnObjectContext` inject (the same channel CnObjectListWidget
- itself resolves `@objectId`/`@object.<field>` tokens from) rather than
- relying solely on an `objectId` prop, so this facet's fetch is not
- sensitive to which body-widget render path (manifest `slots` map vs.
- auto-body) mounts it.
-
- @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-013-routed-incoming-documents-facet-read-only
+  @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda
 -->
 <template>
 	<div
@@ -60,16 +53,17 @@
 <script>
 import { CnDataTable, CnNoteCard } from '@conduction/nextcloud-vue'
 import {
-	buildRoutedDocumentRows,
-	collectAgendaItemIds,
-	filterRoutedIngekomenStukken,
-	ROUTE_BY_TYPE,
-} from './routedDocumentsJoin.js'
+	incomingItems,
+	incomingRows,
+	incomingTypes,
+} from '../../utils/incomingDocuments.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingRoutedDocumentsTab',
+
 	components: { CnDataTable, CnNoteCard },
+
 	inject: {
 		cnObjectContext: { default: null },
 	},
@@ -89,11 +83,9 @@ export default {
 	computed: {
 		/**
 		 * The current meeting's object id. Prefers an explicit `objectId`
-		 * prop (test/reuse override); falls back to the CnDetailPage-provided
-		 * `cnObjectContext` inject, which stays reliable regardless of the
-		 * widget-grid slot render path.
+		 * prop; falls back to the CnDetailPage-provided `cnObjectContext`.
 		 *
-		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-mdv-013-routed-incoming-documents-facet-read-only
+		 * @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda
 		 * @return {string}
 		 */
 		resolvedObjectId() {
@@ -104,17 +96,15 @@ export default {
 			return (value && value.objectId) || ''
 		},
 
-		/** @spec openspec/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda */
+		/** @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda */
 		columns() {
 			return [
 				{
 					key: 'typeLabel',
 					label: this.t('decidiq', 'Type'),
 					widget: 'badge',
-					widgetProps: { colorMap: this.typeColors },
 				},
 				{ key: 'title', label: this.t('decidiq', 'Title') },
-				{ key: 'category', label: this.t('decidiq', 'Category') },
 				{
 					key: 'lifecycle',
 					label: this.t('decidiq', 'Status'),
@@ -122,20 +112,12 @@ export default {
 				},
 			]
 		},
-
-		/** @spec openspec/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda */
-		typeColors() {
-			return {
-				Raadsinformatiebrief: 'info',
-				'Ingekomen stuk': 'default',
-			}
-		},
 	},
 
 	watch: {
 		resolvedObjectId: {
 			immediate: true,
-			/** @spec openspec/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda */
+			/** @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda */
 			handler() {
 				this.refresh()
 			},
@@ -143,47 +125,27 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda */
+		/** @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda */
 		async refresh() {
 			if (!this.resolvedObjectId) return
 			this.loading = true
 			this.error = ''
 			try {
-				const agendaStore = ensureRelationType('agenda-item')
-				const agendaItems = await agendaStore.fetchCollection(
-					'agenda-item',
-					{
-						meeting: this.resolvedObjectId,
-						_limit: 100,
-					},
-				)
-				const agendaItemIds = collectAgendaItemIds(agendaItems)
-
-				if (agendaItemIds.length === 0) {
-					this.rows = []
-					return
-				}
-
-				const ribStore = ensureRelationType('raadsinformatiebrief')
-				const raadsinformatiebrieven = await ribStore.fetchCollection(
-					'raadsinformatiebrief',
-					{ agendaItem: agendaItemIds, _limit: 100 },
-				)
-
-				const stukStore = ensureRelationType('ingekomen-stuk')
-				const allIngekomenStukken = await stukStore.fetchCollection(
-					'ingekomen-stuk',
-					{ _limit: 200 },
-				)
-				const routedIngekomenStukken = filterRoutedIngekomenStukken(
-					allIngekomenStukken,
-					agendaItemIds,
-				)
-
-				this.rows = buildRoutedDocumentRows(
-					raadsinformatiebrieven,
-					routedIngekomenStukken,
-				)
+				const [items, types] = await Promise.all([
+					ensureRelationType('agenda-item').fetchCollection(
+						'agenda-item',
+						{
+							meeting: this.resolvedObjectId,
+							_limit: 200,
+						},
+					),
+					ensureRelationType('agenda-item-type').fetchCollection(
+						'agenda-item-type',
+						{ _limit: 200 },
+					),
+				])
+				const incoming = incomingTypes(types)
+				this.rows = incomingRows(incomingItems(items, incoming), incoming)
 			} catch (e) {
 				this.error =
 					e?.message
@@ -194,16 +156,14 @@ export default {
 		},
 
 		/**
-		 * Navigate to the correct detail page for a row, per its own `type`.
+		 * Open the agenda item a row stands for.
 		 *
-		 * @param {object} row Combined row (must carry `id` and `type`).
-		 * @spec openspec/specs/meeting-detail-view/spec.md#scenario-documents-routed-onto-the-meetings-agenda
+		 * @param {object} row The row (carries `id`).
+		 * @spec openspec/changes/agenda-incoming-documents-list/specs/agenda-management/spec.md#requirement-req-aidl-001-incoming-documents-reach-the-agenda
 		 */
 		openDetail(row) {
-			const id = row && row.id
-			const routeName = row && ROUTE_BY_TYPE[row.type]
-			if (!id || !routeName) return
-			this.$router.push({ name: routeName, params: { id } })
+			if (!row?.id) return
+			this.$router.push({ name: 'AgendaItemDetail', params: { id: row.id } })
 		},
 	},
 }

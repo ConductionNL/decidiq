@@ -3343,7 +3343,16 @@ OC.L10N.register(
         "The evening this meeting is a session of. Empty for a meeting that stands on its own or that holds sessions itself.": "De avond waarvan deze vergadering een sessie is. Leeg voor een vergadering die op zichzelf staat of die zelf sessies heeft.",
         "The room the session takes place in, shown beside the location of the evening.": "De zaal waarin de sessie plaatsvindt, getoond naast de locatie van de avond.",
         "The title of the evening the broadcast meeting is a session of, copied when the broadcast is made, so residents find an evening's sessions together.": "De titel van de avond waarvan de uitgezonden vergadering een sessie is, overgenomen bij het maken van de uitzending, zodat inwoners de sessies van een avond bij elkaar vinden.",
-        "Sessions": "Sessies"
+        "Sessions": "Sessies",
+        "Put on agenda": "Op de agenda zetten",
+        "Choose the meeting that deals with \"{title}\".": "Kies de vergadering die \"{title}\" behandelt.",
+        "There is no upcoming meeting to put it on.": "Er is geen komende vergadering om het op te zetten.",
+        "Letters and documents that came in and wait for a meeting.": "Brieven en stukken die zijn binnengekomen en op een vergadering wachten.",
+        "No incoming documents wait for a meeting.": "Er wachten geen ingekomen stukken op een vergadering.",
+        "Loading incoming documents…": "Ingekomen stukken laden…",
+        "Failed to load incoming documents.": "Ingekomen stukken konden niet worden geladen.",
+        "The document could not be put on the agenda.": "Het stuk kon niet op de agenda worden gezet.",
+        "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda.": "Agendapunten van deze soort zijn ingekomen brieven of stukken: ze staan op de lijst Ingekomen stukken tot ze op de agenda van een vergadering worden gezet."
     },
     "nplurals=2; plural=(n != 1);"
 )
