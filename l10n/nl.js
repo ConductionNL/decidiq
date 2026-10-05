@@ -3453,7 +3453,21 @@ OC.L10N.register(
         "To pause or adjourn the meeting, open Stage under More.": "Wilt u de vergadering schorsen of verdagen? Open dan Fase onder Meer.",
         "What now? Get ready to open": "Wat nu? Bereid de opening voor",
         "What now? Hold the meeting": "Wat nu? Houd de vergadering",
-        "What now? Prepare the meeting": "Wat nu? Bereid de vergadering voor"
+        "What now? Prepare the meeting": "Wat nu? Bereid de vergadering voor",
+        "Only the chair or the secretary can take the next step.": "Alleen de voorzitter of de secretaris kan de volgende stap zetten.",
+        "Steps of this amendment": "Stappen van dit amendement",
+        "The vote on this amendment opens and closes under Voting round.": "De stemming over dit amendement opent en sluit u onder Stemronde.",
+        "This amendment was adopted.": "Dit amendement is aangenomen.",
+        "This amendment was rejected.": "Dit amendement is verworpen.",
+        "What now? Finish the amendment": "Wat nu? Maak het amendement af",
+        "Write the proposed text": "Schrijf de voorgestelde tekst",
+        "Link the motion it changes": "Koppel de motie die het wijzigt",
+        "What now? Bring it to the debate": "Wat nu? Breng het in het debat",
+        "Set its place in the voting order": "Bepaal de plaats in de stemvolgorde",
+        "The chair sets the order on the page of the motion.": "De voorzitter bepaalt de volgorde op de pagina van de motie.",
+        "The amendment is submitted.": "Het amendement is ingediend.",
+        "Parts of this amendment": "Onderdelen van dit amendement",
+        "Mine": "Van mij"
     },
     "nplurals=2; plural=(n != 1);"
 )

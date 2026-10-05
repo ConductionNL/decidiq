@@ -90,6 +90,7 @@ import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
@@ -431,6 +432,8 @@ export default {
 	// The step bar of the simple meeting page (simple-meeting-page), named
 	// the same way.
 	MeetingStepBar: page(MeetingStepBar),
+	// And the step bar of the simple amendment page (simple-amendment-page).
+	AmendmentStepBar: page(AmendmentStepBar),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),

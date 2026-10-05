@@ -3141,7 +3141,12 @@ OC.L10N.register(
         "Only the chair or the secretary of this meeting can take the next step.": "Only the chair or the secretary of this meeting can take the next step.",
         "Steps of this meeting": "Steps of this meeting",
         "The meeting is adjourned.": "The meeting is adjourned.",
-        "The meeting is paused.": "The meeting is paused."
+        "The meeting is paused.": "The meeting is paused.",
+        "Only the chair or the secretary can take the next step.": "Only the chair or the secretary can take the next step.",
+        "Steps of this amendment": "Steps of this amendment",
+        "The vote on this amendment opens and closes under Voting round.": "The vote on this amendment opens and closes under Voting round.",
+        "This amendment was adopted.": "This amendment was adopted.",
+        "This amendment was rejected.": "This amendment was rejected."
     },
     "nplurals=2; plural=(n != 1);"
 )
