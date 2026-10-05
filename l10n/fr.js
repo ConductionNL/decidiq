@@ -1775,7 +1775,24 @@ OC.L10N.register(
         "released by {name} at {time}": "publiés par {name} à {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Sous-titres créés avec {count} lignes dans {path}. Vérifiez-les avant de les publier.",
         "The subtitles are released.": "Les sous-titres sont publiés.",
-        "The subtitles could not be made or released.": "Les sous-titres n'ont pas pu être créés ou publiés."
+        "The subtitles could not be made or released.": "Les sous-titres n'ont pas pu être créés ou publiés.",
+        "Sessions of {title}": "Séances de {title}",
+        "Part of": "Fait partie de",
+        "Other sessions of this evening": "Autres séances de cette soirée",
+        "Room": "Salle",
+        "Not set": "Non défini",
+        "Time": "Heure",
+        "No agenda items yet": "Pas encore de points à l'ordre du jour",
+        "This meeting has no sessions.": "Cette réunion n'a pas de séances.",
+        "Session title": "Titre de la séance",
+        "Start time": "Heure de début",
+        "Add session": "Ajouter une séance",
+        "Live now": "En direct",
+        "Broadcast paused": "Diffusion en pause",
+        "Broadcast ended": "Diffusion terminée",
+        "Failed to load the sessions.": "Impossible de charger les séances.",
+        "The session could not be saved.": "La séance n'a pas pu être enregistrée.",
+        "Sessions": "Séances"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -398,12 +398,14 @@ class MeetingBroadcastService {
 	}//end requireUrl()
 
 	/**
-	 * A new broadcast for a meeting, with what the public row shows copied in.
+	 * A new broadcast for a meeting, with what the public row shows copied in:
+	 * the title, the body's name, the start and, for a session, its evening's title.
 	 *
 	 * @param string               $meetingId The meeting
 	 * @param array<string, mixed> $meeting   The meeting's data
 	 *
 	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-002-the-clerk-runs-a-test-broadcast-that-only-staff-can-see
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-004-each-sessions-broadcast-names-its-evening-for-residents
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -416,6 +418,12 @@ class MeetingBroadcastService {
 
 		if (is_string($meeting['scheduledDate'] ?? null) === true && $meeting['scheduledDate'] !== '') {
 			$broadcast['scheduledDate'] = $meeting['scheduledDate'];
+		}
+
+		// A session names its evening, so residents find the evening's sessions together.
+		$evening = $this->read(schema: 'meeting', id: (string)($meeting['parentMeeting'] ?? ''));
+		if (is_string($evening['title'] ?? null) === true && $evening['title'] !== '') {
+			$broadcast['eveningTitle'] = $evening['title'];
 		}
 
 		return $broadcast;

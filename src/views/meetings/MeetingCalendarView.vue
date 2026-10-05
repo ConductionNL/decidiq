@@ -91,16 +91,42 @@
 					}"
 					role="gridcell">
 					<span class="meeting-calendar__daynum">{{ cell.day }}</span>
-					<button
+					<div
 						v-for="meeting in cell.meetings"
 						:key="meeting.id"
-						type="button"
-						class="meeting-calendar__event"
-						:data-testid="`meeting-calendar-event-${meeting.id}`"
-						:title="meeting.title"
-						@click="open(meeting)">
-						{{ meeting.title }}
-					</button>
+						class="meeting-calendar__entry">
+						<button
+							type="button"
+							class="meeting-calendar__event"
+							:data-testid="`meeting-calendar-event-${meeting.id}`"
+							:title="meeting.title"
+							@click="open(meeting)">
+							{{ meeting.title }}
+						</button>
+						<!-- An evening's parallel sessions sit inside its event
+						     (planning-parallel-sessions, REQ-PPS-003). -->
+						<ul
+							v-if="meeting.sessions.length"
+							class="meeting-calendar__sessions"
+							:aria-label="
+								t('decidiq', 'Sessions of {title}', {
+									title: meeting.title,
+								})
+							"
+							:data-testid="`meeting-calendar-sessions-${meeting.id}`">
+							<li
+								v-for="session in meeting.sessions"
+								:key="session.id">
+								<button
+									type="button"
+									class="meeting-calendar__session"
+									:data-testid="`meeting-calendar-session-${session.id}`"
+									@click="open(session)">
+									{{ sessionLabel(session) }}
+								</button>
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 
@@ -143,6 +169,7 @@ import {
 	NO_AUDIENCE,
 	withoutAudience,
 } from '../../utils/activityCalendar.js'
+import { groupSessions, sessionLabel } from '../../utils/meetingSessions.js'
 
 /** Milliseconds in one day, used to walk the six-week grid. */
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -275,6 +302,18 @@ export default {
 		},
 
 		/**
+		 * The meetings as events: an evening holds its loaded sessions, and a
+		 * session whose evening is not loaded stands on its own.
+		 *
+		 * @return {Array<object>} Meetings, each with a `sessions` array.
+		 *
+		 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
+		 */
+		events() {
+			return groupSessions(this.meetings)
+		},
+
+		/**
 		 * Meetings that carry a parseable scheduledDate, keyed by local Y-M-D.
 		 *
 		 * @return {Object<string, Array<object>>} Date key → meetings.
@@ -283,7 +322,7 @@ export default {
 		 */
 		byDate() {
 			const map = {}
-			for (const meeting of this.meetings) {
+			for (const meeting of this.events) {
 				const key = this.dateKey(meeting.scheduledDate)
 				if (key === null) {
 					continue
@@ -301,9 +340,7 @@ export default {
 		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		undated() {
-			return this.meetings.filter(
-				(m) => this.dateKey(m.scheduledDate) === null,
-			)
+			return this.events.filter((m) => this.dateKey(m.scheduledDate) === null)
 		},
 
 		/**
@@ -368,6 +405,9 @@ export default {
 	},
 
 	methods: {
+		/** @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening */
+		sessionLabel,
+
 		/**
 		 * Local Y-M-D key for a date-ish value, or null when unusable.
 		 *
@@ -602,5 +642,32 @@ export default {
 	color: var(--color-primary-element, #0082c9);
 	cursor: pointer;
 	padding: 4px 0;
+}
+
+.meeting-calendar__sessions {
+	margin: 2px 0 0;
+	padding: 0 0 0 8px;
+	list-style: none;
+	border-inline-start: 2px solid var(--color-primary-element, #00679e);
+}
+
+.meeting-calendar__session {
+	display: block;
+	width: 100%;
+	padding: 1px 4px;
+	border: none;
+	background: transparent;
+	color: var(--color-main-text, #222);
+	font-size: 0.75em;
+	text-align: start;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.meeting-calendar__session:hover,
+.meeting-calendar__session:focus-visible {
+	background: var(--color-background-hover, #f0f0f0);
 }
 </style>

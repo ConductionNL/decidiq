@@ -228,7 +228,7 @@
 		},
 		{
 			"id": "DecisionDetail",
-			"_note": "The decision page in the simple structure (openspec/changes/simple-decision-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the decision's own state. Each state has ONE primary button, the transition that leaves it, and the button posts to the same guarded endpoint the Lifecycle block uses (POST /api/decisions/{id}/transition). The server decides who may use it: a chair-only transition a member tries is refused there, and the refusal is shown. `enacted` leads to Publish, which posts to the publication endpoint the Publication block uses. NOTHING IS TAKEN AWAY: the Lifecycle block is the last entry under More, with every transition the server offers, the chair-only mark and the publish prompt of a body that asks for one. THE SIX BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE STEP BAR is display only. QUICK ACTIONS: Archive and the discussion and integrations page. Archive is beside the primary button on a decided or enacted decision, so an enacted decision that is already public (where Publish no longer shows) still has a button for its next step and never a finished checklist with nothing to press. Adding a document or an action item stays inside its own block (Documents, More): the library has no header action that opens a block's own add dialog, and none is invented here.",
+			"_note": "The decision page in the simple structure (openspec/changes/simple-decision-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the decision's own state. Each state has ONE primary button, the transition that leaves it, and the button posts to the same guarded endpoint the Lifecycle block uses (POST /api/decisions/{id}/transition). The server decides who may use it: a chair-only transition a member tries is refused there, and the refusal is shown. `enacted` leads to Publish, which posts to the publication endpoint the Publication block uses. NOTHING IS TAKEN AWAY: the Lifecycle block is the last entry under More, with every transition the server offers, the chair-only mark and the publish prompt of a body that asks for one. THE SIX BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE STEP BAR is display only. QUICK ACTIONS: Archive and the discussion and integrations page. Archive is beside the primary button on a decided or enacted decision, so an enacted decision that is already public (where Publish no longer shows) still has a button for its next step and never a finished checklist with nothing to press. Adding a document or an action item stays inside its own block (Documents, More): the library has no header action that opens a block's own add dialog, and none is invented here. THE WHAT-NOW CHECKLIST IS ADVICE, NOT A GATE: an unticked item does not stop the button, because the server does not require those fields for the transition and this page adds no rule of its own. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box; the library cannot hide an empty side card.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -254,7 +254,7 @@
 						"proposed": "Proposed",
 						"deliberating": "Deliberating",
 						"voting": "Voting",
-						"decided": "Decided",
+						"decided": "Decision taken",
 						"enacted": "Enacted",
 						"archived": "Archived",
 						"withdrawn": "Withdrawn"
@@ -363,30 +363,18 @@
 				},
 				"sideColumn": [
 					{
-						"id": "decision-side-where",
+						"id": "decision-side-facts",
 						"type": "data",
-						"title": "Where it is decided",
+						"title": "Key facts",
 						"content": {
-							"title": "Where it is decided",
+							"title": "Key facts",
 							"columns": 1,
 							"include": [
+								"decisionType",
 								"governingBody",
 								"meeting",
 								"agendaItem",
-								"proposer"
-							],
-							"hideEmpty": true,
-							"editable": false
-						}
-					},
-					{
-						"id": "decision-side-dates",
-						"type": "data",
-						"title": "Dates",
-						"content": {
-							"title": "Dates",
-							"columns": 1,
-							"include": [
+								"proposer",
 								"submittedAt",
 								"decisionDate",
 								"effectiveDate",
@@ -406,7 +394,8 @@
 						"gridY": 0,
 						"gridWidth": 12,
 						"gridHeight": 2,
-						"showTitle": false
+						"showTitle": false,
+						"sizeToContent": true
 					},
 					{
 						"id": "2",
@@ -771,7 +760,7 @@
 						"proposed": "Proposed",
 						"deliberating": "Deliberating",
 						"voting": "Voting",
-						"decided": "Decided",
+						"decided": "Decision taken",
 						"enacted": "Enacted",
 						"archived": "Archived",
 						"withdrawn": "Withdrawn"

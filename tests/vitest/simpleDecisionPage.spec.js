@@ -428,17 +428,34 @@ describe('the decision page in the simple structure', () => {
 		expect(registrySource).toContain('DecisionStepBar: page(DecisionStepBar)')
 	})
 
-	it('shows facts in the side column, from fields the schema has, and nothing to edit', () => {
-		expect(config.sideColumn.map((card) => card.title)).toEqual([
-			'Where it is decided',
-			'Dates',
-		])
-		for (const card of config.sideColumn) {
-			expect(card.type).toBe('data')
-			expect(card.content.editable).toBe(false)
-			for (const field of card.content.include) {
-				expect(schema.properties[field], field).toBeDefined()
-			}
+	it('shows one card of facts in the side column, never empty, with a title short enough to read', () => {
+		expect(config.sideColumn).toHaveLength(1)
+		const card = config.sideColumn[0]
+		expect(card.type).toBe('data')
+		expect(card.content.editable).toBe(false)
+		// The card's own Actions button takes room: a long title is cut.
+		expect(card.title.length).toBeLessThanOrEqual(12)
+		expect(dutch[card.title].length).toBeLessThanOrEqual(12)
+		for (const field of card.content.include) {
+			expect(schema.properties[field], field).toBeDefined()
+		}
+		// It leads with a field every decision has, so it is never an empty
+		// box: the library has no way to hide an empty side card.
+		expect(card.content.include[0]).toBe('decisionType')
+		expect(schema.properties.decisionType.default).toBeTruthy()
+	})
+
+	it('keeps the seven steps on one row, and lets the card follow its content', () => {
+		const bar = read('src', 'components', 'widgets', 'DecisionStepBar.vue')
+		expect(bar).toContain('grid-template-columns: repeat(7, minmax(0, 1fr));')
+		expect(
+			config.layout.find((item) => item.widgetId === 'decision-steps')
+				.sizeToContent,
+		).toBe(true)
+		// The longest Dutch label still has to be readable in a seventh of a
+		// row; past this it would always be cut.
+		for (const state of STATES) {
+			expect(dutch[STATE_LABELS[state]].length, state).toBeLessThanOrEqual(20)
 		}
 	})
 

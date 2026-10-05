@@ -1774,7 +1774,24 @@
         "released by {name} at {time}": "freigegeben von {name} um {time}",
         "Subtitles made with {count} lines in {path}. Check them before you release them.": "Untertitel mit {count} Zeilen in {path} erstellt. Prüfe sie, bevor du sie freigibst.",
         "The subtitles are released.": "Die Untertitel sind freigegeben.",
-        "The subtitles could not be made or released.": "Die Untertitel konnten nicht erstellt oder freigegeben werden."
+        "The subtitles could not be made or released.": "Die Untertitel konnten nicht erstellt oder freigegeben werden.",
+        "Sessions of {title}": "Sitzungen von {title}",
+        "Part of": "Teil von",
+        "Other sessions of this evening": "Andere Sitzungen dieses Abends",
+        "Room": "Raum",
+        "Not set": "Nicht festgelegt",
+        "Time": "Zeit",
+        "No agenda items yet": "Noch keine Tagesordnungspunkte",
+        "This meeting has no sessions.": "Diese Sitzung hat keine Teilsitzungen.",
+        "Session title": "Titel der Sitzung",
+        "Start time": "Beginn",
+        "Add session": "Sitzung hinzufügen",
+        "Live now": "Jetzt live",
+        "Broadcast paused": "Übertragung pausiert",
+        "Broadcast ended": "Übertragung beendet",
+        "Failed to load the sessions.": "Die Sitzungen konnten nicht geladen werden.",
+        "The session could not be saved.": "Die Sitzung konnte nicht gespeichert werden.",
+        "Sessions": "Sitzungen"
     },
     "plurals": null
 }
