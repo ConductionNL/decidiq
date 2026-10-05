@@ -3302,7 +3302,14 @@ OC.L10N.register(
         "The streaming service did not answer.": "De streamingdienst gaf geen antwoord.",
         "There were problems": "Er waren problemen",
         "What the test showed": "Wat de test liet zien",
-        "Broadcast": "Uitzending"
+        "Broadcast": "Uitzending",
+        "Make subtitles": "Ondertitels maken",
+        "Release subtitles": "Ondertitels vrijgeven",
+        "Subtitles ({language})": "Ondertitels ({language})",
+        "released by {name} at {time}": "vrijgegeven door {name} om {time}",
+        "Subtitles made with {count} lines in {path}. Check them before you release them.": "Ondertitels gemaakt met {count} regels in {path}. Controleer ze voordat je ze vrijgeeft.",
+        "The subtitles are released.": "De ondertitels zijn vrijgegeven.",
+        "The subtitles could not be made or released.": "De ondertitels konden niet worden gemaakt of vrijgegeven."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1767,7 +1767,14 @@
         "The streaming service did not answer.": "El servicio de streaming no respondió.",
         "There were problems": "Hubo problemas",
         "What the test showed": "Lo que mostró la prueba",
-        "Broadcast": "Emisión"
+        "Broadcast": "Emisión",
+        "Make subtitles": "Crear subtítulos",
+        "Release subtitles": "Publicar los subtítulos",
+        "Subtitles ({language})": "Subtítulos ({language})",
+        "released by {name} at {time}": "publicados por {name} a las {time}",
+        "Subtitles made with {count} lines in {path}. Check them before you release them.": "Subtítulos creados con {count} líneas en {path}. Revísalos antes de publicarlos.",
+        "The subtitles are released.": "Los subtítulos están publicados.",
+        "The subtitles could not be made or released.": "No se pudieron crear ni publicar los subtítulos."
     },
     "plurals": null
 }

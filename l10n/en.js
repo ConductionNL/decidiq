@@ -3061,7 +3061,14 @@ OC.L10N.register(
         "The streaming service did not answer.": "The streaming service did not answer.",
         "There were problems": "There were problems",
         "What the test showed": "What the test showed",
-        "Broadcast": "Broadcast"
+        "Broadcast": "Broadcast",
+        "Make subtitles": "Make subtitles",
+        "Release subtitles": "Release subtitles",
+        "Subtitles ({language})": "Subtitles ({language})",
+        "released by {name} at {time}": "released by {name} at {time}",
+        "Subtitles made with {count} lines in {path}. Check them before you release them.": "Subtitles made with {count} lines in {path}. Check them before you release them.",
+        "The subtitles are released.": "The subtitles are released.",
+        "The subtitles could not be made or released.": "The subtitles could not be made or released."
     },
     "nplurals=2; plural=(n != 1);"
 )

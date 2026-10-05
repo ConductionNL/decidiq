@@ -1768,7 +1768,14 @@ OC.L10N.register(
         "The streaming service did not answer.": "Le service de streaming n'a pas répondu.",
         "There were problems": "Il y a eu des problèmes",
         "What the test showed": "Ce que le test a montré",
-        "Broadcast": "Diffusion"
+        "Broadcast": "Diffusion",
+        "Make subtitles": "Créer les sous-titres",
+        "Release subtitles": "Publier les sous-titres",
+        "Subtitles ({language})": "Sous-titres ({language})",
+        "released by {name} at {time}": "publiés par {name} à {time}",
+        "Subtitles made with {count} lines in {path}. Check them before you release them.": "Sous-titres créés avec {count} lignes dans {path}. Vérifiez-les avant de les publier.",
+        "The subtitles are released.": "Les sous-titres sont publiés.",
+        "The subtitles could not be made or released.": "Les sous-titres n'ont pas pu être créés ou publiés."
     },
     "nplurals=2; plural=(n != 1);"
 )

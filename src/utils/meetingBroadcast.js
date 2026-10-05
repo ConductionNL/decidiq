@@ -108,3 +108,61 @@ export function captionsNotice(broadcast) {
 	if (!['live', 'paused'].includes(broadcast?.lifecycle)) return ''
 	return broadcast.liveCaptions || ''
 }
+
+/**
+ * The route that makes the broadcast's subtitles from the aligned transcript.
+ *
+ * @param {string} broadcastId The broadcast.
+ * @return {string} The URL.
+ * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows
+ */
+export function subtitlesUrl(broadcastId) {
+	return generateUrl(
+		`/apps/decidiq/api/meeting-broadcasts/${broadcastId}/captions`,
+	)
+}
+
+/**
+ * The route that releases a reviewed caption track.
+ *
+ * @param {string} broadcastId The broadcast.
+ * @param {string} language The track's language code.
+ * @return {string} The URL.
+ * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+ */
+export function releaseUrl(broadcastId, language) {
+	return generateUrl(
+		`/apps/decidiq/api/meeting-broadcasts/${broadcastId}/captions/${language}/release`,
+	)
+}
+
+/**
+ * The subtitle buttons: only once the broadcast ended, when every public window is closed.
+ *
+ * @param {object|null} broadcast The broadcast.
+ * @return {string[]} The subtitle actions.
+ * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+ */
+export function subtitleActions(broadcast) {
+	return broadcast?.lifecycle === 'ended'
+		? ['makeSubtitles', 'releaseSubtitles']
+		: []
+}
+
+/**
+ * The released caption tracks, as the widget lists them.
+ *
+ * @param {object|null} broadcast The broadcast.
+ * @return {Array<{language: string, url: string, by: string, at: string}>} The tracks.
+ * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+ */
+export function captionTracksOf(broadcast) {
+	return (broadcast?.captionTracks || [])
+		.filter((track) => track && track.language)
+		.map((track) => ({
+			language: track.language,
+			url: track.shareUrl || '',
+			by: track.reviewedBy || '',
+			at: track.releasedAt || '',
+		}))
+}

@@ -117,7 +117,36 @@
 					@click="run(action)">
 					{{ actionLabel(action) }}
 				</NcButton>
+				<NcButton
+					v-for="action in subtitles"
+					:key="action"
+					:disabled="working"
+					variant="secondary"
+					:data-testid="`meeting-broadcast-${action}`"
+					@click="runSubtitles(action)">
+					{{ actionLabel(action) }}
+				</NcButton>
 			</div>
+			<ul
+				v-if="tracks.length"
+				class="broadcast__tracks"
+				data-testid="meeting-broadcast-caption-tracks">
+				<li v-for="track in tracks" :key="track.language">
+					<a :href="track.url" target="_blank" rel="noopener noreferrer">
+						{{
+							t('decidiq', 'Subtitles ({language})', {
+								language: track.language,
+							})
+						}}</a
+					>
+					{{
+						t('decidiq', 'released by {name} at {time}', {
+							name: track.by,
+							time: formatTime(track.at),
+						})
+					}}
+				</li>
+			</ul>
 		</template>
 		<p
 			v-if="!loading && !forbidden && result"
@@ -154,7 +183,11 @@ import {
 	actionsFor,
 	actionUrl,
 	captionsNotice,
+	captionTracksOf,
+	releaseUrl,
 	statusUrl,
+	subtitleActions,
+	subtitlesUrl,
 	testResultOf,
 	testUrl,
 } from '../../utils/meetingBroadcast.js'
@@ -185,6 +218,16 @@ export default {
 		/** @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service */
 		actions() {
 			return actionsFor(this.broadcast, this.connected)
+		},
+
+		/** @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it */
+		subtitles() {
+			return this.connected ? subtitleActions(this.broadcast) : []
+		},
+
+		/** @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it */
+		tracks() {
+			return captionTracksOf(this.broadcast)
 		},
 
 		/** @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-002-the-clerk-runs-a-test-broadcast-that-only-staff-can-see */
@@ -267,6 +310,8 @@ export default {
 					pause: this.t('decidiq', 'Pause for a closed session'),
 					resume: this.t('decidiq', 'Resume'),
 					stop: this.t('decidiq', 'Stop the broadcast'),
+					makeSubtitles: this.t('decidiq', 'Make subtitles'),
+					releaseSubtitles: this.t('decidiq', 'Release subtitles'),
 				}[action] || action
 			)
 		},
@@ -315,6 +360,47 @@ export default {
 				this.working = false
 			}
 		},
+
+		/**
+		 * Make the subtitles, or release the reviewed ones (Dutch track).
+		 *
+		 * @param {string} action makeSubtitles or releaseSubtitles.
+		 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows
+		 */
+		async runSubtitles(action) {
+			this.working = true
+			this.message = ''
+			try {
+				if (action === 'makeSubtitles') {
+					const response = await axios.post(
+						subtitlesUrl(this.broadcast.id),
+						{
+							language: 'nl',
+						},
+					)
+					this.message = this.t(
+						'decidiq',
+						'Subtitles made with {count} lines in {path}. Check them before you release them.',
+						{ count: response.data.cues, path: response.data.filePath },
+					)
+				} else {
+					const response = await axios.post(
+						releaseUrl(this.broadcast.id, 'nl'),
+					)
+					this.broadcast = response.data
+					this.message = this.t('decidiq', 'The subtitles are released.')
+				}
+			} catch (e) {
+				this.message =
+					e.response?.data?.message
+					|| this.t(
+						'decidiq',
+						'The subtitles could not be made or released.',
+					)
+			} finally {
+				this.working = false
+			}
+		},
 	},
 }
 </script>
@@ -328,6 +414,10 @@ export default {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
+	margin-top: 8px;
+}
+
+.broadcast__tracks {
 	margin-top: 8px;
 }
 
