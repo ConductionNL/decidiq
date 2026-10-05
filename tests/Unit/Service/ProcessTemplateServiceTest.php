@@ -24,7 +24,6 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\Decidiq\Service\ProcessTemplateService;
-use OCA\Decidiq\Service\StateMachineValidator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
@@ -44,7 +43,7 @@ use Psr\Log\LoggerInterface;
 class ProcessTemplateServiceTest extends TestCase {
 
 	/**
-	 * Mock DI container.
+	 * Mock DI container; it hands out OpenRegister's real LifecycleTransitionsValidator.
 	 *
 	 * @var ContainerInterface&MockObject
 	 */
@@ -73,12 +72,12 @@ class ProcessTemplateServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->container->method('get')->willReturn($this->objectService);
+		$this->container->method('get')->willReturnMap([[LifecycleTransitionsValidator::class, new LifecycleTransitionsValidator()]]);
 
 		$this->service = new ProcessTemplateService(
 			logger: $this->createMock(LoggerInterface::class),
 			resolver: new ProcessTemplatePolicyResolver(),
-			validator: new StateMachineValidator(),
+			container: $this->container,
 			objectService: $this->objectService,
 		);
 
