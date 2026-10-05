@@ -12,7 +12,10 @@
  * the real rules, so the stand-in must behave exactly like the real class. It
  * is used only when the OpenRegister app is not installed (CI's PHPUnit job
  * checks out openregister@development and runs the real one). Re-copy it when
- * OpenRegister changes the class; do not edit it here.
+ * OpenRegister changes the class; do not edit it here. The one change from
+ * the original: its `@spec` tags name OpenRegister's own spec, so they read
+ * "OpenRegister spec:" here, or decidiq's spec-anchor gate would look for that
+ * spec in this repository.
  *
  * Original docblock:
  *
@@ -40,7 +43,7 @@
  *
  * @link https://OpenRegister.app
  *
- * @spec openspec/specs/object-lifecycle/spec.md
+ * OpenRegister spec: openspec/specs/object-lifecycle/spec.md
  */
 
 declare(strict_types=1);
@@ -50,7 +53,7 @@ namespace OCA\OpenRegister\Service\Lifecycle;
 /**
  * Validates a lifecycle graph passed as states, an initial state and transitions.
  *
- * @spec openspec/specs/object-lifecycle/spec.md#requirement-a-lifecycle-kept-as-data-is-validated-through-one-entry-point
+ * OpenRegister spec: openspec/specs/object-lifecycle/spec.md#requirement-a-lifecycle-kept-as-data-is-validated-through-one-entry-point
  *
  * @psalm-suppress UnusedClass Public entry point for apps (decidiq process templates).
  */
@@ -74,7 +77,7 @@ final class LifecycleTransitionsValidator {
 	 *
 	 * @return array<int, array{code: string, message: string}> List of errors (empty = valid).
 	 *
-	 * @spec openspec/specs/object-lifecycle/spec.md
+	 * OpenRegister spec: openspec/specs/object-lifecycle/spec.md
 	 */
 	public function validate(array $states, ?string $initial, array $transitions, ?array $knownGuards=null): array {
 		$stateNames = $this->collectStateNames(states: $states);
