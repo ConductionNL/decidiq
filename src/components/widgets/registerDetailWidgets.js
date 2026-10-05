@@ -251,12 +251,28 @@ export async function registerDetailWidgets() {
 		{ default: ConfidentialityStatusTimelineWidget },
 		{ default: DelegationChainWidget },
 		{ default: RegisterVersionTimelineWidget },
+		{ default: DetailSectionsWidget },
 	] = await Promise.all([
 		import('@conduction/nextcloud-vue'),
 		import('./ConfidentialityStatusTimelineWidget.vue'),
 		import('./DelegationChainWidget.vue'),
 		import('./RegisterVersionTimelineWidget.vue'),
+		import('./DetailSectionsWidget.vue'),
 	])
+
+	// `detail-sections` lets ONE tab hold more than one panel
+	// (simple-decision-page). It has to be in the shared catalog and not in
+	// src/registry.js: the detail page reads `container` from the catalog
+	// only, and only a container is handed the schema, the integration
+	// context and the app registry its children need.
+	registerDashboardWidget('detail-sections', {
+		renderer: DetailSectionsWidget,
+		form: null,
+		container: true,
+		surfaces: ['detail-page'],
+		displayName: 'Sections',
+		icon: 'LibraryOutline',
+	})
 
 	registerDashboardWidget('version-timeline', {
 		renderer: RegisterVersionTimelineWidget,

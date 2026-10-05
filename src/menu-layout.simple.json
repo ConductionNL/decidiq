@@ -172,6 +172,738 @@
 					}
 				]
 			}
+		},
+		{
+			"id": "DecisionDetail",
+			"_note": "The decision page in the simple structure (openspec/changes/simple-decision-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the decision's own state. Each state has ONE primary button, the transition that leaves it, and the button posts to the same guarded endpoint the Lifecycle block uses (POST /api/decisions/{id}/transition). The server decides who may use it: a chair-only transition a member tries is refused there, and the refusal is shown. `enacted` leads to Publish, which posts to the publication endpoint the Publication block uses. NOTHING IS TAKEN AWAY: the Lifecycle block is the last entry under More, with every transition the server offers, the chair-only mark and the publish prompt of a body that asks for one. THE SIX BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE STEP BAR is display only. QUICK ACTIONS: Archive and the discussion and integrations page. Archive is beside the primary button on a decided or enacted decision, so an enacted decision that is already public (where Publish no longer shows) still has a button for its next step and never a finished checklist with nothing to press. Adding a document or an action item stays inside its own block (Documents, More): the library has no header action that opens a block's own add dialog, and none is invented here. THE WHAT-NOW CHECKLIST IS ADVICE, NOT A GATE: an unticked item does not stop the button, because the server does not require those fields for the transition and this page adds no rule of its own. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box; the library cannot hide an empty side card.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "decision-propose",
+					"proposed": "decision-deliberate",
+					"deliberating": "decision-open-voting",
+					"voting": "decision-decide",
+					"decided": "decision-enact",
+					"enacted": "decision-publish"
+				},
+				"quickActions": [
+					"decision-archive",
+					"decision-open-integrations"
+				],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"proposed": "Proposed",
+						"deliberating": "Deliberating",
+						"voting": "Voting",
+						"decided": "Decision taken",
+						"enacted": "Enacted",
+						"archived": "Archived",
+						"withdrawn": "Withdrawn"
+					},
+					"colorMap": {
+						"draft": "default",
+						"proposed": "primary",
+						"deliberating": "primary",
+						"voting": "warning",
+						"decided": "success",
+						"enacted": "success",
+						"archived": "default",
+						"withdrawn": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Finish the proposal",
+							"after": "Then: deliberation",
+							"checklist": [
+								{
+									"label": "Write the text",
+									"doneField": "text"
+								},
+								{
+									"label": "Name the proposer",
+									"doneField": "proposer"
+								},
+								{
+									"label": "Give the legal basis",
+									"doneField": "legalBasis"
+								}
+							]
+						},
+						"proposed": {
+							"title": "What now? Bring it to a meeting",
+							"after": "Then: the vote",
+							"checklist": [
+								{
+									"label": "Choose the meeting",
+									"doneField": "meeting"
+								},
+								{
+									"label": "Link the agenda item",
+									"doneField": "agendaItem"
+								}
+							]
+						},
+						"deliberating": {
+							"title": "What now? Prepare the vote",
+							"after": "Then: record the decision",
+							"checklist": [
+								{
+									"label": "Choose how the vote is taken",
+									"doneField": "voteType"
+								},
+								{
+									"label": "Set the majority that is needed",
+									"doneField": "voteThreshold"
+								}
+							]
+						},
+						"voting": {
+							"title": "What now? Close the vote",
+							"after": "Then: enact the decision",
+							"checklist": [
+								{
+									"label": "Record the outcome",
+									"doneField": "outcome"
+								}
+							]
+						},
+						"decided": {
+							"title": "What now? Put the decision into effect",
+							"after": "Then: publish",
+							"checklist": [
+								{
+									"label": "Set the decision date",
+									"doneField": "decisionDate"
+								},
+								{
+									"label": "Set the date it takes effect",
+									"doneField": "effectiveDate"
+								}
+							]
+						},
+						"enacted": {
+							"title": "What now? Make it known",
+							"checklist": [
+								{
+									"label": "Publish the decision",
+									"doneWhen": {
+										"field": "isPublished",
+										"op": "eq",
+										"value": "public"
+									}
+								},
+								{
+									"label": "Set the publication date",
+									"doneField": "publicationDate"
+								}
+							]
+						}
+					}
+				},
+				"sideColumn": [
+					{
+						"id": "decision-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"decisionType",
+								"governingBody",
+								"meeting",
+								"agendaItem",
+								"proposer",
+								"submittedAt",
+								"decisionDate",
+								"effectiveDate",
+								"publicationDate",
+								"expiryDate"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "decision-steps",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "decision-panels",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"decision-lifecycle": {
+						"type": "DecisionLifecycleTab"
+					},
+					"decision-actions": {
+						"type": "ActionItemsSurface"
+					},
+					"decision-related": {
+						"type": "RelatedDecisionsTab"
+					},
+					"decision-route": {
+						"type": "DecisionRouteTab"
+					},
+					"decision-voting": {
+						"type": "DecisionVotingTab"
+					},
+					"decision-publication": {
+						"type": "DecisionPublicationTab"
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "decision-propose",
+						"type": "api-call",
+						"label": "Propose",
+						"icon": "BullhornOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "propose"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The decision is proposed."
+					},
+					{
+						"id": "decision-deliberate",
+						"type": "api-call",
+						"label": "Start deliberation",
+						"icon": "AccountVoice",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "deliberate"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "proposed"
+						},
+						"successMessage": "Deliberation has started."
+					},
+					{
+						"id": "decision-open-voting",
+						"type": "api-call",
+						"label": "Open voting",
+						"icon": "VoteOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "openVoting"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "deliberating"
+						},
+						"confirm": true,
+						"successMessage": "Voting is open."
+					},
+					{
+						"id": "decision-decide",
+						"type": "api-call",
+						"label": "Record decision",
+						"icon": "Gavel",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "decide"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "voting"
+						},
+						"confirm": true,
+						"successMessage": "The decision is recorded."
+					},
+					{
+						"id": "decision-enact",
+						"type": "api-call",
+						"label": "Enact",
+						"icon": "CheckCircleOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "enact"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "decided"
+						},
+						"successMessage": "The decision is enacted."
+					},
+					{
+						"id": "decision-publish",
+						"type": "api-call",
+						"label": "Publish",
+						"icon": "CloudUploadOutline",
+						"group": "Publication",
+						"url": "/apps/decidiq/api/publications",
+						"method": "POST",
+						"payload": {
+							"sourceType": "decision",
+							"sourceId": "@objectId"
+						},
+						"confirm": true,
+						"successMessage": "The decision is published.",
+						"visibleWhen": {
+							"all": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "enacted"
+								},
+								{
+									"field": "isPublished",
+									"op": "neq",
+									"value": "public"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-archive",
+						"type": "api-call",
+						"label": "Archive",
+						"icon": "ArchiveOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "archive"
+						},
+						"visibleWhen": {
+							"any": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "decided"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "enacted"
+								}
+							]
+						},
+						"confirm": true,
+						"successMessage": "The decision is archived."
+					},
+					{
+						"id": "decision-open-integrations",
+						"type": "navigate",
+						"label": "Discussion and integrations",
+						"icon": "Api",
+						"group": "Decision",
+						"target": "/decisions/@objectId/integrations"
+					}
+				],
+				"widgets": [
+					{
+						"id": "decision-panel-content",
+						"type": "detail-sections",
+						"title": "Content",
+						"icon": "NoteTextOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Content",
+									"widgetId": "decision-content"
+								},
+								{
+									"label": "Governance",
+									"widgetId": "decision-governance"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-panel-route",
+						"type": "detail-sections",
+						"title": "Route and voting",
+						"icon": "ScaleBalance",
+						"content": {
+							"sections": [
+								{
+									"label": "Route",
+									"widgetId": "decision-route"
+								},
+								{
+									"label": "Voting results",
+									"widgetId": "decision-voting"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-panel-consultation",
+						"type": "detail-sections",
+						"title": "Consultation",
+						"icon": "CommentQuestionOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Consultations",
+									"widgetId": "decision-consultations"
+								},
+								{
+									"label": "Consultation responses",
+									"widgetId": "decision-consultation-responses"
+								},
+								{
+									"label": "Works council (WOR)",
+									"widgetId": "decision-wor-consultations"
+								},
+								{
+									"label": "Public consultations",
+									"widgetId": "decision-public-consultations"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-panel-publication",
+						"type": "detail-sections",
+						"title": "Publication",
+						"icon": "CloudUploadOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Publication",
+									"widgetId": "decision-publication"
+								},
+								{
+									"label": "Confidentiality",
+									"widgetId": "decision-confidentiality"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-steps",
+						"type": "DecisionStepBar",
+						"title": "Steps",
+						"icon": "Timeline"
+					},
+					{
+						"id": "decision-panels",
+						"type": "tabs",
+						"title": "Decision",
+						"icon": "Gavel",
+						"content": {
+							"ariaLabel": "Parts of this decision",
+							"maxVisibleTabs": 5,
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "decision-panel-content",
+									"label": "Content"
+								},
+								{
+									"widgetId": "decision-panel-route",
+									"label": "Route and voting"
+								},
+								{
+									"widgetId": "decision-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "decision-panel-consultation",
+									"label": "Consultation"
+								},
+								{
+									"widgetId": "decision-panel-publication",
+									"label": "Publication"
+								},
+								{
+									"widgetId": "decision-actions",
+									"label": "Action items",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-commitments",
+									"label": "Commitments",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-related",
+									"label": "Related decisions",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-lifecycle",
+									"label": "Lifecycle",
+									"overflow": true
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "MotionDetail",
+			"_note": "The motion page in the simple structure (openspec/changes/simple-decision-page). A motion is a decision, and its page gets the same header: the state as a pill, ONE primary button for the step that leaves the state, and a what-now card. The buttons post to the endpoint the Stage block uses (POST /api/motions/{id}/transition), so the server decides who may take a step, as it does today. `voting` has two ways out. Recording the motion as adopted is the primary button and recording it as rejected is a quick action beside it. Withdrawing and archiving stay in the Stage block, which is unchanged and still on the page. THE BLOCKS ARE NOT REGROUPED INTO TABS HERE: that is done for the decision page only.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "motion-submit",
+					"proposed": "motion-debate",
+					"deliberating": "motion-vote",
+					"voting": "motion-adopt",
+					"decided": "motion-carry-out"
+				},
+				"quickActions": [
+					"motion-reject",
+					"motion-open-discussion"
+				],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"proposed": "Proposed",
+						"deliberating": "Deliberating",
+						"voting": "Voting",
+						"decided": "Decision taken",
+						"enacted": "Enacted",
+						"archived": "Archived",
+						"withdrawn": "Withdrawn"
+					},
+					"colorMap": {
+						"draft": "default",
+						"proposed": "primary",
+						"deliberating": "primary",
+						"voting": "warning",
+						"decided": "success",
+						"enacted": "success",
+						"archived": "default",
+						"withdrawn": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Finish the motion",
+							"after": "Then: the debate",
+							"checklist": [
+								{
+									"label": "Write the text",
+									"doneField": "text"
+								},
+								{
+									"label": "Name the proposer",
+									"doneField": "proposer"
+								},
+								{
+									"label": "Gather the co-signers",
+									"doneField": "coSigners"
+								}
+							]
+						},
+						"proposed": {
+							"title": "What now? Bring it to a meeting",
+							"after": "Then: the vote",
+							"checklist": [
+								{
+									"label": "Choose the meeting",
+									"doneField": "meeting"
+								},
+								{
+									"label": "Link the agenda item",
+									"doneField": "agendaItem"
+								}
+							]
+						},
+						"voting": {
+							"title": "What now? Close the vote",
+							"after": "Then: carry it out",
+							"checklist": [
+								{
+									"label": "Record the outcome",
+									"doneField": "outcome"
+								}
+							]
+						}
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "motion-submit",
+						"type": "api-call",
+						"label": "Submit motion",
+						"icon": "BullhornOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "proposed"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The motion is submitted."
+					},
+					{
+						"id": "motion-debate",
+						"type": "api-call",
+						"label": "Start the debate",
+						"icon": "AccountVoice",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "deliberating"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "proposed"
+						},
+						"successMessage": "The debate has started."
+					},
+					{
+						"id": "motion-vote",
+						"type": "api-call",
+						"label": "Put to the vote",
+						"icon": "VoteOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "voting"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "deliberating"
+						},
+						"confirm": true,
+						"successMessage": "The motion is put to the vote."
+					},
+					{
+						"id": "motion-adopt",
+						"type": "api-call",
+						"label": "Record as adopted",
+						"icon": "CheckCircleOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "decided",
+							"outcome": "adopted"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "voting"
+						},
+						"confirm": true,
+						"successMessage": "The motion is recorded as adopted."
+					},
+					{
+						"id": "motion-reject",
+						"type": "api-call",
+						"label": "Record as rejected",
+						"icon": "AlertOctagonOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "decided",
+							"outcome": "rejected"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "voting"
+						},
+						"confirm": true,
+						"successMessage": "The motion is recorded as rejected."
+					},
+					{
+						"id": "motion-carry-out",
+						"type": "api-call",
+						"label": "Mark as carried out",
+						"icon": "CheckCircleOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "enacted"
+						},
+						"visibleWhen": {
+							"all": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "decided"
+								},
+								{
+									"field": "outcome",
+									"op": "eq",
+									"value": "adopted"
+								}
+							]
+						},
+						"successMessage": "The motion is marked as carried out."
+					},
+					{
+						"id": "motion-open-discussion",
+						"type": "navigate",
+						"label": "Discussion",
+						"icon": "CommentOutline",
+						"group": "Motion",
+						"target": "/motions/@objectId/integrations"
+					}
+				]
+			}
 		}
 	]
 }

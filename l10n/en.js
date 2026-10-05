@@ -3121,7 +3121,11 @@ OC.L10N.register(
         "Every entry in the menu, as it was before.": "Every entry in the menu, as it was before.",
         "Saved. People see the change the next time they open Decidiq.": "Saved. People see the change the next time they open Decidiq.",
         "No page is removed. Both menus open the same pages.": "No page is removed. Both menus open the same pages.",
-        "The menu could not be saved. Try again.": "The menu could not be saved. Try again."
+        "The menu could not be saved. Try again.": "The menu could not be saved. Try again.",
+        "Steps of this decision": "Steps of this decision",
+        "This decision was withdrawn.": "This decision was withdrawn.",
+        "Now": "Now",
+        "Next": "Next"
     },
     "nplurals=2; plural=(n != 1);"
 )

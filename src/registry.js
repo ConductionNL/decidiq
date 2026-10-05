@@ -90,6 +90,7 @@ import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
@@ -422,6 +423,10 @@ export default {
 	// timeline + guarded transition buttons, and the read-only
 	// decision → motion → voting-round → vote results aggregate.
 	DecisionLifecycleTab: page(DecisionLifecycleTab),
+	// The step bar of the simple decision page (simple-decision-page). Named
+	// as a widget `type` in src/menu-layout.simple.json, which the detail
+	// page resolves here.
+	DecisionStepBar: page(DecisionStepBar),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
