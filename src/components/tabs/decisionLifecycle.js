@@ -32,7 +32,8 @@ export const STATE_LABELS = {
 	proposed: 'Proposed',
 	deliberating: 'Deliberating',
 	voting: 'Voting',
-	decided: 'Decided',
+	// Not 'Decided': that key is a column heading and reads 'Besloten op'.
+	decided: 'Decision taken',
 	enacted: 'Enacted',
 	archived: 'Archived',
 	withdrawn: 'Withdrawn',

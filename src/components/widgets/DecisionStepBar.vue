@@ -31,7 +31,9 @@
 				<span class="decision-steps__number" aria-hidden="true">
 					{{ index + 1 }}
 				</span>
-				<span class="decision-steps__label">
+				<span
+					class="decision-steps__label"
+					:title="t('decidiq', stepLabel(step.state))">
 					{{ t('decidiq', stepLabel(step.state)) }}
 				</span>
 				<span v-if="step.status === 'done'" class="hidden-visually">
@@ -93,31 +95,48 @@ export default {
 </script>
 
 <style scoped>
+/*
+ * Seven steps on ONE row. Equal columns that may shrink to nothing, with the
+ * number above the label, so the row fits a 1440 px page beside the side
+ * column and the card is one row high. A label that does not fit is cut with
+ * an ellipsis and keeps its full text as a tooltip. On a narrow page the
+ * steps wrap, and the card grows with them (the layout entry sizes to its
+ * content).
+ */
 .decision-steps__list {
 	list-style: none;
 	margin: 0;
 	padding: 0;
-	display: flex;
-	flex-wrap: wrap;
-	gap: calc(var(--default-grid-baseline) * 2);
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	gap: var(--default-grid-baseline);
 }
 
 .decision-steps__step {
-	flex: 1 1 120px;
+	min-width: 0;
 	display: flex;
+	flex-direction: column;
 	align-items: center;
-	gap: calc(var(--default-grid-baseline) * 2);
-	padding: calc(var(--default-grid-baseline) * 2)
-		calc(var(--default-grid-baseline) * 3);
+	gap: 2px;
+	padding: var(--default-grid-baseline);
 	border-radius: var(--border-radius-large);
 	background: var(--color-background-hover);
 	color: var(--color-text-maxcontrast);
+	font-size: 0.85em;
+	text-align: center;
+}
+
+.decision-steps__label {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .decision-steps__number {
 	flex: none;
-	width: 24px;
-	height: 24px;
+	width: 22px;
+	height: 22px;
 	border-radius: 50%;
 	display: inline-flex;
 	align-items: center;
@@ -147,5 +166,11 @@ export default {
 .decision-steps__note {
 	margin: calc(var(--default-grid-baseline) * 2) 0 0;
 	color: var(--color-text-maxcontrast);
+}
+
+@media (max-width: 700px) {
+	.decision-steps__list {
+		grid-template-columns: repeat(4, minmax(0, 1fr));
+	}
 }
 </style>

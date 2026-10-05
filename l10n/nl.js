@@ -3362,7 +3362,6 @@ OC.L10N.register(
         "Teams and members": "Teams en leden",
         "Choose how the vote is taken": "Kies hoe er wordt gestemd",
         "Choose the meeting": "Kies de vergadering",
-        "Dates": "Data",
         "Deliberation has started.": "De beraadslaging is gestart.",
         "Discussion and integrations": "Overleg en koppelingen",
         "Gather the co-signers": "Verzamel de mede-indieners",
@@ -3404,11 +3403,11 @@ OC.L10N.register(
         "What now? Make it known": "Wat nu? Maak het bekend",
         "What now? Prepare the vote": "Wat nu? Bereid de stemming voor",
         "What now? Put the decision into effect": "Wat nu? Stel het besluit in werking",
-        "Where it is decided": "Waar het wordt besloten",
         "Write the text": "Schrijf de tekst",
         "Steps of this decision": "Stappen van dit besluit",
         "done": "klaar",
-        "This decision was withdrawn.": "Dit besluit is ingetrokken."
+        "This decision was withdrawn.": "Dit besluit is ingetrokken.",
+        "Key facts": "Kerngegevens"
     },
     "nplurals=2; plural=(n != 1);"
 )

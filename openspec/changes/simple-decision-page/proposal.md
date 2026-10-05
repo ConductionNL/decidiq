@@ -24,7 +24,7 @@ A decision page is one long scroll of fifteen blocks today, with no tabs and no 
 | Next step | One primary button per state: Propose, Start deliberation, Open voting, Record decision, Enact, and Publish on an enacted decision that is not public. |
 | What now | A card with a checklist per state, read from fields of the decision. |
 | Quick actions | Archive (on a decided or enacted decision) and Discussion and integrations. |
-| Side column | Where it is decided (body, meeting, agenda item, proposer) and Dates. |
+| Side column | One card, Key facts: type, body, meeting, agenda item, proposer and the dates. |
 | Tabs | Content, Route and voting, Documents, Consultation, Publication. Under More: Action items, Commitments, Related decisions, Lifecycle. |
 
 ## Who may do what does not change
@@ -48,6 +48,10 @@ A motion is a decision. Its page gets the pill, the next-step button and the wha
 ## A card never stands without a button
 
 Publish hides once a decision is public. Archive is pinned beside the primary button on a decided or enacted decision, so a public enacted decision still has its next step in the header. The spec checks every state and every publication state.
+
+## The checklist is advice
+
+An unticked item does not stop the button. The server does not require those fields for a transition (Propose works on a draft with no proposer), and this page adds no rule of its own. The card says what a careful author fills in before the step.
 
 ## Not in this change
 
