@@ -6357,11 +6357,13 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/408309",
 			"decidiq": "no",
 			"built": {
-				"state": "specified",
-				"evidence": "grep -riE 'parallel ?session|parallelSession|subSession|sub-session|parentMeeting|breakout' lib src: no hits; Meeting schema (lib/Settings/decidesk_register.json, Meeting properties) has series but no parent meeting or session; no recording or subtitle output (grep -ri subtitle lib src: only the dashboard widget subtitle, lib/Dashboard/DecidiqDashboardWidget.php:284)",
-				"owner": "ConductionNL/decidiq"
+				"state": "building",
+				"evidence": "Built in change planning-parallel-sessions: Meeting.parentMeeting and Meeting.room (lib/Settings/register.d/121-parallel-sessions.json), ParallelSessionListener on meeting creates and updates (no nesting, no own parent, inside the evening's times, the evening's body, mode and publicity on a new session), the Sessions widget on MeetingDetail with one column per session and Add session (src/components/tabs/MeetingSessionsTab.vue), the calendar grouping sessions inside their evening (src/views/meetings/MeetingCalendarView.vue, src/utils/meetingSessions.js), parentMeeting as a facet of the meetings list, and eveningTitle on each session's broadcast and in the publicBroadcasts portal collection. Each session keeps its own agenda, minutes, recording and subtitles because it is a meeting. PHPUnit and vitest green; the Playwright run (tests/e2e/parallel-sessions.spec.ts) is still owed, so not yet built.",
+				"owner": "ConductionNL/decidiq",
+				"change": "planning-parallel-sessions",
+				"readOn": "2026-10-05"
 			},
-			"reachedOn": "nothing reaches it: a meeting cannot be split into sessions",
+			"reachedOn": "MeetingDetail of an evening, widget Sessions; Meetings calendar; the Meetings list facet Evening",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "meetings",
