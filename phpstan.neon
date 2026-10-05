@@ -43,6 +43,9 @@ parameters:
         - tests/Stubs/Db/FlowRun.php
         - tests/Stubs/Db/FlowRunMapper.php
         - tests/Stubs/Exception/FlowSignalRefused.php
+        # OpenRegister's validator for a lifecycle kept as data (#4291), which
+        # ProcessTemplateService resolves from the container for template graphs.
+        - tests/Stubs/Service/Lifecycle/LifecycleTransitionsValidator.php
 
     # ignoreErrors: none app-local. Removed 2026-09-11 after
     # `reportUnmatchedIgnoredErrors: true` showed both matched nothing:

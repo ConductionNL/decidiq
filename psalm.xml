@@ -108,6 +108,8 @@
         <file name="tests/Stubs/Db/FlowRun.php" preloadClasses="true" />
         <file name="tests/Stubs/Db/FlowRunMapper.php" preloadClasses="true" />
         <file name="tests/Stubs/Exception/FlowSignalRefused.php" preloadClasses="true" />
+        <!-- OpenRegister's validator for a lifecycle kept as data (#4291); ProcessTemplateService resolves it from the container. -->
+        <file name="tests/Stubs/Service/Lifecycle/LifecycleTransitionsValidator.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--
