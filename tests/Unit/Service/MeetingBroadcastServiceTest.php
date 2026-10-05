@@ -323,6 +323,7 @@ final class MeetingBroadcastServiceTest extends TestCase {
 		$this->assertSame('Raadsvergadering 19 maart', $stored['title']);
 		$this->assertSame('Gemeenteraad', $stored['bodyName']);
 		$this->assertSame(self::OPENED, $stored['scheduledDate']);
+		$this->assertArrayNotHasKey('eveningTitle', $stored, 'a meeting that is no session has no evening');
 		$this->assertSame([['meeting' => $this->meeting, 'title' => 'Raadsvergadering 19 maart']], $this->world->callsOf(operation: 'start-test'));
 
 		// A second test reuses the one broadcast of the meeting.
@@ -331,6 +332,25 @@ final class MeetingBroadcastServiceTest extends TestCase {
 		$this->assertSame($broadcast['id'], $again['id']);
 		$this->assertCount(1, $this->world->all(schema: 'meeting-broadcast'));
 	}//end testATestBroadcastRunsOnTheStaffPreviewOnly()
+
+	/**
+	 * A session's broadcast carries the title of its evening, so residents find
+	 * the evening's sessions together (planning-parallel-sessions).
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-004-each-sessions-broadcast-names-its-evening-for-residents
+	 *
+	 * @return void
+	 */
+	public function testASessionsBroadcastNamesItsEvening(): void {
+		$evening = $this->world->put(schema: 'meeting', data: ['title' => 'Commissieavond 3 november', 'scheduledDate' => '2026-11-03T18:00:00+01:00', 'endDate' => '2026-11-03T23:00:00+01:00', 'isPublic' => true]);
+		$session = $this->world->put(schema: 'meeting', data: ['title' => 'Commissie Bestuur', 'parentMeeting' => $evening, 'room' => 'Commissiekamer 1', 'scheduledDate' => '2026-11-03T19:30:00+01:00', 'isPublic' => true]);
+
+		$broadcast = $this->service()->startTest(meetingId: $session);
+
+		$stored = $this->broadcast(id: $broadcast['id']);
+		$this->assertSame('Commissie Bestuur', $stored['title']);
+		$this->assertSame('Commissieavond 3 november', $stored['eveningTitle']);
+	}//end testASessionsBroadcastNamesItsEvening()
 
 	/**
 	 * The clerk records what the test showed, and the broadcast is back in planned.
