@@ -108,6 +108,7 @@ import CreateMeetingAction from './views/dashboard/widgets/CreateMeetingAction.v
 import DashboardEmptyState from './views/dashboard/widgets/DashboardEmptyState.vue'
 import DashboardQuickActions from './views/dashboard/widgets/DashboardQuickActions.vue'
 import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWidget.vue'
+import IncomingDocumentsWidget from './views/dashboard/widgets/IncomingDocumentsWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
@@ -369,6 +370,14 @@ export default {
 	PendingVotesListWidget: widget(PendingVotesListWidget, {
 		defaultSize: { w: 6, h: 4 },
 		minSize: { w: 4, h: 3 },
+		maxSize: { w: 12, h: 8 },
+		allowedSlots: ['dashboard'],
+	}),
+	// @custom-widget-ratchet exclude the incoming documents waiting list filters on the agenda item type's incomingDocument flag, a two-object condition no built-in widget's filter can express (age-13)
+	IncomingDocumentsWidget: widget(IncomingDocumentsWidget, {
+		_note: 'agenda-incoming-documents-list (age-13): incoming documents without a meeting, with Put on agenda. object-table cannot filter on a property of the referenced agenda item type.',
+		defaultSize: { w: 12, h: 4 },
+		minSize: { w: 6, h: 3 },
 		maxSize: { w: 12, h: 8 },
 		allowedSlots: ['dashboard'],
 	}),

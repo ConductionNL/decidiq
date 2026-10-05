@@ -1791,7 +1791,15 @@
         "Broadcast ended": "Übertragung beendet",
         "Failed to load the sessions.": "Die Sitzungen konnten nicht geladen werden.",
         "The session could not be saved.": "Die Sitzung konnte nicht gespeichert werden.",
-        "Sessions": "Sitzungen"
+        "Sessions": "Sitzungen",
+        "Put on agenda": "Auf die Tagesordnung setzen",
+        "Choose the meeting that deals with \"{title}\".": "Wählen Sie die Sitzung, die \"{title}\" behandelt.",
+        "There is no upcoming meeting to put it on.": "Es gibt keine bevorstehende Sitzung, auf die es gesetzt werden kann.",
+        "Letters and documents that came in and wait for a meeting.": "Eingegangene Briefe und Dokumente, die auf eine Sitzung warten.",
+        "No incoming documents wait for a meeting.": "Keine eingegangenen Dokumente warten auf eine Sitzung.",
+        "Loading incoming documents…": "Eingegangene Dokumente werden geladen…",
+        "Failed to load incoming documents.": "Eingegangene Dokumente konnten nicht geladen werden.",
+        "The document could not be put on the agenda.": "Das Dokument konnte nicht auf die Tagesordnung gesetzt werden."
     },
     "plurals": null
 }
