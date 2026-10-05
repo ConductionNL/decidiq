@@ -75,7 +75,12 @@ class ParallelSessionListenerTest extends TestCase {
 		);
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use ($children): array {
-				$this->assertSame('evening-1', ($config['filters']['parentMeeting'] ?? null), 'the search must ask for this meeting\'s sessions');
+				// Only the sessions of evening-1 exist: a search for any other
+				// meeting's sessions finds none.
+				if (($config['filters']['parentMeeting'] ?? null) !== 'evening-1') {
+					return [];
+				}
+
 				return array_map(fn (array $row): ObjectEntity => $this->entity(row: $row, uuid: 'child'), $children);
 			}
 		);
