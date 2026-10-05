@@ -3386,7 +3386,18 @@
         "Write the text": "Schrijf de tekst",
         "Steps of this decision": "Stappen van dit besluit",
         "done": "klaar",
-        "This decision was withdrawn.": "Dit besluit is ingetrokken."
+        "This decision was withdrawn.": "Dit besluit is ingetrokken.",
+        "Greeting": "Begroeting",
+        "First today": "Vandaag eerst",
+        "Decisions wait for the vote": "Besluiten wachten op de stemming",
+        "{value} decisions are open for voting.": "{value} besluiten staan open voor stemming.",
+        "Open these decisions": "Deze besluiten openen",
+        "Open the meetings": "De vergaderingen openen",
+        "Proposals per step": "Voorstellen per stap",
+        "No proposals yet.": "Nog geen voorstellen.",
+        "Commitments with a deadline": "Toezeggingen met termijn",
+        "No open commitments.": "Geen open toezeggingen.",
+        "All proposals": "Alle voorstellen"
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
