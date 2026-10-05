@@ -14,7 +14,11 @@
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import { groupSessions, parentOf, sessionLabel } from '../../src/utils/meetingSessions.js'
+import {
+	groupSessions,
+	parentOf,
+	sessionLabel,
+} from '../../src/utils/meetingSessions.js'
 
 function source(path) {
 	return readFileSync(
@@ -29,11 +33,33 @@ const evening = {
 	scheduledDate: '2026-11-03T18:00:00+01:00',
 }
 const sessions = [
-	{ id: 's3', title: 'Commissie Samenleving', parentMeeting: 'ev', room: 'Commissiekamer 2', scheduledDate: '2026-11-03T19:30:00+01:00' },
-	{ id: 's1', title: 'Commissie Bestuur', parentMeeting: { id: 'ev' }, room: 'Commissiekamer 1', scheduledDate: '2026-11-03T19:30:00+01:00' },
-	{ id: 's2', title: 'Commissie Ruimte', parentMeeting: 'ev', room: 'Raadzaal', scheduledDate: '2026-11-03T19:00:00+01:00' },
+	{
+		id: 's3',
+		title: 'Commissie Samenleving',
+		parentMeeting: 'ev',
+		room: 'Commissiekamer 2',
+		scheduledDate: '2026-11-03T19:30:00+01:00',
+	},
+	{
+		id: 's1',
+		title: 'Commissie Bestuur',
+		parentMeeting: { id: 'ev' },
+		room: 'Commissiekamer 1',
+		scheduledDate: '2026-11-03T19:30:00+01:00',
+	},
+	{
+		id: 's2',
+		title: 'Commissie Ruimte',
+		parentMeeting: 'ev',
+		room: 'Raadzaal',
+		scheduledDate: '2026-11-03T19:00:00+01:00',
+	},
 ]
-const other = { id: 'raad', title: 'Raadsvergadering', scheduledDate: '2026-11-05T19:30:00+01:00' }
+const other = {
+	id: 'raad',
+	title: 'Raadsvergadering',
+	scheduledDate: '2026-11-05T19:30:00+01:00',
+}
 
 describe('groupSessions', () => {
 	it('shows the evening once, holding its three sessions in time order', () => {
@@ -64,8 +90,12 @@ describe('groupSessions', () => {
 
 describe('sessionLabel', () => {
 	it('names the time, the session and its room', () => {
-		expect(sessionLabel(sessions[1], 'en-GB', 'Europe/Amsterdam')).toBe('19:30 Commissie Bestuur (Commissiekamer 1)')
-		expect(sessionLabel({ title: 'Commissie X' }, 'en-GB', 'Europe/Amsterdam')).toBe('Commissie X')
+		expect(sessionLabel(sessions[1], 'en-GB', 'Europe/Amsterdam')).toBe(
+			'19:30 Commissie Bestuur (Commissiekamer 1)',
+		)
+		expect(
+			sessionLabel({ title: 'Commissie X' }, 'en-GB', 'Europe/Amsterdam'),
+		).toBe('Commissie X')
 	})
 })
 
@@ -89,7 +119,11 @@ describe('the calendar and the meetings list', () => {
 		expect(meetings.config.sidebar.enabled).toBe(true)
 		expect(meetings.config.sidebar.filterFields).toBeUndefined()
 
-		const fragment = JSON.parse(source('lib/Settings/register.d/121-parallel-sessions.json'))
-		expect(fragment.components.schemas.Meeting.properties.parentMeeting.facetable).toBe(true)
+		const fragment = JSON.parse(
+			source('lib/Settings/register.d/121-parallel-sessions.json'),
+		)
+		expect(
+			fragment.components.schemas.Meeting.properties.parentMeeting.facetable,
+		).toBe(true)
 	})
 })
