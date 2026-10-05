@@ -1,0 +1,177 @@
+{
+	"_meta": {
+		"spdx-license": "EUPL-1.2",
+		"spdx-copyright": "2026 Conduction B.V.",
+		"description": "The SIMPLE structure profile, and the default one (openspec/changes/simple-structure-profile). `menu-layout.json` is the FULL profile and is untouched: an administrator brings it back with the setting `menu_structure`. Both profiles are built from the same manifest and the same fragments, so nothing is deleted and every page stays routable; this file only decides what the navigation offers first. THE STANDARD KEYS (`removals`, `settingsSection`) go to the library's buildManifest exactly as the full file's do. `relocations` is ABSENT on purpose, and must stay absent rather than become `{}`: the simple menu is flat, and the library's relocation step ends by dropping every entry that has no route, no href, no action and no children, which is what a caption is. THE TWO PROFILE KEYS are read by src/utils/structureProfile.js. `menu` is merged BEFORE the manifest's own menu. buildManifest merges entries by id and the FIRST definition of a key wins, so an entry here that carries only `id` and `order` takes its label, icon and route from the manifest, and an entry the manifest does not know (the three captions, Proposals) is added as written. `pages` holds page overlays: `configAppend` appends items to a list in the page's config. It is how Proposals, Meetings and Bodies and members gain the links that replace the entries this profile takes out of the menu. A link, not a waiver: tests/vitest/structureProfile.spec.js fails when an entry is removed here and no page the simple menu opens links to its route.",
+		"removalsNote": "The full profile removes nothing. These seventeen are the entries the full profile nests under a parent (its `relocations`, all but Commitments, which the simple menu shows itself). Without a relocation step they would sit at the top level, so they are removed by name here and reached one step further: the four consultation and urgent-decision lists from Proposals, the long-term agenda and the P&C cycles from Meetings, and the eleven registers from the Registers page.",
+		"registersNote": "`Registers` is a group shell in the manifest: a label and no route. The full profile gives it children. This profile gives it a route, the RegistersHub page (src/manifest.d/registers-hub.json), which shows one counted tile per register.",
+		"proposalsNote": "`Proposals` opens the Motions page, the list of decisions of type motion that the full profile reaches through a quick filter on Decisions. Two menu entries on one route would both light up (the navigation decides 'active' by route name), so Proposals and Decisions each need a page of their own.",
+		"ceilingNote": "ADR-004 caps the full navigation at six top-level entries and scripts/check-nav-ceiling.js holds it there. That gate reads menu-layout.json only. This profile shows eight, under the ceiling of ten the Zuiddrecht design sets for a simple menu; the count is held by tests/vitest/structureProfile.spec.js.",
+		"labelsNote": "Three labels are chosen around src/config/modeLabels.js, which rewords a label per organisation mode before it is translated. The caption reads 'Your organisation' and not 'Organisation', because that word is the key the mode map turns into Bodies, Board or Teams. 'Bodies and members' has its own rows in the mode map (Board and members, Teams and members). And the first caption reads 'Home', because 'Start' already translates as the verb on a button."
+	},
+	"removals": [
+		"AncillaryPositions",
+		"Archive",
+		"AuditStatements",
+		"AuthorityDelegations",
+		"ConfidentialityRestrictions",
+		"Consultations",
+		"DeclaredGifts",
+		"Goals",
+		"GovernanceConsultations",
+		"GoverningDocuments",
+		"MemberOffboarding",
+		"MemberOnboarding",
+		"PlannedAgenda",
+		"PlanningCycles",
+		"ProxyAuthorizations",
+		"UrgentDecisions",
+		"WorksCouncilConsultations"
+	],
+	"settingsSection": [
+		"DecisionTemplates",
+		"BodyCompositions",
+		"PositionTypes",
+		"PositionHolds",
+		"AgendaItemTypes",
+		"DocumentTypes",
+		"MeetingTypes",
+		"AgendaTemplates",
+		"BodyConfigurations",
+		"ConfidentialityGrounds",
+		"Themes",
+		"ModerationQueue",
+		"MyDeclarations",
+		"UserSettingsMenu"
+	],
+	"menu": [
+		{
+			"id": "StartCaption",
+			"type": "caption",
+			"label": "Home",
+			"order": 5
+		},
+		{
+			"id": "Dashboard",
+			"order": 10
+		},
+		{
+			"id": "ActionItems",
+			"label": "My actions",
+			"order": 12
+		},
+		{
+			"id": "DecisionMakingCaption",
+			"type": "caption",
+			"label": "Decision making",
+			"order": 20
+		},
+		{
+			"id": "Proposals",
+			"label": "Proposals",
+			"icon": "FileDocumentOutline",
+			"route": "Motions",
+			"order": 22
+		},
+		{
+			"id": "Meetings",
+			"order": 24
+		},
+		{
+			"id": "Decisions",
+			"order": 26
+		},
+		{
+			"id": "Commitments",
+			"order": 28
+		},
+		{
+			"id": "OrganisationCaption",
+			"type": "caption",
+			"label": "Your organisation",
+			"order": 40
+		},
+		{
+			"id": "GovernanceBodies",
+			"label": "Bodies and members",
+			"order": 42
+		},
+		{
+			"id": "Registers",
+			"route": "RegistersHub",
+			"order": 44
+		}
+	],
+	"pages": [
+		{
+			"id": "Motions",
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "open-consultations",
+						"label": "Consultations",
+						"icon": "CommentQuestionOutline",
+						"handler": "navigate",
+						"route": "GovernanceConsultations"
+					},
+					{
+						"id": "open-works-council-consultations",
+						"label": "Works-council consultations",
+						"icon": "CommentQuestionOutline",
+						"handler": "navigate",
+						"route": "WorksCouncilConsultations"
+					},
+					{
+						"id": "open-public-consultations",
+						"label": "Public consultations",
+						"icon": "CommentQuestionOutline",
+						"handler": "navigate",
+						"route": "Consultations"
+					},
+					{
+						"id": "open-urgent-decisions",
+						"label": "Urgent decisions",
+						"icon": "Gavel",
+						"handler": "navigate",
+						"route": "UrgentDecisions"
+					}
+				]
+			}
+		},
+		{
+			"id": "Meetings",
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "open-long-term-agenda",
+						"label": "Long-term agenda",
+						"icon": "CalendarTextOutline",
+						"handler": "navigate",
+						"route": "PlannedAgenda"
+					},
+					{
+						"id": "open-planning-cycles",
+						"label": "P&C cycles",
+						"icon": "Calendar",
+						"handler": "navigate",
+						"route": "PlanningCycles"
+					}
+				]
+			}
+		},
+		{
+			"id": "GovernanceBodies",
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "open-position-holders",
+						"label": "Position holders",
+						"icon": "AccountGroup",
+						"handler": "navigate",
+						"route": "PositionHolds"
+					}
+				]
+			}
+		}
+	]
+}

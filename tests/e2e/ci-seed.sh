@@ -169,6 +169,30 @@ if [ -f ./occ ]; then
 		exit 1
 	fi
 
+	# ── 0a. THE SUITE RUNS AGAINST THE FULL STRUCTURE ────────────────────────
+	#
+	# decidiq ships two structures from one manifest (simple-structure-profile).
+	# `simple` is the default: eight menu entries. The specs here were written
+	# against the full menu and reach pages through it (the entries nested
+	# under Decisions, Tasks & Commitments, Organisation and Registers), so the
+	# CI instance is put on `full`, the same switch an administrator has.
+	# `simple-structure-menu.spec.ts` turns the setting to `simple` for its own
+	# run and puts back what it found.
+	#
+	# Only here, never in global-setup: this script runs on a throwaway CI
+	# instance, and global-setup also runs against a shared instance people use.
+	if ! php ./occ config:app:set decidiq menu_structure --value=full >/dev/null; then
+		echo "::error::could not set decidiq menu_structure=full. The suite would run against the simple menu, and every spec that walks the full navigation would fail naming a missing entry rather than this step."
+		exit 1
+	fi
+	MENU_VALUE="$(php ./occ config:app:get decidiq menu_structure 2>/dev/null \
+		| grep -v '^[[:space:]]*$' | tail -1 | tr -d '[:space:]' || true)"
+	echo "[ci-seed] decidiq menu_structure -> '${MENU_VALUE}'"
+	if [ "$MENU_VALUE" != "full" ]; then
+		echo "::error::decidiq menu_structure reads '${MENU_VALUE}' after being set to full."
+		exit 1
+	fi
+
 	# ── 0a-bis. A VTODO-CAPABLE CALENDAR MUST EXIST FOR THE ACTING USER ──────
 	#
 	# Action items ARE CalDAV VTODOs (ADR-002): ActionItemWriter hands the write

@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Controller\DashboardController;
+use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
@@ -95,9 +96,49 @@ class DashboardControllerTest extends TestCase {
 			$this->initialState,
 			$this->userSession,
 			$this->groupManager,
+			$this->appConfigThatNeverSetAnything(),
 		);
 
 	}//end setUp()
+
+	/**
+	 * An app config that answers every read with the default it was asked for.
+	 *
+	 * That is what an instance that never set a key does. A bare mock would
+	 * answer an empty string too, but by accident of the mock, not by contract.
+	 *
+	 * @return \OCP\IAppConfig The app config.
+	 */
+	private function appConfigThatNeverSetAnything(): \OCP\IAppConfig {
+		$appConfig = $this->createMock(\OCP\IAppConfig::class);
+		$appConfig->method('getValueString')->willReturnCallback(
+			static fn (string $app, string $key, string $default = ''): string => $default
+		);
+
+		return $appConfig;
+
+	}//end appConfigThatNeverSetAnything()
+
+	/**
+	 * Record every key the controller publishes as initial state.
+	 *
+	 * The page publishes more than one key, so a test that counted the calls
+	 * would break each time a key was added. This hands back the map, and each
+	 * test asserts the value it is about.
+	 *
+	 * @return \ArrayObject<string,mixed> The published keys, filled as the page renders.
+	 */
+	private function capturePublished(): \ArrayObject {
+		$published = new \ArrayObject();
+		$this->initialState->method('provideInitialState')->willReturnCallback(
+			static function (string $key, mixed $value) use ($published): void {
+				$published[$key] = $value;
+			}
+		);
+
+		return $published;
+
+	}//end capturePublished()
 
 	/**
 	 * Point the session at a user with the given uid, or at no user at all.
@@ -172,11 +213,12 @@ class DashboardControllerTest extends TestCase {
 		$this->signInAs('alice');
 		$this->groupManager->method('isAdmin')->with('alice')->willReturn(true);
 
-		$this->initialState->expects(self::once())
-			->method('provideInitialState')
-			->with('isAdmin', true);
+		$published = $this->capturePublished();
 
 		$this->controller->page();
+
+		self::assertSame(true, $published['isAdmin']);
+		self::assertSame(MenuStructure::SIMPLE, $published[MenuStructure::KEY]);
 
 	}//end testAdminIsPublishedAsIsAdminTrue()
 
@@ -196,11 +238,12 @@ class DashboardControllerTest extends TestCase {
 		$this->signInAs('bob');
 		$this->groupManager->method('isAdmin')->with('bob')->willReturn(false);
 
-		$this->initialState->expects(self::once())
-			->method('provideInitialState')
-			->with('isAdmin', false);
+		$published = $this->capturePublished();
 
 		$this->controller->page();
+
+		self::assertSame(false, $published['isAdmin']);
+		self::assertSame(MenuStructure::SIMPLE, $published[MenuStructure::KEY]);
 
 	}//end testOrdinaryAccountIsPublishedAsIsAdminFalse()
 
@@ -216,11 +259,12 @@ class DashboardControllerTest extends TestCase {
 		$this->signInAs(null);
 		$this->groupManager->expects(self::never())->method('isAdmin');
 
-		$this->initialState->expects(self::once())
-			->method('provideInitialState')
-			->with('isAdmin', false);
+		$published = $this->capturePublished();
 
 		$this->controller->page();
+
+		self::assertSame(false, $published['isAdmin']);
+		self::assertSame(MenuStructure::SIMPLE, $published[MenuStructure::KEY]);
 
 	}//end testNoSessionDenies()
 

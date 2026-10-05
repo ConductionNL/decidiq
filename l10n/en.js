@@ -3006,7 +3006,16 @@ OC.L10N.register(
         "The summary could not be asked for.": "The summary could not be asked for.",
         "The summary could not be saved.": "The summary could not be saved.",
         "Waiting for the AI provider. Reload the page in a few minutes.": "Waiting for the AI provider. Reload the page in a few minutes.",
-        "Summaries of the papers": "Summaries of the papers"
+        "Summaries of the papers": "Summaries of the papers",
+        "Menu structure": "Menu structure",
+        "Choose how much the menu shows. Simple is the default.": "Choose how much the menu shows. Simple is the default.",
+        "Simple": "Simple",
+        "Eight menu entries for daily work. Everything else is one step further, in settings or on a page.": "Eight menu entries for daily work. Everything else is one step further, in settings or on a page.",
+        "Full": "Full",
+        "Every entry in the menu, as it was before.": "Every entry in the menu, as it was before.",
+        "Saved. People see the change the next time they open Decidiq.": "Saved. People see the change the next time they open Decidiq.",
+        "No page is removed. Both menus open the same pages.": "No page is removed. Both menus open the same pages.",
+        "The menu could not be saved. Try again.": "The menu could not be saved. Try again."
     },
     "nplurals=2; plural=(n != 1);"
 )
