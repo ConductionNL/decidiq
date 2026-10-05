@@ -30,6 +30,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
+use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -63,6 +64,12 @@ final class SaveGuardSubscriptions {
 		// refused, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => SubmissionDeadlineListener::class, 'schemas' => ['meeting']],
+		// Parallel sessions (planning-parallel-sessions, REQ-PPS-001): a
+		// session stays inside its evening, is never nested, and a new one
+		// takes the evening's body, publicity and mode. After the meeting
+		// defaults, so a type's body is not overwritten by the evening's.
+		['event' => ObjectCreatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
 		// Document details (platform-document-metadata-fields, REQ-DMF-002
 		// and REQ-DMF-004): a record keeps its type's required fields and
 		// one record describes one file, on create and on update.

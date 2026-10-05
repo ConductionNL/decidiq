@@ -337,9 +337,12 @@ class PortalContributionProvider {
 	 * (live-public-livestream, REQ-LSTR-008). OpenRegister's read rule on
 	 * meeting-broadcast already hides a broadcast until its publicationDate;
 	 * the whitelist holds what the public row shows and never a staff field
-	 * (previewUrl, testResult, testNote, testedBy, publicWindows).
+	 * (previewUrl, testResult, testNote, testedBy, publicWindows). A session's
+	 * broadcast carries its evening's title (eveningTitle), so the evening's
+	 * sessions list together (planning-parallel-sessions, REQ-PPS-004).
 	 *
 	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-008-residents-see-live-and-recent-broadcasts-through-portaliq
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-004-each-sessions-broadcast-names-its-evening-for-residents
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -353,6 +356,7 @@ class PortalContributionProvider {
 			'listable' => true,
 			'fields' => [
 				'title',
+				'eveningTitle',
 				'bodyName',
 				'scheduledDate',
 				'lifecycle',

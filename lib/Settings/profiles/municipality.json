@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 218,
+			"objectCount": 228,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -630,6 +630,84 @@
 							"identification": "Z-2026-00412",
 							"title": "Omgevingsvisie 2040"
 						}
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "commissie-ruimte-2026-11-03-punt-1",
+						"title": "Omgevingsvisie 2040, eerste bespreking",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"estimatedDuration": 45,
+						"meeting": "commissie-ruimte-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "commissie-ruimte-2026-11-03-punt-2",
+						"title": "Bestemmingsplan Havenkwartier",
+						"itemType": "decision",
+						"orderNumber": 2,
+						"estimatedDuration": 45,
+						"meeting": "commissie-ruimte-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "commissie-bestuur-2026-11-03-punt-1",
+						"title": "Evaluatie burgerparticipatie",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"estimatedDuration": 45,
+						"meeting": "commissie-bestuur-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "commissie-bestuur-2026-11-03-punt-2",
+						"title": "Verordening rekenkamer",
+						"itemType": "decision",
+						"orderNumber": 2,
+						"estimatedDuration": 45,
+						"meeting": "commissie-bestuur-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "commissie-samenleving-2026-11-03-punt-1",
+						"title": "Armoedebeleid 2027",
+						"itemType": "discussion",
+						"orderNumber": 1,
+						"estimatedDuration": 45,
+						"meeting": "commissie-samenleving-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "commissie-samenleving-2026-11-03-punt-2",
+						"title": "Subsidieregeling sport en cultuur",
+						"itemType": "decision",
+						"orderNumber": 2,
+						"estimatedDuration": 45,
+						"meeting": "commissie-samenleving-2026-11-03"
 					}
 				],
 				"agenda-item-type": [
@@ -2806,6 +2884,80 @@
 						"location": "Provinciehuis Haarlem, commissiekamer",
 						"meetingMode": "in-person",
 						"lifecycle": "closed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "commissieavond-2026-11-03",
+						"title": "Commissieavond 3 november",
+						"meetingType": "committee",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2026-11-03T18:00:00+01:00",
+						"endDate": "2026-11-03T23:00:00+01:00",
+						"location": "Stadhuis Amsterdam",
+						"meetingMode": "hybrid",
+						"isPublic": true,
+						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "commissie-ruimte-2026-11-03",
+						"title": "Commissie Ruimte",
+						"meetingType": "committee",
+						"parentMeeting": "commissieavond-2026-11-03",
+						"room": "Raadzaal",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2026-11-03T19:30:00+01:00",
+						"endDate": "2026-11-03T22:30:00+01:00",
+						"location": "Stadhuis Amsterdam, Raadzaal",
+						"meetingMode": "hybrid",
+						"isPublic": true,
+						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "commissie-bestuur-2026-11-03",
+						"title": "Commissie Bestuur",
+						"meetingType": "committee",
+						"parentMeeting": "commissieavond-2026-11-03",
+						"room": "Commissiekamer 1",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2026-11-03T19:30:00+01:00",
+						"endDate": "2026-11-03T22:30:00+01:00",
+						"location": "Stadhuis Amsterdam, Commissiekamer 1",
+						"meetingMode": "hybrid",
+						"isPublic": true,
+						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "commissie-samenleving-2026-11-03",
+						"title": "Commissie Samenleving",
+						"meetingType": "committee",
+						"parentMeeting": "commissieavond-2026-11-03",
+						"room": "Commissiekamer 2",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"scheduledDate": "2026-11-03T19:30:00+01:00",
+						"endDate": "2026-11-03T22:30:00+01:00",
+						"location": "Stadhuis Amsterdam, Commissiekamer 2",
+						"meetingMode": "hybrid",
+						"isPublic": true,
+						"lifecycle": "scheduled"
 					}
 				],
 				"membership": [

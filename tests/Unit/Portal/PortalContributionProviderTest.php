@@ -251,7 +251,7 @@ final class PortalContributionProviderTest extends TestCase {
 		self::assertTrue(condition: $broadcasts['listable']);
 		self::assertArrayNotHasKey(key: 'minTrust', array: $broadcasts, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
 		self::assertSame(
-			expected: ['title', 'bodyName', 'scheduledDate', 'lifecycle', 'playerUrl', 'recordingUrl', 'captionTracks'],
+			expected: ['title', 'eveningTitle', 'bodyName', 'scheduledDate', 'lifecycle', 'playerUrl', 'recordingUrl', 'captionTracks'],
 			actual: $broadcasts['fields']
 		);
 		foreach (['previewUrl', 'testNote', 'testedBy', 'testResult', 'publicWindows'] as $staffField) {
