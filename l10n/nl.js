@@ -3352,7 +3352,23 @@ OC.L10N.register(
         "Loading incoming documents…": "Ingekomen stukken laden…",
         "Failed to load incoming documents.": "Ingekomen stukken konden niet worden geladen.",
         "The document could not be put on the agenda.": "Het stuk kon niet op de agenda worden gezet.",
-        "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda.": "Agendapunten van deze soort zijn ingekomen brieven of stukken: ze staan op de lijst Ingekomen stukken tot ze op de agenda van een vergadering worden gezet."
+        "Items of this kind are incoming letters or documents: they wait on the Incoming documents list until they are put on a meeting's agenda.": "Agendapunten van deze soort zijn ingekomen brieven of stukken: ze staan op de lijst Ingekomen stukken tot ze op de agenda van een vergadering worden gezet.",
+        "Menu structure": "Menustructuur",
+        "Choose how much the menu shows. Simple is the default.": "Kies hoeveel het menu laat zien. Eenvoudig is de standaard.",
+        "Simple": "Eenvoudig",
+        "Eight menu entries for daily work. Everything else is one step further, in settings or on a page.": "Acht menu-items voor het dagelijks werk. De rest staat één stap verder, in de instellingen of op een pagina.",
+        "Full": "Uitgebreid",
+        "Every entry in the menu, as it was before.": "Alle items in het menu, zoals het was.",
+        "Saved. People see the change the next time they open Decidiq.": "Opgeslagen. Mensen zien de wijziging als ze Decidiq opnieuw openen.",
+        "No page is removed. Both menus open the same pages.": "Er verdwijnt geen pagina. Beide menu's openen dezelfde pagina's.",
+        "The menu could not be saved. Try again.": "Het menu is niet opgeslagen. Probeer het opnieuw.",
+        "Home": "Start",
+        "My actions": "Mijn acties",
+        "Decision making": "Besluitvorming",
+        "Bodies and members": "Organen en leden",
+        "Your organisation": "Organisatie",
+        "Board and members": "Bestuur en leden",
+        "Teams and members": "Teams en leden"
     },
     "nplurals=2; plural=(n != 1);"
 )

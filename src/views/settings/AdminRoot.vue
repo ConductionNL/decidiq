@@ -7,6 +7,7 @@
 		:showSetup="true"
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
+		<MenuStructureTab />
 		<Settings v-if="storesReady" />
 		<CaseSystemSettings v-if="storesReady" />
 
@@ -25,6 +26,7 @@ import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
 import RoleRightsSettings from './RoleRightsSettings.vue'
 import Settings from './Settings.vue'
+import MenuStructureTab from './tabs/MenuStructureTab.vue'
 import manifest from '../../manifest.json'
 import { initializeStores } from '../../store/store.js'
 
@@ -33,6 +35,7 @@ export default {
 	components: {
 		CnAdminSettingsShell,
 		CaseSystemSettings,
+		MenuStructureTab,
 		Settings,
 		FullExportSettings,
 		OfficePaperSettings,

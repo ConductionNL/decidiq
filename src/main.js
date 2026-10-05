@@ -26,12 +26,19 @@ import { registerDetailWidgets } from './components/widgets/registerDetailWidget
 import appIcons from './icons.js'
 import { registerDecisionsLeaf } from './integrations/registerDecisionsLeaf.js'
 import bundledManifest from './manifest.json'
-import menuLayout from './menu-layout.json'
+import menuLayoutFull from './menu-layout.json'
+import menuLayoutSimple from './menu-layout.simple.json'
 import pinia from './pinia.js'
 import registry from './registry.js'
 import { initializeStores } from './store/store.js'
 import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { currentPermissions } from './utils/permissions.js'
+import {
+	buildProfiledManifest,
+	resolveStructureProfile,
+	STRUCTURE_FULL,
+	STRUCTURE_SETTING,
+} from './utils/structureProfile.js'
 
 // Library CSS — must be explicit import (webpack tree-shakes side-effect imports from aliased packages)
 import '@conduction/nextcloud-vue/css/index.css'
@@ -123,7 +130,23 @@ const fragments = fragmentCtx
 	.keys()
 	.sort()
 	.map((key) => fragmentCtx(key))
-const mergedManifest = buildManifest(bundledManifest, fragments, menuLayout)
+
+// THE STRUCTURE PROFILE picks the layout file. The page controller provides
+// `menu_structure` as initial state: `simple` (the default) or `full` (the
+// navigation and pages as they were). Both are built from the same manifest
+// and the same fragments, so every page stays routable in either. See
+// `utils/structureProfile.js` for what a profile file may hold.
+const structureProfile = resolveStructureProfile(
+	loadState('decidiq', STRUCTURE_SETTING, ''),
+)
+const menuLayout =
+	structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple
+const mergedManifest = buildProfiledManifest(
+	buildManifest,
+	bundledManifest,
+	fragments,
+	menuLayout,
+)
 
 // The permissions this account holds, from the server's own answer rather than
 // from `window`. `DashboardController` pushes `isAdmin` into initial state and
