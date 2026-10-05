@@ -36,8 +36,8 @@
 					:title="t('decidiq', stepLabel(step.state))">
 					{{ t('decidiq', stepLabel(step.state)) }}
 				</span>
-				<span v-if="step.status === 'done'" class="hidden-visually">
-					{{ t('decidiq', 'done') }}
+				<span class="decision-steps__state">
+					{{ stateWord(step.status) }}
 				</span>
 			</li>
 		</ol>
@@ -90,6 +90,23 @@ export default {
 		stepLabel(state) {
 			return STATE_LABELS[state] || state
 		},
+
+		/**
+		 * Whether a step is behind, current or ahead, in a word. Colour alone
+		 * must not carry it.
+		 *
+		 * @param {string} status `done`, `current` or `upcoming`.
+		 * @return {string} The translated word.
+		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+		 */
+		stateWord(status) {
+			if (status === 'done') {
+				return this.t('decidiq', 'Done')
+			}
+			return status === 'current'
+				? this.t('decidiq', 'Now')
+				: this.t('decidiq', 'Next')
+		},
 	},
 }
 </script>
@@ -102,6 +119,12 @@ export default {
  * an ellipsis and keeps its full text as a tooltip. On a narrow page the
  * steps wrap, and the card grows with them (the layout entry sizes to its
  * content).
+ *
+ * THE STEPS ARE AS TALL AS THE CARD HAS TO BE. The detail grid gives every
+ * card at least two rows (the library's `gs-min-h`), and sizing to content
+ * cannot go below that floor. A bar one line high left an empty band under
+ * it. So each step is a tile that fills those two rows: number, label and a
+ * word for done, now or next.
  */
 .decision-steps__list {
 	list-style: none;
@@ -118,7 +141,10 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	gap: 2px;
-	padding: var(--default-grid-baseline);
+	justify-content: center;
+	min-height: 124px;
+	box-sizing: border-box;
+	padding: calc(var(--default-grid-baseline) * 2) var(--default-grid-baseline);
 	border-radius: var(--border-radius-large);
 	background: var(--color-background-hover);
 	color: var(--color-text-maxcontrast);
@@ -131,6 +157,11 @@ export default {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.decision-steps__state {
+	font-size: 0.9em;
+	font-weight: normal;
 }
 
 .decision-steps__number {
