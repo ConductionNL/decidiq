@@ -398,7 +398,13 @@ describe('the simple profile', () => {
 		const fullPages = new Map(
 			build(fullFile).pages.map((page) => [page.id, page]),
 		)
-		for (const overlay of simpleFile.pages) {
+		// The three list pages that gain links. The decision page and the
+		// motion page have overlays of their own kind (simpleDecisionPage.spec.js).
+		const linkOverlays = simpleFile.pages.filter((overlay) =>
+			['Motions', 'Meetings', 'GovernanceBodies'].includes(overlay.id),
+		)
+		expect(linkOverlays).toHaveLength(3)
+		for (const overlay of linkOverlays) {
 			expect(
 				fullPages.get(overlay.id).config.headerActions ?? [],
 				overlay.id,

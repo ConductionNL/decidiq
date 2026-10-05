@@ -31,8 +31,10 @@
  *           `null` takes the item out), `configAppend` appends items, and
  *           `configOrder` moves the named items to the front. They apply in
  *           that order. A name is the item's `id`, else its `key`, else its
- *           `label`. `slots` adds entries to the page's slot map. An overlay never
- *           adds a page and never removes one.
+ *           `label`. `slots` adds entries to the page's slot map. A sections
+ *           panel that names a widget by `widgetId` gets that widget's
+ *           definition written in. An overlay never adds a page and never
+ *           removes one.
  *
  * Nothing here deletes anything. The pages, the routes and the fragments are
  * the same in both profiles, which is what keeps every deep link working.
@@ -113,6 +115,9 @@ export function applyPageOverlay(page, overlay) {
 			.filter((item) => item !== undefined)
 		config[key] = [...lead, ...current.filter((item) => !lead.includes(item))]
 	}
+	if (Array.isArray(config.widgets)) {
+		config.widgets = inlineSectionWidgets(config.widgets)
+	}
 	if (overlay.slots && typeof overlay.slots === 'object') {
 		// A `custom` widget resolves through the page's own top-level `slots`
 		// map, so a page that gains one needs its slot beside it.
@@ -123,6 +128,56 @@ export function applyPageOverlay(page, overlay) {
 		}
 	}
 	return { ...page, config }
+}
+
+/**
+ * Write the widget definition into every section that names one by id.
+ *
+ * A sections panel (`content.sections[]`) sits inside a tab, and the library's
+ * tabs widget does not hand its panel the list of sibling widgets. So a
+ * section cannot look a widget up by id at render time. A profile may still
+ * write `{ "label": "Route", "widgetId": "decision-route" }`: this replaces
+ * the id with the definition the page already declares, which keeps one
+ * definition per widget instead of a copy that can drift.
+ *
+ * A section that names a widget the page does not have is left as it is, and
+ * renders nothing. The spec of the profile fails on it.
+ *
+ * @param {Array<object>} widgets The page's widgets, after every overlay step.
+ * @return {Array<object>} The widgets, sections filled in.
+ *
+ * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+ */
+export function inlineSectionWidgets(widgets) {
+	const byId = new Map(
+		widgets
+			.filter((widget) => widget && typeof widget === 'object' && widget.id)
+			.map((widget) => [widget.id, widget]),
+	)
+	return widgets.map((widget) => {
+		const sections = widget?.content?.sections
+		if (!Array.isArray(sections)) {
+			return widget
+		}
+		if (!sections.some((entry) => entry?.widgetId && !entry.widget)) {
+			return widget
+		}
+		return {
+			...widget,
+			content: {
+				...widget.content,
+				sections: sections.map((entry) => {
+					const named = entry?.widgetId && byId.get(entry.widgetId)
+					if (!named || entry.widget) {
+						return entry
+					}
+					const filled = { ...entry, widget: named }
+					delete filled.widgetId
+					return filled
+				}),
+			},
+		}
+	})
 }
 
 /**
