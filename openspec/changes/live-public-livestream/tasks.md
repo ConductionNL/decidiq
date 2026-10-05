@@ -59,8 +59,8 @@
   - GIVEN windows 0 to 5400 and 6300 to 10800 and segments at 5800 and 6400 WHEN derived THEN no cue for 5800 and a cue at 5500 for 6400 (PHPUnit, red then green)
   - GIVEN no `alignedAt` WHEN derived THEN refused
   - GIVEN the file name WHEN checked against `PublicationEligibilityService::isFileDenied()` THEN it is not denied
-- [ ] Implement
-- [ ] Test
+- [x] Implement (BroadcastCaptionService::derive + webVtt; a cue that runs past its window is cut at the window's end; the file goes to the meeting's `Broadcast` subfolder through MeetingFolderService; route POST /api/meeting-broadcasts/{id}/captions; the widget's "Make subtitles" button once the broadcast ended)
+- [x] Test (tests/Unit/Service/BroadcastCaptionServiceTest.php: windows 0-5400 and 6300-10800, no cue for 5800, cue at 5500 for 6400, no speaker labels, refused without alignedAt or a finished transcript, `captions-nl.vtt` not denied by the real PublicationEligibilityService; controller route in BroadcastControllerTest; vitest for the button and routes)
 
 ### Task 7: Release of a reviewed caption track, and the narrowed confidentiality rule
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-transcription/spec.md#requirement-confidentiality-and-retention-of-recordings-and-transcripts`
@@ -69,8 +69,8 @@
   - GIVEN `isPublic: false` WHEN release is called THEN 422 and no share
   - GIVEN a released track WHEN a publish request targets the transcript THEN it is still refused (PHPUnit)
   - GIVEN a released track WHEN the retention job runs THEN the caption file remains (PHPUnit on the job)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (BroadcastCaptionService::release: 422 unless the meeting is public, 409 unless the broadcast ended or before the file exists; read-only link share through OCP\Share\IManager, track recorded per language with reviewedBy and releasedAt, `attach-captions` asked of the service and allowed to fail; route POST /api/meeting-broadcasts/{id}/captions/{language}/release; MeetingFolderService::meetingFile. TranscriptRetentionJob needed no change: it deletes only sourceFilePath and transcriptFilePath)
+- [x] Test (BroadcastCaptionServiceTest: 422 and no share for a closed meeting, 409 while live, the released track's link, reviewer and time, a second release replaces the track, the transcript stays refused by assertPublishable after release; TranscriptRetentionJobTest::testAPurgeKeepsAReleasedCaptionTrack)
 
 ### Task 8: The anonymous portal collection
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-008-residents-see-live-and-recent-broadcasts-through-portaliq`
@@ -78,11 +78,11 @@
 - **acceptance_criteria**:
   - GIVEN the provider constructed with portaliq absent WHEN the citizen contribution is read THEN `publicBroadcasts` is `anonymous: true` and its `fields` hold no staff field (PHPUnit)
   - GIVEN portaliq on the dev instance and a live seed broadcast WHEN `GET /portal/api/contributions` is called without a session THEN `publicBroadcasts` is present (live check)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (collection `publicBroadcasts`, anonymous, fields title, bodyName, scheduledDate, lifecycle, playerUrl, recordingUrl, captionTracks; newest first)
+- [ ] Test (PHPUnit done: PortalContributionProviderTest::testPublicBroadcastsAreAnonymousWithoutStaffFields, and the shipped-schema drift test covers the fields. The live check on the dev instance with portaliq is owed)
 
 ### Task 9: Strings and docs
 - Dutch and English strings for every widget label and message above, in `l10n/` (hydra `test:l10n` and `check:schema-l10n` green).
 - `docs/features/meeting-broadcast.md`: how to connect a streaming service, run a test, go live, pause, and release subtitles. Written with the hydra writing skill.
-- [ ] Implement
-- [ ] Test
+- [x] Implement (7 widget strings in en, nl, de, fr, es and it, l10n:build; docs/features/meeting-broadcast.md)
+- [x] Test (test:l10n, check:l10n-js, check:schema-l10n green)
