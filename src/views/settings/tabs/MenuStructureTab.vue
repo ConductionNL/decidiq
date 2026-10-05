@@ -8,6 +8,8 @@ The choice is read at page load by the app's boot code, before it builds the
 navigation, so a change shows the next time somebody opens decidiq. The tab says
 so, because a setting that seems to do nothing gets changed back.
 
+@visual exclude A section of two radios on the Nextcloud admin settings page, drawn by the settings framework and not by the app's own pages. What it does to the app, the menu, is covered in a browser by tests/e2e/simple-structure-menu.spec.ts.
+
 @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 -->
 <template>
