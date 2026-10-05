@@ -104,8 +104,8 @@ class ParallelSessionListener implements IEventListener {
 			$entity = $this->eventObject(event: $event);
 
 			$meeting = (array)$entity?->getObject();
-			$parentId = $this->referenceId(value: ($meeting['parentMeeting'] ?? null));
-			if ($parentId === null || strtolower((string)($meeting['_schemaSlug'] ?? 'meeting')) !== 'meeting') {
+			$parentId = $this->eveningOf(meeting: $meeting);
+			if ($parentId === null) {
 				return;
 			}
 
@@ -126,6 +126,25 @@ class ParallelSessionListener implements IEventListener {
 		}//end try
 
 	}//end handle()
+
+	/**
+	 * The evening a meeting is a session of, or null for a meeting that is no
+	 * session (or an object that is no meeting).
+	 *
+	 * @param array<string, mixed> $meeting The meeting as it will be saved
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+	 */
+	private function eveningOf(array $meeting): ?string {
+		if (strtolower((string)($meeting['_schemaSlug'] ?? 'meeting')) !== 'meeting') {
+			return null;
+		}
+
+		return $this->referenceId(value: ($meeting['parentMeeting'] ?? null));
+
+	}//end eveningOf()
 
 	/**
 	 * The object an event carries: getObject() on a creating event, the NEW
