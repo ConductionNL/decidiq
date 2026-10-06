@@ -194,7 +194,8 @@ class VoteCastingService {
 				participantId: $participantId,
 				isSecret: $isSecret
 			),
-			ranking: $ranking
+			ranking: $ranking,
+			isWeighted: (($round['votingMethod'] ?? '') === 'weighted')
 		);
 
 		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);

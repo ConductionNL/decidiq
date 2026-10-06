@@ -92,6 +92,7 @@ class VoteBallotFactory {
 	 * @param bool $isSecret Whether the round is a secret ballot
 	 * @param array<string,mixed>|null $existingVote The ballot being overwritten, when any
 	 * @param array<int, mixed>|null $ranking The checked ranking of a ranked ballot, or null
+	 * @param bool $isWeighted Whether the round uses the weighted voting method (vot-09)
 	 *
 	 * @return array<string,mixed> The vote payload to persist.
 	 *
@@ -107,6 +108,7 @@ class VoteBallotFactory {
 		bool $isSecret,
 		?array $existingVote,
 		?array $ranking = null,
+		bool $isWeighted = false,
 	): array {
 		$relations = $this->voteRelations(
 			votingRoundId: $votingRoundId,
@@ -124,10 +126,16 @@ class VoteBallotFactory {
 			delegatorId: $delegatorId
 		);
 
+		// A proxy ballot counts for — and weighs as — the delegator.
+		$ballotOwnerId = $participantId;
+		if ($isProxy === true && $delegatorId !== null) {
+			$ballotOwnerId = $delegatorId;
+		}
+
 		$vote = [
 			'@self' => ['slug' => $idempotencySlug],
 			'value' => $value,
-			'weight' => 1,
+			'weight' => $this->resolveWeight(isWeighted: $isWeighted, ballotOwnerId: $ballotOwnerId),
 			'isProxy' => $isProxy,
 			'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			'castAs' => $this->resolveCastAs(participantId: $participantId),
@@ -247,6 +255,121 @@ class VoteBallotFactory {
 
 		return $slug;
 	}//end idempotencySlug()
+
+	/**
+	 * The weight a ballot counts with (vot-09).
+	 *
+	 * Every method except `weighted` is one member, one vote. On a weighted
+	 * round the ballot counts with the voting weight of the member it counts
+	 * for (the delegator on a proxy vote): the Membership's `votingWeight`
+	 * (edited in the member-role dialog), else the deprecated Participant's
+	 * own `votingWeight`, else 1. Weights are whole non-negative numbers
+	 * because the round's tallies are integers (VvE breukdelen are numerators).
+	 * The weight carries no identity, so it is stamped on secret ballots too.
+	 *
+	 * @param bool $isWeighted Whether the round uses the weighted method
+	 * @param string $ballotOwnerId The participant the ballot counts for
+	 *
+	 * @return int The ballot weight.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function resolveWeight(bool $isWeighted, string $ballotOwnerId): int {
+		if ($isWeighted === false) {
+			return 1;
+		}
+
+		$weight = $this->membershipWeight(participantId: $ballotOwnerId);
+		if ($weight === null) {
+			$participant = $this->loadObject(id: $ballotOwnerId, schema: 'participant');
+			$weight = self::wholeWeight(value: ($participant['votingWeight'] ?? null));
+		}
+
+		return ($weight ?? 1);
+	}//end resolveWeight()
+
+	/**
+	 * The voting weight on the Membership behind a Participant, when set.
+	 *
+	 * Uses the same Participant-to-Membership crosswalk the recusal guard
+	 * uses on the cast path; any failure falls back to the Participant.
+	 *
+	 * @param string $participantId The participant UUID
+	 *
+	 * @return int|null The membership weight, or null when none applies.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function membershipWeight(string $participantId): ?int {
+		try {
+			$crosswalk = $this->container->get(ParticipantToPersonMembershipResolver::class);
+			$resolution = $crosswalk->resolve(participantId: $participantId);
+		} catch (Throwable $e) {
+			$this->logger->debug('Decidiq: membership lookup for vote weight failed', ['error' => $e->getMessage()]);
+			return null;
+		}
+
+		$membershipId = (string)($resolution['membership'] ?? '');
+		if ($membershipId === '') {
+			return null;
+		}
+
+		$membership = $this->loadObject(id: $membershipId, schema: 'membership');
+		return self::wholeWeight(value: ($membership['votingWeight'] ?? null));
+	}//end membershipWeight()
+
+	/**
+	 * A stored voting weight as a whole non-negative number, or null when it
+	 * is unset or is not one.
+	 *
+	 * @param mixed $value The stored votingWeight
+	 *
+	 * @return int|null
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private static function wholeWeight(mixed $value): ?int {
+		if (is_int($value) === false && is_float($value) === false
+			&& (is_string($value) === false || is_numeric($value) === false)
+		) {
+			return null;
+		}
+
+		$number = (float)$value;
+		if ($number < 0 || floor($number) !== $number) {
+			return null;
+		}
+
+		return (int)$number;
+	}//end wholeWeight()
+
+	/**
+	 * Load one decidiq object as an array, or null when it cannot be read.
+	 *
+	 * @param string $id The object UUID
+	 * @param string $schema The schema slug
+	 *
+	 * @return array<string,mixed>|null
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function loadObject(string $id, string $schema): ?array {
+		try {
+			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			if (is_array($entity) === true) {
+				return $entity;
+			}
+
+			if ($entity !== null) {
+				return $entity->jsonSerialize();
+			}
+		} catch (Throwable $e) {
+			$this->logger->debug('Decidiq: vote weight lookup failed', ['schema' => $schema, 'error' => $e->getMessage()]);
+		}
+
+		return null;
+	}//end loadObject()
 
 	/**
 	 * Resolve the attendance mode to stamp on a vote (remote-vote annotation).

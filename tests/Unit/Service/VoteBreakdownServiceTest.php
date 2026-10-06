@@ -229,6 +229,26 @@ class VoteBreakdownServiceTest extends TestCase {
 	}//end testAProxyVoteCountsForTheMemberItWasCastFor()
 
 	/**
+	 * On a weighted round each faction counts its members' weights, like the
+	 * round totals do (vot-09).
+	 *
+	 * @return void
+	 */
+	public function testFactionCountsUseTheBallotWeight(): void {
+		$heavy = $this->ballot('p-anna', 'for');
+		$heavy['weight'] = 30;
+		$light = $this->ballot('p-bas', 'against');
+		$light['weight'] = 12;
+
+		$service = $this->makeService(round: ['isSecret' => false], ballots: [$heavy, $light]);
+
+		$result = $service->forRound(roundId: 'round-1');
+
+		self::assertSame([['faction' => 'GroenLinks', 'for' => 30, 'against' => 12, 'abstain' => 0]], $result['factions']);
+		self::assertSame(30, $result['members'][0]['weight']);
+	}//end testFactionCountsUseTheBallotWeight()
+
+	/**
 	 * OpenRegister also serves relations flattened by property path
 	 * (`relations.1.id`); the voter is read from that form too.
 	 *
