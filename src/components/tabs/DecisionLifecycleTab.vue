@@ -234,7 +234,10 @@ export default {
 		withdrawnByLabel(kind) {
 			const labels = {
 				bestuursorgaan: this.t('decidiq', 'Withdrawn by the deciding body'),
-				belanghebbende: this.t('decidiq', 'Withdrawn by the party who asked'),
+				belanghebbende: this.t(
+					'decidiq',
+					'Withdrawn by the party who asked',
+				),
 			}
 			return labels[kind] || kind
 		},

@@ -40,15 +40,20 @@ export function proxiesPath(roundId) {
 export function readProxies(payload) {
 	const held = Array.isArray(payload?.held)
 		? payload.held
-			.filter((entry) => typeof entry?.participantId === 'string' && entry.participantId !== '')
-			.map((entry) => ({
-				participantId: entry.participantId,
-				displayName: entry.displayName || entry.participantId,
-			}))
+				.filter(
+					(entry) =>
+						typeof entry?.participantId === 'string'
+						&& entry.participantId !== '',
+				)
+				.map((entry) => ({
+					participantId: entry.participantId,
+					displayName: entry.displayName || entry.participantId,
+				}))
 		: []
-	const granted = typeof payload?.granted === 'string' && payload.granted !== ''
-		? payload.granted
-		: null
+	const granted =
+		typeof payload?.granted === 'string' && payload.granted !== ''
+			? payload.granted
+			: null
 	return { held, granted }
 }
 

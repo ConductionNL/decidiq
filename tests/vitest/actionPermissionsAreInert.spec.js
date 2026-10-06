@@ -40,7 +40,8 @@ function manifestFiles() {
 		}
 	}
 	for (const name of fs.readdirSync(path.join(ROOT, 'src')).sort()) {
-		if (/^menu-layout.*\.json$/.test(name)) files.push(path.join(ROOT, 'src', name))
+		if (/^menu-layout.*\.json$/.test(name))
+			files.push(path.join(ROOT, 'src', name))
 	}
 	return files
 }
@@ -56,7 +57,9 @@ function manifestFiles() {
  */
 function actionsWithPermission(node, at = '$', found = []) {
 	if (Array.isArray(node)) {
-		node.forEach((child, i) => actionsWithPermission(child, `${at}[${i}]`, found))
+		node.forEach((child, i) =>
+			actionsWithPermission(child, `${at}[${i}]`, found),
+		)
 		return found
 	}
 	if (node === null || typeof node !== 'object') return found
@@ -85,7 +88,9 @@ describe('action-level permission declarations', () => {
 	})
 
 	it('the walker leaves menu-level permissions alone, which the library does read', () => {
-		expect(actionsWithPermission({ menu: [{ id: 'a', permission: 'admin' }] })).toEqual([])
+		expect(
+			actionsWithPermission({ menu: [{ id: 'a', permission: 'admin' }] }),
+		).toEqual([])
 	})
 
 	for (const file of manifestFiles()) {

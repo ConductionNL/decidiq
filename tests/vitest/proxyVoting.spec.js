@@ -21,7 +21,7 @@ import {
 const here = dirname(fileURLToPath(import.meta.url))
 
 describe('proxiesPath', () => {
-	it('reads the round\'s proxy endpoint', () => {
+	it("reads the round's proxy endpoint", () => {
 		expect(proxiesPath('r-1')).toBe('/apps/decidiq/api/voting-rounds/r-1/proxy')
 	})
 })
@@ -55,11 +55,11 @@ describe('readProxies', () => {
 })
 
 describe('proxyCastFields', () => {
-	it('casts the user\'s own vote without a delegator', () => {
+	it("casts the user's own vote without a delegator", () => {
 		expect(proxyCastFields('')).toEqual({ isProxy: false, delegatorId: null })
 	})
 
-	it('casts on the delegator\'s behalf with one', () => {
+	it("casts on the delegator's behalf with one", () => {
 		expect(proxyCastFields('d-1')).toEqual({ isProxy: true, delegatorId: 'd-1' })
 	})
 })
@@ -67,7 +67,7 @@ describe('proxyCastFields', () => {
 describe('nextCastTarget', () => {
 	const held = [{ participantId: 'd-1' }, { participantId: 'd-2' }]
 
-	it('offers the user\'s own vote first', () => {
+	it("offers the user's own vote first", () => {
 		expect(nextCastTarget(false, held, [])).toBe('')
 	})
 
@@ -84,7 +84,7 @@ describe('VotingRoundPanel source', () => {
 		'utf8',
 	)
 
-	it('no longer hard-codes every cast as the user\'s own vote', () => {
+	it("no longer hard-codes every cast as the user's own vote", () => {
 		expect(source).not.toMatch(/isProxy:\s*false/)
 		expect(source).toMatch(/proxyCastFields\(this\.castingFor\)/)
 	})

@@ -232,7 +232,9 @@
 					&& currentRound.votingMethod !== 'show-of-hands'
 				"
 				class="decidiq-proxy-target">
-				<label for="decidiqCastingFor">{{ t('decidiq', 'Vote on behalf of') }}</label>
+				<label for="decidiqCastingFor">{{
+					t('decidiq', 'Vote on behalf of')
+				}}</label>
 				<select id="decidiqCastingFor" v-model="castingFor">
 					<option value="">
 						{{ t('decidiq', 'Myself') }}
@@ -307,7 +309,13 @@
 				:key="name"
 				class="decidiq-vote-confirmed"
 				role="status">
-				{{ t('decidiq', 'Your vote on behalf of {name} has been recorded.', { name }) }}
+				{{
+					t(
+						'decidiq',
+						'Your vote on behalf of {name} has been recorded.',
+						{ name },
+					)
+				}}
 			</p>
 
 			<!-- Live tally (chair/secretary see full tally; members see only total count) -->

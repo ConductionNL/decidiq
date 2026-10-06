@@ -77,7 +77,9 @@ describe('decision withdrawal request (#1380)', () => {
 	})
 
 	it('carries the actor kind and the trimmed reason', () => {
-		expect(buildWithdrawRequest('belanghebbende', '  Aanvraag ingetrokken  ')).toEqual({
+		expect(
+			buildWithdrawRequest('belanghebbende', '  Aanvraag ingetrokken  '),
+		).toEqual({
 			withdrawnBy: 'belanghebbende',
 			reason: 'Aanvraag ingetrokken',
 		})
