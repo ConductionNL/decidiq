@@ -226,7 +226,10 @@ class DecisionContextResolver {
 	 */
 	public function resolveGovernanceBodyId(array $decision, ?array $meeting): ?string {
 		return $this->firstNonEmptyString(
-			candidates: [($decision['governanceBody'] ?? null), ($meeting['governanceBody'] ?? null)]
+			candidates: [
+				$this->resolveRelationId(value: ($decision['governanceBody'] ?? null)),
+				$this->resolveRelationId(value: ($meeting['governanceBody'] ?? null)),
+			]
 		);
 
 	}//end resolveGovernanceBodyId()
