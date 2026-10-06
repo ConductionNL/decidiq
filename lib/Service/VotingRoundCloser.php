@@ -99,9 +99,6 @@ class VotingRoundCloser {
 				result: (string)($tally['result'] ?? 'invalid'),
 				votingRoundId: $votingRoundId
 			);
-		}
-
-		if ($round !== null) {
 			$this->resolveDecisionStage(
 				round: $round,
 				result: (string)($tally['result'] ?? 'invalid'),

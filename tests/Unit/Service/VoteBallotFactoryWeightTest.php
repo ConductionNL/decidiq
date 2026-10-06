@@ -102,14 +102,14 @@ class VoteBallotFactoryWeightTest extends TestCase {
 	/**
 	 * Build a ballot for a participant.
 	 *
-	 * @param VoteBallotFactory $factory     The factory
-	 * @param bool              $isWeighted  Whether the round is weighted
-	 * @param bool              $isSecret    Whether the round is secret
-	 * @param string|null       $delegatorId The member a proxy votes for
+	 * @param VoteBallotFactory $factory      The factory
+	 * @param string            $votingMethod The round's votingMethod
+	 * @param bool              $isSecret     Whether the round is secret
+	 * @param string|null       $delegatorId  The member a proxy votes for
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function build(VoteBallotFactory $factory, bool $isWeighted, bool $isSecret = false, ?string $delegatorId = null): array {
+	private static function build(VoteBallotFactory $factory, string $votingMethod, bool $isSecret = false, ?string $delegatorId = null): array {
 		return $factory->buildVote(
 			votingRoundId: 'round-1',
 			participantId: 'p-anna',
@@ -118,7 +118,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			delegatorId: $delegatorId,
 			isSecret: $isSecret,
 			existingVote: null,
-			isWeighted: $isWeighted
+			votingMethod: $votingMethod
 		);
 	}//end build()
 
@@ -136,7 +136,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(250, self::build($factory, isWeighted: true)['weight']);
+		self::assertSame(250, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
 	}//end testAWeightedRoundUsesTheMembershipWeight()
 
 	/**
@@ -153,7 +153,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(5, self::build($factory, isWeighted: true)['weight']);
+		self::assertSame(5, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
 	}//end testAWeightedRoundFallsBackToTheParticipantWeight()
 
 	/**
@@ -171,7 +171,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(1, self::build($factory, isWeighted: true)['weight']);
+		self::assertSame(1, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD)['weight']);
 	}//end testAWeightedRoundWithoutAUsableWeightCountsOne()
 
 	/**
@@ -185,7 +185,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		self::assertSame(1, self::build($factory, isWeighted: false)['weight']);
+		self::assertSame(1, self::build($factory, votingMethod: 'for-against-abstain')['weight']);
 	}//end testAnUnweightedRoundCountsOne()
 
 	/**
@@ -202,7 +202,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna', 'p-bas' => 'm-bas']
 		);
 
-		self::assertSame(40, self::build($factory, isWeighted: true, delegatorId: 'p-bas')['weight']);
+		self::assertSame(40, self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, delegatorId: 'p-bas')['weight']);
 	}//end testAProxyBallotCarriesTheDelegatorWeight()
 
 	/**
@@ -216,7 +216,7 @@ class VoteBallotFactoryWeightTest extends TestCase {
 			memberships: ['p-anna' => 'm-anna']
 		);
 
-		$vote = self::build($factory, isWeighted: true, isSecret: true);
+		$vote = self::build($factory, votingMethod: VoteBallotFactory::WEIGHTED_METHOD, isSecret: true);
 
 		self::assertSame(7, $vote['weight']);
 		self::assertSame([['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'round-1']], $vote['relations']);

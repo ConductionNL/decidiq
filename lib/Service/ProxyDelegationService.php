@@ -30,12 +30,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCP\IAppConfig;
 use OCP\IUserManager;
 use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
@@ -57,21 +53,32 @@ class ProxyDelegationService {
 	private const NON_VOTING_ROLES = ['observer', 'guest'];
 
 	/**
+	 * The per-holder proxy cap applied to every grant.
+	 *
+	 * @var ProxyHolderCap
+	 */
+	private readonly ProxyHolderCap $holderCap;
+
+	/**
 	 * Constructor for ProxyDelegationService.
 	 *
 	 * @param ContainerInterface $container The DI container (OpenRegister is resolved lazily)
 	 * @param LoggerInterface $logger Logger for fail-soft notification failures
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param ProxyHolderCap|null $holderCap The per-holder proxy cap (built from the container when omitted)
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
+		?ProxyHolderCap $holderCap = null,
 	) {
+		$this->holderCap = ($holderCap ?? new ProxyHolderCap(container: $container, logger: $logger));
 
 	}//end __construct()
 
@@ -123,7 +130,7 @@ class ProxyDelegationService {
 			'fromParticipantId' => $fromParticipantId,
 			'toParticipantId' => $toParticipantId,
 			'votingRoundId' => $votingRoundId,
-			'grantedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+			'grantedAt' => (new DateTime())->format(DateTime::ATOM),
 		];
 
 		// Store proxy as a structured note on the VotingRound.
@@ -136,7 +143,7 @@ class ProxyDelegationService {
 		if ($round !== null) {
 			// A re-grant replaces the grantor's earlier grant on this round.
 			$notes = $this->withoutGrantFrom(notes: ($round['notes'] ?? []), fromParticipantId: $fromParticipantId);
-			$this->assertBelowHolderCap(notes: $notes, toParticipantId: $toParticipantId);
+			$this->holderCap->assertRoomFor(grants: $this->grants(notes: $notes), toParticipantId: $toParticipantId);
 			$notes[] = [
 				'title' => 'Proxy',
 				'body' => json_encode($proxyRecord),
@@ -233,70 +240,6 @@ class ProxyDelegationService {
 		];
 
 	}//end proxiesFor()
-
-	/**
-	 * Refuse a grant that would give the receiver more proxies than allowed.
-	 *
-	 * @param array<int, mixed> $notes The round's notes, without the grantor's own earlier grant
-	 * @param string $toParticipantId The receiving participant UUID
-	 *
-	 * @return void
-	 *
-	 * @throws \InvalidArgumentException When the receiver already holds the maximum
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 */
-	private function assertBelowHolderCap(array $notes, string $toParticipantId): void {
-		$held = count(
-			array_filter(
-				$this->grants(notes: $notes),
-				static fn (array $grant): bool => $grant['toParticipantId'] === $toParticipantId
-			)
-		);
-
-		$maxProxies = $this->maxProxiesPerHolder();
-		if ($held >= $maxProxies) {
-			throw new InvalidArgumentException(
-				sprintf(
-					'Deze deelnemer heeft al het maximale aantal volmachten (%d van %d) voor deze stemronde',
-					$held,
-					$maxProxies
-				)
-			);
-		}
-
-	}//end assertBelowHolderCap()
-
-	/**
-	 * Resolve the per-holder proxy cap, shared with ProxyVoteService::register().
-	 *
-	 * Values below 1 and lookup failures fall back to the default, so a
-	 * misconfigured cap never switches the limit off.
-	 *
-	 * @return int The maximum number of proxies one participant may hold
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 */
-	private function maxProxiesPerHolder(): int {
-		try {
-			$value = $this->container->get(IAppConfig::class)->getValueInt(
-				Application::APP_ID,
-				ProxyVoteService::MAX_PROXIES_CONFIG_KEY,
-				ProxyVoteService::MAX_PROXIES_DEFAULT
-			);
-			if ($value >= 1) {
-				return $value;
-			}
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: max_proxies_per_holder config lookup failed — using default',
-				['error' => $e->getMessage()]
-			);
-		}
-
-		return ProxyVoteService::MAX_PROXIES_DEFAULT;
-
-	}//end maxProxiesPerHolder()
 
 	/**
 	 * Decode the Proxy notes on a round into grant records.

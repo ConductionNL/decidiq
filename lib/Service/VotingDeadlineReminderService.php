@@ -40,9 +40,8 @@ use Psr\Log\LoggerInterface;
  * deadlineReminderSentAt marker. After sending, the marker is stamped via
  * saveObject so the hourly job never reminds twice.
  *
- * Audience: the members of the round's meeting (round → motion or amendment
- * → meeting → governance body → participants, through the same resolvers the
- * cast guard uses) minus those whose ballot is already on file.
+ * Audience: the members of the round's meeting minus those whose ballot is
+ * already on file, resolved by VotingReminderAudience.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
@@ -56,15 +55,27 @@ class VotingDeadlineReminderService {
 	public const REMINDER_WINDOW = 86400;
 
 	/**
+	 * Resolves the members a round's reminder goes to.
+	 *
+	 * @var VotingReminderAudience
+	 */
+	private readonly VotingReminderAudience $audience;
+
+	/**
 	 * Constructor for VotingDeadlineReminderService.
 	 *
 	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services)
 	 * @param LoggerInterface $logger The logger
+	 * @param VotingReminderAudience|null $audience Who a reminder goes to (built from the container when omitted)
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		?VotingReminderAudience $audience = null,
 	) {
+		$this->audience = ($audience ?? new VotingReminderAudience(container: $container, logger: $logger));
 	}//end __construct()
 
 	/**
@@ -216,45 +227,6 @@ class VotingDeadlineReminderService {
 	}//end rowToArray()
 
 	/**
-	 * Read a UUID out of a reference that may be a bare string or an {id} object.
-	 *
-	 * @param mixed $ref The raw reference value
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null The UUID, or null when not resolvable
-	 */
-	private function refId(mixed $ref): ?string {
-		if (is_array($ref) === true) {
-			$ref = ($ref['id'] ?? null);
-		}
-
-		if (is_string($ref) === true && $ref !== '') {
-			return $ref;
-		}
-
-		return null;
-	}//end refId()
-
-	/**
-	 * Read the linked Nextcloud UID off a participant row.
-	 *
-	 * @param array<string, mixed> $row The participant payload
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null The UID, or null when the participant has no NC link
-	 */
-	private function rowUserId(array $row): ?string {
-		$uid = ($row['nextcloudUserId'] ?? ($row['owner'] ?? null));
-		if (is_string($uid) === true && $uid !== '') {
-			return $uid;
-		}
-
-		return null;
-	}//end rowUserId()
-
-	/**
 	 * Send the reminder for one round and stamp the sent marker.
 	 *
 	 * Audience: meeting participants who have not cast a vote in this
@@ -278,10 +250,7 @@ class VotingDeadlineReminderService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$notificationService = $this->container->get('OpenRegisterNotificationService');
 
-			$votedUserIds = $this->resolveVotedUserIds(objectService: $objectService, roundId: $roundId);
-			$audience = $this->resolveParticipantUserIds(round: $round);
-
-			$pending = array_values(array_diff($audience, $votedUserIds));
+			$pending = $this->audience->pendingUserIds(objectService: $objectService, round: $round, roundId: $roundId);
 
 			$sent = 0;
 			foreach ($pending as $uid) {
@@ -344,159 +313,4 @@ class VotingDeadlineReminderService {
 
 		return $total;
 	}//end run()
-
-	/**
-	 * Nextcloud UIDs of participants whose ballot in this round is on file.
-	 *
-	 * Votes link to their round through a structured `relations` entry, the
-	 * shape VoteBallotFactory writes, so they are found with the same
-	 * ObjectRelationFilter the tally uses. The ballot belongs to the delegator
-	 * on a proxy vote and to the caster otherwise. A secret ballot carries no
-	 * participant relation, so it cannot exclude anyone from the reminder.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param string $roundId UUID of the voting round
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string[]
-	 */
-	private function resolveVotedUserIds(object $objectService, string $roundId): array {
-		$relationFilter = new ObjectRelationFilter();
-		try {
-			$votes = $relationFilter->matching(
-				entities: $objectService->findAll(
-					[
-						'filters' => (['register' => 'decidiq', 'schema' => 'vote'] + $relationFilter->filterFor(targetId: $roundId)),
-					]
-				),
-				schema: 'voting-round',
-				targetId: $roundId
-			);
-		} catch (\Throwable) {
-			return [];
-		}
-
-		$uids = [];
-		foreach ($votes as $entity) {
-			$row = $this->rowToArray(entity: $entity);
-			$ownerId = null;
-			if ($row !== null) {
-				$ownerId = $this->ballotOwnerId(vote: $row);
-			}
-
-			if ($ownerId === null) {
-				continue;
-			}
-
-			$uid = $this->participantUserId(objectService: $objectService, participantId: $ownerId);
-			if ($uid !== null) {
-				$uids[] = $uid;
-			}
-		}//end foreach
-
-		return array_values(array_unique($uids));
-	}//end resolveVotedUserIds()
-
-	/**
-	 * The participant UUID a vote counts for, read from its relations.
-	 *
-	 * @param array<string, mixed> $vote One vote payload
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null The ballot owner's participant UUID, or null when not recorded
-	 */
-	private function ballotOwnerId(array $vote): ?string {
-		$relations = ($vote['relations'] ?? ($vote['@self']['relations'] ?? []));
-		if (is_array($relations) === false) {
-			return null;
-		}
-
-		$wantedType = null;
-		if (($vote['isProxy'] ?? false) === true) {
-			$wantedType = 'delegator';
-		}
-
-		foreach ($relations as $relation) {
-			if (is_array($relation) === true
-				&& ($relation['schema'] ?? '') === 'participant'
-				&& ($relation['type'] ?? null) === $wantedType
-			) {
-				return $this->refId(ref: $relation);
-			}
-		}
-
-		return null;
-	}//end ballotOwnerId()
-
-	/**
-	 * Nextcloud UIDs of the members of the meeting behind this round.
-	 *
-	 * Resolved through the same services the cast guard uses
-	 * (AmendmentOrderService for round → motion/amendment → meeting,
-	 * ParticipantResolver for meeting → governance body → participants), so
-	 * the reminder reaches exactly the members who may vote.
-	 *
-	 * @param array<string, mixed> $round Round payload
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string[]
-	 */
-	private function resolveParticipantUserIds(array $round): array {
-		try {
-			$meetingId = $this->container->get(AmendmentOrderService::class)->resolveMeetingIdForRound(round: $round);
-			if ($meetingId === null) {
-				return [];
-			}
-
-			$participants = $this->container->get(ParticipantResolver::class)->resolveMeetingParticipants(meetingId: $meetingId);
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: could not resolve the members to remind for a voting round',
-				['exception' => $e->getMessage()]
-			);
-			return [];
-		}
-
-		$uids = [];
-		foreach ($participants as $entity) {
-			$row = $this->rowToArray(entity: $entity);
-			$uid = null;
-			if ($row !== null) {
-				$uid = $this->rowUserId(row: $row);
-			}
-
-			if ($uid !== null) {
-				$uids[] = $uid;
-			}
-		}
-
-		return array_values(array_unique($uids));
-	}//end resolveParticipantUserIds()
-
-	/**
-	 * Resolve a participant UUID to its linked Nextcloud UID.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param string $participantId UUID of the participant
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null
-	 */
-	private function participantUserId(object $objectService, string $participantId): ?string {
-		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
-		} catch (\Throwable) {
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return $this->rowUserId(row: (array)$entity->jsonSerialize());
-	}//end participantUserId()
 }//end class

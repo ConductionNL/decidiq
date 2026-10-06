@@ -30,6 +30,7 @@ use OCA\Decidiq\Service\MinutesContextResolver;
 use OCA\Decidiq\Service\MinutesDraftRenderer;
 use OCA\Decidiq\Service\MinutesGenerationService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\OpenRegisterNotificationPreferenceSync;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -244,7 +245,11 @@ class MinutesDraftAndSendTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: new NullLogger());
+		return new NotificationPreferenceService(
+			container: $container,
+			logger: new NullLogger(),
+			openRegisterSync: new OpenRegisterNotificationPreferenceSync(container: $container, logger: new NullLogger())
+		);
 	}//end preferences()
 
 	/**

@@ -30,6 +30,7 @@ use OCA\Decidiq\Service\ALVMinutesService;
 use OCA\Decidiq\Service\MinutesContextResolver;
 use OCA\Decidiq\Service\MinutesService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\OpenRegisterNotificationPreferenceSync;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -211,7 +212,11 @@ class MinutesNoticesReachMembersTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: new NullLogger());
+		return new NotificationPreferenceService(
+			container: $container,
+			logger: new NullLogger(),
+			openRegisterSync: new OpenRegisterNotificationPreferenceSync(container: $container, logger: new NullLogger())
+		);
 	}//end preferences()
 
 	/**

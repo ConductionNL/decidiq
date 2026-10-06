@@ -45,6 +45,13 @@ use Throwable;
 class VoteBallotFactory {
 
 	/**
+	 * The voting method whose ballots count with the member's voting weight (vot-09).
+	 *
+	 * @var string
+	 */
+	public const WEIGHTED_METHOD = 'weighted';
+
+	/**
 	 * Derives the secret-ballot tokens. The factory owns it: the slug of a
 	 * secret ballot and the dedup lookup before a cast must use the same one.
 	 *
@@ -92,7 +99,7 @@ class VoteBallotFactory {
 	 * @param bool $isSecret Whether the round is a secret ballot
 	 * @param array<string,mixed>|null $existingVote The ballot being overwritten, when any
 	 * @param array<int, mixed>|null $ranking The checked ranking of a ranked ballot, or null
-	 * @param bool $isWeighted Whether the round uses the weighted voting method (vot-09)
+	 * @param string $votingMethod The round's votingMethod; `weighted` weighs the ballot (vot-09)
 	 *
 	 * @return array<string,mixed> The vote payload to persist.
 	 *
@@ -108,7 +115,7 @@ class VoteBallotFactory {
 		bool $isSecret,
 		?array $existingVote,
 		?array $ranking = null,
-		bool $isWeighted = false,
+		string $votingMethod = 'for-against-abstain',
 	): array {
 		$relations = $this->voteRelations(
 			votingRoundId: $votingRoundId,
@@ -135,7 +142,7 @@ class VoteBallotFactory {
 		$vote = [
 			'@self' => ['slug' => $idempotencySlug],
 			'value' => $value,
-			'weight' => $this->resolveWeight(isWeighted: $isWeighted, ballotOwnerId: $ballotOwnerId),
+			'weight' => $this->resolveWeight(votingMethod: $votingMethod, ballotOwnerId: $ballotOwnerId),
 			'isProxy' => $isProxy,
 			'castAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			'castAs' => $this->resolveCastAs(participantId: $participantId),
@@ -276,15 +283,15 @@ class VoteBallotFactory {
 	 * because the round's tallies are integers (VvE breukdelen are numerators).
 	 * The weight carries no identity, so it is stamped on secret ballots too.
 	 *
-	 * @param bool $isWeighted Whether the round uses the weighted method
+	 * @param string $votingMethod The round's votingMethod
 	 * @param string $ballotOwnerId The participant the ballot counts for
 	 *
 	 * @return int The ballot weight.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function resolveWeight(bool $isWeighted, string $ballotOwnerId): int {
-		if ($isWeighted === false) {
+	private function resolveWeight(string $votingMethod, string $ballotOwnerId): int {
+		if ($votingMethod !== self::WEIGHTED_METHOD) {
 			return 1;
 		}
 

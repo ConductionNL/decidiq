@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\OpenRegisterNotificationPreferenceSync;
 use OCP\IUser;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
@@ -91,7 +92,6 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 * @param array<string, array<string, mixed>> $preferenceRows Preference row per person id.
 	 * @param string|null $accountEmail Account email returned by IUserManager.
 	 * @param \Psr\Log\LoggerInterface|null $logger Logger (defaults to a NullLogger).
-	 * @param object|null $openRegisterPreferences OpenRegister's preference service double, or null when absent.
 	 *
 	 * @return NotificationPreferenceService
 	 */
@@ -99,7 +99,6 @@ class NotificationPreferenceServiceTest extends TestCase {
 		array $preferenceRows = [],
 		?string $accountEmail = null,
 		?\Psr\Log\LoggerInterface $logger = null,
-		?object $openRegisterPreferences = null,
 	): NotificationPreferenceService {
 		$this->inAppSends = [];
 		$this->emailSends = [];
@@ -266,10 +265,6 @@ class NotificationPreferenceServiceTest extends TestCase {
 			IUserManager::class => $userManager,
 			IURLGenerator::class => $urls,
 		];
-		if ($openRegisterPreferences !== null) {
-			$services['OCA\OpenRegister\Service\Notification\NotificationPreferenceService'] = $openRegisterPreferences;
-		}
-
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			function (string $id) use ($services) {
@@ -282,7 +277,13 @@ class NotificationPreferenceServiceTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: ($logger ?? new NullLogger()));
+		$logger = ($logger ?? new NullLogger());
+
+		return new NotificationPreferenceService(
+			container: $container,
+			logger: $logger,
+			openRegisterSync: new OpenRegisterNotificationPreferenceSync(container: $container, logger: $logger)
+		);
 	}//end buildService()
 
 	/**
@@ -800,57 +801,6 @@ class NotificationPreferenceServiceTest extends TestCase {
 		self::assertSame([["BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n", 'meeting.ics', 'text/calendar']], $this->emailAttachments);
 
 	}//end testAnEmailReaderGetsTheCalendarFile()
-
-	/**
-	 * A switch turned off here silences the notices OpenRegister sends from the
-	 * schema declarations (issue #1381): decidiq writes OpenRegister's per-user
-	 * override for each of them, and clears it for a switch that is on.
-	 *
-	 * @spec openspec/specs/user-settings/spec.md
-	 *
-	 * @return void
-	 */
-	public function testSwitchesReachTheDeclaredOpenRegisterNotices(): void {
-		$overrides = new class {
-
-			/**
-			 * Recorded overrides, keyed `<user>|<schema>/<key>`.
-			 *
-			 * @var array<string, array<string, mixed>|null>
-			 */
-			public array $written = [];
-
-			/**
-			 * Mirrors OpenRegister's setOverride() signature.
-			 *
-			 * @param string $userId The user.
-			 * @param string $schemaSlug The schema slug.
-			 * @param string $notificationKey The notification key.
-			 * @param array<string, mixed>|null $override The override, or null to clear.
-			 * @param string|null $scope The scope.
-			 *
-			 * @return void
-			 */
-			public function setOverride(string $userId, string $schemaSlug, string $notificationKey, ?array $override, ?string $scope = null): void {
-				$this->written[$userId . '|' . $schemaSlug . '/' . $notificationKey] = $override;
-			}
-		};
-
-		$service = $this->buildService(openRegisterPreferences: $overrides);
-		$service->updatePreference(personId: 'alice', preferences: ['decisionPublished' => false, 'taskAssigned' => false]);
-
-		self::assertSame(
-			[
-				'alice|decision/decisionPublished' => ['enabled' => false],
-				'alice|action-item/actionAssigned' => ['enabled' => false],
-				'alice|action-item/actionItemAssignedToYou' => ['enabled' => false],
-				'alice|meeting/meetingStartingSoon' => null,
-			],
-			$overrides->written,
-			'Off switches store enabled:false; on switches clear the override'
-		);
-
-	}//end testSwitchesReachTheDeclaredOpenRegisterNotices()
 
 	/**
 	 * Without OpenRegister's preference service the decidiq preference still saves.

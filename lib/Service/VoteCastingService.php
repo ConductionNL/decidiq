@@ -196,7 +196,7 @@ class VoteCastingService {
 				isProxy: ($isProxy === true && $delegatorId !== null)
 			),
 			ranking: $ranking,
-			isWeighted: (($round['votingMethod'] ?? '') === 'weighted')
+			votingMethod: (string)($round['votingMethod'] ?? '')
 		);
 
 		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
