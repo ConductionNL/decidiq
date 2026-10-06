@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AmendmentOrderService;
+use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\VotingDeadlineReminderService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -94,17 +96,40 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 			/**
 			 * Schema-routed findAll fixture.
 			 *
+			 * Routes on `filters.schema` only, like OpenRegister: a schema
+			 * passed as a top-level config key matches nothing (#1379).
+			 *
 			 * @param array<string, mixed> $config Query config
 			 *
-			 * @return array<int, array<string, mixed>>
+			 * @return array<int, object>
 			 */
 			public function findAll(array $config = []): array {
-				return match ($config['schema'] ?? '') {
+				$rows = match ($config['filters']['schema'] ?? '') {
 					'voting-round' => $this->rounds,
 					'vote' => $this->votes,
 					'participant' => $this->participants,
 					default => [],
 				};
+
+				return array_map(
+					static fn (array $row): object => new class($row) implements \JsonSerializable {
+						/**
+						 * @param array<string, mixed> $row Object payload
+						 */
+						public function __construct(
+							private array $row,
+						) {
+						}
+
+						/**
+						 * @return array<string, mixed>
+						 */
+						public function jsonSerialize(): array {
+							return $this->row;
+						}//end jsonSerialize()
+					},
+					$rows
+				);
 
 			}//end findAll()
 
@@ -187,14 +212,34 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 			}//end sendNotification()
 		};
 
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturnCallback(
-			static function (string $id) use ($objectService, $notificationService) {
-				if ($id === 'OpenRegisterNotificationService') {
-					return $notificationService;
+		// Round → meeting: a round whose motion relation is mot-1 belongs to meet-1.
+		$amendmentOrder = $this->createMock(AmendmentOrderService::class);
+		$amendmentOrder->method('resolveMeetingIdForRound')->willReturnCallback(
+			static function (array $round): ?string {
+				foreach (($round['relations'] ?? []) as $rel) {
+					if (($rel['schema'] ?? '') === 'motion' && ($rel['id'] ?? '') === 'mot-1') {
+						return 'meet-1';
+					}
 				}
 
-				return $objectService;
+				return null;
+			}
+		);
+
+		$participantResolver = $this->createMock(ParticipantResolver::class);
+		$participantResolver->method('resolveMeetingParticipants')->willReturnCallback(
+			static fn (string $meetingId): array => ($meetingId === 'meet-1' ? $participants : [])
+		);
+
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			static function (string $id) use ($objectService, $notificationService, $amendmentOrder, $participantResolver) {
+				return match ($id) {
+					'OpenRegisterNotificationService' => $notificationService,
+					AmendmentOrderService::class => $amendmentOrder,
+					ParticipantResolver::class => $participantResolver,
+					default => $objectService,
+				};
 			}
 		);
 
@@ -244,13 +289,15 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 			['id' => 'r-reminded', 'votingDeadline' => $inWindow, 'deadlineReminderSentAt' => gmdate('Y-m-d\TH:i:s\Z', (self::NOW - 3600))],
 			['id' => 'r-far', 'votingDeadline' => gmdate('Y-m-d\TH:i:s\Z', (self::NOW + 500000))],
 			['id' => 'r-no-deadline'],
+			// A closing time preset at open is still ahead: open, and its deadline (#1379).
+			['id' => 'r-preset-close', 'closedAt' => $inWindow],
+			['id' => 'r-preset-close-far', 'closedAt' => gmdate('Y-m-d\TH:i:s\Z', (self::NOW + 500000))],
 		];
 
 		$service = $this->makeService(rounds: $rounds);
 		$due = $service->findRoundsNeedingReminder(now: self::NOW);
 
-		self::assertCount(expectedCount: 1, haystack: $due);
-		self::assertSame(expected: 'r-due', actual: $due[0]['id']);
+		self::assertSame(expected: ['r-due', 'r-preset-close'], actual: array_column($due, 'id'));
 
 	}//end testRoundSelection()
 
@@ -265,14 +312,31 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 	public function testRemindSkipsVotersAndStampsMarker(): void {
 		$round = [
 			'id' => 'r-1',
-			'motion' => 'mot-1',
 			'votingDeadline' => gmdate('Y-m-d\TH:i:s\Z', (self::NOW + 7200)),
+			'relations' => [['register' => 'decidiq', 'schema' => 'motion', 'id' => 'mot-1']],
 		];
 
 		$service = $this->makeService(
 			rounds: [$round],
 			votes: [
-				['id' => 'v-1', 'caster' => 'part-alice'],
+				// The shape VoteBallotFactory writes for a non-secret ballot.
+				[
+					'id' => 'v-1',
+					'isProxy' => false,
+					'relations' => [
+						['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'r-1'],
+						['register' => 'decidiq', 'schema' => 'participant', 'id' => 'part-alice'],
+					],
+				],
+				// Bob's ballot in ANOTHER round does not count for this one.
+				[
+					'id' => 'v-2',
+					'isProxy' => false,
+					'relations' => [
+						['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'r-other'],
+						['register' => 'decidiq', 'schema' => 'participant', 'id' => 'part-bob'],
+					],
+				],
 			],
 			participants: [
 				['id' => 'part-alice', 'nextcloudUserId' => 'alice'],
@@ -280,8 +344,8 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 				['id' => 'part-nolink'],
 			],
 			objects: [
-				'mot-1' => ['id' => 'mot-1', 'meeting' => 'meet-1'],
 				'part-alice' => ['id' => 'part-alice', 'nextcloudUserId' => 'alice'],
+				'part-bob' => ['id' => 'part-bob', 'nextcloudUserId' => 'bob'],
 			]
 		);
 
@@ -300,6 +364,48 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 	}//end testRemindSkipsVotersAndStampsMarker()
 
 	/**
+	 * A proxy ballot counts for the delegator, not for the proxy holder.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return void
+	 */
+	public function testProxyBallotCountsForTheDelegator(): void {
+		$round = [
+			'id' => 'r-1',
+			'votingDeadline' => gmdate('Y-m-d\TH:i:s\Z', (self::NOW + 7200)),
+			'relations' => [['register' => 'decidiq', 'schema' => 'motion', 'id' => 'mot-1']],
+		];
+
+		$service = $this->makeService(
+			rounds: [$round],
+			votes: [
+				[
+					'id' => 'v-1',
+					'isProxy' => true,
+					'relations' => [
+						['register' => 'decidiq', 'schema' => 'voting-round', 'id' => 'r-1'],
+						['register' => 'decidiq', 'schema' => 'participant', 'id' => 'part-alice'],
+						['register' => 'decidiq', 'schema' => 'participant', 'id' => 'part-bob', 'type' => 'delegator'],
+					],
+				],
+			],
+			participants: [
+				['id' => 'part-alice', 'nextcloudUserId' => 'alice'],
+				['id' => 'part-bob', 'nextcloudUserId' => 'bob'],
+			],
+			objects: [
+				'part-alice' => ['id' => 'part-alice', 'nextcloudUserId' => 'alice'],
+				'part-bob' => ['id' => 'part-bob', 'nextcloudUserId' => 'bob'],
+			]
+		);
+
+		self::assertSame(expected: 1, actual: $service->remindRound(round: $round, now: self::NOW));
+		self::assertSame(expected: 'alice', actual: $this->sent->getArrayCopy()[0]['userId']);
+
+	}//end testProxyBallotCountsForTheDelegator()
+
+	/**
 	 * run() sweeps all due rounds and reports the total sent.
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
@@ -307,19 +413,20 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testRunSweepsDueRounds(): void {
+		// Opened with a closing time: only closedAt (the preset) and the mirrored
+		// votingDeadline are set — the round still gets its reminder (#1379).
+		$closesAt = gmdate('Y-m-d\TH:i:s\Z', (self::NOW + 7200));
 		$round = [
 			'id' => 'r-1',
-			'motion' => 'mot-1',
-			'votingDeadline' => gmdate('Y-m-d\TH:i:s\Z', (self::NOW + 7200)),
+			'closedAt' => $closesAt,
+			'votingDeadline' => $closesAt,
+			'relations' => [['register' => 'decidiq', 'schema' => 'motion', 'id' => 'mot-1']],
 		];
 
 		$service = $this->makeService(
 			rounds: [$round],
 			participants: [
 				['id' => 'part-bob', 'nextcloudUserId' => 'bob'],
-			],
-			objects: [
-				'mot-1' => ['id' => 'mot-1', 'meeting' => 'meet-1'],
 			]
 		);
 

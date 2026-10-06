@@ -299,6 +299,12 @@ class VotingRoundPreflight {
 			'relations' => $relations,
 		];
 
+		// A preset closing time is also the round's voting deadline: the
+		// 24-hour reminder job and the dashboard read votingDeadline (#1379).
+		if ($closedAt !== null && $closedAt !== '') {
+			$round['votingDeadline'] = $closedAt;
+		}
+
 		if ($revoteOfRoundId !== null) {
 			$round['revoteOfRound'] = $revoteOfRoundId;
 		}
