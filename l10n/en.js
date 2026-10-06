@@ -3137,7 +3137,11 @@ OC.L10N.register(
         "Commitments with a deadline": "Commitments with a deadline",
         "No open commitments.": "No open commitments.",
         "All proposals": "All proposals",
-        "Past the deadline": "Past the deadline"
+        "Past the deadline": "Past the deadline",
+        "Only the chair or the secretary of this meeting can take the next step.": "Only the chair or the secretary of this meeting can take the next step.",
+        "Steps of this meeting": "Steps of this meeting",
+        "The meeting is adjourned.": "The meeting is adjourned.",
+        "The meeting is paused.": "The meeting is paused."
     },
     "nplurals=2; plural=(n != 1);"
 )

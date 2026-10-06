@@ -959,6 +959,530 @@
 			}
 		},
 		{
+			"id": "MeetingDetail",
+			"_note": "The meeting page in the simple structure (openspec/changes/simple-meeting-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the meeting's own state. Each state but `closed` has ONE primary button, and it posts to the guarded endpoint the Stage block uses (POST /api/meetings/{id}/lifecycle) with the action and nothing else. The server decides who may use it: the chair or the secretary of the meeting, or an administrator. A member who presses it is refused there and the refusal is shown; the step bar asks the server first and says so in words (MeetingStepBar). ONLY FOUR OF THE SIX STEPS ARE BUTTONS HERE: convene, open, resume and close. Pause and adjourn are switched off per governance domain on the server (WorkflowService), and a manifest cannot know the domain, so those two stay in the Stage block, which draws exactly the steps the server offers. Close is the primary button of a meeting in session and sits under More in the other states the server allows it from. THE STAGE BLOCK IS STILL ON THE PAGE, the last entry under More. A CLOSED MEETING has no next step and so no card: its work is in the Minutes and Decisions tabs. A paused or adjourned meeting has its button and no card, because no field of a meeting says what a break still needs. THE NINETEEN BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE WHAT-NOW CHECKLIST IS ADVICE, with one exception: the server refuses to open a meeting without a quorum where the rules of the body ask for one, and that item says so. THE SIDE COLUMN is one card, Key facts. It leads with the date, which every meeting has, so the card is never an empty box. NO LINK TO THE LIVE SCREEN IS ADDED: that button is for the chair and the secretary only (REQ-AMP-004) and stays in the Agenda block, which asks the server who is looking.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "meeting-schedule",
+					"scheduled": "meeting-open",
+					"opened": "meeting-close",
+					"paused": "meeting-resume",
+					"adjourned": "meeting-open"
+				},
+				"quickActions": [
+					"meeting-open-integrations"
+				],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"scheduled": "Convened",
+						"opened": "In session",
+						"paused": "Paused",
+						"adjourned": "Adjourned",
+						"closed": "Closed"
+					},
+					"colorMap": {
+						"draft": "default",
+						"scheduled": "primary",
+						"opened": "success",
+						"paused": "warning",
+						"adjourned": "warning",
+						"closed": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Prepare the meeting",
+							"after": "Then: open the meeting",
+							"checklist": [
+								{
+									"label": "Set the date and time",
+									"doneField": "scheduledDate"
+								},
+								{
+									"label": "Choose the body",
+									"doneField": "governanceBody"
+								},
+								{
+									"label": "Name the chair",
+									"doneField": "chair"
+								}
+							]
+						},
+						"scheduled": {
+							"title": "What now? Get ready to open",
+							"after": "Then: the meeting is in session",
+							"checklist": [
+								{
+									"label": "Publish the agenda",
+									"doneField": "agendaPublishedAt"
+								},
+								{
+									"label": "Send the convocation",
+									"doneField": "convocationSentAt"
+								},
+								{
+									"label": "Reach the quorum",
+									"doneField": "quorumWith",
+									"hint": "Also ticked when the meeting needs none. Where the rules of the body ask for a quorum, the meeting does not open without one."
+								}
+							]
+						},
+						"opened": {
+							"title": "What now? Hold the meeting",
+							"after": "Then: the minutes",
+							"checklist": [
+								{
+									"label": "Start on the agenda",
+									"doneField": "currentAgendaItem",
+									"hint": "To pause or adjourn the meeting, open Stage under More."
+								}
+							]
+						}
+					}
+				},
+				"sideColumn": [
+					{
+						"id": "meeting-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"scheduledDate",
+								"endDate",
+								"location",
+								"room",
+								"meetingMode",
+								"governanceBody",
+								"chair",
+								"quorumRequired",
+								"openedAt",
+								"closedAt",
+								"meetingCost"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "meeting-steps",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "meeting-panels",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"meeting-case-system": {
+						"type": "MeetingCaseSystemTab"
+					},
+					"meeting-broadcast": {
+						"type": "MeetingBroadcastTab"
+					},
+					"meeting-sessions": {
+						"type": "MeetingSessionsTab"
+					},
+					"meeting-stage": {
+						"type": "MeetingStageTab"
+					},
+					"meeting-video-call": {
+						"type": "MeetingVideoCallTab"
+					},
+					"meeting-participants": {
+						"type": "MeetingParticipantsTab"
+					},
+					"meeting-agenda": {
+						"type": "MeetingAgendaTab"
+					},
+					"meeting-decisions": {
+						"type": "MeetingDecisionsTab"
+					},
+					"meeting-minutes": {
+						"type": "MeetingMinutesTab"
+					},
+					"meeting-document-details": {
+						"type": "DocumentMetadataTab"
+					},
+					"meeting-paper-renditions": {
+						"type": "AgendaPaperRenditionsTab"
+					},
+					"meeting-votes": {
+						"type": "MeetingVotesTab"
+					},
+					"meeting-publication": {
+						"type": "AgendaPublicationTab"
+					},
+					"meeting-series": {
+						"type": "MeetingSeriesTab"
+					},
+					"meeting-transcription": {
+						"type": "MeetingTranscriptionTab"
+					},
+					"meeting-audit-statements": {
+						"type": "MeetingAuditStatementTab"
+					},
+					"meeting-routed-documents": {
+						"type": "MeetingRoutedDocumentsTab"
+					},
+					"meeting-technical-questions": {
+						"type": "MeetingTechnicalQuestionsTab"
+					},
+					"meeting-decision-list-signers": {
+						"type": "DecisionListSignersTab"
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "meeting-schedule",
+						"type": "api-call",
+						"label": "Convene meeting",
+						"icon": "CalendarClock",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "schedule"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The meeting is convened."
+					},
+					{
+						"id": "meeting-open",
+						"type": "api-call",
+						"label": "Open meeting",
+						"icon": "Gavel",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "open"
+						},
+						"visibleWhen": {
+							"any": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "scheduled"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "adjourned"
+								}
+							]
+						},
+						"confirm": true,
+						"successMessage": "The meeting is open."
+					},
+					{
+						"id": "meeting-resume",
+						"type": "api-call",
+						"label": "Resume meeting",
+						"icon": "Timeline",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "resume"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "paused"
+						},
+						"successMessage": "The meeting is in session again."
+					},
+					{
+						"id": "meeting-close",
+						"type": "api-call",
+						"label": "Close meeting",
+						"icon": "CheckCircleOutline",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "close"
+						},
+						"visibleWhen": {
+							"any": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "scheduled"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "opened"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "paused"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "adjourned"
+								}
+							]
+						},
+						"confirm": true,
+						"successMessage": "The meeting is closed."
+					},
+					{
+						"id": "meeting-open-integrations",
+						"type": "navigate",
+						"label": "Discussion and integrations",
+						"icon": "Api",
+						"group": "Meeting",
+						"target": "/meetings/@objectId/integrations"
+					}
+				],
+				"widgets": [
+					{
+						"id": "meeting-panel-agenda",
+						"type": "detail-sections",
+						"title": "Agenda",
+						"icon": "ClipboardList",
+						"content": {
+							"sections": [
+								{
+									"label": "Agenda",
+									"widgetId": "meeting-agenda"
+								},
+								{
+									"label": "Incoming documents",
+									"widgetId": "meeting-routed-documents"
+								},
+								{
+									"label": "Technical questions",
+									"widgetId": "meeting-technical-questions"
+								},
+								{
+									"label": "Publication",
+									"widgetId": "meeting-publication"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-people",
+						"type": "detail-sections",
+						"title": "Participants",
+						"icon": "AccountGroup",
+						"content": {
+							"sections": [
+								{
+									"label": "Participants",
+									"widgetId": "meeting-participants"
+								},
+								{
+									"label": "Proxy authorizations",
+									"widgetId": "meeting-proxy-authorizations"
+								},
+								{
+									"label": "Video call",
+									"widgetId": "meeting-video-call"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-documents",
+						"type": "detail-sections",
+						"title": "Documents",
+						"icon": "FolderOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Documents",
+									"widgetId": "meeting-files"
+								},
+								{
+									"label": "Document details",
+									"widgetId": "meeting-document-details"
+								},
+								{
+									"label": "Papers as PDF",
+									"widgetId": "meeting-paper-renditions"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-decisions",
+						"type": "detail-sections",
+						"title": "Decisions",
+						"icon": "ScaleBalance",
+						"content": {
+							"sections": [
+								{
+									"label": "Decisions",
+									"widgetId": "meeting-decisions"
+								},
+								{
+									"label": "Votes",
+									"widgetId": "meeting-votes"
+								},
+								{
+									"label": "Signing the decision list",
+									"widgetId": "meeting-decision-list-signers"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-minutes",
+						"type": "detail-sections",
+						"title": "Minutes",
+						"icon": "FileDocument",
+						"content": {
+							"sections": [
+								{
+									"label": "Minutes",
+									"widgetId": "meeting-minutes"
+								},
+								{
+									"label": "Transcription",
+									"widgetId": "meeting-transcription"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-planning",
+						"type": "detail-sections",
+						"title": "Planning",
+						"icon": "Calendar",
+						"content": {
+							"sections": [
+								{
+									"label": "Planning",
+									"widgetId": "meeting-planning"
+								},
+								{
+									"label": "Outcome",
+									"widgetId": "meeting-outcome"
+								},
+								{
+									"label": "Agenda items",
+									"widgetId": "meeting-stats-agenda-items"
+								},
+								{
+									"label": "Action items",
+									"widgetId": "meeting-stats-action-items"
+								},
+								{
+									"label": "Series",
+									"widgetId": "meeting-series"
+								},
+								{
+									"label": "Sessions",
+									"widgetId": "meeting-sessions"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-steps",
+						"type": "MeetingStepBar",
+						"title": "Steps",
+						"icon": "Timeline"
+					},
+					{
+						"id": "meeting-panels",
+						"type": "tabs",
+						"title": "Meeting",
+						"icon": "Calendar",
+						"content": {
+							"ariaLabel": "Parts of this meeting",
+							"maxVisibleTabs": 5,
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "meeting-panel-agenda",
+									"label": "Agenda"
+								},
+								{
+									"widgetId": "meeting-panel-people",
+									"label": "Participants"
+								},
+								{
+									"widgetId": "meeting-panel-documents",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "meeting-panel-decisions",
+									"label": "Decisions"
+								},
+								{
+									"widgetId": "meeting-panel-minutes",
+									"label": "Minutes"
+								},
+								{
+									"widgetId": "meeting-panel-planning",
+									"label": "Planning",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-broadcast",
+									"label": "Broadcast",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-case-system",
+									"label": "Case system",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-audit-statements",
+									"label": "Audit statements",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-stage",
+									"label": "Stage",
+									"overflow": true
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Dashboard",
 			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE, at the same width and height, moved down by a fixed number of rows. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
 			"config": {
