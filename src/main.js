@@ -11,6 +11,7 @@ import {
 	registerLeafIntegrations,
 	registerTranslations,
 } from '@conduction/nextcloud-vue'
+import { getCapabilities } from '@nextcloud/capabilities'
 import { loadState } from '@nextcloud/initial-state'
 import {
 	loadTranslations,
@@ -141,11 +142,15 @@ const structureProfile = resolveStructureProfile(
 )
 const menuLayout =
 	structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple
+// The simple profile's brand block names the instance through its theming
+// capabilities (`@theming.name`, `@theming.logo`), so the navigation shows the
+// municipality the instance belongs to without the app naming one.
 const mergedManifest = buildProfiledManifest(
 	buildManifest,
 	bundledManifest,
 	fragments,
 	menuLayout,
+	{ theming: getCapabilities()?.theming ?? null },
 )
 
 // The permissions this account holds, from the server's own answer rather than

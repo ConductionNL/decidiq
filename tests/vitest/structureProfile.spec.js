@@ -571,7 +571,7 @@ describe('the structure setting', () => {
 			'structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple',
 		)
 		expect(mainSource.replace(/\s+/g, '')).toContain(
-			'buildProfiledManifest(buildManifest,bundledManifest,fragments,menuLayout,)',
+			'buildProfiledManifest(buildManifest,bundledManifest,fragments,menuLayout,{theming:getCapabilities()?.theming??null},)',
 		)
 		// And nothing builds the manifest past the profile.
 		expect(mainSource).not.toMatch(/[^(]buildManifest\(/)
@@ -636,5 +636,72 @@ describe('the structure setting', () => {
 				).rejects.toThrow('did not store')
 			}
 		}
+	})
+})
+
+describe('the navigation of the simple profile', () => {
+	// DcDashboard and AppZijbalk: a brand block (logo, app name, the
+	// instance's name) and one primary button. The instance's name and logo
+	// are read from the theming capabilities at boot: the app names none.
+	const theming = {
+		name: 'Gemeente Zuiddrecht',
+		logo: '/apps/theming/image/logo?v=1',
+	}
+	const withTheming = buildProfiledManifest(
+		buildManifest,
+		manifest(),
+		fragments,
+		simpleFile,
+		{ theming },
+	)
+
+	it('opens with the brand block, named after the instance', () => {
+		expect(withTheming.nav.brand).toEqual({
+			name: 'decidiq',
+			caption: 'Gemeente Zuiddrecht',
+			logo: '/apps/theming/image/logo?v=1',
+		})
+	})
+
+	it('leaves a value the instance does not answer empty, never a guess', () => {
+		expect(build(simpleFile).nav.brand).toEqual({
+			name: 'decidiq',
+			caption: '',
+			logo: '',
+		})
+		const partial = buildProfiledManifest(
+			buildManifest,
+			manifest(),
+			fragments,
+			simpleFile,
+			{ theming: { name: 'Gemeente Zuiddrecht' } },
+		)
+		expect(partial.nav.brand.caption).toBe('Gemeente Zuiddrecht')
+		expect(partial.nav.brand.logo).toBe('')
+	})
+
+	it('has one primary button, New proposal, that opens the proposals list', () => {
+		const action = withTheming.nav.primaryAction
+		// No icon of its own: the library draws its plus, the board's "+".
+		expect(action).toEqual({ label: 'New proposal', route: 'Motions' })
+		expect(withTheming.pages.find((page) => page.id === action.route).type).toBe(
+			'index',
+		)
+		expect(dutch[action.label]).toBe('Nieuw voorstel')
+	})
+
+	it('reads the theming capabilities in main.js and writes no municipality itself', () => {
+		expect(mainSource).toContain('getCapabilities()?.theming')
+		expect(JSON.stringify(simpleFile.nav)).not.toMatch(/Zuiddrecht|Gemeente/)
+	})
+
+	it('is a manifest the library accepts, brand and button included', () => {
+		const result = validateManifest(JSON.parse(JSON.stringify(withTheming)))
+		expect(result.errors).toEqual([])
+	})
+
+	it('is absent from the full profile', () => {
+		expect(fullFile.nav).toBeUndefined()
+		expect(build(fullFile).nav).toEqual(manifest().nav ?? undefined)
 	})
 })

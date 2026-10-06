@@ -118,3 +118,20 @@ The Registers entry of the simple menu MUST open a page that shows one tile per 
 - **GIVEN** the Registers page
 - **WHEN** its tiles are read
 - **THEN** each tile MUST count the schema of the list it opens, with no filter
+
+### Requirement: REQ-SSP-007 The simple navigation carries the brand of the instance and one primary action
+
+In the simple structure the navigation MUST open with a brand block (the instance's logo, the app name and the instance's name as caption) and a primary button that opens the proposals list. The instance's name and logo MUST come from the theming capabilities at boot; the app MUST NOT name a municipality. A value the instance does not answer MUST stay empty. The full structure MUST keep the navigation without them.
+
+#### Scenario: The brand block names the instance
+@e2e exclude A reading of the built nav, asserted in structureProfile.spec.js.
+- **GIVEN** the simple structure on an instance whose theming capabilities name it
+- **WHEN** the manifest is built
+- **THEN** `nav.brand` MUST carry the app name, the instance's name as caption and its logo
+- **AND** `nav.primaryAction` MUST open the Proposals page
+
+#### Scenario: The instance has no theming answer
+@e2e exclude A reading of the built nav, asserted in structureProfile.spec.js.
+- **GIVEN** the simple structure on an instance without theming capabilities
+- **WHEN** the manifest is built
+- **THEN** the caption and the logo MUST be empty strings, not a guess

@@ -122,27 +122,83 @@ describe('the dashboard in the simple structure', () => {
 		expect(config.widgets).toHaveLength(before.widgets.length + 4)
 	})
 
-	it('keeps every old card at its width, height and column, and only moves it down', () => {
+	it('lays every old card out once, in two columns as the board draws them', () => {
+		// DcDashboard (6 October 2026): under the counters a main column eight
+		// wide (proposals per step, pending votes, my action items) and a side
+		// column four wide (upcoming meetings, commitments with a deadline).
+		// The widgets the board does not show follow below at full width, in
+		// the order they had.
+		const placed = (id) => config.layout.find((item) => item.widgetId === id)
 		for (const old of before.layout) {
-			const now = config.layout.find((item) => item.id === old.id)
-			expect(now, old.widgetId).toBeDefined()
-			expect({ ...now, gridY: old.gridY }).toEqual(old)
-			expect(now.gridY).toBeGreaterThan(old.gridY)
+			expect(placed(old.widgetId), old.widgetId).toBeDefined()
 		}
-		// Cards that shared a row still share it, and rows keep their order.
-		const rowOf = (layout, id) =>
-			layout.find((item) => item.widgetId === id).gridY
-		for (const a of before.layout) {
-			for (const b of before.layout) {
-				expect(
-					Math.sign(
-						rowOf(config.layout, a.widgetId)
-							- rowOf(config.layout, b.widgetId),
-					),
-					`${a.widgetId} / ${b.widgetId}`,
-				).toBe(Math.sign(a.gridY - b.gridY))
+		const main = [
+			'simple-proposals-per-step',
+			'pending-votes-list',
+			'my-action-items',
+		]
+		const side = ['upcoming-meetings-list', 'simple-commitments-due']
+		for (const id of main) {
+			expect(placed(id).gridX, id).toBe(0)
+			expect(placed(id).gridWidth, id).toBe(8)
+		}
+		for (const id of side) {
+			expect(placed(id).gridX, id).toBe(8)
+			expect(placed(id).gridWidth, id).toBe(4)
+		}
+		// Each column reads top to bottom in the board's order, starting right
+		// under the counters.
+		for (const column of [main, side]) {
+			expect(placed(column[0]).gridY).toBe(6)
+			for (let at = 1; at < column.length; at++) {
+				expect(placed(column[at]).gridY).toBeGreaterThan(
+					placed(column[at - 1]).gridY,
+				)
 			}
 		}
+		// What the board does not show sits below both columns, full width
+		// where it was full width, in the order the full dashboard had.
+		const columns = new Set([...main, ...side])
+		// The four counters keep their row right under the attention card.
+		const counters = new Set(
+			before.layout
+				.filter((item) => placed(item.widgetId).gridY === 4)
+				.map((item) => item.widgetId),
+		)
+		expect(counters.size).toBe(4)
+		const rest = before.layout
+			.filter(
+				(item) =>
+					!columns.has(item.widgetId) && !counters.has(item.widgetId),
+			)
+			.sort((a, b) => a.gridY - b.gridY || a.gridX - b.gridX)
+		const bottom = Math.max(
+			...[...columns].map((id) => placed(id).gridY + placed(id).gridHeight),
+		)
+		for (const old of rest) {
+			const now = placed(old.widgetId)
+			expect(now.gridY, old.widgetId).toBeGreaterThanOrEqual(bottom)
+			expect(now.gridWidth, old.widgetId).toBe(old.gridWidth)
+			expect(now.gridHeight, old.widgetId).toBe(old.gridHeight)
+		}
+		for (let at = 1; at < rest.length; at++) {
+			expect(
+				placed(rest[at].widgetId).gridY,
+				rest[at].widgetId,
+			).toBeGreaterThanOrEqual(placed(rest[at - 1].widgetId).gridY)
+		}
+	})
+
+	it('makes opening the decisions the primary action of the attention card, drawn last', () => {
+		// DcDashboard: "Lezen" outlined, then "Paraferen" in blue. The library
+		// takes the first action as primary unless one says so itself.
+		const actions = widgets.get('simple-first-today').content.actions
+		expect(actions.map((action) => action.label)).toEqual([
+			'Open the meetings',
+			'Open these decisions',
+		])
+		expect(actions[0].primary).toBeUndefined()
+		expect(actions[1].primary).toBe(true)
 	})
 
 	it('puts no two cards on one cell, and every card on a widget that exists', () => {
@@ -241,7 +297,9 @@ describe('the dashboard in the simple structure', () => {
 		const card = widgets.get('simple-first-today').content
 		expect(card.layout).toBe('attention')
 		expect(card.visibleWhen).toMatchObject({ op: 'gt', value: 0 })
-		const link = card.actions[0].route
+		// The primary action (DcDashboard "Paraferen", drawn last) opens them.
+		const primary = card.actions.find((action) => action.primary === true)
+		const link = primary.route
 		expect(link.name).toBe('Decisions')
 		expect(link.query).toEqual(asQuery(card.visibleWhen.source.filter))
 		// The list it opens reads the same schema, with no filter of its own.
@@ -255,7 +313,7 @@ describe('the dashboard in the simple structure', () => {
 			showCount: true,
 		})
 		expect(pageOf(simple, 'Meetings')).toBeDefined()
-		expect(card.actions[1].route).toBe('Meetings')
+		expect(card.actions.find((action) => !action.primary).route).toBe('Meetings')
 	})
 
 	it('groups the proposals the way the views on the Proposals list count them', () => {
