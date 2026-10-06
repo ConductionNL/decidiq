@@ -32,7 +32,7 @@
  * HOW IT IS REACHED
  * -----------------
  * POST /api/decisions/{decisionId}/withdraw (DecisionController::withdraw)
- * → DecisionLifecycleService::withdraw(), which checks the lifecycle edge,
+ * → DecisionWithdrawFlow::withdraw(), which checks the lifecycle edge,
  * calls this class, persists the decision as `withdrawn` and appends the
  * hash-chained audit entry. The decision's Lifecycle widget offers the action
  * (#1380).
