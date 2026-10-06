@@ -373,8 +373,11 @@ describe('the dashboard in the simple structure', () => {
 		const date = list.columns.find((column) => column.key === 'deadline')
 		expect(date.width).toBe('7.5rem')
 		expect(date.align).toBe('right')
-		// The text column takes the rest: no width of its own.
+		// The text column takes the rest, and wraps: a cell is one clipped
+		// line by default, and a commitment is a sentence (seen live cut at
+		// "Wethouder Van Dijk zegt t", 6 October 2026).
 		expect(list.columns[0].width).toBeUndefined()
+		expect(list.columns[0].cellClass).toBe('cn-cell--wrap')
 	})
 })
 

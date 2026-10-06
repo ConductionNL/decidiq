@@ -1990,7 +1990,8 @@
 							"columns": [
 								{
 									"key": "text",
-									"label": "Commitment"
+									"label": "Commitment",
+									"cellClass": "cn-cell--wrap"
 								},
 								{
 									"key": "deadline",
