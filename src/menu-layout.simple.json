@@ -1483,6 +1483,225 @@
 			}
 		},
 		{
+			"id": "AmendmentDetail",
+			"_note": "The amendment page in the simple structure (openspec/changes/simple-amendment-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`. An amendment has a shorter road than a decision: draft, proposed, deliberating, voting, decided (MotionLifecycleTransitioner::AMENDMENT_TRANSITIONS). TWO STEPS ARE HEADER BUTTONS: submitting a draft and starting the debate. They post to POST /api/amendments/{id}/transition with `newState` and nothing else. That endpoint exists and is guarded on the server (the chair group, or an administrator where none is set), and until now no control on any page called it, so an amendment could not leave draft from the page at all. THE VOTE IS NOT A HEADER BUTTON, on purpose. The same endpoint would accept `voting` and `decided`, and taking those steps there skips two things the Voting round block does on the server: it holds the voting order of the amendments when a round opens, and it writes an adopted amendment into the text of its motion when the round closes. So the vote stays in the Voting round block, which is a tab of its own here, and the step bar says so. NO ENDPOINT TELLS A PAGE WHETHER THE READER MAY TAKE A STEP ON AN AMENDMENT, so the step bar says who takes the first two steps for every reader, and the server's refusal is shown to anyone else who presses. THE THREE BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component, because a tab resolves a widget by type. THE WHAT-NOW CHECKLIST IS ADVICE: the server asks for none of those fields before a step. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box. NO QUICK ACTION: the link to the motion is in the Parent motion block, which reads both spellings of that link (`amends` and the retired `parentMotion`); a header link could read one.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "amendment-submit",
+					"proposed": "amendment-debate"
+				},
+				"quickActions": [],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"proposed": "Proposed",
+						"deliberating": "Deliberating",
+						"voting": "Voting",
+						"decided": "Decision taken",
+						"enacted": "Enacted",
+						"archived": "Archived",
+						"withdrawn": "Withdrawn"
+					},
+					"colorMap": {
+						"draft": "default",
+						"proposed": "primary",
+						"deliberating": "primary",
+						"voting": "warning",
+						"decided": "success",
+						"enacted": "success",
+						"archived": "default",
+						"withdrawn": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Finish the amendment",
+							"after": "Then: the debate",
+							"checklist": [
+								{
+									"label": "Write the proposed text",
+									"doneField": "proposedText"
+								},
+								{
+									"label": "Name the proposer",
+									"doneField": "proposer"
+								},
+								{
+									"label": "Link the motion it changes",
+									"doneField": "amends"
+								}
+							]
+						},
+						"proposed": {
+							"title": "What now? Bring it to the debate",
+							"after": "Then: the vote",
+							"checklist": [
+								{
+									"label": "Set its place in the voting order",
+									"doneField": "votingOrder",
+									"hint": "The chair sets the order on the page of the motion."
+								}
+							]
+						}
+					}
+				},
+				"sideColumn": [
+					{
+						"id": "amend-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"decisionType",
+								"amends",
+								"proposer",
+								"submittedAt",
+								"votingOrder",
+								"outcome",
+								"decisionDate"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "amend-steps",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "amend-panels",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"amend-diff": {
+						"type": "AmendmentDiffTab"
+					},
+					"amend-parent": {
+						"type": "AmendmentParentMotionTab"
+					},
+					"amend-voting-round": {
+						"type": "AmendmentVotingRoundTab"
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "amendment-submit",
+						"type": "api-call",
+						"label": "Submit amendment",
+						"icon": "BullhornOutline",
+						"group": "Amendment",
+						"url": "/apps/decidiq/api/amendments/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "proposed"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The amendment is submitted."
+					},
+					{
+						"id": "amendment-debate",
+						"type": "api-call",
+						"label": "Start the debate",
+						"icon": "AccountVoice",
+						"group": "Amendment",
+						"url": "/apps/decidiq/api/amendments/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "deliberating"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "proposed"
+						},
+						"successMessage": "The debate has started."
+					}
+				],
+				"widgets": [
+					{
+						"id": "amend-panel-details",
+						"type": "detail-sections",
+						"title": "Amendment",
+						"icon": "FileSign",
+						"content": {
+							"sections": [
+								{
+									"label": "Amendment",
+									"widgetId": "amend-data"
+								},
+								{
+									"label": "Parent motion",
+									"widgetId": "amend-parent"
+								}
+							]
+						}
+					},
+					{
+						"id": "amend-steps",
+						"type": "AmendmentStepBar",
+						"title": "Steps",
+						"icon": "Timeline"
+					},
+					{
+						"id": "amend-panels",
+						"type": "tabs",
+						"title": "Amendment",
+						"icon": "FileSign",
+						"content": {
+							"ariaLabel": "Parts of this amendment",
+							"maxVisibleTabs": 5,
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "amend-diff",
+									"label": "Text changes"
+								},
+								{
+									"widgetId": "amend-panel-details",
+									"label": "Amendment"
+								},
+								{
+									"widgetId": "amend-voting-round",
+									"label": "Voting round"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Dashboard",
 			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE, at the same width and height, moved down by a fixed number of rows. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
 			"config": {
@@ -1893,6 +2112,27 @@
 					"Decision taken",
 					"Enacted",
 					"Urgent"
+				]
+			}
+		},
+		{
+			"id": "ActionItems",
+			"_note": "My actions in the simple structure (openspec/changes/simple-amendment-page). The menu entry reads My actions and the page listed everybody's action items. It now opens on the reader's own: the view Mine filters on `assignee`, the field that holds a Nextcloud user id (the dashboard's My action items widget filters on the same field). `@me` is the library's word for the reader and is filled in when the list is fetched, so no user id is written here. THE OLD LIST IS ONE CLICK AWAY as the view Everyone, which has no filter and is the page as it was. Both views carry a count, taken with the filter of the view. ONLY ACTION ITEMS ARE ON THIS PAGE. A vote that waits for somebody has no record with a person on it until it is cast (a vote names a participant, and a participant names a user: two steps, which a list filter cannot take), and a commitment names the member who made it by a record id, not by a user id. Those two are left as they are: pending votes on the dashboard, commitments under their own menu entry.",
+			"config": {
+				"quickFilters": [
+					{
+						"label": "Mine",
+						"filter": {
+							"assignee": "@me"
+						},
+						"default": true,
+						"showCount": true
+					},
+					{
+						"label": "Everyone",
+						"filter": {},
+						"showCount": true
+					}
 				]
 			}
 		}
