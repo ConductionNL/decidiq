@@ -1803,7 +1803,12 @@
         "Vote on behalf of": "Abstimmen im Namen von",
         "Myself": "Mich selbst",
         "Your vote on behalf of {name} has been recorded.": "Ihre Stimme im Namen von {name} wurde erfasst.",
-        "Failed to grant proxy": "Vollmacht konnte nicht erteilt werden"
+        "Failed to grant proxy": "Vollmacht konnte nicht erteilt werden",
+        "This decision has been withdrawn.": "Dieser Beschluss wurde zurückgezogen.",
+        "Withdraw decision": "Beschluss zurückziehen",
+        "Withdrawal failed.": "Zurückziehen fehlgeschlagen.",
+        "Withdrawn by the deciding body": "Zurückgezogen vom beschließenden Organ",
+        "Withdrawn by the party who asked": "Zurückgezogen von der antragstellenden Partei"
     },
     "plurals": null
 }

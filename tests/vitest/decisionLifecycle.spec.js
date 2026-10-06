@@ -8,8 +8,10 @@
 import { describe, expect, it } from 'vitest'
 import {
 	buildTimeline,
+	buildWithdrawRequest,
 	STATE_COLORS,
 	STATES,
+	WITHDRAWN_BY,
 } from '../../src/components/tabs/decisionLifecycle.js'
 
 describe('decisionLifecycle helpers', () => {
@@ -61,5 +63,27 @@ describe('decisionLifecycle helpers', () => {
 	it('renders unknown states as all-upcoming with no current marker', () => {
 		const timeline = buildTimeline('warp-drive')
 		expect(timeline.every((s) => s.status === 'upcoming')).toBe(true)
+	})
+})
+
+describe('decision withdrawal request (#1380)', () => {
+	it('offers exactly the two actor kinds the server accepts', () => {
+		expect(WITHDRAWN_BY).toEqual(['bestuursorgaan', 'belanghebbende'])
+	})
+
+	it('cannot be sent without saying who withdrew it', () => {
+		expect(buildWithdrawRequest('', 'reason')).toBeNull()
+		expect(buildWithdrawRequest('someone-else', 'reason')).toBeNull()
+	})
+
+	it('carries the actor kind and the trimmed reason', () => {
+		expect(buildWithdrawRequest('belanghebbende', '  Aanvraag ingetrokken  ')).toEqual({
+			withdrawnBy: 'belanghebbende',
+			reason: 'Aanvraag ingetrokken',
+		})
+		expect(buildWithdrawRequest('bestuursorgaan', undefined)).toEqual({
+			withdrawnBy: 'bestuursorgaan',
+			reason: '',
+		})
 	})
 })

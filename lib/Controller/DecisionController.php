@@ -142,6 +142,53 @@ class DecisionController extends Controller {
 	}//end transition()
 
 	/**
+	 * Withdraw a decision.
+	 *
+	 * POST /api/decisions/{decisionId}/withdraw
+	 *
+	 * Expects JSON body: { "withdrawnBy": "<bestuursorgaan|belanghebbende>",
+	 * "reason": "<why, for the person who receives it>" }
+	 *
+	 * Access control is the same as transition(): OpenRegister ObjectService
+	 * RBAC inside DecisionLifecycleService (find/saveObject) plus the
+	 * chair-only gate when the body's policy restricts the edge.
+	 *
+	 * Returns 200 with the withdrawn decision, 401 unauthenticated, 422 when
+	 * the actor kind is missing, the decision cannot be withdrawn from its
+	 * current state, or it is not accessible.
+	 *
+	 * @param string $decisionId UUID of the Decision object
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function withdraw(string $decisionId): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$result = $this->lifecycleService->withdraw(
+			decisionId: $decisionId,
+			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
+			reason: (string)$this->request->getParam('reason', ''),
+			currentUserId: $user->getUID()
+		);
+
+		if ($result['success'] === false) {
+			return new JSONResponse(
+				['message' => $result['message']],
+				Http::STATUS_UNPROCESSABLE_ENTITY
+			);
+		}
+
+		return new JSONResponse($result);
+	}//end withdraw()
+
+	/**
 	 * Return the current lifecycle state and allowed next transitions for a
 	 * decision (consumed by the detail-view Lifecycle tab).
 	 *

@@ -1652,7 +1652,12 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Sættes, når en optegnelse i sagen er mere fortrolig end sagen selv: nævner optegnelsen og dens niveau. Hæv sagens klassifikation for at fjerne den.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Sagen står allerede på en liste i OpenRegister, så dens kategori ligger fast.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Registret indeholder ingen Selectielijst-kategori %1$s for sager.",
-        "Selectielijst category": "Selectielijst-kategori"
+        "Selectielijst category": "Selectielijst-kategori",
+        "This decision has been withdrawn.": "Denne beslutning er trukket tilbage.",
+        "Withdraw decision": "Træk beslutning tilbage",
+        "Withdrawal failed.": "Tilbagetrækning mislykkedes.",
+        "Withdrawn by the deciding body": "Trukket tilbage af det besluttende organ",
+        "Withdrawn by the party who asked": "Trukket tilbage af den part, der anmodede"
     },
     "nplurals=2; plural=(n != 1);"
 )

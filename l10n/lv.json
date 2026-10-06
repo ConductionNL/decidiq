@@ -1651,7 +1651,12 @@
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Tiek iestatīts, ja lietas dokuments ir konfidenciālāks par pašu lietu: nosauc dokumentu un tā līmeni. Lai to noņemtu, paaugstiniet lietas klasifikāciju.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Lieta jau ir OpenRegister sarakstā, tāpēc tās kategorija ir nemainīga.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Reģistrā nav Selectielijst kategorijas %1$s lietām.",
-        "Selectielijst category": "Selectielijst kategorija"
+        "Selectielijst category": "Selectielijst kategorija",
+        "This decision has been withdrawn.": "Šis lēmums ir atsaukts.",
+        "Withdraw decision": "Atsaukt lēmumu",
+        "Withdrawal failed.": "Atsaukšana neizdevās.",
+        "Withdrawn by the deciding body": "Atsaucis lēmējorgāns",
+        "Withdrawn by the party who asked": "Atsaukusi pieprasītāja puse"
     },
     "plurals": null
 }

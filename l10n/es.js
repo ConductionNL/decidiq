@@ -1804,7 +1804,12 @@ OC.L10N.register(
         "Vote on behalf of": "Votar en nombre de",
         "Myself": "Yo mismo",
         "Your vote on behalf of {name} has been recorded.": "Su voto en nombre de {name} ha sido registrado.",
-        "Failed to grant proxy": "No se pudo otorgar el poder"
+        "Failed to grant proxy": "No se pudo otorgar el poder",
+        "This decision has been withdrawn.": "Esta decisión ha sido retirada.",
+        "Withdraw decision": "Retirar decisión",
+        "Withdrawal failed.": "Error al retirar.",
+        "Withdrawn by the deciding body": "Retirada por el órgano decisor",
+        "Withdrawn by the party who asked": "Retirada por la parte solicitante"
     },
     "nplurals=2; plural=(n != 1);"
 )

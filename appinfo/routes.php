@@ -157,6 +157,8 @@ $extra = [
         // @spec openspec/specs/decision-management/spec.md
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+        // Withdrawal carries who withdrew it and why (REQ-DWP-005), so it has its own endpoint (#1380).
+        ['name' => 'decision#withdraw',    'url' => '/api/decisions/{decisionId}/withdraw',    'verb' => 'POST'],
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],

@@ -1652,7 +1652,12 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Dosyadaki bir kayıt dosyanın kendisinden daha gizli olduğunda ayarlanır: o kaydı ve düzeyini belirtir. Kaldırmak için dosyanın sınıflandırmasını yükseltin.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Dosya zaten OpenRegister'da bir listede, bu yüzden kategorisi sabittir.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Kayıt, dosyalar için %1$s Selectielijst kategorisini içermiyor.",
-        "Selectielijst category": "Selectielijst kategorisi"
+        "Selectielijst category": "Selectielijst kategorisi",
+        "This decision has been withdrawn.": "Bu karar geri çekildi.",
+        "Withdraw decision": "Kararı geri çek",
+        "Withdrawal failed.": "Geri çekme başarısız oldu.",
+        "Withdrawn by the deciding body": "Karar veren organ tarafından geri çekildi",
+        "Withdrawn by the party who asked": "Talep eden taraf tarafından geri çekildi"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -79,6 +79,46 @@
 			</CnNoteCard>
 		</div>
 
+		<CnNoteCard
+			v-if="!error && lifecycle === 'withdrawn'"
+			type="info"
+			data-testid="lifecycle-withdrawn"
+			:title="t('decidiq', 'Withdrawn')">
+			{{ t('decidiq', 'This decision has been withdrawn.') }}
+		</CnNoteCard>
+
+		<div
+			v-if="!error && withdrawable"
+			class="decidiq-lifecycle__withdraw"
+			data-testid="lifecycle-withdraw">
+			<h4 class="decidiq-lifecycle__actions-title">
+				{{ t('decidiq', 'Withdraw decision') }}
+			</h4>
+			<NcCheckboxRadioSwitch
+				v-for="kind in withdrawnByOptions"
+				:key="kind"
+				v-model="withdrawnBy"
+				type="radio"
+				:value="kind"
+				name="decidiq-decision-withdrawn-by"
+				:data-testid="'lifecycle-withdrawn-by-' + kind">
+				{{ withdrawnByLabel(kind) }}
+			</NcCheckboxRadioSwitch>
+			<NcTextArea
+				v-model="withdrawReason"
+				:label="t('decidiq', 'Reason')"
+				resize="vertical" />
+			<div class="decidiq-lifecycle__buttons">
+				<NcButton
+					:disabled="busy || !withdrawRequest"
+					data-testid="lifecycle-action-withdraw"
+					variant="error"
+					@click="withdraw">
+					{{ t('decidiq', 'Withdraw') }}
+				</NcButton>
+			</div>
+		</div>
+
 		<PublicationPromptModal
 			v-if="publishPromptOpen"
 			@publish="promptPublish"
@@ -89,14 +129,26 @@
 <script>
 import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { NcButton } from '@nextcloud/vue'
+import { NcButton, NcCheckboxRadioSwitch, NcTextArea } from '@nextcloud/vue'
 import PublicationPromptModal from '../../modals/PublicationPromptModal.vue'
-import { buildTimeline } from './decisionLifecycle.js'
+import {
+	buildTimeline,
+	buildWithdrawRequest,
+	WITHDRAWN_BY,
+} from './decisionLifecycle.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'DecisionLifecycleTab',
-	components: { NcButton, CnNoteCard, CnStatusBadge, PublicationPromptModal },
+	components: {
+		NcButton,
+		NcCheckboxRadioSwitch,
+		NcTextArea,
+		CnNoteCard,
+		CnStatusBadge,
+		PublicationPromptModal,
+	},
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -109,6 +161,10 @@ export default {
 			transitionError: '',
 			lifecycle: 'draft',
 			actions: [],
+			withdrawable: false,
+			withdrawnBy: '',
+			withdrawReason: '',
+			withdrawnByOptions: WITHDRAWN_BY,
 			publishPromptOpen: false,
 		}
 	},
@@ -117,6 +173,11 @@ export default {
 		/** @spec openspec/specs/decision-management/spec.md */
 		timeline() {
 			return buildTimeline(this.lifecycle)
+		},
+
+		/** @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md */
+		withdrawRequest() {
+			return buildWithdrawRequest(this.withdrawnBy, this.withdrawReason)
 		},
 	},
 
@@ -144,6 +205,7 @@ export default {
 				decided: this.t('decidiq', 'Decided'),
 				enacted: this.t('decidiq', 'Enacted'),
 				archived: this.t('decidiq', 'Archived'),
+				withdrawn: this.t('decidiq', 'Withdrawn'),
 			}
 			return labels[state] || state
 		},
@@ -162,6 +224,19 @@ export default {
 				archive: this.t('decidiq', 'Archive'),
 			}
 			return labels[action] || action
+		},
+
+		/**
+		 * @param {string} kind The actor kind (bestuursorgaan|belanghebbende)
+		 * @return {string} The translated label
+		 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md
+		 */
+		withdrawnByLabel(kind) {
+			const labels = {
+				bestuursorgaan: this.t('decidiq', 'Withdrawn by the deciding body'),
+				belanghebbende: this.t('decidiq', 'Withdrawn by the party who asked'),
+			}
+			return labels[kind] || kind
 		},
 
 		/** @spec openspec/specs/decision-management/spec.md */
@@ -190,6 +265,7 @@ export default {
 				}
 				this.lifecycle = body.lifecycle || 'draft'
 				this.actions = Array.isArray(body.actions) ? body.actions : []
+				this.withdrawable = body.withdrawable === true
 			} catch (e) {
 				this.error =
 					e?.message
@@ -238,6 +314,50 @@ export default {
 			} catch (e) {
 				this.transitionError =
 					e?.message || this.t('decidiq', 'Transition failed.')
+			} finally {
+				this.busy = false
+			}
+		},
+
+		/**
+		 * Withdraw the decision: who withdrew it and why travel with the
+		 * request, and the server decides whether the current state allows it.
+		 *
+		 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md
+		 */
+		async withdraw() {
+			const request = this.withdrawRequest
+			if (!request) return
+			this.busy = true
+			this.transitionError = ''
+			try {
+				const res = await fetch(
+					generateUrl(
+						`/apps/decidiq/api/decisions/${this.objectId}/withdraw`,
+					),
+					{
+						method: 'POST',
+						headers: {
+							Accept: 'application/json',
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify(request),
+					},
+				)
+				const body = await res.json()
+				if (!res.ok) {
+					this.transitionError =
+						body?.message || this.t('decidiq', 'Withdrawal failed.')
+					return
+				}
+				this.withdrawnBy = ''
+				this.withdrawReason = ''
+				await this.refresh()
+				this.$emit('refresh')
+			} catch (e) {
+				this.transitionError =
+					e?.message || this.t('decidiq', 'Withdrawal failed.')
 			} finally {
 				this.busy = false
 			}
@@ -391,6 +511,12 @@ export default {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px;
+}
+
+.decidiq-lifecycle__withdraw {
+	display: flex;
+	flex-direction: column;
+	gap: var(--default-grid-baseline);
 }
 
 .decidiq-lifecycle__chair-hint {

@@ -1652,7 +1652,12 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Socraítear é nuair a bhíonn taifead sa chomhad níos rúnda ná an comhad féin: ainmníonn sé an taifead agus a leibhéal. Ardaigh aicmiú an chomhaid chun é a ghlanadh.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Tá an comhad ar liosta in OpenRegister cheana, mar sin tá a chatagóir socraithe.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Níl catagóir %1$s den Selectielijst sa chlár do chomhaid.",
-        "Selectielijst category": "Catagóir Selectielijst"
+        "Selectielijst category": "Catagóir Selectielijst",
+        "This decision has been withdrawn.": "Tarraingíodh siar an cinneadh seo.",
+        "Withdraw decision": "Tarraing siar an cinneadh",
+        "Withdrawal failed.": "Theip ar an tarraingt siar.",
+        "Withdrawn by the deciding body": "Tarraingthe siar ag an gcomhlacht cinnteoireachta",
+        "Withdrawn by the party who asked": "Tarraingthe siar ag an bpáirtí a d'iarr é"
     },
     "nplurals=2; plural=(n != 1);"
 )
