@@ -146,7 +146,7 @@ class SigningController extends Controller {
 			return new JSONResponse(['message' => 'This record cannot be sent for signature.'], Http::STATUS_NOT_FOUND);
 		}
 
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->isSignatoryForSubject(userId: $userId, schema: $schema, subjectId: $subjectId) === false) {
 			return new JSONResponse(
 				['message' => 'Only the signatories of this body can send it for signature.'],

@@ -112,7 +112,7 @@ class ExportBundleService {
 			throw new ExportBundleException(message: 'Choose one PDF or a ZIP.', status: Http::STATUS_BAD_REQUEST);
 		}
 
-		$uid = (string)($this->userSession->getUser()?->getUID() ?? '');
+		$uid = $this->userSession->getUser()?->getUID() ?? '';
 		if ($uid === '') {
 			throw new ExportBundleException(message: 'Sign in to export.', status: Http::STATUS_UNAUTHORIZED);
 		}

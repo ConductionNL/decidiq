@@ -176,7 +176,7 @@ class BroadcastCaptionService {
 			'language'   => $language,
 			'filePath'   => $node->getPath(),
 			'shareUrl'   => $url,
-			'reviewedBy' => (string)($user?->getDisplayName() ?? ''),
+			'reviewedBy' => $user?->getDisplayName() ?? '',
 			'releasedAt' => $this->time->getDateTime()->format(DateTimeInterface::ATOM),
 		];
 		$broadcast['captionTracks'] = $tracks;
