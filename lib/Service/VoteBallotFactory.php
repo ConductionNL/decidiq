@@ -223,9 +223,11 @@ class VoteBallotFactory {
 	 * UPDATE when the slug matches an existing object, so the second request
 	 * safely overwrites the first with the same value.
 	 *
-	 * - Secret rounds:     an HMAC over (participant, round), already opaque.
+	 * - Secret rounds:     an HMAC over (participant, round), already opaque;
+	 *   on a proxy ballot the delegatorToken over (delegator, round).
 	 * - Non-secret rounds: "vote-{round}-{participant}", truncated because
-	 *   slugs must be URL-safe and at most 255 characters.
+	 *   slugs must be URL-safe and at most 255 characters; a proxy ballot
+	 *   appends "-proxy-{delegator}".
 	 *
 	 * @param string $votingRoundId The voting round UUID
 	 * @param string $participantId The voting participant UUID
@@ -245,6 +247,13 @@ class VoteBallotFactory {
 		?string $delegatorId,
 	): string {
 		if ($isSecret === true) {
+			// A proxy ballot is keyed on its delegator, not on the holder: keyed
+			// on the holder it would share the holder's own voterToken and the
+			// two ballots would overwrite each other.
+			if ($isProxy === true && $delegatorId !== null) {
+				return $this->tokens->delegatorToken(delegatorId: $delegatorId, votingRoundId: $votingRoundId);
+			}
+
 			return $this->tokens->voterToken(participantId: $participantId, votingRoundId: $votingRoundId);
 		}
 

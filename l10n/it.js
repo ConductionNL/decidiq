@@ -1800,7 +1800,11 @@ OC.L10N.register(
         "No incoming documents wait for a meeting.": "Nessun documento in arrivo attende una riunione.",
         "Loading incoming documents…": "Caricamento dei documenti in arrivo…",
         "Failed to load incoming documents.": "Impossibile caricare i documenti in arrivo.",
-        "The document could not be put on the agenda.": "Non è stato possibile mettere il documento all'ordine del giorno."
+        "The document could not be put on the agenda.": "Non è stato possibile mettere il documento all'ordine del giorno.",
+        "Vote on behalf of": "Vota per conto di",
+        "Myself": "Me stesso",
+        "Your vote on behalf of {name} has been recorded.": "Il tuo voto per conto di {name} è stato registrato.",
+        "Failed to grant proxy": "Impossibile conferire la delega"
     },
     "nplurals=2; plural=(n != 1);"
 )

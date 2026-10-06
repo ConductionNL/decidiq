@@ -272,6 +272,46 @@ class VotingController extends Controller {
 	}//end publish()
 
 	/**
+	 * Say which proxies the caller holds and has given on a round.
+	 *
+	 * GET /api/voting-rounds/{id}/proxy
+	 * Response: { "participantId": "uuid", "held": [{ "participantId", "displayName" }], "granted": "uuid"|null }
+	 *
+	 * The voting panel reads it to offer the holder "vote on behalf of" for
+	 * each grant they hold; each held participantId is the `delegatorId` the
+	 * cast endpoint takes. The caller is resolved from the session, as cast()
+	 * and proxy() do, so the answer names the same participant they act as.
+	 *
+	 * @param string $id The voting round UUID
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function proxies(string $id): JSONResponse {
+		$nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
+		if ($nextcloudUid === '') {
+			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
+		if ($participantId === null) {
+			// Not a participant: nothing held, nothing given.
+			return new JSONResponse(['participantId' => null, 'held' => [], 'granted' => null]);
+		}
+
+		return $this->errors->badRequestOrNotFound(
+			fn (): JSONResponse => new JSONResponse(
+				$this->proxyService->proxiesFor(votingRoundId: $id, participantId: $participantId)
+			)
+		);
+
+	}//end proxies()
+
+	/**
 	 * Grant proxy delegation.
 	 *
 	 * POST /api/voting-rounds/{id}/proxy

@@ -254,6 +254,21 @@ class VotingControllerTest extends TestCase {
 	}//end testTallyUnauthenticatedReturns401()
 
 	/**
+	 * proxies() returns 401 for unauthenticated requests.
+	 *
+	 * @return void
+	 */
+	public function testProxiesUnauthenticatedReturns401(): void {
+		$this->votingService->expects($this->never())->method('resolveParticipantUuid');
+
+		$result = $this->buildController($this->unauthSession)->proxies('round-uuid-001');
+
+		self::assertInstanceOf(JSONResponse::class, $result);
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $result->getStatus());
+
+	}//end testProxiesUnauthenticatedReturns401()
+
+	/**
 	 * revokeProxy() returns 401 for unauthenticated requests.
 	 *
 	 * @return void
@@ -291,6 +306,7 @@ class VotingControllerTest extends TestCase {
 			'tally',
 			'liveTally',
 			'revokeProxy',
+			'proxies',
 		];
 
 		$ref = new \ReflectionClass(VotingController::class);

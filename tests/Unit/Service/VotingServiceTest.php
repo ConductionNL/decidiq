@@ -666,4 +666,53 @@ class VotingServiceTest extends TestCase {
 	// The proxy (volmacht) delegation rules moved to ProxyDelegationService
 	// together with grantProxy()/revokeProxy(); they are covered by
 	// ProxyDelegationServiceTest.
+	/**
+	 * A proxy holder's vote on the grantor's behalf is a second ballot: it
+	 * does not overwrite the holder's own vote, and the holder's own re-vote
+	 * does not overwrite the proxy ballot (vot-10, #1377).
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return void
+	 */
+	public function testProxyBallotAndOwnBallotDoNotOverwriteEachOther(): void {
+		$grant = [
+			'title' => 'Proxy',
+			'body' => json_encode(['fromParticipantId' => 'delegator-uuid', 'toParticipantId' => 'delegate-uuid']),
+		];
+		$service = $this->buildService(
+			self::roundWithBallots(
+				['notes' => [$grant]],
+				[
+					[
+						'id' => 'own-vote-uuid',
+						'value' => 'against',
+						'isProxy' => false,
+						'relations' => [
+							['schema' => 'voting-round', 'id' => 'round-uuid'],
+							['schema' => 'participant', 'id' => 'delegate-uuid'],
+						],
+					],
+				]
+			)
+		);
+
+		$service->castVote('round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
+
+		$votes = $this->savesFor('vote');
+		self::assertCount(1, $votes);
+		self::assertArrayNotHasKey('id', $votes[0], 'The proxy ballot is new, not the holder\'s own ballot');
+		self::assertTrue($votes[0]['isProxy']);
+		self::assertStringContainsString('-proxy-', $votes[0]['@self']['slug']);
+
+		// The holder now changes their own vote: it updates their own ballot only.
+		$service->castVote('round-uuid', 'delegate-uuid', 'abstain', false, null);
+
+		$votes = $this->savesFor('vote');
+		self::assertCount(2, $votes);
+		self::assertSame('own-vote-uuid', $votes[1]['id']);
+		self::assertFalse($votes[1]['isProxy']);
+
+	}//end testProxyBallotAndOwnBallotDoNotOverwriteEachOther()
+
 }//end class

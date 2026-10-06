@@ -3137,7 +3137,11 @@ OC.L10N.register(
         "Commitments with a deadline": "Commitments with a deadline",
         "No open commitments.": "No open commitments.",
         "All proposals": "All proposals",
-        "Past the deadline": "Past the deadline"
+        "Past the deadline": "Past the deadline",
+        "Vote on behalf of": "Vote on behalf of",
+        "Myself": "Myself",
+        "Your vote on behalf of {name} has been recorded.": "Your vote on behalf of {name} has been recorded.",
+        "Failed to grant proxy": "Failed to grant proxy"
     },
     "nplurals=2; plural=(n != 1);"
 )

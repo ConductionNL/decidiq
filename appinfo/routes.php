@@ -243,6 +243,7 @@ $extra = [
         ['name' => 'dossierDisposition#certificate', 'url' => '/api/dossiers/{id}/certificate', 'verb' => 'POST'],
         // A dossier's own Selectielijst category, when it differs from the schema's (DECISIONS row 48).
         ['name' => 'dossierDisposition#category',    'url' => '/api/dossiers/{id}/category',    'verb' => 'PUT'],
+        ['name' => 'voting#proxies',     'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'GET'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
         ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],
