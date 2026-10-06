@@ -103,7 +103,7 @@ class PublicationServiceTest extends TestCase {
 				// an `@method` tag served through Entity::__call, so it is not a
 				// real method — method_exists() is false for it and PHPUnit
 				// refuses to configure it. PublicationRepository::extractObjectId()
-				// therefore always takes its jsonSerialize() fallback, which is
+				// therefore reads the id from jsonSerialize() only (#400), which is
 				// what $row['id'] exercises here (#399).
 				$entity = $this->createMock(ObjectEntity::class);
 				$entity->method('jsonSerialize')->willReturn($row);

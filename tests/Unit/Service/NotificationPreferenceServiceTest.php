@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\OpenRegisterNotificationPreferenceSync;
 use OCP\IUser;
 use OCP\IURLGenerator;
 use OCP\IUserManager;
@@ -94,7 +95,11 @@ class NotificationPreferenceServiceTest extends TestCase {
 	 *
 	 * @return NotificationPreferenceService
 	 */
-	private function buildService(array $preferenceRows = [], ?string $accountEmail = null, ?\Psr\Log\LoggerInterface $logger = null): NotificationPreferenceService {
+	private function buildService(
+		array $preferenceRows = [],
+		?string $accountEmail = null,
+		?\Psr\Log\LoggerInterface $logger = null,
+	): NotificationPreferenceService {
 		$this->inAppSends = [];
 		$this->emailSends = [];
 		$this->emailAttachments = [];
@@ -260,7 +265,6 @@ class NotificationPreferenceServiceTest extends TestCase {
 			IUserManager::class => $userManager,
 			IURLGenerator::class => $urls,
 		];
-
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			function (string $id) use ($services) {
@@ -273,7 +277,13 @@ class NotificationPreferenceServiceTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: ($logger ?? new NullLogger()));
+		$logger = ($logger ?? new NullLogger());
+
+		return new NotificationPreferenceService(
+			container: $container,
+			logger: $logger,
+			openRegisterSync: new OpenRegisterNotificationPreferenceSync(container: $container, logger: $logger)
+		);
 	}//end buildService()
 
 	/**
@@ -791,4 +801,19 @@ class NotificationPreferenceServiceTest extends TestCase {
 		self::assertSame([["BEGIN:VCALENDAR\r\nEND:VCALENDAR\r\n", 'meeting.ics', 'text/calendar']], $this->emailAttachments);
 
 	}//end testAnEmailReaderGetsTheCalendarFile()
+
+	/**
+	 * Without OpenRegister's preference service the decidiq preference still saves.
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 *
+	 * @return void
+	 */
+	public function testSavingWorksWithoutOpenRegisterPreferences(): void {
+		$service = $this->buildService();
+		$saved = $service->updatePreference(personId: 'alice', preferences: ['decisionPublished' => false]);
+
+		self::assertFalse($saved['decisionPublished']);
+
+	}//end testSavingWorksWithoutOpenRegisterPreferences()
 }//end class

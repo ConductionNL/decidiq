@@ -70,3 +70,27 @@ export function buildTimeline(current) {
 		status: idx === -1 || i > idx ? 'upcoming' : i === idx ? 'current' : 'done',
 	}))
 }
+
+/**
+ * Who may withdraw a decision (REQ-DWP-005). Mirrors
+ * DecisionWithdrawalService::ACTOR_KINDS; the server refuses anything else.
+ *
+ * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md
+ */
+export const WITHDRAWN_BY = ['bestuursorgaan', 'belanghebbende']
+
+/**
+ * Build the body for POST /api/decisions/{id}/withdraw, or null while the
+ * form cannot be sent yet: a withdrawal has to say who withdrew it.
+ *
+ * @param {string} withdrawnBy The actor kind chosen in the form
+ * @param {string} reason Why, written for the person who receives it
+ * @return {{withdrawnBy: string, reason: string}|null}
+ * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md
+ */
+export function buildWithdrawRequest(withdrawnBy, reason) {
+	if (!WITHDRAWN_BY.includes(withdrawnBy)) {
+		return null
+	}
+	return { withdrawnBy, reason: String(reason ?? '').trim() }
+}

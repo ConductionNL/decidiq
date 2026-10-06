@@ -6,7 +6,9 @@
  * Thin REST controller for voting round management, vote casting, and proxy
  * delegation. Every endpoint is guard -> read input -> delegate; the
  * exception-to-status mapping lives in VotingErrorResponder and the
- * open-a-round request shape lives in VotingOpenRequestHandler.
+ * open-a-round request shape lives in VotingOpenRequestHandler. The read-only
+ * views the panel polls (live tally, held proxies) are in
+ * VotingRoundLiveController.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller

@@ -219,6 +219,35 @@ class MeetingFolderService {
 	}//end meetingFile()
 
 	/**
+	 * Find a file this service wrote, by the path writeMeetingFile() returned.
+	 *
+	 * @param string $path The path.
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return \OCP\Files\File|null The file, or null when it is not there or Files is unavailable.
+	 */
+	public function fileAt(string $path): ?\OCP\Files\File {
+		$slash = strrpos($path, '/');
+		if ($slash === false) {
+			return null;
+		}
+
+		try {
+			$node = $this->container->get('OCA\OpenRegister\Service\FileService')->createFolder(substr($path, 0, $slash))->get(substr($path, ($slash + 1)));
+		} catch (\Throwable) {
+			return null;
+		}
+
+		if (($node instanceof \OCP\Files\File) === false) {
+			return null;
+		}
+
+		return $node;
+
+	}//end fileAt()
+
+	/**
 	 * Read back a file this service wrote, by the path writeMeetingFile() returned.
 	 *
 	 * @param string $path The path.

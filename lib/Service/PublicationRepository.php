@@ -217,22 +217,35 @@ class PublicationRepository {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
+	 * A miss is logged as a warning, so an object saved without a derivable
+	 * id is loud instead of a silent '' reference (#400).
+	 *
 	 * @return string The UUID, or '' when it cannot be determined.
 	 */
 	private function extractId(mixed $saved): string {
+		$id = '';
 		if (is_object($saved) === true) {
-			return $this->extractObjectId(saved: $saved);
+			$id = $this->extractObjectId(saved: $saved);
 		}
 
 		if (is_array($saved) === true) {
-			return $this->stringId(id: ($saved['id'] ?? $saved['uuid'] ?? ($saved['@self']['id'] ?? null)));
+			$id = $this->stringId(id: ($saved['id'] ?? $saved['uuid'] ?? ($saved['@self']['id'] ?? null)));
 		}
 
-		return '';
+		if ($id === '') {
+			$this->logger->warning('Decidiq publication: saved object has no derivable id', ['type' => get_debug_type($saved)]);
+		}
+
+		return $id;
 	}//end extractId()
 
 	/**
 	 * Extract a UUID from an ObjectEntity-like save result.
+	 *
+	 * Reads the serialized id only. `ObjectEntity::getUuid()` is served by
+	 * `Entity::__call()`, so a `method_exists()` guard on it was false for
+	 * every real entity and never ran; `jsonSerialize()` injects `id` from the
+	 * uuid, so it is the one path production takes (#400).
 	 *
 	 * @param object $saved The save result.
 	 *
@@ -241,13 +254,6 @@ class PublicationRepository {
 	 * @return string The UUID, or '' when it cannot be determined.
 	 */
 	private function extractObjectId(object $saved): string {
-		if (method_exists($saved, 'getUuid') === true) {
-			$uuid = $this->stringId(id: $saved->getUuid());
-			if ($uuid !== '') {
-				return $uuid;
-			}
-		}
-
 		if (method_exists($saved, 'jsonSerialize') === false) {
 			return '';
 		}

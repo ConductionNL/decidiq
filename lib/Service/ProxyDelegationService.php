@@ -30,8 +30,6 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTime;
-use DateTimeImmutable;
-use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
@@ -55,28 +53,44 @@ class ProxyDelegationService {
 	private const NON_VOTING_ROLES = ['observer', 'guest'];
 
 	/**
+	 * The per-holder proxy cap applied to every grant.
+	 *
+	 * @var ProxyHolderCap
+	 */
+	private readonly ProxyHolderCap $holderCap;
+
+	/**
 	 * Constructor for ProxyDelegationService.
 	 *
 	 * @param ContainerInterface $container The DI container (OpenRegister is resolved lazily)
 	 * @param LoggerInterface $logger Logger for fail-soft notification failures
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param ProxyHolderCap|null $holderCap The per-holder proxy cap (built from the container when omitted)
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
+		?ProxyHolderCap $holderCap = null,
 	) {
+		$this->holderCap = ($holderCap ?? new ProxyHolderCap(container: $container, logger: $logger));
 
 	}//end __construct()
 
 	/**
 	 * Grant proxy: delegate voting right from one participant to another for a VotingRound.
 	 *
-	 * Validates that the receiver has a voting role (not observer/guest).
+	 * Validates that the receiver has a voting role (not observer/guest) and
+	 * that the receiver does not already hold the maximum number of proxies
+	 * on this round (app config `decidiq`/`max_proxies_per_holder`, the same
+	 * cap ProxyVoteService::register() applies, NL governance default 2).
+	 * A grantor holds at most one grant per round: granting again replaces
+	 * their earlier grant instead of adding a second one.
 	 * Sends notification to the delegate.
 	 *
 	 * @param string $votingRoundId The voting round UUID
@@ -85,9 +99,10 @@ class ProxyDelegationService {
 	 *
 	 * @return void
 	 *
-	 * @throws \InvalidArgumentException When the receiver cannot receive proxies
+	 * @throws \InvalidArgumentException When the receiver cannot receive proxies or already holds the maximum
 	 *
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void {
 		if ($fromParticipantId === $toParticipantId) {
@@ -115,7 +130,7 @@ class ProxyDelegationService {
 			'fromParticipantId' => $fromParticipantId,
 			'toParticipantId' => $toParticipantId,
 			'votingRoundId' => $votingRoundId,
-			'grantedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
+			'grantedAt' => (new DateTime())->format(DateTime::ATOM),
 		];
 
 		// Store proxy as a structured note on the VotingRound.
@@ -126,7 +141,9 @@ class ProxyDelegationService {
 		}
 
 		if ($round !== null) {
-			$notes = ($round['notes'] ?? []);
+			// A re-grant replaces the grantor's earlier grant on this round.
+			$notes = $this->withoutGrantFrom(notes: ($round['notes'] ?? []), fromParticipantId: $fromParticipantId);
+			$this->holderCap->assertRoomFor(grants: $this->grants(notes: $notes), toParticipantId: $toParticipantId);
 			$notes[] = [
 				'title' => 'Proxy',
 				'body' => json_encode($proxyRecord),
@@ -173,25 +190,142 @@ class ProxyDelegationService {
 			throw new RuntimeException('Stemronde is al geopend — volmacht kan niet meer worden ingetrokken');
 		}
 
-		$notes = ($round['notes'] ?? []);
-		$filtered = array_values(
+		$round['notes'] = $this->withoutGrantFrom(notes: ($round['notes'] ?? []), fromParticipantId: $fromParticipantId);
+		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+
+	}//end revokeProxy()
+
+	/**
+	 * Say which proxies a participant holds and has given on a round.
+	 *
+	 * Read by the voting panel so a proxy holder can cast the vote they were
+	 * given on the grantor's behalf, and a grantor sees the grant they made.
+	 * Each held entry carries the delegator's participant UUID (what the cast
+	 * endpoint takes as `delegatorId`) and display name.
+	 *
+	 * @param string $votingRoundId The voting round UUID
+	 * @param string $participantId The caller's participant UUID
+	 *
+	 * @return array{participantId: string, held: list<array{participantId: string, displayName: string}>, granted: string|null}
+	 *
+	 * @throws \RuntimeException When the round does not exist
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function proxiesFor(string $votingRoundId, string $participantId): array {
+		$roundEntity = $this->objectService()->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		if ($roundEntity === null) {
+			throw new RuntimeException("VotingRound {$votingRoundId} not found");
+		}
+
+		$held = [];
+		$granted = null;
+		foreach ($this->grants(notes: ($roundEntity->jsonSerialize()['notes'] ?? [])) as $grant) {
+			if ($grant['fromParticipantId'] === $participantId) {
+				$granted = $grant['toParticipantId'];
+			}
+
+			if ($grant['toParticipantId'] === $participantId) {
+				$held[] = [
+					'participantId' => $grant['fromParticipantId'],
+					'displayName' => $this->displayName(participantId: $grant['fromParticipantId']),
+				];
+			}
+		}
+
+		return [
+			'participantId' => $participantId,
+			'held' => $held,
+			'granted' => $granted,
+		];
+
+	}//end proxiesFor()
+
+	/**
+	 * Decode the Proxy notes on a round into grant records.
+	 *
+	 * @param array<int, mixed> $notes The round's notes
+	 *
+	 * @return list<array{fromParticipantId: string, toParticipantId: string}>
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 */
+	private function grants(array $notes): array {
+		$grants = [];
+		foreach ($notes as $note) {
+			if (is_array($note) === false || ($note['title'] ?? '') !== 'Proxy') {
+				continue;
+			}
+
+			$body = json_decode((string)($note['body'] ?? '{}'), true);
+			if (is_array($body) === false) {
+				continue;
+			}
+
+			$grants[] = [
+				'fromParticipantId' => (string)($body['fromParticipantId'] ?? ''),
+				'toParticipantId' => (string)($body['toParticipantId'] ?? ''),
+			];
+		}
+
+		return $grants;
+
+	}//end grants()
+
+	/**
+	 * Drop the grantor's Proxy note(s) from a round's notes.
+	 *
+	 * @param array<int, mixed> $notes The round's notes
+	 * @param string $fromParticipantId The grantor whose grant is removed
+	 *
+	 * @return array<int, mixed> The remaining notes
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 */
+	private function withoutGrantFrom(array $notes, string $fromParticipantId): array {
+		return array_values(
 			array_filter(
 				$notes,
-				static function (array $note) use ($fromParticipantId): bool {
-					if (($note['title'] ?? '') !== 'Proxy') {
+				static function (mixed $note) use ($fromParticipantId): bool {
+					if (is_array($note) === false || ($note['title'] ?? '') !== 'Proxy') {
 						return true;
 					}
 
-					$body = json_decode($note['body'] ?? '{}', true);
-					return ($body['fromParticipantId'] ?? '') !== $fromParticipantId;
+					$body = json_decode((string)($note['body'] ?? '{}'), true);
+					return (($body['fromParticipantId'] ?? '') !== $fromParticipantId);
 				}
 			)
 		);
 
-		$round['notes'] = $filtered;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+	}//end withoutGrantFrom()
 
-	}//end revokeProxy()
+	/**
+	 * A participant's display name, or their UUID when it cannot be read.
+	 *
+	 * @param string $participantId The participant UUID
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function displayName(string $participantId): string {
+		try {
+			$entity = $this->objectService()->find(id: $participantId, register: 'decidiq', schema: 'participant');
+			$name = '';
+			if ($entity !== null) {
+				$name = (string)($entity->jsonSerialize()['displayName'] ?? '');
+			}
+
+			if ($name !== '') {
+				return $name;
+			}
+		} catch (Throwable $e) {
+			$this->logger->debug('Decidiq: proxy delegator name lookup failed', ['error' => $e->getMessage()]);
+		}
+
+		return $participantId;
+
+	}//end displayName()
 
 	/**
 	 * Notify the delegate that a proxy was granted to them (fail-soft).

@@ -88,14 +88,16 @@ class NotificationPreferenceService {
 	/**
 	 * Construct the NotificationPreferenceService.
 	 *
-	 * @param ContainerInterface $container DI container (lazy-loads OR services)
-	 * @param LoggerInterface $logger Logger interface
+	 * @param ContainerInterface                     $container        DI container (lazy-loads OR services)
+	 * @param LoggerInterface                        $logger           Logger interface
+	 * @param OpenRegisterNotificationPreferenceSync $openRegisterSync Mirrors the switches onto OpenRegister's declared notices
 	 *
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		private readonly OpenRegisterNotificationPreferenceSync $openRegisterSync,
 	) {
 	}//end __construct()
 
@@ -180,6 +182,10 @@ class NotificationPreferenceService {
 		);
 
 		$this->logger->info('Decidiq: NotificationPreference updated', ['personId' => $personId]);
+
+		// A switch turned off here also silences the notices OpenRegister
+		// sends from the schema declarations (issue #1381).
+		$this->openRegisterSync->sync(personId: $personId, merged: $merged);
 
 		if (is_array($saved) === true) {
 			return $saved;

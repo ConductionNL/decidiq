@@ -206,15 +206,23 @@ final class DecisionWalkedProcessTest extends TestCase {
 	}//end testAWithdrawalWithNoActorKindIsRefused()
 
 	/**
-	 * A decision that was never taken cannot be withdrawn.
+	 * A decision still in flight is withdrawn without acquiring an outcome:
+	 * the lifecycle lets a draft be withdrawn, and inventing a result for it
+	 * would write a verdict that was never given (#1380).
 	 *
 	 * @return void
 	 */
-	public function testADecisionThatWasNeverTakenCannotBeWithdrawn(): void {
-		$this->expectException(InvalidArgumentException::class);
+	public function testADecisionInFlightIsWithdrawnWithoutAnOutcome(): void {
+		$withdrawn = (new DecisionWithdrawalService())->withdraw(
+			['lifecycle' => 'deliberating'],
+			DecisionWithdrawalService::BY_BELANGHEBBENDE,
+			'Voorstel ingetrokken'
+		);
 
-		(new DecisionWithdrawalService())->withdraw([], DecisionWithdrawalService::BY_BESTUURSORGAAN);
-	}//end testADecisionThatWasNeverTakenCannotBeWithdrawn()
+		self::assertTrue($withdrawn['withdrawn']);
+		self::assertArrayNotHasKey('outcome', $withdrawn);
+		self::assertNull($withdrawn['history'][0]['outcomeAtWithdrawal']);
+	}//end testADecisionInFlightIsWithdrawnWithoutAnOutcome()
 
 	/**
 	 * Withdrawing twice is refused rather than appending a second withdrawal

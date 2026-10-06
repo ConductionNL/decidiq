@@ -223,7 +223,32 @@
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
 			<!-- Ranked ballot (REQ-PRF-002, issue #1419) -->
 			<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting -->
-			<template v-if="isRoundOpen && isRankedRound && !voteCast">
+			<!-- Proxy holder: cast the vote they were given (vot-10, #1377) -->
+			<!-- @spec openspec/specs/voting-system/spec.md -->
+			<div
+				v-if="
+					isRoundOpen
+					&& heldProxies.length > 0
+					&& currentRound.votingMethod !== 'show-of-hands'
+				"
+				class="decidiq-proxy-target">
+				<label for="decidiqCastingFor">{{
+					t('decidiq', 'Vote on behalf of')
+				}}</label>
+				<select id="decidiqCastingFor" v-model="castingFor">
+					<option value="">
+						{{ t('decidiq', 'Myself') }}
+					</option>
+					<option
+						v-for="proxy in heldProxies"
+						:key="proxy.participantId"
+						:value="proxy.participantId">
+						{{ proxy.displayName }}
+					</option>
+				</select>
+			</div>
+
+			<template v-if="isRoundOpen && isRankedRound && !targetVoted">
 				<RankedBallot
 					:options="currentRound.options || []"
 					:busy="castingRanking"
@@ -238,14 +263,14 @@
 					isRoundOpen
 					&& currentRound.votingMethod !== 'show-of-hands'
 					&& !isRankedRound
-					&& !voteCast
+					&& !targetVoted
 				"
 				class="decidiq-vote-buttons">
 				<!-- Proxy notice -->
-				<p v-if="activeProxy" class="decidiq-proxy-notice">
+				<p v-if="castingFor" class="decidiq-proxy-notice">
 					{{
 						t('decidiq', 'You are voting on behalf of: {name}', {
-							name: activeProxy,
+							name: castingForName,
 						})
 					}}
 				</p>
@@ -279,6 +304,19 @@
 			<p v-if="voteCast" class="decidiq-vote-confirmed" role="status">
 				{{ t('decidiq', 'Your vote has been recorded.') }}
 			</p>
+			<p
+				v-for="name in proxyVotesCastNames"
+				:key="name"
+				class="decidiq-vote-confirmed"
+				role="status">
+				{{
+					t(
+						'decidiq',
+						'Your vote on behalf of {name} has been recorded.',
+						{ name },
+					)
+				}}
+			</p>
 
 			<!-- Live tally (chair/secretary see full tally; members see only total count) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 -->
@@ -298,9 +336,9 @@
 								'decidiq',
 								'For: {for} — Against: {against} — Abstain: {abstain}',
 								{
-									for: currentRound.votesFor || 0,
-									against: currentRound.votesAgainst || 0,
-									abstain: currentRound.votesAbstain || 0,
+									for: openSplit.votesFor,
+									against: openSplit.votesAgainst,
+									abstain: openSplit.votesAbstain,
 								},
 							)
 						}}
@@ -354,6 +392,9 @@
 							{{ t('decidiq', 'Cancel') }}
 						</NcButton>
 					</div>
+					<p v-if="proxyError" class="decidiq-error" role="alert">
+						{{ proxyError }}
+					</p>
 				</div>
 			</div>
 
@@ -535,6 +576,13 @@ import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import {
+	nextCastTarget,
+	NO_PROXIES,
+	proxiesPath,
+	proxyCastFields,
+	readProxies,
+} from '../utils/proxyVoting.js'
+import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
 	readVotingPermissions,
@@ -595,7 +643,13 @@ export default {
 			confirmCloseRound: false,
 			showProxyDialog: false,
 			proxyToId: '',
+			proxyError: null,
 			activeProxy: null,
+			// Proxies the user holds on this round, and who the next vote is
+			// for: '' is the user's own vote, else a delegator UUID (#1377).
+			heldProxies: [],
+			castingFor: '',
+			proxyVotesCast: [],
 			oriStatus: null,
 			showOfHands: { for: 0, against: 0, abstain: 0 },
 			newRound: {
@@ -614,6 +668,9 @@ export default {
 			castingRanking: false,
 			chairCastingError: null,
 			pollInterval: null,
+			// The server's running count of the open round (vot-14): the
+			// round's own counts are written only on close.
+			liveTally: null,
 			participantCount: 0,
 			declarations: [],
 			// The server's answer on which controls this user may use
@@ -623,6 +680,35 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * Whether the vote the user is about to cast was already cast.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		targetVoted() {
+			if (this.castingFor) {
+				return this.proxyVotesCast.includes(this.castingFor)
+			}
+			return this.voteCast
+		},
+
+		/**
+		 * @return {string} Display name of the delegator voted for.
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		castingForName() {
+			return this.delegatorName(this.castingFor)
+		},
+
+		/**
+		 * @return {Array<string>} Names of the delegators already voted for.
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		proxyVotesCastNames() {
+			return this.proxyVotesCast.map((id) => this.delegatorName(id))
+		},
+
 		/**
 		 * The members who may vote: participants minus those recused on the
 		 * motion or its agenda item (bod-10).
@@ -655,11 +741,39 @@ export default {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
+			if (this.currentLiveTally) return this.currentLiveTally.cast || 0
 			return (
 				(this.currentRound.votesFor || 0)
 				+ (this.currentRound.votesAgainst || 0)
 				+ (this.currentRound.votesAbstain || 0)
 			)
+		},
+
+		/**
+		 * The live tally, when it belongs to the displayed open round.
+		 *
+		 * @return {object|null} The server's running count, or null
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		currentLiveTally() {
+			if (!this.isRoundOpen || !this.liveTally) return null
+			return this.liveTally.roundId === this.roundId ? this.liveTally : null
+		},
+
+		/**
+		 * The for / against / abstain split shown while the round is open. The
+		 * server returns it to the chair and secretary only.
+		 *
+		 * @return {{votesFor: number, votesAgainst: number, votesAbstain: number}}
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		openSplit() {
+			const source = this.currentLiveTally || this.currentRound || {}
+			return {
+				votesFor: source.votesFor || 0,
+				votesAgainst: source.votesAgainst || 0,
+				votesAbstain: source.votesAbstain || 0,
+			}
 		},
 
 		/**
@@ -755,6 +869,17 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * A different round has different proxies and no votes cast yet.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		roundId() {
+			this.proxyVotesCast = []
+			this.castingFor = ''
+			this.loadProxies()
+		},
+
 		/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
 		meetingId() {
 			this.loadPermissions()
@@ -782,6 +907,7 @@ export default {
 		this.pollInterval = setInterval(async () => {
 			if (this.isRoundOpen) {
 				await this.fetchCurrentRound()
+				await this.loadProxies()
 			}
 		}, 5000)
 	},
@@ -815,6 +941,35 @@ export default {
 		},
 
 		/**
+		 * Read the running count of the open round from the server: the round
+		 * object's counts stay zero until it is closed (vot-14). The server
+		 * answers the cast count to everyone and the split to the chair and
+		 * secretary only. A failure keeps the previous count.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		async loadLiveTally() {
+			if (!this.isRoundOpen) {
+				this.liveTally = null
+				return
+			}
+			const roundId = this.roundId
+			try {
+				const resp = await fetch(
+					generateUrl(
+						`/apps/decidiq/api/voting-rounds/${roundId}/live-tally`,
+					),
+					{ headers: { Accept: 'application/json' } },
+				)
+				if (resp.ok) {
+					this.liveTally = { ...(await resp.json()), roundId }
+				}
+			} catch {
+				// Keep the last count; the next poll tries again.
+			}
+		},
+
+		/**
 		 * Load the declarations on the motion and its agenda item; a failure
 		 * leaves the count at all participants.
 		 *
@@ -836,6 +991,68 @@ export default {
 			} catch {
 				this.declarations = []
 			}
+		},
+
+		/**
+		 * Ask the server which proxies the user holds and has given on the
+		 * round. An error leaves nothing held, so no on-behalf vote is offered.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		async loadProxies() {
+			let proxies = { ...NO_PROXIES }
+			if (this.roundId) {
+				try {
+					const resp = await fetch(
+						generateUrl(proxiesPath(this.roundId)),
+						{ headers: { Accept: 'application/json' } },
+					)
+					if (resp.ok) {
+						proxies = readProxies(await resp.json())
+					}
+				} catch {
+					// Nothing held.
+				}
+			}
+			this.heldProxies = proxies.held
+			this.activeProxy = proxies.granted
+			if (
+				this.castingFor
+				&& !this.heldProxies.some((p) => p.participantId === this.castingFor)
+			) {
+				this.castingFor = ''
+			}
+		},
+
+		/**
+		 * @param {string} participantId A delegator UUID.
+		 * @return {string} Their display name, or the UUID.
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		delegatorName(participantId) {
+			const proxy = this.heldProxies.find(
+				(p) => p.participantId === participantId,
+			)
+			return proxy ? proxy.displayName : participantId
+		},
+
+		/**
+		 * Record a successful cast and move on to the next vote the user may
+		 * cast: their own, then each proxy not yet used.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		recordCast() {
+			if (this.castingFor) {
+				this.proxyVotesCast = [...this.proxyVotesCast, this.castingFor]
+			} else {
+				this.voteCast = true
+			}
+			this.castingFor = nextCastTarget(
+				this.voteCast,
+				this.heldProxies,
+				this.proxyVotesCast,
+			)
 		},
 
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
@@ -883,7 +1100,7 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
-				await this.loadDeclarations()
+				await Promise.all([this.loadDeclarations(), this.loadLiveTally()])
 			} catch {
 				this.currentRound = null
 			} finally {
@@ -909,15 +1126,13 @@ export default {
 							requesttoken: OC.requestToken,
 						},
 						body: JSON.stringify({
-							participantId: OC.currentUser,
 							value,
-							isProxy: false,
-							delegatorId: null,
+							...proxyCastFields(this.castingFor),
 						}),
 					},
 				)
 				if (resp.ok) {
-					this.voteCast = true
+					this.recordCast()
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
@@ -1032,11 +1247,14 @@ export default {
 							'Content-Type': 'application/json',
 							requesttoken: OC.requestToken,
 						},
-						body: JSON.stringify({ ranking, isProxy: false }),
+						body: JSON.stringify({
+							ranking,
+							...proxyCastFields(this.castingFor),
+						}),
 					},
 				)
 				if (resp.ok) {
-					this.voteCast = true
+					this.recordCast()
 					await this.fetchCurrentRound()
 				} else {
 					const data = await resp.json()
@@ -1172,6 +1390,7 @@ export default {
 
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.1 */
 		async grantProxy() {
+			this.proxyError = null
 			try {
 				const resp = await fetch(
 					OC.generateUrl(
@@ -1190,11 +1409,16 @@ export default {
 					},
 				)
 				if (resp.ok) {
-					this.activeProxy = this.proxyToId
 					this.showProxyDialog = false
+					await this.loadProxies()
+				} else {
+					// e.g. the receiver already holds the maximum number of proxies
+					const data = await resp.json().catch(() => ({}))
+					this.proxyError =
+						data.message || this.t('decidiq', 'Failed to grant proxy')
 				}
 			} catch {
-				// ignore
+				this.proxyError = this.t('decidiq', 'Failed to grant proxy')
 			}
 		},
 
@@ -1215,7 +1439,7 @@ export default {
 					},
 				)
 				if (resp.ok) {
-					this.activeProxy = null
+					await this.loadProxies()
 				}
 			} catch {
 				// ignore
@@ -1292,6 +1516,14 @@ export default {
 	border-radius: var(--border-radius);
 	color: var(--color-primary-text);
 	width: 100%;
+}
+
+.decidiq-proxy-target {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--default-grid-baseline);
+	margin-block-end: var(--default-grid-baseline);
 }
 
 .decidiq-proxy {

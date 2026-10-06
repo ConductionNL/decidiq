@@ -78,6 +78,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param AuditLogService $auditLogService Audit log dependency
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 * @param SigningAnswer $answers Reads the signing service's answers
+	 * @param FilinqSigningRequest|null $filinqRequest Builds the body filinq's signing route reads
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -85,6 +86,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		private readonly AuditLogService $auditLogService,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly SigningAnswer $answers = new SigningAnswer(),
+		private readonly ?FilinqSigningRequest $filinqRequest = null,
 	) {
 	}//end __construct()
 
@@ -114,12 +116,14 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		}
 
 		// Contract #2: prefer docudesk for document e-signature when available (REQ-DCDH-005).
+		// Null means no docudesk source is registered; any answer, failed or
+		// not, is final (fail-closed): a lower-trust path never takes over.
 		$docudeskResult = $this->composeDocudeskSigningRequest(
 			minutesId: $minutesId,
 			signatories: $signatories,
 			subjectType: $subjectType
 		);
-		if ($docudeskResult['success'] === true) {
+		if ($docudeskResult !== null) {
 			return $docudeskResult;
 		}
 
@@ -629,8 +633,14 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	/**
 	 * Compose a docudesk signingRequest via the ADR-019 integration registry
 	 * (cross-app contract #2 / REQ-DCDH-005). Returns the same shape as
-	 * initializeSigningRequest. Returns success=false silently when docudesk
-	 * is absent (allows the openconnector fallback to proceed).
+	 * initializeSigningRequest. Returns null when docudesk is absent (allows
+	 * the openconnector fallback to proceed).
+	 *
+	 * Docudesk is filinq: the request goes to filinq's
+	 * `POST api/signing/requests` route with the fields its
+	 * `SigningService::createRequest()` reads (`documentFileId`,
+	 * `documentName`, `signers`, `signatureLevel`), built by
+	 * {@see FilinqSigningRequest}; the request id is read back from `id`.
 	 *
 	 * The method is fail-closed: when docudesk is registered but returns an
 	 * error, we propagate the error and do NOT fall through to openconnector —
@@ -640,37 +650,40 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param array<string> $signatories Ordered list of Person UUIDs
 	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
-	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}|null
 	 */
-	private function composeDocudeskSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
+	private function composeDocudeskSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): ?array {
 		try {
 			$source = $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
 		} catch (\Throwable) {
 			// Openconnector absent or source not configured — docudesk unavailable.
-			return ['success' => false, 'requestId' => null, 'signingUrl' => null, 'message' => 'Docudesk source not configured.'];
+			return null;
 		}
 
 		if ($source === null) {
 			// Docudesk not registered — fall through to openconnector silently.
-			return ['success' => false, 'requestId' => null, 'signingUrl' => null, 'message' => 'Docudesk source not registered.'];
+			return null;
 		}
 
 		// Docudesk IS registered — compose the signingRequest (fail-closed from here).
-		$payload = [
-			'documentId' => $minutesId,
-			'subjectType' => $subjectType,
-			'signatories' => array_values(array_map('strval', $signatories)),
-			'signingOrder' => 'sequential',
-			'signingLevel' => 'QES',
-			'returnTarget' => 'decidiq/' . $subjectType . '/' . $minutesId,
-		];
-
 		try {
+			if ($this->filinqRequest === null) {
+				throw new RuntimeException('The filinq signing request builder is not available.');
+			}
+
+			$payload = $this->filinqRequest->payload(
+				subjectType: $subjectType,
+				subjectId: $minutesId,
+				signatories: array_values(array_map('strval', $signatories))
+			);
+
 			$callService = FleetAppId::getService($this->container, 'integriq', 'Service\CallService')
 				?? throw new RuntimeException('Integriq CallService is not available under any known namespace.');
 			$response = $callService->call(
 				source: $source,
-				endpoint: '/signing-requests',
+				endpoint: FilinqSigningRequest::ENDPOINT,
 				method: 'POST',
 				config: [
 					'body' => json_encode($payload),
@@ -682,6 +695,10 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 			$requestId = (string)($decoded['id'] ?? ($decoded['signingRequestId'] ?? ''));
 			$signingUrl = (string)($decoded['signingUrl'] ?? '');
+			if ($requestId === '') {
+				// An error answer (a 404, a validation message) carries no id.
+				throw new RuntimeException('Filinq created no signing request: ' . (string)($decoded['message'] ?? ($decoded['error'] ?? 'no id in the answer')));
+			}
 
 			$this->auditLogService->append(
 				actor: 'system',

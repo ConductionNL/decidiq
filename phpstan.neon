@@ -52,7 +52,8 @@ parameters:
     #   - NC Talk `stdClass::getRoomForObject()` named parameters: the calls in
     #     MigrateCommentsToTalkLeaf are guarded by method_exists() and phpstan
     #     no longer infers stdClass for the manager there.
-    #   - `class_exists()` on OpenConnector in LogTranslationAdapter: #1222
+    #   - `class_exists()` on OpenConnector in LogTranslationAdapter (since
+    #     removed by #1382): #1222
     #     replaced the probe with FleetAppId::getService(), so there is no
     #     class_exists() call left for the pattern to match.
     # The 36 other unmatched patterns come from the shared phpstan-base.neon

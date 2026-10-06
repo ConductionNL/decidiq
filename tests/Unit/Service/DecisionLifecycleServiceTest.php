@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Service\DecisionContextResolver;
 use OCA\Decidiq\Service\DecisionIntegrationService;
 use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\Decidiq\Service\ProcessTemplateService;
@@ -116,6 +117,40 @@ class DecisionLifecycleServiceTest extends TestCase {
 	}//end entity()
 
 	/**
+	 * Wire `find()` to return each fixture by the schema it is looked up under.
+	 *
+	 * The governance domain is read off the governance BODY (#1291), so tests
+	 * that exercise a specific domain policy link the decision to a body and
+	 * pass that body here.
+	 *
+	 * @param array<string, mixed> $decision Decision payload
+	 * @param array<string, mixed>|null $meeting Meeting payload, or null when not linked
+	 * @param array<string, mixed>|null $body Governance body payload, or null when not readable
+	 * @param array<string, mixed>|null $participant Chair participant payload, or null
+	 *
+	 * @return void
+	 */
+	private function wireFind(array $decision, ?array $meeting = null, ?array $body = null, ?array $participant = null): void {
+		$fixtures = [
+			'decision' => $decision,
+			'meeting' => $meeting,
+			'governance-body' => $body,
+			'participant' => $participant,
+		];
+
+		$this->objectService->method('find')->willReturnCallback(
+			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($fixtures) {
+				$data = ($fixtures[$schema] ?? null);
+				if ($data === null) {
+					return null;
+				}
+
+				return $this->entity($data);
+			}
+		);
+	}//end wireFind()
+
+	/**
 	 * Wire `saveObject()` to record the payload it was handed instead of
 	 * asserting `never()`.
 	 *
@@ -205,18 +240,10 @@ class DecisionLifecycleServiceTest extends TestCase {
 	public function testChairOnlyFailsClosedWithoutResolvableChair(): void {
 		// legislative domain: deliberating → voting is chair-only.
 		// The linked meeting has no chair → reject, never skip.
-		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
-				if ($schema === 'decision') {
-					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'legislative', 'meeting' => 'meet-1']);
-				}
-
-				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumWith' => true]);
-				}
-
-				return null;
-			}
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'meeting' => 'meet-1'],
+			meeting: ['id' => 'meet-1', 'quorumWith' => true, 'governanceBody' => 'body-1'],
+			body: ['id' => 'body-1', 'domain' => 'legislative'],
 		);
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'alice');
@@ -233,22 +260,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testChairOnlyRejectsNonChair(): void {
-		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
-				if ($schema === 'decision') {
-					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'legislative', 'meeting' => 'meet-1']);
-				}
-
-				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumWith' => true, 'chair' => 'part-1']);
-				}
-
-				if ($schema === 'participant') {
-					return $this->entity(['id' => 'part-1', 'nextcloudUserId' => 'the-chair']);
-				}
-
-				return null;
-			}
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'meeting' => 'meet-1'],
+			meeting: ['id' => 'meet-1', 'quorumWith' => true, 'chair' => 'part-1', 'governanceBody' => 'body-1'],
+			body: ['id' => 'body-1', 'domain' => 'legislative'],
+			participant: ['id' => 'part-1', 'nextcloudUserId' => 'the-chair'],
 		);
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'mallory');
@@ -265,22 +281,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testQuorumGateBlocksOpenVoting(): void {
-		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
-				if ($schema === 'decision') {
-					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'association', 'meeting' => 'meet-1']);
-				}
-
-				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumWith' => false, 'chair' => 'part-1']);
-				}
-
-				if ($schema === 'participant') {
-					return $this->entity(['id' => 'part-1', 'nextcloudUserId' => 'the-chair']);
-				}
-
-				return null;
-			}
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'meeting' => 'meet-1'],
+			meeting: ['id' => 'meet-1', 'quorumWith' => false, 'chair' => 'part-1', 'governanceBody' => 'body-1'],
+			body: ['id' => 'body-1', 'domain' => 'association'],
+			participant: ['id' => 'part-1', 'nextcloudUserId' => 'the-chair'],
 		);
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'the-chair');
@@ -320,8 +325,12 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testDecideRejectedWithoutOutcomeAndDecisionDate(): void {
-		$this->objectService->method('find')
-			->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'voting', 'title' => 'Motie Woonlasten']));
+		// An `operations` body: voting -> decided is not chair-only there, so the
+		// completeness gate is what this test reaches.
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'voting', 'title' => 'Motie Woonlasten', 'governanceBody' => 'body-ops'],
+			body: ['id' => 'body-ops', 'domain' => 'operations'],
+		);
 
 		$saved = $this->captureSaves();
 
@@ -348,15 +357,15 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testDecideRejectedWithOutOfVocabularyOutcome(): void {
-		$this->objectService->method('find')->willReturn(
-			$this->entity(
-				[
-					'id' => 'dec-1',
-					'lifecycle' => 'voting',
-					'outcome' => 'pending',
-					'decisionDate' => '2026-04-10T21:00:00Z',
-				]
-			)
+		$this->wireFind(
+			decision: [
+				'id' => 'dec-1',
+				'lifecycle' => 'voting',
+				'outcome' => 'pending',
+				'decisionDate' => '2026-04-10T21:00:00Z',
+				'governanceBody' => 'body-ops',
+			],
+			body: ['id' => 'body-ops', 'domain' => 'operations'],
 		);
 
 		$saved = $this->captureSaves();
@@ -380,15 +389,15 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testDecideAcceptedWithOutcomeAndDecisionDate(): void {
-		$this->objectService->method('find')->willReturn(
-			$this->entity(
-				[
-					'id' => 'dec-1',
-					'lifecycle' => 'voting',
-					'outcome' => 'adopted',
-					'decisionDate' => '2026-04-10T21:00:00Z',
-				]
-			)
+		$this->wireFind(
+			decision: [
+				'id' => 'dec-1',
+				'lifecycle' => 'voting',
+				'outcome' => 'adopted',
+				'decisionDate' => '2026-04-10T21:00:00Z',
+				'governanceBody' => 'body-ops',
+			],
+			body: ['id' => 'body-ops', 'domain' => 'operations'],
 		);
 
 		$saved = null;
@@ -440,10 +449,9 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testInFlightTransitionNeedsNoOutcome(): void {
-		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
-				return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie Woonlasten']);
-			}
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie Woonlasten', 'governanceBody' => 'body-ops'],
+			body: ['id' => 'body-ops', 'domain' => 'operations'],
 		);
 
 		$saved = null;
@@ -586,18 +594,10 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testGetAvailableTransitions(): void {
-		$this->objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
-				if ($schema === 'decision') {
-					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'association', 'meeting' => 'meet-1']);
-				}
-
-				if ($schema === 'meeting') {
-					return $this->entity(['id' => 'meet-1', 'quorumWith' => true]);
-				}
-
-				return null;
-			}
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'meeting' => 'meet-1'],
+			meeting: ['id' => 'meet-1', 'quorumWith' => true, 'governanceBody' => 'body-1'],
+			body: ['id' => 'body-1', 'domain' => 'association'],
 		);
 
 		$result = $this->service->getAvailableTransitions(decisionId: 'dec-1');
@@ -609,6 +609,125 @@ class DecisionLifecycleServiceTest extends TestCase {
 		self::assertTrue(condition: $result['actions'][0]['chairOnly']);
 
 	}//end testGetAvailableTransitions()
+
+	/**
+	 * Regression #1291: a decision whose meeting belongs to a legislative body
+	 * is governed by the legislative policy, not the permissive `operations`
+	 * one. Before the fix the domain was read off `decision.domain` /
+	 * `meeting.domain`, which no schema declares, so every decision resolved
+	 * to `operations` and a non-chair could open the vote.
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLegislativeBodyMakesOpenVotingChairOnly(): void {
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'meeting' => 'meet-1'],
+			meeting: ['id' => 'meet-1', 'quorumWith' => true, 'chair' => 'part-1', 'governanceBody' => 'raad'],
+			body: ['id' => 'raad', 'domain' => 'legislative'],
+			participant: ['id' => 'part-1', 'nextcloudUserId' => 'the-chair'],
+		);
+		$saved = $this->captureSaves();
+
+		$available = $this->service->getAvailableTransitions(decisionId: 'dec-1');
+		self::assertSame(expected: 'legislative', actual: $available['domain']);
+		self::assertSame(expected: ['openVoting'], actual: array_column($available['actions'], 'action'));
+		self::assertTrue(condition: $available['actions'][0]['chairOnly']);
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'mallory');
+		self::assertNull(actual: $saved->value, message: 'A non-chair opened the vote on a legislative decision.');
+		self::assertFalse(condition: $result['success']);
+		self::assertStringContainsString(needle: 'chair', haystack: $result['message']);
+
+	}//end testLegislativeBodyMakesOpenVotingChairOnly()
+
+	/**
+	 * Regression #1291: a quorum-enforcing body blocks the decide-without-vote
+	 * shortcut (deliberating -> decided) that the `operations` policy allows.
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAssociationBodyForbidsDecideWithoutVote(): void {
+		$this->wireFind(
+			decision: [
+				'id' => 'dec-1',
+				'lifecycle' => 'deliberating',
+				'meeting' => 'meet-1',
+				'outcome' => 'adopted',
+				'decisionDate' => '2026-04-10T21:00:00Z',
+			],
+			meeting: ['id' => 'meet-1', 'quorumWith' => true, 'chair' => 'part-1', 'governanceBody' => 'alv'],
+			body: ['id' => 'alv', 'domain' => 'association'],
+			participant: ['id' => 'part-1', 'nextcloudUserId' => 'the-chair'],
+		);
+		$saved = $this->captureSaves();
+
+		$result = $this->service->transition(decisionId: 'dec-1', action: 'decide', currentUserId: 'the-chair');
+		self::assertNull(actual: $saved->value, message: 'An association decision was decided without a vote.');
+		self::assertFalse(condition: $result['success']);
+		self::assertStringContainsString(needle: "'association' domain", haystack: $result['message']);
+
+	}//end testAssociationBodyForbidsDecideWithoutVote()
+
+	/**
+	 * Regression #1291: a `domain` value written onto the decision or meeting
+	 * (neither schema declares it) can no longer downgrade the policy. Only
+	 * the governance body's declared domain counts.
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return void
+	 */
+	public function testUndeclaredDomainOnDecisionOrMeetingIsIgnored(): void {
+		$this->wireFind(
+			decision: ['id' => 'dec-1', 'lifecycle' => 'deliberating', 'meeting' => 'meet-1', 'domain' => 'operations'],
+			meeting: ['id' => 'meet-1', 'quorumWith' => true, 'governanceBody' => 'raad', 'domain' => 'operations'],
+			body: ['id' => 'raad', 'domain' => 'legislative'],
+		);
+
+		$result = $this->service->getAvailableTransitions(decisionId: 'dec-1');
+		self::assertSame(expected: 'legislative', actual: $result['domain']);
+
+	}//end testUndeclaredDomainOnDecisionOrMeetingIsIgnored()
+
+	/**
+	 * Regression #1291: a decision with no resolvable governance body falls
+	 * back to the RESTRICTED policy, not the permissive `operations` one:
+	 * deciding without a vote is refused and the vote cannot be opened by
+	 * anyone because no chair can be resolved (fail closed).
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return void
+	 */
+	public function testUnresolvableBodyFallsBackToRestrictedPolicy(): void {
+		$this->wireFind(
+			decision: [
+				'id' => 'dec-1',
+				'lifecycle' => 'deliberating',
+				'outcome' => 'adopted',
+				'decisionDate' => '2026-04-10T21:00:00Z',
+			],
+		);
+		$saved = $this->captureSaves();
+
+		$available = $this->service->getAvailableTransitions(decisionId: 'dec-1');
+		self::assertSame(expected: DecisionContextResolver::UNRESOLVED_DOMAIN, actual: $available['domain']);
+		self::assertSame(expected: ['openVoting'], actual: array_column($available['actions'], 'action'));
+		self::assertTrue(condition: $available['actions'][0]['chairOnly']);
+
+		$decide = $this->service->transition(decisionId: 'dec-1', action: 'decide', currentUserId: 'alice');
+		self::assertFalse(condition: $decide['success']);
+
+		$openVoting = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'alice');
+		self::assertFalse(condition: $openVoting['success']);
+		self::assertStringContainsString(needle: 'chair', haystack: $openVoting['message']);
+		self::assertNull(actual: $saved->value, message: 'A decision without a governance body moved under a permissive policy.');
+
+	}//end testUnresolvableBodyFallsBackToRestrictedPolicy()
 
 	/**
 	 * getAvailableTransitions reports not-found for unreadable decisions.

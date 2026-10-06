@@ -3429,7 +3429,16 @@ OC.L10N.register(
         "Commitments with a deadline": "Toezeggingen met termijn",
         "No open commitments.": "Geen open toezeggingen.",
         "All proposals": "Alle voorstellen",
-        "Past the deadline": "Over de termijn"
+        "Past the deadline": "Over de termijn",
+        "Vote on behalf of": "Stem namens",
+        "Myself": "Mijzelf",
+        "Your vote on behalf of {name} has been recorded.": "Uw stem namens {name} is vastgelegd.",
+        "Failed to grant proxy": "Volmacht verlenen mislukt",
+        "This decision has been withdrawn.": "Dit besluit is ingetrokken.",
+        "Withdraw decision": "Besluit intrekken",
+        "Withdrawal failed.": "Intrekken mislukt.",
+        "Withdrawn by the deciding body": "Ingetrokken door het bestuursorgaan",
+        "Withdrawn by the party who asked": "Ingetrokken door de belanghebbende"
     },
     "nplurals=2; plural=(n != 1);"
 )

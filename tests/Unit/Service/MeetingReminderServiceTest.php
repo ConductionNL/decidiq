@@ -29,6 +29,7 @@ use DateTimeInterface;
 use OCA\Decidiq\BackgroundJob\MeetingReminderJob;
 use OCA\Decidiq\Service\MeetingReminderService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\OpenRegisterNotificationPreferenceSync;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -216,7 +217,11 @@ class MeetingReminderServiceTest extends TestCase {
 			}
 		);
 
-		return new NotificationPreferenceService(container: $container, logger: new NullLogger());
+		return new NotificationPreferenceService(
+			container: $container,
+			logger: new NullLogger(),
+			openRegisterSync: new OpenRegisterNotificationPreferenceSync(container: $container, logger: new NullLogger())
+		);
 
 	}//end preferences()
 

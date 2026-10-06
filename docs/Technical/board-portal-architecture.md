@@ -235,11 +235,12 @@ field map, enabling round-trip safety.
 target locale, links it to the source via `sourceMinutesKoppeling`, and
 queues a translation job through the registered `ITranslationAdapter`.
 
-The default `LogTranslationAdapter` is dormant (records each call to
-the log but doesn't touch the row's body). Production deployments
-register a real adapter by overriding the binding in their bespoke
-`Application::register()` (e.g. an openconnector LLM-translation
-adapter).
+The default `NextcloudTranslationAdapter` runs a Nextcloud
+TaskProcessing `core:text2text:translate` task, so whichever translation
+provider the instance has installed does the work. Without one the
+adapter answers `success: false` and the queue entry fails with that
+message, rather than completing with the untranslated text. Deployments
+can still bind another adapter in their bespoke `Application::register()`.
 
 The hourly `TranslationQueueJob` calls `processQueue($maxEntries=10)`,
 which steps each entry through `queued` → `processing` → `complete` /

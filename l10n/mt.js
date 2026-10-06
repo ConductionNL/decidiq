@@ -1652,7 +1652,12 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Jiġi ssettjat meta rekord fil-fajl ikun aktar kunfidenzjali mill-fajl innifsu: isemmi r-rekord u l-livell tiegħu. Għolli l-klassifikazzjoni tal-fajl biex tneħħih.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Il-fajl diġà jinsab f'lista f'OpenRegister, għalhekk il-kategorija tiegħu hija fissa.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Ir-reġistru ma fihx kategorija tas-Selectielijst %1$s għall-fajls.",
-        "Selectielijst category": "Kategorija tas-Selectielijst"
+        "Selectielijst category": "Kategorija tas-Selectielijst",
+        "This decision has been withdrawn.": "Din id-deċiżjoni ġiet irtirata.",
+        "Withdraw decision": "Irtira d-deċiżjoni",
+        "Withdrawal failed.": "L-irtirar falla.",
+        "Withdrawn by the deciding body": "Irtirata mill-korp li jiddeċiedi",
+        "Withdrawn by the party who asked": "Irtirata mill-parti li talbet"
     },
     "nplurals=2; plural=(n != 1);"
 )

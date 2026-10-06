@@ -157,6 +157,8 @@ $extra = [
         // @spec openspec/specs/decision-management/spec.md
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+        // Withdrawal carries who withdrew it and why (REQ-DWP-005), so it has its own endpoint (#1380).
+        ['name' => 'decision#withdraw',    'url' => '/api/decisions/{decisionId}/withdraw',    'verb' => 'POST'],
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).
         ['name' => 'meeting#lifecycle', 'url' => '/api/meetings/{id}/lifecycle', 'verb' => 'POST'],
@@ -220,6 +222,8 @@ $extra = [
         ['name' => 'voting#close',       'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
+        // Running count of an open round for the voting panel (vot-14, #1375).
+        ['name' => 'votingRoundLive#liveTally', 'url' => '/api/voting-rounds/{id}/live-tally', 'verb' => 'GET'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
@@ -241,6 +245,7 @@ $extra = [
         ['name' => 'dossierDisposition#certificate', 'url' => '/api/dossiers/{id}/certificate', 'verb' => 'POST'],
         // A dossier's own Selectielijst category, when it differs from the schema's (DECISIONS row 48).
         ['name' => 'dossierDisposition#category',    'url' => '/api/dossiers/{id}/category',    'verb' => 'PUT'],
+        ['name' => 'votingRoundLive#proxies', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'GET'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
         ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],

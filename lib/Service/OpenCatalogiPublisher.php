@@ -105,8 +105,11 @@ class OpenCatalogiPublisher {
 	/**
 	 * Extract the catalog publication reference from whatever OpenCatalogi returned.
 	 *
-	 * Prefers the entity's own `getUuid()`, then falls back to the serialized
-	 * id/uuid/@self.id. Returns '' when no usable reference is present.
+	 * Reads the serialized id/uuid/@self.id. `ObjectEntity::getUuid()` is
+	 * served by `Entity::__call()`, so a `method_exists()` guard on it was
+	 * false for every real entity and never ran; `jsonSerialize()` injects `id`
+	 * from the uuid. Returns '' — and logs a warning — when no usable
+	 * reference is present (#400).
 	 *
 	 * @param mixed $publication The saveObject() return value.
 	 *
@@ -115,18 +118,7 @@ class OpenCatalogiPublisher {
 	 * @return string The catalog publication reference, or '' when absent.
 	 */
 	private function referenceOf(mixed $publication): string {
-		if (is_object($publication) === false) {
-			return '';
-		}
-
-		if (method_exists($publication, 'getUuid') === true) {
-			$uuid = $publication->getUuid();
-			if (is_string($uuid) === true && $uuid !== '') {
-				return $uuid;
-			}
-		}
-
-		if (method_exists($publication, 'jsonSerialize') === true) {
+		if (is_object($publication) === true && method_exists($publication, 'jsonSerialize') === true) {
 			$data = $publication->jsonSerialize();
 			$id = ($data['id'] ?? $data['uuid'] ?? ($data['@self']['id'] ?? null));
 			if (is_string($id) === true && $id !== '') {
@@ -134,6 +126,7 @@ class OpenCatalogiPublisher {
 			}
 		}
 
+		$this->logger->warning('Decidiq publication: OpenCatalogi publication has no derivable reference', ['type' => get_debug_type($publication)]);
 		return '';
 	}//end referenceOf()
 

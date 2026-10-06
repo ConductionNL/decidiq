@@ -5,7 +5,7 @@
  *
  * Queues minutes for translation, persists queue entries
  * via OpenRegister, and processes them through a pluggable
- * ITranslationAdapter (default LogTranslationAdapter). Designed to be
+ * ITranslationAdapter (default NextcloudTranslationAdapter). Designed to be
  * driven by the TranslationQueueJob on a recurring schedule.
  *
  * @category Service
@@ -508,12 +508,12 @@ class MultilingualReconciliationService {
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
-				'Decidiq: ITranslationAdapter not bound; using LogTranslationAdapter',
+				'Decidiq: ITranslationAdapter not bound; using NextcloudTranslationAdapter',
 				['exception' => $e->getMessage()]
 			);
 		}
 
-		return new LogTranslationAdapter(container: $this->container, logger: $this->logger);
+		return new NextcloudTranslationAdapter(container: $this->container, logger: $this->logger);
 	}//end resolveAdapter()
 
 	/**

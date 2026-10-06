@@ -34,10 +34,14 @@ use Psr\Log\LoggerInterface;
  * 24-hour pre-deadline voting reminders.
  *
  * Selection contract: a round needs a reminder when it is open (no
- * closedAt), carries a votingDeadline within the next REMINDER_WINDOW
- * seconds (and not already passed), and has no deadlineReminderSentAt
- * marker. After sending, the marker is stamped via saveObject so the
- * hourly job never reminds twice.
+ * closedAt, or a closedAt the chair preset for a moment still ahead), its
+ * deadline (votingDeadline, else that preset closedAt) falls within the next
+ * REMINDER_WINDOW seconds (and has not already passed), and it has no
+ * deadlineReminderSentAt marker. After sending, the marker is stamped via
+ * saveObject so the hourly job never reminds twice.
+ *
+ * Audience: the members of the round's meeting minus those whose ballot is
+ * already on file, resolved by VotingReminderAudience.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
@@ -51,15 +55,27 @@ class VotingDeadlineReminderService {
 	public const REMINDER_WINDOW = 86400;
 
 	/**
+	 * Resolves the members a round's reminder goes to.
+	 *
+	 * @var VotingReminderAudience
+	 */
+	private readonly VotingReminderAudience $audience;
+
+	/**
 	 * Constructor for VotingDeadlineReminderService.
 	 *
 	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister services)
 	 * @param LoggerInterface $logger The logger
+	 * @param VotingReminderAudience|null $audience Who a reminder goes to (built from the container when omitted)
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
+		?VotingReminderAudience $audience = null,
 	) {
+		$this->audience = ($audience ?? new VotingReminderAudience(container: $container, logger: $logger));
 	}//end __construct()
 
 	/**
@@ -99,10 +115,14 @@ class VotingDeadlineReminderService {
 	public function findRoundsNeedingReminder(int $now): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			// The register and schema belong INSIDE `filters`: as top-level config
+			// keys OpenRegister ignores them, so the scan matched nothing (#1379).
 			$rows = $objectService->findAll(
 				[
-					'register' => 'decidiq',
-					'schema' => 'voting-round',
+					'filters' => [
+						'register' => 'decidiq',
+						'schema' => 'voting-round',
+					],
 				]
 			);
 		} catch (\Throwable $e) {
@@ -127,6 +147,12 @@ class VotingDeadlineReminderService {
 	/**
 	 * Whether one voting-round row is still open, unreminded, and inside the window.
 	 *
+	 * A closing time the chair sets when opening the round is stored as
+	 * closedAt (VoteCastGuard refuses ballots after it) and mirrored to
+	 * votingDeadline. A closedAt that is still ahead therefore means "closes
+	 * then", not "closed", and serves as the deadline when votingDeadline is
+	 * absent (rounds opened before the mirror existed) (#1379).
+	 *
 	 * Note `($x ?? '') === ''` is already true for a missing OR null value, so
 	 * no separate null test is needed on either marker.
 	 *
@@ -138,13 +164,46 @@ class VotingDeadlineReminderService {
 	 * @return bool True when this round needs a deadline reminder
 	 */
 	private function roundNeedsReminder(array $row, int $now): bool {
-		$isOpen = (($row['closedAt'] ?? '') === '');
+		$closedAt = (string)($row['closedAt'] ?? '');
 		$alreadySent = (($row['deadlineReminderSentAt'] ?? '') !== '');
+		if ($alreadySent === true || $this->isClosed(closedAt: $closedAt, now: $now) === true) {
+			return false;
+		}
 
-		return ($isOpen === true && $alreadySent === false
-			&& $this->isWithinReminderWindow(deadline: (string)($row['votingDeadline'] ?? ''), now: $now) === true);
+		$deadline = (string)($row['votingDeadline'] ?? '');
+		if ($deadline === '') {
+			$deadline = $closedAt;
+		}
+
+		return $this->isWithinReminderWindow(deadline: $deadline, now: $now);
 
 	}//end roundNeedsReminder()
+
+	/**
+	 * Whether a round's closedAt marks it closed at $now.
+	 *
+	 * Empty means open; an unparseable value is treated as closed so a
+	 * malformed round never triggers a reminder.
+	 *
+	 * @param string $closedAt The round's closedAt value
+	 * @param int $now Current unix timestamp
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 *
+	 * @return bool True when the round is closed
+	 */
+	private function isClosed(string $closedAt, int $now): bool {
+		if ($closedAt === '') {
+			return false;
+		}
+
+		try {
+			return (new DateTimeImmutable($closedAt))->getTimestamp() <= $now;
+		} catch (\Throwable) {
+			return true;
+		}
+
+	}//end isClosed()
 
 	/**
 	 * Normalise one OpenRegister list item (entity or array) to an array.
@@ -166,45 +225,6 @@ class VotingDeadlineReminderService {
 
 		return null;
 	}//end rowToArray()
-
-	/**
-	 * Read a UUID out of a reference that may be a bare string or an {id} object.
-	 *
-	 * @param mixed $ref The raw reference value
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null The UUID, or null when not resolvable
-	 */
-	private function refId(mixed $ref): ?string {
-		if (is_array($ref) === true) {
-			$ref = ($ref['id'] ?? null);
-		}
-
-		if (is_string($ref) === true && $ref !== '') {
-			return $ref;
-		}
-
-		return null;
-	}//end refId()
-
-	/**
-	 * Read the linked Nextcloud UID off a participant row.
-	 *
-	 * @param array<string, mixed> $row The participant payload
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null The UID, or null when the participant has no NC link
-	 */
-	private function rowUserId(array $row): ?string {
-		$uid = ($row['nextcloudUserId'] ?? ($row['owner'] ?? null));
-		if (is_string($uid) === true && $uid !== '') {
-			return $uid;
-		}
-
-		return null;
-	}//end rowUserId()
 
 	/**
 	 * Send the reminder for one round and stamp the sent marker.
@@ -230,10 +250,7 @@ class VotingDeadlineReminderService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$notificationService = $this->container->get('OpenRegisterNotificationService');
 
-			$votedUserIds = $this->resolveVotedUserIds(objectService: $objectService, roundId: $roundId);
-			$audience = $this->resolveParticipantUserIds(objectService: $objectService, round: $round);
-
-			$pending = array_values(array_diff($audience, $votedUserIds));
+			$pending = $this->audience->pendingUserIds(objectService: $objectService, round: $round, roundId: $roundId);
 
 			$sent = 0;
 			foreach ($pending as $uid) {
@@ -296,149 +313,4 @@ class VotingDeadlineReminderService {
 
 		return $total;
 	}//end run()
-
-	/**
-	 * Nextcloud UIDs of participants who already voted in this round.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param string $roundId UUID of the voting round
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string[]
-	 */
-	private function resolveVotedUserIds(object $objectService, string $roundId): array {
-		try {
-			$votes = $objectService->findAll(
-				[
-					'register' => 'decidiq',
-					'schema' => 'vote',
-					'filters' => ['votingRound' => $roundId],
-				]
-			);
-		} catch (\Throwable) {
-			return [];
-		}
-
-		$uids = [];
-		foreach ($votes as $entity) {
-			$row = $this->rowToArray(entity: $entity);
-			if ($row === null) {
-				continue;
-			}
-
-			$casterId = $this->refId(ref: ($row['caster'] ?? null));
-			if ($casterId === null) {
-				continue;
-			}
-
-			$uid = $this->participantUserId(objectService: $objectService, participantId: $casterId);
-			if ($uid !== null) {
-				$uids[] = $uid;
-			}
-		}//end foreach
-
-		return array_values(array_unique($uids));
-	}//end resolveVotedUserIds()
-
-	/**
-	 * Nextcloud UIDs of the meeting participants behind this round
-	 * (round → motion → meeting → participants).
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed> $round Round payload
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string[]
-	 */
-	private function resolveParticipantUserIds(object $objectService, array $round): array {
-		$meetingId = $this->resolveMeetingIdForRound(objectService: $objectService, round: $round);
-		if ($meetingId === null) {
-			return [];
-		}
-
-		try {
-			$participants = $objectService->findAll(
-				[
-					'register' => 'decidiq',
-					'schema' => 'participant',
-					'filters' => ['meeting' => $meetingId],
-				]
-			);
-		} catch (\Throwable) {
-			return [];
-		}
-
-		$uids = [];
-		foreach ($participants as $entity) {
-			$row = $this->rowToArray(entity: $entity);
-			if ($row === null) {
-				continue;
-			}
-
-			$uid = $this->rowUserId(row: $row);
-			if ($uid !== null) {
-				$uids[] = $uid;
-			}
-		}
-
-		return array_values(array_unique($uids));
-	}//end resolveParticipantUserIds()
-
-	/**
-	 * Walk round -> motion -> meeting to find the meeting a round belongs to.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed> $round Round payload
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null The meeting UUID, or null when the walk cannot complete
-	 */
-	private function resolveMeetingIdForRound(object $objectService, array $round): ?string {
-		$motionId = $this->refId(ref: ($round['motion'] ?? null));
-		if ($motionId === null) {
-			return null;
-		}
-
-		try {
-			// ADR-005: the motion is a `decision` discriminated by decisionType.
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
-		} catch (\Throwable) {
-			return null;
-		}
-
-		if ($motionEntity === null) {
-			return null;
-		}
-
-		$motion = (array)$motionEntity->jsonSerialize();
-
-		return $this->refId(ref: ($motion['meeting'] ?? ($motion['relations']['Meeting'][0] ?? null)));
-	}//end resolveMeetingIdForRound()
-
-	/**
-	 * Resolve a participant UUID to its linked Nextcloud UID.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param string $participantId UUID of the participant
-	 *
-	 * @spec openspec/specs/nextcloud-integration/spec.md
-	 *
-	 * @return string|null
-	 */
-	private function participantUserId(object $objectService, string $participantId): ?string {
-		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
-		} catch (\Throwable) {
-			return null;
-		}
-
-		if ($entity === null) {
-			return null;
-		}
-
-		return $this->rowUserId(row: (array)$entity->jsonSerialize());
-	}//end participantUserId()
 }//end class

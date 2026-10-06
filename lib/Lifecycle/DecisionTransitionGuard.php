@@ -135,6 +135,26 @@ class DecisionTransitionGuard {
 	];
 
 	/**
+	 * Lifecycle states a decision may be withdrawn from.
+	 *
+	 * Mirrors the `* → withdrawn` edges of the schema's
+	 * `x-openregister-lifecycle` block ("reachable from any non-terminal state
+	 * before `enacted`"); DecisionTransitionMatrixTest pins the parity.
+	 * Withdrawal is not an action in TRANSITIONS because it carries its own
+	 * payload (who withdrew it and why, REQ-DWP-005) and has its own endpoint,
+	 * DecisionLifecycleService::withdraw().
+	 *
+	 * @var string[]
+	 */
+	public const WITHDRAWABLE_STATES = [
+		'draft',
+		'proposed',
+		'deliberating',
+		'voting',
+		'decided',
+	];
+
+	/**
 	 * Per-domain decision workflow policy.
 	 *
 	 * - `quorumEnforced`: entering `voting` requires the linked meeting's
@@ -362,6 +382,19 @@ class DecisionTransitionGuard {
 	public function isVotingOpenAllowed(array $meeting): bool {
 		return ($meeting['quorumWith'] ?? false) === true;
 	}//end isVotingOpenAllowed()
+
+	/**
+	 * Whether a decision in this lifecycle state may be withdrawn.
+	 *
+	 * @param string $lifecycle The decision's current lifecycle state
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return bool True when the `lifecycle → withdrawn` edge is declared
+	 */
+	public function isWithdrawable(string $lifecycle): bool {
+		return in_array(needle: $lifecycle, haystack: self::WITHDRAWABLE_STATES, strict: true);
+	}//end isWithdrawable()
 
 	/**
 	 * Check whether a decision may be enacted: only decisions with a positive

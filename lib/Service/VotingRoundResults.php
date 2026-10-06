@@ -156,6 +156,52 @@ class VotingRoundResults {
 	}//end tally()
 
 	/**
+	 * The running counts of an open round, read from its ballots, without
+	 * persisting anything (vot-14, #1375).
+	 *
+	 * The round's own votesFor / votesAgainst / votesAbstain are written only
+	 * when the round is closed (or a show-of-hands tally is entered), so a
+	 * panel that polls the round object reads zero for the whole vote. This
+	 * counts the ballots cast so far instead. A show-of-hands round has no
+	 * ballots: the chair-entered counts on the round are returned.
+	 *
+	 * @param string $votingRoundId The voting round UUID
+	 *
+	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int, cast: int}|null The counts, or null when the round cannot be read
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function liveCounts(string $votingRoundId): ?array {
+		$round = $this->loadRound(votingRoundId: $votingRoundId);
+		if ($round === null) {
+			return null;
+		}
+
+		if (($round['votingMethod'] ?? '') === 'show-of-hands') {
+			$counts = [
+				'votesFor' => (int)($round['votesFor'] ?? 0),
+				'votesAgainst' => (int)($round['votesAgainst'] ?? 0),
+				'votesAbstain' => (int)($round['votesAbstain'] ?? 0),
+			];
+			return $counts + ['cast' => array_sum($counts)];
+		}
+
+		$ballots = $this->ballotsInRound(votingRoundId: $votingRoundId);
+		$counts = $this->countVotes(voteEntities: $ballots);
+
+		// A ranked ballot is none of for / against / abstain: count it as cast.
+		$ranked = 0;
+		foreach ($ballots as $voteEntity) {
+			if (($voteEntity->jsonSerialize()['value'] ?? '') === RankedBallotRules::VALUE) {
+				$ranked++;
+			}
+		}
+
+		return $counts + ['cast' => (array_sum($counts) + $ranked)];
+
+	}//end liveCounts()
+
+	/**
 	 * Count a ranked-choice round with a Borda count and store the ranking.
 	 *
 	 * The for, against and abstain counts stay at zero: a ranked ballot is

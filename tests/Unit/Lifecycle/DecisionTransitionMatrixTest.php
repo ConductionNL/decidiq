@@ -36,9 +36,10 @@ use PHPUnit\Framework\TestCase;
  * yes, OR then rejects the save ("No transition allows moving lifecycle from
  * deliberating to decided", observed live on the decide-without-vote path).
  *
- * The reverse containment is deliberately NOT asserted for `withdrawn`: the
- * withdraw edges are declarative-only (the guard has no `withdraw` action;
- * withdrawal is not routed through the action map).
+ * The reverse containment is asserted separately for `withdrawn`: withdrawal
+ * is not an action in the map (it carries who withdrew and why, and has its
+ * own endpoint), so its edges are pinned against
+ * DecisionTransitionGuard::WITHDRAWABLE_STATES instead.
  *
  * @covers \OCA\Decidiq\Lifecycle\DecisionTransitionGuard
  *
@@ -211,6 +212,41 @@ class DecisionTransitionMatrixTest extends TestCase {
 			);
 		}
 	}//end testEveryNonWithdrawSchemaEdgeHasAGuardAction()
+
+	/**
+	 * The states the guard lets a decision be withdrawn from are exactly the
+	 * from-states of the schema's `* → withdrawn` edges. A state the guard
+	 * accepts but the schema does not declare would be refused by OR at save
+	 * time; a declared edge the guard refuses would be unreachable (#1380).
+	 *
+	 * @dataProvider registerProvider
+	 *
+	 * @param string $file Register JSON basename
+	 * @param string $schemaKey Component schema key
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return void
+	 */
+	public function testWithdrawableStatesMatchTheSchemaWithdrawEdges(string $file, string $schemaKey): void {
+		$lifecycle = $this->loadLifecycle(file: $file, schemaKey: $schemaKey);
+
+		$declared = [];
+		foreach (($lifecycle['transitions'] ?? []) as $transition) {
+			if (($transition['to'] ?? '') === 'withdrawn') {
+				$declared[] = (string)($transition['from'] ?? '');
+			}
+		}
+
+		sort($declared);
+		$expected = DecisionTransitionGuard::WITHDRAWABLE_STATES;
+		sort($expected);
+
+		self::assertSame($expected, $declared, "{$file}: the guard's withdrawable states must match the schema's withdraw edges");
+		self::assertFalse($this->guard->isWithdrawable(lifecycle: 'enacted'));
+		self::assertFalse($this->guard->isWithdrawable(lifecycle: 'withdrawn'));
+		self::assertTrue($this->guard->isWithdrawable(lifecycle: 'deliberating'));
+	}//end testWithdrawableStatesMatchTheSchemaWithdrawEdges()
 
 	/**
 	 * The decide-without-vote edge stays domain-gated on the guard even now

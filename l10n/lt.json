@@ -1651,7 +1651,12 @@
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Nustatoma, kai bylos dokumentas yra konfidencialesnis už pačią bylą: nurodo dokumentą ir jo lygį. Norėdami pašalinti, padidinkite bylos klasifikaciją.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Byla jau yra OpenRegister sąraše, todėl jos kategorija nekeičiama.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Registre nėra Selectielijst kategorijos %1$s byloms.",
-        "Selectielijst category": "Selectielijst kategorija"
+        "Selectielijst category": "Selectielijst kategorija",
+        "This decision has been withdrawn.": "Šis sprendimas atšauktas.",
+        "Withdraw decision": "Atšaukti sprendimą",
+        "Withdrawal failed.": "Atšaukti nepavyko.",
+        "Withdrawn by the deciding body": "Atšaukė sprendimą priimantis organas",
+        "Withdrawn by the party who asked": "Atšaukė prašymą pateikusi šalis"
     },
     "plurals": null
 }

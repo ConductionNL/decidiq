@@ -140,4 +140,111 @@ class ProxyDelegationServiceTest extends TestCase {
 
 	}//end testRevokeProxyRefusedOnOpenedRound()
 
+	/**
+	 * Serialise a grant as the Proxy note grantProxy() writes.
+	 *
+	 * @param string $from Grantor participant UUID.
+	 * @param string $to Holder participant UUID.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function grantNote(string $from, string $to): array {
+		return [
+			'title' => 'Proxy',
+			'body' => json_encode(['fromParticipantId' => $from, 'toParticipantId' => $to, 'votingRoundId' => 'round-uuid']),
+		];
+	}//end grantNote()
+
+	/**
+	 * Wire find() to answer a voting member for participants and the given round.
+	 *
+	 * @param array<int, array<string, string>> $notes The round's notes.
+	 *
+	 * @return void
+	 */
+	private function seedRound(array $notes): void {
+		$this->objectService->method('find')->willReturnCallback(
+			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($notes): ObjectEntity {
+				if ($schema === 'voting-round') {
+					return $this->entity(['id' => 'round-uuid', 'notes' => $notes]);
+				}
+
+				return $this->entity(['displayName' => 'Name of ' . $id, 'role' => 'member']);
+			}
+		);
+	}//end seedRound()
+
+	/**
+	 * A holder who already holds two proxies on the round cannot receive a third (vot-11, #1377).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function testGrantProxyRefusesThirdProxyForHolder(): void {
+		$this->seedRound([self::grantNote('a-uuid', 'holder-uuid'), self::grantNote('b-uuid', 'holder-uuid')]);
+		$this->objectService->expects($this->never())->method('saveObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('maximale aantal volmachten (2 van 2)');
+
+		$this->service->grantProxy('round-uuid', 'c-uuid', 'holder-uuid');
+
+	}//end testGrantProxyRefusesThirdProxyForHolder()
+
+	/**
+	 * Under the cap the grant is stored; a re-grant replaces the grantor's earlier grant.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function testGrantProxyUnderCapReplacesGrantorsEarlierGrant(): void {
+		$this->seedRound([self::grantNote('a-uuid', 'holder-uuid'), self::grantNote('b-uuid', 'other-uuid')]);
+
+		$saved = null;
+		$this->objectService->expects($this->once())->method('saveObject')->willReturnCallback(
+			function (array $object) use (&$saved): ObjectEntity {
+				$saved = $object;
+				return $this->entity($object);
+			}
+		);
+
+		// b moves their proxy from other-uuid to holder-uuid: holder then holds 2, which is allowed.
+		$this->service->grantProxy('round-uuid', 'b-uuid', 'holder-uuid');
+
+		$grants = array_map(
+			static fn (array $note): array => json_decode($note['body'], true),
+			$saved['notes']
+		);
+		self::assertCount(2, $grants);
+		self::assertSame(['a-uuid', 'b-uuid'], array_column($grants, 'fromParticipantId'));
+		self::assertSame(['holder-uuid', 'holder-uuid'], array_column($grants, 'toParticipantId'));
+
+	}//end testGrantProxyUnderCapReplacesGrantorsEarlierGrant()
+
+	/**
+	 * proxiesFor() names the proxies a participant holds and the one they gave (vot-10, #1377).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function testProxiesForListsHeldAndGranted(): void {
+		$this->seedRound(
+			[
+				self::grantNote('a-uuid', 'me-uuid'),
+				self::grantNote('me-uuid', 'x-uuid'),
+				self::grantNote('b-uuid', 'other-uuid'),
+			]
+		);
+
+		$result = $this->service->proxiesFor('round-uuid', 'me-uuid');
+
+		self::assertSame('me-uuid', $result['participantId']);
+		self::assertSame([['participantId' => 'a-uuid', 'displayName' => 'Name of a-uuid']], $result['held']);
+		self::assertSame('x-uuid', $result['granted']);
+
+	}//end testProxiesForListsHeldAndGranted()
+
 }//end class
