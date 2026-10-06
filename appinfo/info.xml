@@ -95,7 +95,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
              2026-08-08) moved it back to 32 deliberately and fleet-wide, and names decidiq
              as one of eight consumers that must move their CI matrices to stable32. The
              matrix move is in this same commit, so the two statements stay in agreement. -->
-        <nextcloud min-version="32" max-version="34"/>
+        <nextcloud min-version="32" max-version="35"/>
     </dependencies>
 
     <!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2 -->

@@ -54,28 +54,12 @@ jobs:
       app-name: decidiq
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
-      # stable31 is REMOVED because it tested an impossible configuration, not
-      # because we are trimming coverage. `additional-apps` below installs
-      # openregister, which declares min-version="32" (ConductionNL/openregister#2384),
-      # so on NC31 `occ app:enable openregister` refuses with "not compatible with
-      # this version of the server". The shared workflow runs that as
-      # `php occ app:enable "$name" || echo "::warning::Failed to enable $name"`,
-      # so the failure is a WARNING and the job continues without its data layer,
-      # then dies ~70s later on missing schemas — which reads like an app fault.
-      #
-      # Order mattered as much as membership: the newman, playwright and
-      # journeydoc-capture jobs each check out the server at
-      # `fromJSON(inputs.nextcloud-test-refs)[0]`, so stable31 sitting FIRST put
-      # all three on the one version openregister cannot load.
-      #
-      # THE LIST IS THE WHOLE DECLARED RANGE. An earlier revision of this comment
-      # said "stable33 is deliberately NOT added: this removes an impossible leg,
-      # it does not widen the matrix" — but the same change also dropped stable32,
-      # which was NOT impossible, it was the declared floor. appinfo/info.xml
-      # declares <nextcloud min-version="32" max-version="34"/>, so 32, 33 and 34
-      # each get a leg; anything narrower advertises a range to the App Store that
-      # no job touches.
-      nextcloud-test-refs: '["stable34", "stable32", "stable33"]'
+      # NO `nextcloud-test-refs` HERE, DELIBERATELY. The shared workflow derives
+      # the server matrix from appinfo/info.xml (<nextcloud min-version="32"
+      # max-version="35"/>) when this input is unset, so every version advertised
+      # to the App Store gets a leg and the next max-version bump cannot leave a
+      # hand-kept list behind. The override that used to sit here read
+      # ["stable34", "stable32", "stable33"] and would have kept NC35 untested.
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true

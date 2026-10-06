@@ -387,7 +387,7 @@ class MotionController extends Controller {
 		$uid = $user->getUID();
 		$displayName = $user->getDisplayName();
 
-		if ($displayName === '') {
+		if (trim($displayName) === '') {
 			return new JSONResponse(['message' => 'displayName is required'], Http::STATUS_BAD_REQUEST);
 		}
 

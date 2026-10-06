@@ -84,7 +84,7 @@ class EIDASSignatureController extends Controller {
 		// signatory scope (chair/chairman/vice-chairman/secretary) may initiate
 		// a QES signing request. Enforcement consumes the OpenRegister-owned
 		// scope (consume-or-rbac-authorization); fail-closed.
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->canInitiateSigning(userId: $userId, minutesId: $minutesId) === false) {
 			return new JSONResponse(
 				['message' => 'You are not authorised to initiate a signing request for these minutes.'],
@@ -142,7 +142,7 @@ class EIDASSignatureController extends Controller {
 			return $auth;
 		}
 
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId) === false) {
 			return new JSONResponse(
 				['message' => 'You are not authorised to verify signatures on these minutes.'],
@@ -202,7 +202,7 @@ class EIDASSignatureController extends Controller {
 			return $auth;
 		}
 
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId) === false) {
 			return new JSONResponse(
 				['message' => 'You are not authorised to finalise the signing of these minutes.'],

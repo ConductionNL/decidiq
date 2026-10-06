@@ -239,8 +239,8 @@ class MemberCompetenceService {
 	 * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-002-a-members-competences-are-recorded-and-confirmed
 	 */
 	private function uid(): string {
-		$uid = $this->userSession->getUser()?->getUID();
-		if ($uid === null || $uid === '') {
+		$uid = $this->userSession->getUser()?->getUID() ?? '';
+		if ($uid === '') {
 			throw new AccessDeniedException(message: 'Not signed in.');
 		}
 
