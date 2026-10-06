@@ -69,10 +69,9 @@
 </template>
 
 <script>
-import { generateUrl } from '@nextcloud/router'
-import { readStageAnswer, transitionsPath } from '../../utils/meetingStages.js'
 import {
 	buildMeetingSteps,
+	fetchOfferedSteps,
 	MEETING_STATE_LABELS,
 	nextStepIsOffered,
 } from '../../utils/meetingSteps.js'
@@ -189,9 +188,9 @@ export default {
 		},
 
 		/**
-		 * Ask the server which steps it offers this person. A failed or
-		 * malformed answer leaves `offered` empty of meaning (null), so no
-		 * line about roles shows.
+		 * Ask the server which steps it offers this person, through
+		 * `fetchOfferedSteps`. A failed or malformed answer leaves `offered`
+		 * null, so no line about roles shows.
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
@@ -202,21 +201,10 @@ export default {
 				return
 			}
 			const asked = `${this.objectId}:${this.lifecycle}`
-			try {
-				const response = await fetch(
-					generateUrl(transitionsPath(this.objectId)),
-					{ headers: { Accept: 'application/json' } },
-				)
-				if (!response.ok) {
-					return
-				}
-				const answer = readStageAnswer(await response.json())
-				// A slower answer for an earlier state must not overwrite a newer one.
-				if (asked === `${this.objectId}:${this.lifecycle}`) {
-					this.offered = answer.actions
-				}
-			} catch {
-				this.offered = null
+			const offered = await fetchOfferedSteps(this.objectId)
+			// A slower answer for an earlier state must not overwrite a newer one.
+			if (asked === `${this.objectId}:${this.lifecycle}`) {
+				this.offered = offered
 			}
 		},
 	},
