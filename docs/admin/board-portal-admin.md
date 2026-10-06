@@ -101,13 +101,21 @@ controller surface as part of the
 sync with their source. The hourly `TranslationQueueJob` pulls entries
 in status `queued` and calls the registered `ITranslationAdapter`.
 
-By default a no-op `LogTranslationAdapter` is registered (entries stay
-`queued`). To enable real translation:
+By default `NextcloudTranslationAdapter` is registered. It translates
+through Nextcloud's TaskProcessing API (task type
+`core:text2text:translate`), so any installed translation provider app
+(for example Local Machine Translation, or an LLM provider) translates
+the minutes. Without such a provider each entry is marked `failed` with a
+message saying no translation provider is installed. To enable
+translation:
 
-1. Register a non-default adapter through DI (e.g. an openconnector-backed
-   adapter) by overriding the `ITranslationAdapter` binding in your
-   custom-app's `Application::register()`.
-2. Or trigger manual processing: `POST /api/multilingual/queue/process`
+1. Install and enable a Nextcloud app that provides the "Translate"
+   TaskProcessing task type (check *Administration settings → Artificial
+   intelligence*).
+2. Or register a different adapter through DI by overriding the
+   `ITranslationAdapter` binding in your custom-app's
+   `Application::register()`.
+3. Trigger manual processing if needed: `POST /api/multilingual/queue/process`
    with `{ "maxEntries": 50 }`.
 
 The queue summary (`GET /api/multilingual/queue`) shows counts per
@@ -202,7 +210,7 @@ docker exec nextcloud occ maintenance:repair --include-expensive
 | `422 Unknown vote enum` | Mistyped vote on cast | Use one of `in-favor`/`against`/`abstain`/`absent`/`recused-due-to-conflict` |
 | `422 Quorum not met` on `open-vote` | Meeting not `in-session` or attendance < quorum | Open the meeting + record attendance first |
 | CalDAV sync silently no-op | No writable calendar for the actor | Create / share a writable calendar for the chairman |
-| Translation queue stuck in `queued` | Default `LogTranslationAdapter` registered | Override `ITranslationAdapter` binding |
+| Translation queue entries `failed` with "No Nextcloud translation provider" | No TaskProcessing translate provider installed | Install a translation provider app, or override the `ITranslationAdapter` binding |
 | `nldesign` theme not applied | App not theming-aware | Verify `nldesign` is enabled and refresh the browser cache |
 
 For any issue not covered here, file an issue in

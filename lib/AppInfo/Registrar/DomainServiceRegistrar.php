@@ -37,7 +37,7 @@ use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\Decidiq\Service\ITranslationAdapter;
 use OCA\Decidiq\Service\LogEIDASSignatureService;
-use OCA\Decidiq\Service\LogTranslationAdapter;
+use OCA\Decidiq\Service\NextcloudTranslationAdapter;
 use OCA\Decidiq\Support\FleetAppId;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use Psr\Container\ContainerInterface;
@@ -156,12 +156,12 @@ class DomainServiceRegistrar {
 	}//end registerEidasBindings()
 
 	/**
-	 * Phase 6 — the one binding the container cannot infer: the dormant default
-	 * translation adapter.
+	 * Phase 6 — the one binding the container cannot infer: the translation
+	 * adapter.
 	 *
-	 * Rebind in production to delegate to openconnector's translation source
-	 * service. Phase 5 (proxy votes, written resolutions, governance reporting)
-	 * and the rest of Phase 6 (regulator export, multilingual reconciliation,
+	 * Bound to the Nextcloud TaskProcessing adapter, so any installed
+	 * translation provider translates minutes (#1382). Phase 5 (proxy votes,
+	 * written resolutions, governance reporting) and the rest of Phase 6 (regulator export, multilingual reconciliation,
 	 * board self-evaluation) are autowired from their constructor signatures.
 	 *
 	 * @param IRegistrationContext $context The registration context
@@ -175,7 +175,7 @@ class DomainServiceRegistrar {
 		$context->registerService(
 			ITranslationAdapter::class,
 			static function ($c): ITranslationAdapter {
-				return new LogTranslationAdapter(
+				return new NextcloudTranslationAdapter(
 					container: $c->get(ContainerInterface::class),
 					logger: $c->get(LoggerInterface::class),
 				);

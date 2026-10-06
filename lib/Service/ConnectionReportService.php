@@ -218,17 +218,18 @@ class ConnectionReportService {
 			return ['error', 'Decidiq could not load the translation adapter: ' . $e->getMessage()];
 		}
 
-		if (($adapter instanceof LogTranslationAdapter) === false) {
+		if (($adapter instanceof NextcloudTranslationAdapter) === false) {
 			return ['configured', 'A translation adapter is bound: ' . get_debug_type($adapter) . '. Decidiq does not test it.'];
 		}
 
-		foreach (LogTranslationAdapter::OPENCONNECTOR_SERVICES as $relative) {
-			if (FleetAppId::getService($this->container, 'integriq', $relative) !== null) {
-				return ['configured', 'An integriq translation service answers. Decidiq does not test it.'];
-			}
+		if ($adapter->isAvailable() === true) {
+			return ['configured', 'A Nextcloud translation provider answers. Decidiq does not test it.'];
 		}
 
-		return ['simulated', 'No translation provider answers here. The queue keeps the original text.'];
+		return [
+			'unconfigured',
+			'No Nextcloud translation provider is installed, so queued translations fail. Install a translation provider app to translate minutes.',
+		];
 	}//end observeTranslation()
 
 	/**
