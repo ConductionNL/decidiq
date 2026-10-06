@@ -1405,6 +1405,7 @@ OC.L10N.register(
         "Negative advice": "Negatief advies",
         "New board": "Nieuw bestuur",
         "New meeting": "Nieuwe vergadering",
+        "New proposal": "Nieuw voorstel",
         "New member": "Nieuw lid",
         "Next meeting": "Volgende vergadering",
         "Next month": "Volgende maand",

@@ -8,7 +8,7 @@
 
 ### Requirement: REQ-SLD-001 The simple dashboard opens with the day
 
-In the simple structure the dashboard MUST show, from the top: a greeting, an attention card when decisions are open for voting, the four counters on one row, and the proposals per step. It MUST keep every widget of the full dashboard at its width, height and column. The full structure MUST keep the dashboard as the manifest declares it.
+In the simple structure the dashboard MUST show, from the top: a greeting, an attention card when decisions are open for voting, the four counters on one row, and then two columns as the board draws them: a main column (eight of twelve) with the proposals per step, the pending votes and the reader's action items, and a side column (four) with the upcoming meetings and the commitments with a deadline. It MUST keep every widget of the full dashboard; the widgets the board does not show MUST follow below at full width, in the order they had. The full structure MUST keep the dashboard as the manifest declares it.
 
 #### Scenario: Nothing is open for voting
 @e2e exclude The card's visibility rule is the library's; simpleListAndDashboard.spec.js asserts the rule that is declared.
@@ -21,7 +21,16 @@ In the simple structure the dashboard MUST show, from the top: a greeting, an at
 - **GIVEN** the widgets and the layout of the full dashboard
 - **WHEN** the simple dashboard is built
 - **THEN** every widget MUST be there unchanged
-- **AND** every card MUST keep its width, height and column, and no two cards MUST share a cell
+- **AND** every widget MUST be laid out once, and no two cards MUST share a cell
+
+#### Scenario: Two columns under the counters
+@e2e exclude A reading of the layout, asserted in simpleListAndDashboard.spec.js.
+- **GIVEN** the simple dashboard
+- **WHEN** its layout is read
+- **THEN** the proposals per step, the pending votes and my action items MUST sit in a column eight wide at the left
+- **AND** the upcoming meetings and the commitments with a deadline MUST sit in a column four wide at the right
+- **AND** the commitments MUST show as the board's narrow list, the text wrapping and the deadline in a fixed column on the right, so nothing runs past the card at 1440 px
+- **AND** the primary action of the attention card MUST be the one that opens the decisions
 
 ### Requirement: REQ-SLD-002 A number and the list it opens ask the same question
 

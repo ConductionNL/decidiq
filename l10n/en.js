@@ -1265,6 +1265,7 @@ OC.L10N.register(
         "Negative advice": "Negative advice",
         "New board": "New board",
         "New meeting": "New meeting",
+        "New proposal": "New proposal",
         "New member": "New member",
         "Next meeting": "Next meeting",
         "Next month": "Next month",

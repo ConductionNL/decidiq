@@ -35,6 +35,12 @@
  *           panel that names a widget by `widgetId` gets that widget's
  *           definition written in. An overlay never adds a page and never
  *           removes one.
+ *   nav     Merged over the manifest's `nav` (the brand block and the primary
+ *           action CnAppNav draws). A string value `@theming.<key>` is read
+ *           from the instance's theming capabilities (`name`, `logo`, ...),
+ *           so a profile can show the municipality's own name and logo
+ *           without naming one. A placeholder the instance cannot answer is
+ *           left empty, never invented.
  *
  * Nothing here deletes anything. The pages, the routes and the fragments are
  * the same in both profiles, which is what keeps every deep link working.
@@ -200,12 +206,96 @@ export function overlayItemName(item) {
 }
 
 /**
+ * The theming values the simple profile's nav placeholders read.
+ *
+ * The brand block wants the emblem (the shield of the workplace boards), not
+ * the whole wordmark: thematiq exposes the active set's emblem as
+ * `nldesign.logos.emblem`. Without one, `@theming.emblem|@theming.logo` falls
+ * back to Nextcloud's own logo.
+ *
+ * @param {object|null} capabilities `getCapabilities()`.
+ * @return {object} Nextcloud's theming block plus `emblem`, '' when the set
+ *   ships none.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function navTheming(capabilities) {
+	const theming = capabilities?.theming ?? {}
+	const emblem = capabilities?.nldesign?.logos?.emblem
+	return { ...theming, emblem: typeof emblem === 'string' ? emblem : '' }
+}
+
+/** The prefix of a `nav` value the instance's theming capabilities answer. */
+const THEMING_PLACEHOLDER = '@theming.'
+
+/**
+ * Resolve the `nav` block of a profile: `@theming.<key>` strings become the
+ * instance's own theming values, one level deep (`brand.caption`,
+ * `primaryAction.label`), so no municipality is written into the app.
+ *
+ * A value may list fallbacks with `|` (`@theming.emblem|@theming.logo`): the
+ * first one the instance answers wins.
+ *
+ * A placeholder the capabilities do not answer resolves to an empty string,
+ * which CnAppNav reads as "nothing to draw" for that field. The profile is
+ * not the place to guess an instance's name.
+ *
+ * @param {object} nav The profile's `nav` block.
+ * @param {object|null} theming The theming capabilities (`name`, `logo`, ...).
+ * @return {object} A new nav block with every placeholder resolved.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function resolveNavPlaceholders(nav, theming) {
+	const resolveOne = (placeholder) => {
+		const key = placeholder.slice(THEMING_PLACEHOLDER.length)
+		const answer =
+			theming && typeof theming === 'object' ? theming[key] : undefined
+		return typeof answer === 'string' ? answer : ''
+	}
+	const resolveValue = (value) => {
+		if (typeof value !== 'string' || !value.startsWith(THEMING_PLACEHOLDER)) {
+			return value
+		}
+		// `@theming.emblem|@theming.logo`: the first placeholder the instance
+		// answers wins, so a set with an emblem shows it and one without falls
+		// back to its wordmark. None answered: empty, never a guess.
+		return (
+			value
+				.split('|')
+				.map((part) => part.trim())
+				.filter((part) => part.startsWith(THEMING_PLACEHOLDER))
+				.map(resolveOne)
+				.find((answer) => answer !== '') ?? ''
+		)
+	}
+	const out = {}
+	for (const [key, value] of Object.entries(nav || {})) {
+		if (key.startsWith('_')) {
+			// A note in the profile file is for its reader, not for the
+			// manifest schema (`nav` takes no extra keys).
+			continue
+		}
+		out[key] =
+			value && typeof value === 'object' && !Array.isArray(value)
+				? Object.fromEntries(
+						Object.entries(value).map(([inner, innerValue]) => [
+							inner,
+							resolveValue(innerValue),
+						]),
+					)
+				: resolveValue(value)
+	}
+	return out
+}
+
+/**
  * Build the manifest for one structure profile.
  *
  * `buildManifest` is passed in rather than imported, so this module stays free
  * of the library barrel and a spec can hand it the real implementation.
  *
- * A profile file without `menu` and `pages` (the full one) goes through
+ * A profile file without `menu`, `pages` and `nav` (the full one) goes through
  * unchanged: the result is exactly `buildManifest(base, fragments, layout)`.
  *
  * An overlay that names a page the manifest does not have is skipped and
@@ -217,11 +307,19 @@ export function overlayItemName(item) {
  * @param {object} base The bundled manifest.
  * @param {Array<object>} fragments The `manifest.d` fragments, in order.
  * @param {object} profileFile The profile's layout file.
+ * @param {object} [context] `{ theming }`: the instance's theming
+ *   capabilities, for the placeholders a profile's `nav` block may carry.
  * @return {object} The built manifest.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
  */
-export function buildProfiledManifest(buildManifest, base, fragments, profileFile) {
+export function buildProfiledManifest(
+	buildManifest,
+	base,
+	fragments,
+	profileFile,
+	context = {},
+) {
 	const file = profileFile || {}
 	const layout = {}
 	for (const key of LAYOUT_KEYS) {
@@ -244,7 +342,17 @@ export function buildProfiledManifest(buildManifest, base, fragments, profileFil
 				}
 			: base
 
-	const built = buildManifest(profiledBase, fragments, layout)
+	const builtPages = buildManifest(profiledBase, fragments, layout)
+	const built =
+		file.nav && typeof file.nav === 'object'
+			? {
+					...builtPages,
+					nav: {
+						...(builtPages.nav || {}),
+						...resolveNavPlaceholders(file.nav, context.theming ?? null),
+					},
+				}
+			: builtPages
 
 	const overlays = Array.isArray(file.pages) ? file.pages : []
 	if (overlays.length === 0) {

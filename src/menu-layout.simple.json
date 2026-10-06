@@ -102,6 +102,18 @@
 			"order": 44
 		}
 	],
+	"nav": {
+		"_note": "The brand block and the primary button of the navigation (DcDashboard, AppZijbalk). The caption is the instance's own theming name and the logo its emblem (thematiq's `nldesign.logos.emblem`, the shield), falling back to the theming logo, resolved at boot by structureProfile.js: no municipality is written here. New proposal opens the proposals list, where a proposal is made; the dashboard's own Start decision-making process opens Decisions the same way.",
+		"brand": {
+			"name": "decidiq",
+			"caption": "@theming.name",
+			"logo": "@theming.emblem|@theming.logo"
+		},
+		"primaryAction": {
+			"label": "New proposal",
+			"route": "Motions"
+		}
+	},
 	"pages": [
 		{
 			"id": "Motions",
@@ -1703,7 +1715,7 @@
 		},
 		{
 			"id": "Dashboard",
-			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE, at the same width and height, moved down by a fixed number of rows. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
+			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE. The board (DcDashboard, 6 October 2026) puts the page in TWO COLUMNS under the counters: the main column (8 of 12) holds the proposals per step, the pending votes and my action items; the side column (4) holds the upcoming meetings and the commitments with a deadline. The widgets the board does not show keep their full width below those rows, in the order they had. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
 			"config": {
 				"layout": [
 					{
@@ -1730,7 +1742,7 @@
 						"widgetId": "simple-proposals-per-step",
 						"gridX": 0,
 						"gridY": 6,
-						"gridWidth": 12,
+						"gridWidth": 8,
 						"gridHeight": 3,
 						"showTitle": true,
 						"sizeToContent": true
@@ -1738,9 +1750,9 @@
 					{
 						"id": "s4",
 						"widgetId": "simple-commitments-due",
-						"gridX": 0,
-						"gridY": 15,
-						"gridWidth": 12,
+						"gridX": 8,
+						"gridY": 10,
+						"gridWidth": 4,
 						"gridHeight": 4,
 						"showTitle": true
 					},
@@ -1787,18 +1799,18 @@
 					{
 						"id": "5",
 						"widgetId": "upcoming-meetings-list",
-						"gridX": 0,
-						"gridY": 11,
-						"gridWidth": 6,
+						"gridX": 8,
+						"gridY": 6,
+						"gridWidth": 4,
 						"gridHeight": 4,
 						"showTitle": true
 					},
 					{
 						"id": "6",
 						"widgetId": "pending-votes-list",
-						"gridX": 6,
-						"gridY": 11,
-						"gridWidth": 6,
+						"gridX": 0,
+						"gridY": 9,
+						"gridWidth": 8,
 						"gridHeight": 4,
 						"showTitle": true
 					},
@@ -1814,9 +1826,9 @@
 					{
 						"id": "8",
 						"widgetId": "my-action-items",
-						"gridX": 6,
-						"gridY": 19,
-						"gridWidth": 6,
+						"gridX": 0,
+						"gridY": 13,
+						"gridWidth": 8,
 						"gridHeight": 4,
 						"showTitle": true
 					},
@@ -1833,7 +1845,7 @@
 						"id": "10",
 						"widgetId": "minutes-in-review",
 						"gridX": 3,
-						"gridY": 9,
+						"gridY": 17,
 						"gridWidth": 9,
 						"gridHeight": 2,
 						"showTitle": true
@@ -1852,7 +1864,7 @@
 						"id": "12",
 						"widgetId": "open-commitments-overdue",
 						"gridX": 0,
-						"gridY": 9,
+						"gridY": 17,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1904,17 +1916,18 @@
 							},
 							"actions": [
 								{
+									"label": "Open the meetings",
+									"route": "Meetings"
+								},
+								{
 									"label": "Open these decisions",
 									"route": {
 										"name": "Decisions",
 										"query": {
 											"lifecycle": "voting"
 										}
-									}
-								},
-								{
-									"label": "Open the meetings",
-									"route": "Meetings"
+									},
+									"primary": true
 								}
 							],
 							"text": "Decisions wait for the vote"
@@ -1958,24 +1971,27 @@
 					},
 					{
 						"id": "simple-commitments-due",
-						"type": "object-list",
+						"type": "object-table",
 						"title": "Commitments with a deadline",
 						"icon": "ClipboardCheckOutline",
 						"content": {
-							"register": "decidiq",
-							"schema": "governance-commitment",
-							"filter": {
-								"lifecycle": "open"
-							},
-							"sort": {
-								"field": "deadline",
-								"dir": "asc"
+							"_note": "The board's narrow list in the side column (DcDashboard, 'Toezeggingen met termijn'): the commitment, wrapped, and its deadline on the right. An object-table, not an object-list, because only it forwards `hideHeader` and `fixedLayout` to the table: in a column four wide the object-list's auto layout let a long commitment push the deadline out of the card.",
+							"source": {
+								"register": "decidiq",
+								"schema": "governance-commitment",
+								"filter": {
+									"lifecycle": "open"
+								},
+								"order": {
+									"deadline": "asc"
+								},
+								"limit": 5
 							},
 							"columns": [
 								{
 									"key": "text",
 									"label": "Commitment",
-									"widget": "link"
+									"cellClass": "cn-cell--wrap"
 								},
 								{
 									"key": "deadline",
@@ -1994,15 +2010,21 @@
 												"variant": "warning"
 											}
 										]
-									}
+									},
+									"width": "7.5rem",
+									"align": "right"
 								}
 							],
-							"limit": 5,
 							"rowRoute": "CommitmentDetail",
-							"viewAllRoute": "Commitments",
-							"viewAllQuery": {
-								"lifecycle": "open"
+							"viewAllRoute": {
+								"name": "Commitments",
+								"query": {
+									"lifecycle": "open"
+								}
 							},
+							"hideHeader": true,
+							"borderless": true,
+							"fixedLayout": true,
 							"emptyText": "No open commitments."
 						}
 					}
