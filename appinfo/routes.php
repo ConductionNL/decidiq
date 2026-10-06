@@ -223,7 +223,7 @@ $extra = [
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
         // Running count of an open round for the voting panel (vot-14, #1375).
-        ['name' => 'voting#liveTally',   'url' => '/api/voting-rounds/{id}/live-tally', 'verb' => 'GET'],
+        ['name' => 'votingRoundLive#liveTally', 'url' => '/api/voting-rounds/{id}/live-tally', 'verb' => 'GET'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
@@ -245,7 +245,7 @@ $extra = [
         ['name' => 'dossierDisposition#certificate', 'url' => '/api/dossiers/{id}/certificate', 'verb' => 'POST'],
         // A dossier's own Selectielijst category, when it differs from the schema's (DECISIONS row 48).
         ['name' => 'dossierDisposition#category',    'url' => '/api/dossiers/{id}/category',    'verb' => 'PUT'],
-        ['name' => 'voting#proxies',     'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'GET'],
+        ['name' => 'votingRoundLive#proxies', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'GET'],
         ['name' => 'voting#proxy',       'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'POST'],
         ['name' => 'voting#revokeProxy', 'url' => '/api/voting-rounds/{id}/proxy',  'verb' => 'DELETE'],
         ['name' => 'voting#permissions',       'url' => '/api/meetings/{meetingId}/voting-permissions', 'verb' => 'GET'],

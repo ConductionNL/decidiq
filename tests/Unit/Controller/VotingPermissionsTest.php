@@ -22,12 +22,14 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\VotingController;
+use OCA\Decidiq\Controller\VotingRoundLiveController;
 use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ProxyDelegationService;
 use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingOpenRequestHandler;
 use OCA\Decidiq\Service\VotingRoundGuard;
+use OCA\Decidiq\Service\VotingRoundResults;
 use OCA\Decidiq\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -71,6 +73,13 @@ class VotingPermissionsTest extends TestCase {
 	private OriPublicationService&MockObject $oriService;
 
 	/**
+	 * Voting round results double (live counts).
+	 *
+	 * @var VotingRoundResults&MockObject
+	 */
+	private VotingRoundResults&MockObject $results;
+
+	/**
 	 * Set up the doubles.
 	 *
 	 * @return void
@@ -79,6 +88,7 @@ class VotingPermissionsTest extends TestCase {
 		parent::setUp();
 		$this->votingService = $this->createMock(VotingService::class);
 		$this->oriService = $this->createMock(OriPublicationService::class);
+		$this->results = $this->createMock(VotingRoundResults::class);
 
 	}//end setUp()
 
@@ -91,6 +101,61 @@ class VotingPermissionsTest extends TestCase {
 	 * @return VotingController
 	 */
 	private function controllerFor(?string $uid, bool $isAdmin=false): VotingController {
+		[$session, $guard, $container] = $this->wiringFor(uid: $uid, isAdmin: $isAdmin);
+
+		return new VotingController(
+			request: $this->createMock(IRequest::class),
+			votingService: $this->votingService,
+			oriService: $this->oriService,
+			userSession: $session,
+			guard: $guard,
+			openHandler: new VotingOpenRequestHandler(votingService: $this->votingService),
+			proxyService: new ProxyDelegationService(
+				container: $container,
+				logger: new NullLogger(),
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			),
+			errors: new VotingErrorResponder(logger: new NullLogger()),
+		);
+
+	}//end controllerFor()
+
+	/**
+	 * Build the live (read-only) voting round controller for a signed-in user.
+	 *
+	 * @param string|null $uid     Signed-in uid, null for anonymous
+	 * @param bool        $isAdmin Whether the uid is a Nextcloud admin
+	 *
+	 * @return VotingRoundLiveController
+	 */
+	private function liveControllerFor(?string $uid, bool $isAdmin=false): VotingRoundLiveController {
+		[$session, $guard, $container] = $this->wiringFor(uid: $uid, isAdmin: $isAdmin);
+
+		return new VotingRoundLiveController(
+			request: $this->createMock(IRequest::class),
+			votingService: $this->votingService,
+			results: $this->results,
+			userSession: $session,
+			guard: $guard,
+			proxyService: new ProxyDelegationService(
+				container: $container,
+				logger: new NullLogger(),
+				objectService: $this->createMock(ObjectServiceInterface::class),
+			),
+			errors: new VotingErrorResponder(logger: new NullLogger()),
+		);
+
+	}//end liveControllerFor()
+
+	/**
+	 * Build the session, the REAL guard and the object container for a user.
+	 *
+	 * @param string|null $uid     Signed-in uid, null for anonymous
+	 * @param bool        $isAdmin Whether the uid is a Nextcloud admin
+	 *
+	 * @return array{0: IUserSession, 1: VotingRoundGuard, 2: ContainerInterface}
+	 */
+	private function wiringFor(?string $uid, bool $isAdmin): array {
 		$session = $this->createMock(IUserSession::class);
 		$user = null;
 		if ($uid !== null) {
@@ -144,28 +209,17 @@ class VotingPermissionsTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 
-		return new VotingController(
-			request: $this->createMock(IRequest::class),
-			votingService: $this->votingService,
-			oriService: $this->oriService,
+		$guard = new VotingRoundGuard(
 			userSession: $session,
-			guard: new VotingRoundGuard(
-				userSession: $session,
-				groupManager: $groupManager,
-				appConfig: $appConfig,
-				participantResolver: $resolver,
-				container: $container,
-			),
-			openHandler: new VotingOpenRequestHandler(votingService: $this->votingService),
-			proxyService: new ProxyDelegationService(
-				container: $container,
-				logger: new NullLogger(),
-				objectService: $this->createMock(ObjectServiceInterface::class),
-			),
-			errors: new VotingErrorResponder(logger: new NullLogger()),
+			groupManager: $groupManager,
+			appConfig: $appConfig,
+			participantResolver: $resolver,
+			container: $container,
 		);
 
-	}//end controllerFor()
+		return [$session, $guard, $container];
+
+	}//end wiringFor()
 
 	/**
 	 * The chair may use every control.
@@ -310,9 +364,12 @@ class VotingPermissionsTest extends TestCase {
 	 */
 	public function testReadsCarryNoAdminRequired(): void {
 		$ref = new \ReflectionClass(VotingController::class);
-		foreach (['permissions', 'globalPermissions', 'liveTally'] as $name) {
+		foreach (['permissions', 'globalPermissions'] as $name) {
 			self::assertNotEmpty($ref->getMethod($name)->getAttributes(NoAdminRequired::class), $name);
 		}
+
+		$live = new \ReflectionClass(VotingRoundLiveController::class);
+		self::assertNotEmpty($live->getMethod('liveTally')->getAttributes(NoAdminRequired::class), 'liveTally');
 
 	}//end testReadsCarryNoAdminRequired()
 
@@ -326,10 +383,10 @@ class VotingPermissionsTest extends TestCase {
 	 */
 	public function testLiveTallyShowsTheSplitToChairAndSecretary(): void {
 		$counts = ['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5];
-		$this->votingService->method('liveTally')->willReturn($counts);
+		$this->results->method('liveCounts')->willReturn($counts);
 
 		foreach (['chair1', 'griffier1'] as $uid) {
-			$response = $this->controllerFor(uid: $uid)->liveTally(id: 'round-M');
+			$response = $this->liveControllerFor(uid: $uid)->liveTally(id: 'round-M');
 			self::assertSame(Http::STATUS_OK, $response->getStatus(), $uid);
 			self::assertSame($counts, $response->getData(), $uid);
 		}
@@ -345,12 +402,12 @@ class VotingPermissionsTest extends TestCase {
 	 * @return void
 	 */
 	public function testLiveTallyShowsAMemberOnlyTheCastCount(): void {
-		$this->votingService->method('liveTally')->willReturn(
+		$this->results->method('liveCounts')->willReturn(
 			['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5]
 		);
 
-		self::assertSame(['cast' => 5], $this->controllerFor(uid: 'member1')->liveTally(id: 'round-M')->getData());
-		self::assertSame(['cast' => 5], $this->controllerFor(uid: 'griffier2', isAdmin: true)->liveTally(id: 'round-M')->getData());
+		self::assertSame(['cast' => 5], $this->liveControllerFor(uid: 'member1')->liveTally(id: 'round-M')->getData());
+		self::assertSame(['cast' => 5], $this->liveControllerFor(uid: 'griffier2', isAdmin: true)->liveTally(id: 'round-M')->getData());
 
 	}//end testLiveTallyShowsAMemberOnlyTheCastCount()
 
@@ -362,10 +419,10 @@ class VotingPermissionsTest extends TestCase {
 	 * @return void
 	 */
 	public function testLiveTallyRefusesAnonymousAndUnreadableRounds(): void {
-		$this->votingService->method('liveTally')->willReturn(null);
+		$this->results->method('liveCounts')->willReturn(null);
 
-		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->controllerFor(uid: null)->liveTally(id: 'round-M')->getStatus());
-		self::assertSame(Http::STATUS_NOT_FOUND, $this->controllerFor(uid: 'chair1')->liveTally(id: 'round-x')->getStatus());
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->liveControllerFor(uid: null)->liveTally(id: 'round-M')->getStatus());
+		self::assertSame(Http::STATUS_NOT_FOUND, $this->liveControllerFor(uid: 'chair1')->liveTally(id: 'round-x')->getStatus());
 
 	}//end testLiveTallyRefusesAnonymousAndUnreadableRounds()
 }//end class

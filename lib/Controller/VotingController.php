@@ -6,7 +6,9 @@
  * Thin REST controller for voting round management, vote casting, and proxy
  * delegation. Every endpoint is guard -> read input -> delegate; the
  * exception-to-status mapping lives in VotingErrorResponder and the
- * open-a-round request shape lives in VotingOpenRequestHandler.
+ * open-a-round request shape lives in VotingOpenRequestHandler. The read-only
+ * views the panel polls (live tally, held proxies) are in
+ * VotingRoundLiveController.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -272,46 +274,6 @@ class VotingController extends Controller {
 	}//end publish()
 
 	/**
-	 * Say which proxies the caller holds and has given on a round.
-	 *
-	 * GET /api/voting-rounds/{id}/proxy
-	 * Response: { "participantId": "uuid", "held": [{ "participantId", "displayName" }], "granted": "uuid"|null }
-	 *
-	 * The voting panel reads it to offer the holder "vote on behalf of" for
-	 * each grant they hold; each held participantId is the `delegatorId` the
-	 * cast endpoint takes. The caller is resolved from the session, as cast()
-	 * and proxy() do, so the answer names the same participant they act as.
-	 *
-	 * @param string $id The voting round UUID
-	 *
-	 * @NoAdminRequired
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return JSONResponse
-	 */
-	#[NoAdminRequired]
-	public function proxies(string $id): JSONResponse {
-		$nextcloudUid = $this->userSession->getUser()?->getUID() ?? '';
-		if ($nextcloudUid === '') {
-			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
-		if ($participantId === null) {
-			// Not a participant: nothing held, nothing given.
-			return new JSONResponse(['participantId' => null, 'held' => [], 'granted' => null]);
-		}
-
-		return $this->errors->badRequestOrNotFound(
-			fn (): JSONResponse => new JSONResponse(
-				$this->proxyService->proxiesFor(votingRoundId: $id, participantId: $participantId)
-			)
-		);
-
-	}//end proxies()
-
-	/**
 	 * Grant proxy delegation.
 	 *
 	 * POST /api/voting-rounds/{id}/proxy
@@ -403,44 +365,6 @@ class VotingController extends Controller {
 		);
 
 	}//end tally()
-
-	/**
-	 * The running tally of an open VotingRound (vot-14, #1375).
-	 *
-	 * GET /api/voting-rounds/{id}/live-tally
-	 *
-	 * Every signed-in user who can read the round sees how many votes have been
-	 * cast; only the meeting's chair or secretary sees the for / against /
-	 * abstain split, as the voting panel already restricts it. No ballot, voter
-	 * or individual value is ever returned.
-	 *
-	 * @param string $id The voting round UUID
-	 *
-	 * @NoAdminRequired
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return JSONResponse
-	 */
-	#[NoAdminRequired]
-	public function liveTally(string $id): JSONResponse {
-		if ($this->userSession->getUser() === null) {
-			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
-		}
-
-		$counts = $this->votingService->liveTally(votingRoundId: $id);
-		if ($counts === null) {
-			return new JSONResponse(['message' => 'VotingRound not found'], Http::STATUS_NOT_FOUND);
-		}
-
-		$meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
-		if ($this->guard->requireChairOrSecretary(meetingId: $meetingId) !== null) {
-			return new JSONResponse(['cast' => $counts['cast']]);
-		}
-
-		return new JSONResponse($counts);
-
-	}//end liveTally()
 
 	/**
 	 * Revoke proxy delegation.
