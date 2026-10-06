@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\Decidiq\Service\DecisionPublicationService;
+use OCA\Decidiq\Service\DecisionWithdrawFlow;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -64,6 +65,7 @@ class DecisionController extends Controller {
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param LoggerInterface $logger The logger (handed to the publication service)
 	 * @param DecisionLifecycleService $lifecycleService Guarded decision state machine
+	 * @param DecisionWithdrawFlow $withdrawFlow Guarded decision withdrawal (REQ-DWP-005)
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
@@ -74,6 +76,7 @@ class DecisionController extends Controller {
 		private IGroupManager $groupManager,
 		LoggerInterface $logger,
 		private DecisionLifecycleService $lifecycleService,
+		private DecisionWithdrawFlow $withdrawFlow,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
@@ -150,7 +153,7 @@ class DecisionController extends Controller {
 	 * "reason": "<why, for the person who receives it>" }
 	 *
 	 * Access control is the same as transition(): OpenRegister ObjectService
-	 * RBAC inside DecisionLifecycleService (find/saveObject) plus the
+	 * RBAC inside DecisionWithdrawFlow (find/saveObject) plus the
 	 * chair-only gate when the body's policy restricts the edge.
 	 *
 	 * Returns 200 with the withdrawn decision, 401 unauthenticated, 422 when
@@ -171,7 +174,7 @@ class DecisionController extends Controller {
 			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$result = $this->lifecycleService->withdraw(
+		$result = $this->withdrawFlow->withdraw(
 			decisionId: $decisionId,
 			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
 			reason: (string)$this->request->getParam('reason', ''),

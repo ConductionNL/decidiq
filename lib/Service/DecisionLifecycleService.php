@@ -74,13 +74,6 @@ class DecisionLifecycleService {
 	private readonly DecisionContextResolver $contextResolver;
 
 	/**
-	 * Builds the withdrawal (who, why, when; outcome kept) — REQ-DWP-005.
-	 *
-	 * @var DecisionWithdrawalService
-	 */
-	private readonly DecisionWithdrawalService $withdrawalService;
-
-	/**
 	 * Constructor for DecisionLifecycleService.
 	 *
 	 * @param LoggerInterface $logger The logger
@@ -101,7 +94,6 @@ class DecisionLifecycleService {
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		$this->contextResolver = new DecisionContextResolver(logger: $logger);
-		$this->withdrawalService = new DecisionWithdrawalService();
 
 	}//end __construct()
 
@@ -307,155 +299,6 @@ class DecisionLifecycleService {
 	}//end transition()
 
 	/**
-	 * Withdraw a decision.
-	 *
-	 * Pipeline: OR find (per-object read ACL / 404) → the `lifecycle →
-	 * withdrawn` edge must be declared (any state before `enacted`) →
-	 * chair-only gate when the body's policy restricts the edge (fail closed)
-	 * → DecisionWithdrawalService stamps who withdrew it, why and when, and
-	 * keeps the outcome (REQ-DWP-005) → saveObject (per-object write ACL) →
-	 * hash-chained audit append and, for a delegated decision, the
-	 * DecisionConcludedEvent.
-	 *
-	 * Withdrawal is not an action in the transition map because it carries a
-	 * payload the map cannot express: a withdrawal that does not say who
-	 * withdrew it is refused.
-	 *
-	 * @param string $decisionId UUID of the decision to withdraw
-	 * @param string $withdrawnBy Actor kind: bestuursorgaan|belanghebbende
-	 * @param string $reason Why, written for the person who receives it
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user (chair gate + audit actor)
-	 *
-	 * @spec openspec/specs/decision-management/spec.md
-	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
-	 *
-	 * @return array{success: bool, decision: array|null, message: string}
-	 */
-	public function withdraw(string $decisionId, string $withdrawnBy, string $reason = '', ?string $currentUserId = null): array {
-		if (in_array(needle: $withdrawnBy, haystack: DecisionWithdrawalService::ACTOR_KINDS, strict: true) === false) {
-			return [
-				'success' => false,
-				'decision' => null,
-				'message' => 'A withdrawal has to say who withdrew it: '
-					. implode(' or ', DecisionWithdrawalService::ACTOR_KINDS) . '.',
-			];
-		}
-
-		try {
-			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
-			if ($decision === null) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => "Decision '$decisionId' not found.",
-				];
-			}
-
-			$currentLifecycle = (string)($decision['lifecycle'] ?? 'draft');
-			if ($this->transitionGuard->isWithdrawable(lifecycle: $currentLifecycle) === false) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => "A decision in '$currentLifecycle' state cannot be withdrawn. "
-						. 'Withdrawal is possible from: ' . implode(', ', DecisionTransitionGuard::WITHDRAWABLE_STATES) . '.',
-				];
-			}
-
-			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
-			$domain = $this->contextResolver->resolveDomain(
-				objectService: $this->objectService,
-				decision: $decision,
-				meeting: $meeting
-			);
-			$chairRejection = $this->resolveChairRejection(
-				objectService: $this->objectService,
-				meeting: $meeting,
-				domain: $domain,
-				currentLifecycle: $currentLifecycle,
-				newState: 'withdrawn',
-				policyOverride: $this->resolvePolicyOverride(decision: $decision, meeting: $meeting),
-				currentUserId: $currentUserId
-			);
-			if ($chairRejection !== null) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => $chairRejection,
-				];
-			}
-
-			try {
-				$withdrawn = $this->withdrawalService->withdraw(
-					decision: $decision,
-					withdrawnBy: $withdrawnBy,
-					reason: $reason
-				);
-			} catch (\InvalidArgumentException $e) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => $e->getMessage(),
-				];
-			}
-
-			// Persist only the declared withdrawal properties beside the new
-			// lifecycle; the append-only history lives in the hash-chained audit
-			// entry below, not in an undeclared `history` property. `outcome` is
-			// deliberately not in the patch: it stays exactly as it was.
-			$patch = [
-				'lifecycle' => 'withdrawn',
-				'withdrawn' => true,
-				'withdrawnAt' => $withdrawn['withdrawnAt'],
-				'withdrawnBy' => $withdrawn['withdrawnBy'],
-				'withdrawnReason' => $withdrawn['withdrawnReason'],
-			];
-
-			// Object-level write ACL: saveObject() throws when the session user lacks
-			// write access on this specific object (caught below, generic error).
-			$updated = $this->objectService->saveObject(
-				object: array_merge($decision, $patch),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId,
-			);
-
-			$this->applyPostTransitionEffects(
-				objectService: $this->objectService,
-				decision: array_merge($decision, $patch),
-				decisionId: $decisionId,
-				action: 'withdraw',
-				currentLifecycle: $currentLifecycle,
-				newState: 'withdrawn',
-				currentUserId: $currentUserId,
-				comment: $withdrawnBy . ': ' . $patch['withdrawnReason']
-			);
-
-			return [
-				'success' => true,
-				'decision' => $updated->jsonSerialize(),
-				'message' => "Decision transitioned to 'withdrawn'.",
-			];
-		} catch (DoesNotExistException) {
-			return [
-				'success' => false,
-				'decision' => null,
-				'message' => "Decision '$decisionId' not found.",
-			];
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: decision withdrawal failed',
-				['id' => $decisionId, 'exception' => $e->getMessage()]
-			);
-			return [
-				'success' => false,
-				'decision' => null,
-				'message' => 'Withdrawal failed. See server log for details.',
-			];
-		}//end try
-
-	}//end withdraw()
-
-	/**
 	 * Resolve why a requested transition must be refused, or null when it may proceed.
 	 *
 	 * Evaluated in the documented order: transition-map from-state, per-domain
@@ -518,11 +361,9 @@ class DecisionLifecycleService {
 			policyOverride: $policyOverride,
 			currentUserId: $currentUserId
 		);
-		if ($chairRejection !== null) {
-			return $chairRejection;
-		}
-
-		return $this->resolveStateGateRejection(
+		// The chair gate is checked first; the state-entry gates only run once
+		// the caller is authorized.
+		return $chairRejection ?? $this->resolveStateGateRejection(
 			decision: $decision,
 			meeting: $meeting,
 			domain: $domain,
@@ -531,6 +372,47 @@ class DecisionLifecycleService {
 		);
 
 	}//end resolveRejection()
+
+	/**
+	 * Enforce the chair-only gate for a decision entering a lifecycle state
+	 * outside the transition map (DecisionWithdrawFlow's `→ withdrawn` edge).
+	 *
+	 * Resolves the linked meeting, the governance domain and the body's
+	 * process-template policy exactly as transition() does, then applies the
+	 * same fail-closed chair gate, so the withdraw flow never duplicates it.
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 * @param string $currentLifecycle The decision's current lifecycle state
+	 * @param string $newState The lifecycle state being entered
+	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return string|null Rejection message, or null when the caller is authorized
+	 */
+	public function resolveChairRejectionForDecision(
+		array $decision,
+		string $currentLifecycle,
+		string $newState,
+		?string $currentUserId,
+	): ?string {
+		$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
+
+		return $this->resolveChairRejection(
+			objectService: $this->objectService,
+			meeting: $meeting,
+			domain: $this->contextResolver->resolveDomain(
+				objectService: $this->objectService,
+				decision: $decision,
+				meeting: $meeting
+			),
+			currentLifecycle: $currentLifecycle,
+			newState: $newState,
+			policyOverride: $this->resolvePolicyOverride(decision: $decision, meeting: $meeting),
+			currentUserId: $currentUserId
+		);
+
+	}//end resolveChairRejectionForDecision()
 
 	/**
 	 * Enforce chair-only transitions (OWASP A01:2021 — broken access control).
@@ -714,6 +596,9 @@ class DecisionLifecycleService {
 	 * All of them are fail-soft — the lifecycle write already persisted, so a
 	 * failure here is logged loudly and never rolls the transition back.
 	 *
+	 * Public so DecisionWithdrawFlow shares the same audit append and
+	 * conclusion event instead of duplicating them.
+	 *
 	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the transitioned decision
@@ -728,7 +613,7 @@ class DecisionLifecycleService {
 	 *
 	 * @return void
 	 */
-	private function applyPostTransitionEffects(
+	public function applyPostTransitionEffects(
 		object $objectService,
 		array $decision,
 		string $decisionId,
