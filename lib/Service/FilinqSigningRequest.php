@@ -181,6 +181,6 @@ class FilinqSigningRequest {
 			return null;
 		}
 
-		return (array)$entity->getObject();
+		return $entity->getObject();
 	}//end record()
 }//end class
