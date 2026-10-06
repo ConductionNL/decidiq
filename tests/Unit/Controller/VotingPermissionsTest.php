@@ -310,9 +310,62 @@ class VotingPermissionsTest extends TestCase {
 	 */
 	public function testReadsCarryNoAdminRequired(): void {
 		$ref = new \ReflectionClass(VotingController::class);
-		foreach (['permissions', 'globalPermissions'] as $name) {
+		foreach (['permissions', 'globalPermissions', 'liveTally'] as $name) {
 			self::assertNotEmpty($ref->getMethod($name)->getAttributes(NoAdminRequired::class), $name);
 		}
 
 	}//end testReadsCarryNoAdminRequired()
+
+	/**
+	 * The chair and secretary see the running for / against / abstain split
+	 * of an open round (vot-14, #1375).
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLiveTallyShowsTheSplitToChairAndSecretary(): void {
+		$counts = ['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5];
+		$this->votingService->method('liveTally')->willReturn($counts);
+
+		foreach (['chair1', 'griffier1'] as $uid) {
+			$response = $this->controllerFor(uid: $uid)->liveTally(id: 'round-M');
+			self::assertSame(Http::STATUS_OK, $response->getStatus(), $uid);
+			self::assertSame($counts, $response->getData(), $uid);
+		}
+
+	}//end testLiveTallyShowsTheSplitToChairAndSecretary()
+
+	/**
+	 * A member sees only how many votes are cast, never the split, and an
+	 * admin who is secretary of another meeting is no exception.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLiveTallyShowsAMemberOnlyTheCastCount(): void {
+		$this->votingService->method('liveTally')->willReturn(
+			['votesFor' => 3, 'votesAgainst' => 1, 'votesAbstain' => 1, 'cast' => 5]
+		);
+
+		self::assertSame(['cast' => 5], $this->controllerFor(uid: 'member1')->liveTally(id: 'round-M')->getData());
+		self::assertSame(['cast' => 5], $this->controllerFor(uid: 'griffier2', isAdmin: true)->liveTally(id: 'round-M')->getData());
+
+	}//end testLiveTallyShowsAMemberOnlyTheCastCount()
+
+	/**
+	 * Anonymous callers are refused, and a round the user cannot read is a 404.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return void
+	 */
+	public function testLiveTallyRefusesAnonymousAndUnreadableRounds(): void {
+		$this->votingService->method('liveTally')->willReturn(null);
+
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->controllerFor(uid: null)->liveTally(id: 'round-M')->getStatus());
+		self::assertSame(Http::STATUS_NOT_FOUND, $this->controllerFor(uid: 'chair1')->liveTally(id: 'round-x')->getStatus());
+
+	}//end testLiveTallyRefusesAnonymousAndUnreadableRounds()
 }//end class

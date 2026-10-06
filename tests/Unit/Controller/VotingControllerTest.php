@@ -289,6 +289,7 @@ class VotingControllerTest extends TestCase {
 			'publish',
 			'proxy',
 			'tally',
+			'liveTally',
 			'revokeProxy',
 		];
 

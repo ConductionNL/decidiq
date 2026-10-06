@@ -298,9 +298,9 @@
 								'decidiq',
 								'For: {for} — Against: {against} — Abstain: {abstain}',
 								{
-									for: currentRound.votesFor || 0,
-									against: currentRound.votesAgainst || 0,
-									abstain: currentRound.votesAbstain || 0,
+									for: openSplit.votesFor,
+									against: openSplit.votesAgainst,
+									abstain: openSplit.votesAbstain,
 								},
 							)
 						}}
@@ -614,6 +614,9 @@ export default {
 			castingRanking: false,
 			chairCastingError: null,
 			pollInterval: null,
+			// The server's running count of the open round (vot-14): the
+			// round's own counts are written only on close.
+			liveTally: null,
 			participantCount: 0,
 			declarations: [],
 			// The server's answer on which controls this user may use
@@ -655,11 +658,39 @@ export default {
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
+			if (this.currentLiveTally) return this.currentLiveTally.cast || 0
 			return (
 				(this.currentRound.votesFor || 0)
 				+ (this.currentRound.votesAgainst || 0)
 				+ (this.currentRound.votesAbstain || 0)
 			)
+		},
+
+		/**
+		 * The live tally, when it belongs to the displayed open round.
+		 *
+		 * @return {object|null} The server's running count, or null
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		currentLiveTally() {
+			if (!this.isRoundOpen || !this.liveTally) return null
+			return this.liveTally.roundId === this.roundId ? this.liveTally : null
+		},
+
+		/**
+		 * The for / against / abstain split shown while the round is open. The
+		 * server returns it to the chair and secretary only.
+		 *
+		 * @return {{votesFor: number, votesAgainst: number, votesAbstain: number}}
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		openSplit() {
+			const source = this.currentLiveTally || this.currentRound || {}
+			return {
+				votesFor: source.votesFor || 0,
+				votesAgainst: source.votesAgainst || 0,
+				votesAbstain: source.votesAbstain || 0,
+			}
 		},
 
 		/**
@@ -815,6 +846,35 @@ export default {
 		},
 
 		/**
+		 * Read the running count of the open round from the server: the round
+		 * object's counts stay zero until it is closed (vot-14). The server
+		 * answers the cast count to everyone and the split to the chair and
+		 * secretary only. A failure keeps the previous count.
+		 *
+		 * @spec openspec/specs/voting-system/spec.md
+		 */
+		async loadLiveTally() {
+			if (!this.isRoundOpen) {
+				this.liveTally = null
+				return
+			}
+			const roundId = this.roundId
+			try {
+				const resp = await fetch(
+					generateUrl(
+						`/apps/decidiq/api/voting-rounds/${roundId}/live-tally`,
+					),
+					{ headers: { Accept: 'application/json' } },
+				)
+				if (resp.ok) {
+					this.liveTally = { ...(await resp.json()), roundId }
+				}
+			} catch {
+				// Keep the last count; the next poll tries again.
+			}
+		},
+
+		/**
 		 * Load the declarations on the motion and its agenda item; a failure
 		 * leaves the count at all participants.
 		 *
@@ -883,7 +943,7 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
-				await this.loadDeclarations()
+				await Promise.all([this.loadDeclarations(), this.loadLiveTally()])
 			} catch {
 				this.currentRound = null
 			} finally {

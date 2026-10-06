@@ -365,6 +365,44 @@ class VotingController extends Controller {
 	}//end tally()
 
 	/**
+	 * The running tally of an open VotingRound (vot-14, #1375).
+	 *
+	 * GET /api/voting-rounds/{id}/live-tally
+	 *
+	 * Every signed-in user who can read the round sees how many votes have been
+	 * cast; only the meeting's chair or secretary sees the for / against /
+	 * abstain split, as the voting panel already restricts it. No ballot, voter
+	 * or individual value is ever returned.
+	 *
+	 * @param string $id The voting round UUID
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function liveTally(string $id): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$counts = $this->votingService->liveTally(votingRoundId: $id);
+		if ($counts === null) {
+			return new JSONResponse(['message' => 'VotingRound not found'], Http::STATUS_NOT_FOUND);
+		}
+
+		$meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
+		if ($this->guard->requireChairOrSecretary(meetingId: $meetingId) !== null) {
+			return new JSONResponse(['cast' => $counts['cast']]);
+		}
+
+		return new JSONResponse($counts);
+
+	}//end liveTally()
+
+	/**
 	 * Revoke proxy delegation.
 	 *
 	 * DELETE /api/voting-rounds/{id}/proxy

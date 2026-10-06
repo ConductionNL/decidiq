@@ -311,6 +311,21 @@ class VotingService {
 	}//end tallyResults()
 
 	/**
+	 * The running counts of an open round, without closing or persisting it
+	 * (vot-14, #1375). Who may see the for / against / abstain split is the
+	 * controller's call.
+	 *
+	 * @param string $votingRoundId The voting round UUID
+	 *
+	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int, cast: int}|null The counts, or null when the round cannot be read
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function liveTally(string $votingRoundId): ?array {
+		return $this->results->liveCounts(votingRoundId: $votingRoundId);
+	}//end liveTally()
+
+	/**
 	 * Record a show-of-hands tally for an open VotingRound.
 	 *
 	 * @param string $votingRoundId The voting round UUID

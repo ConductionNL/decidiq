@@ -220,6 +220,8 @@ $extra = [
         ['name' => 'voting#close',       'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
+        // Running count of an open round for the voting panel (vot-14, #1375).
+        ['name' => 'voting#liveTally',   'url' => '/api/voting-rounds/{id}/live-tally', 'verb' => 'GET'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).
