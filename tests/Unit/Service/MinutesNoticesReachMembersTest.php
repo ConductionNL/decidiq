@@ -53,6 +53,7 @@ use Psr\Log\NullLogger;
  * @uses   \OCA\Decidiq\Service\MinutesContextResolver
  * @uses   \OCA\Decidiq\Service\ParticipantResolver
  * @uses   \OCA\Decidiq\Service\NotificationPreferenceService
+ * @uses   \OCA\Decidiq\Service\OpenRegisterNotificationPreferenceSync
  */
 class MinutesNoticesReachMembersTest extends TestCase {
 
