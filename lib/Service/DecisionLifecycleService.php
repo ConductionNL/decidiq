@@ -362,7 +362,11 @@ class DecisionLifecycleService {
 			}
 
 			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
-			$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
+			$domain = $this->contextResolver->resolveDomain(
+				objectService: $this->objectService,
+				decision: $decision,
+				meeting: $meeting
+			);
 			$chairRejection = $this->resolveChairRejection(
 				objectService: $this->objectService,
 				meeting: $meeting,
