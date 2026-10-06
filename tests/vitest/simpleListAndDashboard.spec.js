@@ -272,7 +272,7 @@ describe('the dashboard in the simple structure', () => {
 		const sources = [
 			widgets.get('simple-first-today').content.visibleWhen.source,
 			widgets.get('simple-proposals-per-step').content.source,
-			widgets.get('simple-commitments-due').content,
+			widgets.get('simple-commitments-due').content.source,
 		]
 		for (const source of sources) {
 			expect(source.register).toBe('decidiq')
@@ -334,18 +334,21 @@ describe('the dashboard in the simple structure', () => {
 	})
 
 	it('lists open commitments by deadline, and "view all" opens the same ones', () => {
-		const list = widgets.get('simple-commitments-due').content
-		expect(list.sort).toEqual({ field: 'deadline', dir: 'asc' })
+		const widget = widgets.get('simple-commitments-due')
+		const list = widget.content
+		const { source } = list
+		expect(widget.type).toBe('object-table')
+		expect(source.order).toEqual({ deadline: 'asc' })
 		expect(commitment.deadline.format).toBe('date')
 		for (const column of list.columns) {
 			expect(commitment[column.key], column.key).toBeDefined()
 		}
-		expect(list.viewAllQuery).toEqual(asQuery(list.filter))
-		const target = pageOf(simple, list.viewAllRoute).config
-		expect(target.schema).toBe(list.schema)
+		expect(list.viewAllRoute.query).toEqual(asQuery(source.filter))
+		const target = pageOf(simple, list.viewAllRoute.name).config
+		expect(target.schema).toBe(source.schema)
 		expect(target.quickFilters).toContainEqual({
 			label: 'Open',
-			filter: list.filter,
+			filter: source.filter,
 		})
 		expect(pageOf(simple, list.rowRoute).type).toBe('detail')
 		// Today is late: zero days left is already the error colour.
@@ -353,6 +356,25 @@ describe('the dashboard in the simple structure', () => {
 			list.columns.find((column) => column.key === 'deadline').widgetProps
 				.variantWhen[0],
 		).toEqual({ op: 'lte', value: 0, variant: 'error' })
+	})
+
+	it('fits the commitments into the side column: the text wraps, the date keeps a fixed width', () => {
+		// The board's narrow list: no header row, the commitment and its
+		// deadline on the right. At 1440 px the side column is about 350 px
+		// wide; under the auto layout a long commitment pushed the deadline
+		// out of the card (seen live, 6 October 2026).
+		const list = widgets.get('simple-commitments-due').content
+		expect(list.hideHeader).toBe(true)
+		expect(list.fixedLayout).toBe(true)
+		expect(list.columns.map((column) => column.key)).toEqual([
+			'text',
+			'deadline',
+		])
+		const date = list.columns.find((column) => column.key === 'deadline')
+		expect(date.width).toBe('7.5rem')
+		expect(date.align).toBe('right')
+		// The text column takes the rest: no width of its own.
+		expect(list.columns[0].width).toBeUndefined()
 	})
 })
 

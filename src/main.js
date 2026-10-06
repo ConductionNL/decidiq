@@ -36,6 +36,7 @@ import { permissionGuard, routesFromManifest } from './utils/manifestRoutes.js'
 import { currentPermissions } from './utils/permissions.js'
 import {
 	buildProfiledManifest,
+	navTheming,
 	resolveStructureProfile,
 	STRUCTURE_FULL,
 	STRUCTURE_SETTING,
@@ -150,7 +151,7 @@ const mergedManifest = buildProfiledManifest(
 	bundledManifest,
 	fragments,
 	menuLayout,
-	{ theming: getCapabilities()?.theming ?? null },
+	{ theming: navTheming(getCapabilities()) },
 )
 
 // The permissions this account holds, from the server's own answer rather than

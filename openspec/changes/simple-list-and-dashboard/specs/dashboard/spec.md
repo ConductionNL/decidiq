@@ -29,6 +29,7 @@ In the simple structure the dashboard MUST show, from the top: a greeting, an at
 - **WHEN** its layout is read
 - **THEN** the proposals per step, the pending votes and my action items MUST sit in a column eight wide at the left
 - **AND** the upcoming meetings and the commitments with a deadline MUST sit in a column four wide at the right
+- **AND** the commitments MUST show as the board's narrow list, the text wrapping and the deadline in a fixed column on the right, so nothing runs past the card at 1440 px
 - **AND** the primary action of the attention card MUST be the one that opens the decisions
 
 ### Requirement: REQ-SLD-002 A number and the list it opens ask the same question

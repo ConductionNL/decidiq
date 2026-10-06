@@ -103,11 +103,11 @@
 		}
 	],
 	"nav": {
-		"_note": "The brand block and the primary button of the navigation (DcDashboard, AppZijbalk). The caption and the logo are the instance's own theming values, resolved at boot by structureProfile.js: no municipality is written here. New proposal opens the proposals list, where a proposal is made; the dashboard's own Start decision-making process opens Decisions the same way.",
+		"_note": "The brand block and the primary button of the navigation (DcDashboard, AppZijbalk). The caption is the instance's own theming name and the logo its emblem (thematiq's `nldesign.logos.emblem`, the shield), falling back to the theming logo, resolved at boot by structureProfile.js: no municipality is written here. New proposal opens the proposals list, where a proposal is made; the dashboard's own Start decision-making process opens Decisions the same way.",
 		"brand": {
 			"name": "decidiq",
 			"caption": "@theming.name",
-			"logo": "@theming.logo"
+			"logo": "@theming.emblem|@theming.logo"
 		},
 		"primaryAction": {
 			"label": "New proposal",
@@ -1971,24 +1971,26 @@
 					},
 					{
 						"id": "simple-commitments-due",
-						"type": "object-list",
+						"type": "object-table",
 						"title": "Commitments with a deadline",
 						"icon": "ClipboardCheckOutline",
 						"content": {
-							"register": "decidiq",
-							"schema": "governance-commitment",
-							"filter": {
-								"lifecycle": "open"
-							},
-							"sort": {
-								"field": "deadline",
-								"dir": "asc"
+							"_note": "The board's narrow list in the side column (DcDashboard, 'Toezeggingen met termijn'): the commitment, wrapped, and its deadline on the right. An object-table, not an object-list, because only it forwards `hideHeader` and `fixedLayout` to the table: in a column four wide the object-list's auto layout let a long commitment push the deadline out of the card.",
+							"source": {
+								"register": "decidiq",
+								"schema": "governance-commitment",
+								"filter": {
+									"lifecycle": "open"
+								},
+								"order": {
+									"deadline": "asc"
+								},
+								"limit": 5
 							},
 							"columns": [
 								{
 									"key": "text",
-									"label": "Commitment",
-									"widget": "link"
+									"label": "Commitment"
 								},
 								{
 									"key": "deadline",
@@ -2007,15 +2009,21 @@
 												"variant": "warning"
 											}
 										]
-									}
+									},
+									"width": "7.5rem",
+									"align": "right"
 								}
 							],
-							"limit": 5,
 							"rowRoute": "CommitmentDetail",
-							"viewAllRoute": "Commitments",
-							"viewAllQuery": {
-								"lifecycle": "open"
+							"viewAllRoute": {
+								"name": "Commitments",
+								"query": {
+									"lifecycle": "open"
+								}
 							},
+							"hideHeader": true,
+							"borderless": true,
+							"fixedLayout": true,
 							"emptyText": "No open commitments."
 						}
 					}

@@ -121,7 +121,7 @@ The Registers entry of the simple menu MUST open a page that shows one tile per 
 
 ### Requirement: REQ-SSP-007 The simple navigation carries the brand of the instance and one primary action
 
-In the simple structure the navigation MUST open with a brand block (the instance's logo, the app name and the instance's name as caption) and a primary button that opens the proposals list. The instance's name and logo MUST come from the theming capabilities at boot; the app MUST NOT name a municipality. A value the instance does not answer MUST stay empty. The full structure MUST keep the navigation without them.
+In the simple structure the navigation MUST open with a brand block (the instance's logo, the app name and the instance's name as caption) and a primary button that opens the proposals list. The instance's name MUST come from the theming capabilities at boot, and the logo MUST be the active set's emblem (thematiq's `nldesign.logos.emblem`) or, without one, the theming logo; the app MUST NOT name a municipality. A value the instance does not answer MUST stay empty. The full structure MUST keep the navigation without them.
 
 #### Scenario: The brand block names the instance
 @e2e exclude A reading of the built nav, asserted in structureProfile.spec.js.
@@ -135,3 +135,11 @@ In the simple structure the navigation MUST open with a brand block (the instanc
 - **GIVEN** the simple structure on an instance without theming capabilities
 - **WHEN** the manifest is built
 - **THEN** the caption and the logo MUST be empty strings, not a guess
+
+#### Scenario: The brand block shows the emblem, not the wordmark
+@e2e exclude A reading of the built nav, asserted in the structure profile unit tests.
+- **GIVEN** the simple structure on an instance whose thematiq set ships an emblem
+- **WHEN** the manifest is built
+- **THEN** `nav.brand.logo` MUST be that emblem
+- **WHEN** the set ships no emblem
+- **THEN** `nav.brand.logo` MUST be the theming logo

@@ -34,6 +34,7 @@ import { saveMenuStructure } from '../../src/services/menuStructureSetting.js'
 import {
 	applyPageOverlay,
 	buildProfiledManifest,
+	navTheming,
 	resolveStructureProfile,
 	STRUCTURE_FULL,
 	STRUCTURE_SETTING,
@@ -571,7 +572,7 @@ describe('the structure setting', () => {
 			'structureProfile === STRUCTURE_FULL ? menuLayoutFull : menuLayoutSimple',
 		)
 		expect(mainSource.replace(/\s+/g, '')).toContain(
-			'buildProfiledManifest(buildManifest,bundledManifest,fragments,menuLayout,{theming:getCapabilities()?.theming??null},)',
+			'buildProfiledManifest(buildManifest,bundledManifest,fragments,menuLayout,{theming:navTheming(getCapabilities())},)',
 		)
 		// And nothing builds the manifest past the profile.
 		expect(mainSource).not.toMatch(/[^(]buildManifest\(/)
@@ -663,6 +664,48 @@ describe('the navigation of the simple profile', () => {
 		})
 	})
 
+	it('shows the emblem, not the whole wordmark, when the set ships one', () => {
+		// The board's brand block holds the shield only; the theming logo is
+		// the full "Zuid Drecht" wordmark, drawn twice beside the app name
+		// (seen live, 6 October 2026).
+		const withEmblem = buildProfiledManifest(
+			buildManifest,
+			manifest(),
+			fragments,
+			simpleFile,
+			{
+				theming: navTheming({
+					theming,
+					nldesign: { logos: { emblem: '/apps/thematiq/img/emblem.svg' } },
+				}),
+			},
+		)
+		expect(simpleFile.nav.brand.logo).toBe('@theming.emblem|@theming.logo')
+		expect(withEmblem.nav.brand.logo).toBe('/apps/thematiq/img/emblem.svg')
+		expect(withEmblem.nav.brand.caption).toBe('Gemeente Zuiddrecht')
+	})
+
+	it('falls back to the theming logo when the set has no emblem', () => {
+		const fallback = buildProfiledManifest(
+			buildManifest,
+			manifest(),
+			fragments,
+			simpleFile,
+			{ theming: navTheming({ theming, nldesign: { logos: {} } }) },
+		)
+		expect(fallback.nav.brand.logo).toBe('/apps/theming/image/logo?v=1')
+	})
+
+	it('reads the emblem from thematiq, and an empty string when there is none', () => {
+		expect(
+			navTheming({ nldesign: { logos: { emblem: '/e.svg' } } }).emblem,
+		).toBe('/e.svg')
+		expect(navTheming({ theming }).emblem).toBe('')
+		expect(navTheming({ nldesign: { logos: { emblem: 42 } } }).emblem).toBe('')
+		expect(navTheming(null)).toEqual({ emblem: '' })
+		expect(navTheming({ theming })).toMatchObject(theming)
+	})
+
 	it('leaves a value the instance does not answer empty, never a guess', () => {
 		expect(build(simpleFile).nav.brand).toEqual({
 			name: 'decidiq',
@@ -677,6 +720,7 @@ describe('the navigation of the simple profile', () => {
 			{ theming: { name: 'Gemeente Zuiddrecht' } },
 		)
 		expect(partial.nav.brand.caption).toBe('Gemeente Zuiddrecht')
+		// Neither an emblem nor a logo: empty.
 		expect(partial.nav.brand.logo).toBe('')
 	})
 
@@ -691,7 +735,7 @@ describe('the navigation of the simple profile', () => {
 	})
 
 	it('reads the theming capabilities in main.js and writes no municipality itself', () => {
-		expect(mainSource).toContain('getCapabilities()?.theming')
+		expect(mainSource).toContain('navTheming(getCapabilities())')
 		expect(JSON.stringify(simpleFile.nav)).not.toMatch(/Zuiddrecht|Gemeente/)
 	})
 
