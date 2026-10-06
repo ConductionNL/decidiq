@@ -43,6 +43,16 @@ use Psr\Log\LoggerInterface;
  */
 class DecisionContextResolver {
 	/**
+	 * Domain reported when a decision's governance domain cannot be resolved
+	 * from its governance body. Deliberately NOT a key of
+	 * DecisionTransitionGuard::DOMAIN_POLICIES, so the guard applies its
+	 * restricted default-deny policy (#1291).
+	 *
+	 * @var string
+	 */
+	public const UNRESOLVED_DOMAIN = 'restricted';
+
+	/**
 	 * Constructor for DecisionContextResolver.
 	 *
 	 * @param LoggerInterface $logger The logger
@@ -149,21 +159,54 @@ class DecisionContextResolver {
 	/**
 	 * Resolve the governance domain for policy lookup.
 	 *
-	 * Resolution chain: decision.domain → linked meeting.domain →
-	 * 'operations' — the same chain MeetingService uses. Unknown values are
-	 * mapped to the restricted default-deny policy inside the guard.
+	 * The domain is declared on exactly one schema: GovernanceBody.domain.
+	 * Neither Decision nor Meeting declares a `domain` property, so the body
+	 * is the only source read here (#1291). The body is found through
+	 * resolveGovernanceBodyId(), the same body whose process template
+	 * supplies the policy override, so domain and override always describe
+	 * the same body. It is loaded through ObjectService (RBAC applies) and
+	 * its `domain` is returned verbatim.
 	 *
+	 * FAILS CLOSED: when no body is linked, the body cannot be read, or it
+	 * carries no domain, UNRESOLVED_DOMAIN is returned. That value is not a
+	 * key of DecisionTransitionGuard's domain-policy table, so the guard
+	 * applies its restricted default-deny policy (quorum enforced, sensitive
+	 * transitions chair-only, no decide-without-vote). The permissive
+	 * `operations` policy only applies to a body that declares it. Body
+	 * domain presets outside the policy table (e.g. `municipal`) likewise
+	 * map to the restricted policy inside the guard.
+	 *
+	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param array<string, mixed> $decision Decision object array
 	 * @param array<string, mixed>|null $meeting Linked meeting object array, when any
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
 	 *
-	 * @return string
+	 * @return string The governance body's domain, or UNRESOLVED_DOMAIN
 	 */
-	public function resolveDomain(array $decision, ?array $meeting): string {
-		return ($this->firstNonEmptyString(
-			candidates: [($decision['domain'] ?? null), ($meeting['domain'] ?? null)]
-		) ?? 'operations');
+	public function resolveDomain(object $objectService, array $decision, ?array $meeting): string {
+		$bodyId = $this->resolveGovernanceBodyId(decision: $decision, meeting: $meeting);
+		if ($bodyId === null) {
+			return self::UNRESOLVED_DOMAIN;
+		}
+
+		try {
+			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+		} catch (DoesNotExistException) {
+			return self::UNRESOLVED_DOMAIN;
+		}
+
+		if ($entity === null) {
+			$this->logger->warning(
+				'Decidiq DecisionLifecycleService: governance body not readable, applying restricted policy',
+				['governanceBodyId' => $bodyId]
+			);
+			return self::UNRESOLVED_DOMAIN;
+		}
+
+		$body = (array)$entity->jsonSerialize();
+
+		return ($this->firstNonEmptyString(candidates: [($body['domain'] ?? null)]) ?? self::UNRESOLVED_DOMAIN);
 
 	}//end resolveDomain()
 

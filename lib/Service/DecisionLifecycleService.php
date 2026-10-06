@@ -127,7 +127,11 @@ class DecisionLifecycleService {
 
 			$lifecycle = (string)($decision['lifecycle'] ?? 'draft');
 			$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $this->objectService, decision: $decision);
-			$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
+			$domain = $this->contextResolver->resolveDomain(
+				objectService: $this->objectService,
+				decision: $decision,
+				meeting: $meeting
+			);
 
 			// Process-configuration: when the decision's body has an assigned
 			// process template, its policy drives the guard; null otherwise so
@@ -323,7 +327,11 @@ class DecisionLifecycleService {
 		}
 
 		$meeting = $this->contextResolver->resolveLinkedMeeting(objectService: $objectService, decision: $decision);
-		$domain = $this->contextResolver->resolveDomain(decision: $decision, meeting: $meeting);
+		$domain = $this->contextResolver->resolveDomain(
+			objectService: $objectService,
+			decision: $decision,
+			meeting: $meeting
+		);
 
 		// Process-configuration: a body's assigned process template drives the
 		// guard policy when present; null falls back to the hardcoded domain policy.
