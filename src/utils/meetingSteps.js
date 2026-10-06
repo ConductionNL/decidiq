@@ -10,11 +10,15 @@
  * meeting that is in session, so the bar keeps such a meeting on the third
  * step and says the break in words.
  *
- * Pure functions, no Vue and no fetch, so the bar and its spec read one
- * implementation.
+ * No Vue in here, so the bar and its spec read one implementation. The one
+ * request lives here too (`fetchOfferedSteps`), so the spec can watch it.
  *
  * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
  */
+
+import axios from '@nextcloud/axios'
+import { generateUrl } from '@nextcloud/router'
+import { readStageAnswer, transitionsPath } from './meetingStages.js'
 
 /** The four steps, in order. */
 export const MEETING_STEPS = ['draft', 'scheduled', 'opened', 'closed']
@@ -102,4 +106,29 @@ export function nextStepIsOffered(lifecycle, offered) {
 		return true
 	}
 	return Array.isArray(offered) && offered.includes(action)
+}
+
+/**
+ * Ask the server which steps it offers the reader on this meeting.
+ *
+ * The answer the Stage block draws its buttons from (GET
+ * /api/meetings/{id}/transitions). It goes through `@nextcloud/axios`, which
+ * carries the `requesttoken` header Nextcloud's CSRF check asks of a GET on
+ * this app's routes. A bare `fetch` with an Accept header is answered 412
+ * and the bar would never learn anything (found live, 06 Oct).
+ *
+ * @param {string|number} meetingId The meeting's id.
+ * @return {Promise<string[]|null>} The offered steps, or null without a usable answer.
+ * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+ */
+export async function fetchOfferedSteps(meetingId) {
+	if (!meetingId) {
+		return null
+	}
+	try {
+		const { data } = await axios.get(generateUrl(transitionsPath(meetingId)))
+		return readStageAnswer(data).actions
+	} catch {
+		return null
+	}
 }

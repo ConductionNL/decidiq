@@ -31,10 +31,11 @@ import { validateManifest } from '@conduction/nextcloud-vue/src/utils/validateMa
 import { evaluateVisibleWhenLocal } from '@conduction/nextcloud-vue/src/utils/visibleWhen.js'
 import fs from 'fs'
 import path from 'path'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { lifecyclePath, STAGE_ACTIONS } from '../../src/utils/meetingStages.js'
 import {
 	buildMeetingSteps,
+	fetchOfferedSteps,
 	MEETING_BREAKS,
 	MEETING_NEXT_ACTION,
 	MEETING_STATE_LABELS,
@@ -43,6 +44,19 @@ import {
 	stepOf,
 } from '../../src/utils/meetingSteps.js'
 import { buildProfiledManifest } from '../../src/utils/structureProfile.js'
+
+/** Every GET the step bar's request makes, as it hands it to the client. */
+const asked = []
+let answer = { lifecycle: 'scheduled', actions: ['open', 'close'] }
+vi.mock('@nextcloud/axios', () => ({
+	default: {
+		get: async (url) => {
+			asked.push(url)
+			if (answer instanceof Error) throw answer
+			return { data: answer }
+		},
+	},
+}))
 
 const ROOT = path.resolve(__dirname, '../..')
 const read = (...parts) => fs.readFileSync(path.join(ROOT, ...parts), 'utf8')
@@ -368,11 +382,58 @@ describe('the meeting page in the simple structure', () => {
 		expect(nextStepIsOffered('closed', [])).toBe(true)
 		expect(nextStepIsOffered('draft', null)).toBe(false)
 		const bar = read('src', 'components', 'widgets', 'MeetingStepBar.vue')
-		expect(bar).toContain('generateUrl(transitionsPath(this.objectId))')
+		expect(bar).toContain('await fetchOfferedSteps(this.objectId)')
 		expect(bar).toContain('this.offered !== null')
 		expect(routesSource).toContain(
 			"['name' => 'meeting#transitions', 'url' => '/api/meetings/{id}/transitions', 'verb' => 'GET']",
 		)
+	})
+
+	describe('the request for the offered steps', () => {
+		beforeEach(() => {
+			asked.length = 0
+			answer = { lifecycle: 'scheduled', actions: ['open', 'close'] }
+		})
+
+		it('goes through the Nextcloud axios client, which carries the CSRF token a GET on this route needs', async () => {
+			// Live finding (06 Oct): a bare fetch with an Accept header is
+			// answered 412 on this route, and the bar never learns anything.
+			// The client sends `requesttoken` on every request by construction.
+			const client = read(
+				'node_modules',
+				'@nextcloud',
+				'axios',
+				'dist',
+				'client.js',
+			)
+			expect(client).toContain('requesttoken: getRequestToken()')
+			const steps = read('src', 'utils', 'meetingSteps.js')
+			expect(steps).toContain("import axios from '@nextcloud/axios'")
+			expect(steps).toContain('axios.get(')
+			expect(steps).toContain('generateUrl(transitionsPath(meetingId))')
+			expect(steps).not.toContain('fetch(')
+			const bar = read('src', 'components', 'widgets', 'MeetingStepBar.vue')
+			expect(bar).not.toContain('fetch(')
+			expect(await fetchOfferedSteps('m-1')).toEqual(['open', 'close'])
+			expect(asked).toEqual([
+				'/index.php/apps/decidiq/api/meetings/m-1/transitions',
+			])
+		})
+
+		it('reads the answer the way the Stage block does, and keeps only steps the server knows', async () => {
+			answer = { lifecycle: 'opened', actions: ['close', 'dance', 'pause'] }
+			expect(await fetchOfferedSteps('m-1')).toEqual(['pause', 'close'])
+			answer = { lifecycle: 'opened' }
+			expect(await fetchOfferedSteps('m-1')).toEqual([])
+		})
+
+		it('answers null, and so says nothing, without a meeting or without a usable answer', async () => {
+			expect(await fetchOfferedSteps('')).toBeNull()
+			expect(asked).toEqual([])
+			answer = new Error('412')
+			expect(await fetchOfferedSteps('m-1')).toBeNull()
+			expect(nextStepIsOffered('scheduled', null)).toBe(false)
+		})
 	})
 
 	it('asks before the steps that cannot be taken back', () => {
