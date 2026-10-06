@@ -1220,6 +1220,7 @@
 					}
 				],
 				"_inForceFilterNote": "DESIGN D3 — the in-force filter operates over the derived effectiveStatus, which (per design D2) is NOT a stored/queryable field: OpenRegister cannot express the inbound supersedes/repeals lookup as a materialised calculation, so effectiveStatus is computed client-side. A static manifest `filter` (the proven Motions decisionType pattern) and `quickFilters` both merge a filter map into the OpenRegister fetch and therefore only work over STORED fields — neither can server-filter on a client-derived value. The in-force / superseded / repealed state is instead surfaced per-decision via the effectiveStatus badge column (computed client-side) plus the banner and incoming-relation groups in RelatedDecisionsTab. A server-side in-force filter becomes available only if/when effectiveStatus is materialised by an OpenRegister inverse-relation calculation operator (D2 follow-up).",
+				"_publishActionNote": "There is deliberately NO Publish row action here (#1263, #1270). One used to be declared with `handler: emit` and `permission: decidesk.decision.publish`, but @conduction/nextcloud-vue reads `permission` only on menu entries, never on `actions[]`, so it rendered for every account, and nothing listened for the emitted event, so it did nothing for anyone. Publishing lives on the decision page (the Publication block and, in the simple structure, the `decision-publish` stage action), which posts to POST /api/publications; that endpoint enforces the per-object chair/secretary guard (PublicationStaffGuard) and refuses everyone else with 403. tests/vitest/actionPermissionsAreInert.spec.js keeps an inert `permission` from being declared on an action again.",
 				"actions": [
 					{
 						"id": "view",
@@ -1235,14 +1236,6 @@
 						"icon": "Api",
 						"handler": "navigate",
 						"route": "DecisionIntegrations"
-					},
-					{
-						"id": "publish",
-						"label": "Publish",
-						"icon": "CloudUploadOutline",
-						"handler": "emit",
-						"permission": "decidesk.decision.publish",
-						"confirm": true
 					}
 				],
 				"sidebar": {
