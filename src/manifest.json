@@ -2188,5 +2188,34 @@
 			"config": { "app": "decidiq" },
 			"_note": "The shared CnFlowDetail canvas over the same single engine. Controls render in the NC app sidebar so the canvas keeps full width."
 		}
-	]
+	],
+	"discovery": {
+		"public": true,
+		"standards": [
+			{
+				"id": "ori",
+				"name": "Open Raadsinformatie (ORI) API",
+				"version": "1.4",
+				"role": "provides",
+				"access": "public",
+				"endpoint": "/apps/decidiq/api/ori/v1",
+				"specUrl": "https://github.com/openstate/open-raadsinformatie"
+			},
+			{
+				"id": "popolo",
+				"name": "Popolo (data model of the ORI output)",
+				"role": "provides",
+				"access": "public",
+				"endpoint": "/apps/decidiq/api/ori/v1",
+				"specUrl": "https://www.popoloproject.com/specs/"
+			},
+			{
+				"id": "mcp",
+				"name": "Model Context Protocol tools (meetings, action items, decisions)",
+				"role": "provides",
+				"access": "authenticated",
+				"specUrl": "https://modelcontextprotocol.io/specification"
+			}
+		]
+	}
 }

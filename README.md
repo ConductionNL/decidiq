@@ -193,6 +193,18 @@ docker exec nextcloud php occ app:enable decidiq
 | [`openspec/`](openspec/) | Implementation specifications and changes |
 | [`docs/features/mcp-tools.md`](docs/features/mcp-tools.md) | AI Chat Companion MCP tools — tool reference, auth, troubleshooting |
 
+<!-- discovery:start -->
+## Standards & federation
+
+| Standard | Role | Access |
+|---|---|---|
+| [Open Raadsinformatie (ORI) API](https://github.com/openstate/open-raadsinformatie) 1.4 | Provides | Public |
+| [Popolo (data model of the ORI output)](https://www.popoloproject.com/specs/) | Provides | Public |
+| [Model Context Protocol tools (meetings, action items, decisions)](https://modelcontextprotocol.io/specification) | Provides | Nextcloud login |
+
+Other servers can read this list without logging in, from the Nextcloud capabilities endpoint (published by OpenRegister). Details, federation and admin switches: [docs/standards-and-federation.md](docs/standards-and-federation.md).
+<!-- discovery:end -->
+
 ## Standards & Compliance
 
 - **Accessibility:** WCAG AA (Dutch government requirement)
