@@ -20,6 +20,7 @@ import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountGroupOutline from 'vue-material-design-icons/AccountGroupOutline.vue'
 import AccountKeyOutline from 'vue-material-design-icons/AccountKeyOutline.vue'
 import AccountMinusOutline from 'vue-material-design-icons/AccountMinusOutline.vue'
+import AccountMultipleOutline from 'vue-material-design-icons/AccountMultipleOutline.vue'
 import AccountMultiplePlusOutline from 'vue-material-design-icons/AccountMultiplePlusOutline.vue'
 import AccountOutline from 'vue-material-design-icons/AccountOutline.vue'
 import AccountPlusOutline from 'vue-material-design-icons/AccountPlusOutline.vue'
@@ -45,6 +46,7 @@ import Broadcast from 'vue-material-design-icons/Broadcast.vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import Calendar from 'vue-material-design-icons/Calendar.vue'
 import CalendarAccountOutline from 'vue-material-design-icons/CalendarAccountOutline.vue'
+import CalendarBlankOutline from 'vue-material-design-icons/CalendarBlankOutline.vue'
 import CalendarCheckOutline from 'vue-material-design-icons/CalendarCheckOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
 import CalendarClockOutline from 'vue-material-design-icons/CalendarClockOutline.vue'
@@ -104,6 +106,8 @@ import Gavel from 'vue-material-design-icons/Gavel.vue'
 import GiftOutline from 'vue-material-design-icons/GiftOutline.vue'
 import HandshakeOutline from 'vue-material-design-icons/HandshakeOutline.vue'
 import History from 'vue-material-design-icons/History.vue'
+import HomeOutline from 'vue-material-design-icons/HomeOutline.vue'
+import InboxOutline from 'vue-material-design-icons/InboxOutline.vue'
 import LibraryOutline from 'vue-material-design-icons/LibraryOutline.vue'
 import Lightbulb from 'vue-material-design-icons/Lightbulb.vue'
 import LightbulbOnOutline from 'vue-material-design-icons/LightbulbOnOutline.vue'
@@ -152,6 +156,7 @@ export default {
 	AccountGroupOutline,
 	AccountKeyOutline,
 	AccountMinusOutline,
+	AccountMultipleOutline,
 	AccountMultiplePlusOutline,
 	AccountOutline,
 	AccountPlusOutline,
@@ -177,6 +182,7 @@ export default {
 	BullhornOutline,
 	Calendar,
 	CalendarAccountOutline,
+	CalendarBlankOutline,
 	CalendarCheckOutline,
 	CalendarClock,
 	CalendarClockOutline,
@@ -236,6 +242,8 @@ export default {
 	GiftOutline,
 	HandshakeOutline,
 	History,
+	HomeOutline,
+	InboxOutline,
 	LibraryOutline,
 	Lightbulb,
 	LightbulbOnOutline,

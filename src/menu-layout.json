@@ -24,6 +24,12 @@
 		"UrgentDecisions": "Decisions",
 		"WorksCouncilConsultations": "Decisions"
 	},
+	"pageDefaults": {
+		"index": {
+			"headerFilters": false
+		}
+	},
+	"_pageDefaultsNote": "Read by src/utils/structureProfile.js applyPageDefaults: every index page that does not set the key itself gets it. nextcloud-vue 2.62.0 gave every index table header a sort and filter control by default, which widened the columns and pushed the row actions off the table. The full profile holds that back so it renders as it did before; the simple profile takes the library default.",
 	"removals": [],
 	"_removalsNote": "EMPTY BY DECISION (2026-08-19, gate-53/ADR-044): a removal that orphans a live route is functionality loss. The four previously-removed ids were re-placed instead: UrgentDecisions and Zienswijzen nest under Decisions, MyDeclarations lifts into the gear (per-user self-service, stable-name contract with member-onboarding), FeaturesRoadmapMenu keeps its original footer section.",
 	"settingsSection": [

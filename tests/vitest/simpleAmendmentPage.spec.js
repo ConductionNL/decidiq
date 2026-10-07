@@ -80,7 +80,29 @@ function build(file) {
 }
 
 const simple = build('menu-layout.simple.json')
-const full = build('menu-layout.json')
+// The full structure as the manifest declares it. Its profile file also
+// holds back the index header controls of nextcloud-vue 2.62.0
+// (`pageDefaults`, tested in structureProfile.spec.js); that is left out
+// here, so these pages compare with the manifest to the letter.
+const full = (() => {
+	const built = build('menu-layout.json')
+	return {
+		...built,
+		pages: built.pages.map((page) => {
+			if (page.type !== 'index' || page.config?.headerFilters !== false) {
+				return page
+			}
+			const declared = [readJson('src', 'manifest.json'), ...fragments]
+				.flatMap((item) => item.pages || [])
+				.find((item) => item.id === page.id)
+			if (declared?.config?.headerFilters !== undefined) {
+				return page
+			}
+			const { headerFilters, ...config } = page.config
+			return { ...page, config }
+		}),
+	}
+})()
 const pageOf = (built, id) => built.pages.find((page) => page.id === id)
 const iconsSource = read('src', 'icons.js')
 const registrySource = read('src', 'registry.js')
