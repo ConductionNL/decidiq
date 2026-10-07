@@ -6066,9 +6066,10 @@
 			"decidiq": "yes",
 			"built": {
 				"state": "built",
-				"evidence": "src/manifest.json VotingReport (/reports/voting): rounds held/adopted/tied, by result, by method, how votes fell (vote.value), recent rounds; MeetingsReport (/reports/meetings): meet-absent stat and meet-by-attendance donut over participant.attendanceStatus. Aggregation by OpenRegister.",
+				"evidence": "src/manifest.json VotingReport (/reports/voting): rounds held, adopted and tied, rounds by result and by method, how votes fell (vote.value), most recent rounds; MeetingsReport (/reports/meetings): scheduled and closed meetings, recorded absences (meeting-attendance status absent), by stage, by mode, attendance by status. Both are cards on Reports (/reports, footer entry ReportsMenu). Aggregation by OpenRegister.",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"spec": "openspec/specs/reports",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "Reports (/reports) > Voting report (/reports/voting) and Meetings report (/reports/meetings)",
 			"provider": "decidiq",
@@ -8168,7 +8169,8 @@
 				"state": "built",
 				"evidence": "lib/Service/VotingRoundCloser.php:542 on an adopted amendment calls applyAmendment(); lib/Service/MotionAmendmentService.php:451 hands it to lib/Service/AmendmentTextMerger.php:62, which replaces the amendment's targetPassage with its proposedText (or replaces the whole wording when no passage is given), keeps the first wording in originalText and appends a before/after entry to amendmentHistory (lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json); proven by tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage and testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory (#1394)",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"spec": "openspec/specs/motion-amendment",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "Automatic when a voting round adopts an amendment (MotionDetail Voting round widget); result visible in the motion text on MotionDetail",
 			"provider": "decidiq",
