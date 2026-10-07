@@ -424,7 +424,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/decidesk_register.json:527 GovernanceBody schema, :553 bodyType enum (legislative, association, corporate-board, supervisory-board, executive-board, advisory-body, works-council, shared-body, faction, ...); src/manifest.json:431 GovernanceBodies index (columns name, bodyType, domain, termEnd) and :454 GovernanceBodyDetail",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/governance-bodies"
 			},
 			"reachedOn": "GovernanceBodies index (/governance-bodies, menu 'Organisation') and GovernanceBodyDetail (/governance-bodies/:id)",
 			"provider": "decidiq",
@@ -486,7 +487,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/MemberImportController.php:70-71 groups() + groupMembers() via lib/Service/MemberImportService.php:70,94 (IGroupManager); appinfo/routes.php:84-86; src/modals/MemberGroupImportDialog.vue:185,219 fetches groups/members, :256-276 creates Person+Membership per user; button in src/components/tabs/GovernanceBodyMembersTab.vue:37-44",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-admin-settings-v1"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Members widget, 'Import members' > 'Import from Nextcloud group'",
 			"provider": "decidiq",
@@ -516,7 +518,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/register.d/70-configurable-types.json PositionType (name, seats, termDurationMonths) and PositionHold (membership, position, startDate, endDate, holdType); src/manifest.d/configurable-types.json PositionTypes/PositionHolds index+detail; src/manifest.json:478-479 body-position-holders and body-positions object-lists on GovernanceBodyDetail",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "configurable-types-domain-model"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id) 'Positions' and 'Position holders' lists; PositionTypes (/position-types) and PositionHolds (/position-holds) in the settings gear",
 			"provider": "decidiq",
@@ -672,7 +675,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json AncillaryPosition (organisation, role, remunerated, reviewedAt, lifecycle) and DeclaredGift (giver, estimatedValue, decision); src/manifest.d/interests-and-integrity.json MyDeclarations (/my-declarations), AncillaryPositions, DeclaredGifts index+detail; src/manifest.json:480-481 body-ancillary-positions and body-gifts on GovernanceBodyDetail",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "interests-and-integrity"
 			},
 			"reachedOn": "MyDeclarations (/my-declarations, settings gear), AncillaryPositions (/ancillary-positions) and DeclaredGifts (/declared-gifts) under 'Organisation', plus lists on GovernanceBodyDetail",
 			"provider": "decidiq",
@@ -861,7 +865,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json setup wizard steps 'example-set' (optionsSource profiles) and 'load-example-set'; lib/Controller/SetupController.php:114-122 status lists profiles, :301-330 loadExampleSet() calls SeedProfileService::install(); lib/Settings/profiles/{municipality,association,corporate,works-council}.json",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "seed-profiles"
 			},
 			"reachedOn": "First-run setup wizard, step 'Which kind of organisation is this for?' then 'Load the example data'",
 			"provider": "decidiq",
@@ -955,7 +960,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/decidesk_register.json:665 Meeting (title, governanceBody, scheduledDate, endDate, location, meetingMode, required title/meetingType/scheduledDate/meetingMode/lifecycle); src/manifest.json:516 Meetings index and :561 MeetingDetail with 'meeting-planning' data widget (:570); src/manifest.json:472 body-meetings list on GovernanceBodyDetail",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/meeting-crud"
 			},
 			"reachedOn": "Meetings index (/meetings, menu 'Meetings') create form; MeetingDetail (/meetings/:id) Planning widget",
 			"provider": "decidiq",
@@ -985,7 +991,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json:546 MeetingsCalendar page (/meetings/calendar, component MeetingCalendarView); src/views/meetings/MeetingCalendarView.vue month grid placing meetings by scheduledDate, fetch via src/services/dashboardData.js getMeetings (:119); toggle src/views/meetings/MeetingViewToggle.vue as actionsComponent on the Meetings index",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/activity-calendar"
 			},
 			"reachedOn": "Meetings index (/meetings) Table/Calendar toggle, MeetingsCalendar (/meetings/calendar)",
 			"provider": "decidiq",
@@ -1015,7 +1022,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/MeetingController.php:225 createSeries(), appinfo/routes.php:149 POST /api/meetings/{id}/series; lib/Service/MeetingSeriesService.php:62 FREQUENCIES daily/weekly/monthly, :116 expandPattern(); src/components/tabs/MeetingSeriesTab.vue:246-247 calls the route",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/meeting-series"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), 'Recurring series' widget (MeetingSeriesTab)",
 			"provider": "decidiq",
@@ -1140,7 +1148,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/register.d/86-the-last-two-dutch-names.json:6 PlannedAgendaItem (subject, governanceBody, plannedPeriod, expectedType, lifecycle, shiftHistory, realisedAgendaItem); src/manifest.d/termijnagenda.json PlannedAgenda (/planned-agenda) index + PlannedAgendaDetail; menu relocated under 'Tasks & Commitments' by src/menu-layout.json",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "termijnagenda"
 			},
 			"reachedOn": "PlannedAgenda (/planned-agenda), under 'Tasks & Commitments' in the menu",
 			"provider": "decidiq",
@@ -1329,7 +1338,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Listener/MeetingFolderListener.php:102 calls lib/Service/MeetingFolderService.php ensureMeetingFolders() on every meeting create, registered in lib/AppInfo/Registrar/ObjectListenerRegistrar.php:102-108; MeetingFolderService.php:36-44 notes folders live in OpenRegister app storage and visibility follows the register's sharing; MeetingDetail meeting-files integration widget (src/manifest.json:578); package link opens /apps/files (src/components/tabs/MeetingAgendaTab.vue:243-249)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-nc-platform-integration-v1"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Documents widget and the 'Open package folder' link after assembling a package",
 			"provider": "decidiq",
@@ -1423,7 +1433,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/MeetingAgendaTab.vue:205-233 lists agenda items sorted by orderNumber (:300) with nesting under parentItem, add/edit/delete via CnFormDialog (:425-470); lib/Settings/decidesk_register.json:1292 AgendaItem.orderNumber, :1325 parentItem",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/agenda-builder"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget (MeetingAgendaTab)",
 			"provider": "decidiq",
@@ -1674,7 +1685,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/MeetingController.php:276 assemblePackage(), appinfo/routes.php:150 POST /api/meetings/{id}/package; lib/Service/MeetingPackageService.php:95 assemble() copies each agenda item's documents into 'NN - title/' folders with a generated table of contents (:326); src/components/tabs/MeetingAgendaTab.vue:25-35 button and :386-420 call, :243-249 'Open package folder' link",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-meeting-agenda-gaps-v1"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget, 'Assemble meeting package'",
 			"provider": "decidiq",
@@ -2141,7 +2153,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/TranscriptionService.php:256 process() runs OCP\\SpeechToText\\ISpeechToTextManager over the attached source; src/components/tabs/MeetingTranscriptionTab.vue:520 calls POST /api/transcripts/{id}/transcribe; routes appinfo/routes.php:128-132",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-meeting-transcription-ai-minutes"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Transcription widget (MeetingTranscriptionTab)",
 			"provider": "decidiq",
@@ -2295,7 +2308,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/BackgroundJob/TranscriptRetentionJob.php:111 run() deletes recording and/or transcript file per body policy (keep|delete-recording|delete-both, default 30 days after minutes approval); registered appinfo/info.xml:130; policy set via src/components/tabs/GovernanceBodyRetentionTab.vue -> PUT /api/governance-bodies/{id}/retention-config",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-meeting-transcription-ai-minutes"
 			},
 			"reachedOn": "GovernanceBodyDetail, 'Recording retention' widget (src/manifest.json:476); deletion runs as a daily background job",
 			"provider": "decidiq",
@@ -2325,7 +2339,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/AgendaMotionsTab.vue:198-199 creates a decision with decisionType 'motion' and agendaItem = the agenda item; mounted as widget agenda-motions on AgendaItemDetail (src/manifest.json:821); Motions index (src/manifest.json:853) create via DecisionFormDialog",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/motion-management"
 			},
 			"reachedOn": "AgendaItemDetail (/agenda-items/:id), Motions widget 'Add motion'; Motions index (/motions) create",
 			"provider": "decidiq",
@@ -2355,7 +2370,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/MotionAmendmentsTab.vue:210 creates decisionType 'amendment' with amends = the motion; widget motion-amendments on MotionDetail (src/manifest.json:899); AmendmentDetail page src/manifest.json:961",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/amendment-workflow"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), Amendments widget 'Submit amendment'; AmendmentDetail (/amendments/:id)",
 			"provider": "decidiq",
@@ -2385,7 +2401,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/AmendmentDiffTab.vue resolves amendment proposedText and parent motion text via `amends`; src/components/AmendmentDiffView.vue:69 diffWords() (src/utils/textDiff.js) renders <ins>/<del> word diff",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/amendment-diff"
 			},
 			"reachedOn": "AmendmentDetail (/amendments/:id), 'Text changes' widget leading the page",
 			"provider": "decidiq",
@@ -2475,7 +2492,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/MotionAmendmentOrderTab.vue:109 suggest() (most far-reaching first via textDiff.changeMagnitude) and :293 POST /api/motions/{id}/amendment-order; lib/Service/AmendmentOrderService.php:115 assertOrdering() refuses a round out of order",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-13-motion-amendment-v1"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting order' widget",
 			"provider": "decidiq",
@@ -2843,7 +2861,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/VotingRoundPanel.vue For/Against/Abstain buttons -> POST /api/voting-rounds/{id}/cast; lib/Controller/VotingController.php:134 cast() resolves the participant from the session user (VotingService.php:107 resolveParticipantUuid) and calls VotingService::castVote (:195)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/vote-casting"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget vote buttons",
 			"provider": "decidiq",
@@ -2905,7 +2924,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/VotingRoundPanel.vue:58 'Secret ballot' checkbox sent as isSecret on open; lib/Service/VoteBallotFactory.php voteRelations() omits the participant relation for secret rounds and stores an HMAC voterToken (VoterTokenSecret) for dedup",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/secret-ballot"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Open voting round dialog",
 			"provider": "decidiq",
@@ -3027,7 +3047,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/VotingRoundPanel.vue voteThreshold/abstentionHandling/tieBreakRule selectors on open; lib/Service/VotingResultCalculator.php compute(): simple-majority, two-thirds, three-quarters, unanimous; called from VotingRoundResults::tally on close",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-voting-rules-v1"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Open voting round dialog",
 			"provider": "decidiq",
@@ -3147,7 +3168,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/VotingService.php closeRound() -> VotingRoundResults::tally() counts ballots and applies VotingResultCalculator::compute(); lib/Service/VotingRoundOpener.php:106 checkQuorum() refuses to open below quorumRequired",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/voting-round-management"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget: result shown after close",
 			"provider": "decidiq",
@@ -3456,7 +3478,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/MinutesApprovalTab.vue:356 POST /minutes/{id}/submit-for-approval, :402 POST /minutes/{id}/corrections, :422 PUT /minutes/{id}/corrections/{correctionId}, :359 POST /minutes/{id}/transition (approve), :382 reject; backend lib/Service/MinutesWorkflowService.php:118 submitForApproval(), lib/Controller/MinutesCorrectionController.php, lib/Service/MinutesGenerationService.php:173 transition() with sequential lifecycle map, :288 reject().",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-minutes-ui-v1"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Approval widget (MinutesApprovalTab)",
 			"provider": "decidiq",
@@ -3516,7 +3539,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/MinutesDocumentTab.vue:262 POST /minutes/{id}/generate-document with format -> lib/Service/MinutesDocumentService.php:113 generate(); PDF via lib/Support/FilinqPdf.php:97 fromHtml() (filinq PdfService), stored in the meeting folder; falls back to markdown with a note when filinq is absent (MinutesDocumentService.php:225-228).",
-				"owner": "ConductionNL/filinq"
+				"owner": "ConductionNL/filinq",
+				"change": "2026-06-12-minutes-ui-v1"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget (MinutesDocumentTab), generate document with format choice",
 			"provider": "filinq",
@@ -3578,7 +3602,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json MeetingDetail widget meeting-decisions -> src/components/tabs/MeetingDecisionsTab.vue:129 fetchCollection('decision',{meeting}) lists and creates decisions for the meeting; Decision.meeting added in lib/Settings/register.d/67-model-debt-cleanup.json. Decisions index /decisions for the cross-meeting list.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/decision-management"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Decisions widget (MeetingDecisionsTab); Decisions index (/decisions)",
 			"provider": "decidiq",
@@ -3668,7 +3693,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/RelatedDecisionsTab.vue:162 RELATION_TYPES supersedes/repeals/amends/implements/refersTo, saveObject at :367/:402, incoming relations shown as 'Superseded by'/'Repealed by' (:257); Decision schema properties supersedes/repeals in lib/Settings/decidesk_register.json.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-14-decision-relations"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Related decisions widget (RelatedDecisionsTab)",
 			"provider": "decidiq",
@@ -3758,7 +3784,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/MinutesDocumentTab.vue:280 POST /meetings/{meetingId}/proof-package -> lib/Service/ProofPackageService.php:91 assemble(): convocation, quorum snapshot with participants, vote tally and decision texts, SHA-256 over canonical JSON (:125), stored in the meeting folder.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-minutes-ui-v1"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget, proof package button (data-testid minutes-proof-package)",
 			"provider": "decidiq",
@@ -3850,7 +3877,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "DecisionDetail widget decision-actions -> src/components/tabs/ActionItemsSurface.vue (DecisionActionItemsTab or ActionItemDeckBoard); DecisionActionItemsTab.vue:142-143 assignee/dueDate columns, :256 createActionItem({...formData, decision}) -> src/services/actionItemApi.js POST /api/action-items (routes.php:78) -> lib/Service/ActionItemWriter.php:98 create() writes a CalDAV VTODO via OpenRegister TaskService.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-23-action-items-vtodo-deck-reconcile"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Action items widget (ActionItemsSurface)",
 			"provider": "decidiq",
@@ -3910,7 +3938,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json Dashboard widget my-action-items (line 256, slot :426 MyActionItemsWidget) -> src/views/dashboard/widgets/MyActionItemsWidget.vue:108-120 getActionItems({assignee: current uid, taskStatus: ['open','in-progress']}), overdue badge :48.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-decidesk-dashboard-v2-widgets"
 			},
 			"reachedOn": "Dashboard (/), My action items widget",
 			"provider": "decidiq",
@@ -3970,7 +3999,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.d/toezeggingen-ingekomen-stukken.json pages Commitments (/commitments) and CommitmentDetail (/commitments/:id), menu entry Commitments; schema Commitment in lib/Settings/register.d/84-commitment-in-plain-words.json with madeBy, directedTo, deadline, lifecycle (open, in-execution, disposed, lapsed), settlementNotes, settlementEvidence; also listed on DecisionDetail widget decision-commitments.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "toezeggingen-ingekomen-stukken"
 			},
 			"reachedOn": "Commitments index (/commitments) and CommitmentDetail (/commitments/:id); Commitments widget on DecisionDetail",
 			"provider": "decidiq",
@@ -4062,7 +4092,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/views/dashboard/widgets/widgetLogic.js:223 isOverdue() (past due and not completed/cancelled); OverdueActionsKpiWidget.vue:57 count with error variant (manifest.json dashboard slot :418); MyActionItemsWidget.vue:48 overdue badge per row.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-12-decidesk-dashboard-v2-widgets"
 			},
 			"reachedOn": "Dashboard (/), Open action items KPI and My action items widget",
 			"provider": "decidiq",
@@ -4244,7 +4275,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/DecisionRouteTab.vue:419 fetches the decision's decision-stage rows and renders the timeline with current stage and 'N of M stages decided'; for documents in other apps lib/Listener/RegisterApprovalChainLeafListener.php:58 LEAF_ID decidiq-approval-chain, SURFACES :106 (detail-page, single-entity, dashboards), registered in lib/AppInfo/Registrar/IntegrationLeafRegistrar.php:90, JS half src/integrations/registerApprovalChainLeaf.js (CnApprovalChainTab timeline).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-14-decision-route-and-stages"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Route widget (DecisionRouteTab); another app's detail page through the decidiq-approval-chain integration leaf (src/integrations/registerApprovalChainLeaf.js, CnApprovalChainWidget records actions)",
 			"provider": "decidiq",
@@ -4274,7 +4306,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.d/delegatie-mandaatregister.json pages AuthorityDelegations (/authority-delegations) and AuthorityDelegationDetail with the delegation-chain widget (:100) rendered by src/components/widgets/DelegationChainWidget.vue, registered in src/components/widgets/registerDetailWidgets.js:272 (called from src/main.js:280); schema AuthorityDelegation in lib/Settings/register.d/86-the-last-two-dutch-names.json.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "delegatie-mandaatregister"
 			},
 			"reachedOn": "Delegations & mandates index (/authority-delegations) and detail with sub-mandate chain",
 			"provider": "decidiq",
@@ -4364,7 +4397,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "Consultation and ConsultationResponse schemas in lib/Settings/register.d/79-one-consultation-schema.json (audienceBody, binding, deadline, relatedDecision; response position/text/processing), pages src/manifest.d/consultations.json GovernanceConsultations (/governance-consultations) and responses; DecisionDetail widgets decision-consultations and decision-consultation-responses. No PHP under lib/ reads governance-consultation (grep), so nothing sends the request or blocks a decision without the advice.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-28-advisory-opinion-workflow"
 			},
 			"reachedOn": "Consultations index (/governance-consultations) and detail; Consultations and Consultation responses widgets on DecisionDetail",
 			"provider": "decidiq",
@@ -4425,7 +4459,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "Consultation with audienceType members/groups, choiceOptions and anonymousResponses (lib/Settings/register.d/79-one-consultation-schema.json, MemberConsultation superseded); pages GovernanceConsultations and GovernanceConsultationResponses (src/manifest.d/consultations.json). No member-facing answer screen or PHP logic reading governance-consultation found.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-09-28-constituency-consultation"
 			},
 			"reachedOn": "Consultations index (/governance-consultations) and Consultation responses index (/governance-consultation-responses)",
 			"provider": "decidiq",
@@ -4455,7 +4490,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "Consultation with askingBody/audienceBody and ConsultationResponse.respondentBody (register.d/79, Zienswijzeronde/Zienswijze superseded); GovernanceBodyDetail widgets body-participating-orgs / body-shared-participations (body-participation) and body-consultations (src/manifest.json).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "one-consultation-schema"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Participating organisations and Consultations widgets; Consultations index (/governance-consultations)",
 			"provider": "decidiq",
@@ -4516,7 +4552,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/IntegrationController.php:155 createDecision(), :236 getOutcome(), :321 subscribe() (routes.php:291-293 /api/v1/decisions, /{id}/outcome, /{id}/subscriptions) over lib/Service/DecisionIntegrationService.php:135/333/446; event path lib/Listener/DecisionRequestedListener.php:83 (registered CrossAppEventRegistrar.php:67); host-app UI via the decisions leaf src/integrations/registerDecisionsLeaf.js / CnDecisionsTab with src/integrations/decisionLink.js:103 createHostDecision(); leaf registered lib/Listener/RegisterDecisionsLeafListener.php.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-14-decidesk-contract-decision-hub"
 			},
 			"reachedOn": "API: POST /api/v1/decisions and GET /api/v1/decisions/{id}/outcome; in other apps the decidiq decisions integration leaf on their detail pages",
 			"provider": "decidiq",
@@ -4546,7 +4583,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.d/governing-documents-register.json GoverningDocuments (/governing-documents), GoverningDocumentDetail with version-timeline widget (:164, src/components/widgets/RegisterVersionTimelineWidget.vue registered registerDetailWidgets.js:262) and GoverningDocumentVersieDetail; schemas GoverningDocument / GoverningDocumentVersie in lib/Settings/register.d/55-governing-documents-register.json (versionNumber, effectiveDate, expiryDate, deed).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "governing-documents-register"
 			},
 			"reachedOn": "Governing documents index (/governing-documents), detail with version timeline, version detail (/governing-document-versies/:id)",
 			"provider": "decidiq",
@@ -4638,7 +4676,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/PublicationService.php:105 publish(), :201 withdraw() (sets depublicationDate, retracts OpenCatalogi publication, requires reason, audit entry), :272 rectify() (new version + withdraw old); appinfo/routes.php:49-51; src/components/tabs/PublicationActionsTab.vue:78,85 withdraw/rectify buttons opening PublicationWithdrawModal / PublicationRectifyModal",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-publish-decisions-via-opencatalogi"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id) Publication tab (DecisionPublicationTab -> PublicationActionsTab), Withdraw and Rectify actions",
 			"provider": "decidiq",
@@ -4668,7 +4707,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/OriController.php:61 RESOURCE_MAP (organizations, persons, memberships, events, agendaitems, motions, amendments, voteevents, votes, reports, publications), :183 index() #[PublicPage] + AnonRateLimit, :377 show(), CORS preflight; appinfo/routes.php:268-271 /api/ori/v1/{resource}",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/ori-api"
 			},
 			"reachedOn": "API only: GET /apps/decidiq/api/ori/v1/{resource}[/{id}]",
 			"provider": "decidiq",
@@ -4698,7 +4738,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/VotingRoundCloser.php:93 close() -> :112 publishOri() -> lib/Service/OriPublicationService.php:130 publish() POSTs JSON-LD VoteAction (totals, result) with optional bearer secret, stamps oriPublishedAt; endpoint key ori_endpoint set in src/views/settings/Settings.vue:180; src/components/VotingRoundPanel.vue:772 POST /voting-rounds/{id}/close, :939 /publish",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-05-11-p2-motion-and-voting"
 			},
 			"reachedOn": "Automatic on closing a round in VotingRoundPanel (Motion voting tab); endpoint configured in the admin settings page",
 			"provider": "decidiq",
@@ -5125,7 +5166,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/ReactionIntakeService.php:169 resolveModerationStatus() (anonymous always pending, policy-driven otherwise), :202 approveReaction(), :289 rejectReaction() with reason; src/components/tabs/ConsultationReactionsTab.vue:73 approve/reject; src/manifest.d/citizen-participation.json:220 ModerationQueue page, :133 consult-moderation tab",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-citizen-participation"
 			},
 			"reachedOn": "Moderation queue (/moderation-queue, menu) and the Moderation queue tab on ConsultationDetail (/consultations/:id)",
 			"provider": "decidiq",
@@ -5155,7 +5197,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/ParticipationPublicationService.php:143 publishConsultationResults() (PII-free summary + staff response, sets publicationDate); lib/Controller/ParticipationController.php:277; src/views/participation/ParticipationPage.vue:200 imports publishConsultationResults",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-citizen-participation"
 			},
 			"reachedOn": "Participation page (/participation), staff Publish results action on a closed consultation",
 			"provider": "decidiq",
@@ -5185,7 +5228,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/ParticipationLifecycleService.php:64 BUDGET_TRANSITIONS draft->submission->voting->tallying->closed; lib/Service/BudgetVotingService.php:120 submitProposal(); lib/Controller/ParticipationBudgetController.php:133 submitProposal, :172 validateProposal; src/views/participation/ParticipationPage.vue:337 submitProposal(); src/manifest.d/citizen-participation.json:155,189 BudgetRounds pages",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-citizen-participation"
 			},
 			"reachedOn": "Participation page (/participation) budget round section; BudgetRounds (/budget-rounds) index and detail",
 			"provider": "decidiq",
@@ -5215,7 +5259,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/BudgetVotingService.php:243 castAdvisoryVote() with window guard (round in voting, before votingDeadline) -> lib/Service/AdvisoryVoteService.php:97 applyAdvisoryTally() (one vote per voter, 409 on duplicate); src/views/participation/ParticipationPage.vue:362 castAdvisoryVote()",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-15-citizen-participation"
 			},
 			"reachedOn": "Participation page (/participation), vote buttons on validated proposals during the voting phase",
 			"provider": "decidiq",
@@ -5245,7 +5290,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Settings/decidesk_register.json:553 GovernanceBody.bodyType enum includes 'citizen-panel', :618/:624 termStart/termEnd; Participant joinedAt/leftAt; lib/Settings/register.d/70-configurable-types.json PositionHold startDate/endDate; src/manifest.json GovernanceBodies /governance-bodies index + detail",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/p3-citizen-participation"
 			},
 			"reachedOn": "GovernanceBodies (/governance-bodies) index and detail, body type citizen-panel",
 			"provider": "decidiq",
@@ -5397,7 +5443,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json Dashboard page (route /) slots :416-426: ActiveDecisionsKpiWidget, UpcomingMeetingsKpiWidget, UpcomingMeetingsListWidget (widget id :241), PendingVotesListWidget, MyActionItemsWidget (:256), OverdueActionsKpiWidget, RecentDecisionsWidget; components in src/views/dashboard/widgets/.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/app-dashboard"
 			},
 			"reachedOn": "Dashboard (/)",
 			"provider": "decidiq",
@@ -5458,7 +5505,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json VotingReport (/reports/voting): rounds held/adopted/tied, by result, by method, how votes fell (vote.value), recent rounds; MeetingsReport (/reports/meetings): meet-absent stat and meet-by-attendance donut over participant.attendanceStatus. Aggregation by OpenRegister.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "none"
 			},
 			"reachedOn": "Reports (/reports) > Voting report (/reports/voting) and Meetings report (/reports/meetings)",
 			"provider": "decidiq",
@@ -5548,7 +5596,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/GovernanceBodyEvaluationsTab.vue (GovernanceBodyDetail widget body-evaluations): 'Respond anonymously' (:85, EvaluationRespondModal), close (:90), publish results (:96), generate report (:105), small-group suppression (:130); src/services/boardEvaluationApi.js -> routes.php:215-218; lib/Service/BoardEvaluationResponseService.php:148 submitResponse() with HMAC voter-token anonymity; BoardEvaluationScoreService, BoardEvaluationReportService.php:76.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-07-07-board-self-evaluation"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Self-evaluation widget",
 			"provider": "decidiq",
@@ -5578,7 +5627,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/components/tabs/GovernanceBodyEfficiencyTab.vue (GovernanceBodyDetail widget body-efficiency, slot manifest.json:460) using src/utils/meetingAnalytics.js:79 meetingDurationStats, :137 agendaCompletionRate, :158 speakingDistribution, :225 agendaItemCostBreakdown, :266 timeAllocationAccuracy. Live timing via src/components/liveMeeting/AgendaItemTimer.vue on the LiveMeeting page.",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-13-meeting-efficiency-v1"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Efficiency widget",
 			"provider": "decidiq",
@@ -5758,7 +5808,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Dashboard/DecidiqDashboardWidget.php:53 implements IAPIWidgetV2, registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:180; getItemsV2() returns two items: pending votes count and the next meeting (lib/Service/DashboardWidgetService.php:211 resolveNextMeeting() picks the single soonest scheduled meeting the user takes part in).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-13-dashboard-iwidget-v1"
 			},
 			"reachedOn": "Nextcloud Dashboard, 'Decidiq' widget",
 			"provider": "nextcloud",
@@ -5788,7 +5839,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.d/vve-alv-pack.json AuditStatements (/audit-statements) and AuditStatementDetail over audit-statement (lib/Settings/register.d/75-generic-audit-statement.json); MeetingDetail widget meeting-audit-statements -> src/components/tabs/MeetingAuditStatementTab.vue (visibility by body configuration, auditStatementVisibility.js).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "generic-audit-statement"
 			},
 			"reachedOn": "Audit statements index (/audit-statements) and detail; Audit statements widget on MeetingDetail",
 			"provider": "decidiq",
@@ -5818,7 +5870,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "decidiq has no login of its own: every controller relies on the Nextcloud session (IUserSession, e.g. lib/Controller/VotingBehaviourController.php:108); navigation entry appinfo/info.xml <navigations>; SSO is supplied by Nextcloud's user_oidc / user_saml apps",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"spec": "none"
 			},
 			"reachedOn": "Nextcloud login page, then the Decidiq app (/apps/decidiq/)",
 			"provider": "nextcloud",
@@ -5912,7 +5965,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "l10n/ holds 26 languages (bg..tr); l10n/nl.json 2359 keys, l10n/en.json 2109, l10n/de.json and l10n/fr.json 1083 each; src/settings.js:13 loadTranslations('decidiq'); UI strings via t('decidiq', ...)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/app-foundation"
 			},
 			"reachedOn": "Whole app, following the Nextcloud user language",
 			"provider": "decidiq",
@@ -5942,7 +5996,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "appinfo/info.xml Nextcloud app (min-version 32, max 34); decidiq-compose.yaml:67 services (postgres:16-alpine, nextcloud:34-apache); hard dependency on OpenRegister",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "none"
 			},
 			"reachedOn": "Installed from the Nextcloud App Store on your own Nextcloud",
 			"provider": "decidiq",
@@ -5972,7 +6027,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "LICENSE (EUPL v1.2); appinfo/info.xml:62 <licence>EUPL-1.2</licence>; composer.json:4 and package.json:4 license EUPL-1.2; publiccode.yml:50",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-07-07-info-licence-eupl"
 			},
 			"reachedOn": "Public GitHub repository ConductionNL/decidiq",
 			"provider": "decidiq",
@@ -6064,7 +6120,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/DecisionIntegrationService.php:60 PROVENANCE_FIELDS sourceApp/subjectRegister/subjectSchema/subjectId/externalReference, :135 createDecision() idempotent; appinfo/routes.php:291-293 /api/v1/decisions; lib/AppInfo/Registrar/CrossAppEventRegistrar.php:67 DecisionRequestedEvent -> DecisionRequestedListener; src/integrations/registerDecisionsLeaf.js mounted globally via src/integration-init.js:24 (lib/AppInfo/Application.php:198 addInitScript); lib/Event/DecisionConcludedEvent.php (procest ZGW advance)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-06-14-decidesk-contract-decision-hub"
 			},
 			"reachedOn": "Decisions tab/widget (CnDecisionsTab) on other apps' OpenRegister object pages, e.g. a dossiq case; or API only: POST /apps/decidiq/api/v1/decisions",
 			"provider": "decidiq",
@@ -6156,7 +6213,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Controller/ApiController.php:64 RESOURCE_MAP (governance-bodies, persons, meetings, motions, voting-rounds, votes, agenda-items, minutes, decisions, action-items), :168 index(), :246 show(), :103 RESOURCE_WRITABLE (one writable resource), scope map :120; appinfo/routes.php:263-264,314-315; full CRUD also through OpenRegister's /apps/openregister/api/objects/decidiq/<schema>",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "2026-05-11-p4-integration"
 			},
 			"reachedOn": "API only: /apps/decidiq/api/v1/{resource} and OpenRegister's objects API",
 			"provider": "decidiq",
@@ -6186,7 +6244,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.d/connection-registry.json ConnectionRegistry page /settings/integrations (permission admin, requiresApp integriq) listing integriq app_connection rows with status, status message, last checked; lib/Settings/connections.json declarations; lib/Service/ConnectionReportService.php reports which eIDAS/translation implementation is bound; lib/BackgroundJob/ConnectionReportJob.php registered in appinfo/info.xml",
-				"owner": "ConductionNL/integriq"
+				"owner": "ConductionNL/integriq",
+				"change": "adopt-connection-registry"
 			},
 			"reachedOn": "Integrations (/settings/integrations), admin gear menu, only when integriq is installed",
 			"provider": "integriq",
@@ -6216,7 +6275,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/**/*.vue: every hex colour sits inside a var(--...) fallback (0 bare hex values), about 299 var(--color...) uses; src/integrations/CnDecisionsWidget.vue:25 'Nextcloud CSS variables only so the nldesign overrides apply'; lib/Support/FleetAppId.php:73 thematiq/nldesign",
-				"owner": "ConductionNL/thematiq"
+				"owner": "ConductionNL/thematiq",
+				"spec": "openspec/specs/nl-design-theming"
 			},
 			"reachedOn": "Whole app, themed by thematiq (NL Design System) or Nextcloud theming",
 			"provider": "thematiq",
@@ -6246,7 +6306,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "appinfo/info.xml:587 <provider>DecidiqProvider</provider> plus GovernanceSetting/GovernanceFilter; lib/Activity/DecidiqProvider.php:109 parse() subjects decision_recorded, decision_published, meeting_transition, vote_initiated, resolution_adopted; publishers lib/Service/MeetingService.php:361, DecisionPublicationService.php:310, LiveDecisionService.php:126, VotingOpenedNotifier.php:96",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"change": "2026-06-12-nc-platform-integration-v1"
 			},
 			"reachedOn": "Nextcloud Activity app, Governance filter",
 			"provider": "nextcloud",
@@ -6277,7 +6338,8 @@
 				"state": "built",
 				"evidence": "lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:105 registerSearchProvider(DecidiqSearchProvider); lib/Search/DecidiqSearchProvider.php:62 SCHEMAS decision, meeting, minutes; :187 register and schema passed in filters (fixed 2026-09-28: they were top-level keys findAll ignores); :256 path links",
 				"owner": "nextcloud/server",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"change": "2026-06-12-nc-platform-integration-v1"
 			},
 			"reachedOn": "Nextcloud unified search bar",
 			"provider": "nextcloud",
@@ -6307,7 +6369,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json:3 setup steps welcome, example-set choice, load-example-set, done (rendered by CnAppRoot on first run, reopenable from src/views/settings/AdminRoot.vue:35-42); lib/Controller/SetupController.php:114 status(), :147 saveConfig(), :257 runAction() load-example-set",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "seed-profiles"
 			},
 			"reachedOn": "First-run wizard on opening the app; re-run from the admin settings page",
 			"provider": "decidiq",
@@ -6598,7 +6661,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "decidiq has no user administration of its own: users and groups are Nextcloud's, managed by admins or group sub-admins in Nextcloud's Users settings; lib/Controller/MemberImportController.php:71 groups() reads Nextcloud groups to import body members; lib/Service/GovernanceRoleScopeProjector.php:247 creates the per-body chair and signatory groups itself under fixed names",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"spec": "none"
 			},
 			"reachedOn": "Nextcloud Users settings (/settings/users); GovernanceBodyDetail Members widget 'Import from Nextcloud group'",
 			"provider": "nextcloud",
@@ -7322,7 +7386,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "src/manifest.json:970 AmendmentDetail 'Text changes' widget (src/components/tabs/AmendmentDiffTab.vue) shows an amendment as tracked changes against the motion; each amendment is adopted or rejected by its own voting round (src/components/tabs/MotionVotingRoundTab.vue:26) in the order set on MotionDetail; grep -rniE 'recommendation|preadvies|lineNumber|line-by-line' lib/Service/Motion*.php lib/Service/AmendmentOrderService.php src/components/tabs/*Amendment*: none",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/amendment-diff"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) Amendments widget, AmendmentDetail (/amendments/:id) Text changes widget",
 			"provider": "decidiq",
@@ -7351,7 +7416,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/VotingRoundCloser.php:542 on an adopted amendment calls applyAmendment(); lib/Service/MotionAmendmentService.php:451 hands it to lib/Service/AmendmentTextMerger.php:62, which replaces the amendment's targetPassage with its proposedText (or replaces the whole wording when no passage is given), keeps the first wording in originalText and appends a before/after entry to amendmentHistory (lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json); proven by tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage and testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory (#1394)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "none"
 			},
 			"reachedOn": "Automatic when a voting round adopts an amendment (MotionDetail Voting round widget); result visible in the motion text on MotionDetail",
 			"provider": "decidiq",
@@ -7527,7 +7593,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "appinfo/routes.php:356 dashboard#catchAll serves the app for every path (lib/Controller/DashboardController.php:97-99 NoAdminRequired, not public, so Nextcloud sends a signed-out visitor to its login with a redirect back); src/main.js:159 routerBase() derives the base from the pathname so both /apps/decidiq/... and /index.php/apps/decidiq/... deep links resolve; MotionDetail route /motions/:id (src/manifest.json:899)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "none"
 			},
 			"reachedOn": "Any record URL, such as /apps/decidiq/motions/{id}, opened from a mail, notification or bookmark",
 			"provider": "decidiq",
@@ -7622,7 +7689,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "decidiq has no login of its own and relies on the Nextcloud session (matrix row plt-01, e.g. lib/Controller/VotingBehaviourController.php:108 IUserSession); grep -rniE 'mfa|two.?factor|2fa|totp' lib src: none in decidiq; second factors and their enforcement come from Nextcloud's two-factor providers (twofactor_totp, WebAuthn) and the admin Security setting",
-				"owner": "nextcloud/server"
+				"owner": "nextcloud/server",
+				"spec": "none"
 			},
 			"reachedOn": "Nextcloud login, with two-factor enforced under Administration settings > Security",
 			"provider": "nextcloud",
@@ -7937,7 +8005,8 @@
 			"built": {
 				"state": "built",
 				"evidence": "appinfo/info.xml Nextcloud app on the customer's own Nextcloud with OpenRegister as the store (matrix row plt-06, decidiq-compose.yaml:67); grep -rnoE 'https?://' lib: no hardcoded outbound host (lib/Service/OriSerializer.php:49 argu.co is a JSON-LD context name, not a call); outbound traffic only to endpoints the admin sets (ORI endpoint, lib/Settings/connections.json:4-11; integriq sources)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"spec": "none"
 			},
 			"reachedOn": "Wherever the organisation hosts its Nextcloud; outbound endpoints set on the admin settings page",
 			"provider": "decidiq",
