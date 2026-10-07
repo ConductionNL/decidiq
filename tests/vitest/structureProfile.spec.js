@@ -120,14 +120,21 @@ describe('the full profile', () => {
 		// The one difference: every index page that did not choose keeps the
 		// plain header row it had before nextcloud-vue 2.62.0 gave every
 		// header a sort and filter control (menu-layout.json pageDefaults).
-		expect(build(fullFile)).toEqual(applyPageDefaults(before, fullFile.pageDefaults))
+		expect(build(fullFile)).toEqual(
+			applyPageDefaults(before, fullFile.pageDefaults),
+		)
 		expect(fullFile.pageDefaults).toEqual({ index: { headerFilters: false } })
 		expect(simpleFile.pageDefaults).toBeUndefined()
 		const after = build(fullFile)
 		for (const page of before.pages) {
 			const now = after.pages.find((item) => item.id === page.id)
-			const held = page.type === 'index' && page.config?.headerFilters === undefined
-			expect(now, page.id).toEqual(held ? { ...page, config: { ...page.config, headerFilters: false } } : page)
+			const held =
+				page.type === 'index' && page.config?.headerFilters === undefined
+			expect(now, page.id).toEqual(
+				held
+					? { ...page, config: { ...page.config, headerFilters: false } }
+					: page,
+			)
 		}
 	})
 
@@ -210,11 +217,13 @@ describe('the simple profile', () => {
 		expect(simpleFile.nav.help.href).toBe('https://decidiq.conduction.nl')
 		expect(dutch[simpleFile.nav.help.label]).toBe('Hulp en uitleg')
 		expect(fullFile.nav).toBeUndefined()
-		expect(main.find((entry) => entry.id === 'ActionItems').count).toMatchObject({
-			register: 'decidiq',
-			schema: 'action-item',
-			filter: { assignee: '@me' },
-		})
+		expect(main.find((entry) => entry.id === 'ActionItems').count).toMatchObject(
+			{
+				register: 'decidiq',
+				schema: 'action-item',
+				filter: { assignee: '@me' },
+			},
+		)
 	})
 
 	it('is flat: no entry holds another', () => {
@@ -263,12 +272,20 @@ describe('the simple profile', () => {
 		}
 		// Three entries take the board's line icon (DcDashboard): a house, an
 		// inbox and a calendar. The rest keep the manifest's icon.
-		expect(main.find((entry) => entry.id === 'Dashboard').icon).toBe('HomeOutline')
-		expect(main.find((entry) => entry.id === 'ActionItems').icon).toBe('InboxOutline')
-		expect(main.find((entry) => entry.id === 'Meetings').icon).toBe('CalendarBlankOutline')
+		expect(main.find((entry) => entry.id === 'Dashboard').icon).toBe(
+			'HomeOutline',
+		)
+		expect(main.find((entry) => entry.id === 'ActionItems').icon).toBe(
+			'InboxOutline',
+		)
+		expect(main.find((entry) => entry.id === 'Meetings').icon).toBe(
+			'CalendarBlankOutline',
+		)
 		for (const id of ['Decisions', 'Commitments']) {
 			const original = source.find((entry) => entry.id === id)
-			expect(main.find((entry) => entry.id === id).icon, id).toBe(original.icon)
+			expect(main.find((entry) => entry.id === id).icon, id).toBe(
+				original.icon,
+			)
 		}
 		// Two entries are worded for the simple menu. Their page is the same.
 		expect(main.find((entry) => entry.id === 'ActionItems')).toMatchObject({
@@ -763,7 +780,11 @@ describe('the navigation of the simple profile', () => {
 		// No icon of its own: the library draws its plus, the board's "+".
 		// `solid`: a route button drawn as the board's solid primary button
 		// (nextcloud-vue 2.64.0), not as the plain link a route gives.
-		expect(action).toEqual({ label: 'New proposal', route: 'Motions', solid: true })
+		expect(action).toEqual({
+			label: 'New proposal',
+			route: 'Motions',
+			solid: true,
+		})
 		expect(withTheming.pages.find((page) => page.id === action.route).type).toBe(
 			'index',
 		)

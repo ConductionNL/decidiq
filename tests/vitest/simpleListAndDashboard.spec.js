@@ -245,12 +245,17 @@ describe('the dashboard in the simple structure', () => {
 		expect(config.showHeader).toBe(false)
 		expect(config.showWidgetActions).toBe(false)
 		expect(before.showHeader).toBeUndefined()
-		expect(widgets.get('simple-greeting').content).toMatchObject({ ground: true, showDate: true })
+		expect(widgets.get('simple-greeting').content).toMatchObject({
+			ground: true,
+			showDate: true,
+		})
 		expect(top[0]).toMatchObject({ gridY: 0, gridHeight: 1 })
 		expect(top[1]).toMatchObject({ gridY: 0, borderless: true })
 		const simplePage = pageOf(simple, 'Dashboard')
 		const fullPage = pageOf(full, 'Dashboard')
-		expect(simplePage.slots['widget-simple-quick-actions']).toBe(fullPage.slots['header-actions'])
+		expect(simplePage.slots['widget-simple-quick-actions']).toBe(
+			fullPage.slots['header-actions'],
+		)
 	})
 
 	it('gives every tile on the page a label short enough not to be cut, in English and in Dutch', () => {
