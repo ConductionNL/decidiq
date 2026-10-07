@@ -1075,11 +1075,9 @@ echo "[ci-seed] done."
 # treated it as one. Tolerance that cannot distinguish "this app has no such
 # step" from "this app renamed it" is not tolerance, it is blindness.
 #
-# `example_profile=none` rather than the skip action, because it closes BOTH
-# steps: status() reports `example-set.done` from `$picked !== ''` and
-# `load-example-set.done` from `$picked === NONE_PROFILE`. The skip action
-# writes only DEMO_DECIDED_KEY and would leave `example-set` open — still
-# enough wizard to mask every click.
+# `example_profile=none` closes the step: status() reports `example-set.done`
+# once a pick is stored. Since wizard-dataset-card-load the cards load
+# themselves, so there is no separate `load-example-set` step to close.
 # 🔴 `${BASE}`, NOT ITS OWN RESOLUTION. This line used to read
 # `${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}`, which ignores
 # PLAYWRIGHT_BASE_URL and falls back to the SHARED dev container — the exact
@@ -1110,7 +1108,7 @@ try:
     s = json.load(sys.stdin).get("steps", {})
 except Exception:
     sys.exit(1)
-sys.exit(0 if all(s.get(k, {}).get("done") for k in ("example-set", "load-example-set")) else 1)'; then
+sys.exit(0 if "example-set" in s and all(v.get("done") for v in s.values()) else 1)'; then
 	echo "[ci-seed] setup steps report done — the wizard will not mask the suite."
 else
 	echo "[ci-seed] ERROR: setup steps are NOT done after seeding." >&2

@@ -103,12 +103,12 @@ class SetupController extends Controller {
 	 * Report per-step setup status for the wizard.
 	 *
 	 * `completed` is deliberately TRUE: this app declares no REQUIRED step, so
-	 * setup must never gate the app. Both example-set steps are reported so the
+	 * setup must never gate the app. Every manifest step is reported so the
 	 * wizard can stop asking once it has an answer.
 	 *
 	 * @return JSONResponse The status document.
 	 *
-	 * @spec exclude Setup status document; ADR-042 contract, no per-app behavioural spec.
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
 	 */
 	#[AuthorizedAdminSetting(AdminSettings::class)]
 	public function status(): JSONResponse {
@@ -120,13 +120,13 @@ class SetupController extends Controller {
 				'version'   => self::SETUP_VERSION,
 				'completed' => true,
 				'profiles'  => $this->seedProfiles->listChoices(),
+				// Exactly the ids of `manifest.setup.steps`: a step the server
+				// never reports stays open and reopens the wizard. The cards
+				// load themselves (`loadAction`), so there is no load step.
 				'steps'     => [
-					'example-set' => ['done' => ($picked !== [])],
-					// "None" is an ANSWER, so the load step is finished the moment
-					// it is chosen: there is nothing left for the operator to run.
-					'load-example-set' => [
-						'done' => ($demoDecided === true || $picked === [SeedProfileService::NONE_PROFILE]),
-					],
+					'welcome'     => ['done' => true],
+					'example-set' => ['done' => ($demoDecided === true || $picked !== [])],
+					'done'        => ['done' => true],
 				],
 			]
 		);
@@ -261,20 +261,8 @@ class SetupController extends Controller {
 
 		// DECLINING IS AN ANSWER — see DEMO_DECIDED_KEY.
 		//
-		// 🔴 AND IT ANSWERS *BOTH* STEPS, WHICH ONE WRITE HERE USED TO MISS.
-		// Splitting the old single `demo-data` step into a `choice` and a
-		// `run-action` gave the wizard TWO outstanding steps, and this action
-		// closed only the second. CnAppRoot opens the wizard while ANY optional
-		// step is outstanding, so `skip-example-set` returned 200, reported "no
-		// example data was loaded", and left the wizard open over every page.
-		//
-		// Measured 2026-08-30: after ci-seed.sh posted this action the status was
-		// still `example-set: {done: false}`, and the e2e suite failed on
-		// `<ol class="cn-wizard-dialog__progress">` intercepting clicks that
-		// Playwright had already resolved — "visible, enabled and stable", then a
-		// timeout.
-		//
-		// Skipping IS choosing none, so it records that choice.
+		// Skipping IS choosing none, so it records that choice as well as the
+		// decision: an older runbook may read either key.
 		if ($actionId === 'skip-example-set') {
 			$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
 			$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
@@ -290,16 +278,38 @@ class SetupController extends Controller {
 	}//end runAction()
 
 	/**
-	 * Import the example set the operator picked in the previous step.
+	 * Import the example set a card's Load button posted as `dataset`, or the
+	 * stored picks when nothing is posted.
 	 *
 	 * Reports the FAILURE rather than a quiet success: an operator who asked for
 	 * example data and got none must be told, which is why
 	 * SeedProfileService::install() throws instead of returning an empty result.
 	 *
 	 * @return JSONResponse `{ success, message }`.
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
 	 */
 	private function loadExampleSet(): JSONResponse {
 		$profileIds = $this->pickedProfiles();
+
+		// The card's Load button names ONE set in the body. An older wizard
+		// posts nothing and relies on the picks stored a step earlier.
+		$posted = $this->request->getParam('dataset');
+		if ($posted !== null) {
+			if (is_scalar($posted) === false || $this->isSelectableProfile(profileId: (string)$posted) === false) {
+				$named = 'that';
+				if (is_scalar($posted) === true) {
+					$named = (string)$posted;
+				}
+
+				return new JSONResponse(
+					data: ['success' => false, 'message' => 'No example set is called "' . $named . '".'],
+					statusCode: Http::STATUS_BAD_REQUEST,
+				);
+			}
+
+			$profileIds = [(string)$posted];
+		}
 
 		// 🔴 NO SILENT DEFAULT. Guessing a set here would plant a municipality
 		// into an operator's register because they clicked Run one step early,
@@ -312,6 +322,7 @@ class SetupController extends Controller {
 		}
 
 		if ($profileIds === [SeedProfileService::NONE_PROFILE]) {
+			$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
 			$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
 
 			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
@@ -352,6 +363,16 @@ class SetupController extends Controller {
 			$imported[] = $profileId;
 		}
 
+		// Loading IS choosing, so the loaded sets join the stored picks. The
+		// step is `multiple`: a second card adds to the first, and "none"
+		// next to a loaded set is dropped (see saveConfig()).
+		$picks = array_values(
+			array_filter(
+				array_unique(array_merge($this->pickedProfiles(), $imported)),
+				static fn (string $id): bool => $id !== SeedProfileService::NONE_PROFILE
+			)
+		);
+		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, implode(',', $picks));
 		$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'installed');
 
 		return new JSONResponse(
