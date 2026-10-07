@@ -119,7 +119,7 @@ describe('the dashboard in the simple structure', () => {
 			title: old.title,
 			content: { ...now.content, label: old.content.label },
 		}).toEqual(old)
-		expect(config.widgets).toHaveLength(before.widgets.length + 4)
+		expect(config.widgets).toHaveLength(before.widgets.length + 5)
 	})
 
 	it('lays every old card out once, in two columns as the board draws them', () => {
@@ -149,7 +149,7 @@ describe('the dashboard in the simple structure', () => {
 		// Each column reads top to bottom in the board's order, starting right
 		// under the counters.
 		for (const column of [main, side]) {
-			expect(placed(column[0]).gridY).toBe(6)
+			expect(placed(column[0]).gridY).toBe(5)
 			for (let at = 1; at < column.length; at++) {
 				expect(placed(column[at]).gridY).toBeGreaterThan(
 					placed(column[at - 1]).gridY,
@@ -162,7 +162,7 @@ describe('the dashboard in the simple structure', () => {
 		// The four counters keep their row right under the attention card.
 		const counters = new Set(
 			before.layout
-				.filter((item) => placed(item.widgetId).gridY === 4)
+				.filter((item) => placed(item.widgetId).gridY === 3)
 				.map((item) => item.widgetId),
 		)
 		expect(counters.size).toBe(4)
@@ -224,8 +224,9 @@ describe('the dashboard in the simple structure', () => {
 		const top = [...config.layout].sort(
 			(a, b) => a.gridY - b.gridY || a.gridX - b.gridX,
 		)
-		expect(top.slice(0, 7).map((item) => item.widgetId)).toEqual([
+		expect(top.slice(0, 8).map((item) => item.widgetId)).toEqual([
 			'simple-greeting',
+			'simple-quick-actions',
 			'simple-first-today',
 			'active-decisions',
 			'upcoming-meetings-kpi',
@@ -234,10 +235,22 @@ describe('the dashboard in the simple structure', () => {
 			'simple-proposals-per-step',
 		])
 		// The four counters stay four tiles on one row, never stacked cards.
-		for (const item of top.slice(2, 6)) {
+		for (const item of top.slice(3, 7)) {
 			expect(item.gridWidth).toBe(3)
-			expect(item.gridY).toBe(4)
+			expect(item.gridY).toBe(3)
 		}
+		// DcDashboard has one header: the page header is hidden and the
+		// greeting sits on the page ground, one row high, beside the quick
+		// actions the hidden header carried.
+		expect(config.showHeader).toBe(false)
+		expect(config.showWidgetActions).toBe(false)
+		expect(before.showHeader).toBeUndefined()
+		expect(widgets.get('simple-greeting').content).toMatchObject({ ground: true, showDate: true })
+		expect(top[0]).toMatchObject({ gridY: 0, gridHeight: 1 })
+		expect(top[1]).toMatchObject({ gridY: 0, borderless: true })
+		const simplePage = pageOf(simple, 'Dashboard')
+		const fullPage = pageOf(full, 'Dashboard')
+		expect(simplePage.slots['widget-simple-quick-actions']).toBe(fullPage.slots['header-actions'])
 	})
 
 	it('gives every tile on the page a label short enough not to be cut, in English and in Dutch', () => {
@@ -440,8 +453,10 @@ describe.each([
 			quickFilters,
 			quickFilterMaxVisible,
 			headerActions,
+			headerFilters,
 			...rest
 		}) => rest
+		// `headerFilters` is the full profile's pageDefaults, not this overlay.
 		expect(strip(config)).toEqual(strip(before))
 	})
 })

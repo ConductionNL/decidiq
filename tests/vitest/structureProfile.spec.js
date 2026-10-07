@@ -32,6 +32,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { MODE_LABELS } from '../../src/config/modeLabels.js'
 import { saveMenuStructure } from '../../src/services/menuStructureSetting.js'
 import {
+	applyPageDefaults,
 	applyPageOverlay,
 	buildProfiledManifest,
 	navTheming,
@@ -116,7 +117,18 @@ function linksOf(page) {
 describe('the full profile', () => {
 	it('is exactly what buildManifest made before profiles existed', () => {
 		const before = buildManifest(manifest(), fragments, fullFile)
-		expect(build(fullFile)).toEqual(before)
+		// The one difference: every index page that did not choose keeps the
+		// plain header row it had before nextcloud-vue 2.62.0 gave every
+		// header a sort and filter control (menu-layout.json pageDefaults).
+		expect(build(fullFile)).toEqual(applyPageDefaults(before, fullFile.pageDefaults))
+		expect(fullFile.pageDefaults).toEqual({ index: { headerFilters: false } })
+		expect(simpleFile.pageDefaults).toBeUndefined()
+		const after = build(fullFile)
+		for (const page of before.pages) {
+			const now = after.pages.find((item) => item.id === page.id)
+			const held = page.type === 'index' && page.config?.headerFilters === undefined
+			expect(now, page.id).toEqual(held ? { ...page, config: { ...page.config, headerFilters: false } } : page)
+		}
 	})
 
 	it('still counts 44 entries: 24 main, 4 footer, 16 settings', () => {
@@ -152,9 +164,10 @@ describe('the simple profile', () => {
 	const built = build(simpleFile)
 	const main = section(built.menu, 'main')
 
-	it('shows eight entries under three captions, in the order of the design', () => {
+	it('shows eight entries under two captions, in the order of the design', () => {
+		// DcDashboard: Dashboard and My actions sit at the top with no caption
+		// above them; the board's first caption is Besluitvorming.
 		expect(main.map((entry) => entry.id)).toEqual([
-			'StartCaption',
 			'Dashboard',
 			'ActionItems',
 			'DecisionMakingCaption',
@@ -168,7 +181,6 @@ describe('the simple profile', () => {
 		])
 		const captions = main.filter((entry) => entry.type === 'caption')
 		expect(captions.map((entry) => entry.label)).toEqual([
-			'Home',
 			'Decision making',
 			'Your organisation',
 		])
@@ -177,7 +189,6 @@ describe('the simple profile', () => {
 
 	it('reads in Dutch as the design writes it', () => {
 		expect(main.map((entry) => dutch[entry.label])).toEqual([
-			'Start',
 			'Dashboard',
 			'Mijn acties',
 			'Besluitvorming',
@@ -189,6 +200,21 @@ describe('the simple profile', () => {
 			'Organen en leden',
 			'Registers',
 		])
+	})
+
+	it('ends the navigation in Settings and Help, as the board does, and counts My actions', () => {
+		// DcDashboard: the footer holds Instellingen and Hulp en uitleg; the
+		// rest of the footer moves into the settings foldout. The full
+		// profile declares no footer and keeps its own.
+		expect(simpleFile.nav.footer).toEqual(['settings', 'help'])
+		expect(simpleFile.nav.help.href).toBe('https://decidiq.conduction.nl')
+		expect(dutch[simpleFile.nav.help.label]).toBe('Hulp en uitleg')
+		expect(fullFile.nav).toBeUndefined()
+		expect(main.find((entry) => entry.id === 'ActionItems').count).toMatchObject({
+			register: 'decidiq',
+			schema: 'action-item',
+			filter: { assignee: '@me' },
+		})
 	})
 
 	it('is flat: no entry holds another', () => {
@@ -233,8 +259,16 @@ describe('the simple profile', () => {
 			const original = source.find((entry) => entry.id === id)
 			const shown = main.find((entry) => entry.id === id)
 			expect(shown.label, id).toBe(original.label)
-			expect(shown.icon, id).toBe(original.icon)
 			expect(shown.route, id).toBe(original.route)
+		}
+		// Three entries take the board's line icon (DcDashboard): a house, an
+		// inbox and a calendar. The rest keep the manifest's icon.
+		expect(main.find((entry) => entry.id === 'Dashboard').icon).toBe('HomeOutline')
+		expect(main.find((entry) => entry.id === 'ActionItems').icon).toBe('InboxOutline')
+		expect(main.find((entry) => entry.id === 'Meetings').icon).toBe('CalendarBlankOutline')
+		for (const id of ['Decisions', 'Commitments']) {
+			const original = source.find((entry) => entry.id === id)
+			expect(main.find((entry) => entry.id === id).icon, id).toBe(original.icon)
 		}
 		// Two entries are worded for the simple menu. Their page is the same.
 		expect(main.find((entry) => entry.id === 'ActionItems')).toMatchObject({

@@ -46,19 +46,26 @@
 	],
 	"menu": [
 		{
-			"id": "StartCaption",
-			"type": "caption",
-			"label": "Home",
-			"order": 5
-		},
-		{
 			"id": "Dashboard",
-			"order": 10
+			"order": 10,
+			"icon": "HomeOutline"
 		},
 		{
 			"id": "ActionItems",
 			"label": "My actions",
-			"order": 12
+			"order": 12,
+			"icon": "InboxOutline",
+			"count": {
+				"register": "decidiq",
+				"schema": "action-item",
+				"filter": {
+					"assignee": "@me",
+					"taskStatus": [
+						"open",
+						"in-progress"
+					]
+				}
+			}
 		},
 		{
 			"id": "DecisionMakingCaption",
@@ -75,7 +82,8 @@
 		},
 		{
 			"id": "Meetings",
-			"order": 24
+			"order": 24,
+			"icon": "CalendarBlankOutline"
 		},
 		{
 			"id": "Decisions",
@@ -94,7 +102,8 @@
 		{
 			"id": "GovernanceBodies",
 			"label": "Bodies and members",
-			"order": 42
+			"order": 42,
+			"icon": "AccountMultipleOutline"
 		},
 		{
 			"id": "Registers",
@@ -112,7 +121,16 @@
 		"primaryAction": {
 			"label": "New proposal",
 			"route": "Motions"
-		}
+		},
+		"help": {
+			"label": "Help and explanation",
+			"href": "https://decidiq.conduction.nl"
+		},
+		"footer": [
+			"settings",
+			"help"
+		],
+		"settingsLabel": "Settings"
 	},
 	"pages": [
 		{
@@ -1723,15 +1741,27 @@
 						"widgetId": "simple-greeting",
 						"gridX": 0,
 						"gridY": 0,
-						"gridWidth": 12,
-						"gridHeight": 2,
-						"showTitle": false
+						"gridWidth": 9,
+						"gridHeight": 1,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "s0",
+						"widgetId": "simple-quick-actions",
+						"gridX": 9,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1,
+						"showTitle": false,
+						"borderless": true,
+						"sizeToContent": true
 					},
 					{
 						"id": "s2",
 						"widgetId": "simple-first-today",
 						"gridX": 0,
-						"gridY": 2,
+						"gridY": 1,
 						"gridWidth": 12,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1741,17 +1771,21 @@
 						"id": "s3",
 						"widgetId": "simple-proposals-per-step",
 						"gridX": 0,
-						"gridY": 6,
+						"gridY": 5,
 						"gridWidth": 8,
 						"gridHeight": 3,
 						"showTitle": true,
-						"sizeToContent": true
+						"sizeToContent": true,
+						"headerLink": {
+							"label": "All proposals",
+							"route": "Motions"
+						}
 					},
 					{
 						"id": "s4",
 						"widgetId": "simple-commitments-due",
 						"gridX": 8,
-						"gridY": 10,
+						"gridY": 9,
 						"gridWidth": 4,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1760,7 +1794,7 @@
 						"id": "1",
 						"widgetId": "active-decisions",
 						"gridX": 0,
-						"gridY": 4,
+						"gridY": 3,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1770,7 +1804,7 @@
 						"id": "2",
 						"widgetId": "upcoming-meetings-kpi",
 						"gridX": 3,
-						"gridY": 4,
+						"gridY": 3,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1780,7 +1814,7 @@
 						"id": "3",
 						"widgetId": "pending-votes-kpi",
 						"gridX": 6,
-						"gridY": 4,
+						"gridY": 3,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1790,7 +1824,7 @@
 						"id": "4",
 						"widgetId": "overdue-actions-kpi",
 						"gridX": 9,
-						"gridY": 4,
+						"gridY": 3,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1800,7 +1834,7 @@
 						"id": "5",
 						"widgetId": "upcoming-meetings-list",
 						"gridX": 8,
-						"gridY": 6,
+						"gridY": 5,
 						"gridWidth": 4,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1809,7 +1843,7 @@
 						"id": "6",
 						"widgetId": "pending-votes-list",
 						"gridX": 0,
-						"gridY": 9,
+						"gridY": 8,
 						"gridWidth": 8,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1818,7 +1852,7 @@
 						"id": "7",
 						"widgetId": "running-processes",
 						"gridX": 0,
-						"gridY": 19,
+						"gridY": 18,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1827,7 +1861,7 @@
 						"id": "8",
 						"widgetId": "my-action-items",
 						"gridX": 0,
-						"gridY": 13,
+						"gridY": 12,
 						"gridWidth": 8,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1836,7 +1870,7 @@
 						"id": "9",
 						"widgetId": "recent-decisions",
 						"gridX": 0,
-						"gridY": 23,
+						"gridY": 22,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1845,7 +1879,7 @@
 						"id": "10",
 						"widgetId": "minutes-in-review",
 						"gridX": 3,
-						"gridY": 17,
+						"gridY": 16,
 						"gridWidth": 9,
 						"gridHeight": 2,
 						"showTitle": true
@@ -1854,7 +1888,7 @@
 						"id": "11",
 						"widgetId": "governance-health",
 						"gridX": 0,
-						"gridY": 27,
+						"gridY": 26,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1864,7 +1898,7 @@
 						"id": "12",
 						"widgetId": "open-commitments-overdue",
 						"gridX": 0,
-						"gridY": 17,
+						"gridY": 16,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1874,23 +1908,30 @@
 						"id": "13",
 						"widgetId": "incoming-documents",
 						"gridX": 0,
-						"gridY": 31,
+						"gridY": 30,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
 					}
-				]
+				],
+				"showHeader": false,
+				"showWidgetActions": false
 			},
 			"configAppend": {
 				"widgets": [
+					{
+						"id": "simple-quick-actions",
+						"type": "custom",
+						"title": "Quick actions"
+					},
 					{
 						"id": "simple-greeting",
 						"type": "header",
 						"title": "Greeting",
 						"content": {
-							"greeting": true,
+							"title": "My decision-making",
 							"showDate": true,
-							"plain": true
+							"ground": true
 						}
 					},
 					{
@@ -2066,6 +2107,9 @@
 						}
 					}
 				}
+			},
+			"slots": {
+				"widget-simple-quick-actions": "DashboardQuickActions"
 			}
 		},
 		{

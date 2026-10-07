@@ -4,3 +4,40 @@
 #content {
 	height: 100%;
 }
+
+/* ---------------------------------------------------------------------
+ * The stacked bar on the simple dashboard (DcDashboard, "Proposals per
+ * step"). nextcloud-vue 2.65.0's CnStackedBarWidget has no inline padding of
+ * its own, so its bar, legend and empty line sat flush against the card
+ * edge. Until the library pads it, the card's inner edge (16px, the widget
+ * title's) is set here, and the empty line takes the compact empty-state
+ * look. Only the simple profile places a stacked bar, so the full profile is
+ * unchanged.
+ * --------------------------------------------------------------------- */
+.cn-stacked-bar {
+	box-sizing: border-box;
+	padding: 4px 16px 16px;
+}
+
+.cn-stacked-bar__state {
+	justify-content: center;
+	padding: 12px;
+	font-size: 14px;
+	text-align: center;
+}
+
+/* The quick actions moved out of the hidden page header into the greeting
+ * row of the simple dashboard: they sit at the row's right edge. */
+.cn-dashboard-grid .decidiq-quick-actions {
+	display: flex;
+	justify-content: flex-end;
+}
+
+/* A card that sizes to its content (layout `sizeToContent`, declared by the
+ * simple profile only) has to be measured at its own height: GridStack
+ * measures the cell's first child, and nextcloud-vue 2.65.0's widget wrapper
+ * fills the cell (`height: 100%`), so the greeting on the ground kept two
+ * rows and centred its date and heading in them. */
+.cn-dashboard-grid .grid-stack-item[gs-size-to-content] > .grid-stack-item-content > .cn-widget-wrapper {
+	height: auto;
+}
