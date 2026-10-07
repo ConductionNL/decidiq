@@ -119,14 +119,14 @@ describe('the full profile', () => {
 		expect(build(fullFile)).toEqual(before)
 	})
 
-	it('still counts 44 entries: 24 main, 4 footer, 16 settings', () => {
+	it('still counts 44 entries: 24 main, 3 footer, 17 settings', () => {
 		const menu = build(fullFile).menu
 		const count = (name) =>
 			flat(menu.filter((entry) => (entry.section || 'main') === name)).length
 		expect(flat(menu)).toHaveLength(44)
 		expect(count('main')).toBe(24)
-		expect(count('footer')).toBe(4)
-		expect(count('settings')).toBe(16)
+		expect(count('footer')).toBe(3)
+		expect(count('settings')).toBe(17)
 	})
 
 	it('still shows six entries at the top, the ones ADR-004 names', () => {
