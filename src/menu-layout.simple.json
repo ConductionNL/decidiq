@@ -120,7 +120,8 @@
 		},
 		"primaryAction": {
 			"label": "New proposal",
-			"route": "Motions"
+			"route": "Motions",
+			"solid": true
 		},
 		"help": {
 			"label": "Help and explanation",
