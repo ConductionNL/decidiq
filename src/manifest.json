@@ -15,19 +15,12 @@
 					"type": "choice",
 					"title": "Which kind of organisation is this for?",
 					"configKey": "example_profile",
+					"loadAction": "load-example-set",
 					"required": false,
-					"body": "Pick the organisation this app runs for. You get a worked example of it: bodies, meetings, decisions and templates that fit. Pick several if you want to compare them. Installing the app plants nothing on its own, so this step is the only one that adds data. Choose \"None\" on a production install.",
+					"body": "Pick the organisation this app runs for. You get a worked example of it: bodies, meetings, decisions and templates that fit. Pick several if you want to compare them. Each card has its own Load button. Installing the app plants nothing on its own. Choose \"None\" on a production install.",
 					"display": "cards",
 					"optionsSource": "profiles",
 					"multiple": true
-				},
-				{
-					"id": "load-example-set",
-					"type": "run-action",
-					"action": "load-example-set",
-					"title": "Load the example data",
-					"required": false,
-					"body": "Loads the sets you picked. The data is obviously sample data, it is safe to run more than once, and you can delete it afterwards."
 				},
 				{
 					"id": "done",
@@ -172,7 +165,7 @@
 			"label": "Reports",
 			"icon": "ChartBoxOutline",
 			"route": "Reports",
-			"section": "footer",
+			"section": "settings",
 			"order": 95
 		},
 		{
