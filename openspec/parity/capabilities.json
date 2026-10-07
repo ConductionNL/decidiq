@@ -2531,16 +2531,19 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "decided-no",
-				"evidence": "src/manifest.json:628 MeetingIntegrations page widget mi-talk (integrationId talk) and src/manifest.json:942 MotionIntegrations (Talk leaf); Motions index 'Discussion' action navigates to MotionIntegrations; no link to /meetings/:id/integrations found in src/",
-				"owner": "nextcloud/spreed"
+				"state": "built",
+				"evidence": "src/manifest.json:594 MeetingDetail widget meeting-video-call (src/components/tabs/MeetingVideoCallTab.vue, #1517, 29 Sep): on a digital or hybrid meeting the chair or secretary creates a Talk room with the body's members invited, or links one, through OpenRegister's Talk link (src/utils/videoCall.js:32 /apps/openregister/api/objects/decidiq/meeting/{id}/talk), and members get Join video call; the Talk room carries Talk's chat. Per motion: the Motions index Discussion action (src/manifest.json:951) opens /motions/:id/integrations with the Talk tab (src/views/MotionIntegrations.vue). /meetings/:id/integrations (src/manifest.json:671) still has no link from any page. The live view has no chat.",
+				"owner": "nextcloud/spreed",
+				"readOn": "2026-10-07",
+				"change": "2026-09-29-meeting-video-call",
+				"spec": "openspec/specs/discussion-via-talk-leaf"
 			},
-			"reachedOn": "Motions index 'Discussion' action -> /motions/:id/integrations Talk tab; /meetings/:id/integrations Talk widget (URL only)",
+			"reachedOn": "MeetingDetail Video call widget > Join video call (Talk room with chat) on a digital or hybrid meeting; Motions index > Discussion (Talk tab per motion)",
 			"provider": "talk",
 			"providerHow": "read-from-code",
 			"feature": "discussion",
 			"featureConfidence": "medium",
-			"note": "Chat is Nextcloud Talk bound to the motion or meeting through the OpenRegister integration leaf. The meeting-level Talk surface is not linked from the meeting page, and the live view has no chat. Decided no (OpenSpec pass 2026-09-27): Owned by nextcloud/spreed: chat is Nextcloud Talk's, outside the fleet. Linking the meeting's Talk surface from the meeting page is decidiq's and is a defect, not a gap row.",
+			"note": "Re-read 2026-10-07: built through Nextcloud Talk. Since #1517 a digital or hybrid meeting links a Talk room from the meeting page, with the body's members invited, so participants chat in that room during the meeting; each motion also has its own Talk discussion. Partial: an in-person meeting shows no room, and the live meeting view has no chat. The 2026-09-27 decision was not to build a chat of our own, since chat is Talk's; that stands, and this state records that the Talk route is now reachable.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -2552,6 +2555,13 @@
 				"notubiz": "https://www.notubiz.nl/onze-diensten/gekoppelde-modules states users reply to shared notes in the app so mutual communication is possible; a live meeting chat is not described",
 				"ibabs": "https://support.ibabs.com/docs/ibabs-connect.md states chat and private messages between participants during an iBabs Connect meeting",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/webcasting_van_virtuele_commissie-_en_raadsvergaderingen/ states participants in the video conference can ask the griffie's attention through a chat function; general chat between members is not described"
+			},
+			"screen": {
+				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"board": [
+					"DcVergaderingDeelnemers",
+					"DcOverleg"
+				]
 			}
 		},
 		{
@@ -8132,17 +8142,19 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/patchnotes/4.2.25.md#L4",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json:970 AmendmentDetail 'Text changes' widget (src/components/tabs/AmendmentDiffTab.vue) shows an amendment as tracked changes against the motion; each amendment is adopted or rejected by its own voting round (src/components/tabs/MotionVotingRoundTab.vue:26) in the order set on MotionDetail; grep -rniE 'recommendation|preadvies|lineNumber|line-by-line' lib/Service/Motion*.php lib/Service/AmendmentOrderService.php src/components/tabs/*Amendment*: none",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/amendment-diff"
+				"spec": "openspec/specs/amendment-diff",
+				"change": "motion-change-recommendations",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) Amendments widget, AmendmentDetail (/amendments/:id) Text changes widget",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "low",
-			"note": "Text changes can be proposed as amendments, shown as tracked changes and each adopted or rejected by vote. There are no line-numbered recommendations that the author or chair can accept or reject one by one without a vote.",
+			"note": "Re-read 2026-10-07. The amendment half is built: text changes are tabled as amendments, shown as tracked changes and each adopted or rejected by its own vote, and an adopted one is merged into the motion text (mot-20). The recommendation half is not: there are no line-numbered recommendations that the chair or secretary accepts or rejects one by one without a vote. That half is specified in motion-change-recommendations, so the row moves from built to specified; the amendment half keeps its spec amendment-diff.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -8155,7 +8167,10 @@
 			},
 			"screen": {
 				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcAmendement"
+				"board": [
+					"DcVoorstel",
+					"DcAmendement"
+				]
 			}
 		},
 		{
