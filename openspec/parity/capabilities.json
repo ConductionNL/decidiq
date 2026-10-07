@@ -4849,7 +4849,7 @@
 				"state": "building",
 				"evidence": "decidiq half built by publication-papers-and-search: every publication payload carries documentType, and bodyName, meetingDate and documentType are facetable (register.d/108-publication-papers.json). The public search page and its filters are OpenCatalogi's (owner), not checked here.",
 				"owner": "ConductionNL/opencatalogi",
-				"change": "openspec/changes/archive/2026-09-29-publication-papers-and-search"
+				"change": "2026-09-29-publication-papers-and-search"
 			},
 			"reachedOn": "OpenCatalogi's public catalog search (outside decidiq); decidiq has no public search page",
 			"provider": "opencatalogi",
@@ -6095,7 +6095,7 @@
 				"state": "building",
 				"evidence": "src/manifest.json 'files' integration widgets on meeting, agenda item and decision detail pages (10 occurrences); lib/Listener/MeetingFolderListener.php registered at lib/AppInfo/Registrar/ObjectListenerRegistrar.php:104 creates a meeting folder; grep documenten/dms/sharepoint/zgw finds no DMS connector",
 				"owner": "nextcloud/server",
-				"change": "openspec/changes/platform-case-system-document-exchange"
+				"change": "2026-09-30-platform-case-system-document-exchange"
 			},
 			"reachedOn": "Files widget on MeetingDetail, AgendaItemDetail and DecisionDetail",
 			"provider": "nextcloud",
@@ -7112,7 +7112,7 @@
 				"state": "specified",
 				"evidence": "grep -rniE '\"(theme|thema|topic|dossier)\"|themePage|topicPage' lib/Settings src/manifest.json src/manifest.d: no theme schema or page; decidiq has no public pages, and the public publication page is portaliq's: at portaliq development e6eb380ed5, src/site/components/PublicationDetailBlock.vue:38-90 draws every field as a label and a value (:38 `<dl class=\"pq-detail__fields\" data-testid=\"publication-detail-fields\">`, :40 `v-for=\"field in fields\"`, :44 `<strong>{{ field.label }}:</strong>`) and an array as plain list items (:57 `<!-- An array is a list, one item per line. -->`, :61-62 `<li v-for=\"(item, index) in field.value\" :key=\"index\">{{ item }}`), so there is no timeline; the nearest staff view is GoalDetail (src/manifest.d/organisation-goals.json:62-63, data and Related widgets, no timeline)",
 				"owner": "ConductionNL/portaliq",
-				"change": "openspec/changes/publication-theme-pages"
+				"change": "publication-theme-pages"
 			},
 			"reachedOn": "nothing reaches it: no theme page; staff can link decisions to a goal on GoalDetail (/goals/:id)",
 			"provider": "decidiq",
@@ -7873,7 +7873,7 @@
 				"state": "building",
 				"evidence": "lib/Settings/decidesk_register.json:62 register authorization lets any authenticated user create objects (create: authenticated) while update and delete are for decidiq-administrators; Meetings index (/meetings) create form, agenda and Documents widgets on MeetingDetail; src/dialogs/MeetingParticipantAddDialog.vue:23 picks participants from existing participant records only, no invite for people outside the organisation",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/meeting-ad-hoc-with-guests"
+				"change": "meeting-ad-hoc-with-guests"
 			},
 			"reachedOn": "Meetings index (/meetings) create, then MeetingDetail (/meetings/:id) Agenda, Participants and Documents widgets",
 			"provider": "decidiq",
