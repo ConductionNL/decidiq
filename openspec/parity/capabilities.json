@@ -610,7 +610,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "src/manifest.json:478 body-position-holders sorted by endDate asc with columns termNumber and 'Until'; lib/Settings/register.d/70-configurable-types.json PositionHold startDate/endDate/termNumber, PositionType termDurationMonths/maxConsecutiveTerms; lib/Settings/register.d/80-retire-the-unbuilt-rooster.json retires RoosterVanAftreden ('generator RoosterService was never written')",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "bodies-term-of-office-and-step-down"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), 'Position holders' list sorted by end date",
 			"provider": "decidiq",
@@ -1044,7 +1045,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/Service/AgendaService.php:150-151 calls OpenRegister CalendarEventService::updateMeetingEvent() only behind method_exists() and only from publishAgenda(), which no frontend calls (grep 'api/agendas' under src/: none); a local openregister checkout has no updateMeetingEvent (grep); no ICS/CalDAV code in lib/; MeetingIntegrations (src/manifest.json:628) has deck/talk/files/notes but no calendar widget",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"change": "platform-microsoft-365-calendar-and-teams"
 			},
 			"reachedOn": "nothing reaches it: no calendar sync or ICS export; the only hook is a guarded call to an OpenRegister method that does not exist",
 			"provider": "decidiq",
@@ -1641,7 +1643,8 @@
 			"built": {
 				"state": "building",
 				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json ConfidentialityRestriction (scope 'item', targetAgendaItem, ground, lifecycle imposed/ratified/dissolved); src/manifest.d/embargo-geheimhouding.json ConfidentialityRestrictions/ConfidentialityGrounds pages; no service applies it (grep 'confidentiality-restriction', 'ConfidentialityRestriction', 'geheimhouding' in lib/Service, lib/Listener, lib/Controller: none); the AgendaItem.confidentiality classifier the description refers to is not declared on AgendaItem",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "agenda-item-confidential-papers"
 			},
 			"reachedOn": "ConfidentialityRestrictions (/confidentiality-restrictions), under 'Registers' in the menu",
 			"provider": "decidiq",
@@ -2684,7 +2687,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "DecisionDetail (src/manifest.json:1158) widgets decision-commitments (object-list governance-commitment filter relatedMotion=@objectId) and decision-actions (ActionItemsSurface, action items keyed on decision); Toezegging schema has deadline+lifecycle (register.d/45-toezeggingen-ingekomen-stukken.json)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "followup-implementation-progress"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id) for the motion: Commitments and Action items widgets; not on MotionDetail",
 			"provider": "decidiq",
@@ -2992,7 +2996,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "'ranked-choice' appears only in the VotingRound.votingMethod enum (decidesk_register.json); VotingRoundPanel.vue open dialog offers for-against-abstain/show-of-hands/weighted only; grep ranked in lib/Service: only BudgetVotingService ranking proposals by votesFor",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "voting-ranked-preference-ballot"
 			},
 			"reachedOn": "nothing reaches it: no preference ballot",
 			"provider": "decidiq",
@@ -3262,7 +3267,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "grep written resolution/buiten vergadering/circular resolution in lib/, src/, openspec/specs: none; voting rounds require a linked meeting (VotingRoundPanel disables open without meetingId); approval-route threshold class lib/Service/ApprovalThresholdCalculator.php is self-declared unreachable",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "voting-written-resolution"
 			},
 			"reachedOn": "nothing reaches it: no written-consent procedure",
 			"provider": "decidiq",
@@ -4116,7 +4122,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "DecisionDetail Lifecycle widget (DecisionLifecycleTab) moves a decision to 'enacted' (lib/Lifecycle/DecisionTransitionGuard.php:133); per-decision action items with status lanes open/in-progress/done (src/services/deckProjection.js LANES, DecisionActionItemsTab). No implementation-progress or percentage field on Decision (property list in lib/Settings/decidesk_register.json).",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "followup-implementation-progress"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Lifecycle and Action items widgets",
 			"provider": "decidiq",
@@ -4147,7 +4154,7 @@
 				"state": "building",
 				"evidence": "lib/Service/ApprovalRouteService.php:354 instantiate() and :483 record(), lib/Service/ApprovalRouteAdvancer.php, ApprovalThresholdCalculator; started via routes.php:58 POST /api/approval-routes/instantiate or lib/Listener/ApprovalRouteRequestedListener.php:84 (registered lib/AppInfo/Registrar/CrossAppEventRegistrar.php:83). Frontend: src/integrations/approvalChainLink.js:237 holdRoute() is exported but called by no component; CnApprovalChainWidget.vue:306 recordAction() lets the actor approve/reject. Inside decidiq, src/components/tabs/DecisionRouteTab.vue is read-only and no decidiq screen starts a route (src/dialogs/DecisionFormDialog.vue has no route step).",
 				"owner": "ConductionNL/decidiq",
-				"change": "routes-send-proposal-along-route"
+				"change": "approval-routes-on-flow-user-tasks"
 			},
 			"reachedOn": "Acting on a step: another app's detail page through the decidiq-approval-chain integration leaf (src/integrations/registerApprovalChainLeaf.js, CnApprovalChainWidget records actions); starting a route: API only: POST /api/approval-routes/instantiate or ApprovalRouteRequestedEvent from another app",
 			"provider": "decidiq",
@@ -5268,7 +5275,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/Settings/decidesk_register.json:3742 CitizenVote.motionId exists as a field, but the only citizen vote path is lib/Service/AdvisoryVoteService.php:97 applyAdvisoryTally() on a BudgetProposal; grep motionId in lib finds no citizen-vote writer",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "participation-citizen-advisory-vote-on-motions"
 			},
 			"reachedOn": "nothing reaches it: advisory citizen votes exist only for budget proposals",
 			"provider": "decidiq",
@@ -5419,7 +5427,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "src/manifest.json DecisionsReport (/reports/decisions): stat and donut widgets over the decision schema (dec-adopted, dec-by-outcome, dec-by-type, dec-by-lifecycle, dec-recent); all filters are scalar equality with no date range or body filter (page _note: 'Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate').",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "insight-decisions-report-by-period-and-body"
 			},
 			"reachedOn": "Reports (/reports) > Decisions report (/reports/decisions)",
 			"provider": "decidiq",
@@ -5840,7 +5849,8 @@
 				"state": "specified",
 				"evidence": "portaliq lib/Controller/SessionController.php:284 oidcStart() and :370 oidcCallback() (appinfo/routes.php:153-154, GET /portal/api/session/oidc/start and /oidc/callback) are a working generic OIDC relying party, and lib/Service/OidcClaimMapperService.php:74-91 ships digid, eherkenning and eidas presets (portaliq commit eb85956). The class docblock at SessionController.php:6-11 still calls the DigiD/eHerkenning broker dormant; that docblock is stale. decidiq's own lib/Portal/PortalContributionProvider.php:18 still describes DigiD/eHerkenning as deferred, and decidiq adds no per-paper DigiD gate of its own.",
 				"owner": "ConductionNL/portaliq",
-				"readOn": "2026-09-26"
+				"readOn": "2026-09-26",
+				"change": "portaliq/2026-09-29-signin-integriq-broker-login"
 			},
 			"reachedOn": "portaliq's OIDC broker login (/portal/api/session/oidc/start) when the organisation fronts it with its own OIDC identity provider; no decidiq-specific DigiD gate on confidential papers",
 			"provider": "portaliq",
@@ -6115,7 +6125,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "grep microsoft/outlook/teams/graph/m365 across lib and src: no hits; meetings and action items use Nextcloud CalDAV, Talk, Deck and Mail leaves only",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "platform-microsoft-365-calendar-and-teams"
 			},
 			"reachedOn": "nothing reaches it: no Microsoft 365 integration",
 			"provider": "decidiq",
@@ -6555,7 +6566,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "src/manifest.json:609 (MeetingDetail), :935 (MotionDetail), :1051 (MinutesDetail) and other detail pages carry a sidebar 'History' tab (widget type audit, CnAuditTrailTab) showing OpenRegister's per-object audit trail; lib/Service/AuditLogService.php:157 append() adds decidiq's own action entries; no page lists actions across all records, and files attached in Nextcloud Files are logged by Nextcloud Activity, not here",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"change": "openregister/audit-log-page"
 			},
 			"reachedOn": "Each detail page (meeting, motion, minutes, decision, agenda item), sidebar History tab",
 			"provider": "openregister",
@@ -6782,7 +6794,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/Search/DecidiqSearchProvider.php:59 SCHEMAS decision and meeting, :157 search() passes the plain term to OpenRegister findAll 'search' with LIMIT_PER_SCHEMA 5 (:69); index pages use OpenRegister's list search; grep -rniE 'boolean operator|highlight|unaccent' lib/Search src: no search-related hit (only UI highlight comments), so no query syntax or result highlighting in decidiq; document contents in Nextcloud Files are not searched by decidiq",
-				"owner": "ConductionNL/openregister"
+				"owner": "ConductionNL/openregister",
+				"change": "openregister/search-accent-insensitive"
 			},
 			"reachedOn": "Nextcloud unified search bar; the search box on each index page",
 			"provider": "openregister",
@@ -6813,7 +6826,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem properties (subject, plannedPeriod, governanceBody, owner, lifecycle, shiftHistory, origin and realised links) have no parent item or track; grep -n 'parent|track' in that file: only AuthorityDelegation.parentAllocation (:542); src/manifest.d/termijnagenda.json:35-42 flat list columns",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "planning-long-term-agenda-tracks-and-report"
 			},
 			"reachedOn": "nothing reaches it: the long-term agenda is a flat list",
 			"provider": "decidiq",
@@ -6844,7 +6858,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "src/manifest.d/termijnagenda.json:28-34 quick filters by status, :40 ownerType column (facetable), :46 showMassExport true for export of the selected rows; lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem.owner (the portfolio holder, a Person reference) is not facetable and not a column; no author field",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "planning-long-term-agenda-tracks-and-report"
 			},
 			"reachedOn": "Long-term agenda (/planned-agenda), quick filters, facets and the mass Export action",
 			"provider": "decidiq",
@@ -7248,7 +7263,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "src/components/VotingRoundPanel.vue:50 'Show of hands' voting method, :859 posts totals to /api/voting-rounds/{id}/tally -> lib/Controller/VotingController.php:327 tally() (chair or secretary) saves only votesFor, votesAgainst and votesAbstain via saveShowOfHandsTally; no endpoint records a choice per named member afterwards",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "voting-named-paper-vote-entry"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Show of hands method, tally entry by chair or secretary",
 			"provider": "decidiq",
@@ -7637,7 +7653,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "grep -rli 'watermark' lib src: no hits; papers are plain Nextcloud files in the meeting folder (matrix row pla-13); lib/Service/MeetingPackageService.php assembles packages without marking them",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "agenda-paper-watermark"
 			},
 			"reachedOn": "nothing reaches it",
 			"provider": "decidiq",
@@ -7823,7 +7840,8 @@
 			"built": {
 				"state": "specified",
 				"evidence": "grep -rliE 'conference system|microphone|delegate system|bosch|televic|speakerSystem' lib src: only an icon name (lib/Settings/decidesk_register.json:3279 'Microphone') and the video-conference link field (:937); the room display endpoint GET /api/voting-rounds/{id}/public-state is API only (liv-04)",
-				"owner": "ConductionNL/decidiq"
+				"owner": "ConductionNL/decidiq",
+				"change": "live-room-conference-system-link"
 			},
 			"reachedOn": "nothing reaches it",
 			"provider": "decidiq",
