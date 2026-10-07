@@ -18,9 +18,7 @@
 // does not need to be one.
 
 import { translate as t } from '@nextcloud/l10n'
-import { createApp } from 'vue'
-import CnApprovalChainTab from './CnApprovalChainTab.vue'
-import CnApprovalChainWidget from './CnApprovalChainWidget.vue'
+import { createLazyMountPair } from './createLazyMountPair.js'
 
 /**
  * The integration id a consuming app references to render this leaf.
@@ -28,16 +26,6 @@ import CnApprovalChainWidget from './CnApprovalChainWidget.vue'
  * @type {string}
  */
 export const APPROVAL_CHAIN_INTEGRATION_ID = 'decidiq-approval-chain'
-
-/**
- * Per-element registry of the Vue 3 app instances this leaf has mounted, so
- * `unmount(el)` finds the right one. Keyed by the host-owned element, NOT by
- * leaf id: the same leaf may be mounted into a sidebar tab AND a detail-page
- * widget on one page at once (openregister#2127).
- *
- * @type {Map<Element, import('vue').App>}
- */
-const mountedApps = new Map()
 
 /**
  * Surfaces that render the WIDGET rather than the full timeline.
@@ -59,56 +47,38 @@ const WIDGET_SURFACES = ['detail-page', 'app-dashboard', 'user-dashboard']
 const SURFACES = ['user-dashboard', 'app-dashboard', 'detail-page', 'single-entity']
 
 /**
- * Pick the root component off the host-forwarded `surface`.
+ * Load the root component for a mount off the host-forwarded `surface`: the
+ * widget on the three WIDGET_SURFACES, the full tab everywhere else.
  *
- * @param {string} [surface] The render surface.
- * @return {object} The component to root at the element.
+ * Dynamic on purpose. This module is part of `decidiq-integration-init.js`,
+ * which Nextcloud loads on every page; a static import would pull Vue and the
+ * component library into that script. The chunk loads only when a host mounts.
+ *
+ * @param {string} [surface] The render surface the host is mounting into.
+ * @return {Promise<object>} The Vue component to root at the element.
  */
-function componentForSurface(surface) {
-	return WIDGET_SURFACES.includes(surface)
-		? CnApprovalChainWidget
-		: CnApprovalChainTab
+function loadComponentForSurface(surface) {
+	const loader = WIDGET_SURFACES.includes(surface)
+		? import(
+				/* webpackChunkName: "leaf-approval-chain" */ './CnApprovalChainWidget.vue'
+			)
+		: import(
+				/* webpackChunkName: "leaf-approval-chain" */ './CnApprovalChainTab.vue'
+			)
+	return loader.then((module) => module.default)
 }
 
 /**
  * Mount hand-off (renderMode 'mount', ADR-066 / openregister#2127). decidiq is
  * Vue 3 while a consuming host may be Vue 2.7; a Vue-3 SFC handed to the host
  * renders blank under the host's runtime. So the host hands us a bare element
- * and we root decidiq's own app at it. Idempotent per element.
- *
- * @param {Element} el Host-owned container element.
- * @param {object} props Forwarded context.
- * @return {void}
+ * and we root decidiq's own app at it, once the component chunk has loaded.
+ * Idempotent per element, and an unmount during the load cancels the mount.
  */
-function mount(el, props) {
-	if (el === undefined || el === null || mountedApps.has(el) === true) {
-		return
-	}
-	const app = createApp(componentForSurface(props && props.surface), {
-		...(props || {}),
-	})
-	// Global t/n install contract (ADR-066): the SFCs call `this.t(...)`, and
-	// the leaf mounts its own app instance, so they are installed here too.
-	app.config.globalProperties.t = t
-	app.mount(el)
-	mountedApps.set(el, app)
-}
-
-/**
- * Teardown hand-off. Destroy the app rooted at `el` and release the entry, so a
- * mount/unmount cycle leaks no instance.
- *
- * @param {Element} el The container element.
- * @return {void}
- */
-function unmount(el) {
-	const app = mountedApps.get(el)
-	if (app === undefined) {
-		return
-	}
-	mountedApps.delete(el)
-	app.unmount()
-}
+const { mount, unmount } = createLazyMountPair(
+	loadComponentForSurface,
+	'approval chain',
+)
 
 /**
  * The integration descriptor for the "Parafering" leaf.
