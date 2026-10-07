@@ -8026,6 +8026,41 @@
 				"ibabs": "https://support.ibabs.com/docs/ibabs-debrief-veelgestelde-vragen.md states iBabs systems are hosted in Microsoft Azure West Europe (Netherlands) with fallback to North Europe (Ireland)",
 				"openslides": "source read at 4.3.4, not driven: INSTALL.md:1 the whole system is installed with Docker Compose on your own servers, so data stays in whatever Dutch or EU data centre you run it in; the hosted service is run by Intevation GmbH (https://openslides.com/de/karriere/ names Intevation, read 2026-09-26), a German company."
 			}
+		},
+		{
+			"id": "plt-33",
+			"area": "platform",
+			"name": "Link emails to a decision from Nextcloud Mail and read them on the decision.",
+			"decidiq": "yes",
+			"built": {
+				"state": "built",
+				"evidence": "src/manifest.json:714 DecisionIntegrations widget di-email (type integration, integrationId email) on the decision's integrations page; the registry hides it when the Mail app is absent (src/manifest.json:731 _note); legacy EmailLink objects migrated by 2026-06-10-migrate-email-links-to-email-leaf",
+				"change": "2026-06-10-migrate-email-links-to-email-leaf",
+				"spec": "openspec/specs/email-linking-via-email-leaf"
+			},
+			"notubiz": "unchecked",
+			"ibabs": "unchecked",
+			"go-raadsinformatie": "unchecked",
+			"diligent-boards": "unchecked",
+			"openslides": "unchecked",
+			"source": "spec-round-2026-10-07"
+		},
+		{
+			"id": "vot-25",
+			"area": "voting",
+			"name": "Restrict a vote to a fixed group of members, chosen from a preset when the vote is opened.",
+			"decidiq": "no",
+			"built": {
+				"state": "specified",
+				"evidence": "openspec/specs/voting-group-presets (REQ-VGP-001 to 004) specifies presets per body and selecting one when opening a round; grep for VotingGroupPreset, voting-group-preset and presetParticipantIds in lib/ and src/ finds only a docblock example in lib/Controller/VotingController.php:86, so nothing is built",
+				"spec": "openspec/specs/voting-group-presets"
+			},
+			"notubiz": "unchecked",
+			"ibabs": "unchecked",
+			"go-raadsinformatie": "unchecked",
+			"diligent-boards": "unchecked",
+			"openslides": "unchecked",
+			"source": "spec-round-2026-10-07"
 		}
 	],
 	"pending": [
