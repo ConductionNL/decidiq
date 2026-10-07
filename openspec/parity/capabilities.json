@@ -8834,11 +8834,11 @@
 				"change": "2026-06-10-migrate-email-links-to-email-leaf",
 				"spec": "openspec/specs/email-linking-via-email-leaf"
 			},
-			"notubiz": "unchecked",
-			"ibabs": "unchecked",
-			"go-raadsinformatie": "unchecked",
-			"diligent-boards": "unchecked",
-			"openslides": "unchecked",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
 			"source": "spec-round-2026-10-07",
 			"screen": {
 				"canvas": "5NkFW28vZUUij43xzxHg5a",
@@ -8858,11 +8858,11 @@
 				"evidence": "openspec/specs/voting-group-presets (REQ-VGP-001 to 004) specifies presets per body and selecting one when opening a round; grep for VotingGroupPreset, voting-group-preset and presetParticipantIds in lib/ and src/ finds only a docblock example in lib/Controller/VotingController.php:86, so nothing is built",
 				"spec": "openspec/specs/voting-group-presets"
 			},
-			"notubiz": "unchecked",
-			"ibabs": "unchecked",
-			"go-raadsinformatie": "unchecked",
-			"diligent-boards": "unchecked",
-			"openslides": "unchecked",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
 			"source": "spec-round-2026-10-07",
 			"screen": {
 				"canvas": "5NkFW28vZUUij43xzxHg5a",
