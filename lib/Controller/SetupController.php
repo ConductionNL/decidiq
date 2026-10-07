@@ -278,6 +278,55 @@ class SetupController extends Controller {
 	}//end runAction()
 
 	/**
+	 * Read the example set a card's Load button posted as `dataset`.
+	 *
+	 * @return string|null The posted id, empty when the body held no scalar,
+	 *                     or null when nothing was posted.
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 */
+	private function postedProfile(): ?string {
+		$posted = $this->request->getParam('dataset');
+		if ($posted === null) {
+			return null;
+		}
+
+		// A non-scalar body names no set; the empty id matches none.
+		if (is_scalar($posted) === false) {
+			return '';
+		}
+
+		return (string)$posted;
+
+	}//end postedProfile()
+
+	/**
+	 * Refuse a posted example set id no set answers to.
+	 *
+	 * @param string $profileId The posted id, empty when it was not a scalar.
+	 *
+	 * @return JSONResponse|null The refusal, or null when the set is selectable.
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 */
+	private function refuseUnknownSet(string $profileId): ?JSONResponse {
+		if ($profileId !== '' && $this->isSelectableProfile(profileId: $profileId) === true) {
+			return null;
+		}
+
+		$named = $profileId;
+		if ($profileId === '') {
+			$named = 'that';
+		}
+
+		return new JSONResponse(
+			data: ['success' => false, 'message' => 'No example set is called "' . $named . '".'],
+			statusCode: Http::STATUS_BAD_REQUEST,
+		);
+
+	}//end refuseUnknownSet()
+
+	/**
 	 * Import the example set a card's Load button posted as `dataset`, or the
 	 * stored picks when nothing is posted.
 	 *
@@ -294,21 +343,14 @@ class SetupController extends Controller {
 
 		// The card's Load button names ONE set in the body. An older wizard
 		// posts nothing and relies on the picks stored a step earlier.
-		$posted = $this->request->getParam('dataset');
+		$posted = $this->postedProfile();
 		if ($posted !== null) {
-			if (is_scalar($posted) === false || $this->isSelectableProfile(profileId: (string)$posted) === false) {
-				$named = 'that';
-				if (is_scalar($posted) === true) {
-					$named = (string)$posted;
-				}
-
-				return new JSONResponse(
-					data: ['success' => false, 'message' => 'No example set is called "' . $named . '".'],
-					statusCode: Http::STATUS_BAD_REQUEST,
-				);
+			$refusal = $this->refuseUnknownSet(profileId: $posted);
+			if ($refusal !== null) {
+				return $refusal;
 			}
 
-			$profileIds = [(string)$posted];
+			$profileIds = [$posted];
 		}
 
 		// 🔴 NO SILENT DEFAULT. Guessing a set here would plant a municipality

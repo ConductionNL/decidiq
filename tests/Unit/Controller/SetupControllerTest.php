@@ -406,4 +406,34 @@ class SetupControllerTest extends TestCase {
 		$this->assertSame(500, $response->getStatus());
 		$this->assertSame([], $written->getArrayCopy());
 	}
+
+	public function testTheNoneCardRecordsTheAnswerAndImportsNothing(): void {
+		// "None" is a card too. Loading it is the answer: both keys say so and
+		// nothing is imported.
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->seedProfiles->expects($this->never())->method('install');
+		$written = $this->recordWrites();
+
+		$response = $this->controllerPosting(['dataset' => 'none'])->runAction('load-example-set');
+
+		$this->assertSame(200, $response->getStatus());
+		$this->assertTrue($response->getData()['success']);
+		$this->assertSame(
+			['example_profile' => 'none', 'demo_data_decided' => 'skipped'],
+			$written->getArrayCopy()
+		);
+	}
+
+	public function testAPostedValueThatIsNotAStringIsRefused(): void {
+		$this->appConfig->method('getValueString')->willReturn('municipality');
+		$this->seedProfiles->method('isKnown')->willReturn(true);
+		$this->seedProfiles->expects($this->never())->method('install');
+		$written = $this->recordWrites();
+
+		$response = $this->controllerPosting(['dataset' => ['municipality']])->runAction('load-example-set');
+
+		$this->assertSame(400, $response->getStatus());
+		$this->assertStringContainsString('No example set is called "that"', $response->getData()['message']);
+		$this->assertSame([], $written->getArrayCopy());
+	}
 }
