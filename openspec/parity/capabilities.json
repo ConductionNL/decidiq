@@ -2531,16 +2531,19 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "decided-no",
-				"evidence": "src/manifest.json:628 MeetingIntegrations page widget mi-talk (integrationId talk) and src/manifest.json:942 MotionIntegrations (Talk leaf); Motions index 'Discussion' action navigates to MotionIntegrations; no link to /meetings/:id/integrations found in src/",
-				"owner": "nextcloud/spreed"
+				"state": "built",
+				"evidence": "src/manifest.json:594 MeetingDetail widget meeting-video-call (src/components/tabs/MeetingVideoCallTab.vue, #1517, 29 Sep): on a digital or hybrid meeting the chair or secretary creates a Talk room with the body's members invited, or links one, through OpenRegister's Talk link (src/utils/videoCall.js:32 /apps/openregister/api/objects/decidiq/meeting/{id}/talk), and members get Join video call; the Talk room carries Talk's chat. Per motion: the Motions index Discussion action (src/manifest.json:951) opens /motions/:id/integrations with the Talk tab (src/views/MotionIntegrations.vue). /meetings/:id/integrations (src/manifest.json:671) still has no link from any page. The live view has no chat.",
+				"owner": "nextcloud/spreed",
+				"readOn": "2026-10-07",
+				"change": "2026-09-29-meeting-video-call",
+				"spec": "openspec/specs/discussion-via-talk-leaf"
 			},
-			"reachedOn": "Motions index 'Discussion' action -> /motions/:id/integrations Talk tab; /meetings/:id/integrations Talk widget (URL only)",
+			"reachedOn": "MeetingDetail Video call widget > Join video call (Talk room with chat) on a digital or hybrid meeting; Motions index > Discussion (Talk tab per motion)",
 			"provider": "talk",
 			"providerHow": "read-from-code",
 			"feature": "discussion",
 			"featureConfidence": "medium",
-			"note": "Chat is Nextcloud Talk bound to the motion or meeting through the OpenRegister integration leaf. The meeting-level Talk surface is not linked from the meeting page, and the live view has no chat. Decided no (OpenSpec pass 2026-09-27): Owned by nextcloud/spreed: chat is Nextcloud Talk's, outside the fleet. Linking the meeting's Talk surface from the meeting page is decidiq's and is a defect, not a gap row.",
+			"note": "Re-read 2026-10-07: built through Nextcloud Talk. Since #1517 a digital or hybrid meeting links a Talk room from the meeting page, with the body's members invited, so participants chat in that room during the meeting; each motion also has its own Talk discussion. Partial: an in-person meeting shows no room, and the live meeting view has no chat. The 2026-09-27 decision was not to build a chat of our own, since chat is Talk's; that stands, and this state records that the Talk route is now reachable.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -2552,6 +2555,13 @@
 				"notubiz": "https://www.notubiz.nl/onze-diensten/gekoppelde-modules states users reply to shared notes in the app so mutual communication is possible; a live meeting chat is not described",
 				"ibabs": "https://support.ibabs.com/docs/ibabs-connect.md states chat and private messages between participants during an iBabs Connect meeting",
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/webcasting_van_virtuele_commissie-_en_raadsvergaderingen/ states participants in the video conference can ask the griffie's attention through a chat function; general chat between members is not described"
+			},
+			"screen": {
+				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"board": [
+					"DcVergaderingDeelnemers",
+					"DcOverleg"
+				]
 			}
 		},
 		{
@@ -5392,17 +5402,18 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "decidiq half built by publication-papers-and-search: every publication payload carries documentType, and bodyName, meetingDate and documentType are facetable (register.d/108-publication-papers.json). The public search page and its filters are OpenCatalogi's (owner), not checked here.",
+				"state": "built",
+				"evidence": "decidiq's half, all tasks of the archived change done: lib/Service/PublicationPayloadService.php:212 buildAgendaPayload() adds the papers of the public agenda items (:224 AgendaPapers::publish(), confidential items left out) and :97 sets documentType on every payload; lib/Settings/register.d/108-publication-papers.json:21-27 makes documentType, bodyName and meetingDate facetable; lib/Service/OpenCatalogiPublisher.php:72 publish() hands the payload to the configured OpenCatalogi catalog. The public search page and its filters are OpenCatalogi's and were not read here.",
 				"owner": "ConductionNL/opencatalogi",
-				"change": "2026-09-29-publication-papers-and-search"
+				"change": "2026-09-29-publication-papers-and-search",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "OpenCatalogi's public catalog search (outside decidiq); decidiq has no public search page",
 			"provider": "opencatalogi",
 			"providerHow": "read-from-code",
 			"feature": "public-publication",
 			"featureConfidence": "medium",
-			"note": "Search and filters are OpenCatalogi's and were not checked here. decidiq only feeds it title-level publications of decisions, agendas and minutes, without the documents.",
+			"note": "decidiq now publishes agendas with the papers of their public items, and every publication carries the body, the meeting date and the type as filterable fields. Citizens search and filter on OpenCatalogi's public catalog, which was not checked here, so the row stays partial.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -5555,20 +5566,20 @@
 			"area": "publication",
 			"name": "Publish each member's voting record for citizens to see.",
 			"origin": "code",
-			"decidiq": "no",
+			"decidiq": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Service/OriVotePublicationRule.php decides /api/ori/v1/votes and /voteevents (round closed and not secret, decision isPublished public, value set, body publishVotingRecords true; ?voter=; by id 404 for anything withheld), read in system context, allow-listed fields only via OriSerializer::serializeAllowed(); lib/Controller/OriController.php routes votes/voteevents to it (the lifecycle filter listed nothing). Tests: tests/Unit/Controller/OriVotePublicationTest.php (fixtures Opis-valid against the merged register), tests/integration/decidiq-ori-public-votes.postman_collection.json. Persons: lib/Service/OriPersonPublicationRule.php serves anonymous /api/ori/v1/persons in system context, limited to people with an office membership in a body that publishes voting records, with id, name, image and biography only (change 2026-10-02-ori-public-persons; it answered 0 of 7 before). Missing half: not proven live; re-measure pub-14 on the dev instance once this lands.",
+				"state": "specified",
+				"evidence": "API half built by the archived change (all tasks done): lib/Controller/OriController.php:71-72 sends ORI votes and voteevents to lib/Service/OriVotePublicationRule.php, which lists a vote only when its round is closed and not secret, the decision is published, and the body has publishVotingRecords true (:281); ?voter= narrows to one person. lib/Service/OriPersonPublicationRule.php:85 serves the anonymous persons resource (change 2026-10-02-ori-public-persons). The in-app record is vot-18 (lib/Controller/VotingRecordController.php:77, PersonVotingRecordTab on /people/:id), which needs a Nextcloud login. Missing: no public page shows a member's voting record to a citizen, and the anonymous counts after the change were never measured on an instance.",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-10-01-bodies-member-profile-and-voting-record",
-				"readOn": "2026-10-01"
+				"readOn": "2026-10-07"
 			},
-			"reachedOn": "nothing reaches it: no public per-member voting record page",
+			"reachedOn": "anonymous GET /api/ori/v1/votes?voter=<person> (machine-readable); no public page",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "ori-api",
 			"featureConfidence": "medium",
-			"note": "No citizen-facing per-member voting record. Whether the public ORI /votes resource returns anything depends on how OpenRegister treats a filter on a field the vote schema lacks; not settled by reading. Specified in openspec/changes/bodies-member-profile-and-voting-record (OpenSpec pass 2026-09-27).",
+			"note": "Re-rated no to partial on 2026-10-07. The public ORI API returns each member's votes in open rounds of published decisions, for bodies that choose to publish voting records. No citizen-facing page renders that record, and no change specifies one: it would sit on the public site (portaliq or opencatalogi). The row stays specified until that page exists.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -6065,9 +6076,10 @@
 			"decidiq": "yes",
 			"built": {
 				"state": "built",
-				"evidence": "src/manifest.json VotingReport (/reports/voting): rounds held/adopted/tied, by result, by method, how votes fell (vote.value), recent rounds; MeetingsReport (/reports/meetings): meet-absent stat and meet-by-attendance donut over participant.attendanceStatus. Aggregation by OpenRegister.",
+				"evidence": "src/manifest.json VotingReport (/reports/voting): rounds held, adopted and tied, rounds by result and by method, how votes fell (vote.value), most recent rounds; MeetingsReport (/reports/meetings): scheduled and closed meetings, recorded absences (meeting-attendance status absent), by stage, by mode, attendance by status. Both are cards on Reports (/reports, footer entry ReportsMenu). Aggregation by OpenRegister.",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"spec": "openspec/specs/reports",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "Reports (/reports) > Voting report (/reports/voting) and Meetings report (/reports/meetings)",
 			"provider": "decidiq",
@@ -6488,9 +6500,9 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "specified",
-				"evidence": "portaliq lib/Controller/SessionController.php:284 oidcStart() and :370 oidcCallback() (appinfo/routes.php:153-154, GET /portal/api/session/oidc/start and /oidc/callback) are a working generic OIDC relying party, and lib/Service/OidcClaimMapperService.php:74-91 ships digid, eherkenning and eidas presets (portaliq commit eb85956). The class docblock at SessionController.php:6-11 still calls the DigiD/eHerkenning broker dormant; that docblock is stale. decidiq's own lib/Portal/PortalContributionProvider.php:18 still describes DigiD/eHerkenning as deferred, and decidiq adds no per-paper DigiD gate of its own.",
+				"evidence": "portaliq's half is built (change archived, all tasks done): portaliq appinfo/routes.php:295-296 and lib/Controller/BrokerSessionController.php:98 start() and :141 callback() sign a resident in with DigiD, eHerkenning or eIDAS through integriq's broker, beside the generic OIDC route of lib/Controller/SessionController.php:284. decidiq's half is not: lib/Portal/PortalContributionProvider.php:18 still describes DigiD/eHerkenning as deferred, its portal collections scope on the default subject at trust low, and no decidiq paper is offered to a portal session at a raised trust level.",
 				"owner": "ConductionNL/portaliq",
-				"readOn": "2026-09-26",
+				"readOn": "2026-10-07",
 				"change": "portaliq/2026-09-29-signin-integriq-broker-login"
 			},
 			"reachedOn": "portaliq's OIDC broker login (/portal/api/session/oidc/start) when the organisation fronts it with its own OIDC identity provider; no decidiq-specific DigiD gate on confidential papers",
@@ -6498,7 +6510,7 @@
 			"providerHow": "read-from-code",
 			"feature": "platform-auth",
 			"featureConfidence": "high",
-			"note": "Re-rated no to partial on 2026-09-26. A council member or citizen can sign in with DigiD or eHerkenning through portaliq's generic OIDC broker, but only when the organisation fronts it with its own OIDC identity provider. Nothing ships a direct DigiD or eHerkenning connection, and decidiq's own contribution still describes the login as deferred. The earlier no rested on portaliq's stale SessionController docblock. Specified in ConductionNL/portaliq openspec/changes/signin-integriq-broker-login (OpenSpec pass 2026-09-27).",
+			"note": "Re-read 2026-10-07. Signing in with DigiD or eHerkenning works in portaliq, through the organisation's own OIDC broker or through integriq. Opening a confidential decidiq paper after that login does not: decidiq offers no paper to a portal session and gates nothing on the login's trust level. No change specifies that half, so the row stays specified.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -6765,17 +6777,18 @@
 			"origin": "competitor",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "src/manifest.json 'files' integration widgets on meeting, agenda item and decision detail pages (10 occurrences); lib/Listener/MeetingFolderListener.php registered at lib/AppInfo/Registrar/ObjectListenerRegistrar.php:104 creates a meeting folder; grep documenten/dms/sharepoint/zgw finds no DMS connector",
+				"state": "built",
+				"evidence": "src/manifest.json:884 AgendaItemDetail widget agenda-case (src/components/tabs/AgendaItemCaseTab.vue:51 opens src/modals/CaseDocumentsModal.vue) links an item to its case and fetches the case's documents onto it; appinfo/routes.php:48-53 case-system routes to lib/Controller/CaseSystemController.php; lib/Service/CaseDocumentService.php:122 fetch() stores each document once; lib/Service/CaseSystemClient.php:222 call() reaches the source linked to the case-system connection (lib/Settings/connections.json) through integriq's CallService, which answers it over the ZGW APIs or StUF-ZKN (integriq lib/Service/CaseSystem/ZgwCaseSystem.php, lib/Service/StufZkn/StufZknClient.php) or in mock mode. Without a linked source the widget shows no actions (409 from the API). Nextcloud Files stays the manual route (meeting, item and decision Documents widgets).",
 				"owner": "nextcloud/server",
-				"change": "2026-09-30-platform-case-system-document-exchange"
+				"change": "2026-09-30-platform-case-system-document-exchange",
+				"readOn": "2026-10-07"
 			},
-			"reachedOn": "Files widget on MeetingDetail, AgendaItemDetail and DecisionDetail",
+			"reachedOn": "AgendaItemDetail (/agenda-items/:id) Case widget > Fetch documents, once an administrator links an integriq source to decidiq's case-system connection",
 			"provider": "nextcloud",
 			"providerHow": "read-from-code",
 			"feature": "documents",
 			"featureConfidence": "medium",
-			"note": "Documents are attached from Nextcloud Files. There is no connector to pull from an external document management system (ZGW Documenten API, SharePoint, Corsa).",
+			"note": "Re-read 2026-10-07: the griffier links an agenda item to its case by case number and pulls the case's documents onto the item, through an integriq source over the ZGW APIs or StUF-ZKN. Read from code and proven against integriq's mock mode only, not driven against a live case system, so the row stays partial. A document store that is not a case system (SharePoint, Corsa outside StUF-ZKN) has no connector.",
 			"notubiz": "yes",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -7413,20 +7426,20 @@
 			"name": "Exchange documents with the case management system over StUF-ZKN or the ZGW APIs.",
 			"origin": "tender",
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/415915",
-			"decidiq": "no",
+			"decidiq": "partial",
 			"built": {
 				"state": "built",
 				"evidence": "lib/Service/CaseSystemClient.php (the case-system connection's linked integriq source, five operations over CallService), lib/Service/CaseDocumentService.php link/listDocuments/fetch (a document fetched once), lib/Controller/CaseSystemController.php (409 without a source, chair or secretary only), AgendaItemCaseTab + CaseDocumentsModal; integriq's zgw-zaken template and ZGW/StUF-ZKN mapping drafted to integriq (for-ruben/integriq-case-system-operations.md)",
 				"owner": "ConductionNL/decidiq",
-				"change": "openspec/changes/archive/2026-09-30-platform-case-system-document-exchange",
-				"readOn": "2026-09-30"
+				"change": "2026-09-30-platform-case-system-document-exchange",
+				"readOn": "2026-10-07"
 			},
-			"reachedOn": "nothing reaches it: no StUF-ZKN or ZGW client",
+			"reachedOn": "AgendaItemDetail Case widget (fetch) and MeetingDetail Case system widget (send, Send again), once an integriq source is linked to the case-system connection",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "documents",
 			"featureConfidence": "high",
-			"note": "decidiq exchanges no documents with a case system over StUF-ZKN or the ZGW APIs. A case app on OpenRegister such as dossiq can link its case to a decision, and any ZGW traffic would be that app's or integriq's, not checked here. Specified in openspec/changes/platform-case-system-document-exchange (OpenSpec pass 2026-09-27).",
+			"note": "Re-rated no to partial on 2026-10-07. decidiq fetches case documents onto agenda items and sends the meeting file back after the minutes are approved, through integriq, which answers over the ZGW APIs or StUF-ZKN. Read from code and proven against integriq's mock mode only; not driven against a live case system.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "yes",
@@ -8129,17 +8142,19 @@
 			"originUrl": "https://github.com/OpenSlides/OpenSlides/blob/4.3.4/patchnotes/4.2.25.md#L4",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
+				"state": "specified",
 				"evidence": "src/manifest.json:970 AmendmentDetail 'Text changes' widget (src/components/tabs/AmendmentDiffTab.vue) shows an amendment as tracked changes against the motion; each amendment is adopted or rejected by its own voting round (src/components/tabs/MotionVotingRoundTab.vue:26) in the order set on MotionDetail; grep -rniE 'recommendation|preadvies|lineNumber|line-by-line' lib/Service/Motion*.php lib/Service/AmendmentOrderService.php src/components/tabs/*Amendment*: none",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/amendment-diff"
+				"spec": "openspec/specs/amendment-diff",
+				"change": "motion-change-recommendations",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) Amendments widget, AmendmentDetail (/amendments/:id) Text changes widget",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "motions",
 			"featureConfidence": "low",
-			"note": "Text changes can be proposed as amendments, shown as tracked changes and each adopted or rejected by vote. There are no line-numbered recommendations that the author or chair can accept or reject one by one without a vote.",
+			"note": "Re-read 2026-10-07. The amendment half is built: text changes are tabled as amendments, shown as tracked changes and each adopted or rejected by its own vote, and an adopted one is merged into the motion text (mot-20). The recommendation half is not: there are no line-numbered recommendations that the chair or secretary accepts or rejects one by one without a vote. That half is specified in motion-change-recommendations, so the row moves from built to specified; the amendment half keeps its spec amendment-diff.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -8152,7 +8167,10 @@
 			},
 			"screen": {
 				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcAmendement"
+				"board": [
+					"DcVoorstel",
+					"DcAmendement"
+				]
 			}
 		},
 		{
@@ -8166,7 +8184,8 @@
 				"state": "built",
 				"evidence": "lib/Service/VotingRoundCloser.php:542 on an adopted amendment calls applyAmendment(); lib/Service/MotionAmendmentService.php:451 hands it to lib/Service/AmendmentTextMerger.php:62, which replaces the amendment's targetPassage with its proposedText (or replaces the whole wording when no passage is given), keeps the first wording in originalText and appends a before/after entry to amendmentHistory (lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json); proven by tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage and testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory (#1394)",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"spec": "openspec/specs/motion-amendment",
+				"readOn": "2026-10-07"
 			},
 			"reachedOn": "Automatic when a voting round adopts an amendment (MotionDetail Voting round widget); result visible in the motion text on MotionDetail",
 			"provider": "decidiq",
