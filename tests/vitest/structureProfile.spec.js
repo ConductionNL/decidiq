@@ -761,7 +761,9 @@ describe('the navigation of the simple profile', () => {
 	it('has one primary button, New proposal, that opens the proposals list', () => {
 		const action = withTheming.nav.primaryAction
 		// No icon of its own: the library draws its plus, the board's "+".
-		expect(action).toEqual({ label: 'New proposal', route: 'Motions' })
+		// `solid`: a route button drawn as the board's solid primary button
+		// (nextcloud-vue 2.64.0), not as the plain link a route gives.
+		expect(action).toEqual({ label: 'New proposal', route: 'Motions', solid: true })
 		expect(withTheming.pages.find((page) => page.id === action.route).type).toBe(
 			'index',
 		)
