@@ -6,7 +6,7 @@ An in-process command seam that lets another installed fleet app ask decidiq to
 raise a `GovernanceBody` with its roster, and read back the id decidiq gave it.
 Per ADR-041 a cross-app command travels as a typed event, not as REST.
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: REQ-GBE-001 A governance body carries where it came from
 
