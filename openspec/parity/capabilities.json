@@ -361,7 +361,11 @@
 				"bodies-term-of-office-and-step-down",
 				"bodies-onboarding-checklist-walkthrough",
 				"bodies-shared-body-participations",
-				"bodies-substitute-mandate-swap"
+				"bodies-substitute-mandate-swap",
+				"generic-body-configuration",
+				"governance-body-crud",
+				"member-onboarding-in-plain-words",
+				"participant-crud"
 			]
 		},
 		{
@@ -395,7 +399,8 @@
 			"overlay": "conflict-of-interest",
 			"specs": [
 				"conflict-of-interest",
-				"interests-and-integrity"
+				"interests-and-integrity",
+				"conflict-of-interest-authorization"
 			]
 		},
 		{
@@ -414,7 +419,12 @@
 				"meeting-attendees",
 				"meeting-workflow",
 				"planning-parallel-sessions",
-				"meeting-ad-hoc-with-guests"
+				"meeting-ad-hoc-with-guests",
+				"meeting-core",
+				"meeting-list-view",
+				"meeting-detail-view",
+				"meeting-management-extensions",
+				"p2-meeting-management"
 			]
 		},
 		{
@@ -436,7 +446,9 @@
 			"area": "planning",
 			"overlay": null,
 			"specs": [
-				"decidesk-notifications"
+				"decidesk-notifications",
+				"decidiq-push-notifications",
+				"user-settings"
 			]
 		},
 		{
@@ -452,7 +464,9 @@
 				"agenda-live-management",
 				"agenda-incoming-documents-list",
 				"document-metadata-fields",
-				"decidesk-notifications"
+				"decidesk-notifications",
+				"agenda-item-crud",
+				"meeting-agenda"
 			]
 		},
 		{
@@ -475,7 +489,8 @@
 			"specs": [
 				"agenda-item-confidential-papers",
 				"confidentiality-term-and-lapse",
-				"agenda-paper-watermark"
+				"agenda-paper-watermark",
+				"embargo-geheimhouding"
 			]
 		},
 		{
@@ -508,7 +523,8 @@
 				"agenda-live-management",
 				"discussion-via-talk-leaf",
 				"digital-meetings-and-recurrence",
-				"live-room-conference-system-link"
+				"live-room-conference-system-link",
+				"live-voting-projection"
 			]
 		},
 		{
@@ -534,7 +550,9 @@
 				"amendment-workflow",
 				"amendment-diff",
 				"motion-status-management",
-				"motion-change-recommendations"
+				"motion-change-recommendations",
+				"motion-execution-and-anonymisation",
+				"motion-forwarding-controls"
 			]
 		},
 		{
@@ -544,7 +562,8 @@
 			"area": "motions",
 			"overlay": null,
 			"specs": [
-				"motion-management"
+				"motion-management",
+				"questions-as-agenda-items"
 			]
 		},
 		{
@@ -561,7 +580,11 @@
 				"voting-named-paper-vote-entry",
 				"voting-written-resolution",
 				"person-and-membership",
-				"voting-group-presets"
+				"voting-group-presets",
+				"real-time-ballot-distribution",
+				"real-time-vote-tabulation",
+				"vote-review-and-recount",
+				"roll-call-publication"
 			]
 		},
 		{
@@ -603,7 +626,8 @@
 			"overlay": "meeting-quorum",
 			"specs": [
 				"meeting-quorum",
-				"meeting-management"
+				"meeting-management",
+				"quorum-schema-declaration"
 			]
 		},
 		{
@@ -614,7 +638,8 @@
 			"overlay": "resolution-minutes",
 			"specs": [
 				"resolution-minutes",
-				"p2-minutes-and-decisions"
+				"p2-minutes-and-decisions",
+				"p2-minutes-and-decisions-core-t2"
 			]
 		},
 		{
@@ -637,7 +662,8 @@
 			"specs": [
 				"decision-management",
 				"urgent-decisions-register",
-				"objection-advisory-committee"
+				"objection-advisory-committee",
+				"p2-minutes-and-decisions-core-t1"
 			]
 		},
 		{
@@ -648,7 +674,8 @@
 			"overlay": "decision-evolution-and-cascade",
 			"specs": [
 				"decision-evolution-and-cascade",
-				"decision-management"
+				"decision-management",
+				"relation-tab-ui"
 			]
 		},
 		{
@@ -658,7 +685,8 @@
 			"area": "minutes",
 			"overlay": null,
 			"specs": [
-				"nextcloud-integration"
+				"nextcloud-integration",
+				"global-search"
 			]
 		},
 		{
@@ -687,7 +715,8 @@
 			"overlay": "action-items-on-deck-board",
 			"specs": [
 				"action-item-board-via-deck-leaf",
-				"dashboard"
+				"dashboard",
+				"p4-collaboration"
 			]
 		},
 		{
@@ -700,7 +729,8 @@
 				"followup-implementation-progress",
 				"toezeggingen-ingekomen-stukken",
 				"ori-api",
-				"goals-linked-to-decisions"
+				"goals-linked-to-decisions",
+				"organisation-goals"
 			]
 		},
 		{
@@ -712,7 +742,10 @@
 			"specs": [
 				"process-configuration",
 				"approval-routes-on-flow-user-tasks",
-				"decision-route"
+				"decision-route",
+				"decision-methods",
+				"parafering-route-runtime",
+				"retire-vve-template-surfaces"
 			]
 		},
 		{
@@ -743,7 +776,8 @@
 			"area": "routes",
 			"overlay": null,
 			"specs": [
-				"governing-documents-register"
+				"governing-documents-register",
+				"verordeningenregister"
 			]
 		},
 		{
@@ -799,7 +833,10 @@
 				"citizen-participation",
 				"p3-citizen-participation",
 				"participation-citizen-advisory-vote-on-motions",
-				"inspreekrecht-plenair"
+				"inspreekrecht-plenair",
+				"participation-and-engagement-authorization",
+				"portal-citizen-create-actions",
+				"portal-contribution"
 			]
 		},
 		{
@@ -816,7 +853,9 @@
 				"meeting-efficiency",
 				"dashboard",
 				"generic-audit-statement",
-				"motion-management"
+				"motion-management",
+				"member-voting-behaviour-tracking",
+				"p2-minutes-and-decisions-other-t1"
 			]
 		},
 		{
@@ -839,7 +878,9 @@
 				"nextcloud-integration",
 				"platform-microsoft-365-calendar-and-teams",
 				"p4-integration",
-				"email-linking-via-email-leaf"
+				"email-linking-via-email-leaf",
+				"faction-workspace-via-collectives-leaf",
+				"governance-body-events"
 			]
 		},
 		{
@@ -850,7 +891,9 @@
 			"overlay": null,
 			"specs": [
 				"decidesk-contract-decision-hub",
-				"case-system-exchange"
+				"case-system-exchange",
+				"decidesk-decision-events",
+				"flow-request-decision"
 			]
 		},
 		{
@@ -873,7 +916,8 @@
 			"specs": [
 				"nl-design-theming",
 				"document-accessibility-check",
-				"platform-accessibility-audit-report"
+				"platform-accessibility-audit-report",
+				"accessibility-baseline"
 			]
 		},
 		{
@@ -884,7 +928,10 @@
 			"overlay": "guided-onboarding",
 			"specs": [
 				"app-navigation",
-				"seed-profiles"
+				"seed-profiles",
+				"example-set-cards",
+				"first-time-setup",
+				"plain-words-for-groups-and-the-installation-step"
 			]
 		},
 		{
@@ -898,6 +945,195 @@
 			]
 		}
 	],
+	"internalSpecs": [
+		"apphost-adoption",
+		"beta-alignment",
+		"decidesk-manifest-v1",
+		"decidesk-store-migration",
+		"declarative-dialect-integrity",
+		"every-index-route-resolves",
+		"index-page-rendering-quality",
+		"manifest-version-bump",
+		"migrations-that-actually-run",
+		"register-seed-data",
+		"schemas-and-data-model",
+		"vve-alv-pack"
+	],
+	"specScreens": {
+		"accessibility-baseline": {
+			"board": null,
+			"reason": "applies to every board: one H1, skip link, landmarks and keyboard use on each page"
+		},
+		"app-navigation": {
+			"board": [
+				"DcDashboard"
+			]
+		},
+		"apphost-adoption": {
+			"board": null,
+			"reason": "engineering: health and metrics plumbing through the OpenRegister AppHost, no screen"
+		},
+		"beta-alignment": {
+			"board": null,
+			"reason": "engineering: keeps metadata, docs and version in step, no screen"
+		},
+		"conflict-of-interest-authorization": {
+			"board": [
+				"DcAgendapunt",
+				"DcVoorstel"
+			]
+		},
+		"decidesk-decision-events": {
+			"board": null,
+			"reason": "an in-process event contract other apps call, no UI"
+		},
+		"decidesk-manifest-v1": {
+			"board": null,
+			"reason": "engineering: manifest migration to built-in page types, no screen of its own"
+		},
+		"decidesk-store-migration": {
+			"board": null,
+			"reason": "engineering: shared object store refactor, no screen"
+		},
+		"decidiq-push-notifications": {
+			"board": [
+				"DcMijnInstellingen"
+			]
+		},
+		"declarative-dialect-integrity": {
+			"board": null,
+			"reason": "engineering: register dialect fixes, no screen"
+		},
+		"every-index-route-resolves": {
+			"board": null,
+			"reason": "engineering: a test that every list route opens, no screen"
+		},
+		"example-set-cards": {
+			"board": [
+				"DcEersteInrichting"
+			]
+		},
+		"first-time-setup": {
+			"board": [
+				"DcEersteInrichting"
+			]
+		},
+		"flow-request-decision": {
+			"board": null,
+			"reason": "a node in OpenRegister's flow editor, which draws the flow UI"
+		},
+		"generic-body-configuration": {
+			"board": [
+				"DcOrgaan",
+				"DcBeheer"
+			]
+		},
+		"global-search": {
+			"board": [
+				"DcDashboard"
+			]
+		},
+		"governance-body-events": {
+			"board": null,
+			"reason": "an in-process command seam another app calls, no UI"
+		},
+		"index-page-rendering-quality": {
+			"board": null,
+			"reason": "engineering: rendering contract for every list page, no screen of its own"
+		},
+		"manifest-version-bump": {
+			"board": null,
+			"reason": "engineering: manifest version bump, no screen"
+		},
+		"mcp-tools": {
+			"board": null,
+			"reason": "tools the AI chat companion calls; the chat window is OpenRegister's"
+		},
+		"meeting-agenda": {
+			"board": [
+				"DcVergadering",
+				"DcAgendaSjabloon"
+			]
+		},
+		"member-onboarding-in-plain-words": {
+			"board": [
+				"DcLidmaatschap"
+			]
+		},
+		"migrations-that-actually-run": {
+			"board": null,
+			"reason": "engineering: repair steps on upgrade, no screen"
+		},
+		"nextcloud-integration": {
+			"board": null,
+			"reason": "server-side hooks into Nextcloud Calendar, Files, Talk, Activity, Notifications and Search; those apps draw the UI"
+		},
+		"openregister-integration": {
+			"board": [
+				"DcBeheerSysteem"
+			]
+		},
+		"p2-minutes-and-decisions-core-t2": {
+			"board": [
+				"DcNotulen"
+			]
+		},
+		"parafering-route-runtime": {
+			"board": [
+				"DcBesluitRoute",
+				"DcVoorstelOndertekenaars"
+			]
+		},
+		"participation-and-engagement-authorization": {
+			"board": [
+				"DcMijnInspraak",
+				"DcVoorstel"
+			]
+		},
+		"plain-words-for-groups-and-the-installation-step": {
+			"board": [
+				"DcEersteInrichting"
+			]
+		},
+		"portal-citizen-create-actions": {
+			"board": [
+				"DcMijnInspraak"
+			]
+		},
+		"portal-contribution": {
+			"board": [
+				"DcMijnInspraak"
+			]
+		},
+		"questions-as-agenda-items": {
+			"board": [
+				"DcVergadering",
+				"DcAgendapunt"
+			]
+		},
+		"quorum-schema-declaration": {
+			"board": [
+				"DcVergadering"
+			]
+		},
+		"register-seed-data": {
+			"board": null,
+			"reason": "engineering: where seed data is declared, no screen"
+		},
+		"retire-vve-template-surfaces": {
+			"board": [
+				"DcBeheer"
+			]
+		},
+		"schemas-and-data-model": {
+			"board": null,
+			"reason": "engineering: the register and its schemas, the data under every board"
+		},
+		"vve-alv-pack": {
+			"board": null,
+			"reason": "engineering: schema supersession delta, no screen"
+		}
+	},
 	"providers": [
 		{
 			"key": "decidiq",
@@ -1255,8 +1491,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for onboard and checklist across openslides-backend/meta/collections and openslides_backend/action/actions returns nothing; new accounts only get openslides-client/client/src/app/gateways/repositories/users/user-action.ts user.send_invitation_email with access data. No onboarding or offboarding checklist."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (onboarding and offboarding checklist); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcLidmaatschap"
 			}
 		},
 		{
@@ -2493,8 +2729,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/personal_note.yml:23 private notes attach to motions only, and motion_comment_section.yml:32 read_group_ids and write_group_ids give shared comment fields per motion; there is no annotation on the documents themselves. Private and shared notes on motions, not on papers."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (notes on meeting papers); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcStuk"
 			}
 		},
 		{
@@ -2632,8 +2868,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for accessib, pdf/ua and a11y across openslides-media-service and openslides_backend returns nothing; uploads go straight to mediafile.upload with only mimetype and pdf_information (mediafile.yml:26). No accessibility check on documents."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (accessibility check of papers); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcStuk"
 			}
 		},
 		{
@@ -4237,8 +4473,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:343 ensurePresent rejects a ballot unless the voter is marked present in the poll's meeting (You have to be present in meeting, line 354), and every poll belongs to a meeting (poll.yml:159). No written resolution procedure outside a meeting."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (written resolution without a meeting); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcSchriftelijkBesluit"
 			}
 		},
 		{
@@ -5623,8 +5859,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for objection, bezwaar and appeal across openslides-backend/meta/collections returns nothing. Objections to decisions are not handled."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (objection with an advisory committee); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcBezwaar"
 			}
 		},
 		{
@@ -6240,8 +6476,8 @@
 				"diligent-boards": "not checked: looked, not settled: https://www.diligent.com/trust states customers own their data and may delete it up to 30 days after termination; a full export is not described"
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (full data export); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcBeheerSysteem"
 			}
 		},
 		{
@@ -6545,8 +6781,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides_backend/permissions/permission_helper.py:246 the anonymous whitelist lacks list_of_speakers.can_be_speaker, so only accounts in a meeting group can join a list of speakers (speaker.yml:61 meeting_user_id). No public speaker registration."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (registering to speak at a council meeting); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcMijnInspraak"
 			}
 		},
 		{
@@ -7068,8 +7304,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for audit and accounts statement across openslides-backend/meta/collections returns nothing. No audit committee statement."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (audit committee statement); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcJaarrekening"
 			}
 		},
 		{
@@ -7455,8 +7691,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for outlook, teams, microsoft and sharepoint across openslides-backend/meta/collections and the client string template returns nothing; the only Microsoft touchpoint is pasting from Word through @intevation/tiptap-extension-office-paste (openslides-client/client/package.json:50). No Outlook or Teams integration."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (working from Outlook and Teams); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcBeheerSysteem"
 			}
 		},
 		{
@@ -7525,8 +7761,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/organization-info/components/organization-info/organization-info.component.html:14 shows only legal notice and usage statistics; the check_database presenter is not in the client's presenter list (gateways/presenter/presenter.ts) and integrations have no status page. No integration status page."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (integrations status page); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcBeheerSysteem"
 			}
 		},
 		{
@@ -7667,7 +7903,10 @@
 			},
 			"screen": {
 				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
-				"board": "DcBeheer"
+				"board": [
+					"DcBeheer",
+					"DcEersteInrichting"
+				]
 			}
 		},
 		{
@@ -7932,8 +8171,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for retention, destroy and destruction across openslides-backend/meta/collections and action/actions returns nothing; files are removed only by mediafile.delete with no approval step or record. No approved destruction."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (destruction on an approved basis); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcArchief"
 			}
 		},
 		{
@@ -7968,8 +8207,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/history_entry.yml:15 the history records changes to users, motions and elections with who and when (history_position.yml:7), viewable with meeting.can_see_history at meetings/history; mediafile and agenda changes are not in the history (history_entry model_id lists only user, motion, assignment). A log for motions yes, for every document no."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (log of every action on every document); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcArchief"
 			}
 		},
 		{
@@ -8041,8 +8280,8 @@
 				"openslides": "not checked: looked, not settled: openslides.com, its pricing and references pages and support.openslides.com link no accessibility statement or audit (read 2026-09-26); the code has ARIA work (patchnotes/4.3.1.md new ARIA label on motion text) and an accessibility label in the client repo, but no WCAG 2.1 AA report was found."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (accessibility audit report); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcBeheerSysteem"
 			}
 		},
 		{
@@ -8576,8 +8815,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for theme page, dossier and timeline across openslides-backend/meta/collections returns nothing; the closest grouping is tags within one meeting (tag.yml:7) and organization tags on meetings and committees (organization_tag.yml:15). No theme page."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (public theme page); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcThemapagina"
 			}
 		},
 		{
@@ -8642,8 +8881,8 @@
 				"ibabs": "not checked: looked, not settled: no submission window described"
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (submission window for motions); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcMotieIndienen"
 			}
 		},
 		{
@@ -8734,8 +8973,8 @@
 				"ibabs": "https://support.ibabs.com/docs/stemregistratie-door-de-agendabeheerder.md states the agenda manager enters votes afterwards for all participants, per fractie or per participant"
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (entering a named paper vote); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcStemmenInvoeren"
 			}
 		},
 		{
@@ -8962,8 +9201,8 @@
 				"ibabs": "not checked: looked, not settled: https://support.ibabs.com/docs/fix-meerdere-rollen-op-%C3%A9%C3%A9n-ibabs-account.md links several cards and roles to one profile, not a substitute swap"
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (mandate swap during a meeting); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcLidmaatschap"
 			}
 		},
 		{
@@ -9171,8 +9410,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for watermark across the client app and openslides-media-service returns nothing; PDF exports (gateways/export/pdf-document.service) carry header and footer logos only. No viewer watermark."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (watermark on papers); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcStuk"
 			}
 		},
 		{
@@ -9398,8 +9637,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/mixins.py:43 only committee managers may create a meeting (CommitteeManagementLevel.CAN_MANAGE), which then gets its own agenda and files, and outside people can be added as accounts flagged user.yml:71 external; ordinary users cannot set one up. Ad hoc meeting with outsiders yes, by any user no."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (ad hoc meeting with outside guests); on the missing-boards list for the design session (decision 96)"
+				"canvas": "design-system",
+				"board": "DcAdhocOverleg"
 			}
 		},
 		{
