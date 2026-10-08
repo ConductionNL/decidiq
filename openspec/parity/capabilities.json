@@ -446,7 +446,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/managing-committees-bwa.htm states a Contacts Admin can create, rename, sort and delete committees with a descriptive and short name; a separate body type field is not described"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcOrganen",
 					"DcOrgaan",
@@ -486,7 +486,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/managing-user-committees-and-roles-bwa.htm states admins set which boards and committees a user belongs to and their roles; from and to dates of a seat are not recorded (only a hide-books-before-start-date option in https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/creating-new-users-bwa.htm)"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcOrgaan",
 					"DcPersoon"
@@ -524,7 +524,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/user/save_saml_account.py:253 SAML meeting_mappers assign accounts to meetings, groups and structure levels (line 382) from identity provider attributes at login, plus CSV import at participants/import; grep for nextcloud across all services returns nothing. Members come from the IdP, not from a Nextcloud group."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -559,7 +559,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/group.yml:12 meeting groups have a free name and a permission set (line 16), committee.yml:70 manager_ids; there is no position or office model with a holder in any collection. Positions can only be modelled as permission groups."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -595,7 +595,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-detail/components/participant-detail-view/participant-detail-view.component.html:105 shows structure levels, groups (114), about_me (160) and home committee (198); user.yml and meeting_user.yml have no photo or portfolio field. Profile with party and bio yes, photo and portfolio missing."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcPersoon"
 			}
 		},
@@ -631,7 +631,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/structure_level.yml:9 structure levels (name, color, default speaking time) group members as factions, managed from participants/structure-levels; chat_group.yml:23 chat groups with read and write groups could serve one faction but there is no faction workspace model. Grouping yes, shared workspace only via a chat group."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcOrgaan",
 					"DcPersoon"
@@ -669,7 +669,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/user.yml:7 and meeting_user.yml:9 hold no term, mandate start or end field; grep for term_of_office, term_end, mandate_start and mandate_end across meta/collections and action/actions returns nothing. Terms of office are not modelled."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -705,7 +705,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (onboarding and offboarding checklist)"
+				"reason": "not designed yet: no board on the canvas shows this (onboarding and offboarding checklist); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -739,7 +739,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for declaration, gift and interest across openslides-backend/meta/collections returns nothing; user.yml:7 and meeting_user.yml:9 carry no ancillary position fields. No register of other positions or gifts."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcPersoon",
 					"DcOrgaan"
@@ -778,7 +778,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for conflict and declaration across openslides-backend/meta/collections and action/actions returns nothing; exclusion from a vote is only possible by leaving the member out of poll.yml:148 entitled_group_ids or locking them out via meeting_user.yml:22 locked_out for the whole meeting. No conflict of interest declaration tied to a vote."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVoorstel",
 					"DcAgendapunt"
@@ -817,7 +817,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for skill and expertise across openslides-backend/meta/collections and action/actions returns nothing. No skills matrix."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -853,7 +853,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/mandate-check/components/mandate-check-list/mandate-check-list.component.html:78 the mandate check page (routed at participants-routing.module.ts:62) breaks present and total members per group down by gender with percentages; gender comes from openslides-backend/meta/collections/gender.yml:7. Gender figures only, no wider diversity tracking."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -888,7 +888,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/shared/util.py:159 ONE_ORGANIZATION_ID = 1, every committee belongs to that one organization (meta/collections/committee.yml:107); there is no tenant or multi-organization model. Members from several municipalities can share a committee only as accounts inside one instance, not as organisations."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -924,7 +924,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/services/meeting-settings-definition.service/meeting-settings-definitions.ts:798 per meeting defaults for poll type, method (822), 100 percent base (828) and entitled groups (817), carried into new meetings through templates (meeting-edit.component.html:117 set as template) and meeting.clone; no quorum field anywhere in meta/collections (grep quorum returns nothing). Voting method and majority base yes, quorum missing, and rules sit on the meeting, not the committee."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcOrgaan",
 					"DcNieuwOrgaan",
@@ -963,7 +963,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/create.py:113 every new meeting gets Default, Admin, Delegates and Staff groups and a simple and complex motion workflow (line 236); meetings can be set as templates (meeting-edit.component.html:117) and new ones are duplicated from them via meeting.clone (openslides-client/client/src/app/gateways/repositories/meeting-repository.service.ts:243, called from meeting-edit.component.ts:375). One generic default, no sector profiles such as municipality or works council."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBeheer"
 			}
 		},
@@ -999,7 +999,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/user.yml:53 email is the only contact field; grep for phone and address in meta/collections returns nothing and committee.yml has no contact fields. Email only."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcOrgaan",
 					"DcPersoon"
@@ -1038,7 +1038,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for salary, remuneration, compensation and payment across openslides-backend/meta/collections returns nothing. Director pay is not modelled."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -1073,7 +1073,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/services/meeting-settings-definition.service/meeting-settings-definitions.ts:175 location and a start and end date (line 179, type daterange; ui/modules/datepicker/components/daterangepicker has no time input), saved through meeting.create from the committee meeting form (meeting-edit.component.html:86). Date and location yes, time of day not captured."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergaderingen",
 					"DcNieuweVergadering",
@@ -1112,7 +1112,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/dashboard/pages/dashboard-detail/components/dashboard/dashboard.component.html:4 the organization start page titled Calendar lists current, future (line 64) and ended (line 82) meetings. A dated list, not a month or week calendar grid."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergaderkalender"
 			}
 		},
@@ -1147,10 +1147,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for recurr and rrule across backend, client and Go services returns nothing; openslides-backend/openslides_backend/action/actions/meeting/clone.py copies one meeting at a time. No recurring series."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergaderkalender",
-					"DcReeksBewerken"
+					"DcReeksBewerken",
+					"DcVergaderingPlanning"
 				]
 			}
 		},
@@ -1185,7 +1186,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for ical, .ics, vcalendar and text/calendar across all services returns nothing; meetings are only listed inside OpenSlides (dashboard.component.html:64). No calendar feed or invite."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergaderkalender"
 			}
 		},
@@ -1221,7 +1222,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:632 users_email_body default text is a personal login with {url}, {username} and {password}, sent by user.send_invitation_email (openslides-client/client/src/app/gateways/repositories/users/user-action.ts). An access invitation, the agenda is not included."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergadering"
 			}
 		},
@@ -1257,7 +1258,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for reminder and deadline across openslides-backend/meta/collections and openslides_backend/action returns nothing. No deadline reminders."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcMijnInstellingen"
 			}
 		},
@@ -1292,7 +1293,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:88 every agenda item belongs to one meeting; grep for long term and planned topics across meta/collections returns nothing. Items can only move between meetings as forwarded motions (motion.yml:110 origin_id). No long-term agenda."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcLangetermijnagenda"
 			}
 		},
@@ -1328,7 +1329,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:67 jitsi_domain, jitsi_room_name and conference_show (line 90) attach a Jitsi call to the meeting, conference_stream_url (line 102) adds a livestream; the client joins it in openslides-client/client/src/app/site/pages/meetings/pages/interaction/modules/interaction-container/components/call/call.component.ts and interaction.service.ts:83. Hybrid meeting with video call."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergaderingDeelnemers"
 			}
 		},
@@ -1364,7 +1365,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-add-ons/minutes/record-meeting-attendance.htm records Present, Attending and Apologies with full, partial, in-person or remote status"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergaderingDeelnemers"
 			}
 		},
@@ -1400,7 +1401,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for cost and hourly across openslides-backend/meta/collections returns nothing; no rate field on user.yml or meeting_user.yml. Meeting cost is not computed."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcLiveVergadering",
 					"DcRapportages"
@@ -1439,7 +1440,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/committees/pages/committee-detail/modules/committee-detail-meeting/components/meeting-edit/meeting-edit.component.html:117 a meeting can be set as template (meeting.yml:77 template_for_organization_id) and new meetings are duplicated from it through meeting.clone (openslides-client/client/src/app/gateways/repositories/meeting-repository.service.ts:243, called from meeting-edit.component.ts:375), carrying all its settings."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNieuweVergadering"
 			}
 		},
@@ -1474,7 +1475,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for budget, annual accounts and planning cycle across openslides-backend/meta/collections and action/actions returns nothing. No planning and control cycle."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcPCcycli"
 			}
 		},
@@ -1509,7 +1510,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/mediafile.yml:14 is_directory with parent_id (line 44) gives each meeting its own folder tree, shown in openslides-client/client/src/app/site/pages/meetings/pages/mediafiles/modules/mediafile-list/components/mediafile-list/mediafile-list.component.html:43. A per meeting file area inside OpenSlides, not a folder in Nextcloud Files."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOverleg"
 			}
 		},
@@ -1545,7 +1546,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/copying-an-existing-book-bwa.htm copies a book with structure and optionally all documents; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/basic-navigation/editing-the-calendar-bwa.htm copies a calendar meeting"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAgendaSjabloon"
 			}
 		},
@@ -1581,7 +1582,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:26 is_active_in_organization_id and is_archived_in_organization_id (line 32) with meeting.archive and meeting.unarchive (meeting-repository.service.ts), plus locked_from_inside (line 54); no draft, convened or in progress state field. Active and archived only."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergadering",
 					"DcVergaderingOpenen",
@@ -1620,7 +1621,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:7 item_number, weight (line 45) and parent_id (line 66) for a nested ordered agenda, numbered automatically when meeting.yml:232 agenda_enable_numbering is on; edited in openslides-client/client/src/app/site/pages/meetings/pages/agenda/pages/agenda-item-list/components/agenda-item-info-dialog/agenda-item-info-dialog.component.html:46."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergadering",
 					"DcAgendapunt"
@@ -1659,7 +1660,7 @@
 				"diligent-boards": "https://www.diligent.com/features/boards/boards-agenda states drag-and-drop board agenda-building tools; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/agenda-builder/agenda-builder-bwa.htm is the builder"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergadering"
 			}
 		},
@@ -1695,8 +1696,11 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/adding-documents-to-a-book-bwa.htm adds documents to book tabs that correspond to agenda topics"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcAgendapunt"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcAgendapunt",
+					"DcAgendapuntStukken"
+				]
 			}
 		},
 		{
@@ -1731,7 +1735,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/actions/meeting/clone.py:40 cloning a template meeting (meeting-edit.component.html:117 set as template) copies its whole agenda into the new meeting, and topics can be imported from CSV at agenda/topics/import; there is no agenda template separate from a whole meeting."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAgendaSjabloon"
 			}
 		},
@@ -1767,7 +1771,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:17 type common, internal or hidden controls who sees each item, and meeting.yml:82 enable_anonymous (with organization.yml:67) opens the meeting to the public without login; the agenda list is routed at openslides-client/client/src/app/site/pages/meetings/pages/agenda/agenda-routing.module.ts:10."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergadering"
 			}
 		},
@@ -1833,7 +1837,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-blocks/components/motion-block-detail/motion-block-detail.component.html:50 a motion block groups motions under one agenda item (motion_block.yml:27) and Follow recommendations for all motions sets them all at once, routed at motions/blocks."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcLiveVergadering"
 			}
 		},
@@ -1868,7 +1872,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:17 internal items are only visible with agenda_item.can_see_internal (group.yml:16 permissions), and meeting_mediafile.yml:32 access_group_ids limits each file to chosen groups."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAgendapunt"
 			}
 		},
@@ -1903,7 +1907,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/services/export/motion-pdf-export.service/motion-pdf-export.service.ts:49 the motion catalog export can merge every motion and its PDF attachments into one PDF (line 127, pdf-lib); agenda topics and their files are exported separately at agenda-export. A motions pack, not one pack for all meeting papers."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergadering"
 			}
 		},
@@ -1939,7 +1943,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (notes on meeting papers)"
+				"reason": "not designed yet: no board on the canvas shows this (notes on meeting papers); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -2009,7 +2013,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for inbox, incoming, letter and correspondence across openslides-backend/meta/collections returns nothing; agenda content objects are only topics, motions, motion blocks and assignments (agenda_item.yml:48). No intake of incoming letters."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergadering",
 					"DcDashboard"
@@ -2078,7 +2082,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (accessibility check of papers)"
+				"reason": "not designed yet: no board on the canvas shows this (accessibility check of papers); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -2113,7 +2117,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, summarize, ollama and anthropic across all Python, TypeScript and Go sources returns only unrelated identifiers. No AI summaries."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAgendapunt"
 			}
 		},
@@ -2149,7 +2153,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-director/book-navigation/follow-the-presenter-bwd.htm and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/release_notes/release-notes-bwd.htm (Sep 05, 2025) describe Present and Follow the Presenter modes that keep directors on the presenter's page"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcLiveVergadering"
 			}
 		},
@@ -2245,7 +2249,7 @@
 				"diligent-boards": "not checked: looked, not settled: room screen display is not described; Present mode shares pages with remote participants (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-director/book-navigation/follow-the-presenter-bwd.htm)"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcZaalscherm"
 			}
 		},
@@ -2281,8 +2285,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion.yml:136 state_id is set during the meeting through motion.set_state from the motion detail and autopilot, and poll results are stored on stop (poll.yml:83 votesvalid); motion_state.yml:83 set_workflow_timestamp stamps when a decisive state was reached."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcLiveVergadering"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcLiveVergadering",
+					"DcBesluitVastleggen"
+				]
 			}
 		},
 		{
@@ -2317,8 +2324,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:102 conference_stream_url and poster (line 105) embed an externally produced livestream, shown to users with meeting.can_see_livestream in openslides-client/client/src/app/site/pages/meetings/pages/interaction/modules/interaction-container/components/stream/stream.component.html:1, including anonymous visitors when meeting.yml:82 enable_anonymous is on. Shows a stream, does not produce one."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (public livestream)"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcVergaderingUitzending"
 			}
 		},
 		{
@@ -2383,8 +2390,11 @@
 				"openslides": "source read at 4.3.4, not driven: no recording exists to jump into: grep for recording across openslides-backend/meta/collections, action and the client returns nothing, and meeting.yml:102 only holds an external stream URL."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcNotulen"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcNotulen",
+					"DcVergaderingNotulen"
+				]
 			}
 		},
 		{
@@ -2418,8 +2428,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for transcri across openslides-backend/meta/collections, action and the client returns nothing. No transcription."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcNotulen"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcNotulen",
+					"DcVergaderingNotulen"
+				]
 			}
 		},
 		{
@@ -2454,8 +2467,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for subtitle and caption returns only agenda_show_subtitles (openslides-backend/meta/collections/meeting.yml:228, agenda item subtitles) and poll option subtitles; the stream component (stream.component.html:1) plays an external URL with no caption track. No livestream subtitles."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (subtitles on the livestream)"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcVergaderingUitzending"
 			}
 		},
 		{
@@ -2490,7 +2503,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/participant-speaker-list/components/participant-speaker-list/participant-speaker-list.component.html:4 the Contributions page (participants/speaker-list) lists every speech per participant and item with its kind, point of order (line 43), interposed question (line 78) and intervention (line 87), exportable as CSV (line 123); stored in speaker.yml:27 speech_state."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcLiveVergadering"
 			}
 		},
@@ -2557,7 +2570,7 @@
 				"go-raadsinformatie": "https://www.gemeenteoplossingen.nl/blogs/webcasting_van_virtuele_commissie-_en_raadsvergaderingen/ states participants in the video conference can ask the griffie's attention through a chat function; general chat between members is not described"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergaderingDeelnemers",
 					"DcOverleg"
@@ -2595,7 +2608,7 @@
 				"openslides": "source read at 4.3.4, not driven: no recordings or transcripts exist (grep for recording and transcri across meta/collections, action and client returns nothing); the only deletion of history is openslides-backend/openslides_backend/action/actions/organization/delete_history_information.py, which has no client caller. No retention based deletion."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcBeheer",
 					"DcOrgaan"
@@ -2633,11 +2646,12 @@
 				"diligent-boards": "not checked: looked, not settled: motions are not a record type in the Boards help; approvals are created on book documents (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm)"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVoorstellen",
 					"DcNieuwVoorstel",
-					"DcAgendapunt"
+					"DcAgendapunt",
+					"DcAgendapuntMoties"
 				]
 			}
 		},
@@ -2672,7 +2686,7 @@
 				"diligent-boards": "not checked: looked, not settled: amendments are not described in the Boards help"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVoorstel",
 					"DcAmendement"
@@ -2710,7 +2724,7 @@
 				"diligent-boards": "not checked: looked, not settled: track changes exists for minutes review (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-add-ons/minutes/reviewing-minutes.htm), not for amendments"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAmendement"
 			}
 		},
@@ -2805,7 +2819,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-call-list/components/motion-call-list/motion-call-list.component.ts:84 the Call list page (motions/call-list) orders motions and amendments by a manually sorted sort_weight (openslides-backend/meta/collections/motion.yml:57, sort_parent_id line 99); nothing derives the order from how far each amendment departs from the text. Order is kept, not worked out."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemvolgorde"
 			}
 		},
@@ -2871,7 +2885,7 @@
 				"diligent-boards": "not checked: looked, not settled: no motion lifecycle in the Boards help"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVoorstel",
 					"DcMotieInStemming",
@@ -3031,7 +3045,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion.yml:51 state_extension and recommendation_extension free text, plus line 120 derived_motion_ids and all_derived_motion_ids (line 128) for forwarded copies, record what happened next; there is no implementation tracking after adoption. The trail across meetings yes, follow-up on execution no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemuitslag"
 			}
 		},
@@ -3097,7 +3111,7 @@
 				"diligent-boards": "not checked: looked, not settled: agenda items carry tags (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/agenda-builder/adding-agenda-items-bwa.htm), motions are not a record type"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVoorstellen"
 			}
 		},
@@ -3132,7 +3146,7 @@
 				"diligent-boards": "not checked: looked, not settled: not described in the Boards help"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcExporterenBijlagen"
 			}
 		},
@@ -3168,7 +3182,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/poll.yml:41 state created, started, finished, published, driven by poll.create, poll.start and poll.stop called from the motion poll pages (openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-polls/motion-polls-routing.module.ts:9) and motion-manage-polls."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcStemmingOpenen",
 					"DcStemronde",
@@ -3207,7 +3221,7 @@
 				"notubiz": "https://www.kennisbank.notubiz.nl/handleidingen/digitaal-stemmen states participants cast voor, tegen or onthouden in the vote bar of the meeting page"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemUitbrengen"
 			}
 		},
@@ -3243,8 +3257,11 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/managing-custom-approvals-bwa.htm Result details show each participant's name and decision; there is no faction breakdown"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcStemuitslag"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcStemuitslag",
+					"DcVergaderingBesluiten"
+				]
 			}
 		},
 		{
@@ -3278,7 +3295,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm offers Hidden participant name visibility, and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-ios/board-resources/approval-status-and-results-bios.htm states in an anonymous approval only your own status appears"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemronde"
 			}
 		},
@@ -3313,7 +3330,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm default visibility shows participants' names and decisions; https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/exporting-a-custom-approval-summary-bwa.htm lists each participant's response with time stamp"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcStemronde",
 					"DcStemuitslag"
@@ -3381,7 +3398,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/poll.yml:32 pollmethod only Y, YN, YNA and N with max_votes_per_option (line 60) for cumulative votes; grep for rank in poll.yml, option.yml and vote.yml returns nothing. No preferential or ranked voting."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVoorkeursstemming",
 					"DcStemronde"
@@ -3419,7 +3436,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collection-meta.yml:17 onehundred_percent_bases Y, YN, YNA, N, valid, cast, entitled, entitled_present per poll (poll.yml:77) sets what percentages are shown against; the only majority notion is a majority marker for analog results (openslides-client/client/src/app/domain/models/poll/poll-constants.ts:103 VOTE_MAJORITY); grep for two thirds and unanimous across the client returns nothing. The base is chosen per vote, a majority rule is not."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemronde"
 			}
 		},
@@ -3544,7 +3561,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/approval/creating-a-custom-approval-bwa.htm computes the outcome from the pass type and minimum approvals; quorum is not applied"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemuitslag"
 			}
 		},
@@ -3670,7 +3687,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (written resolution without a meeting)"
+				"reason": "not designed yet: no board on the canvas shows this (written resolution without a meeting); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -3735,7 +3752,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/polls/polls.subscription.ts:43 vote_ids are only loaded per poll inside one meeting; the participant detail (participant-detail-view.component.html) and account pages show no votes. No voting record per member across meetings."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcPersoon"
 			}
 		},
@@ -3771,7 +3788,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for minutes, protocol and protokoll across openslides-backend/meta/collections and the client string template (openslides-client/client/src/assets/i18n/template-en.pot) finds only Duration in minutes; the nearest output is separate agenda, motion and election PDF exports. No minutes are drafted."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNotulen"
 			}
 		},
@@ -3807,8 +3824,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for transcri, openai, llm, summarize and anthropic across all Python, TypeScript and Go sources returns only unrelated identifiers; there is no minutes model (openslides-backend/meta/collections has none). No AI minutes."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcNotulen"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcNotulen",
+					"DcVergaderingNotulen"
+				]
 			}
 		},
 		{
@@ -3843,7 +3863,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections has no minutes collection; the per item text fields are agenda_item.yml:10 comment and list_of_speakers.yml:19 moderator_notes, both working notes, not minutes. No structured minutes editor."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNotulen"
 			}
 		},
@@ -3878,7 +3898,7 @@
 				"openslides": "source read at 4.3.4, not driven: no minutes model exists in openslides-backend/meta/collections and grep for approv across meta/collections finds nothing; the only approval flow is the motion workflow. Minutes are not submitted or approved."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNotulen"
 			}
 		},
@@ -3943,7 +3963,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-add-ons/minutes/exporting-minutes.htm exports minutes as .docx; PDF comes only after adding the approved minutes to a book (https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/exporting-printing-books-pages-tabs-bwa.htm)"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNotulen"
 			}
 		},
@@ -3979,7 +3999,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by user.send_invitation_email, forget_password and account actions (grep in action/actions); no minutes exist to send. No distribution of minutes."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNotulen"
 			}
 		},
@@ -4014,10 +4034,12 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/services/list/motion-list-filter.service/motion-list-filter.service.ts:64 the motion list of each meeting filters by state (accepted, rejected) and exports to PDF, CSV and XLSX, and election results sit on each assignment; there is no separate decision list. Decisions are read off motion states."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcBesluiten",
-					"DcVergadering"
+					"DcVergadering",
+					"DcNieuwBesluit",
+					"DcVergaderingBesluiten"
 				]
 			}
 		},
@@ -4112,8 +4134,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion.yml:149 state_extension_reference_ids and recommendation_extension_reference_ids (line 162) link a motion's outcome text to other motions, with referenced_in lists back (line 157, shown via motions_show_referring_motions); there is no replaces or superseded relation. Linking yes, a replacement flow no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcBesluit"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcBesluit",
+					"DcBesluitGerelateerd"
+				]
 			}
 		},
 		{
@@ -4207,7 +4232,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/committees/modules/committee-meeting-preview/committee-meeting-preview.component.html:170 a superadmin can export a whole meeting through the export_meeting presenter (openslides-backend/openslides_backend/presenter/export_meeting.py), a JSON dump including motions, polls, votes and presence; it carries no minutes or signatures and is meant for re-import. Data export yes, proof package no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcNotulen"
 			}
 		},
@@ -4308,11 +4333,12 @@
 				"openslides": "source read at 4.3.4, not driven: grep for task, todo, action_item, assignee and due_date across openslides-backend/meta/collections returns nothing. Decisions are not turned into action items."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcBesluit",
 					"DcActie",
-					"DcOverleg"
+					"DcOverleg",
+					"DcBesluitActiepunten"
 				]
 			}
 		},
@@ -4377,7 +4403,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for task, todo, action_item and assignee across openslides-backend/meta/collections returns nothing; the personal start page lists meetings, not tasks. No personal action item list."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcMijnActies"
 			}
 		},
@@ -4442,7 +4468,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for commitment, promise and toezegging across openslides-backend/meta/collections and the client string template returns nothing. Executive commitments are not registered."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcToezeggingen",
 					"DcToezegging",
@@ -4482,7 +4508,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:82 enable_anonymous lets the public open a meeting and see motions with their current state (motion_state.yml:34 restrictions decide which states stay hidden); there are no commitments and no progress beyond the motion state. Motion state visible to the public, progress tracking no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcToezeggingen"
 			}
 		},
@@ -4547,7 +4573,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for due_date, deadline and overdue across openslides-backend/meta/collections returns nothing. No overdue flags."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcMijnActies",
 					"DcDashboard"
@@ -4615,7 +4641,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion.yml has no implementation status or progress field; the only free text after a decision is state_extension (line 51). grep for progress, implementation and execution across meta/collections returns nothing."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcStemuitslag",
 					"DcToezegging"
@@ -4653,7 +4679,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml:105 a motion walks a configurable workflow (submitted, permitted, accepted), but state changes are made by anyone holding motion.can_manage_metadata (motion-meta-data.component.html:47) and motion_state.yml:9 to 143 has no approver or assignee field. Staged route yes, named approvers no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcBesluitRoute",
 					"DcBesluit"
@@ -4751,7 +4777,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-detail/pages/motion-view/components/motion-meta-data/motion-meta-data.component.html:43 the motion shows its current workflow state as a coloured chip with the allowed next states; there is no view of the whole route with who approved what. Current step yes, full route no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBesluitRoute"
 			}
 		},
@@ -4786,8 +4812,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for mandate, delegat and power across openslides-backend/meta/collections finds only vote delegation (meeting_user.yml:75) and committee.yml:70 manager_ids. No register of delegated powers."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcRegisters"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcRegisters",
+					"DcMandaat"
+				]
 			}
 		},
 		{
@@ -4881,10 +4910,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting.yml:424 motions_recommendations_by names the advising body and motion.yml:143 recommendation_id with recommendation_extension (line 54) records its advice before the vote, set via motion.set_recommendation from the motion view; the advice can also be followed in bulk (motion blocks)."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcConsultaties",
-					"DcBesluit"
+					"DcBesluit",
+					"DcBesluitConsultatie"
 				]
 			}
 		},
@@ -4919,8 +4949,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for works council, ondernemingsraad and consult across openslides-backend/meta/collections and the client string template returns nothing; no legal consultation terms. Works council consultation is not modelled."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcConsultaties"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcConsultaties",
+					"DcBesluitConsultatie"
+				]
 			}
 		},
 		{
@@ -4954,7 +4987,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/committee.yml:95 forward_to_committee_ids lets a motion be copied to other committees via motion.create_forwarded, and meeting.yml:389 motions_enable_origin_motion_display shows the origin; the forwarding meeting sees derived motions (motion.yml:128 all_derived_motion_ids). Sending out yes, collecting a formal view back no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcConsultaties"
 			}
 		},
@@ -4989,7 +5022,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/committee.yml:95 a proposal can be forwarded to several committees in the same instance and their derived motions and states are linked back (motion.yml:120 derived_motion_ids); openslides-backend/openslides_backend/shared/util.py:159 allows only one organization, so participating councils must live in one instance and no view is collected as such."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcConsultaties",
 					"DcOrgaan"
@@ -5028,7 +5061,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (objection with an advisory committee)"
+				"reason": "not designed yet: no board on the canvas shows this (objection with an advisory committee); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -5097,7 +5130,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/mediafile.yml:39 published_to_meetings_in_organization_id makes organization-wide files available to all meetings (organization mediafiles page); mediafile.yml has no version field and grep for statute, regulation and bylaw across meta/collections returns nothing. A shared file store, no versioned register."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBestuursdocument"
 			}
 		},
@@ -5163,7 +5196,7 @@
 				"openslides": "source read and driven at 4.3.4 on 2026-09-26 (lab-decidiq-openslides): with organization and meeting public access switched on, the login page's 'Public access' button opened the meeting as a guest and showed motion 1 and its poll status without an account; the Public group starts with no permissions, so staff must grant them first (group_t id 5 was empty). Source: openslides-client/client/src/app/site/pages/organization/pages/settings/modules/settings-detail/components/organization-settings/organization-settings.component.html:162 organization public access plus meeting.yml:82 enable_anonymous let visitors enter as guests (login-mask.component.html:43 guestLogin) and see the agenda, motions and files their anonymous group may see (meeting.yml:1167 anonymous_group_id). Public, but inside the OpenSlides app, not a separate website."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVergadering",
 					"DcVergaderkalender"
@@ -5201,8 +5234,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml:34 restrictions per state decide whether an accepted motion is visible to the anonymous group, and a later motion.set_state or state_extension (motion.yml:51) change corrects it; there is no separate publication record or withdrawal of a publication. Visibility by state, no publication act."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcBesluitPubliceren"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcBesluitPubliceren",
+					"DcBesluitPublicatie"
+				]
 			}
 		},
 		{
@@ -5271,7 +5307,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for raadsinformatie and webhook across all services finds no push target; openslides-vote-service/vote/vote.go stop hands results only to the OpenSlides backend. No push to an external ORI endpoint."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcStemuitslag"
 			}
 		},
@@ -5462,7 +5498,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for rss and atom+xml across all Python, Go, TypeScript and YAML sources returns nothing, and openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only for account mails. No feeds or alerts."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcMijnInstellingen"
 			}
 		},
@@ -5497,7 +5533,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for mdto and e-depot across all sources returns nothing; archiving is only meeting.archive (openslides-backend/openslides_backend/action/actions/meeting/archive.py), which makes a meeting read-only in place. No MDTO or e-depot transfer."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBesluitArchiveren"
 			}
 		},
@@ -5593,7 +5629,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-projector-service/pkg/projector/slide/poll_single_votes.go:193 named polls show every member's vote per poll, visible to anyone the poll's content is shown to, including guests (meeting.yml:82 enable_anonymous); there is no per member voting record page (vote_ids are only loaded per poll, openslides-client/client/src/app/site/pages/meetings/pages/polls/polls.subscription.ts:43). Per vote yes, per member record no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcPersoon"
 			}
 		},
@@ -5630,7 +5666,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (full data export)"
+				"reason": "not designed yet: no board on the canvas shows this (full data export); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -5724,7 +5760,7 @@
 				"openslides": "source read at 4.3.4, not driven: no citizen reaction model exists in openslides-backend/meta/collections and anonymous users cannot write (openslides_backend/permissions/permission_helper.py:246). Member motions can be held in an internal state, but there is nothing for citizen reactions."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcModeratie"
 			}
 		},
@@ -5759,7 +5795,7 @@
 				"openslides": "source read at 4.3.4, not driven: no consultation model exists: grep for consultation across openslides-backend/meta/collections and the client string template returns nothing."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcPubliekeConsultatie"
 			}
 		},
@@ -5794,7 +5830,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for budget and project across openslides-backend/meta/collections returns nothing. No participatory budgeting."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBudgetronde"
 			}
 		},
@@ -5829,7 +5865,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for budget across openslides-backend/meta/collections returns nothing and the anonymous group cannot vote (openslides_backend/permissions/permission_helper.py:246); openslides-vote-service/vote/vote.go:343 requires a present meeting member. No citizen budget voting."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBudgetronde"
 			}
 		},
@@ -5864,7 +5900,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for panel across openslides-backend/meta/collections returns nothing, and memberships carry no term (meeting_user.yml:9 to 97). A panel could only be improvised as a committee without a fixed term."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcOrgaan"
 			}
 		},
@@ -5899,7 +5935,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-vote-service/vote/vote.go:343 only present meeting members may vote and the anonymous group has no poll permission (openslides_backend/permissions/permission_helper.py:246). No advisory citizen vote."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVoorstel"
 			}
 		},
@@ -5935,7 +5971,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (registering to speak at a council meeting)"
+				"reason": "not designed yet: no board on the canvas shows this (registering to speak at a council meeting); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -6029,7 +6065,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/dashboard/pages/dashboard-detail/components/dashboard/dashboard.component.html:4 the start page lists the user's current and future meetings (line 64); there are no open decisions or tasks on it and no task model exists. Meetings yes, decisions and tasks no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcDashboard"
 			}
 		},
@@ -6064,7 +6100,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/services/export/motion-xlsx-export.service/motion-xlsx-export.service.ts exports a meeting's motions with their state to XLSX, CSV or PDF, and the state filter (motion-list-filter.service.ts:64) narrows to decided ones; there is no report across meetings or periods. Per meeting yes, per period and body no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcRapportages"
 			}
 		},
@@ -6100,7 +6136,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/participants/pages/mandate-check/components/mandate-check-list/mandate-check-list.component.html:44 current attendance per group, and poll results per poll with votes tables; there is no attendance history (meeting.yml:1045 present_user_ids holds only the current state) and no voting report across polls. Snapshots yes, a report no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcRapportages"
 			}
 		},
@@ -6195,8 +6231,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for evaluation and survey across openslides-backend/meta/collections returns nothing; the only anonymous instrument is a pseudoanonymous poll (poll.yml:14) on a topic. No board self-evaluation."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcOrgaan"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcOrgaan",
+					"DcZelfevaluatie"
+				]
 			}
 		},
 		{
@@ -6230,10 +6269,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/speaker.yml:7 begin_time and end_time per speech and structure_level_list_of_speakers.yml:38 remaining_time per faction, listed on the Contributions page (participant-speaker-list.component.html:4) with CSV export; agenda items keep only a planned duration (agenda_item.yml:25), not the real time spent. Speaking time yes, time per item no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcRapportages",
-					"DcLiveVergadering"
+					"DcLiveVergadering",
+					"DcVergaderingPlanning"
 				]
 			}
 		},
@@ -6454,7 +6494,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (audit committee statement)"
+				"reason": "not designed yet: no board on the canvas shows this (audit committee statement); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -6560,7 +6600,7 @@
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/user-management/assigning-tasks-to-users-bwa.htm assigns tasks such as approve, print and export per committee, and https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/managing-document-visibility-bwa.htm limits documents per user"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAmendement"
 			}
 		},
@@ -6731,7 +6771,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/modules/site-wrapper/services/voting-banner.service.ts:27 an in-app banner (Click here to vote!) appears when a poll opens, chat groups show unread counts (meetings-navigation-wrapper.component.ts:70) and motion editors get edit warnings via the ICC notify service (listen-editing.directive.ts:146); send_email_mixin.py is used only for account mails and there are no notification preferences. In-app only, no choice."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcMijnInstellingen"
 			}
 		},
@@ -6802,8 +6842,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for dms, sharepoint and cmis across openslides-backend/meta/collections and the client strings returns nothing; files are uploaded into the media service (mediafile.upload). No document management integration."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcAgendapunt"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcAgendapunt",
+					"DcAgendapuntStukken"
+				]
 			}
 		},
 		{
@@ -6838,7 +6881,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (working from Outlook and Teams)"
+				"reason": "not designed yet: no board on the canvas shows this (working from Outlook and Teams); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -6908,7 +6951,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (integrations status page)"
+				"reason": "not designed yet: no board on the canvas shows this (integrations status page); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -7048,7 +7091,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-cli/README.md:94 first use is a command line setup (osmanage setup creates secrets, then log in as superadmin with the password from secrets/superadmin); grep for wizard and onboarding in the organization pages of the client returns nothing. No guided setup in the app."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcBeheer"
 			}
 		},
@@ -7085,7 +7128,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/organization/pages/orga-meetings/pages/meeting-list/services/meeting-list-filter/meeting-list-filter.service.ts:16 the organization meeting list filters by organization tags (usable per audience), time (line 39) and status (line 54), and the dashboard (dashboard.component.html:4, titled Calendar) lists future meetings; only formal meetings exist as a model (openslides-backend/meta/collections has no event or activity collection). Meetings filterable, other activities no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergaderkalender"
 			}
 		},
@@ -7122,8 +7165,8 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/agenda_item.yml:88 each agenda belongs to one meeting and meeting.yml has no parent meeting or session field; grep for session and parallel across meta/collections returns nothing, and there are no recordings or subtitles (grep recording returns nothing). No parallel sessions."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (parallel sessions on one evening)"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcVergaderingPlanning"
 			}
 		},
 		{
@@ -7158,7 +7201,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by account actions (user.send_invitation_email, forget_password, create, update); grep for subscri, digest and notify_email across meta/collections returns nothing. No email subscriptions."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcMijnInstellingen"
 			}
 		},
@@ -7194,8 +7237,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-client/client/src/app/site/pages/meetings/pages/motions/pages/motion-list/components/motion-list/motion-list.component.ts:388 export takes the currently filtered list or the selected rows into PDF, CSV or XLSX; filters are state, category, block, tags, editors and others (motion-list-filter.service.ts:65 to 173) but not submitter party or date period. A filtered set in one go yes, party and period filters no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcExporterenBijlagen"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcExporterenBijlagen",
+					"DcNieuwBesluit"
+				]
 			}
 		},
 		{
@@ -7231,8 +7277,11 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_comment_section.yml:7 admins create extra named text fields on motions with read and write groups (motion_comment_section.create from motions/comment-sections); openslides-backend/meta/collections/mediafile.yml has fixed fields only (title, filename, mimetype). Extra fields on motions yes, on documents no."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcAgendapunt"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcAgendapunt",
+					"DcAgendapuntStukken"
+				]
 			}
 		},
 		{
@@ -7268,10 +7317,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for libreoffice, unoconv, soffice, gotenberg and convert across openslides-media-service returns nothing; mediafile.yml:26 stores the uploaded mimetype as is and pdf_information (line 29) only describes PDFs. No Office to PDF conversion."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcAgendapunt",
-					"DcBeheer"
+					"DcBeheer",
+					"DcAgendapuntStukken"
 				]
 			}
 		},
@@ -7308,7 +7358,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (destruction on an approved basis)"
+				"reason": "not designed yet: no board on the canvas shows this (destruction on an approved basis); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -7344,7 +7394,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (log of every action on every document)"
+				"reason": "not designed yet: no board on the canvas shows this (log of every action on every document); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -7417,7 +7467,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (accessibility audit report)"
+				"reason": "not designed yet: no board on the canvas shows this (accessibility audit report); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -7453,10 +7503,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for stuf, zgw and zaak across all Python, TypeScript and Go sources returns nothing. No case management exchange."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcAgendapunt",
-					"DcNotulen"
+					"DcNotulen",
+					"DcVergaderingZaaksysteem"
 				]
 			}
 		},
@@ -7493,7 +7544,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for question across openslides-backend/meta/collections finds only speaker.yml:34 interposed_question and speaker.yml:36 answer in lists of speakers; there is no model for written or technical questions with answers. Not supported."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcVergadering"
 			}
 		},
@@ -7530,8 +7581,12 @@
 				"openslides": "source read at 4.3.4, not driven: grep for signature, esign, pades and signing across openslides_backend, the client app and openslides-media-service returns nothing; there is no outbound document integration. No external signing."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcNotulen"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcNotulen",
+					"DcVergaderingBesluiten",
+					"DcVoorstelOndertekenaars"
+				]
 			}
 		},
 		{
@@ -7567,7 +7622,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/motion_state.yml has no approver field, so there is no approver to substitute; the only stand-in is vote delegation (meeting_user.yml:75 vote_delegated_to_id), which covers voting, not approval. No approval substitute."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcBesluitRoute",
 					"DcMijnInstellingen"
@@ -7642,7 +7697,7 @@
 				"openslides": "source read at 4.3.4, not driven: there is no long-term agenda: openslides-backend/meta/collections/agenda_item.yml:88 ties every item to one meeting, and grep for track and long term across meta/collections returns nothing."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcLangetermijnagenda"
 			}
 		},
@@ -7678,7 +7733,7 @@
 				"openslides": "source read at 4.3.4, not driven: there is no long-term agenda to filter: agenda_item.yml:88 ties every item to one meeting and no portfolio holder field exists in meta/collections."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcLangetermijnagenda"
 			}
 		},
@@ -7870,8 +7925,8 @@
 				"openslides": "source read at 4.3.4, not driven: grep for test broadcast and preview stream across the client and meta/collections returns nothing; stream.component.html:12 only offers Restart livestream. No test broadcast."
 			},
 			"screen": {
-				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (test broadcast)"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcVergaderingUitzending"
 			}
 		},
 		{
@@ -7907,8 +7962,11 @@
 				"openslides": "source read at 4.3.4, not driven: grep for dms, cmis and sharepoint across meta/collections and the client strings returns nothing and there are no minutes (no minutes collection); the only full dump is the export_meeting presenter JSON download. No write back to a document store."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
-				"board": "DcNotulen"
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": [
+					"DcNotulen",
+					"DcVergaderingZaaksysteem"
+				]
 			}
 		},
 		{
@@ -7944,7 +8002,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (public theme page)"
+				"reason": "not designed yet: no board on the canvas shows this (public theme page); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -8010,7 +8068,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (submission window for motions)"
+				"reason": "not designed yet: no board on the canvas shows this (submission window for motions); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -8102,7 +8160,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (entering a named paper vote)"
+				"reason": "not designed yet: no board on the canvas shows this (entering a named paper vote); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -8166,7 +8224,7 @@
 				"ibabs": "not checked: looked, not settled: not described"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcVoorstel",
 					"DcAmendement"
@@ -8204,7 +8262,7 @@
 				"ibabs": "not checked: looked, not settled: not described"
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcAmendement",
 					"DcVoorstel"
@@ -8330,7 +8388,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (mandate swap during a meeting)"
+				"reason": "not designed yet: no board on the canvas shows this (mandate swap during a meeting); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -8429,7 +8487,7 @@
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/openslides_backend/action/mixins/send_email_mixin.py is used only by account actions (user.send_invitation_email, forget_password, create, update) and grep for subscri and notify_email across meta/collections returns nothing; agenda changes only appear live in the open client through the autoupdate service. No agenda change notifications."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcMijnInstellingen"
 			}
 		},
@@ -8466,7 +8524,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, ollama and anthropic across all Python, TypeScript and Go sources returns only unrelated identifiers. There are no AI summaries to review."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAgendapunt"
 			}
 		},
@@ -8539,7 +8597,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (watermark on papers)"
+				"reason": "not designed yet: no board on the canvas shows this (watermark on papers); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -8766,7 +8824,7 @@
 			},
 			"screen": {
 				"board": null,
-				"reason": "not designed yet: no board on the canvas shows this (ad hoc meeting with outside guests)"
+				"reason": "not designed yet: no board on the canvas shows this (ad hoc meeting with outside guests); on the missing-boards list for the design session (decision 96)"
 			}
 		},
 		{
@@ -8802,7 +8860,7 @@
 				"openslides": "source read at 4.3.4, not driven: grep for openai, llm, chatgpt, ollama and anthropic returns only unrelated identifiers; the only comparison is the non-AI line diff of a motion against its amendments and change recommendations (packages/openslides-motion-diff, motion-detail-diff component). No AI document comparison."
 			},
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": "DcAgendapunt"
 			}
 		},
@@ -8860,7 +8918,7 @@
 			"openslides": "unknown",
 			"source": "spec-round-2026-10-07",
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcOverleg",
 					"DcBesluit"
@@ -8884,7 +8942,7 @@
 			"openslides": "unknown",
 			"source": "spec-round-2026-10-07",
 			"screen": {
-				"canvas": "5NkFW28vZUUij43xzxHg5a",
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
 				"board": [
 					"DcStemronde",
 					"DcBeheer"
