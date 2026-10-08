@@ -1694,5 +1694,37 @@
     "reason": "Specified without a change, decided no: No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible.",
     "change": null,
     "decidedOn": "2026-09-29"
+  },
+  {
+    "row": "fol-09",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcDoel draws it. Specified in goals-linked-to-decisions.",
+    "change": "goals-linked-to-decisions",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "rou-06",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcSpoedbesluiten draws it. Specified in urgent-decisions-register.",
+    "change": "urgent-decisions-register",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "pub-06",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcGeheimhouding draws it. Specified in confidentiality-term-and-lapse.",
+    "change": "confidentiality-term-and-lapse",
+    "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "pub-07",
+    "matrix": "decidiq",
+    "decision": "build",
+    "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcGeheimhouding draws it. Specified in confidentiality-term-and-lapse.",
+    "change": "confidentiality-term-and-lapse",
+    "decidedOn": "2026-10-08"
   }
 ]
