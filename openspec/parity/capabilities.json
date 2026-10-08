@@ -4587,16 +4587,18 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "decided-no",
-				"evidence": "src/manifest.d/organisation-goals.json Goals (/goals) and GoalDetail (/goals/:id) with targetValue/currentValue; Commitment.goal links commitments to goals (register.d/84); Decision schema has no goal property (lib/Settings/decidesk_register.json properties list). Rollups linkedCommitmentCount/settledCommitmentCount etc. are x-openregister calculation declarations in lib/Settings/register.d/66-organisation-goals.json:207-314, executed only by OpenRegister.",
-				"owner": "ConductionNL/decidiq"
+				"state": "specified",
+				"evidence": "Built half: src/manifest.d/organisation-goals.json Goals (/goals) and GoalDetail (/goals/:id); governance-commitment.goal (register.d/84), action-item.goal (decidesk_register.json:2980), planned-agenda-item.goal (register.d/86:262). Missing: the decision schema has no goal property (base decidesk_register.json and every decision fragment); register.d/66-organisation-goals.json aggregations still count the retired toezegging schema (84 sets it active:false), so commitment progress reads 0; the rates are materialise-on-save calculations, so they go stale when a contribution changes.",
+				"owner": "ConductionNL/decidiq",
+				"readOn": "2026-10-08",
+				"change": "goals-linked-to-decisions"
 			},
 			"reachedOn": "Goals index (/goals) and GoalDetail (/goals/:id)",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "goals",
 			"featureConfidence": "medium",
-			"note": "Goals can be recorded and commitments and action items linked to them, but decisions cannot be linked directly, and the progress rollups are declarations whose execution in OpenRegister I could not confirm. Missing half decided no on 2026-09-28: No competitor rated yes, no demand row, outside the core area (bodies, planning). The built half stays as the evidence describes; reversible.",
+			"note": "Goals record progress from commitments, action items and subgoals, but a decision cannot name its goal and the commitment count reads the retired schema. Reopened by decision 100 (8 Oct): board DcDoel draws it, so the decided-no of 28 Sep is withdrawn and the missing part is specified in goals-linked-to-decisions.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4608,6 +4610,10 @@
 				"go-raadsinformatie": "not checked: looked, not settled: linking decisions to goals is not described",
 				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: grep for goal and objective across openslides-backend/meta/collections returns nothing. Decisions are not linked to goals."
+			},
+			"screen": {
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcDoel"
 			}
 		},
 		{
@@ -4826,16 +4832,18 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "decided-no",
-				"evidence": "src/manifest.d/urgent-decision-procedure.json UrgentDecisions (/urgent-decisions) lists decisions with isUrgent; fields isUrgent/urgencyReason/urgencyDeclaredBy/urgencyDeclaredAt and the awaitingRatification calculation are declared in lib/Settings/register.d/46-urgency-policy.json, whose text names an 'UrgencyTriggerGuard' and a guarded trigger endpoint: no PHP file under lib/ mentions 'urgen' outside notification preferences, and no route exists. isUrgent is not in the DecisionDetail data widgets.",
-				"owner": "ConductionNL/decidiq"
+				"state": "specified",
+				"evidence": "src/manifest.d/urgent-decision-procedure.json:15 UrgentDecisions list (/urgent-decisions, filter isUrgent, quick filters on awaitingRatification); fields and awaitingRatification calculation declared in lib/Settings/register.d/46-urgency-policy.json:12. Nothing sets them: no PHP under lib/ handles urgency, no route, and the UrgencyTriggerGuard the schema names does not exist, so the list is always empty. The declare flow and ratification stage are specified in openspec/changes/urgent-decision-procedure; urgent-decisions-register adds the board's declaring body and report date.",
+				"owner": "ConductionNL/decidiq",
+				"readOn": "2026-10-08",
+				"change": "urgent-decisions-register"
 			},
 			"reachedOn": "Urgent decisions index (/urgent-decisions); setting a decision urgent only through the generic decision form, if at all",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "urgent-decisions",
 			"featureConfidence": "medium",
-			"note": "There is a list of urgent decisions, but the declare-urgency flow and guard the schema describes were never built, and 'awaiting ratification' is only a declared calculation. Decided no (build-all 2026-09-29): No competitor rated yes, no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
+			"note": "There is a list of urgent decisions, but no way to declare one and no ratification follow-up. Build urgent-decision-procedure first, then urgent-decisions-register. Reopened by decision 100 (8 Oct): board DcSpoedbesluiten draws it, so the decided-no of 29 Sep is withdrawn and the missing part is specified in urgent-decisions-register.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
@@ -4847,6 +4855,10 @@
 				"go-raadsinformatie": "not checked: looked, not settled: urgent decisions outside the cycle are not described",
 				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: grep for urgent, spoed and ratif across openslides-backend/meta/collections and the client string template returns nothing; every motion and poll belongs to a meeting (motion.yml:272 meeting_id). No urgent decision procedure."
+			},
+			"screen": {
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcSpoedbesluiten"
 			}
 		},
 		{
@@ -5348,16 +5360,18 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "decided-no",
-				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json:6 ConfidentialityRestriction with scope, targetDocument/AgendaItem/Decision, ground ($ref confidentiality-ground, :172), liftingDate (:260, date it WAS lifted), liftingConditions (:269, free text); src/manifest.d/embargo-geheimhouding.json:7,70 index + detail pages; ConfidentialityGrounds pages",
-				"owner": "ConductionNL/decidiq"
+				"state": "specified",
+				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json:6 ConfidentialityRestriction with scope, targets, ground ($ref confidentiality-ground), imposedBy/imposedByBody/imposedAt, ratification fields; src/manifest.d/embargo-geheimhouding.json:23,70 index and detail with a three-stage timeline. No end date: liftingDate (:260) is the date it was lifted, liftingConditions (:269) free text; no link to the imposing decision.",
+				"owner": "ConductionNL/decidiq",
+				"readOn": "2026-10-08",
+				"change": "confidentiality-term-and-lapse"
 			},
 			"reachedOn": "ConfidentialityRestrictions (/confidentiality-restrictions) index and detail; ConfidentialityGrounds (/confidentiality-grounds)",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "A restriction with a structured legal ground can be recorded on a document, agenda item or decision. There is no planned end date: liftingDate records when it was lifted and liftingConditions is free text. The publication payload checks agenda-item confidentiality flags, not these restriction objects. Decided no (build-all 2026-09-29): Single competitor (iBabs), no demand row, outside the core area (bodies, planning). Reversible. The built half stays.",
+			"note": "A restriction with a structured legal ground can be recorded on a document, agenda item or decision. The planned end date and the imposing decision the board shows are missing. Reopened by decision 100 (8 Oct): board DcGeheimhouding draws it, so the decided-no of 29 Sep is withdrawn and the missing part is specified in confidentiality-term-and-lapse.",
 			"notubiz": "partial",
 			"ibabs": "yes",
 			"go-raadsinformatie": "partial",
@@ -5369,6 +5383,10 @@
 				"go-raadsinformatie": "https://gemeenteraad.groningen.nl/api/v2/meetings/5693/documents returns a confidential flag per document and https://www.gemeenteoplossingen.nl/blogs/nis_2_en_de_nieuwste_ontwikkeling_rond_cybersecuritywetgeving/ states access to besloten or geheime stukken is set by role; legal ground and end date are not recorded",
 				"diligent-boards": "https://help.diligentoneplatform.com/helpdocs/boards/en-us/Content/boards-web-admin/books/managing-document-visibility-bwa.htm restricts documents to selected users; legal ground and end date are not recorded",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting_mediafile.yml:32 access_group_ids restricts a file to chosen groups (inherited down folders, line 27); there is no legal ground or end date field on mediafile.yml or meeting_mediafile.yml. Restriction yes, ground and end date no."
+			},
+			"screen": {
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcGeheimhouding"
 			}
 		},
 		{
@@ -5378,16 +5396,18 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
-				"state": "decided-no",
-				"evidence": "searched lib/BackgroundJob (no confidentiality job), grep 'dissolved'/'liftingDate' in lib/*.php finds only a Dutch-value rename repair; lifecycle map in 83-confidentiality-in-plain-words.json is declarative and has no time trigger; the only scheduled notification is geheimhoudingBekrachtigingDue (ratification reminder)",
-				"owner": "ConductionNL/decidiq"
+				"state": "specified",
+				"evidence": "no job or listener changes a restriction's state: lib/BackgroundJob has no confidentiality job, lifecycle in register.d/83 has no lapsed state and no time trigger; the only scheduled rule is the ratification reminder. embargo-geheimhouding REQ-EMB-003 forbids any automatic change.",
+				"owner": "ConductionNL/decidiq",
+				"readOn": "2026-10-08",
+				"change": "confidentiality-term-and-lapse"
 			},
 			"reachedOn": "nothing reaches it: no job or trigger lifts a restriction, and there is no expiry-date field to lift on",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "confidentiality",
 			"featureConfidence": "high",
-			"note": "Lifting is a manual transition to dissolved. Nothing lifts automatically. Specified in openspec/changes/embargo-geheimhouding (OpenSpec pass 2026-09-27). Decided no (build-all 2026-09-29): A recorded non-goal: openspec/changes/embargo-geheimhouding/tasks.md states a passed deadline flags the restriction overdue and never lifts it automatically, because the body lifts secrecy by decision.",
+			"note": "The board draws two endings: the restriction lapses when the council does not ratify it, and lifting at the end date needs a council decision. confidentiality-term-and-lapse makes the lapse automatic (closed meeting, ratification item without ratification) and puts the lifting on the agenda when the end date nears, without lifting on the date alone; REQ-EMB-003 of embargo-geheimhouding now names the lapse as its one exception. Needs Ruben: whether that reading of the row is enough, or whether a date-only automatic lift is wanted for grounds without ratification. Reopened by decision 100 (8 Oct): board DcGeheimhouding draws it, so the decided-no of 29 Sep is withdrawn and the missing part is specified in confidentiality-term-and-lapse.",
 			"notubiz": "unknown",
 			"ibabs": "partial",
 			"go-raadsinformatie": "unknown",
@@ -5399,6 +5419,10 @@
 				"go-raadsinformatie": "not checked: looked, not settled: automatic lifting of confidentiality is not described",
 				"diligent-boards": "not checked: looked, not settled: not described in the Boards help",
 				"openslides": "source read at 4.3.4, not driven: openslides-backend/meta/collections/meeting_mediafile.yml:32 access_group_ids has no expiry and grep for expire, end_date and valid_until across meta/collections returns nothing. Restrictions are not lifted automatically."
+			},
+			"screen": {
+				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
+				"board": "DcGeheimhouding"
 			}
 		},
 		{
