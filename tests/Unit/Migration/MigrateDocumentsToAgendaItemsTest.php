@@ -29,7 +29,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Incoming documents, information letters and technical questions become agenda items.
  *
- * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md
+ * @spec openspec/specs/documents-as-agenda-items/spec.md
  */
 class MigrateDocumentsToAgendaItemsTest extends TestCase {
 
@@ -88,7 +88,7 @@ class MigrateDocumentsToAgendaItemsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md#requirement-a-routed-document-is-an-agenda-item
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-a-routed-document-is-an-agenda-item
 	 */
 	public function testAnIncomingDocumentBecomesAnAgendaItem(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -133,7 +133,7 @@ class MigrateDocumentsToAgendaItemsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md#requirement-a-question-about-a-document-is-a-sub-item-of-it
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-a-question-about-a-document-is-a-sub-item-of-it
 	 */
 	public function testAQuestionPointsAtItsCopiedLetter(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -175,7 +175,7 @@ class MigrateDocumentsToAgendaItemsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md#requirement-existing-documents-are-carried-across
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-existing-documents-are-carried-across
 	 */
 	public function testASecondRunCopiesNothing(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
