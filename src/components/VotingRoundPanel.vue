@@ -633,6 +633,7 @@ export default {
 				tieBreakRule: '',
 				options: [{ label: '' }, { label: '' }],
 			},
+
 			personOptions: [],
 			loadingPeople: false,
 
