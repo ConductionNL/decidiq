@@ -1,5 +1,8 @@
 # Tasks: woo-diwoo-publication
 
+> **Closed as superseded (10 Oct 2026, decision 138).** Not built and not folded into `openspec/specs/`. The Woo/DiWoo layer (informatiecategorie mapping, DiWoo metadata, the harvestable Woo index and push delivery) moved to integriq with `hand-woo-diwoo-to-integriq`; decidiq hands its publications over instead of publishing to DiWoo itself. The unticked tasks below are closed, not owed.
+
+
 ## Implementation Tasks
 
 ### Task 1: Register fragment 58 — WooCategorieMapping schema, aggregations, additive `diwoo` property
