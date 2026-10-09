@@ -1812,7 +1812,8 @@
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Jede installierte App darf Beschlüsse dieser Arten anlegen. Schreiben Sie eine Art pro Zeile, in Kleinbuchstaben, Ziffern und Bindestrichen.",
         "Save decision types": "Beschlussarten speichern",
         "The decision types were not saved": "Die Beschlussarten wurden nicht gespeichert",
-        "The decision types were saved": "Die Beschlussarten wurden gespeichert"
+        "The decision types were saved": "Die Beschlussarten wurden gespeichert",
+        "Person for option {number} (optional)": "Person für Option {number} (optional)"
     },
     "plurals": null
 }

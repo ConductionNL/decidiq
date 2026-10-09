@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Jokainen asennettu sovellus voi luoda näiden tyyppien päätöksiä. Kirjoita yksi tyyppi kullekin riville pienillä kirjaimilla, numeroilla ja yhdysmerkeillä.",
         "Save decision types": "Tallenna päätöstyypit",
         "The decision types were not saved": "Päätöstyyppejä ei tallennettu",
-        "The decision types were saved": "Päätöstyypit tallennettiin"
+        "The decision types were saved": "Päätöstyypit tallennettiin",
+        "Person for option {number} (optional)": "Henkilö vaihtoehdolle {number} (valinnainen)"
     },
     "nplurals=2; plural=(n != 1);"
 )

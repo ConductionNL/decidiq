@@ -1813,7 +1813,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Ogni app installata può creare una decisione di questi tipi. Scrivi un tipo per riga, con lettere minuscole, cifre e trattini.",
         "Save decision types": "Salva i tipi di decisione",
         "The decision types were not saved": "I tipi di decisione non sono stati salvati",
-        "The decision types were saved": "I tipi di decisione sono stati salvati"
+        "The decision types were saved": "I tipi di decisione sono stati salvati",
+        "Person for option {number} (optional)": "Persona per l'opzione {number} (facoltativo)"
     },
     "nplurals=2; plural=(n != 1);"
 )

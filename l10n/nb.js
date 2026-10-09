@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Hver installert app kan opprette et vedtak av disse typene. Skriv én type per linje, med små bokstaver, sifre og bindestreker.",
         "Save decision types": "Lagre vedtakstyper",
         "The decision types were not saved": "Vedtakstypene ble ikke lagret",
-        "The decision types were saved": "Vedtakstypene ble lagret"
+        "The decision types were saved": "Vedtakstypene ble lagret",
+        "Person for option {number} (optional)": "Person for alternativ {number} (valgfritt)"
     },
     "nplurals=2; plural=(n != 1);"
 )

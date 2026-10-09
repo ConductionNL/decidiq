@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Çdo aplikacion i instaluar mund të krijojë vendime të këtyre llojeve. Shkruani një lloj në çdo rresht, me shkronja të vogla, shifra dhe viza.",
         "Save decision types": "Ruaj llojet e vendimeve",
         "The decision types were not saved": "Llojet e vendimeve nuk u ruajtën",
-        "The decision types were saved": "Llojet e vendimeve u ruajtën"
+        "The decision types were saved": "Llojet e vendimeve u ruajtën",
+        "Person for option {number} (optional)": "Personi për opsionin {number} (opsionale)"
     },
     "nplurals=2; plural=(n != 1);"
 )

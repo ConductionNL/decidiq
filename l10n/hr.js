@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Svaka instalirana aplikacija smije stvoriti odluku ovih vrsta. Upišite jednu vrstu po retku, malim slovima, brojkama i crticama.",
         "Save decision types": "Spremi vrste odluka",
         "The decision types were not saved": "Vrste odluka nisu spremljene",
-        "The decision types were saved": "Vrste odluka su spremljene"
+        "The decision types were saved": "Vrste odluka su spremljene",
+        "Person for option {number} (optional)": "Osoba za opciju {number} (neobavezno)"
     },
     "nplurals=2; plural=(n != 1);"
 )

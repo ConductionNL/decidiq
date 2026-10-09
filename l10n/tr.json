@@ -1664,7 +1664,8 @@
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kurulu her uygulama bu türlerde karar oluşturabilir. Her satıra küçük harf, rakam ve kısa çizgiyle bir tür yazın.",
         "Save decision types": "Karar türlerini kaydet",
         "The decision types were not saved": "Karar türleri kaydedilmedi",
-        "The decision types were saved": "Karar türleri kaydedildi"
+        "The decision types were saved": "Karar türleri kaydedildi",
+        "Person for option {number} (optional)": "{number}. seçenek için kişi (isteğe bağlı)"
     },
     "plurals": null
 }

@@ -3480,7 +3480,8 @@
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Elke geïnstalleerde app mag een besluit van deze typen aanmaken. Zet één type per regel, in kleine letters, cijfers en koppeltekens.",
         "Save decision types": "Besluittypen opslaan",
         "The decision types were not saved": "De besluittypen zijn niet opgeslagen",
-        "The decision types were saved": "De besluittypen zijn opgeslagen"
+        "The decision types were saved": "De besluittypen zijn opgeslagen",
+        "Person for option {number} (optional)": "Persoon voor optie {number} (optioneel)"
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

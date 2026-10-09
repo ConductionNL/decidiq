@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Minden telepített alkalmazás létrehozhat ilyen típusú döntést. Soronként egy típust írjon, kisbetűkkel, számjegyekkel és kötőjelekkel.",
         "Save decision types": "Döntéstípusok mentése",
         "The decision types were not saved": "A döntéstípusok nem lettek mentve",
-        "The decision types were saved": "A döntéstípusok mentve"
+        "The decision types were saved": "A döntéstípusok mentve",
+        "Person for option {number} (optional)": "Személy a(z) {number}. lehetőséghez (nem kötelező)"
     },
     "nplurals=2; plural=(n != 1);"
 )

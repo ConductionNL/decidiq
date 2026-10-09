@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Κάθε εγκατεστημένη εφαρμογή μπορεί να δημιουργεί αποφάσεις αυτών των τύπων. Γράψτε έναν τύπο σε κάθε γραμμή, με πεζά γράμματα, ψηφία και παύλες.",
         "Save decision types": "Αποθήκευση τύπων αποφάσεων",
         "The decision types were not saved": "Οι τύποι αποφάσεων δεν αποθηκεύτηκαν",
-        "The decision types were saved": "Οι τύποι αποφάσεων αποθηκεύτηκαν"
+        "The decision types were saved": "Οι τύποι αποφάσεων αποθηκεύτηκαν",
+        "Person for option {number} (optional)": "Πρόσωπο για την επιλογή {number} (προαιρετικό)"
     },
     "nplurals=2; plural=(n != 1);"
 )

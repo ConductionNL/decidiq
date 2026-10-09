@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Is féidir le gach aip suiteáilte cinneadh de na cineálacha seo a chruthú. Cuir cineál amháin ar gach líne, i litreacha beaga, digití agus fleiscíní.",
         "Save decision types": "Sábháil na cineálacha cinnidh",
         "The decision types were not saved": "Níor sábháladh na cineálacha cinnidh",
-        "The decision types were saved": "Sábháladh na cineálacha cinnidh"
+        "The decision types were saved": "Sábháladh na cineálacha cinnidh",
+        "Person for option {number} (optional)": "Duine do rogha {number} (roghnach)"
     },
     "nplurals=2; plural=(n != 1);"
 )

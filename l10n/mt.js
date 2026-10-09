@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kull app installata tista' toħloq deċiżjoni ta' dawn it-tipi. Ikteb tip wieħed f'kull linja, b'ittri żgħar, ċifri u sing.",
         "Save decision types": "Issejvja t-tipi ta' deċiżjoni",
         "The decision types were not saved": "It-tipi ta' deċiżjoni ma ġewx issejvjati",
-        "The decision types were saved": "It-tipi ta' deċiżjoni ġew issejvjati"
+        "The decision types were saved": "It-tipi ta' deċiżjoni ġew issejvjati",
+        "Person for option {number} (optional)": "Persuna għall-għażla {number} (mhux obbligatorju)"
     },
     "nplurals=2; plural=(n != 1);"
 )

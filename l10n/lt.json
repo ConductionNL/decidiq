@@ -1664,7 +1664,8 @@
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kiekviena įdiegta programa gali kurti šių tipų sprendimus. Rašykite po vieną tipą eilutėje mažosiomis raidėmis, skaitmenimis ir brūkšneliais.",
         "Save decision types": "Išsaugoti sprendimų tipus",
         "The decision types were not saved": "Sprendimų tipai neišsaugoti",
-        "The decision types were saved": "Sprendimų tipai išsaugoti"
+        "The decision types were saved": "Sprendimų tipai išsaugoti",
+        "Person for option {number} (optional)": "Asmuo {number} parinkčiai (neprivaloma)"
     },
     "plurals": null
 }

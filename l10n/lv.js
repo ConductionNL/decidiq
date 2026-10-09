@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Katra instalētā lietotne var izveidot šo veidu lēmumus. Rakstiet vienu veidu katrā rindā ar mazajiem burtiem, cipariem un defisēm.",
         "Save decision types": "Saglabāt lēmumu veidus",
         "The decision types were not saved": "Lēmumu veidi netika saglabāti",
-        "The decision types were saved": "Lēmumu veidi tika saglabāti"
+        "The decision types were saved": "Lēmumu veidi tika saglabāti",
+        "Person for option {number} (optional)": "Persona iespējai {number} (neobligāti)"
     },
     "nplurals=2; plural=(n != 1);"
 )

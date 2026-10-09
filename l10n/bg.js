@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Всяко инсталирано приложение може да създава решения от тези видове. Пишете по един вид на ред, с малки букви, цифри и тирета.",
         "Save decision types": "Запазване на видовете решения",
         "The decision types were not saved": "Видовете решения не бяха запазени",
-        "The decision types were saved": "Видовете решения бяха запазени"
+        "The decision types were saved": "Видовете решения бяха запазени",
+        "Person for option {number} (optional)": "Лице за опция {number} (по избор)"
     },
     "nplurals=2; plural=(n != 1);"
 )

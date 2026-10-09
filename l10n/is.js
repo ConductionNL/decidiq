@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Hvert uppsett forrit má stofna ákvörðun af þessum tegundum. Skrifaðu eina tegund í hverja línu, með lágstöfum, tölustöfum og bandstrikum.",
         "Save decision types": "Vista tegundir ákvarðana",
         "The decision types were not saved": "Tegundir ákvarðana voru ekki vistaðar",
-        "The decision types were saved": "Tegundir ákvarðana voru vistaðar"
+        "The decision types were saved": "Tegundir ákvarðana voru vistaðar",
+        "Person for option {number} (optional)": "Einstaklingur fyrir valkost {number} (valfrjálst)"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Iga paigaldatud rakendus võib luua nende liikide otsuseid. Kirjuta üks liik igale reale väiketähtede, numbrite ja sidekriipsudega.",
         "Save decision types": "Salvesta otsuse liigid",
         "The decision types were not saved": "Otsuse liike ei salvestatud",
-        "The decision types were saved": "Otsuse liigid salvestati"
+        "The decision types were saved": "Otsuse liigid salvestati",
+        "Person for option {number} (optional)": "Isik valikule {number} (valikuline)"
     },
     "nplurals=2; plural=(n != 1);"
 )

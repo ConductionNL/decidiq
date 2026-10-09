@@ -1665,7 +1665,8 @@ OC.L10N.register(
         "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Fiecare aplicație instalată poate crea o decizie de aceste tipuri. Scrieți câte un tip pe rând, cu litere mici, cifre și cratime.",
         "Save decision types": "Salvează tipurile de decizie",
         "The decision types were not saved": "Tipurile de decizie nu au fost salvate",
-        "The decision types were saved": "Tipurile de decizie au fost salvate"
+        "The decision types were saved": "Tipurile de decizie au fost salvate",
+        "Person for option {number} (optional)": "Persoană pentru opțiunea {number} (opțional)"
     },
     "nplurals=2; plural=(n != 1);"
 )
