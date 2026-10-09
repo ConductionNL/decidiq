@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Asetetaan, kun kansion asiakirja on luottamuksellisempi kuin kansio itse: nimeää asiakirjan ja sen tason. Poista nostamalla kansion luokitusta.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Kansio on jo OpenRegisterin luettelossa, joten sen luokka on lukittu.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Rekisterissä ei ole kansioille Selectielijst-luokkaa %1$s.",
-        "Selectielijst category": "Selectielijst-luokka"
+        "Selectielijst category": "Selectielijst-luokka",
+        "Asked of the manager of the person who acts": "Kysytään toimivan henkilön esihenkilöltä",
+        "Asked of the manager of whoever owns the subject": "Kysytään asian omistajan esihenkilöltä",
+        "Asked of the substitute of the person who acts": "Kysytään toimivan henkilön sijaiselta",
+        "Approves on its own if nobody answers by the deadline": "Hyväksytään itsestään, jos kukaan ei vastaa määräaikaan mennessä",
+        "Refuses on its own if nobody answers by the deadline": "Hylätään itsestään, jos kukaan ei vastaa määräaikaan mennessä",
+        "Goes up a level if nobody answers by the deadline": "Siirtyy tason ylemmäs, jos kukaan ei vastaa määräaikaan mennessä",
+        "The substitute is also asked after {percent}% of the time": "Myös sijaiselta kysytään, kun {percent}% ajasta on kulunut"
     },
     "nplurals=2; plural=(n != 1);"
 )

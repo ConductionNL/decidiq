@@ -1799,7 +1799,14 @@
         "No incoming documents wait for a meeting.": "Aucun document reçu n'attend de réunion.",
         "Loading incoming documents…": "Chargement des documents reçus…",
         "Failed to load incoming documents.": "Impossible de charger les documents reçus.",
-        "The document could not be put on the agenda.": "Le document n'a pas pu être inscrit à l'ordre du jour."
+        "The document could not be put on the agenda.": "Le document n'a pas pu être inscrit à l'ordre du jour.",
+        "Asked of the manager of the person who acts": "Demandé au responsable de la personne qui agit",
+        "Asked of the manager of whoever owns the subject": "Demandé au responsable du propriétaire du sujet",
+        "Asked of the substitute of the person who acts": "Demandé au suppléant de la personne qui agit",
+        "Approves on its own if nobody answers by the deadline": "S'approuve d'elle-même si personne ne répond avant l'échéance",
+        "Refuses on its own if nobody answers by the deadline": "Se refuse d'elle-même si personne ne répond avant l'échéance",
+        "Goes up a level if nobody answers by the deadline": "Remonte d'un niveau si personne ne répond avant l'échéance",
+        "The substitute is also asked after {percent}% of the time": "Le suppléant est aussi sollicité après {percent}% du délai"
     },
     "plurals": null
 }

@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Устанавливается, когда документ в деле секретнее самого дела: указывает документ и его уровень. Повысьте классификацию дела, чтобы снять предупреждение.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Дело уже включено в список в OpenRegister, поэтому его категория зафиксирована.",
         "The register ships no Selectielijst category %1$s for dossiers.": "В реестре нет категории Selectielijst %1$s для дел.",
-        "Selectielijst category": "Категория Selectielijst"
+        "Selectielijst category": "Категория Selectielijst",
+        "Asked of the manager of the person who acts": "Запрос руководителю действующего лица",
+        "Asked of the manager of whoever owns the subject": "Запрос руководителю владельца предмета",
+        "Asked of the substitute of the person who acts": "Запрос заместителю действующего лица",
+        "Approves on its own if nobody answers by the deadline": "Одобряется автоматически, если никто не ответит до срока",
+        "Refuses on its own if nobody answers by the deadline": "Отклоняется автоматически, если никто не ответит до срока",
+        "Goes up a level if nobody answers by the deadline": "Передаётся на уровень выше, если никто не ответит до срока",
+        "The substitute is also asked after {percent}% of the time": "Заместителю также направляется запрос после {percent}% срока"
     },
     "nplurals=2; plural=(n != 1);"
 )

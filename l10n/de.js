@@ -1800,7 +1800,14 @@ OC.L10N.register(
         "No incoming documents wait for a meeting.": "Keine eingegangenen Dokumente warten auf eine Sitzung.",
         "Loading incoming documents…": "Eingegangene Dokumente werden geladen…",
         "Failed to load incoming documents.": "Eingegangene Dokumente konnten nicht geladen werden.",
-        "The document could not be put on the agenda.": "Das Dokument konnte nicht auf die Tagesordnung gesetzt werden."
+        "The document could not be put on the agenda.": "Das Dokument konnte nicht auf die Tagesordnung gesetzt werden.",
+        "Asked of the manager of the person who acts": "Gefragt wird die Führungskraft der handelnden Person",
+        "Asked of the manager of whoever owns the subject": "Gefragt wird die Führungskraft der Person, der der Gegenstand gehört",
+        "Asked of the substitute of the person who acts": "Gefragt wird die Vertretung der handelnden Person",
+        "Approves on its own if nobody answers by the deadline": "Wird automatisch genehmigt, wenn bis zur Frist niemand antwortet",
+        "Refuses on its own if nobody answers by the deadline": "Wird automatisch abgelehnt, wenn bis zur Frist niemand antwortet",
+        "Goes up a level if nobody answers by the deadline": "Geht eine Ebene höher, wenn bis zur Frist niemand antwortet",
+        "The substitute is also asked after {percent}% of the time": "Die Vertretung wird nach {percent}% der Frist ebenfalls gefragt"
     },
     "nplurals=2; plural=(n != 1);"
 )

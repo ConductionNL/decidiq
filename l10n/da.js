@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Sættes, når en optegnelse i sagen er mere fortrolig end sagen selv: nævner optegnelsen og dens niveau. Hæv sagens klassifikation for at fjerne den.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Sagen står allerede på en liste i OpenRegister, så dens kategori ligger fast.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Registret indeholder ingen Selectielijst-kategori %1$s for sager.",
-        "Selectielijst category": "Selectielijst-kategori"
+        "Selectielijst category": "Selectielijst-kategori",
+        "Asked of the manager of the person who acts": "Spørges til lederen af den person, der handler",
+        "Asked of the manager of whoever owns the subject": "Spørges til lederen af den, der ejer sagen",
+        "Asked of the substitute of the person who acts": "Spørges til stedfortræderen for den person, der handler",
+        "Approves on its own if nobody answers by the deadline": "Godkendes af sig selv, hvis ingen svarer inden fristen",
+        "Refuses on its own if nobody answers by the deadline": "Afvises af sig selv, hvis ingen svarer inden fristen",
+        "Goes up a level if nobody answers by the deadline": "Går et niveau op, hvis ingen svarer inden fristen",
+        "The substitute is also asked after {percent}% of the time": "Stedfortræderen spørges også efter {percent}% af fristen"
     },
     "nplurals=2; plural=(n != 1);"
 )

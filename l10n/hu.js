@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Akkor jelenik meg, ha a dosszié egy irata bizalmasabb, mint maga a dosszié: megnevezi az iratot és szintjét. A törléshez emelje a dosszié minősítését.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "A dosszié már szerepel egy listán az OpenRegisterben, ezért a kategóriája rögzített.",
         "The register ships no Selectielijst category %1$s for dossiers.": "A nyilvántartás nem tartalmaz %1$s Selectielijst-kategóriát dossziékhoz.",
-        "Selectielijst category": "Selectielijst-kategória"
+        "Selectielijst category": "Selectielijst-kategória",
+        "Asked of the manager of the person who acts": "A cselekvő személy vezetője kapja a kérést",
+        "Asked of the manager of whoever owns the subject": "Az ügy gazdájának vezetője kapja a kérést",
+        "Asked of the substitute of the person who acts": "A cselekvő személy helyettese kapja a kérést",
+        "Approves on its own if nobody answers by the deadline": "Magától jóváhagyódik, ha a határidőig senki sem válaszol",
+        "Refuses on its own if nobody answers by the deadline": "Magától elutasítódik, ha a határidőig senki sem válaszol",
+        "Goes up a level if nobody answers by the deadline": "Egy szinttel feljebb kerül, ha a határidőig senki sem válaszol",
+        "The substitute is also asked after {percent}% of the time": "A helyettes is megkapja a kérést az idő {percent}%-a után"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -23,6 +23,7 @@
 // threw `reading '_s' of undefined` the last time a leaf tried it.
 
 import axios from '@nextcloud/axios'
+import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 
 /**
@@ -171,6 +172,65 @@ export function isOverdue(stage, now) {
 	const due = new Date(dueAt)
 	if (Number.isNaN(due.getTime())) return false
 	return due < (now || new Date())
+}
+
+/**
+ * What a step declares about who is asked, silence and its substitute.
+ *
+ * Read off the STAGE, because the rule, the silence policy and the substitute
+ * ask point are copied onto it when the route starts: editing the route later
+ * never changes what a step in flight means. A step that approves or refuses on
+ * silence says so in plain words, because a reader who misses it thinks the
+ * step waits for a person.
+ *
+ * @param {object} stage The stage.
+ * @return {string[]} One line per declaration, empty for a plain step.
+ * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+ */
+export function stagePolicyLines(stage) {
+	if (!stage) return []
+	const lines = []
+	const rule = String(stage.actorRule || '')
+	const rules = {
+		'manager-of-actor': t(
+			'decidiq',
+			'Asked of the manager of the person who acts',
+		),
+		'manager-of-subject-owner': t(
+			'decidiq',
+			'Asked of the manager of whoever owns the subject',
+		),
+		'substitute-of-actor': t(
+			'decidiq',
+			'Asked of the substitute of the person who acts',
+		),
+	}
+	if (rules[rule]) lines.push(rules[rule])
+
+	const silence = {
+		approve: t(
+			'decidiq',
+			'Approves on its own if nobody answers by the deadline',
+		),
+		refuse: t('decidiq', 'Refuses on its own if nobody answers by the deadline'),
+		escalate: t('decidiq', 'Goes up a level if nobody answers by the deadline'),
+	}
+	const onSilence = String(stage.onSilence || '')
+	if (silence[onSilence]) lines.push(silence[onSilence])
+
+	const after = Number(stage.askSubstituteAfter)
+	if (Number.isFinite(after) && after > 0 && after <= 1) {
+		lines.push(
+			t(
+				'decidiq',
+				'The substitute is also asked after {percent}% of the time',
+				{
+					percent: Math.round(after * 100),
+				},
+			),
+		)
+	}
+	return lines
 }
 
 /**

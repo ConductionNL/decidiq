@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Seatakse, kui toimiku dokument on konfidentsiaalsem kui toimik ise: nimetab dokumendi ja selle taseme. Eemaldamiseks tõstke toimiku liigitust.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Toimik on juba OpenRegisteri loendis, seega selle kategooria on fikseeritud.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Register ei sisalda toimikute jaoks Selectielijsti kategooriat %1$s.",
-        "Selectielijst category": "Selectielijsti kategooria"
+        "Selectielijst category": "Selectielijsti kategooria",
+        "Asked of the manager of the person who acts": "Küsitakse tegutseva isiku juhilt",
+        "Asked of the manager of whoever owns the subject": "Küsitakse teema omaniku juhilt",
+        "Asked of the substitute of the person who acts": "Küsitakse tegutseva isiku asendajalt",
+        "Approves on its own if nobody answers by the deadline": "Kinnitatakse ise, kui keegi tähtajaks ei vasta",
+        "Refuses on its own if nobody answers by the deadline": "Lükatakse ise tagasi, kui keegi tähtajaks ei vasta",
+        "Goes up a level if nobody answers by the deadline": "Liigub taseme võrra kõrgemale, kui keegi tähtajaks ei vasta",
+        "The substitute is also asked after {percent}% of the time": "Asendajalt küsitakse ka pärast {percent}% tähtajast"
     },
     "nplurals=2; plural=(n != 1);"
 )

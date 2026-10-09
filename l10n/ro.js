@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Setat când un document din dosar este mai confidențial decât dosarul însuși: numește documentul și nivelul său. Ridicați clasificarea dosarului pentru a-l elimina.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Dosarul este deja pe o listă în OpenRegister, deci categoria sa este fixată.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Registrul nu conține categoria Selectielijst %1$s pentru dosare.",
-        "Selectielijst category": "Categorie Selectielijst"
+        "Selectielijst category": "Categorie Selectielijst",
+        "Asked of the manager of the person who acts": "Se solicită managerului persoanei care acționează",
+        "Asked of the manager of whoever owns the subject": "Se solicită managerului proprietarului subiectului",
+        "Asked of the substitute of the person who acts": "Se solicită înlocuitorului persoanei care acționează",
+        "Approves on its own if nobody answers by the deadline": "Se aprobă singur dacă nimeni nu răspunde până la termen",
+        "Refuses on its own if nobody answers by the deadline": "Se respinge singur dacă nimeni nu răspunde până la termen",
+        "Goes up a level if nobody answers by the deadline": "Urcă un nivel dacă nimeni nu răspunde până la termen",
+        "The substitute is also asked after {percent}% of the time": "Înlocuitorul este solicitat și după {percent}% din termen"
     },
     "nplurals=2; plural=(n != 1);"
 )

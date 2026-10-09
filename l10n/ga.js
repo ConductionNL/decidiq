@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Socraítear é nuair a bhíonn taifead sa chomhad níos rúnda ná an comhad féin: ainmníonn sé an taifead agus a leibhéal. Ardaigh aicmiú an chomhaid chun é a ghlanadh.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Tá an comhad ar liosta in OpenRegister cheana, mar sin tá a chatagóir socraithe.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Níl catagóir %1$s den Selectielijst sa chlár do chomhaid.",
-        "Selectielijst category": "Catagóir Selectielijst"
+        "Selectielijst category": "Catagóir Selectielijst",
+        "Asked of the manager of the person who acts": "Iarrtar ar bhainisteoir an duine a ghníomhaíonn",
+        "Asked of the manager of whoever owns the subject": "Iarrtar ar bhainisteoir úinéir an ábhair",
+        "Asked of the substitute of the person who acts": "Iarrtar ar ionadaí an duine a ghníomhaíonn",
+        "Approves on its own if nobody answers by the deadline": "Ceadaítear é ann féin mura bhfreagraíonn aon duine faoin spriocdháta",
+        "Refuses on its own if nobody answers by the deadline": "Diúltaítear é ann féin mura bhfreagraíonn aon duine faoin spriocdháta",
+        "Goes up a level if nobody answers by the deadline": "Téann sé leibhéal suas mura bhfreagraíonn aon duine faoin spriocdháta",
+        "The substitute is also asked after {percent}% of the time": "Iarrtar ar an ionadaí freisin tar éis {percent}% den am"
     },
     "nplurals=2; plural=(n != 1);"
 )

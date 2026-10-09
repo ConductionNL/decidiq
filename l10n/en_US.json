@@ -928,6 +928,13 @@
         "{n} attachment(s)": "{n} attachment(s)",
         "{n} conflict of interest declaration(s)": "{n} conflict of interest declaration(s)",
         "{n} meeting(s) exceeded the scheduled time": "{n} meeting(s) exceeded the scheduled time",
-        "{states} states, {transitions} transitions": "{states} states, {transitions} transitions"
+        "{states} states, {transitions} transitions": "{states} states, {transitions} transitions",
+        "Asked of the manager of the person who acts": "Asked of the manager of the person who acts",
+        "Asked of the manager of whoever owns the subject": "Asked of the manager of whoever owns the subject",
+        "Asked of the substitute of the person who acts": "Asked of the substitute of the person who acts",
+        "Approves on its own if nobody answers by the deadline": "Approves on its own if nobody answers by the deadline",
+        "Refuses on its own if nobody answers by the deadline": "Refuses on its own if nobody answers by the deadline",
+        "Goes up a level if nobody answers by the deadline": "Goes up a level if nobody answers by the deadline",
+        "The substitute is also asked after {percent}% of the time": "The substitute is also asked after {percent}% of the time"
     }
 }

@@ -1652,7 +1652,14 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Ustawiane, gdy dokument w teczce jest bardziej poufny niż sama teczka: wskazuje dokument i jego poziom. Podnieś klauzulę teczki, aby je usunąć.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Teczka jest już na liście w OpenRegister, więc jej kategoria jest ustalona.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Rejestr nie zawiera kategorii Selectielijst %1$s dla teczek.",
-        "Selectielijst category": "Kategoria Selectielijst"
+        "Selectielijst category": "Kategoria Selectielijst",
+        "Asked of the manager of the person who acts": "Pytany jest przełożony osoby działającej",
+        "Asked of the manager of whoever owns the subject": "Pytany jest przełożony właściciela sprawy",
+        "Asked of the substitute of the person who acts": "Pytany jest zastępca osoby działającej",
+        "Approves on its own if nobody answers by the deadline": "Zatwierdza się sam, jeśli nikt nie odpowie do terminu",
+        "Refuses on its own if nobody answers by the deadline": "Odrzuca się sam, jeśli nikt nie odpowie do terminu",
+        "Goes up a level if nobody answers by the deadline": "Przechodzi poziom wyżej, jeśli nikt nie odpowie do terminu",
+        "The substitute is also asked after {percent}% of the time": "Zastępca jest też pytany po upływie {percent}% terminu"
     },
     "nplurals=2; plural=(n != 1);"
 )
