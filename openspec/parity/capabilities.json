@@ -2239,10 +2239,11 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/register.d/82-planning-cycle-in-plain-words.json PlanningCycle, PlanningCycleTemplate (steps), PlanningCycleStep (sequence, stepType, deliveryDeadline, committeeDate, agendaItem, decision, status); src/manifest.d/pc-cyclus.json PlanningCycles/PlanningCycleDetail/PlanningCycleStepDetail; no service generates steps from a template (grep 'planning-cycle', 'PlanningCycle' in lib/Service, lib/Listener, src/components, src/views: none)",
+				"state": "built",
+				"evidence": "lib/Service/PlanningCycleGenerator.php + lib/Listener/PlanningCycleCreatedListener.php (a cycle created with a template gets one step per template step, dates resolved in the cycle year, once); src/components/tabs/PlanningCycleStepsTab.vue on PlanningCycleDetail (steps in order with an Overdue badge); tests/Unit/Listener/PlanningCycleCreatedListenerTest.php, tests/vitest/planningCycleSteps.spec.js",
 				"owner": "ConductionNL/decidiq",
-				"change": "planning-cycle-generate-from-template"
+				"change": "2026-10-09-planning-cycle-generate-from-template",
+				"readOn": "2026-10-09"
 			},
 			"reachedOn": "PlanningCycles (/planning-cycles), under 'Tasks & Commitments' in the menu",
 			"provider": "decidiq",
