@@ -1666,7 +1666,24 @@ OC.L10N.register(
         "Save decision types": "Vista tegundir ákvarðana",
         "The decision types were not saved": "Tegundir ákvarðana voru ekki vistaðar",
         "The decision types were saved": "Tegundir ákvarðana voru vistaðar",
-        "Person for option {number} (optional)": "Einstaklingur fyrir valkost {number} (valfrjálst)"
+        "Person for option {number} (optional)": "Einstaklingur fyrir valkost {number} (valfrjálst)",
+        "Add organisation": "Bæta við stofnun",
+        "Choose an organisation.": "Veldu stofnun.",
+        "Could not load the participations.": "Ekki tókst að hlaða þátttökum.",
+        "Could not save the participation.": "Ekki tókst að vista þátttökuna.",
+        "Edit participation": "Breyta þátttöku",
+        "Edit the participation of {name}": "Breyta þátttöku {name}",
+        "End participation": "Ljúka þátttöku",
+        "End the participation of {name}": "Ljúka þátttöku {name}",
+        "Loading the participations…": "Hleður þátttökum…",
+        "No organisations take part in this shared body yet.": "Engar stofnanir taka enn þátt í þessari sameiginlegu stofnun.",
+        "On behalf of": "Fyrir hönd",
+        "Organisation": "Stofnun",
+        "Participating organisations": "Þátttökustofnanir",
+        "Withdrawal date": "Úrsagnardagur",
+        "Withdrawn on {date}": "Sagði sig úr {date}",
+        "{filled} of {seats} seats filled": "{filled} af {seats} sætum skipuð",
+        "{filled} seats filled": "{filled} sæti skipuð"
     },
     "nplurals=2; plural=(n != 1);"
 )

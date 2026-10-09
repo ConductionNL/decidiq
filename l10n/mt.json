@@ -1665,7 +1665,24 @@
         "Save decision types": "Issejvja t-tipi ta' deċiżjoni",
         "The decision types were not saved": "It-tipi ta' deċiżjoni ma ġewx issejvjati",
         "The decision types were saved": "It-tipi ta' deċiżjoni ġew issejvjati",
-        "Person for option {number} (optional)": "Persuna għall-għażla {number} (mhux obbligatorju)"
+        "Person for option {number} (optional)": "Persuna għall-għażla {number} (mhux obbligatorju)",
+        "Add organisation": "Żid organizzazzjoni",
+        "Choose an organisation.": "Agħżel organizzazzjoni.",
+        "Could not load the participations.": "Ma setgħux jitgħabbew il-parteċipazzjonijiet.",
+        "Could not save the participation.": "Ma setgħetx tiġi ssejvjata l-parteċipazzjoni.",
+        "Edit participation": "Editja l-parteċipazzjoni",
+        "Edit the participation of {name}": "Editja l-parteċipazzjoni ta' {name}",
+        "End participation": "Itmem il-parteċipazzjoni",
+        "End the participation of {name}": "Itmem il-parteċipazzjoni ta' {name}",
+        "Loading the participations…": "Qed jitgħabbew il-parteċipazzjonijiet…",
+        "No organisations take part in this shared body yet.": "L-ebda organizzazzjoni ma tieħu sehem f'dan il-korp konġunt s'issa.",
+        "On behalf of": "F'isem",
+        "Organisation": "Organizzazzjoni",
+        "Participating organisations": "Organizzazzjonijiet parteċipanti",
+        "Withdrawal date": "Data tal-irtirar",
+        "Withdrawn on {date}": "Irtirat fil-{date}",
+        "{filled} of {seats} seats filled": "{filled} minn {seats} siġġijiet mimlija",
+        "{filled} seats filled": "{filled} siġġijiet mimlija"
     },
     "plurals": null
 }

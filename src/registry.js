@@ -34,6 +34,7 @@ import AgendaPublicationTab from './components/tabs/AgendaPublicationTab.vue'
 import AmendmentDiffTab from './components/tabs/AmendmentDiffTab.vue'
 import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab.vue'
 import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
+import BodyParticipationsTab from './components/tabs/BodyParticipationsTab.vue'
 import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
@@ -254,6 +255,8 @@ export default {
 	MeetingTranscriptionTab: page(MeetingTranscriptionTab),
 	GovernanceBodyRetentionTab: page(GovernanceBodyRetentionTab),
 	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
+	// Participating organisations of a shared body (bodies-shared-body-participations, bod-13).
+	BodyParticipationsTab: page(BodyParticipationsTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	// Meeting-scoped facet composition (meeting-facet-composition): mode-gated

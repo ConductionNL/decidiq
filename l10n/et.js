@@ -1666,7 +1666,24 @@ OC.L10N.register(
         "Save decision types": "Salvesta otsuse liigid",
         "The decision types were not saved": "Otsuse liike ei salvestatud",
         "The decision types were saved": "Otsuse liigid salvestati",
-        "Person for option {number} (optional)": "Isik valikule {number} (valikuline)"
+        "Person for option {number} (optional)": "Isik valikule {number} (valikuline)",
+        "Add organisation": "Lisa organisatsioon",
+        "Choose an organisation.": "Vali organisatsioon.",
+        "Could not load the participations.": "Osalusi ei õnnestunud laadida.",
+        "Could not save the participation.": "Osalust ei õnnestunud salvestada.",
+        "Edit participation": "Muuda osalust",
+        "Edit the participation of {name}": "Muuda organisatsiooni {name} osalust",
+        "End participation": "Lõpeta osalus",
+        "End the participation of {name}": "Lõpeta organisatsiooni {name} osalus",
+        "Loading the participations…": "Osaluste laadimine…",
+        "No organisations take part in this shared body yet.": "Selles ühisorganis ei osale veel ühtegi organisatsiooni.",
+        "On behalf of": "Kelle nimel",
+        "Organisation": "Organisatsioon",
+        "Participating organisations": "Osalevad organisatsioonid",
+        "Withdrawal date": "Väljaastumise kuupäev",
+        "Withdrawn on {date}": "Välja astunud {date}",
+        "{filled} of {seats} seats filled": "{filled} kohta {seats}-st täidetud",
+        "{filled} seats filled": "{filled} kohta täidetud"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1666,7 +1666,24 @@ OC.L10N.register(
         "Save decision types": "Сохранить типы решений",
         "The decision types were not saved": "Типы решений не сохранены",
         "The decision types were saved": "Типы решений сохранены",
-        "Person for option {number} (optional)": "Лицо для варианта {number} (необязательно)"
+        "Person for option {number} (optional)": "Лицо для варианта {number} (необязательно)",
+        "Add organisation": "Добавить организацию",
+        "Choose an organisation.": "Выберите организацию.",
+        "Could not load the participations.": "Не удалось загрузить участия.",
+        "Could not save the participation.": "Не удалось сохранить участие.",
+        "Edit participation": "Изменить участие",
+        "Edit the participation of {name}": "Изменить участие {name}",
+        "End participation": "Завершить участие",
+        "End the participation of {name}": "Завершить участие {name}",
+        "Loading the participations…": "Загрузка участий…",
+        "No organisations take part in this shared body yet.": "В этом совместном органе пока не участвует ни одна организация.",
+        "On behalf of": "От имени",
+        "Organisation": "Организация",
+        "Participating organisations": "Участвующие организации",
+        "Withdrawal date": "Дата выхода",
+        "Withdrawn on {date}": "Вышла {date}",
+        "{filled} of {seats} seats filled": "Занято {filled} из {seats} мест",
+        "{filled} seats filled": "Занято мест: {filled}"
     },
     "nplurals=2; plural=(n != 1);"
 )

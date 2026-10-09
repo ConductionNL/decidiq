@@ -1665,7 +1665,24 @@
         "Save decision types": "Ruaj llojet e vendimeve",
         "The decision types were not saved": "Llojet e vendimeve nuk u ruajtën",
         "The decision types were saved": "Llojet e vendimeve u ruajtën",
-        "Person for option {number} (optional)": "Personi për opsionin {number} (opsionale)"
+        "Person for option {number} (optional)": "Personi për opsionin {number} (opsionale)",
+        "Add organisation": "Shto organizatë",
+        "Choose an organisation.": "Zgjidhni një organizatë.",
+        "Could not load the participations.": "Pjesëmarrjet nuk mund të ngarkoheshin.",
+        "Could not save the participation.": "Pjesëmarrja nuk mund të ruhej.",
+        "Edit participation": "Ndrysho pjesëmarrjen",
+        "Edit the participation of {name}": "Ndrysho pjesëmarrjen e {name}",
+        "End participation": "Përfundo pjesëmarrjen",
+        "End the participation of {name}": "Përfundo pjesëmarrjen e {name}",
+        "Loading the participations…": "Po ngarkohen pjesëmarrjet…",
+        "No organisations take part in this shared body yet.": "Asnjë organizatë nuk merr ende pjesë në këtë organ të përbashkët.",
+        "On behalf of": "Në emër të",
+        "Organisation": "Organizata",
+        "Participating organisations": "Organizatat pjesëmarrëse",
+        "Withdrawal date": "Data e tërheqjes",
+        "Withdrawn on {date}": "Tërhequr më {date}",
+        "{filled} of {seats} seats filled": "{filled} nga {seats} vende të plotësuara",
+        "{filled} seats filled": "{filled} vende të plotësuara"
     },
     "plurals": null
 }

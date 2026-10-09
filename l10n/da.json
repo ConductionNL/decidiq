@@ -1665,7 +1665,24 @@
         "Save decision types": "Gem beslutningstyper",
         "The decision types were not saved": "Beslutningstyperne blev ikke gemt",
         "The decision types were saved": "Beslutningstyperne blev gemt",
-        "Person for option {number} (optional)": "Person til mulighed {number} (valgfri)"
+        "Person for option {number} (optional)": "Person til mulighed {number} (valgfri)",
+        "Add organisation": "Tilføj organisation",
+        "Choose an organisation.": "Vælg en organisation.",
+        "Could not load the participations.": "Deltagelserne kunne ikke indlæses.",
+        "Could not save the participation.": "Deltagelsen kunne ikke gemmes.",
+        "Edit participation": "Rediger deltagelse",
+        "Edit the participation of {name}": "Rediger deltagelsen for {name}",
+        "End participation": "Afslut deltagelse",
+        "End the participation of {name}": "Afslut deltagelsen for {name}",
+        "Loading the participations…": "Indlæser deltagelser…",
+        "No organisations take part in this shared body yet.": "Ingen organisationer deltager endnu i dette fælles organ.",
+        "On behalf of": "På vegne af",
+        "Organisation": "Organisation",
+        "Participating organisations": "Deltagende organisationer",
+        "Withdrawal date": "Udtrædelsesdato",
+        "Withdrawn on {date}": "Udtrådt den {date}",
+        "{filled} of {seats} seats filled": "{filled} af {seats} pladser besat",
+        "{filled} seats filled": "{filled} pladser besat"
     },
     "plurals": null
 }

@@ -1666,7 +1666,24 @@ OC.L10N.register(
         "Save decision types": "Запазване на видовете решения",
         "The decision types were not saved": "Видовете решения не бяха запазени",
         "The decision types were saved": "Видовете решения бяха запазени",
-        "Person for option {number} (optional)": "Лице за опция {number} (по избор)"
+        "Person for option {number} (optional)": "Лице за опция {number} (по избор)",
+        "Add organisation": "Добавяне на организация",
+        "Choose an organisation.": "Изберете организация.",
+        "Could not load the participations.": "Участията не можаха да бъдат заредени.",
+        "Could not save the participation.": "Участието не можа да бъде запазено.",
+        "Edit participation": "Редактиране на участието",
+        "Edit the participation of {name}": "Редактиране на участието на {name}",
+        "End participation": "Прекратяване на участието",
+        "End the participation of {name}": "Прекратяване на участието на {name}",
+        "Loading the participations…": "Зареждане на участията…",
+        "No organisations take part in this shared body yet.": "В този общ орган все още не участват организации.",
+        "On behalf of": "От името на",
+        "Organisation": "Организация",
+        "Participating organisations": "Участващи организации",
+        "Withdrawal date": "Дата на оттегляне",
+        "Withdrawn on {date}": "Оттеглена на {date}",
+        "{filled} of {seats} seats filled": "Заети {filled} от {seats} места",
+        "{filled} seats filled": "Заети места: {filled}"
     },
     "nplurals=2; plural=(n != 1);"
 )

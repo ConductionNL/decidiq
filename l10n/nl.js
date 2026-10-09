@@ -3482,7 +3482,22 @@ OC.L10N.register(
         "Save decision types": "Besluittypen opslaan",
         "The decision types were not saved": "De besluittypen zijn niet opgeslagen",
         "The decision types were saved": "De besluittypen zijn opgeslagen",
-        "Person for option {number} (optional)": "Persoon voor optie {number} (optioneel)"
+        "Person for option {number} (optional)": "Persoon voor optie {number} (optioneel)",
+        "Add organisation": "Organisatie toevoegen",
+        "Choose an organisation.": "Kies een organisatie.",
+        "Could not load the participations.": "De deelnames konden niet worden geladen.",
+        "Could not save the participation.": "De deelname kon niet worden opgeslagen.",
+        "Edit participation": "Deelname bewerken",
+        "Edit the participation of {name}": "Deelname van {name} bewerken",
+        "End participation": "Deelname beëindigen",
+        "End the participation of {name}": "Deelname van {name} beëindigen",
+        "Loading the participations…": "Deelnames laden…",
+        "No organisations take part in this shared body yet.": "Er nemen nog geen organisaties deel aan dit gemeenschappelijke orgaan.",
+        "On behalf of": "Namens",
+        "Withdrawal date": "Datum uittreding",
+        "Withdrawn on {date}": "Uitgetreden op {date}",
+        "{filled} of {seats} seats filled": "{filled} van {seats} zetels bezet",
+        "{filled} seats filled": "{filled} zetels bezet"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -1665,7 +1665,24 @@
         "Save decision types": "Saglabāt lēmumu veidus",
         "The decision types were not saved": "Lēmumu veidi netika saglabāti",
         "The decision types were saved": "Lēmumu veidi tika saglabāti",
-        "Person for option {number} (optional)": "Persona iespējai {number} (neobligāti)"
+        "Person for option {number} (optional)": "Persona iespējai {number} (neobligāti)",
+        "Add organisation": "Pievienot organizāciju",
+        "Choose an organisation.": "Izvēlieties organizāciju.",
+        "Could not load the participations.": "Neizdevās ielādēt dalības.",
+        "Could not save the participation.": "Neizdevās saglabāt dalību.",
+        "Edit participation": "Rediģēt dalību",
+        "Edit the participation of {name}": "Rediģēt {name} dalību",
+        "End participation": "Beigt dalību",
+        "End the participation of {name}": "Beigt {name} dalību",
+        "Loading the participations…": "Ielādē dalības…",
+        "No organisations take part in this shared body yet.": "Šajā kopīgajā struktūrā vēl nepiedalās neviena organizācija.",
+        "On behalf of": "Kā pārstāvis",
+        "Organisation": "Organizācija",
+        "Participating organisations": "Dalīborganizācijas",
+        "Withdrawal date": "Izstāšanās datums",
+        "Withdrawn on {date}": "Izstājusies {date}",
+        "{filled} of {seats} seats filled": "Aizpildītas {filled} no {seats} vietām",
+        "{filled} seats filled": "Aizpildītas {filled} vietas"
     },
     "plurals": null
 }

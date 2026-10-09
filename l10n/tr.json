@@ -1665,7 +1665,24 @@
         "Save decision types": "Karar türlerini kaydet",
         "The decision types were not saved": "Karar türleri kaydedilmedi",
         "The decision types were saved": "Karar türleri kaydedildi",
-        "Person for option {number} (optional)": "{number}. seçenek için kişi (isteğe bağlı)"
+        "Person for option {number} (optional)": "{number}. seçenek için kişi (isteğe bağlı)",
+        "Add organisation": "Kuruluş ekle",
+        "Choose an organisation.": "Bir kuruluş seçin.",
+        "Could not load the participations.": "Katılımlar yüklenemedi.",
+        "Could not save the participation.": "Katılım kaydedilemedi.",
+        "Edit participation": "Katılımı düzenle",
+        "Edit the participation of {name}": "{name} katılımını düzenle",
+        "End participation": "Katılımı sonlandır",
+        "End the participation of {name}": "{name} katılımını sonlandır",
+        "Loading the participations…": "Katılımlar yükleniyor…",
+        "No organisations take part in this shared body yet.": "Bu ortak kurula henüz hiçbir kuruluş katılmıyor.",
+        "On behalf of": "Adına",
+        "Organisation": "Kuruluş",
+        "Participating organisations": "Katılımcı kuruluşlar",
+        "Withdrawal date": "Ayrılma tarihi",
+        "Withdrawn on {date}": "{date} tarihinde ayrıldı",
+        "{filled} of {seats} seats filled": "{seats} koltuktan {filled} dolu",
+        "{filled} seats filled": "{filled} koltuk dolu"
     },
     "plurals": null
 }

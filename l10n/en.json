@@ -3162,7 +3162,24 @@
         "Save decision types": "Save decision types",
         "The decision types were not saved": "The decision types were not saved",
         "The decision types were saved": "The decision types were saved",
-        "Person for option {number} (optional)": "Person for option {number} (optional)"
+        "Person for option {number} (optional)": "Person for option {number} (optional)",
+        "Add organisation": "Add organisation",
+        "Choose an organisation.": "Choose an organisation.",
+        "Could not load the participations.": "Could not load the participations.",
+        "Could not save the participation.": "Could not save the participation.",
+        "Edit participation": "Edit participation",
+        "Edit the participation of {name}": "Edit the participation of {name}",
+        "End participation": "End participation",
+        "End the participation of {name}": "End the participation of {name}",
+        "Loading the participations…": "Loading the participations…",
+        "No organisations take part in this shared body yet.": "No organisations take part in this shared body yet.",
+        "On behalf of": "On behalf of",
+        "Organisation": "Organisation",
+        "Participating organisations": "Participating organisations",
+        "Withdrawal date": "Withdrawal date",
+        "Withdrawn on {date}": "Withdrawn on {date}",
+        "{filled} of {seats} seats filled": "{filled} of {seats} seats filled",
+        "{filled} seats filled": "{filled} seats filled"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

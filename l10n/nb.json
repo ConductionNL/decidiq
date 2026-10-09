@@ -1665,7 +1665,24 @@
         "Save decision types": "Lagre vedtakstyper",
         "The decision types were not saved": "Vedtakstypene ble ikke lagret",
         "The decision types were saved": "Vedtakstypene ble lagret",
-        "Person for option {number} (optional)": "Person for alternativ {number} (valgfritt)"
+        "Person for option {number} (optional)": "Person for alternativ {number} (valgfritt)",
+        "Add organisation": "Legg til organisasjon",
+        "Choose an organisation.": "Velg en organisasjon.",
+        "Could not load the participations.": "Kunne ikke laste deltakelsene.",
+        "Could not save the participation.": "Kunne ikke lagre deltakelsen.",
+        "Edit participation": "Rediger deltakelse",
+        "Edit the participation of {name}": "Rediger deltakelsen til {name}",
+        "End participation": "Avslutt deltakelse",
+        "End the participation of {name}": "Avslutt deltakelsen til {name}",
+        "Loading the participations…": "Laster deltakelser…",
+        "No organisations take part in this shared body yet.": "Ingen organisasjoner deltar ennå i dette felles organet.",
+        "On behalf of": "På vegne av",
+        "Organisation": "Organisasjon",
+        "Participating organisations": "Deltakende organisasjoner",
+        "Withdrawal date": "Uttredelsesdato",
+        "Withdrawn on {date}": "Uttrådt {date}",
+        "{filled} of {seats} seats filled": "{filled} av {seats} plasser besatt",
+        "{filled} seats filled": "{filled} plasser besatt"
     },
     "plurals": null
 }

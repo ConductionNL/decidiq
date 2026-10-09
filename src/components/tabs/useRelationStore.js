@@ -199,8 +199,10 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
  * @param {string} [fields.id] Existing Membership id — include to update rather than create
  * @param {string} [fields.startDate] Membership.startDate (ISO)
  * @param {string} [fields.faction] Membership.faction (faction body UUID)
+ * @param {string} [fields.onBehalfOf] Membership.onBehalfOf (participating body UUID, shared bodies only)
  * @return {object} Membership creation/update payload
  * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function buildMembershipPayload({
 	personId,
@@ -211,6 +213,7 @@ export function buildMembershipPayload({
 	id = '',
 	startDate = '',
 	faction = '',
+	onBehalfOf = '',
 }) {
 	const payload = { person: personId, governanceBody: governanceBodyId, role }
 	if (party) {
@@ -221,6 +224,9 @@ export function buildMembershipPayload({
 	}
 	if (faction) {
 		payload.faction = faction
+	}
+	if (onBehalfOf) {
+		payload.onBehalfOf = onBehalfOf
 	}
 	if (votingWeight !== null && votingWeight !== undefined) {
 		payload.votingWeight = votingWeight

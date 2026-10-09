@@ -1665,7 +1665,24 @@
         "Save decision types": "Guardar os tipos de decisão",
         "The decision types were not saved": "Os tipos de decisão não foram guardados",
         "The decision types were saved": "Os tipos de decisão foram guardados",
-        "Person for option {number} (optional)": "Pessoa para a opção {number} (opcional)"
+        "Person for option {number} (optional)": "Pessoa para a opção {number} (opcional)",
+        "Add organisation": "Adicionar organização",
+        "Choose an organisation.": "Escolha uma organização.",
+        "Could not load the participations.": "Não foi possível carregar as participações.",
+        "Could not save the participation.": "Não foi possível guardar a participação.",
+        "Edit participation": "Editar participação",
+        "Edit the participation of {name}": "Editar a participação de {name}",
+        "End participation": "Terminar participação",
+        "End the participation of {name}": "Terminar a participação de {name}",
+        "Loading the participations…": "A carregar as participações…",
+        "No organisations take part in this shared body yet.": "Ainda nenhuma organização participa neste órgão comum.",
+        "On behalf of": "Em nome de",
+        "Organisation": "Organização",
+        "Participating organisations": "Organizações participantes",
+        "Withdrawal date": "Data de saída",
+        "Withdrawn on {date}": "Saiu em {date}",
+        "{filled} of {seats} seats filled": "{filled} de {seats} lugares ocupados",
+        "{filled} seats filled": "{filled} lugares ocupados"
     },
     "plurals": null
 }

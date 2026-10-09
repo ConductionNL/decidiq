@@ -1665,7 +1665,24 @@
         "Save decision types": "Išsaugoti sprendimų tipus",
         "The decision types were not saved": "Sprendimų tipai neišsaugoti",
         "The decision types were saved": "Sprendimų tipai išsaugoti",
-        "Person for option {number} (optional)": "Asmuo {number} parinkčiai (neprivaloma)"
+        "Person for option {number} (optional)": "Asmuo {number} parinkčiai (neprivaloma)",
+        "Add organisation": "Pridėti organizaciją",
+        "Choose an organisation.": "Pasirinkite organizaciją.",
+        "Could not load the participations.": "Nepavyko įkelti dalyvavimų.",
+        "Could not save the participation.": "Nepavyko išsaugoti dalyvavimo.",
+        "Edit participation": "Redaguoti dalyvavimą",
+        "Edit the participation of {name}": "Redaguoti {name} dalyvavimą",
+        "End participation": "Baigti dalyvavimą",
+        "End the participation of {name}": "Baigti {name} dalyvavimą",
+        "Loading the participations…": "Įkeliami dalyvavimai…",
+        "No organisations take part in this shared body yet.": "Šiame bendrame organe dar nedalyvauja jokia organizacija.",
+        "On behalf of": "Atstovaujant",
+        "Organisation": "Organizacija",
+        "Participating organisations": "Dalyvaujančios organizacijos",
+        "Withdrawal date": "Pasitraukimo data",
+        "Withdrawn on {date}": "Pasitraukė {date}",
+        "{filled} of {seats} seats filled": "Užimta {filled} iš {seats} vietų",
+        "{filled} seats filled": "Užimta vietų: {filled}"
     },
     "plurals": null
 }

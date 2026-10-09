@@ -1665,7 +1665,24 @@
         "Save decision types": "Döntéstípusok mentése",
         "The decision types were not saved": "A döntéstípusok nem lettek mentve",
         "The decision types were saved": "A döntéstípusok mentve",
-        "Person for option {number} (optional)": "Személy a(z) {number}. lehetőséghez (nem kötelező)"
+        "Person for option {number} (optional)": "Személy a(z) {number}. lehetőséghez (nem kötelező)",
+        "Add organisation": "Szervezet hozzáadása",
+        "Choose an organisation.": "Válasszon szervezetet.",
+        "Could not load the participations.": "A részvételeket nem sikerült betölteni.",
+        "Could not save the participation.": "A részvételt nem sikerült menteni.",
+        "Edit participation": "Részvétel szerkesztése",
+        "Edit the participation of {name}": "{name} részvételének szerkesztése",
+        "End participation": "Részvétel befejezése",
+        "End the participation of {name}": "{name} részvételének befejezése",
+        "Loading the participations…": "Részvételek betöltése…",
+        "No organisations take part in this shared body yet.": "Ebben a közös testületben még nem vesz részt szervezet.",
+        "On behalf of": "Képviselt szervezet",
+        "Organisation": "Szervezet",
+        "Participating organisations": "Részt vevő szervezetek",
+        "Withdrawal date": "Kilépés dátuma",
+        "Withdrawn on {date}": "Kilépett: {date}",
+        "{filled} of {seats} seats filled": "{seats} helyből {filled} betöltve",
+        "{filled} seats filled": "{filled} hely betöltve"
     },
     "plurals": null
 }

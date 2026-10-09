@@ -1665,7 +1665,24 @@
         "Save decision types": "Αποθήκευση τύπων αποφάσεων",
         "The decision types were not saved": "Οι τύποι αποφάσεων δεν αποθηκεύτηκαν",
         "The decision types were saved": "Οι τύποι αποφάσεων αποθηκεύτηκαν",
-        "Person for option {number} (optional)": "Πρόσωπο για την επιλογή {number} (προαιρετικό)"
+        "Person for option {number} (optional)": "Πρόσωπο για την επιλογή {number} (προαιρετικό)",
+        "Add organisation": "Προσθήκη οργανισμού",
+        "Choose an organisation.": "Επιλέξτε οργανισμό.",
+        "Could not load the participations.": "Δεν ήταν δυνατή η φόρτωση των συμμετοχών.",
+        "Could not save the participation.": "Δεν ήταν δυνατή η αποθήκευση της συμμετοχής.",
+        "Edit participation": "Επεξεργασία συμμετοχής",
+        "Edit the participation of {name}": "Επεξεργασία της συμμετοχής του {name}",
+        "End participation": "Λήξη συμμετοχής",
+        "End the participation of {name}": "Λήξη της συμμετοχής του {name}",
+        "Loading the participations…": "Φόρτωση συμμετοχών…",
+        "No organisations take part in this shared body yet.": "Κανένας οργανισμός δεν συμμετέχει ακόμη σε αυτό το κοινό όργανο.",
+        "On behalf of": "Εκ μέρους",
+        "Organisation": "Οργανισμός",
+        "Participating organisations": "Συμμετέχοντες οργανισμοί",
+        "Withdrawal date": "Ημερομηνία αποχώρησης",
+        "Withdrawn on {date}": "Αποχώρησε στις {date}",
+        "{filled} of {seats} seats filled": "{filled} από {seats} έδρες καλυμμένες",
+        "{filled} seats filled": "{filled} έδρες καλυμμένες"
     },
     "plurals": null
 }

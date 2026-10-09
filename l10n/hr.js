@@ -1666,7 +1666,24 @@ OC.L10N.register(
         "Save decision types": "Spremi vrste odluka",
         "The decision types were not saved": "Vrste odluka nisu spremljene",
         "The decision types were saved": "Vrste odluka su spremljene",
-        "Person for option {number} (optional)": "Osoba za opciju {number} (neobavezno)"
+        "Person for option {number} (optional)": "Osoba za opciju {number} (neobavezno)",
+        "Add organisation": "Dodaj organizaciju",
+        "Choose an organisation.": "Odaberite organizaciju.",
+        "Could not load the participations.": "Sudjelovanja nije moguće učitati.",
+        "Could not save the participation.": "Sudjelovanje nije moguće spremiti.",
+        "Edit participation": "Uredi sudjelovanje",
+        "Edit the participation of {name}": "Uredi sudjelovanje za {name}",
+        "End participation": "Završi sudjelovanje",
+        "End the participation of {name}": "Završi sudjelovanje za {name}",
+        "Loading the participations…": "Učitavanje sudjelovanja…",
+        "No organisations take part in this shared body yet.": "U ovom zajedničkom tijelu još ne sudjeluje nijedna organizacija.",
+        "On behalf of": "U ime",
+        "Organisation": "Organizacija",
+        "Participating organisations": "Organizacije sudionice",
+        "Withdrawal date": "Datum istupanja",
+        "Withdrawn on {date}": "Istupila {date}",
+        "{filled} of {seats} seats filled": "Popunjeno {filled} od {seats} mjesta",
+        "{filled} seats filled": "Popunjeno mjesta: {filled}"
     },
     "nplurals=2; plural=(n != 1);"
 )

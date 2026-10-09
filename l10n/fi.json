@@ -1665,7 +1665,24 @@
         "Save decision types": "Tallenna päätöstyypit",
         "The decision types were not saved": "Päätöstyyppejä ei tallennettu",
         "The decision types were saved": "Päätöstyypit tallennettiin",
-        "Person for option {number} (optional)": "Henkilö vaihtoehdolle {number} (valinnainen)"
+        "Person for option {number} (optional)": "Henkilö vaihtoehdolle {number} (valinnainen)",
+        "Add organisation": "Lisää organisaatio",
+        "Choose an organisation.": "Valitse organisaatio.",
+        "Could not load the participations.": "Osallistumisia ei voitu ladata.",
+        "Could not save the participation.": "Osallistumista ei voitu tallentaa.",
+        "Edit participation": "Muokkaa osallistumista",
+        "Edit the participation of {name}": "Muokkaa organisaation {name} osallistumista",
+        "End participation": "Päätä osallistuminen",
+        "End the participation of {name}": "Päätä organisaation {name} osallistuminen",
+        "Loading the participations…": "Ladataan osallistumisia…",
+        "No organisations take part in this shared body yet.": "Tähän yhteiseen toimielimeen ei vielä osallistu organisaatioita.",
+        "On behalf of": "Edustaa",
+        "Organisation": "Organisaatio",
+        "Participating organisations": "Osallistuvat organisaatiot",
+        "Withdrawal date": "Eroamispäivä",
+        "Withdrawn on {date}": "Eronnut {date}",
+        "{filled} of {seats} seats filled": "{filled}/{seats} paikkaa täytetty",
+        "{filled} seats filled": "{filled} paikkaa täytetty"
     },
     "plurals": null
 }

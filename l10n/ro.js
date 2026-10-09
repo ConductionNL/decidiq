@@ -1666,7 +1666,24 @@ OC.L10N.register(
         "Save decision types": "Salvează tipurile de decizie",
         "The decision types were not saved": "Tipurile de decizie nu au fost salvate",
         "The decision types were saved": "Tipurile de decizie au fost salvate",
-        "Person for option {number} (optional)": "Persoană pentru opțiunea {number} (opțional)"
+        "Person for option {number} (optional)": "Persoană pentru opțiunea {number} (opțional)",
+        "Add organisation": "Adaugă organizație",
+        "Choose an organisation.": "Alegeți o organizație.",
+        "Could not load the participations.": "Participările nu au putut fi încărcate.",
+        "Could not save the participation.": "Participarea nu a putut fi salvată.",
+        "Edit participation": "Editează participarea",
+        "Edit the participation of {name}": "Editează participarea {name}",
+        "End participation": "Încheie participarea",
+        "End the participation of {name}": "Încheie participarea {name}",
+        "Loading the participations…": "Se încarcă participările…",
+        "No organisations take part in this shared body yet.": "Nicio organizație nu participă încă la acest organism comun.",
+        "On behalf of": "În numele",
+        "Organisation": "Organizație",
+        "Participating organisations": "Organizații participante",
+        "Withdrawal date": "Data retragerii",
+        "Withdrawn on {date}": "Retrasă la {date}",
+        "{filled} of {seats} seats filled": "{filled} din {seats} locuri ocupate",
+        "{filled} seats filled": "{filled} locuri ocupate"
     },
     "nplurals=2; plural=(n != 1);"
 )
