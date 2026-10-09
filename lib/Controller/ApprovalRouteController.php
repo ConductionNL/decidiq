@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 
 declare(strict_types=1);
@@ -45,7 +45,7 @@ use Throwable;
 /**
  * Instantiate and advance approval routes.
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 class ApprovalRouteController extends Controller {
 	/**
@@ -78,7 +78,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The created stages, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	#[NoAdminRequired]
 	public function instantiate(): JSONResponse {
@@ -251,7 +251,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The recorded action, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	#[NoAdminRequired]
 	public function record(): JSONResponse {

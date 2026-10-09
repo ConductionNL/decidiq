@@ -69,7 +69,7 @@ $extra = [
         // a subject, and record an action on it. Two DISTINCT route names: a
         // duplicate name is the route identifier colliding, which throws while
         // the table is built and takes every route in the app down with it.
-        // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+        // @spec openspec/specs/approval-routes/spec.md
         ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
         ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
         // The one question a sibling app gates closure on: has everything that

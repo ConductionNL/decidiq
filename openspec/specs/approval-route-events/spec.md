@@ -1,7 +1,6 @@
 # approval-route-events Specification
 
 ## Purpose
-
 An in-process command seam over the existing approval-route engine, so another
 installed fleet app can hold a sign-off route, travel a subject down it, and
 record actions against it. Per ADR-041 a cross-app command travels as a typed
