@@ -68,7 +68,7 @@ class GuestInvitationController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function invite(string $id): JSONResponse {
-		$userId = (string)($this->userSession->getUser()?->getUID() ?? '');
+		$userId = ($this->userSession->getUser()?->getUID() ?? '');
 		try {
 			$this->invitations->requireOrganiserOf(meetingId: $id, userId: $userId);
 			$result = $this->invitations->invite(
