@@ -17,9 +17,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Support;
 
+use OCA\Decidiq\Service\SettingsService;
+
 /**
- * Reads decidesk_register.json plus every register.d fragment, and checks a
- * payload against the merged result.
+ * Reads the register the app ships (SettingsService::shippedRegisterDescriptor(),
+ * the same merge the import runs), and checks a payload against one schema of it.
  *
  * A fake that accepts anything lets a migration write what the real schema
  * refuses. This helper is the control: the payload a test captured is held
@@ -35,24 +37,14 @@ final class MergedRegisterSchema {
 	 * @return array<string,mixed> The schema, empty when no fragment carries the slug.
 	 */
 	public static function forSlug(string $slug): array {
-		$settings = __DIR__ . '/../../../lib/Settings/';
-		$files    = glob($settings . 'register.d/*.json');
-		if ($files === false) {
-			$files = [];
-		}
-
-		sort($files);
-		$schema = [];
-		foreach (array_merge([$settings . 'decidesk_register.json'], $files) as $file) {
-			$doc = (array)json_decode((string)file_get_contents($file), true);
-			foreach (($doc['components']['schemas'] ?? []) as $fragment) {
-				if (is_array($fragment) === true && ($fragment['slug'] ?? null) === $slug) {
-					$schema = self::merge(base: $schema, fragment: $fragment);
-				}
+		$schemas = (SettingsService::shippedRegisterDescriptor()['components']['schemas'] ?? []);
+		foreach ($schemas as $schema) {
+			if (is_array($schema) === true && ($schema['slug'] ?? null) === $slug) {
+				return $schema;
 			}
 		}
 
-		return $schema;
+		return [];
 
 	}//end forSlug()
 
@@ -123,30 +115,4 @@ final class MergedRegisterSchema {
 		};
 
 	}//end fitsType()
-
-	/**
-	 * Merge a fragment into a schema; a list is concatenated, a map merged.
-	 *
-	 * @param array<mixed> $base     The schema so far.
-	 * @param array<mixed> $fragment The fragment.
-	 *
-	 * @return array<mixed> The merged schema.
-	 */
-	private static function merge(array $base, array $fragment): array {
-		if (array_is_list($fragment) === true && array_is_list($base) === true) {
-			return array_values(array_unique(array_merge($base, $fragment), SORT_REGULAR));
-		}
-
-		foreach ($fragment as $key => $value) {
-			if (is_array($value) === true && is_array($base[$key] ?? null) === true) {
-				$base[$key] = self::merge(base: $base[$key], fragment: $value);
-				continue;
-			}
-
-			$base[$key] = $value;
-		}
-
-		return $base;
-
-	}//end merge()
 }//end class

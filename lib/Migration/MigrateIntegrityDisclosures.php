@@ -195,7 +195,7 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: $target),
-							alreadyResolved: array_column(self::REFERENCES, 'target'),
+							alreadyResolved: array_keys(self::REFERENCES),
 							payload: $this->mapRow(objectService: $objectService, row: $row, origin: $origin),
 						),
 					);
