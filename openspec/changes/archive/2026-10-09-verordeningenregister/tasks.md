@@ -1,5 +1,8 @@
 # Tasks: verordeningenregister
 
+> **Closed as superseded (9 Oct 2026, decision 131, Q-decidiq-1).** Not built and not folded into `openspec/specs/`. The separate `Regeling`/`RegelingVersie` register was retired into `GoverningDocument` by `fold-regulations-into-governing-documents`, and the STOP/TPOD export moved to integriq by `hand-woo-diwoo-to-integriq`. The in-force resolution and the public register page live on as governing documents. The unticked tasks below are closed, not owed.
+
+
 ## Implementation Tasks
 
 ### Task 1: Register fragment — schemas, lifecycles, relations, notifications
