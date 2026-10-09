@@ -120,7 +120,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function testAnAnonymousCallerIsRefused(): void {
 		$response = $this->controller(stages: [], authenticated: false)->clearance();
@@ -133,7 +133,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function testTheSubjectAndItsSchemaAreRequired(): void {
 		$response = $this->controller(stages: [], params: ['subject' => ''])->clearance();
@@ -147,7 +147,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function testAnUnfinishedRouteBlocksAndNamesWhoIsBeingWaitedOn(): void {
 		$response = $this->controller(
@@ -181,7 +181,7 @@ class ApprovalRouteClearanceContractTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function testAFinishedRouteClearsItsSubject(): void {
 		$response = $this->controller(

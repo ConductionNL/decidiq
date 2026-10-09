@@ -139,7 +139,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
              what a sign-off step declared its own silence to mean once its term
              has passed, and asks a stand-in part-way through the term. Safe to
              run twice; a stage carries the stamp that says it already lapsed.
-             @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md -->
+             @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are

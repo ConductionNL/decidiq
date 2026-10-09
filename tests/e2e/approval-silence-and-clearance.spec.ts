@@ -28,7 +28,7 @@
  * (tests/Unit/Service/StageLapsePolicyTest.php and
  * tests/Unit/Service/ApprovalStageLapseServiceTest.php).
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  * @e2e exclude every scenario in the delta is marked `@e2e exclude` in the spec
  *      itself, as a service or timed path; this file covers the deployment
  *      facts around them instead.

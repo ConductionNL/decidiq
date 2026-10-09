@@ -299,7 +299,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function testAHeldRouteCanAskTheSubstitute(): void {
 		$stages = $this->service()->holdFor(
@@ -898,7 +898,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnOrdinaryUserCannotDeclareThatSilenceApproves(): void {
 		$route = $this->route();
@@ -928,7 +928,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testTheRefusedRouteWritesNoStageAtAll(): void {
 		$route = $this->route();
@@ -954,7 +954,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnAdministratorMayDeclareThatSilenceApproves(): void {
 		$route = $this->route();
@@ -980,7 +980,7 @@ class ApprovalRouteServiceTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAStoredRouteWithoutAnApprovingSilenceStillInstantiates(): void {
 		$route = $this->route();

@@ -139,7 +139,7 @@ class ApprovalRouteService {
 	 * @throws RuntimeException When no actor is named.
 	 *
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function holdFor(
 		string $subject,
@@ -357,7 +357,7 @@ class ApprovalRouteService {
 	 *
 	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function instantiate(
 		array $route,
@@ -442,7 +442,7 @@ class ApprovalRouteService {
 	 *
 	 * @return array<int, array<string, mixed>> The stages, with resolved actors.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012)
 	 */
 	private function resolveLiveStages(array $stages, string $owner): array {
 		if ($this->activator === null) {
@@ -596,7 +596,7 @@ class ApprovalRouteService {
 	 *
 	 * @return array<int, array<string, mixed>> The routes with their stages.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function routesWithStagesFor(string $subject): array {
 		$grouped = [];

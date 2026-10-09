@@ -5,7 +5,7 @@
  * The approval chain tab names, per step, who a rule asks, what silence means
  * and when the substitute is asked as well.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 
 import { describe, expect, it, vi } from 'vitest'

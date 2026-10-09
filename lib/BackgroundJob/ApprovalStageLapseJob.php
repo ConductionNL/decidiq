@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Hourly sweep of approval stages whose term has passed (ADR-069).
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
  */
 class ApprovalStageLapseJob extends TimedJob {
 	/**
@@ -71,7 +71,7 @@ class ApprovalStageLapseJob extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
 	 * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with

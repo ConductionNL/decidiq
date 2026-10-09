@@ -184,7 +184,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return array<string, mixed> The clearance answer
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function getClearance(): array {
 		return $this->clearance;

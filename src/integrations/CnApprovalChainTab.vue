@@ -257,7 +257,7 @@ export default {
 		 *
 		 * @param {object} stage The stage.
 		 * @return {string[]} The lines.
-		 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+		 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 		 */
 		policyLines(stage) {
 			return stagePolicyLines(stage)

@@ -148,7 +148,7 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnOrdinaryUserIsRefusedAndNoStageIsWritten(): void {
 		$controller = $this->controller(
@@ -183,7 +183,7 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function testAnAdministratorIsNotRefusedByThisRule(): void {
 		$controller = $this->controller(
@@ -211,7 +211,7 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function testAHeldRouteFromTheLeafCarriesAskSubstituteAfter(): void {
 		$controller = $this->controller(

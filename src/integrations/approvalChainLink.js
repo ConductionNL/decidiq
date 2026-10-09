@@ -185,7 +185,7 @@ export function isOverdue(stage, now) {
  *
  * @param {object} stage The stage.
  * @return {string[]} One line per declaration, empty for a plain step.
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
  */
 export function stagePolicyLines(stage) {
 	if (!stage) return []

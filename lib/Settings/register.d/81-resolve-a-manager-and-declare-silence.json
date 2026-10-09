@@ -2,7 +2,7 @@
   "x-openregister": {
     "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
   },
-  "_comment": "ADR-037 register fragment - approval-routes-resolve-a-manager-and-declare-silence. Patches ApprovalRoute, DecisionStage and ApprovalAction by key union. A step can name a RULE instead of a person, resolved when the step becomes live rather than when the route is instantiated. A route says whether it is required, which is what lets a consuming app ask whether a subject is cleared. A step declares what its silence means once its due date has passed, defaulting to hold so no stored route changes meaning. And a step can ask the actor's substitute part-way through its window, before the deadline rather than after it. See openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md, REQ-AR-012 through REQ-AR-017.",
+  "_comment": "ADR-037 register fragment - approval-routes-resolve-a-manager-and-declare-silence. Patches ApprovalRoute, DecisionStage and ApprovalAction by key union. A step can name a RULE instead of a person, resolved when the step becomes live rather than when the route is instantiated. A route says whether it is required, which is what lets a consuming app ask whether a subject is cleared. A step declares what its silence means once its due date has passed, defaulting to hold so no stored route changes meaning. And a step can ask the actor's substitute part-way through its window, before the deadline rather than after it. See openspec/specs/approval-routes/spec.md, REQ-AR-012 through REQ-AR-017.",
   "components": {
     "schemas": {
       "ApprovalRoute": {

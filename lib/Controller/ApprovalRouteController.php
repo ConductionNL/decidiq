@@ -159,7 +159,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return float|null
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	private function askSubstituteAfter(): ?float {
 		$value = $this->request->getParam('askSubstituteAfter');
@@ -185,7 +185,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return ApprovalPrincipal The caller, as the route rules see them.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	private function callerPrincipal(): ApprovalPrincipal {
 		$user = $this->userSession->getUser();
@@ -308,7 +308,7 @@ class ApprovalRouteController extends Controller {
 	 *
 	 * @return JSONResponse The clearance answer, or an error.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	#[NoAdminRequired]
 	public function clearance(): JSONResponse {

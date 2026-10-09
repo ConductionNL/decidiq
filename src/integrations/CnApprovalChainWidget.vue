@@ -319,7 +319,7 @@ export default {
 			return parseActors(this.startPeople)
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteOptions() {
 			return [
 				{
@@ -340,7 +340,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteNeedsDeadline() {
 			return (
 				Boolean(this.startSubstitute && this.startSubstitute.value)
@@ -363,12 +363,12 @@ export default {
 			return t('decidiq', 'Deadline')
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteLabel() {
 			return t('decidiq', 'Also ask the substitute')
 		},
 
-		/** @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016) */
+		/** @spec openspec/specs/approval-routes/spec.md (REQ-AR-016) */
 		substituteDeadlineHint() {
 			return t(
 				'decidiq',

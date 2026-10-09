@@ -223,7 +223,7 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @return array<string, mixed> The stage fields.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-015, REQ-AR-016)
 	 */
 	public function declaredStepFields(array $step): array {
 		$fields = [];
