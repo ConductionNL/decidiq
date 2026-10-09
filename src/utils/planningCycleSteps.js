@@ -10,7 +10,11 @@
  * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 
-/** Statuses after which a step is never overdue. */
+/**
+ * Statuses after which a step is never overdue.
+ *
+ * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ */
 export const TERMINAL_STATUSES = ['adopted', 'completed']
 
 /**
