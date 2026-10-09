@@ -296,6 +296,7 @@ class PortalContributionProvider {
 			$this->subscriptionsCollection(),
 			$this->publicCalendarCollection(),
 			$this->publicBroadcastsCollection(),
+			$this->motionsOpenForAdviceCollection(),
 		];
 
 	}//end citizenCollections()
@@ -368,6 +369,42 @@ class PortalContributionProvider {
 		];
 
 	}//end publicBroadcastsCollection()
+
+	/**
+	 * Motions residents may give advice on, read without an account
+	 * (participation-citizen-advisory-vote-on-motions, REQ-CAV-003).
+	 *
+	 * Listed only where the griffie allowed citizen voting. OpenRegister's
+	 * Decision read rule admits an anonymous caller to published decisions
+	 * only, so a draft motion never reaches this list. The three counts travel
+	 * with the motion so the portal shows the advisory result after the vote
+	 * closes; who voted is never listed.
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-003-the-advisory-result-shows-apart-from-the-councils-vote
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function motionsOpenForAdviceCollection(): array {
+		return [
+			'id' => 'motionsOpenForAdvice',
+			'register' => self::REGISTER,
+			'schema' => 'decision',
+			'anonymous' => true,
+			'label' => 'Motions open for your advice',
+			'listable' => true,
+			'fields' => [
+				'title',
+				'text',
+				'motionType',
+				'citizenVotingStatus',
+				'citizenAdviceFor',
+				'citizenAdviceAgainst',
+				'citizenAdviceAbstain',
+			],
+			'defaultFilters' => ['citizenVotingAllowed' => true],
+		];
+
+	}//end motionsOpenForAdviceCollection()
 
 	/**
 	 * The three `type: create` actions on the `citizen` manifest (see

@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the register WHEN imported THEN `decision` carries `citizenVotingStatus` with its lifecycle and the three advice counts
   - GIVEN the seeded motion WHEN read THEN the counts are 3, 1 and 1
-- [x] Implement (fragment `92-citizen-advice-on-motions.json`; the seeded motion with counts is not yet in an example set)
-- [ ] Test (register test, Newman read)
+- [x] Implement (fragment `92-citizen-advice-on-motions.json`; the municipality set's "Motie Woonlasten verlagen" carries a closed advisory vote of 3, 1 and 1)
+- [ ] Test (register test done: tests/Unit/Settings/CitizenAdviceOnMotionsRegisterTest.php, the whole seed held against the shipped schema; not run: the Newman read needs the live instance)
 
 ### Task 2: Open and close from the motion page
 - **spec_ref**: `openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-001-the-griffie-opens-and-closes-an-advisory-vote-on-a-motion`
@@ -40,8 +40,8 @@
   - GIVEN a closed advisory vote WHEN the griffier opens the motion THEN she sees the three counts with the not-binding caption beside the voting round
   - GIVEN the statutory voting round WHEN it is closed THEN its tally is unaffected by citizen votes
   - GIVEN an anonymous resident WHEN the portal lists motions open for advice THEN the published motion shows with its counts after closing
-- [ ] Implement (partly, #1418: the MotionCitizenAdviceTab widget shows the counts with the not-binding caption and the open and close buttons; the portal list `motionsOpenForAdvice` and the Newman run are still to do)
-- [ ] Test (Newman against a seeded instance with portaliq)
+- [x] Implement (#1418: the MotionCitizenAdviceTab widget shows the counts with the not-binding caption and the open and close buttons; `motionsOpenForAdvice` in lib/Portal/PortalContributionProvider.php lists published motions with citizen voting allowed, anonymously, with their counts; tested by PortalContributionProviderTest::testMotionsOpenForAdviceAreAnonymousWithTheirCounts)
+- [ ] Test (Newman against a seeded instance with portaliq) (not run: needs the live instance with portaliq)
 
 ## Verification
 
