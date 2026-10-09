@@ -875,4 +875,29 @@ class RegisterAuthorizationTest extends TestCase {
 		}
 
 	}//end testFlowOwnedPublicationFieldsRefuseADirectUpdate()
+	/**
+	 * Anonymous visitors read only published decisions.
+	 *
+	 * Without its own block, Decision falls back to the register baseline, which
+	 * grants `public` read of every draft. The block keeps `authenticated` read
+	 * whole and admits `public` only on `isPublished: public`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 */
+	public function testAnonymousReadOfADecisionNeedsItToBePublished(): void {
+		$blocks = $this->schemaBlocks();
+		$this->assertArrayHasKey('Decision', $blocks, 'Decision must declare its own authorization block.');
+
+		$read = $blocks['Decision']['block']['read'] ?? [];
+		$this->assertContains('authenticated', $read, 'Signed-in readers keep reading every decision.');
+		$this->assertNotContains('public', $read, 'A bare public grant would publish every draft decision.');
+		$this->assertContains(
+			['group' => 'public', 'match' => ['isPublished' => 'public']],
+			$read,
+			'Anonymous read must be conditional on isPublished = public.'
+		);
+	}//end testAnonymousReadOfADecisionNeedsItToBePublished()
+
 }//end class
