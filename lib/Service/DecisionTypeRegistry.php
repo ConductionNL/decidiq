@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use InvalidArgumentException;
 use OCA\Decidiq\AppInfo\Application;
 use OCP\IAppConfig;
 
@@ -149,7 +150,7 @@ class DecisionTypeRegistry {
 		$clean = [];
 		foreach ($types as $type) {
 			if (is_string($type) === false) {
-				throw new \InvalidArgumentException('Every decision type must be text.');
+				throw new InvalidArgumentException('Every decision type must be text.');
 			}
 
 			$type = trim($type);
@@ -158,7 +159,7 @@ class DecisionTypeRegistry {
 			}
 
 			if (preg_match('/^[a-z0-9][a-z0-9-]{0,63}$/', $type) !== 1) {
-				throw new \InvalidArgumentException(
+				throw new InvalidArgumentException(
 					sprintf('"%s" is not a valid decision type. Use lowercase letters, digits and hyphens.', $type)
 				);
 			}
@@ -168,7 +169,7 @@ class DecisionTypeRegistry {
 
 		$clean = array_values(array_unique($clean));
 		if ($clean === []) {
-			throw new \InvalidArgumentException('Keep at least one decision type.');
+			throw new InvalidArgumentException('Keep at least one decision type.');
 		}
 
 		$this->appConfig->setValueArray(Application::APP_ID, self::CONFIG_KEY, $clean);

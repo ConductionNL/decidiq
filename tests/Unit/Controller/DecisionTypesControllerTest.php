@@ -37,6 +37,7 @@ use PHPUnit\Framework\TestCase;
  *
  * @covers \OCA\Decidiq\Controller\DecisionTypesController
  * @uses \OCA\Decidiq\AppInfo\Application
+ * @uses \OCA\Decidiq\Service\DecisionTypeRegistry
  *
  * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
  */

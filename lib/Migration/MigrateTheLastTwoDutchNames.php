@@ -279,7 +279,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 			$progress = false;
 			foreach ($pending as $id => $row) {
 				$parent = (string)($row['parentAllocation'] ?? '');
-				if ($parent !== '' && isset($pending[$parent]) === true && $parent !== (string)$id) {
+				if ($parent !== '' && isset($pending[$parent]) === true && $parent !== strval($id)) {
 					continue;
 				}
 
