@@ -50,7 +50,7 @@
   - GIVEN a test result WHEN the page reloads THEN result, note, author and time are shown
   - GIVEN the Playwright spec WHEN it runs THEN it carries `@e2e` references to the UI scenarios of REQ-LSTR-002, 003 and 004
 - [x] Implement (MeetingBroadcastTab, widget `meeting-broadcast` on MeetingDetail with layout row 27 and a slots entry, registry entry; the buttons per state come from src/utils/meetingBroadcast.js and are checked against the schema lifecycle in tests/vitest/meetingBroadcast.spec.js; the test result shows with or without a connection; tests/e2e/meeting-broadcast.spec.ts written, not run; 25 strings in en, nl, de, fr, es, it)
-- [ ] Test
+- [ ] Test (not run: tests/e2e/meeting-broadcast.spec.ts is written; it needs the live instance)
 
 ### Task 6: Subtitles derived from the aligned transcript
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows`
