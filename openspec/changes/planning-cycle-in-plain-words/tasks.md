@@ -22,4 +22,4 @@
 
 ## 4. Prove it
 
-- [ ] 4.1 Unit tests for the migration, including the reference retarget.
+- [x] 4.1 Unit tests for the migration, including the reference retarget. (tests/Unit/Migration/MigratePlanningCyclesTest.php, testAStepPointsAtTheCopiedCycleNotTheRetiredOne)

@@ -22,5 +22,5 @@
 
 ## 4. Prove it
 
-- [ ] 4.1 Unit tests for the migration.
-- [ ] 4.2 Extend the authorization-inheritance guard to this rename.
+- [x] 4.1 Unit tests for the migration. (tests/Unit/Migration/MigrateCommitmentsTest.php)
+- [x] 4.2 Extend the authorization-inheritance guard to this rename. (tests/Unit/RegisterAuthorizationTest.php, testARenamedSchemaKeepsItsPredecessorsReadRule: 'Toezegging' => 'Commitment')

@@ -26,5 +26,5 @@
 
 ## 5. Prove it
 
-- [ ] 5.1 Unit tests: mapping, the rename, idempotency, ordering, an orphan version.
+- [x] 5.1 Unit tests: mapping, the rename, idempotency, ordering, an orphan version. (tests/Unit/Migration/MigrateRegulationsToGoverningDocumentsTest.php)
 - [ ] 5.2 E2E: the regulations still render, under the generic surface.
