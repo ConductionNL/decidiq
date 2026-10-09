@@ -174,7 +174,7 @@ class MigrateIntegrityDisclosuresTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/integrity-disclosures-in-plain-words/specs/integrity-disclosures-in-plain-words/spec.md#requirement-the-integrity-policy-is-body-configuration
+	 * @spec openspec/changes/integrity-disclosures-in-plain-words/specs/integrity-disclosures-in-plain-words/spec.md#requirement-the-integrity-policy-folds-into-the-body-configuration
 	 */
 	public function testAPolicyFoldsIntoTheExistingConfiguration(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -216,7 +216,7 @@ class MigrateIntegrityDisclosuresTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/integrity-disclosures-in-plain-words/specs/integrity-disclosures-in-plain-words/spec.md#requirement-the-integrity-policy-is-body-configuration
+	 * @spec openspec/changes/integrity-disclosures-in-plain-words/specs/integrity-disclosures-in-plain-words/spec.md#requirement-the-integrity-policy-folds-into-the-body-configuration
 	 */
 	public function testAPolicyWithoutAConfigurationCreatesOne(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
