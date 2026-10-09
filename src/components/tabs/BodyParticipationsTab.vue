@@ -29,14 +29,21 @@
 				{{ error }}
 			</p>
 			<p v-else-if="!rows.length" class="body-participations__muted">
-				{{ t('decidiq', 'No organisations take part in this shared body yet.') }}
+				{{
+					t(
+						'decidiq',
+						'No organisations take part in this shared body yet.',
+					)
+				}}
 			</p>
 			<table
 				v-else
 				class="body-participations__table"
 				data-testid="body-participations-table">
 				<caption class="hidden-visually">
-					{{ t('decidiq', 'Participating organisations') }}
+					{{
+						t('decidiq', 'Participating organisations')
+					}}
 				</caption>
 				<thead>
 					<tr>
@@ -53,7 +60,9 @@
 							{{ t('decidiq', 'Accession date') }}
 						</th>
 						<th scope="col">
-							<span class="hidden-visually">{{ t('decidiq', 'Actions') }}</span>
+							<span class="hidden-visually">{{
+								t('decidiq', 'Actions')
+							}}</span>
 						</th>
 					</tr>
 				</thead>
@@ -65,24 +74,48 @@
 						data-testid="body-participations-row">
 						<th scope="row">
 							{{ row.name }}
-							<span v-if="!row.active" class="body-participations__badge">
-								{{ t('decidiq', 'Withdrawn on {date}', { date: formatDate(row.exitDate) }) }}
+							<span
+								v-if="!row.active"
+								class="body-participations__badge">
+								{{
+									t('decidiq', 'Withdrawn on {date}', {
+										date: formatDate(row.exitDate),
+									})
+								}}
 							</span>
 						</th>
 						<td data-testid="body-participations-seats">
 							<template v-if="row.seats !== null">
-								{{ t('decidiq', '{filled} of {seats} seats filled', { filled: row.filled, seats: row.seats }) }}
+								{{
+									t(
+										'decidiq',
+										'{filled} of {seats} seats filled',
+										{ filled: row.filled, seats: row.seats },
+									)
+								}}
 							</template>
 							<template v-else>
-								{{ t('decidiq', '{filled} seats filled', { filled: row.filled }) }}
+								{{
+									t('decidiq', '{filled} seats filled', {
+										filled: row.filled,
+									})
+								}}
 							</template>
 						</td>
-						<td>{{ row.votingWeight !== null ? row.votingWeight : '' }}</td>
+						<td>
+							{{ row.votingWeight !== null ? row.votingWeight : '' }}
+						</td>
 						<td>{{ formatDate(row.accessionDate) }}</td>
 						<td class="body-participations__actions">
 							<NcButton
 								variant="tertiary"
-								:aria-label="t('decidiq', 'Edit the participation of {name}', { name: row.name })"
+								:aria-label="
+									t(
+										'decidiq',
+										'Edit the participation of {name}',
+										{ name: row.name },
+									)
+								"
 								data-testid="body-participations-edit"
 								@click="openDialog(row.source)">
 								{{ t('decidiq', 'Edit') }}
@@ -91,7 +124,11 @@
 								v-if="row.active"
 								variant="tertiary"
 								:disabled="busy"
-								:aria-label="t('decidiq', 'End the participation of {name}', { name: row.name })"
+								:aria-label="
+									t('decidiq', 'End the participation of {name}', {
+										name: row.name,
+									})
+								"
 								data-testid="body-participations-end"
 								@click="end(row.source)">
 								{{ t('decidiq', 'End participation') }}
@@ -102,9 +139,9 @@
 			</table>
 			<BodyParticipationDialog
 				v-if="dialogOpen"
-				:shared-body-id="String(objectId)"
+				:sharedBodyId="String(objectId)"
 				:participation="editing"
-				:organisation-options="dialogOptions"
+				:organisationOptions="dialogOptions"
 				@saved="refresh"
 				@close="dialogOpen = false" />
 		</template>
@@ -129,9 +166,6 @@ export default {
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
-		objectType: { type: String, default: '' },
-		register: { type: String, default: '' },
-		schema: { type: String, default: '' },
 	},
 
 	data() {
@@ -179,12 +213,18 @@ export default {
 					.map((p) => p.participant),
 			)
 			return this.bodies
-				.filter((body) => String(body.id) !== self && body.bodyType !== 'faction')
+				.filter(
+					(body) =>
+						String(body.id) !== self && body.bodyType !== 'faction',
+				)
 				.filter(
 					(body) =>
 						this.editing?.participant === body.id || !taken.has(body.id),
 				)
-				.map((body) => ({ id: body.id, label: body.name || String(body.id) }))
+				.map((body) => ({
+					id: body.id,
+					label: body.name || String(body.id),
+				}))
 				.sort((a, b) => a.label.localeCompare(b.label))
 		},
 	},

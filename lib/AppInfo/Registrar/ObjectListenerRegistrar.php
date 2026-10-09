@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
@@ -133,6 +134,17 @@ class ObjectListenerRegistrar {
 				schemas: [TechnicalQuestionListener::SCHEMA_AGENDA_ITEM]
 			);
 		}
+
+		// A planning cycle made from a template gets its steps
+		// (planning-cycle-generate-from-template, pla-12). Declared interest is
+		// the handler's own schema guard.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: PlanningCycleCreatedListener::class,
+			registers: null,
+			schemas: [PlanningCycleCreatedListener::SCHEMA_PLANNING_CYCLE]
+		);
 
 		// Agenda change notices (#1396). Declared interest is the handler's
 		// own schema guard verbatim, AgendaItemChangeListener::SCHEMA_AGENDA_ITEM.

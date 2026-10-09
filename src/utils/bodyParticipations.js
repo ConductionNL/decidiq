@@ -223,7 +223,8 @@ export function onBehalfOfOptions(participations, bodiesById, now = new Date()) 
 	const options = []
 	for (const participation of participations || []) {
 		const id = participation?.participant
-		if (!id || seen.has(id) || !isActiveParticipation(participation, now)) continue
+		if (!id || seen.has(id) || !isActiveParticipation(participation, now))
+			continue
 		seen.add(id)
 		options.push({ id, label: bodyName(bodiesById, id) })
 	}

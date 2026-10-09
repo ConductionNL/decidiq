@@ -219,7 +219,9 @@ export default {
 				].filter(Boolean)
 				const bodies = await Promise.all(
 					ids.map((id) =>
-						bodyStore.fetchObject('governance-body', id).catch(() => null),
+						bodyStore
+							.fetchObject('governance-body', id)
+							.catch(() => null),
 					),
 				)
 				const bodiesById = Object.fromEntries(

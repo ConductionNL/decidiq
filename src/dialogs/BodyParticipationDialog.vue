@@ -71,7 +71,9 @@
 				@click="save">
 				{{ saving ? t('decidiq', 'Saving…') : t('decidiq', 'Save') }}
 			</NcButton>
-			<NcButton data-testid="body-participation-cancel" @click="$emit('close')">
+			<NcButton
+				data-testid="body-participation-cancel"
+				@click="$emit('close')">
 				{{ t('decidiq', 'Cancel') }}
 			</NcButton>
 		</template>
@@ -115,13 +117,15 @@ export default {
 		const current = this.participation || {}
 		return {
 			selectedParticipant:
-				this.organisationOptions.find((o) => o.id === current.participant) ||
-				null,
+				this.organisationOptions.find((o) => o.id === current.participant)
+				|| null,
+
 			seats: current.seats ?? '',
 			votingWeight: current.votingWeight ?? '',
 			accessionDate: current.accessionDate
 				? new Date(current.accessionDate)
 				: new Date(),
+
 			exitDate: current.exitDate ? new Date(current.exitDate) : null,
 			saving: false,
 			error: '',
@@ -160,7 +164,8 @@ export default {
 				this.$emit('close')
 			} catch (e) {
 				this.error =
-					e?.message || this.t('decidiq', 'Could not save the participation.')
+					e?.message
+					|| this.t('decidiq', 'Could not save the participation.')
 			} finally {
 				this.saving = false
 			}

@@ -269,7 +269,9 @@ describe('the widget is wired into the shared body page (REQ-SGBP-001)', () => {
 			/BodyParticipationsTab: page\(BodyParticipationsTab\)/,
 		)
 		const tab = read('src/components/tabs/BodyParticipationsTab.vue')
-		expect(tab).toMatch(/import BodyParticipationDialog from '..\/..\/dialogs\/BodyParticipationDialog.vue'/)
+		expect(tab).toMatch(
+			/import BodyParticipationDialog from '..\/..\/dialogs\/BodyParticipationDialog.vue'/,
+		)
 		expect(tab).toMatch(/endParticipationPayload/)
 		expect(read('src/dialogs/BodyParticipationDialog.vue')).toMatch(
 			/buildParticipationPayload/,

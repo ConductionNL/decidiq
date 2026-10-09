@@ -90,6 +90,7 @@ import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
+import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
@@ -257,6 +258,8 @@ export default {
 	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
 	// Participating organisations of a shared body (bodies-shared-body-participations, bod-13).
 	BodyParticipationsTab: page(BodyParticipationsTab),
+	// Steps of a planning cycle in order (planning-cycle-generate-from-template, pla-12).
+	PlanningCycleStepsTab: page(PlanningCycleStepsTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
 	MeetingVotesTab: page(MeetingVotesTab),
 	// Meeting-scoped facet composition (meeting-facet-composition): mode-gated

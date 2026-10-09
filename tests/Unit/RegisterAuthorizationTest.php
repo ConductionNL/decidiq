@@ -454,6 +454,50 @@ class RegisterAuthorizationTest extends TestCase {
 	}//end testTheAppVersionMovedSoTheRepairStepRuns()
 
 	/**
+	 * The organiser of an ad hoc meeting keeps editing it; nobody else does.
+	 *
+	 * Meeting declares no authorization of its own, at schema or property
+	 * level, in any file, so the register baseline decides: any signed-in
+	 * user creates a meeting, update and delete are NOT open to every
+	 * authenticated user, and OpenRegister's unconditional owner bypass lets
+	 * the creator (Anna) edit and delete her own meeting while Pieter, who
+	 * did not create it, is refused. A Meeting block or a property rule would
+	 * silently change that, so this test fails first.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 */
+	public function testTheOrganiserOfAMeetingKeepsEditingIt(): void {
+		$this->assertArrayNotHasKey('Meeting', $this->schemaBlocks(), 'Meeting must not override the register baseline that leaves the organiser in control.');
+
+		$files = array_merge(
+			[__DIR__ . '/../../lib/Settings/decidesk_register.json'],
+			glob(__DIR__ . '/../../lib/Settings/register.d/*.json') ?: []
+		);
+		foreach ($files as $file) {
+			$decoded = json_decode((string)file_get_contents($file), true);
+			foreach (($decoded['components']['schemas'] ?? []) as $name => $schema) {
+				if ($name !== 'Meeting' && (($schema['slug'] ?? '') !== 'meeting')) {
+					continue;
+				}
+
+				foreach (($schema['properties'] ?? []) as $property => $definition) {
+					$this->assertFalse(
+						is_array($definition) === true && isset($definition['authorization']) === true,
+						sprintf('Meeting.%s in %s declares a property rule that could refuse the organiser.', $property, basename($file))
+					);
+				}
+			}
+		}
+
+		$authorization = $this->registerRow()['authorization'];
+		$this->assertContains('authenticated', $authorization['create'], 'Any signed-in user can set up a meeting.');
+		$this->assertNotContains('authenticated', $authorization['update'], 'Pieter may not edit a meeting he did not create.');
+		$this->assertNotContains('authenticated', $authorization['delete'], 'Pieter may not delete a meeting he did not create.');
+	}//end testTheOrganiserOfAMeetingKeepsEditingIt()
+
+	/**
 	 * Every schema-level authorization block in the main register and its fragments, by schema name.
 	 *
 	 * @return array<string,array{block: array<string,mixed>, file: string}> The blocks.
