@@ -124,6 +124,7 @@ import StartProcessAction from './views/dashboard/widgets/StartProcessAction.vue
 import UpcomingMeetingsKpiWidget from './views/dashboard/widgets/UpcomingMeetingsKpiWidget.vue'
 import UpcomingMeetingsListWidget from './views/dashboard/widgets/UpcomingMeetingsListWidget.vue'
 import LiveMeetingView from './views/LiveMeeting.vue'
+import AdhocMeetingPage from './views/meetings/AdhocMeetingPage.vue'
 import MeetingCalendarView from './views/meetings/MeetingCalendarView.vue'
 import MeetingViewToggle from './views/meetings/MeetingViewToggle.vue'
 import MotionIntegrations from './views/MotionIntegrations.vue'
@@ -199,6 +200,7 @@ export default {
 	// toggle rides the index page's actionsComponent slot and routes
 	// between the two pages, leaving the table surface untouched.
 	MeetingCalendarView: page(MeetingCalendarView),
+	AdhocMeetingPage: page(AdhocMeetingPage),
 	MeetingViewToggle: page(MeetingViewToggle),
 
 	// --- Integration-registry surfaces (ADR-019 / ADR-022). ---
