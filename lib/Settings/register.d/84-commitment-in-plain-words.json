@@ -1,6 +1,6 @@
 {
 	"_note": "commitment-in-plain-words — a toezegging is a commitment. Every organisation whose officers answer to a body has them: a portfolio holder promises the council a memo, a director promises the works council a figure, a board member promises the ALV a report. The properties were already in plain words. Only the schema was not.",
-	"_spec": "openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md",
+	"_spec": "openspec/specs/commitment-in-plain-words/spec.md",
 	"components": {
 		"schemas": {
 			"Commitment": {

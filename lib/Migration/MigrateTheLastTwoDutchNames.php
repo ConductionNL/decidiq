@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the forward agenda and the authority delegation into plain words.
  *
- * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md
+ * @spec openspec/specs/the-last-two-dutch-names/spec.md
  */
 class MigrateTheLastTwoDutchNames implements IRepairStep {
 	use ReadsLegacyRows;
@@ -146,7 +146,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -180,7 +180,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,
@@ -266,7 +266,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return array<int,array<string,mixed>> The rows, parents first.
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	private function parentsFirst(array $rows): array {
 		$pending = [];

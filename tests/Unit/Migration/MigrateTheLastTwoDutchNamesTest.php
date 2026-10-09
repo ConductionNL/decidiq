@@ -28,7 +28,7 @@ use Psr\Log\LoggerInterface;
 /**
  * The rename of the forward-agenda and delegation records into plain words.
  *
- * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md
+ * @spec openspec/specs/the-last-two-dutch-names/spec.md
  */
 class MigrateTheLastTwoDutchNamesTest extends TestCase {
 
@@ -93,7 +93,7 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-the-dutch-properties-are-renamed-with-their-schema
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-the-dutch-properties-are-renamed-with-their-schema
 	 */
 	public function testTheDutchPropertiesLandOnTheirPlainNames(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -135,7 +135,7 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	public function testASubDelegationPointsAtItsCopiedParent(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -164,7 +164,7 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-the-forward-agenda-vocabularies-are-configuration
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-the-forward-agenda-vocabularies-are-configuration
 	 */
 	public function testAPlannedItemKeepsItsValues(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -203,7 +203,7 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	public function testASecondRunCopiesNothing(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);

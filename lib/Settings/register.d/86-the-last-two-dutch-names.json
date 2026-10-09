@@ -1,6 +1,6 @@
 {
 	"_note": "the-last-two-dutch-names — a termijnagenda is a forward agenda and a bevoegdheidstoedeling is an authority delegation. Both are things any organisation does: plan what it will handle, and record who may act on whose behalf. These are the last two Dutch-named schemas in the app that are not Woo/DiWoo publication plumbing, which moves to integriq separately. Grouped in one change because both are pure renames with no shared surface, and splitting them would double the migration plumbing for no reviewer benefit.",
-	"_spec": "openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md",
+	"_spec": "openspec/specs/the-last-two-dutch-names/spec.md",
 	"components": {
 		"schemas": {
 			"PlannedAgendaItem": {

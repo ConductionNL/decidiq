@@ -1,6 +1,6 @@
 {
 	"_note": "confidentiality-in-plain-words — every organisation can restrict what it circulates, and decide on what ground. Only the words were Dutch. GeheimhoudingGrond already called itself configuration (\"Grounds are DATA, not code\"), and its `category` enum contradicted that by fixing four values from one country's statutes, so the category becomes a free string with the rename.",
-	"_spec": "openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md",
+	"_spec": "openspec/specs/confidentiality-in-plain-words/spec.md",
 	"components": {
 		"schemas": {
 			"ConfidentialityRestriction": {
