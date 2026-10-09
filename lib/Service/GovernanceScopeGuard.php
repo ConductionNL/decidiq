@@ -160,7 +160,7 @@ class GovernanceScopeGuard {
 	 * @return bool
 	 *
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-002-signatory-authorization-is-an-openregister-rbac-rule-not-an-app-local-service
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 */
 	public function isSignatoryForMinutes(string $userId, string $minutesId): bool {
 		if ($userId === '' || $minutesId === '') {

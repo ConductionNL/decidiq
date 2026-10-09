@@ -131,7 +131,7 @@ class EIDASSignatureController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
 	 *
 	 * @return JSONResponse
 	 */
@@ -191,7 +191,7 @@ class EIDASSignatureController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 *
 	 * @return JSONResponse
 	 */
@@ -255,7 +255,7 @@ class EIDASSignatureController extends Controller {
 	 *   Trusted List, so no Decidiq object is reachable and nothing app-owned is disclosed.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
 	 *
 	 * @return JSONResponse
 	 */

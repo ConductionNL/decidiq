@@ -884,7 +884,7 @@ class RegisterAuthorizationTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	public function testAnonymousReadOfADecisionNeedsItToBePublished(): void {
 		$blocks = $this->schemaBlocks();

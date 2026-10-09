@@ -192,7 +192,7 @@ class GovernanceScopeGuardTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 */
 	public function testIsSignatoryForMinutesAllowsSignatoryAndDeniesOthers(): void {
 		$groupManager = $this->createMock(IGroupManager::class);
