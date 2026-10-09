@@ -3475,7 +3475,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Keurt vanzelf goed als niemand voor de termijn reageert",
         "Refuses on its own if nobody answers by the deadline": "Wijst vanzelf af als niemand voor de termijn reageert",
         "Goes up a level if nobody answers by the deadline": "Gaat een niveau hoger als niemand voor de termijn reageert",
-        "The substitute is also asked after {percent}% of the time": "De vervanger wordt ook gevraagd na {percent}% van de termijn"
+        "The substitute is also asked after {percent}% of the time": "De vervanger wordt ook gevraagd na {percent}% van de termijn",
+        "Decision types": "Besluittypen",
+        "Decision types, one on each line": "Besluittypen, één per regel",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Elke geïnstalleerde app mag een besluit van deze typen aanmaken. Zet één type per regel, in kleine letters, cijfers en koppeltekens.",
+        "Save decision types": "Besluittypen opslaan",
+        "The decision types were not saved": "De besluittypen zijn niet opgeslagen",
+        "The decision types were saved": "De besluittypen zijn opgeslagen"
     },
     "nplurals=2; plural=(n != 1);"
 )

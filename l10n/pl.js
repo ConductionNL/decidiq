@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Zatwierdza się sam, jeśli nikt nie odpowie do terminu",
         "Refuses on its own if nobody answers by the deadline": "Odrzuca się sam, jeśli nikt nie odpowie do terminu",
         "Goes up a level if nobody answers by the deadline": "Przechodzi poziom wyżej, jeśli nikt nie odpowie do terminu",
-        "The substitute is also asked after {percent}% of the time": "Zastępca jest też pytany po upływie {percent}% terminu"
+        "The substitute is also asked after {percent}% of the time": "Zastępca jest też pytany po upływie {percent}% terminu",
+        "Decision types": "Rodzaje decyzji",
+        "Decision types, one on each line": "Rodzaje decyzji, po jednym w wierszu",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Każda zainstalowana aplikacja może tworzyć decyzje tych rodzajów. Wpisz jeden rodzaj w wierszu, małymi literami, cyframi i łącznikami.",
+        "Save decision types": "Zapisz rodzaje decyzji",
+        "The decision types were not saved": "Rodzaje decyzji nie zostały zapisane",
+        "The decision types were saved": "Rodzaje decyzji zostały zapisane"
     },
     "nplurals=2; plural=(n != 1);"
 )

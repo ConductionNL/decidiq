@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Одобрява се автоматично, ако никой не отговори до срока",
         "Refuses on its own if nobody answers by the deadline": "Отхвърля се автоматично, ако никой не отговори до срока",
         "Goes up a level if nobody answers by the deadline": "Преминава едно ниво нагоре, ако никой не отговори до срока",
-        "The substitute is also asked after {percent}% of the time": "Заместникът също се пита след {percent}% от срока"
+        "The substitute is also asked after {percent}% of the time": "Заместникът също се пита след {percent}% от срока",
+        "Decision types": "Видове решения",
+        "Decision types, one on each line": "Видове решения, по един на ред",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Всяко инсталирано приложение може да създава решения от тези видове. Пишете по един вид на ред, с малки букви, цифри и тирета.",
+        "Save decision types": "Запазване на видовете решения",
+        "The decision types were not saved": "Видовете решения не бяха запазени",
+        "The decision types were saved": "Видовете решения бяха запазени"
     },
     "plurals": null
 }

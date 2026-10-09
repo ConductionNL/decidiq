@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Miratohet vetvetiu nëse askush nuk përgjigjet deri në afat",
         "Refuses on its own if nobody answers by the deadline": "Refuzohet vetvetiu nëse askush nuk përgjigjet deri në afat",
         "Goes up a level if nobody answers by the deadline": "Ngjitet një nivel më lart nëse askush nuk përgjigjet deri në afat",
-        "The substitute is also asked after {percent}% of the time": "Edhe zëvendësi pyetet pas {percent}% të afatit"
+        "The substitute is also asked after {percent}% of the time": "Edhe zëvendësi pyetet pas {percent}% të afatit",
+        "Decision types": "Llojet e vendimeve",
+        "Decision types, one on each line": "Llojet e vendimeve, një në çdo rresht",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Çdo aplikacion i instaluar mund të krijojë vendime të këtyre llojeve. Shkruani një lloj në çdo rresht, me shkronja të vogla, shifra dhe viza.",
+        "Save decision types": "Ruaj llojet e vendimeve",
+        "The decision types were not saved": "Llojet e vendimeve nuk u ruajtën",
+        "The decision types were saved": "Llojet e vendimeve u ruajtën"
     },
     "nplurals=2; plural=(n != 1);"
 )

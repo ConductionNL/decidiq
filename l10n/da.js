@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Godkendes af sig selv, hvis ingen svarer inden fristen",
         "Refuses on its own if nobody answers by the deadline": "Afvises af sig selv, hvis ingen svarer inden fristen",
         "Goes up a level if nobody answers by the deadline": "Går et niveau op, hvis ingen svarer inden fristen",
-        "The substitute is also asked after {percent}% of the time": "Stedfortræderen spørges også efter {percent}% af fristen"
+        "The substitute is also asked after {percent}% of the time": "Stedfortræderen spørges også efter {percent}% af fristen",
+        "Decision types": "Beslutningstyper",
+        "Decision types, one on each line": "Beslutningstyper, én pr. linje",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Hver installeret app må oprette en beslutning af disse typer. Skriv én type pr. linje med små bogstaver, tal og bindestreger.",
+        "Save decision types": "Gem beslutningstyper",
+        "The decision types were not saved": "Beslutningstyperne blev ikke gemt",
+        "The decision types were saved": "Beslutningstyperne blev gemt"
     },
     "nplurals=2; plural=(n != 1);"
 )

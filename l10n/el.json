@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Εγκρίνεται αυτόματα αν κανείς δεν απαντήσει έως την προθεσμία",
         "Refuses on its own if nobody answers by the deadline": "Απορρίπτεται αυτόματα αν κανείς δεν απαντήσει έως την προθεσμία",
         "Goes up a level if nobody answers by the deadline": "Ανεβαίνει ένα επίπεδο αν κανείς δεν απαντήσει έως την προθεσμία",
-        "The substitute is also asked after {percent}% of the time": "Ο αναπληρωτής ερωτάται επίσης μετά το {percent}% του χρόνου"
+        "The substitute is also asked after {percent}% of the time": "Ο αναπληρωτής ερωτάται επίσης μετά το {percent}% του χρόνου",
+        "Decision types": "Τύποι αποφάσεων",
+        "Decision types, one on each line": "Τύποι αποφάσεων, ένας σε κάθε γραμμή",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Κάθε εγκατεστημένη εφαρμογή μπορεί να δημιουργεί αποφάσεις αυτών των τύπων. Γράψτε έναν τύπο σε κάθε γραμμή, με πεζά γράμματα, ψηφία και παύλες.",
+        "Save decision types": "Αποθήκευση τύπων αποφάσεων",
+        "The decision types were not saved": "Οι τύποι αποφάσεων δεν αποθηκεύτηκαν",
+        "The decision types were saved": "Οι τύποι αποφάσεων αποθηκεύτηκαν"
     },
     "plurals": null
 }

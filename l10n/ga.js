@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Ceadaítear é ann féin mura bhfreagraíonn aon duine faoin spriocdháta",
         "Refuses on its own if nobody answers by the deadline": "Diúltaítear é ann féin mura bhfreagraíonn aon duine faoin spriocdháta",
         "Goes up a level if nobody answers by the deadline": "Téann sé leibhéal suas mura bhfreagraíonn aon duine faoin spriocdháta",
-        "The substitute is also asked after {percent}% of the time": "Iarrtar ar an ionadaí freisin tar éis {percent}% den am"
+        "The substitute is also asked after {percent}% of the time": "Iarrtar ar an ionadaí freisin tar éis {percent}% den am",
+        "Decision types": "Cineálacha cinnidh",
+        "Decision types, one on each line": "Cineálacha cinnidh, ceann amháin ar gach líne",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Is féidir le gach aip suiteáilte cinneadh de na cineálacha seo a chruthú. Cuir cineál amháin ar gach líne, i litreacha beaga, digití agus fleiscíní.",
+        "Save decision types": "Sábháil na cineálacha cinnidh",
+        "The decision types were not saved": "Níor sábháladh na cineálacha cinnidh",
+        "The decision types were saved": "Sábháladh na cineálacha cinnidh"
     },
     "nplurals=2; plural=(n != 1);"
 )

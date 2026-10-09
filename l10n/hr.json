@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Odobrava se sam ako nitko ne odgovori do roka",
         "Refuses on its own if nobody answers by the deadline": "Odbija se sam ako nitko ne odgovori do roka",
         "Goes up a level if nobody answers by the deadline": "Ide razinu više ako nitko ne odgovori do roka",
-        "The substitute is also asked after {percent}% of the time": "Zamjenik se također pita nakon {percent}% roka"
+        "The substitute is also asked after {percent}% of the time": "Zamjenik se također pita nakon {percent}% roka",
+        "Decision types": "Vrste odluka",
+        "Decision types, one on each line": "Vrste odluka, jedna po retku",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Svaka instalirana aplikacija smije stvoriti odluku ovih vrsta. Upišite jednu vrstu po retku, malim slovima, brojkama i crticama.",
+        "Save decision types": "Spremi vrste odluka",
+        "The decision types were not saved": "Vrste odluka nisu spremljene",
+        "The decision types were saved": "Vrste odluka su spremljene"
     },
     "plurals": null
 }

@@ -55,6 +55,8 @@ $extra = [
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
+        // The decision type vocabulary, edited from the admin settings page (decision-types-as-configuration 4.2).
+        ['name' => 'decisionTypes#update', 'url' => '/api/settings/decision-types', 'verb' => 'PUT'],
         // Rights per record type (platform-role-rights-per-record-type, plt-03).
         ['name' => 'roleRights#index', 'url' => '/api/settings/role-rights', 'verb' => 'GET'],
         ['name' => 'roleRights#update', 'url' => '/api/settings/role-rights', 'verb' => 'PUT'],

@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Kinnitatakse ise, kui keegi tähtajaks ei vasta",
         "Refuses on its own if nobody answers by the deadline": "Lükatakse ise tagasi, kui keegi tähtajaks ei vasta",
         "Goes up a level if nobody answers by the deadline": "Liigub taseme võrra kõrgemale, kui keegi tähtajaks ei vasta",
-        "The substitute is also asked after {percent}% of the time": "Asendajalt küsitakse ka pärast {percent}% tähtajast"
+        "The substitute is also asked after {percent}% of the time": "Asendajalt küsitakse ka pärast {percent}% tähtajast",
+        "Decision types": "Otsuse liigid",
+        "Decision types, one on each line": "Otsuse liigid, üks igal real",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Iga paigaldatud rakendus võib luua nende liikide otsuseid. Kirjuta üks liik igale reale väiketähtede, numbrite ja sidekriipsudega.",
+        "Save decision types": "Salvesta otsuse liigid",
+        "The decision types were not saved": "Otsuse liike ei salvestatud",
+        "The decision types were saved": "Otsuse liigid salvestati"
     },
     "plurals": null
 }

@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Hyväksytään itsestään, jos kukaan ei vastaa määräaikaan mennessä",
         "Refuses on its own if nobody answers by the deadline": "Hylätään itsestään, jos kukaan ei vastaa määräaikaan mennessä",
         "Goes up a level if nobody answers by the deadline": "Siirtyy tason ylemmäs, jos kukaan ei vastaa määräaikaan mennessä",
-        "The substitute is also asked after {percent}% of the time": "Myös sijaiselta kysytään, kun {percent}% ajasta on kulunut"
+        "The substitute is also asked after {percent}% of the time": "Myös sijaiselta kysytään, kun {percent}% ajasta on kulunut",
+        "Decision types": "Päätöstyypit",
+        "Decision types, one on each line": "Päätöstyypit, yksi kullekin riville",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Jokainen asennettu sovellus voi luoda näiden tyyppien päätöksiä. Kirjoita yksi tyyppi kullekin riville pienillä kirjaimilla, numeroilla ja yhdysmerkeillä.",
+        "Save decision types": "Tallenna päätöstyypit",
+        "The decision types were not saved": "Päätöstyyppejä ei tallennettu",
+        "The decision types were saved": "Päätöstyypit tallennettiin"
     },
     "nplurals=2; plural=(n != 1);"
 )

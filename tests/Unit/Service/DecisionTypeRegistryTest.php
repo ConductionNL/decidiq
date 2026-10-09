@@ -169,4 +169,53 @@ class DecisionTypeRegistryTest extends TestCase {
 		self::assertFalse($this->registry->isAllowed(decisionType: ''));
 
 	}//end testIsAllowedMatchesStrictly()
+
+	/**
+	 * A saved list is trimmed, de-duplicated and stored whole.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 */
+	public function testSetTypesStoresTheCleanedList(): void {
+		$this->appConfig->expects(self::once())
+			->method('setValueArray')
+			->with(Application::APP_ID, DecisionTypeRegistry::CONFIG_KEY, ['motion', 'subsidie-besluit']);
+
+		$stored = $this->registry->setTypes(types: [' motion ', 'subsidie-besluit', 'motion', '']);
+
+		self::assertSame(['motion', 'subsidie-besluit'], $stored);
+
+	}//end testSetTypesStoresTheCleanedList()
+
+	/**
+	 * An empty list is refused, because it would read back as the seed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 */
+	public function testSetTypesRefusesAListWithNothingLeft(): void {
+		$this->appConfig->expects(self::never())->method('setValueArray');
+		$this->expectException(\InvalidArgumentException::class);
+
+		$this->registry->setTypes(types: ['', '  ']);
+
+	}//end testSetTypesRefusesAListWithNothingLeft()
+
+	/**
+	 * An entry that is not a slug is refused, and nothing is stored.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 */
+	public function testSetTypesRefusesAnEntryThatIsNotASlug(): void {
+		$this->appConfig->expects(self::never())->method('setValueArray');
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('"Subsidie Besluit" is not a valid decision type');
+
+		$this->registry->setTypes(types: ['motion', 'Subsidie Besluit']);
+
+	}//end testSetTypesRefusesAnEntryThatIsNotASlug()
 }//end class

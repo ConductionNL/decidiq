@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Patvirtinama savaime, jei iki termino niekas neatsako",
         "Refuses on its own if nobody answers by the deadline": "Atmetama savaime, jei iki termino niekas neatsako",
         "Goes up a level if nobody answers by the deadline": "Perkeliama lygiu aukščiau, jei iki termino niekas neatsako",
-        "The substitute is also asked after {percent}% of the time": "Pavaduotojo taip pat klausiama praėjus {percent}% termino"
+        "The substitute is also asked after {percent}% of the time": "Pavaduotojo taip pat klausiama praėjus {percent}% termino",
+        "Decision types": "Sprendimų tipai",
+        "Decision types, one on each line": "Sprendimų tipai, po vieną eilutėje",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kiekviena įdiegta programa gali kurti šių tipų sprendimus. Rašykite po vieną tipą eilutėje mažosiomis raidėmis, skaitmenimis ir brūkšneliais.",
+        "Save decision types": "Išsaugoti sprendimų tipus",
+        "The decision types were not saved": "Sprendimų tipai neišsaugoti",
+        "The decision types were saved": "Sprendimų tipai išsaugoti"
     },
     "plurals": null
 }

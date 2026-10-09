@@ -15,12 +15,14 @@
 		<FullExportSettings v-if="storesReady" />
 		<RoleRightsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
+		<DecisionTypeSettings v-if="storesReady" />
 	</CnAdminSettingsShell>
 </template>
 
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
+import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
 import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
@@ -35,6 +37,7 @@ export default {
 	components: {
 		CnAdminSettingsShell,
 		CaseSystemSettings,
+		DecisionTypeSettings,
 		MenuStructureTab,
 		Settings,
 		FullExportSettings,

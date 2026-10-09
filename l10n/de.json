@@ -1806,7 +1806,13 @@
         "Approves on its own if nobody answers by the deadline": "Wird automatisch genehmigt, wenn bis zur Frist niemand antwortet",
         "Refuses on its own if nobody answers by the deadline": "Wird automatisch abgelehnt, wenn bis zur Frist niemand antwortet",
         "Goes up a level if nobody answers by the deadline": "Geht eine Ebene höher, wenn bis zur Frist niemand antwortet",
-        "The substitute is also asked after {percent}% of the time": "Die Vertretung wird nach {percent}% der Frist ebenfalls gefragt"
+        "The substitute is also asked after {percent}% of the time": "Die Vertretung wird nach {percent}% der Frist ebenfalls gefragt",
+        "Decision types": "Beschlussarten",
+        "Decision types, one on each line": "Beschlussarten, eine pro Zeile",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Jede installierte App darf Beschlüsse dieser Arten anlegen. Schreiben Sie eine Art pro Zeile, in Kleinbuchstaben, Ziffern und Bindestrichen.",
+        "Save decision types": "Beschlussarten speichern",
+        "The decision types were not saved": "Die Beschlussarten wurden nicht gespeichert",
+        "The decision types were saved": "Die Beschlussarten wurden gespeichert"
     },
     "plurals": null
 }

@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Godkjennes av seg selv hvis ingen svarer innen fristen",
         "Refuses on its own if nobody answers by the deadline": "Avvises av seg selv hvis ingen svarer innen fristen",
         "Goes up a level if nobody answers by the deadline": "Går et nivå opp hvis ingen svarer innen fristen",
-        "The substitute is also asked after {percent}% of the time": "Stedfortrederen spørres også etter {percent}% av fristen"
+        "The substitute is also asked after {percent}% of the time": "Stedfortrederen spørres også etter {percent}% av fristen",
+        "Decision types": "Vedtakstyper",
+        "Decision types, one on each line": "Vedtakstyper, én per linje",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Hver installert app kan opprette et vedtak av disse typene. Skriv én type per linje, med små bokstaver, sifre og bindestreker.",
+        "Save decision types": "Lagre vedtakstyper",
+        "The decision types were not saved": "Vedtakstypene ble ikke lagret",
+        "The decision types were saved": "Vedtakstypene ble lagret"
     },
     "plurals": null
 }

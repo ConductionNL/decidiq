@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Одобряется автоматически, если никто не ответит до срока",
         "Refuses on its own if nobody answers by the deadline": "Отклоняется автоматически, если никто не ответит до срока",
         "Goes up a level if nobody answers by the deadline": "Передаётся на уровень выше, если никто не ответит до срока",
-        "The substitute is also asked after {percent}% of the time": "Заместителю также направляется запрос после {percent}% срока"
+        "The substitute is also asked after {percent}% of the time": "Заместителю также направляется запрос после {percent}% срока",
+        "Decision types": "Типы решений",
+        "Decision types, one on each line": "Типы решений, по одному в строке",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Каждое установленное приложение может создавать решения этих типов. Пишите по одному типу в строке строчными буквами, цифрами и дефисами.",
+        "Save decision types": "Сохранить типы решений",
+        "The decision types were not saved": "Типы решений не сохранены",
+        "The decision types were saved": "Типы решений сохранены"
     },
     "nplurals=2; plural=(n != 1);"
 )

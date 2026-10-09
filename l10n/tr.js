@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Süre dolana kadar kimse yanıt vermezse kendiliğinden onaylanır",
         "Refuses on its own if nobody answers by the deadline": "Süre dolana kadar kimse yanıt vermezse kendiliğinden reddedilir",
         "Goes up a level if nobody answers by the deadline": "Süre dolana kadar kimse yanıt vermezse bir üst seviyeye geçer",
-        "The substitute is also asked after {percent}% of the time": "Sürenin %{percent} kadarı geçince vekile de sorulur"
+        "The substitute is also asked after {percent}% of the time": "Sürenin %{percent} kadarı geçince vekile de sorulur",
+        "Decision types": "Karar türleri",
+        "Decision types, one on each line": "Karar türleri, her satıra bir tane",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kurulu her uygulama bu türlerde karar oluşturabilir. Her satıra küçük harf, rakam ve kısa çizgiyle bir tür yazın.",
+        "Save decision types": "Karar türlerini kaydet",
+        "The decision types were not saved": "Karar türleri kaydedilmedi",
+        "The decision types were saved": "Karar türleri kaydedildi"
     },
     "nplurals=2; plural=(n != 1);"
 )

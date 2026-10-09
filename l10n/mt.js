@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Jiġi approvat waħdu jekk ħadd ma jwieġeb sal-iskadenza",
         "Refuses on its own if nobody answers by the deadline": "Jiġi rrifjutat waħdu jekk ħadd ma jwieġeb sal-iskadenza",
         "Goes up a level if nobody answers by the deadline": "Jitla' livell jekk ħadd ma jwieġeb sal-iskadenza",
-        "The substitute is also asked after {percent}% of the time": "Is-sostitut jintalab ukoll wara {percent}% taż-żmien"
+        "The substitute is also asked after {percent}% of the time": "Is-sostitut jintalab ukoll wara {percent}% taż-żmien",
+        "Decision types": "Tipi ta' deċiżjoni",
+        "Decision types, one on each line": "Tipi ta' deċiżjoni, wieħed f'kull linja",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kull app installata tista' toħloq deċiżjoni ta' dawn it-tipi. Ikteb tip wieħed f'kull linja, b'ittri żgħar, ċifri u sing.",
+        "Save decision types": "Issejvja t-tipi ta' deċiżjoni",
+        "The decision types were not saved": "It-tipi ta' deċiżjoni ma ġewx issejvjati",
+        "The decision types were saved": "It-tipi ta' deċiżjoni ġew issejvjati"
     },
     "nplurals=2; plural=(n != 1);"
 )

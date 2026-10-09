@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Samþykkist sjálfkrafa ef enginn svarar fyrir frestinn",
         "Refuses on its own if nobody answers by the deadline": "Hafnast sjálfkrafa ef enginn svarar fyrir frestinn",
         "Goes up a level if nobody answers by the deadline": "Fer eitt stig upp ef enginn svarar fyrir frestinn",
-        "The substitute is also asked after {percent}% of the time": "Staðgengillinn er einnig spurður eftir {percent}% af frestinum"
+        "The substitute is also asked after {percent}% of the time": "Staðgengillinn er einnig spurður eftir {percent}% af frestinum",
+        "Decision types": "Tegundir ákvarðana",
+        "Decision types, one on each line": "Tegundir ákvarðana, ein í hverri línu",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Hvert uppsett forrit má stofna ákvörðun af þessum tegundum. Skrifaðu eina tegund í hverja línu, með lágstöfum, tölustöfum og bandstrikum.",
+        "Save decision types": "Vista tegundir ákvarðana",
+        "The decision types were not saved": "Tegundir ákvarðana voru ekki vistaðar",
+        "The decision types were saved": "Tegundir ákvarðana voru vistaðar"
     },
     "nplurals=2; plural=(n != 1);"
 )

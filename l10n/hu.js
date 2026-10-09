@@ -1659,7 +1659,13 @@ OC.L10N.register(
         "Approves on its own if nobody answers by the deadline": "Magától jóváhagyódik, ha a határidőig senki sem válaszol",
         "Refuses on its own if nobody answers by the deadline": "Magától elutasítódik, ha a határidőig senki sem válaszol",
         "Goes up a level if nobody answers by the deadline": "Egy szinttel feljebb kerül, ha a határidőig senki sem válaszol",
-        "The substitute is also asked after {percent}% of the time": "A helyettes is megkapja a kérést az idő {percent}%-a után"
+        "The substitute is also asked after {percent}% of the time": "A helyettes is megkapja a kérést az idő {percent}%-a után",
+        "Decision types": "Döntéstípusok",
+        "Decision types, one on each line": "Döntéstípusok, soronként egy",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Minden telepített alkalmazás létrehozhat ilyen típusú döntést. Soronként egy típust írjon, kisbetűkkel, számjegyekkel és kötőjelekkel.",
+        "Save decision types": "Döntéstípusok mentése",
+        "The decision types were not saved": "A döntéstípusok nem lettek mentve",
+        "The decision types were saved": "A döntéstípusok mentve"
     },
     "nplurals=2; plural=(n != 1);"
 )

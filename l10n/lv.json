@@ -1658,7 +1658,13 @@
         "Approves on its own if nobody answers by the deadline": "Tiek apstiprināts pats, ja līdz termiņam neviens neatbild",
         "Refuses on its own if nobody answers by the deadline": "Tiek noraidīts pats, ja līdz termiņam neviens neatbild",
         "Goes up a level if nobody answers by the deadline": "Pāriet līmeni augstāk, ja līdz termiņam neviens neatbild",
-        "The substitute is also asked after {percent}% of the time": "Aizvietotājam jautā arī pēc {percent}% no termiņa"
+        "The substitute is also asked after {percent}% of the time": "Aizvietotājam jautā arī pēc {percent}% no termiņa",
+        "Decision types": "Lēmumu veidi",
+        "Decision types, one on each line": "Lēmumu veidi, viens katrā rindā",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Katra instalētā lietotne var izveidot šo veidu lēmumus. Rakstiet vienu veidu katrā rindā ar mazajiem burtiem, cipariem un defisēm.",
+        "Save decision types": "Saglabāt lēmumu veidus",
+        "The decision types were not saved": "Lēmumu veidi netika saglabāti",
+        "The decision types were saved": "Lēmumu veidi tika saglabāti"
     },
     "plurals": null
 }
