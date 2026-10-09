@@ -39,7 +39,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -55,7 +55,7 @@ use RuntimeException;
 /**
  * Resolves a step's actor rule to one person, or refuses.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-013)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-013)
  */
 final class ApprovalActorResolver {
 	/**
@@ -106,7 +106,7 @@ final class ApprovalActorResolver {
 	 *
 	 * @throws RuntimeException When the step names both an actor and a rule, or an unknown rule.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012)
 	 */
 	public function assertStepIsResolvable(array $step): void {
 		$actor = trim((string)($step['actor'] ?? ''));
@@ -149,7 +149,7 @@ final class ApprovalActorResolver {
 	 *
 	 * @throws RuntimeException When the rule resolves to nobody, to more than one person, or to somebody with no account.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-013)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-013)
 	 */
 	public function resolve(
 		array $step,
@@ -294,7 +294,7 @@ final class ApprovalActorResolver {
 	 *
 	 * @return string|null The substitute, or null when there is not exactly one.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function substituteOf(array $people, string $person): ?string {
 		$candidates = $this->candidatesFor(people: $people, person: $person, property: 'substitute');

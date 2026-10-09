@@ -145,13 +145,13 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 		self::assertSame(
-			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts'],
+			expected: ['citizenReactions', 'citizenVotes', 'citizenBudgetProposals', 'citizenNotifications', 'citizenSubscriptions', 'publicCalendar', 'publicBroadcasts', 'motionsOpenForAdvice'],
 			actual: array_keys($byId),
-			message: 'Exactly the five documented citizen collections, the public calendar and the public broadcasts, in order'
+			message: 'Exactly the five documented citizen collections, the public calendar, the public broadcasts and the motions open for advice, in order'
 		);
 
 		// The public calendar and broadcasts are read without an account; they are tested on their own.
-		unset($byId['publicCalendar'], $byId['publicBroadcasts']);
+		unset($byId['publicCalendar'], $byId['publicBroadcasts'], $byId['motionsOpenForAdvice']);
 		foreach ($byId as $collection) {
 			self::assertSame(expected: 'decidiq', actual: $collection['register']);
 			self::assertTrue(condition: $collection['listable']);
@@ -261,6 +261,39 @@ final class PortalContributionProviderTest extends TestCase {
 		self::assertSame(expected: ['field' => 'scheduledDate', 'direction' => 'desc'], actual: $broadcasts['defaultSort']);
 
 	}//end testPublicBroadcastsAreAnonymousWithoutStaffFields()
+
+	/**
+	 * Motions with a citizen advisory vote, read without an account (REQ-CAV-003).
+	 *
+	 * Only motions the griffie allowed citizen voting on are listed, and
+	 * OpenRegister's Decision read rule already limits an anonymous caller to
+	 * published decisions. The counts travel with the motion so the portal can
+	 * show the result once the vote closes; nothing about who voted is listed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-003-the-advisory-result-shows-apart-from-the-councils-vote
+	 */
+	public function testMotionsOpenForAdviceAreAnonymousWithTheirCounts(): void {
+		$byId = $this->collectionsById();
+
+		self::assertArrayHasKey(key: 'motionsOpenForAdvice', array: $byId);
+		$motions = $byId['motionsOpenForAdvice'];
+		self::assertSame(expected: 'decidiq', actual: $motions['register']);
+		self::assertSame(expected: 'decision', actual: $motions['schema']);
+		self::assertTrue(condition: $motions['anonymous']);
+		self::assertTrue(condition: $motions['listable']);
+		self::assertArrayNotHasKey(key: 'minTrust', array: $motions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
+		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['defaultFilters']);
+		self::assertSame(
+			expected: ['title', 'text', 'motionType', 'citizenVotingStatus', 'citizenAdviceFor', 'citizenAdviceAgainst', 'citizenAdviceAbstain'],
+			actual: $motions['fields']
+		);
+		foreach (['proposer', 'coSigners', 'externalReference', 'sourceApp'] as $field) {
+			self::assertNotContains(needle: $field, haystack: $motions['fields']);
+		}
+
+	}//end testMotionsOpenForAdviceAreAnonymousWithTheirCounts()
 
 	/**
 	 * Only `citizenNotifications` carries `kind: inbox`; the read collections do not.

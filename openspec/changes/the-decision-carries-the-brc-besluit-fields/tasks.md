@@ -23,6 +23,6 @@
 
 ## 3. Not in this change
 
-- [ ] 3.1 dossiq repointing `BrcController` at this register, and retiring its
+- [ ] 3.1 (not run: another repo; written to for-ruben/decidiq-sibling-asks.md) dossiq repointing `BrcController` at this register, and retiring its
       own `decision`. That is what actually clears the collision; this only
       makes the target able to hold the record.

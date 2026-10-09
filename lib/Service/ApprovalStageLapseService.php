@@ -40,7 +40,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-016, REQ-AR-017)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-016, REQ-AR-017)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -57,7 +57,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Applies a lapsed stage's declared meaning, once.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
  */
 class ApprovalStageLapseService {
 	/**
@@ -125,7 +125,7 @@ class ApprovalStageLapseService {
 	 *
 	 * @return array{lapsed: int, substitutesAsked: int} What the sweep did.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
 	 */
 	public function sweep(?DateTimeImmutable $now = null): array {
 		$clock = ($now ?? new DateTimeImmutable());
@@ -163,7 +163,7 @@ class ApprovalStageLapseService {
 	 *
 	 * @return bool True when a substitute was asked.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	private function askSubstituteIfDue(array $stage, DateTimeImmutable $now): bool {
 		if ($this->policy->shouldAskSubstitute(stage: $stage, now: $now) === false) {
@@ -225,7 +225,7 @@ class ApprovalStageLapseService {
 	 *
 	 * @return bool True when the stage changed.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
 	 */
 	private function applyLapse(array $stage, DateTimeImmutable $now): bool {
 		$effect = $this->policy->effectFor(stage: $stage, now: $now);
@@ -333,7 +333,7 @@ class ApprovalStageLapseService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	private function activateNext(array $stage, DateTimeImmutable $now): void {
 		$subject = (string)($stage['decision'] ?? '');
@@ -400,7 +400,7 @@ class ApprovalStageLapseService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
 	 */
 	private function recordLapse(array $stage, array $effect, DateTimeImmutable $now): void {
 		$this->store->save(

@@ -76,6 +76,28 @@
 								})
 							"
 							:data-testid="`ranked-option-${index}`" />
+						<NcSelect
+							:modelValue="personPickFor(option)"
+							:options="personOptions"
+							:loading="loadingPeople"
+							:inputLabel="
+								t(
+									'decidiq',
+									'Person for option {number} (optional)',
+									{
+										number: index + 1,
+									},
+								)
+							"
+							:data-testid="`ranked-option-person-${index}`"
+							@update:modelValue="
+								(pick) =>
+									newRound.options.splice(
+										index,
+										1,
+										pickPerson(option, pick),
+									)
+							" />
 						<NcButton
 							variant="tertiary"
 							:aria-label="
@@ -528,12 +550,13 @@
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
-import { NcButton, NcTextField } from '@nextcloud/vue'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
+import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
 import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
@@ -557,6 +580,7 @@ export default {
 		CnDetailCard,
 		CnStatusBadge,
 		NcButton,
+		NcSelect,
 		NcTextField,
 		RankedBallot,
 		RankedResultsCard,
@@ -609,6 +633,9 @@ export default {
 				tieBreakRule: '',
 				options: [{ label: '' }, { label: '' }],
 			},
+
+			personOptions: [],
+			loadingPeople: false,
 
 			revoteOfRoundId: null,
 			castingRanking: false,
@@ -770,6 +797,9 @@ export default {
 				&& this.newRound.tieBreakRule === 'chair-decides'
 			) {
 				this.newRound.tieBreakRule = 'rejected'
+			}
+			if (method === 'ranked-choice') {
+				this.loadPeople()
 			}
 		},
 	},
@@ -980,37 +1010,70 @@ export default {
 
 		/**
 		 * The options of a ranked round as the server stores them: a key made
-		 * from each label (unique within the round) and the label. Empty for
-		 * every other method, which takes no options.
+		 * from each label (unique within the round), the label and the picked
+		 * Person, if any. Empty for every other method, which takes no options.
 		 *
 		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
-		 * @return {Array<{key: string, label: string}>} The options
+		 * @return {Array<{key: string, label: string, person?: string}>} The options
 		 */
 		rankedOptions() {
 			if (this.newRound.votingMethod !== 'ranked-choice') {
 				return []
 			}
-			const used = new Set()
-			return this.newRound.options
-				.map((option) => String(option.label || '').trim())
-				.filter((label) => label !== '')
-				.map((label, index) => {
-					const base =
-						label
-							.toLowerCase()
-							.normalize('NFKD')
-							.replace(/[^a-z0-9]+/g, '-')
-							.replace(/^-+|-+$/g, '') || `option-${index + 1}`
-					let key = base
-					let suffix = 2
-					while (used.has(key)) {
-						key = `${base}-${suffix}`
-						suffix++
-					}
-					used.add(key)
-					return { key, label }
-				})
+			return rankedOptionsFrom(this.newRound.options)
 		},
+
+		/**
+		 * The People a chair can pick as ranked options, loaded once when the
+		 * ranked method is first picked. A failed load leaves the picker empty;
+		 * typed labels still work.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 */
+		async loadPeople() {
+			if (this.personOptions.length > 0 || this.loadingPeople) {
+				return
+			}
+			this.loadingPeople = true
+			try {
+				const people = await this.objectStore.fetchCollection('person', {
+					_limit: 500,
+				})
+				this.personOptions = (Array.isArray(people) ? people : [])
+					.filter(
+						(person) =>
+							person && (person.id || person.uuid) && person.name,
+					)
+					.map((person) => ({
+						id: person.id || person.uuid,
+						label: person.name,
+					}))
+					.sort((a, b) => a.label.localeCompare(b.label))
+			} catch {
+				this.personOptions = []
+			} finally {
+				this.loadingPeople = false
+			}
+		},
+
+		/**
+		 * The picker's value for an editor row.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @param {{person?: string}} option The editor row
+		 * @return {object|null} The picked person option
+		 */
+		personPickFor(option) {
+			const id = String(option?.person || '')
+			return id === ''
+				? null
+				: this.personOptions.find((person) => person.id === id) || {
+						id,
+						label: option.label || id,
+					}
+		},
+
+		pickPerson,
 
 		/**
 		 * Cast a ranked ballot.

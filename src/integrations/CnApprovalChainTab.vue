@@ -54,6 +54,15 @@
 				</p>
 
 				<ul
+					v-if="policyLines(stage).length > 0"
+					class="cn-approval-chain-tab__policy"
+					:data-testid="`cn-approval-chain-policy-${stage.sequence}`">
+					<li v-for="line in policyLines(stage)" :key="line">
+						{{ line }}
+					</li>
+				</ul>
+
+				<ul
 					v-if="actionsFor(stage).length > 0"
 					class="cn-approval-chain-tab__actions">
 					<li
@@ -86,6 +95,7 @@ import {
 	listActions,
 	listStages,
 	objId,
+	stagePolicyLines,
 } from './approvalChainLink.js'
 
 /**
@@ -243,6 +253,17 @@ export default {
 		},
 
 		/**
+		 * What the step declares: actor rule, silence, substitute ask point.
+		 *
+		 * @param {object} stage The stage.
+		 * @return {string[]} The lines.
+		 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+		 */
+		policyLines(stage) {
+			return stagePolicyLines(stage)
+		},
+
+		/**
 		 * Who the step was asked of.
 		 *
 		 * @param {object} stage The stage.
@@ -369,6 +390,13 @@ export default {
 
 .cn-approval-chain-tab__meta {
 	margin: 2px 0 0 0;
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-approval-chain-tab__policy {
+	margin: 4px 0 0 0;
+	padding-inline-start: 16px;
+	list-style: disc;
 	color: var(--color-text-maxcontrast);
 }
 

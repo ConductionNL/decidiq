@@ -3149,7 +3149,21 @@ OC.L10N.register(
         "Steps of this amendment": "Steps of this amendment",
         "The vote on this amendment opens and closes under Voting round.": "The vote on this amendment opens and closes under Voting round.",
         "This amendment was adopted.": "This amendment was adopted.",
-        "This amendment was rejected.": "This amendment was rejected."
+        "This amendment was rejected.": "This amendment was rejected.",
+        "Asked of the manager of the person who acts": "Asked of the manager of the person who acts",
+        "Asked of the manager of whoever owns the subject": "Asked of the manager of whoever owns the subject",
+        "Asked of the substitute of the person who acts": "Asked of the substitute of the person who acts",
+        "Approves on its own if nobody answers by the deadline": "Approves on its own if nobody answers by the deadline",
+        "Refuses on its own if nobody answers by the deadline": "Refuses on its own if nobody answers by the deadline",
+        "Goes up a level if nobody answers by the deadline": "Goes up a level if nobody answers by the deadline",
+        "The substitute is also asked after {percent}% of the time": "The substitute is also asked after {percent}% of the time",
+        "Decision types": "Decision types",
+        "Decision types, one on each line": "Decision types, one on each line",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.",
+        "Save decision types": "Save decision types",
+        "The decision types were not saved": "The decision types were not saved",
+        "The decision types were saved": "The decision types were saved",
+        "Person for option {number} (optional)": "Person for option {number} (optional)"
     },
     "nplurals=2; plural=(n != 1);"
 )

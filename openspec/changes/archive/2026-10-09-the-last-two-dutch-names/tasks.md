@@ -22,4 +22,4 @@
 
 ## 4. Prove it
 
-- [ ] 4.1 Unit tests for the migration, including the property renames.
+- [x] 4.1 Unit tests for the migration, including the property renames. (tests/Unit/Migration/MigrateTheLastTwoDutchNamesTest.php; payloads checked against the shipped schema; the test caught a sub-delegation read before its parent, fixed by `parentsFirst()`)

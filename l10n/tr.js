@@ -1652,7 +1652,21 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Dosyadaki bir kayıt dosyanın kendisinden daha gizli olduğunda ayarlanır: o kaydı ve düzeyini belirtir. Kaldırmak için dosyanın sınıflandırmasını yükseltin.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Dosya zaten OpenRegister'da bir listede, bu yüzden kategorisi sabittir.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Kayıt, dosyalar için %1$s Selectielijst kategorisini içermiyor.",
-        "Selectielijst category": "Selectielijst kategorisi"
+        "Selectielijst category": "Selectielijst kategorisi",
+        "Asked of the manager of the person who acts": "İşlemi yapan kişinin yöneticisine sorulur",
+        "Asked of the manager of whoever owns the subject": "Konunun sahibinin yöneticisine sorulur",
+        "Asked of the substitute of the person who acts": "İşlemi yapan kişinin vekiline sorulur",
+        "Approves on its own if nobody answers by the deadline": "Süre dolana kadar kimse yanıt vermezse kendiliğinden onaylanır",
+        "Refuses on its own if nobody answers by the deadline": "Süre dolana kadar kimse yanıt vermezse kendiliğinden reddedilir",
+        "Goes up a level if nobody answers by the deadline": "Süre dolana kadar kimse yanıt vermezse bir üst seviyeye geçer",
+        "The substitute is also asked after {percent}% of the time": "Sürenin %{percent} kadarı geçince vekile de sorulur",
+        "Decision types": "Karar türleri",
+        "Decision types, one on each line": "Karar türleri, her satıra bir tane",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kurulu her uygulama bu türlerde karar oluşturabilir. Her satıra küçük harf, rakam ve kısa çizgiyle bir tür yazın.",
+        "Save decision types": "Karar türlerini kaydet",
+        "The decision types were not saved": "Karar türleri kaydedilmedi",
+        "The decision types were saved": "Karar türleri kaydedildi",
+        "Person for option {number} (optional)": "{number}. seçenek için kişi (isteğe bağlı)"
     },
     "nplurals=2; plural=(n != 1);"
 )

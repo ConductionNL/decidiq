@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 /**
  * The rename of the commitment schema into plain words.
  *
- * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md
+ * @spec openspec/specs/commitment-in-plain-words/spec.md
  */
 class MigrateCommitmentsTest extends TestCase {
 
@@ -71,7 +71,7 @@ class MigrateCommitmentsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
+	 * @spec openspec/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
 	 */
 	public function testTheValuesSurviveAndReferencesAreResolved(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -117,7 +117,7 @@ class MigrateCommitmentsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
+	 * @spec openspec/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
 	 */
 	public function testASecondRunCopiesNothing(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);

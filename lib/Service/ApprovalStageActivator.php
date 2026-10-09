@@ -31,7 +31,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -48,7 +48,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Resolves a stage's actor rule when the stage becomes live.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012)
  */
 class ApprovalStageActivator {
 	/**
@@ -99,7 +99,7 @@ class ApprovalStageActivator {
 	 *
 	 * @throws \RuntimeException When the stage names a rule that cannot be resolved.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
 	 */
 	public function activationPatch(array $stage, string $subjectOwner = '', ?DateTimeImmutable $now = null): array {
 		$clock = ($now ?? new DateTimeImmutable());
@@ -187,7 +187,7 @@ class ApprovalStageActivator {
 	 *
 	 * @return string|null The substitute.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function substituteOf(string $person): ?string {
 		if (trim($person) === '') {
@@ -208,7 +208,7 @@ class ApprovalStageActivator {
 	 *
 	 * @return string|null The manager.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function managerOf(string $person): ?string {
 		if (trim($person) === '') {

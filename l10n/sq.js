@@ -1652,7 +1652,21 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Vendoset kur një dokument në dosje është më konfidencial se vetë dosja: emërton dokumentin dhe nivelin e tij. Ngrini klasifikimin e dosjes për ta hequr.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Dosja është tashmë në një listë në OpenRegister, prandaj kategoria e saj është e fiksuar.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Regjistri nuk përmban kategorinë %1$s të Selectielijst për dosjet.",
-        "Selectielijst category": "Kategoria e Selectielijst"
+        "Selectielijst category": "Kategoria e Selectielijst",
+        "Asked of the manager of the person who acts": "Pyetet drejtuesi i personit që vepron",
+        "Asked of the manager of whoever owns the subject": "Pyetet drejtuesi i pronarit të çështjes",
+        "Asked of the substitute of the person who acts": "Pyetet zëvendësi i personit që vepron",
+        "Approves on its own if nobody answers by the deadline": "Miratohet vetvetiu nëse askush nuk përgjigjet deri në afat",
+        "Refuses on its own if nobody answers by the deadline": "Refuzohet vetvetiu nëse askush nuk përgjigjet deri në afat",
+        "Goes up a level if nobody answers by the deadline": "Ngjitet një nivel më lart nëse askush nuk përgjigjet deri në afat",
+        "The substitute is also asked after {percent}% of the time": "Edhe zëvendësi pyetet pas {percent}% të afatit",
+        "Decision types": "Llojet e vendimeve",
+        "Decision types, one on each line": "Llojet e vendimeve, një në çdo rresht",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Çdo aplikacion i instaluar mund të krijojë vendime të këtyre llojeve. Shkruani një lloj në çdo rresht, me shkronja të vogla, shifra dhe viza.",
+        "Save decision types": "Ruaj llojet e vendimeve",
+        "The decision types were not saved": "Llojet e vendimeve nuk u ruajtën",
+        "The decision types were saved": "Llojet e vendimeve u ruajtën",
+        "Person for option {number} (optional)": "Personi për opsionin {number} (opsionale)"
     },
     "nplurals=2; plural=(n != 1);"
 )

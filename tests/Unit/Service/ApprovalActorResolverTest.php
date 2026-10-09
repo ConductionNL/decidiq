@@ -14,7 +14,7 @@
  * @license   EUPL-1.2
  * @link      https://github.com/ConductionNL/decidiq
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-012, REQ-AR-013)
  */
 
 declare(strict_types=1);

@@ -1651,7 +1651,21 @@
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Nustatoma, kai bylos dokumentas yra konfidencialesnis už pačią bylą: nurodo dokumentą ir jo lygį. Norėdami pašalinti, padidinkite bylos klasifikaciją.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Byla jau yra OpenRegister sąraše, todėl jos kategorija nekeičiama.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Registre nėra Selectielijst kategorijos %1$s byloms.",
-        "Selectielijst category": "Selectielijst kategorija"
+        "Selectielijst category": "Selectielijst kategorija",
+        "Asked of the manager of the person who acts": "Klausiama veikiančio asmens vadovo",
+        "Asked of the manager of whoever owns the subject": "Klausiama dalyko savininko vadovo",
+        "Asked of the substitute of the person who acts": "Klausiama veikiančio asmens pavaduotojo",
+        "Approves on its own if nobody answers by the deadline": "Patvirtinama savaime, jei iki termino niekas neatsako",
+        "Refuses on its own if nobody answers by the deadline": "Atmetama savaime, jei iki termino niekas neatsako",
+        "Goes up a level if nobody answers by the deadline": "Perkeliama lygiu aukščiau, jei iki termino niekas neatsako",
+        "The substitute is also asked after {percent}% of the time": "Pavaduotojo taip pat klausiama praėjus {percent}% termino",
+        "Decision types": "Sprendimų tipai",
+        "Decision types, one on each line": "Sprendimų tipai, po vieną eilutėje",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Kiekviena įdiegta programa gali kurti šių tipų sprendimus. Rašykite po vieną tipą eilutėje mažosiomis raidėmis, skaitmenimis ir brūkšneliais.",
+        "Save decision types": "Išsaugoti sprendimų tipus",
+        "The decision types were not saved": "Sprendimų tipai neišsaugoti",
+        "The decision types were saved": "Sprendimų tipai išsaugoti",
+        "Person for option {number} (optional)": "Asmuo {number} parinkčiai (neprivaloma)"
     },
     "plurals": null
 }

@@ -67,10 +67,4 @@
 - The route detail surface shows `actorRule`, `onSilence` and the substitute ask point per step, and says plainly when a step approves on silence.
 - Dutch and English strings, `docs/features/approval-routes.md` updated.
 - [x] Implement (strings and docs)
-- [ ] The per-step surface. decidiq has NO approval-route surface in `src/` at
-  all today, so there is nothing to add these three fields to. The render
-  surface for a route is `document-approval-chain-leaf`'s REQ-AR-010, and this
-  line lands with it rather than half-building a second one here. Everything a
-  surface would need is on the stage and readable: `actorRule`,
-  `actorResolvedBy`, `onSilence`, `askSubstituteAfter` and `substituteActor`.
-  Recorded here rather than silently dropped.
+- [x] The per-step surface. Built on the approval chain tab that `document-approval-chain-leaf` (REQ-AR-010) has since shipped: `stagePolicyLines()` in src/integrations/approvalChainLink.js, rendered per step in src/integrations/CnApprovalChainTab.vue; a step that approves or refuses on silence says so. Strings in every shipped locale. Test: tests/vitest/approvalChainPolicyLines.spec.js.

@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use OCP\EventDispatcher\Event;
 /**
  * A subject has reached the end of its approval route.
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
 class ApprovalRouteConcludedEvent extends Event {
 
@@ -60,7 +60,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *        can project the answer rather than call back for it, and DEFAULTED
 	 *        so a producer built against the eight-argument shape keeps working.
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function __construct(
@@ -83,7 +83,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The subject id
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getSubject(): string {
 		return $this->subject;
@@ -95,7 +95,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The app id
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getSourceApp(): string {
 		return $this->sourceApp;
@@ -107,7 +107,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The outcome
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getOutcome(): string {
 		return $this->outcome;
@@ -119,7 +119,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The actor uid
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getActor(): string {
 		return $this->actor;
@@ -131,7 +131,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The correlation id
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getCorrelationId(): string {
 		return $this->correlationId;
@@ -184,7 +184,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return array<string, mixed> The clearance answer
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function getClearance(): array {
 		return $this->clearance;

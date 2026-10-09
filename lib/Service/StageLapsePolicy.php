@@ -41,7 +41,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-016, REQ-AR-017)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-016, REQ-AR-017)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -58,7 +58,7 @@ use RuntimeException;
 /**
  * Decides what a lapsed stage does, and when a substitute is asked.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
  */
 final class StageLapsePolicy {
 	/**
@@ -143,7 +143,7 @@ final class StageLapsePolicy {
 	 *
 	 * @throws RuntimeException When the value is unknown, or `approve` is set by somebody else.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function assertSettable(string $onSilence, bool $isAdministrator): void {
 		if (in_array($onSilence, self::ON_SILENCE, true) === false) {
@@ -179,7 +179,7 @@ final class StageLapsePolicy {
 	 *
 	 * @throws RuntimeException When a step declares a silence this principal may not set.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function assertEverySilenceIsSettable(array $steps, bool $isAdministrator): void {
 		foreach ($steps as $step) {
@@ -200,7 +200,7 @@ final class StageLapsePolicy {
 	 *
 	 * @return array{effect: string, outcome: ?string, reason: string} What to do, and why.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
 	 */
 	public function effectFor(array $stage, DateTimeImmutable $now): array {
 		if ((string)($stage['status'] ?? '') !== 'active') {
@@ -263,7 +263,7 @@ final class StageLapsePolicy {
 	 *
 	 * @return array<string, mixed> The action to append.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-017)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
 	 */
 	public function lapseAction(array $stage, array $effect, DateTimeImmutable $now): array {
 		// The field names are the STAGE's own, not the ones a route step uses:
@@ -300,7 +300,7 @@ final class StageLapsePolicy {
 	 *
 	 * @return bool True when the ask point has passed and nobody has asked yet.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function shouldAskSubstitute(array $stage, DateTimeImmutable $now): bool {
 		if ((string)($stage['status'] ?? '') !== 'active') {
@@ -333,7 +333,7 @@ final class StageLapsePolicy {
 	 *
 	 * @return DateTimeImmutable|null The instant, or null when the window is unknown.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-016)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function askPointFor(array $stage): ?DateTimeImmutable {
 		$fraction = ($stage['askSubstituteAfter'] ?? null);

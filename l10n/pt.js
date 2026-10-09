@@ -1652,7 +1652,21 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Definido quando um documento do processo é mais confidencial do que o próprio processo: indica o documento e o seu nível. Suba a classificação do processo para o remover.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "O processo já está numa lista do OpenRegister, por isso a sua categoria está fixada.",
         "The register ships no Selectielijst category %1$s for dossiers.": "O registo não inclui a categoria da Selectielijst %1$s para processos.",
-        "Selectielijst category": "Categoria da Selectielijst"
+        "Selectielijst category": "Categoria da Selectielijst",
+        "Asked of the manager of the person who acts": "Pedido ao responsável da pessoa que age",
+        "Asked of the manager of whoever owns the subject": "Pedido ao responsável do titular do assunto",
+        "Asked of the substitute of the person who acts": "Pedido ao substituto da pessoa que age",
+        "Approves on its own if nobody answers by the deadline": "Aprova-se sozinha se ninguém responder até ao prazo",
+        "Refuses on its own if nobody answers by the deadline": "Recusa-se sozinha se ninguém responder até ao prazo",
+        "Goes up a level if nobody answers by the deadline": "Sobe um nível se ninguém responder até ao prazo",
+        "The substitute is also asked after {percent}% of the time": "O substituto também é chamado após {percent}% do prazo",
+        "Decision types": "Tipos de decisão",
+        "Decision types, one on each line": "Tipos de decisão, um por linha",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Cada aplicação instalada pode criar uma decisão destes tipos. Escreva um tipo por linha, em minúsculas, algarismos e hífenes.",
+        "Save decision types": "Guardar os tipos de decisão",
+        "The decision types were not saved": "Os tipos de decisão não foram guardados",
+        "The decision types were saved": "Os tipos de decisão foram guardados",
+        "Person for option {number} (optional)": "Pessoa para a opção {number} (opcional)"
     },
     "nplurals=2; plural=(n != 1);"
 )

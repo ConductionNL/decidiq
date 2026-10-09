@@ -3468,7 +3468,21 @@ OC.L10N.register(
         "The chair sets the order on the page of the motion.": "De voorzitter bepaalt de volgorde op de pagina van de motie.",
         "The amendment is submitted.": "Het amendement is ingediend.",
         "Parts of this amendment": "Onderdelen van dit amendement",
-        "Mine": "Van mij"
+        "Mine": "Van mij",
+        "Asked of the manager of the person who acts": "Gevraagd aan de leidinggevende van wie handelt",
+        "Asked of the manager of whoever owns the subject": "Gevraagd aan de leidinggevende van de eigenaar van het onderwerp",
+        "Asked of the substitute of the person who acts": "Gevraagd aan de vervanger van wie handelt",
+        "Approves on its own if nobody answers by the deadline": "Keurt vanzelf goed als niemand voor de termijn reageert",
+        "Refuses on its own if nobody answers by the deadline": "Wijst vanzelf af als niemand voor de termijn reageert",
+        "Goes up a level if nobody answers by the deadline": "Gaat een niveau hoger als niemand voor de termijn reageert",
+        "The substitute is also asked after {percent}% of the time": "De vervanger wordt ook gevraagd na {percent}% van de termijn",
+        "Decision types": "Besluittypen",
+        "Decision types, one on each line": "Besluittypen, één per regel",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Elke geïnstalleerde app mag een besluit van deze typen aanmaken. Zet één type per regel, in kleine letters, cijfers en koppeltekens.",
+        "Save decision types": "Besluittypen opslaan",
+        "The decision types were not saved": "De besluittypen zijn niet opgeslagen",
+        "The decision types were saved": "De besluittypen zijn opgeslagen",
+        "Person for option {number} (optional)": "Persoon voor optie {number} (optioneel)"
     },
     "nplurals=2; plural=(n != 1);"
 )

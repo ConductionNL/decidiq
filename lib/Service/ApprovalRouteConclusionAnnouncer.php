@@ -163,7 +163,7 @@ class ApprovalRouteConclusionAnnouncer {
 	 * @return array<string, mixed> The answer, or an empty array when nothing can
 	 *         work one out.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	private function clearanceOf(string $subject): array {
 		if ($this->clearanceService === null) {

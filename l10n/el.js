@@ -1652,7 +1652,21 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Ορίζεται όταν ένα έγγραφο του φακέλου είναι πιο εμπιστευτικό από τον ίδιο τον φάκελο: κατονομάζει το έγγραφο και το επίπεδό του. Αυξήστε τη διαβάθμιση του φακέλου για να την άρετε.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Ο φάκελος βρίσκεται ήδη σε λίστα στο OpenRegister, οπότε η κατηγορία του είναι οριστική.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Το μητρώο δεν περιέχει κατηγορία Selectielijst %1$s για φακέλους.",
-        "Selectielijst category": "Κατηγορία Selectielijst"
+        "Selectielijst category": "Κατηγορία Selectielijst",
+        "Asked of the manager of the person who acts": "Ζητείται από τον προϊστάμενο του ατόμου που ενεργεί",
+        "Asked of the manager of whoever owns the subject": "Ζητείται από τον προϊστάμενο του κατόχου του θέματος",
+        "Asked of the substitute of the person who acts": "Ζητείται από τον αναπληρωτή του ατόμου που ενεργεί",
+        "Approves on its own if nobody answers by the deadline": "Εγκρίνεται αυτόματα αν κανείς δεν απαντήσει έως την προθεσμία",
+        "Refuses on its own if nobody answers by the deadline": "Απορρίπτεται αυτόματα αν κανείς δεν απαντήσει έως την προθεσμία",
+        "Goes up a level if nobody answers by the deadline": "Ανεβαίνει ένα επίπεδο αν κανείς δεν απαντήσει έως την προθεσμία",
+        "The substitute is also asked after {percent}% of the time": "Ο αναπληρωτής ερωτάται επίσης μετά το {percent}% του χρόνου",
+        "Decision types": "Τύποι αποφάσεων",
+        "Decision types, one on each line": "Τύποι αποφάσεων, ένας σε κάθε γραμμή",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Κάθε εγκατεστημένη εφαρμογή μπορεί να δημιουργεί αποφάσεις αυτών των τύπων. Γράψτε έναν τύπο σε κάθε γραμμή, με πεζά γράμματα, ψηφία και παύλες.",
+        "Save decision types": "Αποθήκευση τύπων αποφάσεων",
+        "The decision types were not saved": "Οι τύποι αποφάσεων δεν αποθηκεύτηκαν",
+        "The decision types were saved": "Οι τύποι αποφάσεων αποθηκεύτηκαν",
+        "Person for option {number} (optional)": "Πρόσωπο για την επιλογή {number} (προαιρετικό)"
     },
     "nplurals=2; plural=(n != 1);"
 )

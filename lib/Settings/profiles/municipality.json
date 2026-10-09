@@ -1781,7 +1781,13 @@
 						"motionType": "motion",
 						"proposer": "Jan de Boer",
 						"lifecycle": "voting",
-						"isPublished": "public"
+						"isPublished": "public",
+						"citizenVotingAllowed": true,
+						"citizenVotingMethod": "simple",
+						"citizenVotingStatus": "closed",
+						"citizenAdviceFor": 3,
+						"citizenAdviceAgainst": 1,
+						"citizenAdviceAbstain": 1
 					}
 				],
 				"decision-stage": [

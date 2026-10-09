@@ -1800,7 +1800,21 @@ OC.L10N.register(
         "No incoming documents wait for a meeting.": "Aucun document reçu n'attend de réunion.",
         "Loading incoming documents…": "Chargement des documents reçus…",
         "Failed to load incoming documents.": "Impossible de charger les documents reçus.",
-        "The document could not be put on the agenda.": "Le document n'a pas pu être inscrit à l'ordre du jour."
+        "The document could not be put on the agenda.": "Le document n'a pas pu être inscrit à l'ordre du jour.",
+        "Asked of the manager of the person who acts": "Demandé au responsable de la personne qui agit",
+        "Asked of the manager of whoever owns the subject": "Demandé au responsable du propriétaire du sujet",
+        "Asked of the substitute of the person who acts": "Demandé au suppléant de la personne qui agit",
+        "Approves on its own if nobody answers by the deadline": "S'approuve d'elle-même si personne ne répond avant l'échéance",
+        "Refuses on its own if nobody answers by the deadline": "Se refuse d'elle-même si personne ne répond avant l'échéance",
+        "Goes up a level if nobody answers by the deadline": "Remonte d'un niveau si personne ne répond avant l'échéance",
+        "The substitute is also asked after {percent}% of the time": "Le suppléant est aussi sollicité après {percent}% du délai",
+        "Decision types": "Types de décision",
+        "Decision types, one on each line": "Types de décision, un par ligne",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Chaque application installée peut créer une décision de ces types. Mettez un type par ligne, en minuscules, chiffres et tirets.",
+        "Save decision types": "Enregistrer les types de décision",
+        "The decision types were not saved": "Les types de décision n'ont pas été enregistrés",
+        "The decision types were saved": "Les types de décision ont été enregistrés",
+        "Person for option {number} (optional)": "Personne pour l'option {number} (facultatif)"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -31,7 +31,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Answers whether a subject's required routes have all concluded.
  *
- * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+ * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
  */
 final class SubjectClearanceService {
 	/**
@@ -61,7 +61,7 @@ final class SubjectClearanceService {
 	 *
 	 * @return array{cleared: bool, waitingOn: array<int, array<string, mixed>>} The answer.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function clearanceFor(array $routes): array {
 		$waiting = [];
@@ -108,7 +108,7 @@ final class SubjectClearanceService {
 	 *
 	 * @return string The sentence.
 	 *
-	 * @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md (REQ-AR-014)
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
 	 */
 	public function describe(array $clearance): string {
 		if (($clearance['cleared'] ?? false) === true) {

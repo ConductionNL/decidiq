@@ -55,6 +55,8 @@ $extra = [
         ['name' => 'exportBundle#create',  'url' => '/api/exports/decision-bundle',         'verb' => 'POST'],
         ['name' => 'settings#getPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'GET'],
         ['name' => 'settings#setPublicationConfig', 'url' => '/api/settings/publication-config', 'verb' => 'PUT'],
+        // The decision type vocabulary, edited from the admin settings page (decision-types-as-configuration 4.2).
+        ['name' => 'decisionTypes#update', 'url' => '/api/settings/decision-types', 'verb' => 'PUT'],
         // Rights per record type (platform-role-rights-per-record-type, plt-03).
         ['name' => 'roleRights#index', 'url' => '/api/settings/role-rights', 'verb' => 'GET'],
         ['name' => 'roleRights#update', 'url' => '/api/settings/role-rights', 'verb' => 'PUT'],
@@ -69,13 +71,13 @@ $extra = [
         // a subject, and record an action on it. Two DISTINCT route names: a
         // duplicate name is the route identifier colliding, which throws while
         // the table is built and takes every route in the app down with it.
-        // @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+        // @spec openspec/specs/approval-routes/spec.md
         ['name' => 'approvalRoute#instantiate', 'url' => '/api/approval-routes/instantiate', 'verb' => 'POST'],
         ['name' => 'approvalRoute#record',      'url' => '/api/approval-routes/actions',     'verb' => 'POST'],
         // The one question a sibling app gates closure on: has everything that
         // had to sign off signed off. A consumer that cannot reach this reads
         // the subject as NOT cleared; absence of an engine is not an approval.
-        // @spec openspec/changes/approval-routes-resolve-a-manager-and-declare-silence/specs/approval-routes/spec.md
+        // @spec openspec/specs/approval-routes/spec.md
         ['name' => 'approvalRoute#clearance',   'url' => '/api/approval-routes/clearance',   'verb' => 'GET'],
 
         // Process template management (admin-only — AuthorizedAdminSetting on every method).

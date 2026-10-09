@@ -69,7 +69,7 @@
     (`read`/`list`: `["authenticated", "public"]`) which grants anonymous read of every draft
   - GIVEN an authenticated caller THEN read/list are unchanged, so the controller guard above and
     every existing in-app Decision reader keep working
-- [ ] **NOT APPLIED HERE** — `lib/Settings/decidesk_register.json` is single-writer this session.
+- [x] Applied since: `components.schemas.Decision.authorization.read` in lib/Settings/decidesk_register.json grants `public` only on `isPublished: public` and keeps `authenticated` (pinned by tests/Unit/RegisterAuthorizationTest.php). Originally: **NOT APPLIED HERE**, `lib/Settings/decidesk_register.json` was single-writer that session.
       The orchestrator applies this block to `components.schemas.Decision`, alongside the
       `_authorizationNote` convention already used by `ConflictOfInterest`:
 

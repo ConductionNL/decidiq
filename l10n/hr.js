@@ -1652,7 +1652,21 @@ OC.L10N.register(
         "Set when a record in the dossier is more confidential than the dossier itself: names that record and its level. Raise the dossier's classification to clear it.": "Postavlja se kada je zapis u spisu povjerljiviji od samog spisa: navodi taj zapis i njegovu razinu. Povisite klasifikaciju spisa da biste ga uklonili.",
         "The dossier is already on a list in OpenRegister, so its category is fixed.": "Spis je već na popisu u OpenRegisteru, pa je njegova kategorija utvrđena.",
         "The register ships no Selectielijst category %1$s for dossiers.": "Registar ne sadrži kategoriju Selectielijst %1$s za spise.",
-        "Selectielijst category": "Kategorija Selectielijst"
+        "Selectielijst category": "Kategorija Selectielijst",
+        "Asked of the manager of the person who acts": "Pita se nadređeni osobe koja djeluje",
+        "Asked of the manager of whoever owns the subject": "Pita se nadređeni vlasnika predmeta",
+        "Asked of the substitute of the person who acts": "Pita se zamjenik osobe koja djeluje",
+        "Approves on its own if nobody answers by the deadline": "Odobrava se sam ako nitko ne odgovori do roka",
+        "Refuses on its own if nobody answers by the deadline": "Odbija se sam ako nitko ne odgovori do roka",
+        "Goes up a level if nobody answers by the deadline": "Ide razinu više ako nitko ne odgovori do roka",
+        "The substitute is also asked after {percent}% of the time": "Zamjenik se također pita nakon {percent}% roka",
+        "Decision types": "Vrste odluka",
+        "Decision types, one on each line": "Vrste odluka, jedna po retku",
+        "Every installed app may create a decision of these types. Put one type on each line, in lowercase letters, digits and hyphens.": "Svaka instalirana aplikacija smije stvoriti odluku ovih vrsta. Upišite jednu vrstu po retku, malim slovima, brojkama i crticama.",
+        "Save decision types": "Spremi vrste odluka",
+        "The decision types were not saved": "Vrste odluka nisu spremljene",
+        "The decision types were saved": "Vrste odluka su spremljene",
+        "Person for option {number} (optional)": "Osoba za opciju {number} (neobavezno)"
     },
     "nplurals=2; plural=(n != 1);"
 )

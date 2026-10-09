@@ -23,4 +23,4 @@
 
 ## 4. Prove it
 
-- [ ] 4.1 Unit tests for the migration, including the ground retarget.
+- [x] 4.1 Unit tests for the migration, including the ground retarget. (tests/Unit/Migration/MigrateConfidentialityRecordsTest.php, testARestrictionPointsAtTheCopiedGround)

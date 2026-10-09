@@ -53,7 +53,7 @@ use RuntimeException;
 /**
  * Moves a route's stage rows when an action completes or returns one.
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
  */
 final class ApprovalRouteAdvancer {
@@ -122,7 +122,7 @@ final class ApprovalRouteAdvancer {
 	 *
 	 * @return string The owner, or an empty string when the subject cannot be read.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	public function ownerOf(string $subject, string $subjectSchema): string {
 		$object = $this->store->find(schema: $subjectSchema, uuid: $subject);

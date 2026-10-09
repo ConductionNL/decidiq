@@ -48,5 +48,5 @@
 - **spec_ref**: deferred
 - **acceptance_criteria**:
   - Still deferred, as `approval-routes` left it. The tab declares itself read-only; giving it write affordances is a separate change.
-- [ ] Implement
-- [ ] Test
+- [x] Implement: moved, not dropped. The write side of the route tab is `approval-routes-on-flow-user-tasks` (DECISIONS row 64: routes run as flow user tasks), Task 2 (start a run from Send for approval) and Task 4 (the route tab reads the run). Building buttons here would drive the engine that change retires.
+- [x] Test: owned by the same change (`ApprovalRouteServiceTest`, `routeFromFlowRun.spec.js`).

@@ -23,4 +23,4 @@
 
 ## 5. Prove it
 
-- [ ] 5.1 Unit tests for the migration, including the parent retarget.
+- [x] 5.1 Unit tests for the migration, including the parent retarget. (tests/Unit/Migration/MigrateDocumentsToAgendaItemsTest.php)
