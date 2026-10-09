@@ -75,6 +75,11 @@ class PlanningCycleCreatedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
+	 * @listener-placement inline cheap-bounded — once per created cycle: one find of
+	 *     the template, one findAll with limit 1 and one save per template step (the
+	 *     shipped templates hold six to eight). Deferred, the controller who just
+	 *     created the cycle would open its page and see no steps until cron ran.
+	 *
 	 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 	 */
 	public function handle(Event $event): void {
