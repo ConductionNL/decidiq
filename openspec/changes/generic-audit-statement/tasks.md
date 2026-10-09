@@ -10,4 +10,4 @@
 - [x] 1.8 Assoc-mode label so a VvE still reads its own word
 - [x] 1.9 Move the seeds; drop two that named no body; author two real ones
 - [x] 1.10 Unit tests for the migration (tests/Unit/Migration/MigrateKascommissieToAuditStatementTest.php)
-- [ ] 1.11 Verify on a live instance
+- [ ] 1.11 Verify on a live instance (not run: needs the live instance)
