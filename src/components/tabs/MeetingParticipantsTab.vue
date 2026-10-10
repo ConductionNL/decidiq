@@ -8,6 +8,11 @@
  this meeting. Attendance is recorded per meeting as one meeting-attendance
  object per participant (meeting-attendance-per-meeting, pla-09), so marking
  someone on this meeting leaves their other meetings unchanged.
+
+ On a meeting without a governing body the organiser invites guests from
+ outside by email (meeting-ad-hoc-with-guests, pla-20, board DcAdhocOverleg).
+
+ @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 -->
 <template>
 	<div
@@ -31,6 +36,15 @@
 					{{ t('decidiq', 'Everyone present') }}
 				</NcButton>
 				<NcButton
+					v-if="adHoc"
+					data-testid="meeting-participants-invite-guest"
+					@click="guestDialogOpen = true">
+					<template #icon>
+						<EmailPlus :size="20" />
+					</template>
+					{{ t('decidiq', 'Invite a guest') }}
+				</NcButton>
+				<NcButton
 					variant="primary"
 					data-testid="meeting-participants-add"
 					:aria-label="t('decidiq', 'Add participant')"
@@ -42,6 +56,13 @@
 				</NcButton>
 			</div>
 		</div>
+
+		<CnNoteCard
+			v-if="notice"
+			type="warning"
+			data-testid="meeting-participants-notice">
+			{{ notice }}
+		</CnNoteCard>
 
 		<CnNoteCard
 			v-if="error"
@@ -69,6 +90,12 @@
 			@select="linkParticipant"
 			@close="addDialogOpen = false" />
 
+		<GuestInviteDialog
+			v-if="guestDialogOpen"
+			:meetingId="meetingId"
+			@invited="guestInvited"
+			@close="guestDialogOpen = false" />
+
 		<CnDeleteDialog
 			v-if="removeTarget"
 			ref="removeDialog"
@@ -92,9 +119,12 @@ import AccountCheck from 'vue-material-design-icons/AccountCheck.vue'
 import AccountClock from 'vue-material-design-icons/AccountClock.vue'
 import AccountMinus from 'vue-material-design-icons/AccountMinus.vue'
 import AccountSwitch from 'vue-material-design-icons/AccountSwitch.vue'
+import EmailPlus from 'vue-material-design-icons/EmailPlus.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import GuestInviteDialog from '../../dialogs/GuestInviteDialog.vue'
 import MeetingParticipantAddDialog from '../../dialogs/MeetingParticipantAddDialog.vue'
+import { isGuest } from '../../utils/guestInvitation.js'
 import {
 	attendancePayload,
 	attendanceRows,
@@ -113,6 +143,8 @@ export default {
 		CnDeleteDialog,
 		CnNoteCard,
 		CnRowActions,
+		EmailPlus,
+		GuestInviteDialog,
 		MeetingParticipantAddDialog,
 		NcButton,
 		Plus,
@@ -134,6 +166,9 @@ export default {
 			loadingCandidates: false,
 			candidates: [],
 			removeTarget: null,
+			adHoc: false,
+			guestDialogOpen: false,
+			notice: '',
 		}
 	},
 
@@ -158,6 +193,9 @@ export default {
 			return this.rows.map((row) => ({
 				...row,
 				attendanceLabel: this.statusLabel(row.attendance),
+				kindLabel: isGuest(row)
+					? this.t('decidiq', 'Guest')
+					: this.t('decidiq', 'Staff member'),
 			}))
 		},
 
@@ -165,6 +203,7 @@ export default {
 		columns() {
 			return [
 				{ key: 'displayName', label: this.t('decidiq', 'Name') },
+				{ key: 'kindLabel', label: this.t('decidiq', 'Type') },
 				{ key: 'role', label: this.t('decidiq', 'Role') },
 				{ key: 'party', label: this.t('decidiq', 'Party') },
 				{ key: 'attendanceLabel', label: this.t('decidiq', 'Attendance') },
@@ -262,6 +301,7 @@ export default {
 					this.meetingId,
 				)
 				const bodyId = refId(meeting?.governanceBody)
+				this.adHoc = !bodyId
 				const store = ensureRelationType('participant')
 				const attendanceStore = ensureRelationType(ATTENDANCE)
 				const [participants, records] = await Promise.all([
@@ -373,6 +413,23 @@ export default {
 				{ ...participant, attendanceRecord: null },
 				'present',
 			)
+		},
+
+		/**
+		 * A guest was invited: reload, and say so when the mail did not go out.
+		 *
+		 * @param {object} result The server's answer ({ mailed }).
+		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 */
+		async guestInvited(result) {
+			this.notice =
+				result && result.mailed === false
+					? this.t(
+							'decidiq',
+							'The guest was added, but the invitation email could not be sent.',
+						)
+					: ''
+			await this.refresh()
 		},
 
 		/** @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting */

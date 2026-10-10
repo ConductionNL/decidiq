@@ -7,16 +7,17 @@
 - **files**: `src/components/tabs/BodyParticipationsTab.vue`, `src/dialogs/BodyParticipationDialog.vue`, `src/utils/bodyParticipations.js`, `src/manifest.json`
 - **acceptance_criteria**:
   - vitest red first, payload valid against the schema
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement: `src/components/tabs/BodyParticipationsTab.vue`, `src/dialogs/BodyParticipationDialog.vue`, `src/utils/bodyParticipations.js`, GovernanceBodyDetail widget `body-participating-orgs` in `src/manifest.json`
+- [x] Test: `tests/vitest/bodyParticipations.spec.js` (payloads validated with tests/vitest/helpers/registerSchema.js against body-participation)
 
 ### Task 2: On behalf of in the add-member dialog
 - **spec_ref**: `openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body`
 - **files**: `src/modals/MemberAddDialog.vue`, `src/components/tabs/useRelationStore.js`
 - **acceptance_criteria**:
   - membership payload carries onBehalfOf
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement: On behalf of select in `src/modals/MemberAddDialog.vue`, `onBehalfOf` in `buildMembershipPayload` (`src/components/tabs/useRelationStore.js`)
+- [x] Test: `tests/vitest/bodyParticipations.spec.js` (membership payload validated against the merged membership schema)
+- [ ] Playwright spec under tests/e2e/ (not run: needs the live instance)
 
 ## Verification
 

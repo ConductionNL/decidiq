@@ -12,7 +12,11 @@
  mirroring the crosswalk resolver's own match-or-create step
  (design.md Decision 1).
 
+ A shared body also asks on behalf of which participating organisation
+ the member sits (bodies-shared-body-participations, bod-13).
+
  @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 -->
 <template>
 	<NcDialog
@@ -61,6 +65,13 @@
 					:options="factionOptions"
 					label="label"
 					data-testid="member-add-faction" />
+				<NcSelect
+					v-if="onBehalfOfOptions.length"
+					v-model="selectedOnBehalfOf"
+					:inputLabel="t('decidiq', 'On behalf of')"
+					:options="onBehalfOfOptions"
+					label="label"
+					data-testid="member-add-on-behalf-of" />
 				<NcTextField
 					v-model="party"
 					data-testid="member-add-party"
@@ -103,6 +114,7 @@ import {
 	resolveOrCreatePerson,
 } from '../components/tabs/useRelationStore.js'
 import { factionsOf, startOfDay } from '../utils/bodyMembership.js'
+import { isSharedBody, onBehalfOfOptions } from '../utils/bodyParticipations.js'
 import { DEFAULT_ROLE, MEMBER_ROLES } from '../utils/memberImport.js'
 
 export default {
@@ -131,6 +143,8 @@ export default {
 			startDate: new Date(),
 			factionOptions: [],
 			selectedFaction: null,
+			onBehalfOfOptions: [],
+			selectedOnBehalfOf: null,
 			linking: false,
 			error: '',
 		}
@@ -171,9 +185,57 @@ export default {
 		} catch {
 			this.factionOptions = []
 		}
+		await this.loadOnBehalfOf()
 	},
 
 	methods: {
+		/**
+		 * On a shared body, load the participating organisations the new
+		 * member can sit on behalf of. Other bodies get no options, so the
+		 * field stays hidden.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 */
+		async loadOnBehalfOf() {
+			try {
+				const bodyStore = ensureRelationType('governance-body')
+				const body = await bodyStore.fetchObject(
+					'governance-body',
+					String(this.bodyId),
+				)
+				if (!isSharedBody(body)) {
+					this.onBehalfOfOptions = []
+					return
+				}
+				const participations = await ensureRelationType(
+					'body-participation',
+				).fetchCollection('body-participation', {
+					sharedBody: String(this.bodyId),
+					_limit: 200,
+				})
+				const ids = [
+					...new Set((participations || []).map((p) => p.participant)),
+				].filter(Boolean)
+				const bodies = await Promise.all(
+					ids.map((id) =>
+						bodyStore
+							.fetchObject('governance-body', id)
+							.catch(() => null),
+					),
+				)
+				const bodiesById = Object.fromEntries(
+					bodies.filter(Boolean).map((b) => [b.id, b]),
+				)
+				this.onBehalfOfOptions = onBehalfOfOptions(
+					participations || [],
+					bodiesById,
+				)
+			} catch {
+				this.onBehalfOfOptions = []
+			}
+		},
+
 		/**
 		 * Resolve (match by email, else create) a Person for the entered
 		 * identity fields, then create a Membership linking it to this body
@@ -212,6 +274,7 @@ export default {
 						party: this.party.trim(),
 						startDate: startOfDay(this.startDate),
 						faction: this.selectedFaction?.id || '',
+						onBehalfOf: this.selectedOnBehalfOf?.id || '',
 					}),
 				)
 				this.$emit('linked')

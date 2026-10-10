@@ -1651,10 +1651,11 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/register.d/56-shared-governance-bodies.json BodyParticipation (sharedBody, participant, seats, votingWeight, accessionDate, exitDate) and Membership.onBehalfOf; bodyType 'shared-body' at lib/Settings/decidesk_register.json:553; src/manifest.json:482-483 body-participating-orgs and body-shared-participations object-lists on GovernanceBodyDetail; no BodyParticipation index/detail page",
+				"state": "built",
+				"evidence": "src/components/tabs/BodyParticipationsTab.vue (add, edit, end a participation; seats filled per organisation from Membership.onBehalfOf) with src/dialogs/BodyParticipationDialog.vue on GovernanceBodyDetail (widget body-participating-orgs); On behalf of in src/modals/MemberAddDialog.vue; tests/vitest/bodyParticipations.spec.js",
 				"owner": "ConductionNL/decidiq",
-				"change": "bodies-shared-body-participations"
+				"change": "2026-10-09-bodies-shared-body-participations",
+				"readOn": "2026-10-09"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), 'Participating organisations' and 'Shared-body participations' lists",
 			"provider": "decidiq",
@@ -2238,10 +2239,11 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "building",
-				"evidence": "lib/Settings/register.d/82-planning-cycle-in-plain-words.json PlanningCycle, PlanningCycleTemplate (steps), PlanningCycleStep (sequence, stepType, deliveryDeadline, committeeDate, agendaItem, decision, status); src/manifest.d/pc-cyclus.json PlanningCycles/PlanningCycleDetail/PlanningCycleStepDetail; no service generates steps from a template (grep 'planning-cycle', 'PlanningCycle' in lib/Service, lib/Listener, src/components, src/views: none)",
+				"state": "built",
+				"evidence": "lib/Service/PlanningCycleGenerator.php + lib/Listener/PlanningCycleCreatedListener.php (a cycle created with a template gets one step per template step, dates resolved in the cycle year, once); src/components/tabs/PlanningCycleStepsTab.vue on PlanningCycleDetail (steps in order with an Overdue badge); tests/Unit/Listener/PlanningCycleCreatedListenerTest.php, tests/vitest/planningCycleSteps.spec.js",
 				"owner": "ConductionNL/decidiq",
-				"change": "planning-cycle-generate-from-template"
+				"change": "2026-10-09-planning-cycle-generate-from-template",
+				"readOn": "2026-10-09"
 			},
 			"reachedOn": "PlanningCycles (/planning-cycles), under 'Tasks & Commitments' in the menu",
 			"provider": "decidiq",
