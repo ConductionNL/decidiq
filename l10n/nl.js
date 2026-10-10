@@ -3520,7 +3520,8 @@ OC.L10N.register(
         "Loading the steps…": "Stappen laden…",
         "Step": "Stap",
         "Steps of this cycle in order": "Stappen van deze cyclus op volgorde",
-        "This cycle has no steps yet.": "Deze cyclus heeft nog geen stappen."
+        "This cycle has no steps yet.": "Deze cyclus heeft nog geen stappen.",
+        "Start from a template": "Begin met een sjabloon"
     },
     "nplurals=2; plural=(n != 1);"
 )
