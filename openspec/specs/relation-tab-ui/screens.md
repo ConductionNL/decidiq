@@ -1,3 +1,4 @@
 # Screens
 
-- No board found yet (decision 150)
+- DcVergadering https://identity.conduction.nl/screens/board?id=decidiq/DcVergadering
+- DcBesluit https://identity.conduction.nl/screens/board?id=decidiq/DcBesluit
