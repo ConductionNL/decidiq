@@ -41,7 +41,11 @@ const FORM = {
 	],
 	papers: [{ name: 'Subsidieaanvraag 2027.pdf' }],
 	colleagues: [
-		{ id: 'p-lisa', displayName: 'Lisa Vermeulen', nextcloudUserId: 'lisa' },
+		{
+			id: '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f',
+			displayName: 'Lisa Vermeulen',
+			nextcloudUserId: 'lisa',
+		},
 	],
 	guests: [{ name: 'Karim Ouali', email: 'k.ouali@wijkcentrumzuid.nl' }],
 }
@@ -105,21 +109,30 @@ describe('the Nieuw overleg page writes what the register accepts (REQ-MAH-001)'
 	})
 
 	it('agenda points are numbered in order, blanks dropped, each valid against agenda-item', () => {
-		const items = agendaPayloads('m-1', FORM.agenda)
+		const items = agendaPayloads(
+			'0f5b8a8e-6a3c-4c1b-9d3e-1a2b3c4d5e61',
+			FORM.agenda,
+		)
 		expect(items.map((i) => [i.orderNumber, i.title])).toEqual([
 			[1, 'Opening en kennismaking'],
 			[2, 'Stand van zaken subsidie wijkcentrum'],
 		])
 		const validate = validatorFor('agenda-item')
 		for (const item of items) {
-			expect(item.meeting).toBe('m-1')
+			expect(item.meeting).toBe('0f5b8a8e-6a3c-4c1b-9d3e-1a2b3c4d5e61')
 			expect(validate(item), JSON.stringify(validate.errors)).toBe(true)
 		}
 	})
 
 	it('a colleague joins through a meeting-attendance record, the same shape a guest gets', () => {
-		const [record] = attendancePayloads('m-1', FORM.colleagues)
-		expect(record).toEqual({ meeting: 'm-1', participant: 'p-lisa' })
+		const [record] = attendancePayloads(
+			'0f5b8a8e-6a3c-4c1b-9d3e-1a2b3c4d5e61',
+			FORM.colleagues,
+		)
+		expect(record).toEqual({
+			meeting: '0f5b8a8e-6a3c-4c1b-9d3e-1a2b3c4d5e61',
+			participant: '7c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f',
+		})
 		const validate = validatorFor('meeting-attendance')
 		expect(validate(record), JSON.stringify(validate.errors)).toBe(true)
 	})
