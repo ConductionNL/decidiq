@@ -62,15 +62,26 @@ test('the organiser sets up a meeting without a body, its agenda and a guest on 
 
 	await page.getByTestId('adhoc-title').locator('input').fill(title)
 	await page.locator('#adhoc-start').fill('2027-03-02T15:00')
-	await page.getByTestId('adhoc-location').locator('input').fill('Stadskantoor, kamer 2.14')
-	await page.getByTestId('adhoc-agenda-input').locator('input').fill('Opening en kennismaking')
+	await page
+		.getByTestId('adhoc-location')
+		.locator('input')
+		.fill('Stadskantoor, kamer 2.14')
+	await page
+		.getByTestId('adhoc-agenda-input')
+		.locator('input')
+		.fill('Opening en kennismaking')
 	await page.getByTestId('adhoc-agenda-add').click()
 
 	await page.getByTestId('adhoc-guest-add').click()
 	await page.getByTestId('guest-invite-name').locator('input').fill('Karim Ouali')
-	await page.getByTestId('guest-invite-email').locator('input').fill('k.ouali@example.org')
+	await page
+		.getByTestId('guest-invite-email')
+		.locator('input')
+		.fill('k.ouali@example.org')
 	await page.getByTestId('guest-invite-submit').click()
-	await expect(page.getByTestId('adhoc-participants')).toContainText('k.ouali@example.org')
+	await expect(page.getByTestId('adhoc-participants')).toContainText(
+		'k.ouali@example.org',
+	)
 
 	await page.getByTestId('adhoc-create').click()
 	await expect(page).toHaveURL(/\/meetings\/[0-9a-f-]{36}$/, { timeout: 30_000 })
