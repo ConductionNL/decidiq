@@ -53,7 +53,7 @@ test.afterAll(async ({ browser }) => {
 })
 
 // @e2e meeting-management::the-organiser-sets-up-a-meeting-with-guests-on-one-page
-test('the organiser sets up a meeting without a body, its agenda and a guest on one page', async ({
+test('AdhocMeetingPage: the organiser sets up a meeting without a body, its agenda and a guest on one page', async ({
 	page,
 }) => {
 	await page.goto(`${APP_BASE}/meetings`, { waitUntil: 'domcontentloaded' })
