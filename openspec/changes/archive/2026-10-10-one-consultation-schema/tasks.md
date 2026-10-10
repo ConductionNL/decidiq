@@ -31,4 +31,4 @@
 ## 5. Prove it
 
 - [x] 5.1 Unit tests for the migration. (tests/Unit/Migration/MigrateConsultationsToOneSchemaTest.php)
-- [ ] 5.2 E2E: a consultation and its responses render. (not run: needs the live instance)
+- [ ] 5.2 E2E: a consultation and its responses render. (not run: needs the live instance) (live pass, decision 139)

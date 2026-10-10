@@ -14,4 +14,4 @@
 
 ## 3. Prove it
 
-- [ ] 3.1 E2E: each configuration surface is reachable and lists its rows. (not run: needs the live instance)
+- [ ] 3.1 E2E: each configuration surface is reachable and lists its rows. (not run: needs the live instance) (verified: src/manifest.d/configurable-types.json, tests/vitest/menuLayoutIsCurrent.spec.js; live pass, decision 139)

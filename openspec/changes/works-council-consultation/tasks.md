@@ -9,7 +9,7 @@
   - GIVEN the fragment is loaded WHEN the register imports THEN the `consultation-request` schema exists with all required fields, property titles, and the `x-schema-org` annotation, no existing schema is modified by the fragment, and the GovernanceBody `bodyType` enum includes `works-council`
   - GIVEN the schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with the specced states/transitions/terminals (achterbanraadpleging optional, repeat-overleg loop, `ingetrokken` terminal), `x-openregister-notifications` declares the pre-deadline, overdue, opschorting-expiry, and afwijkend-besluit triggers (nl+en subjects) with no imperative dispatch anywhere, and `x-openregister-calculations` derives `opschortingTot` = `besluitDate` + 1 month only for adviesaanvragen with `besluitOutcome=afwijkend-van-advies` (or the documented D3 fallback is applied, never a silently wrong value)
   - GIVEN a create missing `type`, `subject`, `bestuurder`, or `receivedDate` WHEN saved THEN OpenRegister validation rejects it
-- [ ] Implement
+- [x] Implement (verified: lib/Settings/register.d/47-works-council-consultation.json ConsultationRequest)
 - [ ] Test
 
 ### Task 2: Seed data — realistic Dutch WOR trajecten and the ondernemingsraad body
@@ -27,7 +27,7 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the WOR-trajecten index renders with the specced columns and quick filters (type, lifecycle, governance body), and row click opens the detail page (schema ref by slug `consultation-request`, never PascalCase)
   - GIVEN the detail page WHEN opened THEN linked overlegvergadering/agenda item/raadpleging/decision render as navigable references, the Files leaf shows submitted documents, the running opschortingstermijn is surfaced when set, and an empty `achterbanraadpleging` reference renders without error
-- [ ] Implement
+- [x] Implement (verified: src/manifest.d/works-council-consultation.json pages WorksCouncilConsultations, WorksCouncilConsultationDetail)
 - [ ] Test
 
 ### Task 4: Dashboard KPIs — open trajecten and responses past requested date
