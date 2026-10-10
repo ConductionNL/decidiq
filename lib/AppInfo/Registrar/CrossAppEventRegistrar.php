@@ -38,12 +38,14 @@ use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Event\DecisionRequestedEvent;
 use OCA\Decidiq\Event\DecisionStateRequestedEvent;
 use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
+use OCA\Decidiq\Event\GovernanceBodyStateRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalActionRequestedListener;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
 use OCA\Decidiq\Listener\ApprovalTaskDecisionListener;
 use OCA\Decidiq\Listener\DecisionRequestedListener;
 use OCA\Decidiq\Listener\DecisionStateRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
+use OCA\Decidiq\Listener\GovernanceBodyStateRequestedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 /**
@@ -75,6 +77,10 @@ class CrossAppEventRegistrar {
 
 		// Hold a governance body — a committee, a board — with its roster.
 		GovernanceBodyRequestedEvent::class => GovernanceBodyRequestedListener::class,
+
+		// Read that governance body back, with its roster. The READ half of the
+		// pair above, so a consumer stops reading its own stale copy.
+		GovernanceBodyStateRequestedEvent::class => GovernanceBodyStateRequestedListener::class,
 
 		// Hold a sign-off route, and travel a subject down it. Both delegate to
 		// the EXISTING ApprovalRouteService: these add a door, not a second
