@@ -10,9 +10,9 @@
     chair/clerk role on that meeting's GovernanceBody (reuse the existing role-resolution helper
     already used by `LiveMeetingController::requireChairOrAdmin()` / participant resolution
     service rather than writing a second implementation)
-- [ ] Add a private `isChairOrClerk(string $meetingId, string $uid): bool` helper (or reuse
+- [x] Add a private `isChairOrClerk(string $meetingId, string $uid): bool` helper (or reuse (verified: lib/Service/ProxyVoteService.php isChairOrClerk via ParticipantResolver)
       `ParticipantResolver` if it already exposes role lookup) to `ProxyVoteService`.
-- [ ] Test: chair/clerk/regular-member/non-member classifications for a fixture meeting.
+- [x] Test: chair/clerk/regular-member/non-member classifications for a fixture meeting. (verified: tests/Unit/Service/ProxyVoteServiceTest.php testRegisterAllowsChairOnBehalfOfOthers, testRegisterRejectsUnrelatedCaller)
 
 ### Task 2: Authorize `register()`
 - **spec_ref**: `openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy`
@@ -24,11 +24,11 @@
     `$accessUid = null` admin-bypass convention)
   - GIVEN caller is none of the above THEN `register()` returns `{success: false}` and the
     controller responds `403 Forbidden` with a static message (no stack trace, no internal detail)
-- [ ] Add `?string $callerUid` param to `ProxyVoteService::register()`; reject before the existing
+- [x] Add `?string $callerUid` param to `ProxyVoteService::register()`; reject before the existing (verified: lib/Service/ProxyVoteService.php)
       validation when the caller fails the check above.
-- [ ] Update `ProxyVoteController::register()` to resolve `$callerUid` (null on admin, per the
+- [x] Update `ProxyVoteController::register()` to resolve `$callerUid` (null on admin, per the (verified: lib/Controller/ProxyVoteController.php resolveCallerUid)
       `MotionCoauthorController` pattern) from `IUserSession` + `IGroupManager` and pass it through.
-- [ ] Test: self-grantor allowed; chair-on-behalf-of-another-member allowed; unrelated member
+- [x] Test: self-grantor allowed; chair-on-behalf-of-another-member allowed; unrelated member (verified: tests/Unit/Service/ProxyVoteServiceTest.php testRegisterAllowsSelfGrantor, testRegisterAllowsChairOnBehalfOfOthers, testRegisterRejectsUnrelatedCaller, testRegisterAllowsAdminBypassViaNullCallerUid)
       rejected 403; admin allowed.
 
 ### Task 3: Authorize `transition()` (`suspend()` / `revoke()`)
@@ -41,11 +41,11 @@
     transition proceeds
   - GIVEN caller is unrelated to the proxy THEN `transition()` returns `{success: false}` and the
     controller responds `403 Forbidden`
-- [ ] Add `?string $callerUid` param to `transition()`/`suspend()`/`revoke()`; look up the proxy
+- [x] Add `?string $callerUid` param to `transition()`/`suspend()`/`revoke()`; look up the proxy (verified: lib/Service/ProxyVoteService.php)
       first (already done for the `find()` call), then authorize before mutating.
-- [ ] Update `ProxyVoteController::suspend()`/`revoke()` to resolve and forward `$callerUid` the
+- [x] Update `ProxyVoteController::suspend()`/`revoke()` to resolve and forward `$callerUid` the (verified: lib/Controller/ProxyVoteController.php)
       same way as Task 2.
-- [ ] Test: grantor revokes own proxy — allowed; holder suspends — allowed; unrelated
+- [x] Test: grantor revokes own proxy — allowed; holder suspends — allowed; unrelated (verified: tests/Unit/Service/ProxyVoteServiceTest.php testRevokeAllowsGrantorAndSuspendAllowsHolder, testRevokeRejectsUnrelatedCallerAndLeavesStatusUnchanged, testSuspendAllowsChairOfMeeting)
       authenticated user attempts suspend/revoke — 403; admin allowed.
 
 ### Task 4: Regression + Newman coverage
@@ -55,6 +55,6 @@
   - GIVEN the existing `proxyVote#*` Newman requests THEN they still pass authenticated as the
     grantor/chair fixture user
   - GIVEN a new negative-path request as an unrelated authenticated user THEN it asserts `403`
-- [ ] Add/extend the Newman collection with the unrelated-user 403 case for all three mutating
+- [ ] Add/extend the Newman collection with the unrelated-user 403 case for all three mutating (code exists, test missing: tests/integration/decidiq-security-flow-e2e.postman_collection.json covers register and revoke 403, no unrelated-user suspend case)
       endpoints.
-- [ ] Run `composer check:strict` + PHPUnit for `ProxyVoteService`/`ProxyVoteController`.
+- [ ] Run `composer check:strict` + PHPUnit for `ProxyVoteService`/`ProxyVoteController`. (gate run, owed once before push, not a code check)

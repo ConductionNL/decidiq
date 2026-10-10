@@ -10,7 +10,7 @@
   - GIVEN the base file WHEN diffed against the merge base THEN the only changes are the added `shared-body` enum value and the added optional `namens` property (union merge with the works-council sibling's `works-council` value — never drop a sibling's addition)
   - GIVEN the schemas WHEN inspected THEN both lifecycles use the canonical `initial` keyword with the specced states/transitions/terminals, and `x-openregister-notifications` on Zienswijze declares the deadline-approaching, deadline-passed, and created triggers (nl+en subjects) with no imperative dispatch anywhere
   - GIVEN a create missing `sharedBody`/`participant` (participation) or `title`/`sharedBody`/`subjectType`/`deadline` (ronde) or `ronde`/`participant` (zienswijze) WHEN saved THEN OpenRegister validation rejects it
-- [ ] Implement
+- [x] Implement (verified: lib/Settings/register.d/56-shared-governance-bodies.json BodyParticipation, Zienswijzeronde, Zienswijze)
 - [ ] Test
 
 ### Task 2: Seed data — three-municipality GR (SED-style) with participations, provenance, and a running zienswijzeronde
