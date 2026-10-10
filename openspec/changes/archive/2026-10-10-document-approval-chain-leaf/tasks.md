@@ -63,6 +63,6 @@
 - Dutch and English strings; `docs/features/approval-chain.md` with screenshots.
 - [x] Implement: 23 source strings in `l10n/en.json`, all 23 translated in
       `l10n/nl.json`, and `docs/Features/approval-chain.md` written.
-- [ ] Screenshots. They are captured by a journeydoc run against a live
+- [ ] Screenshots. They are captured by a journeydoc run against a live (live pass, decision 139: journeydoc capture needs a live instance)
       instance rather than written by hand, and this branch has no instance with
       a route on a document to capture. Recorded here rather than dropped.
