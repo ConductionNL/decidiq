@@ -80,7 +80,7 @@
 - Note (2 Oct): `SelectionCategoryReader::forObject()` is the one place a dossier's category is decided (design.md). OpenRegister's per-object read of `archive.classificationProperty` is the openregister lane's (openregister#4228 follow-up), so the live check, that OpenRegister writes the dossier's own retention, stays open.
 - [x] Implement
 - [x] Test
-- [ ] Live check once OpenRegister reads the per-object category
+- [ ] Live check once OpenRegister reads the per-object category (live pass, decision 139)
 
 ## Verification
 - All tasks checked off; `openspec validate` passes

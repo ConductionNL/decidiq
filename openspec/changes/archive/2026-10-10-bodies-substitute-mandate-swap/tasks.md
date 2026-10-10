@@ -24,7 +24,7 @@
   - GIVEN a member without a presiding role WHEN they post THEN 403
   - Verification: PHPUnit, one case per refusal, written red first; Newman start and end on a seeded meeting
 - [x] Implement
-- [ ] Test (PHPUnit done: tests/Unit/Service/MandateSubstitutionServiceTest.php, one case per refusal; not run: the Newman start and end on a seeded meeting needs the live instance)
+- [ ] Test (PHPUnit done: tests/Unit/Service/MandateSubstitutionServiceTest.php, one case per refusal; not run: the Newman start and end on a seeded meeting needs the live instance) (verified: tests/Unit/Service/MandateSubstitutionServiceTest.php; Newman half not written, live pass, decision 139)
 
 ### Task 3: Voting follows the seat
 
@@ -49,4 +49,4 @@
   - GIVEN a member WHEN the panel renders THEN no swap or end action shows
   - Verification: Playwright on the seeded committee meeting, red first (no panel), then green; the modal's picker has an `inputLabel`
 - [x] Implement
-- [ ] Test (not run: tests/e2e/workflows/substitute-mandate-swap.spec.ts is written; it needs the live instance with the seeded committee meeting)
+- [ ] Test (not run: tests/e2e/workflows/substitute-mandate-swap.spec.ts is written; it needs the live instance with the seeded committee meeting) (verified: tests/e2e/workflows/substitute-mandate-swap.spec.ts written; live pass, decision 139)

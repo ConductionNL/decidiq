@@ -10,7 +10,7 @@
   - GIVEN a broadcast without `publicationDate` WHEN an anonymous Newman request lists `meeting-broadcast` THEN the row is absent (red before the rule, green after)
   - GIVEN `ended` WHEN any transition is attempted THEN OpenRegister refuses it
 - [x] Implement (fragment 120, not 92: 92 was taken; seeds on the seeded meetings raadsvergadering-2025-01-15 (ended), informatieavond-windpark-noord (planned, test found a problem) and raadsvergadering-2025-04-10 (planned, not announced), since the municipality set has no meetings on 12, 19 and 26 March; schema shape, lifecycle, read rule and seeds asserted in tests/Unit/Settings/MeetingBroadcastRegisterTest.php)
-- [ ] Test (Newman: an anonymous list of meeting-broadcast leaves out the row without publicationDate; needs the live instance)
+- [ ] Test (Newman: an anonymous list of meeting-broadcast leaves out the row without publicationDate; needs the live instance) (live pass, decision 139; no Newman collection written yet)
 
 ### Task 2: The streaming connection
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service`
@@ -50,7 +50,7 @@
   - GIVEN a test result WHEN the page reloads THEN result, note, author and time are shown
   - GIVEN the Playwright spec WHEN it runs THEN it carries `@e2e` references to the UI scenarios of REQ-LSTR-002, 003 and 004
 - [x] Implement (MeetingBroadcastTab, widget `meeting-broadcast` on MeetingDetail with layout row 27 and a slots entry, registry entry; the buttons per state come from src/utils/meetingBroadcast.js and are checked against the schema lifecycle in tests/vitest/meetingBroadcast.spec.js; the test result shows with or without a connection; tests/e2e/meeting-broadcast.spec.ts written, not run; 25 strings in en, nl, de, fr, es, it)
-- [ ] Test (not run: tests/e2e/meeting-broadcast.spec.ts is written; it needs the live instance)
+- [ ] Test (not run: tests/e2e/meeting-broadcast.spec.ts is written; it needs the live instance) (verified: tests/e2e/meeting-broadcast.spec.ts written; live pass, decision 139)
 
 ### Task 6: Subtitles derived from the aligned transcript
 - **spec_ref**: `openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows`
@@ -79,7 +79,7 @@
   - GIVEN the provider constructed with portaliq absent WHEN the citizen contribution is read THEN `publicBroadcasts` is `anonymous: true` and its `fields` hold no staff field (PHPUnit)
   - GIVEN portaliq on the dev instance and a live seed broadcast WHEN `GET /portal/api/contributions` is called without a session THEN `publicBroadcasts` is present (live check)
 - [x] Implement (collection `publicBroadcasts`, anonymous, fields title, bodyName, scheduledDate, lifecycle, playerUrl, recordingUrl, captionTracks; newest first)
-- [ ] Test (PHPUnit done: PortalContributionProviderTest::testPublicBroadcastsAreAnonymousWithoutStaffFields, and the shipped-schema drift test covers the fields. The live check on the dev instance with portaliq is owed)
+- [ ] Test (PHPUnit done: PortalContributionProviderTest::testPublicBroadcastsAreAnonymousWithoutStaffFields, and the shipped-schema drift test covers the fields. The live check on the dev instance with portaliq is owed) (verified: tests/Unit/Portal/PortalContributionProviderTest.php; live pass, decision 139)
 
 ### Task 9: Strings and docs
 - Dutch and English strings for every widget label and message above, in `l10n/` (hydra `test:l10n` and `check:schema-l10n` green).

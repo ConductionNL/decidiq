@@ -17,7 +17,7 @@
   - payload valid against agenda-item
 - [x] Implement
 - [x] Test (red first)
-- [ ] Playwright `tests/e2e/incoming-documents.spec.ts` green on the municipality example set (owed live)
+- [ ] Playwright `tests/e2e/incoming-documents.spec.ts` green on the municipality example set (owed live) (live pass, decision 139; verified: tests/e2e/incoming-documents.spec.ts written, src/views/dashboard/widgets/IncomingDocumentsWidget.vue)
 
 ## Verification
 
