@@ -7,7 +7,7 @@
       "Bevoegdheidstoedeling": {
         "slug": "bevoegdheidstoedeling",
         "icon": "AccountKeyOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "Bevoegdheidstoedeling",
         "description": "A bevoegdheidstoedeling: a record of who may exercise which authority on whose behalf, delegatie, mandaat, volmacht, or machtiging (Awb afdeling 10.1.1/10.1.2, BW Boek 3 titel 3). It stores the delegans/mandaatgever and the delegataris/gemandateerde (as a body, a function description, and/or a person), the scope (onderwerp) and its limits (financieelPlafond, beperkingen), the wettelijke grondslag, a trace to the authorizing delegatie-/mandaatbesluit (Decision) and, on intrekking, the revoking Decision, a validity window (geldigVanaf/geldigTot), an ondermandaat parent link, a declarative status lifecycle (ADR-031), declarative expiry rappels, and a live public delegatie- en mandaatregister via the OpenRegister published-predicate. The register documents authority; it never enforces it. It stores relations, not documents: publication of the delegatiebesluit text itself (CVDR/DROP) belongs to the verordeningenregister capability. CONSTRAINT (design D4): this schema contains ONLY publishable fields by construction (no internal-only / confidential-remark property; internal working notes live in the sidebar audit trail; delegataris persons are governance persons already public in the people register; function descriptions are organisational facts). Adding ANY non-public property requires revisiting the public-predicate design in D4, because the whole live object is exposed through the public-group authorization.read rule when publicationDate <= $now.",
         "type": "object",
@@ -180,6 +180,31 @@
             "format": "uuid",
             "$ref": "Person",
             "description": "Reference to the delegataris / gemandateerde as a Popolo Person, where the authority is assigned to a named natural person. At least one delegataris field MUST be present."
+          },
+          "delegateUser": {
+            "title": "Delegate (account)",
+            "type": "string",
+            "facetable": true,
+            "example": "j.devries",
+            "description": "The Nextcloud account that holds this authority. Optional. Together with delegateGroup and acts it lets an app ask whether a person may perform an act; a toedeling without either stays documentation only."
+          },
+          "delegateGroup": {
+            "title": "Delegate (group)",
+            "type": "string",
+            "facetable": true,
+            "example": "afdelingshoofden-samenleving",
+            "description": "The Nextcloud group whose members hold this authority, for an authority given to a function rather than a named person. Optional."
+          },
+          "acts": {
+            "title": "Acts",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "subsidy-decision"
+            ],
+            "description": "The act keys this authority covers, as the asking app names them (for example a decision type or a case type). An empty list covers no act: the delegated authority check never reads an empty list as 'everything'."
           },
           "subject": {
             "title": "Subject",
