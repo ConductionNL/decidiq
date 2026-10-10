@@ -3,6 +3,7 @@
 
 /**
  * Playwright e2e: the Nieuw overleg page of board DcAdhocOverleg
+ * (component AdhocMeetingPage, manifest page AdhocMeetingNew)
  * (meeting-ad-hoc-with-guests Task 3, pla-20).
  *
  * WHAT THIS ASSERTS THAT VITEST CANNOT
