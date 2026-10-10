@@ -1,0 +1,189 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change platform-case-system-document-exchange (REQ-CSDX-002, REQ-CSDX-006, matrix rows plt-23 and plt-24). AgendaItem gains the case it belongs to in the organisation's case system (caseReference). CaseExchangeRecord (slug case-exchange-record) records every fetch from and send to the case system, one line per document with its own status, so a retry sends only what failed.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "case-exchange-record"
+        ]
+      }
+    },
+    "schemas": {
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "properties": {
+          "caseReference": {
+            "title": "Case",
+            "type": "object",
+            "nullable": true,
+            "description": "The case this agenda item belongs to in the organisation's case system: its address, its case number and its title. Set by linking the item to a case; decidiq reads the case once to fill the title.",
+            "properties": {
+              "url": {
+                "type": "string",
+                "title": "Case address",
+                "description": "The address of the case in the case system."
+              },
+              "identification": {
+                "type": "string",
+                "title": "Case number",
+                "description": "The case number, such as Z-2026-00412."
+              },
+              "title": {
+                "type": "string",
+                "title": "Case title",
+                "description": "The title of the case as the case system names it."
+              }
+            }
+          }
+        }
+      },
+      "CaseExchangeRecord": {
+        "slug": "case-exchange-record",
+        "icon": "BriefcaseOutline",
+        "version": "1.0.0",
+        "title": "Case system exchange",
+        "description": "One fetch from or send to the case system, with a line per document and the status of each.",
+        "type": "object",
+        "_authorizationNote": "Staff read only. Records are written only by decidiq's CaseExchangeRecords service, in system context, after the controller has checked the chair or secretary of the meeting. The write actions are left out on purpose: a schema block replaces the register block whole, so an omitted write stays closed on the object API (RegisterAuthorizationTest, SERVICE_OWNED_WRITES_STAY_CLOSED).",
+        "authorization": {
+          "read": [
+            "decidiq-secretariat",
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        },
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false
+        },
+        "required": [
+          "direction",
+          "lines"
+        ],
+        "properties": {
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Meeting",
+            "description": "The meeting whose file was sent, or whose agenda item documents were fetched for."
+          },
+          "agendaItem": {
+            "title": "Agenda item",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "agenda-item",
+            "description": "The agenda item the documents were fetched onto or whose decisions were sent."
+          },
+          "direction": {
+            "title": "Direction",
+            "type": "string",
+            "facetable": true,
+            "description": "Fetch brings documents from the case system onto an agenda item; send takes documents to a case.",
+            "enum": [
+              "fetch",
+              "send"
+            ]
+          },
+          "target": {
+            "title": "Case address",
+            "type": "string",
+            "description": "The address of the case the documents came from or went to."
+          },
+          "targetLabel": {
+            "title": "Case",
+            "type": "string",
+            "description": "The case number or title, as shown on screen."
+          },
+          "lines": {
+            "title": "Documents",
+            "type": "array",
+            "description": "One line per document, each with its own status.",
+            "items": {
+              "type": "object",
+              "title": "Document line",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "title": "Name",
+                  "description": "The document's file name."
+                },
+                "kind": {
+                  "type": "string",
+                  "title": "Kind",
+                  "description": "What the document is: the agenda, an item document, a decision, the decision list, the minutes or the proof package.",
+                  "enum": [
+                    "agenda",
+                    "item-document",
+                    "decision",
+                    "decision-list",
+                    "minutes",
+                    "proof-package"
+                  ]
+                },
+                "source": {
+                  "type": "string",
+                  "title": "Source",
+                  "description": "Where decidiq finds the document again when it is sent a second time."
+                },
+                "fileId": {
+                  "type": "integer",
+                  "title": "File",
+                  "description": "The Nextcloud file, when the document is one."
+                },
+                "remoteUrl": {
+                  "type": "string",
+                  "title": "Address in the case system",
+                  "description": "The document's address in the case system, once it is there."
+                },
+                "status": {
+                  "type": "string",
+                  "title": "Status",
+                  "description": "Pending until the case system answers, then sent or failed.",
+                  "enum": [
+                    "pending",
+                    "sent",
+                    "failed"
+                  ]
+                },
+                "error": {
+                  "type": "string",
+                  "title": "Error",
+                  "description": "Why the case system refused the document."
+                },
+                "confidential": {
+                  "type": "boolean",
+                  "title": "Confidential",
+                  "description": "The document was sent marked confidential."
+                },
+                "ground": {
+                  "type": "string",
+                  "title": "Ground",
+                  "description": "The confidentiality ground it was sent with."
+                }
+              }
+            }
+          },
+          "requestedBy": {
+            "title": "Requested by",
+            "type": "string",
+            "description": "The account that fetched or sent, or system when minutes approval sent it."
+          },
+          "requestedAt": {
+            "title": "Requested at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the fetch or send was asked for."
+          }
+        }
+      }
+    }
+  }
+}

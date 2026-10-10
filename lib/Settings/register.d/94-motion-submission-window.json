@@ -1,0 +1,23 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change motions-submission-window (REQ-SUBW-001 to REQ-SUBW-003, matrix row mot-18). A meeting already carried submissionDeadline; it now also carries the moment submission opens, so motions and amendments have a window like questions do.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.3.0",
+        "properties": {
+          "submissionOpensAt": {
+            "title": "Submission opens",
+            "type": "string",
+            "format": "date-time",
+            "description": "When members can start submitting motions and amendments for this meeting. Empty means submission is open from the moment the meeting exists.",
+            "x-notes": "Enforced by SubmissionDeadlineListener: a motion or amendment created before this moment is refused with a message naming it, and a meeting whose opening is not before its submissionDeadline cannot be saved."
+          }
+        }
+      }
+    }
+  }
+}

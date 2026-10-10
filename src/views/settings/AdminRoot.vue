@@ -7,16 +7,28 @@
 		:showSetup="true"
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
+		<MenuStructureTab />
 		<Settings v-if="storesReady" />
+		<CaseSystemSettings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
+		<FullExportSettings v-if="storesReady" />
+		<RoleRightsSettings v-if="storesReady" />
+		<OfficePaperSettings v-if="storesReady" />
+		<DecisionTypeSettings v-if="storesReady" />
 	</CnAdminSettingsShell>
 </template>
 
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
+import CaseSystemSettings from './CaseSystemSettings.vue'
+import DecisionTypeSettings from './DecisionTypeSettings.vue'
+import FullExportSettings from './FullExportSettings.vue'
+import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
+import RoleRightsSettings from './RoleRightsSettings.vue'
 import Settings from './Settings.vue'
+import MenuStructureTab from './tabs/MenuStructureTab.vue'
 import manifest from '../../manifest.json'
 import { initializeStores } from '../../store/store.js'
 
@@ -24,8 +36,14 @@ export default {
 	name: 'AdminRoot',
 	components: {
 		CnAdminSettingsShell,
+		CaseSystemSettings,
+		DecisionTypeSettings,
+		MenuStructureTab,
 		Settings,
+		FullExportSettings,
+		OfficePaperSettings,
 		PublicationSettings,
+		RoleRightsSettings,
 	},
 
 	data() {

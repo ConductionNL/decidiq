@@ -68,8 +68,8 @@
               }
             ],
             "subject": {
-              "nl": "Nieuwe raadsinformatiebrief: {{number}} — {{onderwerp}}",
-              "en": "New council information letter: {{number}} — {{onderwerp}}"
+              "nl": "Nieuwe raadsinformatiebrief: {{number}} — {{subject}}",
+              "en": "New council information letter: {{number}} — {{subject}}"
             },
             "_note": "New-RIB notification to the council members of the directed-to governance body (REQ-RIB-008). Declarative created-trigger (ADR-031); gate-18 hard-fails imperative dispatch. Recipients resolve via object-acl (read) + the decidesk-members group, never kind:field on the portefeuillehouder/Person reference (per decidesk-notifications recipient rules). No bespoke notification BackgroundJob."
           }

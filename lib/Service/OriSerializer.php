@@ -54,6 +54,50 @@ class OriSerializer {
 	public const PUBLICATIONS_RESOURCE = 'publications';
 
 	/**
+	 * The ORI resource slug for commitments (followup-public-progress, fol-06).
+	 */
+	public const COMMITMENTS_RESOURCE = 'commitments';
+
+	/**
+	 * The ORI @type of a commitment.
+	 */
+	public const COMMITMENT_TYPE = 'Commitment';
+
+	/**
+	 * The resources whose public visibility is the publication window
+	 * (publicationDate <= now, not depublished) rather than a lifecycle state.
+	 *
+	 * @var list<string>
+	 */
+	public const WINDOWED_RESOURCES = [
+		self::PUBLICATIONS_RESOURCE,
+		self::COMMITMENTS_RESOURCE,
+	];
+
+	/**
+	 * The allow-list a commitment adds to the shared fields (status, text).
+	 * Who made it, the meeting and body it was made to, the settlement
+	 * evidence link and the migration reference stay internal. `progress` is
+	 * narrowed entry by entry in serialize().
+	 *
+	 * @var array<string, list<string>>
+	 */
+	private const COMMITMENT_FIELD_RULES = [
+		'deadline' => ['deadline'],
+		'progress' => ['progress'],
+		'settlement_notes' => ['settlementNotes'],
+		'motion' => ['relatedMotion'],
+		'published_at' => ['publicationDate'],
+	];
+
+	/**
+	 * The keys of one public progress entry.
+	 *
+	 * @var list<string>
+	 */
+	private const PROGRESS_ENTRY_KEYS = ['date', 'note'];
+
+	/**
 	 * Core ORI field rules: target key => ordered list of source properties.
 	 *
 	 * `title` → `name`, `scheduledDate` → `start_date`, `endDate` → `end_date`,
@@ -88,6 +132,12 @@ class OriSerializer {
 		'outcome' => ['outcome'],
 		'decision_date' => ['decisionDate'],
 		'legal_basis' => ['legalBasis'],
+		// 🔴 THE SECOND WHITELIST. Widening the payload builder alone is not
+		// enough: this table is what an ANONYMOUS reader receives from the ORI
+		// harvest feed, and a field the payload carries but this table omits
+		// never reaches them. A besluit that names its legal ground and not the
+		// way to object to it is the gap REQ-DWP-007 exists to close.
+		'legal_remedy_clause' => ['legalRemedyClause'],
 		'vote_totals' => ['voteTotals'],
 		'meeting_date' => ['meetingDate'],
 		'agenda_items' => ['agendaItems'],
@@ -130,15 +180,20 @@ class OriSerializer {
 		foreach ($objects as $object) {
 			$objectArray = $this->normalise(object: $object);
 
-			if ($resource !== self::PUBLICATIONS_RESOURCE) {
+			if (in_array(needle: $resource, haystack: self::WINDOWED_RESOURCES, strict: true) === false) {
 				$items[] = $this->serialize(type: $type, object: $objectArray);
 				continue;
 			}
 
 			// Defence-in-depth published-predicate window: only emit payloads
-			// that are live RIGHT NOW. A future-dated or already-depublished
-			// payload must never appear in the harvest feed.
+			// and commitments that are live RIGHT NOW. A future-dated or
+			// already-depublished one must never appear in the feed.
 			if ($this->isPayloadLive(object: $objectArray) === false) {
+				continue;
+			}
+
+			if ($resource === self::COMMITMENTS_RESOURCE) {
+				$items[] = $this->serialize(type: $type, object: $objectArray);
 				continue;
 			}
 
@@ -198,6 +253,10 @@ class OriSerializer {
 			$payload += $this->applyRules(object: $object, rules: ['email' => ['email']]);
 		}
 
+		if ($type === self::COMMITMENT_TYPE) {
+			return ($payload + $this->commitmentFields(object: $object));
+		}
+
 		// Publish-decisions-via-opencatalogi task 5.2 — the payload self-declares
 		// its ORI @type via oriType (Besluit / Vergadering / Verslag); its presence
 		// also selects the PublicationPayload-specific field set.
@@ -210,6 +269,27 @@ class OriSerializer {
 
 		return ($payload + $this->applyRules(object: $object, rules: self::PAYLOAD_FIELD_RULES));
 	}//end serialize()
+
+	/**
+	 * Wrap fields a publication rule already allow-listed in the ORI envelope.
+	 *
+	 * Votes and vote events are not mapped through FIELD_RULES: their fields
+	 * come from OriVotePublicationRule, which names exactly what an anonymous
+	 * caller may read, so nothing of the stored ballot is added here.
+	 *
+	 * @param string               $type   The ORI @type label
+	 * @param array<string, mixed> $fields The allow-listed fields, `id` first
+	 *
+	 * @return array<string, mixed> The serialized ORI resource
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	public function serializeAllowed(string $type, array $fields): array {
+		return ([
+			'@context' => self::ORI_CONTEXT,
+			'@type' => $type,
+		] + $fields);
+	}//end serializeAllowed()
 
 	/**
 	 * Evaluate the RBAC published-predicate window for a PublicationPayload.
@@ -239,6 +319,36 @@ class OriSerializer {
 
 		return ($depublished === null || $depublished > $now);
 	}//end isPayloadLive()
+
+	/**
+	 * The commitment allow-list, with each progress entry narrowed to its
+	 * date and note.
+	 *
+	 * @param array<string, mixed> $object The commitment
+	 *
+	 * @return array<string, mixed> The public commitment fields
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-001-the-public-sees-commitment-and-motion-progress
+	 */
+	private function commitmentFields(array $object): array {
+		$fields = $this->applyRules(object: $object, rules: self::COMMITMENT_FIELD_RULES);
+		if (isset($fields['progress']) === false) {
+			return $fields;
+		}
+
+		$entries = [];
+		foreach ((array)$fields['progress'] as $entry) {
+			if (is_array($entry) === false) {
+				continue;
+			}
+
+			$entries[] = array_intersect_key($entry, array_flip(self::PROGRESS_ENTRY_KEYS));
+		}
+
+		$fields['progress'] = $entries;
+
+		return $fields;
+	}//end commitmentFields()
 
 	/**
 	 * Apply an ordered target => sources rule table to an object payload.

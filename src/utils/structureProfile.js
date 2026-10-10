@@ -1,0 +1,414 @@
+// SPDX-License-Identifier: EUPL-1.2
+// Copyright (C) 2026 Conduction B.V.
+
+/**
+ * The structure profile: two shapes of the same app, built from one manifest.
+ *
+ * decidiq ships `simple` and `full`. `full` is the navigation and the pages as
+ * they were before this file existed. `simple` is what somebody who prepares,
+ * takes or follows up decisions needs on a working day: eight menu entries
+ * under three captions, with everything else one level down. `simple` is the
+ * default, and an administrator brings `full` back with the app setting
+ * `menu_structure`.
+ *
+ * A profile is a layout file next to the manifest:
+ *
+ *   src/menu-layout.json          full
+ *   src/menu-layout.simple.json   simple
+ *
+ * Both hold the four keys the library's `buildManifest` already reads
+ * (`relocations`, `removals`, `settingsSection`, `integrationsSection`). A
+ * profile file may hold two more, which `buildManifest` has no word for and
+ * this module applies around it:
+ *
+ *   menu    Entries merged BEFORE the manifest's own menu. `buildManifest`
+ *           merges entries by id and the first definition of a key wins, so an
+ *           entry that carries only `id` and `order` keeps its label, icon and
+ *           route from the manifest and takes the order written here. An entry
+ *           the manifest does not know is added as written.
+ *   pages   Overlays on built pages, by id. `config` replaces the named
+ *           config keys, `configPatch` changes items of a list by name (a
+ *           `null` takes the item out), `configAppend` appends items, and
+ *           `configOrder` moves the named items to the front. They apply in
+ *           that order. A name is the item's `id`, else its `key`, else its
+ *           `label`. `slots` adds entries to the page's slot map. A sections
+ *           panel that names a widget by `widgetId` gets that widget's
+ *           definition written in. An overlay never adds a page and never
+ *           removes one.
+ *   nav     Merged over the manifest's `nav` (the brand block and the primary
+ *           action CnAppNav draws). A string value `@theming.<key>` is read
+ *           from the instance's theming capabilities (`name`, `logo`, ...),
+ *           so a profile can show the municipality's own name and logo
+ *           without naming one. A placeholder the instance cannot answer is
+ *           left empty, never invented.
+ *
+ * Nothing here deletes anything. The pages, the routes and the fragments are
+ * the same in both profiles, which is what keeps every deep link working.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md
+ */
+
+/** The profile a fresh instance gets. */
+export const STRUCTURE_SIMPLE = 'simple'
+
+/** The profile that keeps the navigation and pages as they were. */
+export const STRUCTURE_FULL = 'full'
+
+/** The app setting, and the initial-state key the page controller provides. */
+export const STRUCTURE_SETTING = 'menu_structure'
+
+/** The layout keys `buildManifest` reads. Everything else stays out of its way. */
+const LAYOUT_KEYS = [
+	'relocations',
+	'removals',
+	'settingsSection',
+	'integrationsSection',
+]
+
+/**
+ * The profile a stored value stands for.
+ *
+ * Only the exact word `full` selects the full structure. Anything else, an
+ * unset key and a typing mistake included, is the simple one: the default has
+ * to be the answer whenever the setting does not clearly say otherwise.
+ *
+ * @param {unknown} raw The stored setting, as initial state hands it over.
+ * @return {string} `simple` or `full`.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+ */
+export function resolveStructureProfile(raw) {
+	return raw === STRUCTURE_FULL ? STRUCTURE_FULL : STRUCTURE_SIMPLE
+}
+
+/**
+ * Apply one page overlay to one built page, without touching the original.
+ *
+ * @param {object} page The built page.
+ * @param {object} overlay `{ id, config?, configPatch?, configAppend?, configOrder? }`.
+ *   The order is fixed: replace keys, patch items by name, append, then order.
+ * @return {object} A new page object.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+export function applyPageOverlay(page, overlay) {
+	const config = { ...(page.config || {}), ...(overlay.config || {}) }
+	const patch = overlay.configPatch || {}
+	for (const key of Object.keys(patch)) {
+		const byName = patch[key] || {}
+		const current = Array.isArray(config[key]) ? config[key] : []
+		config[key] = current
+			.filter((item) => byName[overlayItemName(item)] !== null)
+			.map((item) => {
+				const change = byName[overlayItemName(item)]
+				return change === undefined || typeof item !== 'object'
+					? item
+					: { ...item, ...change }
+			})
+	}
+	const append = overlay.configAppend || {}
+	for (const key of Object.keys(append)) {
+		const current = Array.isArray(config[key]) ? config[key] : []
+		const extra = Array.isArray(append[key]) ? append[key] : []
+		config[key] = [...current, ...extra]
+	}
+	const order = overlay.configOrder || {}
+	for (const key of Object.keys(order)) {
+		const current = Array.isArray(config[key]) ? config[key] : []
+		const first = Array.isArray(order[key]) ? order[key] : []
+		const lead = first
+			.map((name) => current.find((item) => overlayItemName(item) === name))
+			.filter((item) => item !== undefined)
+		config[key] = [...lead, ...current.filter((item) => !lead.includes(item))]
+	}
+	if (Array.isArray(config.widgets)) {
+		config.widgets = inlineSectionWidgets(config.widgets)
+	}
+	if (overlay.slots && typeof overlay.slots === 'object') {
+		// A `custom` widget resolves through the page's own top-level `slots`
+		// map, so a page that gains one needs its slot beside it.
+		return {
+			...page,
+			config,
+			slots: { ...(page.slots || {}), ...overlay.slots },
+		}
+	}
+	return { ...page, config }
+}
+
+/**
+ * Write the widget definition into every section that names one by id.
+ *
+ * A sections panel (`content.sections[]`) sits inside a tab, and the library's
+ * tabs widget does not hand its panel the list of sibling widgets. So a
+ * section cannot look a widget up by id at render time. A profile may still
+ * write `{ "label": "Route", "widgetId": "decision-route" }`: this replaces
+ * the id with the definition the page already declares, which keeps one
+ * definition per widget instead of a copy that can drift.
+ *
+ * A section that names a widget the page does not have is left as it is, and
+ * renders nothing. The spec of the profile fails on it.
+ *
+ * @param {Array<object>} widgets The page's widgets, after every overlay step.
+ * @return {Array<object>} The widgets, sections filled in.
+ *
+ * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+ */
+export function inlineSectionWidgets(widgets) {
+	const byId = new Map(
+		widgets
+			.filter((widget) => widget && typeof widget === 'object' && widget.id)
+			.map((widget) => [widget.id, widget]),
+	)
+	return widgets.map((widget) => {
+		const sections = widget?.content?.sections
+		if (!Array.isArray(sections)) {
+			return widget
+		}
+		if (!sections.some((entry) => entry?.widgetId && !entry.widget)) {
+			return widget
+		}
+		return {
+			...widget,
+			content: {
+				...widget.content,
+				sections: sections.map((entry) => {
+					const named = entry?.widgetId && byId.get(entry.widgetId)
+					if (!named || entry.widget) {
+						return entry
+					}
+					const filled = { ...entry, widget: named }
+					delete filled.widgetId
+					return filled
+				}),
+			},
+		}
+	})
+}
+
+/**
+ * The name an overlay addresses a list item by.
+ *
+ * Header actions and widgets carry an `id`, columns a `key`, quick filters
+ * only a `label`, and a column may be a bare string. The first of those that
+ * exists is the name.
+ *
+ * @param {unknown} item A list item from a page config.
+ * @return {string|undefined} Its name, or undefined when it has none.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+export function overlayItemName(item) {
+	if (typeof item === 'string') {
+		return item
+	}
+	return item?.id ?? item?.key ?? item?.label
+}
+
+/**
+ * The theming values the simple profile's nav placeholders read.
+ *
+ * The brand block wants the emblem (the shield of the workplace boards), not
+ * the whole wordmark: thematiq exposes the active set's emblem as
+ * `nldesign.logos.emblem`. Without one, `@theming.emblem|@theming.logo` falls
+ * back to Nextcloud's own logo.
+ *
+ * @param {object|null} capabilities `getCapabilities()`.
+ * @return {object} Nextcloud's theming block plus `emblem`, '' when the set
+ *   ships none.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function navTheming(capabilities) {
+	const theming = capabilities?.theming ?? {}
+	const emblem = capabilities?.nldesign?.logos?.emblem
+	return { ...theming, emblem: typeof emblem === 'string' ? emblem : '' }
+}
+
+/** The prefix of a `nav` value the instance's theming capabilities answer. */
+const THEMING_PLACEHOLDER = '@theming.'
+
+/**
+ * Resolve the `nav` block of a profile: `@theming.<key>` strings become the
+ * instance's own theming values, one level deep (`brand.caption`,
+ * `primaryAction.label`), so no municipality is written into the app.
+ *
+ * A value may list fallbacks with `|` (`@theming.emblem|@theming.logo`): the
+ * first one the instance answers wins.
+ *
+ * A placeholder the capabilities do not answer resolves to an empty string,
+ * which CnAppNav reads as "nothing to draw" for that field. The profile is
+ * not the place to guess an instance's name.
+ *
+ * @param {object} nav The profile's `nav` block.
+ * @param {object|null} theming The theming capabilities (`name`, `logo`, ...).
+ * @return {object} A new nav block with every placeholder resolved.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function resolveNavPlaceholders(nav, theming) {
+	const resolveOne = (placeholder) => {
+		const key = placeholder.slice(THEMING_PLACEHOLDER.length)
+		const answer =
+			theming && typeof theming === 'object' ? theming[key] : undefined
+		return typeof answer === 'string' ? answer : ''
+	}
+	const resolveValue = (value) => {
+		if (typeof value !== 'string' || !value.startsWith(THEMING_PLACEHOLDER)) {
+			return value
+		}
+		// `@theming.emblem|@theming.logo`: the first placeholder the instance
+		// answers wins, so a set with an emblem shows it and one without falls
+		// back to its wordmark. None answered: empty, never a guess.
+		return (
+			value
+				.split('|')
+				.map((part) => part.trim())
+				.filter((part) => part.startsWith(THEMING_PLACEHOLDER))
+				.map(resolveOne)
+				.find((answer) => answer !== '') ?? ''
+		)
+	}
+	const out = {}
+	for (const [key, value] of Object.entries(nav || {})) {
+		if (key.startsWith('_')) {
+			// A note in the profile file is for its reader, not for the
+			// manifest schema (`nav` takes no extra keys).
+			continue
+		}
+		out[key] =
+			value && typeof value === 'object' && !Array.isArray(value)
+				? Object.fromEntries(
+						Object.entries(value).map(([inner, innerValue]) => [
+							inner,
+							resolveValue(innerValue),
+						]),
+					)
+				: resolveValue(value)
+	}
+	return out
+}
+
+/**
+ * Build the manifest for one structure profile.
+ *
+ * `buildManifest` is passed in rather than imported, so this module stays free
+ * of the library barrel and a spec can hand it the real implementation.
+ *
+ * A profile file without `menu`, `pages` and `nav` (the full one) goes through
+ * unchanged: the result is exactly `buildManifest(base, fragments, layout)`.
+ *
+ * An overlay that names a page the manifest does not have is skipped and
+ * reported. It is a mistake in the profile file, and inventing the page here
+ * would hide it.
+ *
+ * @param {(base: object, fragments: Array<object>, layout: object) => object} buildManifest
+ *   The library's `buildManifest`.
+ * @param {object} base The bundled manifest.
+ * @param {Array<object>} fragments The `manifest.d` fragments, in order.
+ * @param {object} profileFile The profile's layout file.
+ * @param {object} [context] `{ theming }`: the instance's theming
+ *   capabilities, for the placeholders a profile's `nav` block may carry.
+ * @return {object} The built manifest.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-007-the-simple-navigation-carries-the-brand-of-the-instance-and-one-primary-action
+ */
+export function buildProfiledManifest(
+	buildManifest,
+	base,
+	fragments,
+	profileFile,
+	context = {},
+) {
+	const file = profileFile || {}
+	const layout = {}
+	for (const key of LAYOUT_KEYS) {
+		if (file[key] !== undefined) {
+			layout[key] = file[key]
+		}
+	}
+
+	const profileMenu = Array.isArray(file.menu) ? file.menu : []
+	const profiledBase =
+		profileMenu.length > 0
+			? {
+					...base,
+					// Copies, because buildManifest merges into the entries it is
+					// given and the profile file is a shared module object.
+					menu: [
+						...profileMenu.map((entry) => ({ ...entry })),
+						...(base.menu || []),
+					],
+				}
+			: base
+
+	const builtPages = buildManifest(profiledBase, fragments, layout)
+	const built =
+		file.nav && typeof file.nav === 'object'
+			? {
+					...builtPages,
+					nav: {
+						...(builtPages.nav || {}),
+						...resolveNavPlaceholders(file.nav, context.theming ?? null),
+					},
+				}
+			: builtPages
+
+	const withDefaults = applyPageDefaults(built, file.pageDefaults)
+	const overlays = Array.isArray(file.pages) ? file.pages : []
+	if (overlays.length === 0) {
+		return withDefaults
+	}
+	const pages = [...(withDefaults.pages || [])]
+	for (const overlay of overlays) {
+		const at = pages.findIndex((page) => page.id === overlay?.id)
+		if (at === -1) {
+			// eslint-disable-next-line no-console
+			console.warn(
+				'[decidiq] structureProfile: page overlay names a page the manifest does not have; skipped.',
+				{ page: overlay?.id },
+			)
+			continue
+		}
+		pages[at] = applyPageOverlay(pages[at], overlay)
+	}
+	return { ...withDefaults, pages }
+}
+
+/**
+ * Config defaults per page type, from the profile file's `pageDefaults`
+ * (`{ "<page type>": { "<config key>": value } }`). A page of that type gets
+ * each key it does not set itself; a page that sets the key keeps its own
+ * value. The full profile uses this to hold back a look a newer library
+ * turns on by default (nextcloud-vue 2.62.0 gave every index table header a
+ * sort and filter control, `config.headerFilters`), so that profile renders
+ * as it did before. A file without `pageDefaults` returns `built` itself.
+ *
+ * @param {object} built The built manifest.
+ * @param {object|undefined} defaults The profile file's `pageDefaults`.
+ * @return {object} The manifest with the defaults filled in.
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+export function applyPageDefaults(built, defaults) {
+	if (
+		!defaults
+		|| typeof defaults !== 'object'
+		|| Object.keys(defaults).length === 0
+	) {
+		return built
+	}
+	const pages = (built.pages || []).map((page) => {
+		const forType = defaults[page.type]
+		if (!forType || typeof forType !== 'object') {
+			return page
+		}
+		const config = { ...(page.config || {}) }
+		for (const [key, value] of Object.entries(forType)) {
+			if (config[key] === undefined) {
+				config[key] = value
+			}
+		}
+		return { ...page, config }
+	})
+	return { ...built, pages }
+}

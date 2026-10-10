@@ -91,27 +91,11 @@ class LiveDecisionService {
 			// Ensure draft Minutes exist (side-effect: creates draft if missing).
 			$this->ensureDraftMinutes(meetingId: $meetingId);
 
-			// Create Decision.
-			$decisionToSave = [
-				'title' => $decisionData['title'] ?? '',
-				'text' => $decisionData['text'] ?? '',
-				'outcome' => $decisionData['outcome'] ?? 'pending',
-				'decisionDate' => date('c'),
-				'isPublished' => 'internal',
-			];
-
-			if (empty($decisionData['legalBasis']) === false) {
-				$decisionToSave['legalBasis'] = $decisionData['legalBasis'];
-			}
-
-			// Add relation to Meeting.
-			$decisionToSave['relations'] = [
-				'Meeting' => [$meetingId],
-			];
+			$decisionToSave = $this->decisionFor(meetingId: $meetingId, decisionData: $decisionData);
 
 			$decisionEntity = $this->objectService->saveObject(
 				register: 'decidiq',
-				schema: 'Decision',
+				schema: 'decision',
 				object: $decisionToSave
 			);
 			$decision = $decisionEntity->jsonSerialize();
@@ -141,6 +125,40 @@ class LiveDecisionService {
 			throw $e;
 		}//end try
 	}//end recordDecision()
+
+	/**
+	 * The decision as the Decision schema declares it: its meeting and, when
+	 * the live screen sent one, the current agenda item; a type (the dialog's
+	 * choice, else resolution); an outcome only when one was taken.
+	 *
+	 * @param string               $meetingId    The meeting
+	 * @param array<string, mixed> $decisionData The request's fields
+	 *
+	 * @return array<string, mixed> The decision to save
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+	 */
+	private function decisionFor(string $meetingId, array $decisionData): array {
+		$decision = [
+			'title' => (string)($decisionData['title'] ?? ''),
+			'text' => (string)($decisionData['text'] ?? ''),
+			'decisionType' => (string)($decisionData['decisionType'] ?? ''),
+			'decisionDate' => date('c'),
+			'isPublished' => 'internal',
+			'meeting' => $meetingId,
+		];
+		if ($decision['decisionType'] === '') {
+			$decision['decisionType'] = 'resolution';
+		}
+
+		foreach (['outcome', 'legalBasis', 'agendaItem'] as $optional) {
+			if (empty($decisionData[$optional]) === false) {
+				$decision[$optional] = (string)$decisionData[$optional];
+			}
+		}
+
+		return $decision;
+	}//end decisionFor()
 
 	/**
 	 * Ensure a draft Minutes object exists for the Meeting.

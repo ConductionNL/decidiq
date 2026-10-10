@@ -1,0 +1,41 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change followup-public-progress (REQ-FPP-001, REQ-FPP-002, matrix row fol-06). A commitment carries dated progress entries the clerk adds from its page; the public ORI commitments resource serves them once the publication date has passed.",
+  "components": {
+    "schemas": {
+      "Commitment": {
+        "slug": "governance-commitment",
+        "version": "0.2.0",
+        "properties": {
+          "progress": {
+            "type": "array",
+            "title": "Progress",
+            "description": "Dated progress entries, public from the publication date.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": {
+                  "type": "string",
+                  "format": "date",
+                  "title": "Date",
+                  "description": "The day the progress was recorded."
+                },
+                "note": {
+                  "type": "string",
+                  "title": "Note",
+                  "description": "What happened, in words the public can read."
+                }
+              },
+              "required": [
+                "date",
+                "note"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

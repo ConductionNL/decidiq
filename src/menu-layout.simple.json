@@ -1,0 +1,2206 @@
+{
+	"_meta": {
+		"spdx-license": "EUPL-1.2",
+		"spdx-copyright": "2026 Conduction B.V.",
+		"description": "The SIMPLE structure profile, and the default one (openspec/changes/simple-structure-profile). `menu-layout.json` is the FULL profile and is untouched: an administrator brings it back with the setting `menu_structure`. Both profiles are built from the same manifest and the same fragments, so nothing is deleted and every page stays routable; this file only decides what the navigation offers first. THE STANDARD KEYS (`removals`, `settingsSection`) go to the library's buildManifest exactly as the full file's do. `relocations` is ABSENT on purpose, and must stay absent rather than become `{}`: the simple menu is flat, and the library's relocation step ends by dropping every entry that has no route, no href, no action and no children, which is what a caption is. THE TWO PROFILE KEYS are read by src/utils/structureProfile.js. `menu` is merged BEFORE the manifest's own menu. buildManifest merges entries by id and the FIRST definition of a key wins, so an entry here that carries only `id` and `order` takes its label, icon and route from the manifest, and an entry the manifest does not know (the three captions, Proposals) is added as written. `pages` holds page overlays: `configAppend` appends items to a list in the page's config. It is how Proposals, Meetings and Bodies and members gain the links that replace the entries this profile takes out of the menu. A link, not a waiver: tests/vitest/structureProfile.spec.js fails when an entry is removed here and no page the simple menu opens links to its route.",
+		"removalsNote": "The full profile removes nothing. These seventeen are the entries the full profile nests under a parent (its `relocations`, all but Commitments, which the simple menu shows itself). Without a relocation step they would sit at the top level, so they are removed by name here and reached one step further: the four consultation and urgent-decision lists from Proposals, the long-term agenda and the P&C cycles from Meetings, and the eleven registers from the Registers page.",
+		"registersNote": "`Registers` is a group shell in the manifest: a label and no route. The full profile gives it children. This profile gives it a route, the RegistersHub page (src/manifest.d/registers-hub.json), which shows one counted tile per register.",
+		"proposalsNote": "`Proposals` opens the Motions page, the list of decisions of type motion that the full profile reaches through a quick filter on Decisions. Two menu entries on one route would both light up (the navigation decides 'active' by route name), so Proposals and Decisions each need a page of their own.",
+		"ceilingNote": "ADR-004 caps the full navigation at six top-level entries and scripts/check-nav-ceiling.js holds it there. That gate reads menu-layout.json only. This profile shows eight, under the ceiling of ten the Zuiddrecht design sets for a simple menu; the count is held by tests/vitest/structureProfile.spec.js.",
+		"labelsNote": "Three labels are chosen around src/config/modeLabels.js, which rewords a label per organisation mode before it is translated. The caption reads 'Your organisation' and not 'Organisation', because that word is the key the mode map turns into Bodies, Board or Teams. 'Bodies and members' has its own rows in the mode map (Board and members, Teams and members). And the first caption reads 'Home', because 'Start' already translates as the verb on a button."
+	},
+	"removals": [
+		"AncillaryPositions",
+		"Archive",
+		"AuditStatements",
+		"AuthorityDelegations",
+		"ConfidentialityRestrictions",
+		"Consultations",
+		"DeclaredGifts",
+		"Goals",
+		"GovernanceConsultations",
+		"GoverningDocuments",
+		"MemberOffboarding",
+		"MemberOnboarding",
+		"PlannedAgenda",
+		"PlanningCycles",
+		"ProxyAuthorizations",
+		"UrgentDecisions",
+		"WorksCouncilConsultations"
+	],
+	"settingsSection": [
+		"DecisionTemplates",
+		"BodyCompositions",
+		"PositionTypes",
+		"PositionHolds",
+		"AgendaItemTypes",
+		"DocumentTypes",
+		"MeetingTypes",
+		"AgendaTemplates",
+		"BodyConfigurations",
+		"ConfidentialityGrounds",
+		"Themes",
+		"ModerationQueue",
+		"MyDeclarations",
+		"UserSettingsMenu"
+	],
+	"menu": [
+		{
+			"id": "Dashboard",
+			"order": 10,
+			"icon": "HomeOutline"
+		},
+		{
+			"id": "ActionItems",
+			"label": "My actions",
+			"order": 12,
+			"icon": "InboxOutline",
+			"count": {
+				"register": "decidiq",
+				"schema": "action-item",
+				"filter": {
+					"assignee": "@me",
+					"taskStatus": [
+						"open",
+						"in-progress"
+					]
+				}
+			}
+		},
+		{
+			"id": "DecisionMakingCaption",
+			"type": "caption",
+			"label": "Decision making",
+			"order": 20
+		},
+		{
+			"id": "Proposals",
+			"label": "Proposals",
+			"icon": "FileDocumentOutline",
+			"route": "Motions",
+			"order": 22
+		},
+		{
+			"id": "Meetings",
+			"order": 24,
+			"icon": "CalendarBlankOutline"
+		},
+		{
+			"id": "Decisions",
+			"order": 26
+		},
+		{
+			"id": "Commitments",
+			"order": 28
+		},
+		{
+			"id": "OrganisationCaption",
+			"type": "caption",
+			"label": "Your organisation",
+			"order": 40
+		},
+		{
+			"id": "GovernanceBodies",
+			"label": "Bodies and members",
+			"order": 42,
+			"icon": "AccountMultipleOutline"
+		},
+		{
+			"id": "Registers",
+			"route": "RegistersHub",
+			"order": 44
+		}
+	],
+	"nav": {
+		"_note": "The brand block and the primary button of the navigation (DcDashboard, AppZijbalk). The caption is the instance's own theming name and the logo its emblem (thematiq's `nldesign.logos.emblem`, the shield), falling back to the theming logo, resolved at boot by structureProfile.js: no municipality is written here. New proposal opens the proposals list, where a proposal is made; the dashboard's own Start decision-making process opens Decisions the same way.",
+		"brand": {
+			"name": "decidiq",
+			"caption": "@theming.name",
+			"logo": "@theming.emblem|@theming.logo"
+		},
+		"primaryAction": {
+			"label": "New proposal",
+			"route": "Motions",
+			"solid": true
+		},
+		"help": {
+			"label": "Help and explanation",
+			"href": "https://decidiq.conduction.nl"
+		},
+		"footer": [
+			"settings",
+			"help"
+		]
+	},
+	"pages": [
+		{
+			"id": "Motions",
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "open-consultations",
+						"label": "Consultations",
+						"icon": "CommentQuestionOutline",
+						"handler": "navigate",
+						"route": "GovernanceConsultations"
+					},
+					{
+						"id": "open-works-council-consultations",
+						"label": "Works-council consultations",
+						"icon": "CommentQuestionOutline",
+						"handler": "navigate",
+						"route": "WorksCouncilConsultations"
+					},
+					{
+						"id": "open-public-consultations",
+						"label": "Public consultations",
+						"icon": "CommentQuestionOutline",
+						"handler": "navigate",
+						"route": "Consultations"
+					},
+					{
+						"id": "open-urgent-decisions",
+						"label": "Urgent decisions",
+						"icon": "Gavel",
+						"handler": "navigate",
+						"route": "UrgentDecisions"
+					}
+				]
+			},
+			"config": {
+				"quickFilterMaxVisible": 5,
+				"quickFilters": [
+					{
+						"label": "All proposals",
+						"filter": {},
+						"default": true,
+						"showCount": true
+					},
+					{
+						"label": "Draft",
+						"filter": {
+							"lifecycle": "draft"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Proposed",
+						"filter": {
+							"lifecycle": "proposed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Deliberating",
+						"filter": {
+							"lifecycle": "deliberating"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Voting",
+						"filter": {
+							"lifecycle": "voting"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Decision taken",
+						"filter": {
+							"lifecycle": "decided"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Urgent",
+						"filter": {
+							"isUrgent": true
+						},
+						"showCount": true
+					}
+				]
+			}
+		},
+		{
+			"id": "Meetings",
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "open-long-term-agenda",
+						"label": "Long-term agenda",
+						"icon": "CalendarTextOutline",
+						"handler": "navigate",
+						"route": "PlannedAgenda"
+					},
+					{
+						"id": "open-planning-cycles",
+						"label": "P&C cycles",
+						"icon": "Calendar",
+						"handler": "navigate",
+						"route": "PlanningCycles"
+					}
+				]
+			}
+		},
+		{
+			"id": "GovernanceBodies",
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "open-position-holders",
+						"label": "Position holders",
+						"icon": "AccountGroup",
+						"handler": "navigate",
+						"route": "PositionHolds"
+					}
+				]
+			}
+		},
+		{
+			"id": "DecisionDetail",
+			"_note": "The decision page in the simple structure (openspec/changes/simple-decision-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the decision's own state. Each state has ONE primary button, the transition that leaves it, and the button posts to the same guarded endpoint the Lifecycle block uses (POST /api/decisions/{id}/transition). The server decides who may use it: a chair-only transition a member tries is refused there, and the refusal is shown. `enacted` leads to Publish, which posts to the publication endpoint the Publication block uses. NOTHING IS TAKEN AWAY: the Lifecycle block is the last entry under More, with every transition the server offers, the chair-only mark and the publish prompt of a body that asks for one. THE SIX BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE STEP BAR is display only. QUICK ACTIONS: Archive and the discussion and integrations page. Archive is beside the primary button on a decided or enacted decision, so an enacted decision that is already public (where Publish no longer shows) still has a button for its next step and never a finished checklist with nothing to press. Adding a document or an action item stays inside its own block (Documents, More): the library has no header action that opens a block's own add dialog, and none is invented here. THE WHAT-NOW CHECKLIST IS ADVICE, NOT A GATE: an unticked item does not stop the button, because the server does not require those fields for the transition and this page adds no rule of its own. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box; the library cannot hide an empty side card.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "decision-propose",
+					"proposed": "decision-deliberate",
+					"deliberating": "decision-open-voting",
+					"voting": "decision-decide",
+					"decided": "decision-enact",
+					"enacted": "decision-publish"
+				},
+				"quickActions": [
+					"decision-archive",
+					"decision-open-integrations"
+				],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"proposed": "Proposed",
+						"deliberating": "Deliberating",
+						"voting": "Voting",
+						"decided": "Decision taken",
+						"enacted": "Enacted",
+						"archived": "Archived",
+						"withdrawn": "Withdrawn"
+					},
+					"colorMap": {
+						"draft": "default",
+						"proposed": "primary",
+						"deliberating": "primary",
+						"voting": "warning",
+						"decided": "success",
+						"enacted": "success",
+						"archived": "default",
+						"withdrawn": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Finish the proposal",
+							"after": "Then: deliberation",
+							"checklist": [
+								{
+									"label": "Write the text",
+									"doneField": "text"
+								},
+								{
+									"label": "Name the proposer",
+									"doneField": "proposer"
+								},
+								{
+									"label": "Give the legal basis",
+									"doneField": "legalBasis"
+								}
+							]
+						},
+						"proposed": {
+							"title": "What now? Bring it to a meeting",
+							"after": "Then: the vote",
+							"checklist": [
+								{
+									"label": "Choose the meeting",
+									"doneField": "meeting"
+								},
+								{
+									"label": "Link the agenda item",
+									"doneField": "agendaItem"
+								}
+							]
+						},
+						"deliberating": {
+							"title": "What now? Prepare the vote",
+							"after": "Then: record the decision",
+							"checklist": [
+								{
+									"label": "Choose how the vote is taken",
+									"doneField": "voteType"
+								},
+								{
+									"label": "Set the majority that is needed",
+									"doneField": "voteThreshold"
+								}
+							]
+						},
+						"voting": {
+							"title": "What now? Close the vote",
+							"after": "Then: enact the decision",
+							"checklist": [
+								{
+									"label": "Record the outcome",
+									"doneField": "outcome"
+								}
+							]
+						},
+						"decided": {
+							"title": "What now? Put the decision into effect",
+							"after": "Then: publish",
+							"checklist": [
+								{
+									"label": "Set the decision date",
+									"doneField": "decisionDate"
+								},
+								{
+									"label": "Set the date it takes effect",
+									"doneField": "effectiveDate"
+								}
+							]
+						},
+						"enacted": {
+							"title": "What now? Make it known",
+							"checklist": [
+								{
+									"label": "Publish the decision",
+									"doneWhen": {
+										"field": "isPublished",
+										"op": "eq",
+										"value": "public"
+									}
+								},
+								{
+									"label": "Set the publication date",
+									"doneField": "publicationDate"
+								}
+							]
+						}
+					}
+				},
+				"sideColumn": [
+					{
+						"id": "decision-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"decisionType",
+								"governingBody",
+								"meeting",
+								"agendaItem",
+								"proposer",
+								"submittedAt",
+								"decisionDate",
+								"effectiveDate",
+								"publicationDate",
+								"expiryDate"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "decision-steps",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "decision-panels",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"decision-lifecycle": {
+						"type": "DecisionLifecycleTab"
+					},
+					"decision-actions": {
+						"type": "ActionItemsSurface"
+					},
+					"decision-related": {
+						"type": "RelatedDecisionsTab"
+					},
+					"decision-route": {
+						"type": "DecisionRouteTab"
+					},
+					"decision-voting": {
+						"type": "DecisionVotingTab"
+					},
+					"decision-publication": {
+						"type": "DecisionPublicationTab"
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "decision-propose",
+						"type": "api-call",
+						"label": "Propose",
+						"icon": "BullhornOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "propose"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The decision is proposed."
+					},
+					{
+						"id": "decision-deliberate",
+						"type": "api-call",
+						"label": "Start deliberation",
+						"icon": "AccountVoice",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "deliberate"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "proposed"
+						},
+						"successMessage": "Deliberation has started."
+					},
+					{
+						"id": "decision-open-voting",
+						"type": "api-call",
+						"label": "Open voting",
+						"icon": "VoteOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "openVoting"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "deliberating"
+						},
+						"confirm": true,
+						"successMessage": "Voting is open."
+					},
+					{
+						"id": "decision-decide",
+						"type": "api-call",
+						"label": "Record decision",
+						"icon": "Gavel",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "decide"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "voting"
+						},
+						"confirm": true,
+						"successMessage": "The decision is recorded."
+					},
+					{
+						"id": "decision-enact",
+						"type": "api-call",
+						"label": "Enact",
+						"icon": "CheckCircleOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "enact"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "decided"
+						},
+						"successMessage": "The decision is enacted."
+					},
+					{
+						"id": "decision-publish",
+						"type": "api-call",
+						"label": "Publish",
+						"icon": "CloudUploadOutline",
+						"group": "Publication",
+						"url": "/apps/decidiq/api/publications",
+						"method": "POST",
+						"payload": {
+							"sourceType": "decision",
+							"sourceId": "@objectId"
+						},
+						"confirm": true,
+						"successMessage": "The decision is published.",
+						"visibleWhen": {
+							"all": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "enacted"
+								},
+								{
+									"field": "isPublished",
+									"op": "neq",
+									"value": "public"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-archive",
+						"type": "api-call",
+						"label": "Archive",
+						"icon": "ArchiveOutline",
+						"group": "Decision",
+						"url": "/apps/decidiq/api/decisions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"action": "archive"
+						},
+						"visibleWhen": {
+							"any": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "decided"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "enacted"
+								}
+							]
+						},
+						"confirm": true,
+						"successMessage": "The decision is archived."
+					},
+					{
+						"id": "decision-open-integrations",
+						"type": "navigate",
+						"label": "Discussion and integrations",
+						"icon": "Api",
+						"group": "Decision",
+						"target": "/decisions/@objectId/integrations"
+					}
+				],
+				"widgets": [
+					{
+						"id": "decision-panel-content",
+						"type": "detail-sections",
+						"title": "Content",
+						"icon": "NoteTextOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Content",
+									"widgetId": "decision-content"
+								},
+								{
+									"label": "Governance",
+									"widgetId": "decision-governance"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-panel-route",
+						"type": "detail-sections",
+						"title": "Route and voting",
+						"icon": "ScaleBalance",
+						"content": {
+							"sections": [
+								{
+									"label": "Route",
+									"widgetId": "decision-route"
+								},
+								{
+									"label": "Voting results",
+									"widgetId": "decision-voting"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-panel-consultation",
+						"type": "detail-sections",
+						"title": "Consultation",
+						"icon": "CommentQuestionOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Consultations",
+									"widgetId": "decision-consultations"
+								},
+								{
+									"label": "Consultation responses",
+									"widgetId": "decision-consultation-responses"
+								},
+								{
+									"label": "Works council (WOR)",
+									"widgetId": "decision-wor-consultations"
+								},
+								{
+									"label": "Public consultations",
+									"widgetId": "decision-public-consultations"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-panel-publication",
+						"type": "detail-sections",
+						"title": "Publication",
+						"icon": "CloudUploadOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Publication",
+									"widgetId": "decision-publication"
+								},
+								{
+									"label": "Confidentiality",
+									"widgetId": "decision-confidentiality"
+								}
+							]
+						}
+					},
+					{
+						"id": "decision-steps",
+						"type": "DecisionStepBar",
+						"title": "Steps",
+						"icon": "Timeline"
+					},
+					{
+						"id": "decision-panels",
+						"type": "tabs",
+						"title": "Decision",
+						"icon": "Gavel",
+						"content": {
+							"ariaLabel": "Parts of this decision",
+							"maxVisibleTabs": 5,
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "decision-panel-content",
+									"label": "Content"
+								},
+								{
+									"widgetId": "decision-panel-route",
+									"label": "Route and voting"
+								},
+								{
+									"widgetId": "decision-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "decision-panel-consultation",
+									"label": "Consultation"
+								},
+								{
+									"widgetId": "decision-panel-publication",
+									"label": "Publication"
+								},
+								{
+									"widgetId": "decision-actions",
+									"label": "Action items",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-commitments",
+									"label": "Commitments",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-related",
+									"label": "Related decisions",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-lifecycle",
+									"label": "Lifecycle",
+									"overflow": true
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "MotionDetail",
+			"_note": "The motion page in the simple structure (openspec/changes/simple-decision-page). A motion is a decision, and its page gets the same header: the state as a pill, ONE primary button for the step that leaves the state, and a what-now card. The buttons post to the endpoint the Stage block uses (POST /api/motions/{id}/transition), so the server decides who may take a step, as it does today. `voting` has two ways out. Recording the motion as adopted is the primary button and recording it as rejected is a quick action beside it. Withdrawing and archiving stay in the Stage block, which is unchanged and still on the page. THE BLOCKS ARE NOT REGROUPED INTO TABS HERE: that is done for the decision page only.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "motion-submit",
+					"proposed": "motion-debate",
+					"deliberating": "motion-vote",
+					"voting": "motion-adopt",
+					"decided": "motion-carry-out"
+				},
+				"quickActions": [
+					"motion-reject",
+					"motion-open-discussion"
+				],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"proposed": "Proposed",
+						"deliberating": "Deliberating",
+						"voting": "Voting",
+						"decided": "Decision taken",
+						"enacted": "Enacted",
+						"archived": "Archived",
+						"withdrawn": "Withdrawn"
+					},
+					"colorMap": {
+						"draft": "default",
+						"proposed": "primary",
+						"deliberating": "primary",
+						"voting": "warning",
+						"decided": "success",
+						"enacted": "success",
+						"archived": "default",
+						"withdrawn": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Finish the motion",
+							"after": "Then: the debate",
+							"checklist": [
+								{
+									"label": "Write the text",
+									"doneField": "text"
+								},
+								{
+									"label": "Name the proposer",
+									"doneField": "proposer"
+								},
+								{
+									"label": "Gather the co-signers",
+									"doneField": "coSigners"
+								}
+							]
+						},
+						"proposed": {
+							"title": "What now? Bring it to a meeting",
+							"after": "Then: the vote",
+							"checklist": [
+								{
+									"label": "Choose the meeting",
+									"doneField": "meeting"
+								},
+								{
+									"label": "Link the agenda item",
+									"doneField": "agendaItem"
+								}
+							]
+						},
+						"voting": {
+							"title": "What now? Close the vote",
+							"after": "Then: carry it out",
+							"checklist": [
+								{
+									"label": "Record the outcome",
+									"doneField": "outcome"
+								}
+							]
+						}
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "motion-submit",
+						"type": "api-call",
+						"label": "Submit motion",
+						"icon": "BullhornOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "proposed"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The motion is submitted."
+					},
+					{
+						"id": "motion-debate",
+						"type": "api-call",
+						"label": "Start the debate",
+						"icon": "AccountVoice",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "deliberating"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "proposed"
+						},
+						"successMessage": "The debate has started."
+					},
+					{
+						"id": "motion-vote",
+						"type": "api-call",
+						"label": "Put to the vote",
+						"icon": "VoteOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "voting"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "deliberating"
+						},
+						"confirm": true,
+						"successMessage": "The motion is put to the vote."
+					},
+					{
+						"id": "motion-adopt",
+						"type": "api-call",
+						"label": "Record as adopted",
+						"icon": "CheckCircleOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "decided",
+							"outcome": "adopted"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "voting"
+						},
+						"confirm": true,
+						"successMessage": "The motion is recorded as adopted."
+					},
+					{
+						"id": "motion-reject",
+						"type": "api-call",
+						"label": "Record as rejected",
+						"icon": "AlertOctagonOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "decided",
+							"outcome": "rejected"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "voting"
+						},
+						"confirm": true,
+						"successMessage": "The motion is recorded as rejected."
+					},
+					{
+						"id": "motion-carry-out",
+						"type": "api-call",
+						"label": "Mark as carried out",
+						"icon": "CheckCircleOutline",
+						"group": "Motion",
+						"url": "/apps/decidiq/api/motions/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "enacted"
+						},
+						"visibleWhen": {
+							"all": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "decided"
+								},
+								{
+									"field": "outcome",
+									"op": "eq",
+									"value": "adopted"
+								}
+							]
+						},
+						"successMessage": "The motion is marked as carried out."
+					},
+					{
+						"id": "motion-open-discussion",
+						"type": "navigate",
+						"label": "Discussion",
+						"icon": "CommentOutline",
+						"group": "Motion",
+						"target": "/motions/@objectId/integrations"
+					}
+				]
+			}
+		},
+		{
+			"id": "MeetingDetail",
+			"_note": "The meeting page in the simple structure (openspec/changes/simple-meeting-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the meeting's own state. Each state but `closed` has ONE primary button, and it posts to the guarded endpoint the Stage block uses (POST /api/meetings/{id}/lifecycle) with the action and nothing else. The server decides who may use it: the chair or the secretary of the meeting, or an administrator. A member who presses it is refused there and the refusal is shown; the step bar asks the server first and says so in words (MeetingStepBar). ONLY FOUR OF THE SIX STEPS ARE BUTTONS HERE: convene, open, resume and close. Pause and adjourn are switched off per governance domain on the server (WorkflowService), and a manifest cannot know the domain, so those two stay in the Stage block, which draws exactly the steps the server offers. Close is the primary button of a meeting in session and sits under More in the other states the server allows it from. THE STAGE BLOCK IS STILL ON THE PAGE, the last entry under More. A CLOSED MEETING has no next step and so no card: its work is in the Minutes and Decisions tabs. A paused or adjourned meeting has its button and no card, because no field of a meeting says what a break still needs. THE NINETEEN BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE WHAT-NOW CHECKLIST IS ADVICE, with one exception: the server refuses to open a meeting without a quorum where the rules of the body ask for one, and that item says so. THE SIDE COLUMN is one card, Key facts. It leads with the date, which every meeting has, so the card is never an empty box. NO LINK TO THE LIVE SCREEN IS ADDED: that button is for the chair and the secretary only (REQ-AMP-004) and stays in the Agenda block, which asks the server who is looking.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "meeting-schedule",
+					"scheduled": "meeting-open",
+					"opened": "meeting-close",
+					"paused": "meeting-resume",
+					"adjourned": "meeting-open"
+				},
+				"quickActions": [
+					"meeting-open-integrations"
+				],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"scheduled": "Convened",
+						"opened": "In session",
+						"paused": "Paused",
+						"adjourned": "Adjourned",
+						"closed": "Closed"
+					},
+					"colorMap": {
+						"draft": "default",
+						"scheduled": "primary",
+						"opened": "success",
+						"paused": "warning",
+						"adjourned": "warning",
+						"closed": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Prepare the meeting",
+							"after": "Then: open the meeting",
+							"checklist": [
+								{
+									"label": "Set the date and time",
+									"doneField": "scheduledDate"
+								},
+								{
+									"label": "Choose the body",
+									"doneField": "governanceBody"
+								},
+								{
+									"label": "Name the chair",
+									"doneField": "chair"
+								}
+							]
+						},
+						"scheduled": {
+							"title": "What now? Get ready to open",
+							"after": "Then: the meeting is in session",
+							"checklist": [
+								{
+									"label": "Publish the agenda",
+									"doneField": "agendaPublishedAt"
+								},
+								{
+									"label": "Send the convocation",
+									"doneField": "convocationSentAt"
+								},
+								{
+									"label": "Reach the quorum",
+									"doneField": "quorumWith",
+									"hint": "Also ticked when the meeting needs none. Where the rules of the body ask for a quorum, the meeting does not open without one."
+								}
+							]
+						},
+						"opened": {
+							"title": "What now? Hold the meeting",
+							"after": "Then: the minutes",
+							"checklist": [
+								{
+									"label": "Start on the agenda",
+									"doneField": "currentAgendaItem",
+									"hint": "To pause or adjourn the meeting, open Stage under More."
+								}
+							]
+						}
+					}
+				},
+				"sideColumn": [
+					{
+						"id": "meeting-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"scheduledDate",
+								"endDate",
+								"location",
+								"room",
+								"meetingMode",
+								"governanceBody",
+								"chair",
+								"quorumRequired",
+								"openedAt",
+								"closedAt",
+								"meetingCost"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "meeting-steps",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "meeting-panels",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"meeting-case-system": {
+						"type": "MeetingCaseSystemTab"
+					},
+					"meeting-broadcast": {
+						"type": "MeetingBroadcastTab"
+					},
+					"meeting-sessions": {
+						"type": "MeetingSessionsTab"
+					},
+					"meeting-stage": {
+						"type": "MeetingStageTab"
+					},
+					"meeting-video-call": {
+						"type": "MeetingVideoCallTab"
+					},
+					"meeting-participants": {
+						"type": "MeetingParticipantsTab"
+					},
+					"meeting-agenda": {
+						"type": "MeetingAgendaTab"
+					},
+					"meeting-decisions": {
+						"type": "MeetingDecisionsTab"
+					},
+					"meeting-minutes": {
+						"type": "MeetingMinutesTab"
+					},
+					"meeting-document-details": {
+						"type": "DocumentMetadataTab"
+					},
+					"meeting-paper-renditions": {
+						"type": "AgendaPaperRenditionsTab"
+					},
+					"meeting-votes": {
+						"type": "MeetingVotesTab"
+					},
+					"meeting-publication": {
+						"type": "AgendaPublicationTab"
+					},
+					"meeting-series": {
+						"type": "MeetingSeriesTab"
+					},
+					"meeting-transcription": {
+						"type": "MeetingTranscriptionTab"
+					},
+					"meeting-audit-statements": {
+						"type": "MeetingAuditStatementTab"
+					},
+					"meeting-routed-documents": {
+						"type": "MeetingRoutedDocumentsTab"
+					},
+					"meeting-technical-questions": {
+						"type": "MeetingTechnicalQuestionsTab"
+					},
+					"meeting-decision-list-signers": {
+						"type": "DecisionListSignersTab"
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "meeting-schedule",
+						"type": "api-call",
+						"label": "Convene meeting",
+						"icon": "CalendarClock",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "schedule"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The meeting is convened."
+					},
+					{
+						"id": "meeting-open",
+						"type": "api-call",
+						"label": "Open meeting",
+						"icon": "Gavel",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "open"
+						},
+						"visibleWhen": {
+							"any": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "scheduled"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "adjourned"
+								}
+							]
+						},
+						"confirm": true,
+						"successMessage": "The meeting is open."
+					},
+					{
+						"id": "meeting-resume",
+						"type": "api-call",
+						"label": "Resume meeting",
+						"icon": "Timeline",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "resume"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "paused"
+						},
+						"successMessage": "The meeting is in session again."
+					},
+					{
+						"id": "meeting-close",
+						"type": "api-call",
+						"label": "Close meeting",
+						"icon": "CheckCircleOutline",
+						"group": "Meeting",
+						"url": "/apps/decidiq/api/meetings/@objectId/lifecycle",
+						"method": "POST",
+						"payload": {
+							"action": "close"
+						},
+						"visibleWhen": {
+							"any": [
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "scheduled"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "opened"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "paused"
+								},
+								{
+									"field": "lifecycle",
+									"op": "eq",
+									"value": "adjourned"
+								}
+							]
+						},
+						"confirm": true,
+						"successMessage": "The meeting is closed."
+					},
+					{
+						"id": "meeting-open-integrations",
+						"type": "navigate",
+						"label": "Discussion and integrations",
+						"icon": "Api",
+						"group": "Meeting",
+						"target": "/meetings/@objectId/integrations"
+					}
+				],
+				"widgets": [
+					{
+						"id": "meeting-panel-agenda",
+						"type": "detail-sections",
+						"title": "Agenda",
+						"icon": "ClipboardList",
+						"content": {
+							"sections": [
+								{
+									"label": "Agenda",
+									"widgetId": "meeting-agenda"
+								},
+								{
+									"label": "Incoming documents",
+									"widgetId": "meeting-routed-documents"
+								},
+								{
+									"label": "Technical questions",
+									"widgetId": "meeting-technical-questions"
+								},
+								{
+									"label": "Publication",
+									"widgetId": "meeting-publication"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-people",
+						"type": "detail-sections",
+						"title": "Participants",
+						"icon": "AccountGroup",
+						"content": {
+							"sections": [
+								{
+									"label": "Participants",
+									"widgetId": "meeting-participants"
+								},
+								{
+									"label": "Proxy authorizations",
+									"widgetId": "meeting-proxy-authorizations"
+								},
+								{
+									"label": "Video call",
+									"widgetId": "meeting-video-call"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-documents",
+						"type": "detail-sections",
+						"title": "Documents",
+						"icon": "FolderOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Documents",
+									"widgetId": "meeting-files"
+								},
+								{
+									"label": "Document details",
+									"widgetId": "meeting-document-details"
+								},
+								{
+									"label": "Papers as PDF",
+									"widgetId": "meeting-paper-renditions"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-decisions",
+						"type": "detail-sections",
+						"title": "Decisions",
+						"icon": "ScaleBalance",
+						"content": {
+							"sections": [
+								{
+									"label": "Decisions",
+									"widgetId": "meeting-decisions"
+								},
+								{
+									"label": "Votes",
+									"widgetId": "meeting-votes"
+								},
+								{
+									"label": "Signing the decision list",
+									"widgetId": "meeting-decision-list-signers"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-minutes",
+						"type": "detail-sections",
+						"title": "Minutes",
+						"icon": "FileDocument",
+						"content": {
+							"sections": [
+								{
+									"label": "Minutes",
+									"widgetId": "meeting-minutes"
+								},
+								{
+									"label": "Transcription",
+									"widgetId": "meeting-transcription"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-panel-planning",
+						"type": "detail-sections",
+						"title": "Planning",
+						"icon": "Calendar",
+						"content": {
+							"sections": [
+								{
+									"label": "Planning",
+									"widgetId": "meeting-planning"
+								},
+								{
+									"label": "Outcome",
+									"widgetId": "meeting-outcome"
+								},
+								{
+									"label": "Agenda items",
+									"widgetId": "meeting-stats-agenda-items"
+								},
+								{
+									"label": "Action items",
+									"widgetId": "meeting-stats-action-items"
+								},
+								{
+									"label": "Series",
+									"widgetId": "meeting-series"
+								},
+								{
+									"label": "Sessions",
+									"widgetId": "meeting-sessions"
+								}
+							]
+						}
+					},
+					{
+						"id": "meeting-steps",
+						"type": "MeetingStepBar",
+						"title": "Steps",
+						"icon": "Timeline"
+					},
+					{
+						"id": "meeting-panels",
+						"type": "tabs",
+						"title": "Meeting",
+						"icon": "Calendar",
+						"content": {
+							"ariaLabel": "Parts of this meeting",
+							"maxVisibleTabs": 5,
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "meeting-panel-agenda",
+									"label": "Agenda"
+								},
+								{
+									"widgetId": "meeting-panel-people",
+									"label": "Participants"
+								},
+								{
+									"widgetId": "meeting-panel-documents",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "meeting-panel-decisions",
+									"label": "Decisions"
+								},
+								{
+									"widgetId": "meeting-panel-minutes",
+									"label": "Minutes"
+								},
+								{
+									"widgetId": "meeting-panel-planning",
+									"label": "Planning",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-broadcast",
+									"label": "Broadcast",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-case-system",
+									"label": "Case system",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-audit-statements",
+									"label": "Audit statements",
+									"overflow": true
+								},
+								{
+									"widgetId": "meeting-stage",
+									"label": "Stage",
+									"overflow": true
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "AmendmentDetail",
+			"_note": "The amendment page in the simple structure (openspec/changes/simple-amendment-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`. An amendment has a shorter road than a decision: draft, proposed, deliberating, voting, decided (MotionLifecycleTransitioner::AMENDMENT_TRANSITIONS). TWO STEPS ARE HEADER BUTTONS: submitting a draft and starting the debate. They post to POST /api/amendments/{id}/transition with `newState` and nothing else. That endpoint exists and is guarded on the server (the chair group, or an administrator where none is set), and until now no control on any page called it, so an amendment could not leave draft from the page at all. THE VOTE IS NOT A HEADER BUTTON, on purpose. The same endpoint would accept `voting` and `decided`, and taking those steps there skips two things the Voting round block does on the server: it holds the voting order of the amendments when a round opens, and it writes an adopted amendment into the text of its motion when the round closes. So the vote stays in the Voting round block, which is a tab of its own here, and the step bar says so. NO ENDPOINT TELLS A PAGE WHETHER THE READER MAY TAKE A STEP ON AN AMENDMENT, so the step bar says who takes the first two steps for every reader, and the server's refusal is shown to anyone else who presses. THE THREE BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component, because a tab resolves a widget by type. THE WHAT-NOW CHECKLIST IS ADVICE: the server asks for none of those fields before a step. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box. NO QUICK ACTION: the link to the motion is in the Parent motion block, which reads both spellings of that link (`amends` and the retired `parentMotion`); a header link could read one.",
+			"config": {
+				"stageField": "lifecycle",
+				"primaryActionByStage": {
+					"draft": "amendment-submit",
+					"proposed": "amendment-debate"
+				},
+				"quickActions": [],
+				"actionsMenu": {
+					"showRefresh": false,
+					"label": "More"
+				},
+				"statusPill": {
+					"field": "lifecycle",
+					"labels": {
+						"draft": "Draft",
+						"proposed": "Proposed",
+						"deliberating": "Deliberating",
+						"voting": "Voting",
+						"decided": "Decision taken",
+						"enacted": "Enacted",
+						"archived": "Archived",
+						"withdrawn": "Withdrawn"
+					},
+					"colorMap": {
+						"draft": "default",
+						"proposed": "primary",
+						"deliberating": "primary",
+						"voting": "warning",
+						"decided": "success",
+						"enacted": "success",
+						"archived": "default",
+						"withdrawn": "default"
+					}
+				},
+				"nextStep": {
+					"stages": {
+						"draft": {
+							"title": "What now? Finish the amendment",
+							"after": "Then: the debate",
+							"checklist": [
+								{
+									"label": "Write the proposed text",
+									"doneField": "proposedText"
+								},
+								{
+									"label": "Name the proposer",
+									"doneField": "proposer"
+								},
+								{
+									"label": "Link the motion it changes",
+									"doneField": "amends"
+								}
+							]
+						},
+						"proposed": {
+							"title": "What now? Bring it to the debate",
+							"after": "Then: the vote",
+							"checklist": [
+								{
+									"label": "Set its place in the voting order",
+									"doneField": "votingOrder",
+									"hint": "The chair sets the order on the page of the motion."
+								}
+							]
+						}
+					}
+				},
+				"sideColumn": [
+					{
+						"id": "amend-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"decisionType",
+								"amends",
+								"proposer",
+								"submittedAt",
+								"votingOrder",
+								"outcome",
+								"decisionDate"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "amend-steps",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "amend-panels",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"amend-diff": {
+						"type": "AmendmentDiffTab"
+					},
+					"amend-parent": {
+						"type": "AmendmentParentMotionTab"
+					},
+					"amend-voting-round": {
+						"type": "AmendmentVotingRoundTab"
+					}
+				}
+			},
+			"configAppend": {
+				"headerActions": [
+					{
+						"id": "amendment-submit",
+						"type": "api-call",
+						"label": "Submit amendment",
+						"icon": "BullhornOutline",
+						"group": "Amendment",
+						"url": "/apps/decidiq/api/amendments/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "proposed"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "draft"
+						},
+						"successMessage": "The amendment is submitted."
+					},
+					{
+						"id": "amendment-debate",
+						"type": "api-call",
+						"label": "Start the debate",
+						"icon": "AccountVoice",
+						"group": "Amendment",
+						"url": "/apps/decidiq/api/amendments/@objectId/transition",
+						"method": "POST",
+						"payload": {
+							"newState": "deliberating"
+						},
+						"visibleWhen": {
+							"field": "lifecycle",
+							"op": "eq",
+							"value": "proposed"
+						},
+						"successMessage": "The debate has started."
+					}
+				],
+				"widgets": [
+					{
+						"id": "amend-panel-details",
+						"type": "detail-sections",
+						"title": "Amendment",
+						"icon": "FileSign",
+						"content": {
+							"sections": [
+								{
+									"label": "Amendment",
+									"widgetId": "amend-data"
+								},
+								{
+									"label": "Parent motion",
+									"widgetId": "amend-parent"
+								}
+							]
+						}
+					},
+					{
+						"id": "amend-steps",
+						"type": "AmendmentStepBar",
+						"title": "Steps",
+						"icon": "Timeline"
+					},
+					{
+						"id": "amend-panels",
+						"type": "tabs",
+						"title": "Amendment",
+						"icon": "FileSign",
+						"content": {
+							"ariaLabel": "Parts of this amendment",
+							"maxVisibleTabs": 5,
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "amend-diff",
+									"label": "Text changes"
+								},
+								{
+									"widgetId": "amend-panel-details",
+									"label": "Amendment"
+								},
+								{
+									"widgetId": "amend-voting-round",
+									"label": "Voting round"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "Dashboard",
+			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE. The board (DcDashboard, 6 October 2026) puts the page in TWO COLUMNS under the counters: the main column (8 of 12) holds the proposals per step, the pending votes and my action items; the side column (4) holds the upcoming meetings and the commitments with a deadline. The widgets the board does not show keep their full width below those rows, in the order they had. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
+			"config": {
+				"layout": [
+					{
+						"id": "s1",
+						"widgetId": "simple-greeting",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 9,
+						"gridHeight": 1,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "s0",
+						"widgetId": "simple-quick-actions",
+						"gridX": 9,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 1,
+						"showTitle": false,
+						"borderless": true,
+						"sizeToContent": true
+					},
+					{
+						"id": "s2",
+						"widgetId": "simple-first-today",
+						"gridX": 0,
+						"gridY": 1,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "s3",
+						"widgetId": "simple-proposals-per-step",
+						"gridX": 0,
+						"gridY": 5,
+						"gridWidth": 8,
+						"gridHeight": 3,
+						"showTitle": true,
+						"sizeToContent": true,
+						"headerLink": {
+							"label": "All proposals",
+							"route": "Motions"
+						}
+					},
+					{
+						"id": "s4",
+						"widgetId": "simple-commitments-due",
+						"gridX": 8,
+						"gridY": 9,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "1",
+						"widgetId": "active-decisions",
+						"gridX": 0,
+						"gridY": 3,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "2",
+						"widgetId": "upcoming-meetings-kpi",
+						"gridX": 3,
+						"gridY": 3,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "3",
+						"widgetId": "pending-votes-kpi",
+						"gridX": 6,
+						"gridY": 3,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "4",
+						"widgetId": "overdue-actions-kpi",
+						"gridX": 9,
+						"gridY": 3,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": true
+					},
+					{
+						"id": "5",
+						"widgetId": "upcoming-meetings-list",
+						"gridX": 8,
+						"gridY": 5,
+						"gridWidth": 4,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "6",
+						"widgetId": "pending-votes-list",
+						"gridX": 0,
+						"gridY": 8,
+						"gridWidth": 8,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "7",
+						"widgetId": "running-processes",
+						"gridX": 0,
+						"gridY": 18,
+						"gridWidth": 6,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "8",
+						"widgetId": "my-action-items",
+						"gridX": 0,
+						"gridY": 12,
+						"gridWidth": 8,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "9",
+						"widgetId": "recent-decisions",
+						"gridX": 0,
+						"gridY": 22,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "10",
+						"widgetId": "minutes-in-review",
+						"gridX": 3,
+						"gridY": 16,
+						"gridWidth": 9,
+						"gridHeight": 2,
+						"showTitle": true
+					},
+					{
+						"id": "11",
+						"widgetId": "governance-health",
+						"gridX": 0,
+						"gridY": 26,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"_note": "Moved down from gridY=14 to make room for the spec'd Row 5 (minutes-in-review + governance-health, which together span all 12 columns at gridY=14). This KPI is an addition from the toezeggingen change and is not part of the five-row v2 layout in openspec/specs/dashboard/spec.md, so it gets its own band below it rather than displacing a spec'd widget.",
+						"id": "12",
+						"widgetId": "open-commitments-overdue",
+						"gridX": 0,
+						"gridY": 16,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "13",
+						"widgetId": "incoming-documents",
+						"gridX": 0,
+						"gridY": 30,
+						"gridWidth": 12,
+						"gridHeight": 4,
+						"showTitle": true
+					}
+				],
+				"showHeader": false,
+				"showWidgetActions": false
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "simple-quick-actions",
+						"type": "custom",
+						"title": "Quick actions"
+					},
+					{
+						"id": "simple-greeting",
+						"type": "header",
+						"title": "Greeting",
+						"content": {
+							"title": "My decision-making",
+							"showDate": true,
+							"ground": true
+						}
+					},
+					{
+						"id": "simple-first-today",
+						"type": "banner",
+						"title": "First today",
+						"content": {
+							"layout": "attention",
+							"variant": "error",
+							"kicker": "First today",
+							"title": "Decisions wait for the vote",
+							"reason": "{value} decisions are open for voting.",
+							"visibleWhen": {
+								"source": {
+									"register": "decidiq",
+									"schema": "decision",
+									"filter": {
+										"lifecycle": "voting"
+									}
+								},
+								"op": "gt",
+								"value": 0
+							},
+							"actions": [
+								{
+									"label": "Open the meetings",
+									"route": "Meetings"
+								},
+								{
+									"label": "Open these decisions",
+									"route": {
+										"name": "Decisions",
+										"query": {
+											"lifecycle": "voting"
+										}
+									},
+									"primary": true
+								}
+							],
+							"text": "Decisions wait for the vote"
+						}
+					},
+					{
+						"id": "simple-proposals-per-step",
+						"type": "stacked-bar",
+						"title": "Proposals per step",
+						"content": {
+							"source": {
+								"register": "decidiq",
+								"schema": "decision",
+								"groupBy": "lifecycle",
+								"filter": {
+									"decisionType": "motion"
+								}
+							},
+							"order": [
+								"draft",
+								"proposed",
+								"deliberating",
+								"voting",
+								"decided",
+								"enacted",
+								"archived",
+								"withdrawn"
+							],
+							"labels": {
+								"draft": "Draft",
+								"proposed": "Proposed",
+								"deliberating": "Deliberating",
+								"voting": "Voting",
+								"decided": "Decision taken",
+								"enacted": "Enacted",
+								"archived": "Archived",
+								"withdrawn": "Withdrawn"
+							},
+							"emptyText": "No proposals yet."
+						}
+					},
+					{
+						"id": "simple-commitments-due",
+						"type": "object-table",
+						"title": "Commitments with a deadline",
+						"icon": "ClipboardCheckOutline",
+						"content": {
+							"_note": "The board's narrow list in the side column (DcDashboard, 'Toezeggingen met termijn'): the commitment, wrapped, and its deadline on the right. An object-table, not an object-list, because only it forwards `hideHeader` and `fixedLayout` to the table: in a column four wide the object-list's auto layout let a long commitment push the deadline out of the card.",
+							"source": {
+								"register": "decidiq",
+								"schema": "governance-commitment",
+								"filter": {
+									"lifecycle": "open"
+								},
+								"order": {
+									"deadline": "asc"
+								},
+								"limit": 5
+							},
+							"columns": [
+								{
+									"key": "text",
+									"label": "Commitment",
+									"cellClass": "cn-cell--wrap"
+								},
+								{
+									"key": "deadline",
+									"label": "Deadline",
+									"widget": "date",
+									"widgetProps": {
+										"variantWhen": [
+											{
+												"op": "lte",
+												"value": 0,
+												"variant": "error"
+											},
+											{
+												"op": "lte",
+												"value": 7,
+												"variant": "warning"
+											}
+										]
+									},
+									"width": "7.5rem",
+									"align": "right"
+								}
+							],
+							"rowRoute": "CommitmentDetail",
+							"viewAllRoute": {
+								"name": "Commitments",
+								"query": {
+									"lifecycle": "open"
+								}
+							},
+							"hideHeader": true,
+							"borderless": true,
+							"fixedLayout": true,
+							"emptyText": "No open commitments."
+						}
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"open-commitments-overdue": {
+						"title": "Past the deadline",
+						"content": {
+							"label": "Past the deadline",
+							"icon": "AlertOutline",
+							"variant": "warning",
+							"route": {
+								"name": "Commitments",
+								"query": {
+									"lifecycle": [
+										"open",
+										"in-execution"
+									]
+								}
+							},
+							"format": {
+								"style": "number"
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "governance-commitment",
+								"metric": "count",
+								"filter": {
+									"lifecycle": {
+										"in": [
+											"open",
+											"in-execution"
+										]
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"slots": {
+				"widget-simple-quick-actions": "DashboardQuickActions"
+			}
+		},
+		{
+			"id": "Decisions",
+			"_note": "The decisions list in the simple structure: five counted views in front, the rest behind the overflow chip. No view is dropped: Decisions and Motions are the manifest's own and keep their place in the list. Urgent is the view the design asks for instead of a menu entry; the Urgent decisions page still exists and Proposals links to it.",
+			"config": {
+				"quickFilterMaxVisible": 5
+			},
+			"configPatch": {
+				"quickFilters": {
+					"Decisions": {
+						"showCount": true
+					}
+				}
+			},
+			"configAppend": {
+				"quickFilters": [
+					{
+						"label": "Voting",
+						"filter": {
+							"lifecycle": "voting"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Decision taken",
+						"filter": {
+							"lifecycle": "decided"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Enacted",
+						"filter": {
+							"lifecycle": "enacted"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Urgent",
+						"filter": {
+							"isUrgent": true
+						},
+						"showCount": true
+					},
+					{
+						"label": "Adopted",
+						"filter": {
+							"outcome": "adopted"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Rejected",
+						"filter": {
+							"outcome": "rejected"
+						},
+						"showCount": true
+					}
+				]
+			},
+			"configOrder": {
+				"quickFilters": [
+					"Decisions",
+					"Voting",
+					"Decision taken",
+					"Enacted",
+					"Urgent"
+				]
+			}
+		},
+		{
+			"id": "ActionItems",
+			"_note": "My actions in the simple structure (openspec/changes/simple-amendment-page). The menu entry reads My actions and the page listed everybody's action items. It now opens on the reader's own: the view Mine filters on `assignee`, the field that holds a Nextcloud user id (the dashboard's My action items widget filters on the same field). `@me` is the library's word for the reader and is filled in when the list is fetched, so no user id is written here. THE OLD LIST IS ONE CLICK AWAY as the view Everyone, which has no filter and is the page as it was. Both views carry a count, taken with the filter of the view. ONLY ACTION ITEMS ARE ON THIS PAGE. A vote that waits for somebody has no record with a person on it until it is cast (a vote names a participant, and a participant names a user: two steps, which a list filter cannot take), and a commitment names the member who made it by a record id, not by a user id. Those two are left as they are: pending votes on the dashboard, commitments under their own menu entry.",
+			"config": {
+				"quickFilters": [
+					{
+						"label": "Mine",
+						"filter": {
+							"assignee": "@me"
+						},
+						"default": true,
+						"showCount": true
+					},
+					{
+						"label": "Everyone",
+						"filter": {},
+						"showCount": true
+					}
+				]
+			}
+		}
+	]
+}

@@ -1,0 +1,288 @@
+{
+	"_note": "live-public-livestream (liv-06, liv-10, liv-19, liv-22): a public broadcast of a meeting is its own record, so the anonymous read predicate covers exactly what a resident may see and never the private meeting (design D1). The states are a declarative lifecycle (D2). Numbered 120, not the 92 the design names: 92 was taken.",
+	"_spec": "openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"meeting-broadcast"
+				]
+			}
+		},
+		"schemas": {
+			"MeetingBroadcast": {
+				"slug": "meeting-broadcast",
+				"icon": "Broadcast",
+				"version": "0.1.0",
+				"title": "Meeting broadcast",
+				"description": "A public livestream of a meeting: its status, the player and recording addresses, the broadcast parts and the released captions. Readable without an account once its publication date has passed.",
+				"type": "object",
+				"x-schema-org": "schema:BroadcastEvent",
+				"x-openregister": {
+					"schemaType": "schema:BroadcastEvent",
+					"active": true,
+					"hardDelete": false,
+					"searchable": true,
+					"mailEnabled": false
+				},
+				"required": [
+					"meeting",
+					"lifecycle"
+				],
+				"properties": {
+					"meeting": {
+						"title": "Meeting",
+						"type": "string",
+						"description": "The meeting this broadcast shows; one broadcast per meeting.",
+						"format": "uuid",
+						"$ref": "meeting",
+						"facetable": true
+					},
+					"title": {
+						"title": "Title",
+						"type": "string",
+						"description": "The meeting's title, copied when the broadcast is made, so the public row needs no private meeting."
+					},
+					"bodyName": {
+						"title": "Body",
+						"type": "string",
+						"description": "The name of the body that meets, copied when the broadcast is made."
+					},
+					"scheduledDate": {
+						"title": "Scheduled date",
+						"type": "string",
+						"description": "When the meeting starts, copied when the broadcast is made.",
+						"format": "date-time"
+					},
+					"lifecycle": {
+						"title": "Status",
+						"type": "string",
+						"description": "planned until a clerk tests or goes live; a test ends back in planned; live and paused alternate until the broadcast ends.",
+						"enum": [
+							"planned",
+							"testing",
+							"live",
+							"paused",
+							"ended"
+						],
+						"default": "planned",
+						"facetable": true
+					},
+					"previewUrl": {
+						"title": "Preview address",
+						"type": "string",
+						"description": "The staff preview of a test. Never shown on the portal.",
+						"format": "uri"
+					},
+					"playerUrl": {
+						"title": "Player address",
+						"type": "string",
+						"description": "The public player, written when the broadcast goes live.",
+						"format": "uri"
+					},
+					"recordingUrl": {
+						"title": "Recording address",
+						"type": "string",
+						"description": "The streaming service's public recording, written after the broadcast ended.",
+						"format": "uri"
+					},
+					"testedAt": {
+						"title": "Tested at",
+						"type": "string",
+						"description": "When the last test ran.",
+						"format": "date-time"
+					},
+					"testedBy": {
+						"title": "Tested by",
+						"type": "string",
+						"description": "Who ran the last test."
+					},
+					"testResult": {
+						"title": "Test result",
+						"type": "string",
+						"description": "What the clerk found in the last test.",
+						"enum": [
+							"ok",
+							"problems"
+						]
+					},
+					"testNote": {
+						"title": "Test note",
+						"type": "string",
+						"description": "The clerk's note on the last test."
+					},
+					"liveCaptions": {
+						"title": "Live captions",
+						"type": "string",
+						"description": "Whether the streaming service was asked for live captions, cannot give them, or they are off.",
+						"enum": [
+							"requested",
+							"unavailable",
+							"off"
+						]
+					},
+					"publicWindows": {
+						"title": "Public windows",
+						"type": "array",
+						"description": "The parts of the meeting that were broadcast: seconds from the meeting start, and where each part begins in the recording.",
+						"items": {
+							"type": "object",
+							"properties": {
+								"start": {
+									"title": "Start",
+									"type": "integer",
+									"minimum": 0,
+									"description": "Seconds from the meeting's opening at which this public part began."
+								},
+								"end": {
+									"title": "End",
+									"type": "integer",
+									"minimum": 0,
+									"description": "Seconds from the meeting's opening at which this public part ended."
+								},
+								"recordingStart": {
+									"title": "Start in the recording",
+									"type": "integer",
+									"minimum": 0,
+									"description": "Second in the recording at which this public part begins."
+								}
+							},
+							"required": [
+								"start"
+							]
+						}
+					},
+					"captionTracks": {
+						"title": "Caption tracks",
+						"type": "array",
+						"description": "Reviewed subtitle files released with the recording.",
+						"items": {
+							"type": "object",
+							"properties": {
+								"language": {
+									"title": "Language",
+									"type": "string",
+									"description": "Language code of the subtitles, for example nl."
+								},
+								"filePath": {
+									"title": "File",
+									"type": "string",
+									"description": "Path of the subtitle file in the meeting folder."
+								},
+								"shareUrl": {
+									"title": "Public link",
+									"type": "string",
+									"format": "uri",
+									"description": "Read-only public link to the subtitle file."
+								},
+								"reviewedBy": {
+									"title": "Released by",
+									"type": "string",
+									"description": "Who checked and released the subtitles."
+								},
+								"releasedAt": {
+									"title": "Released at",
+									"type": "string",
+									"format": "date-time",
+									"description": "When the subtitles were released."
+								}
+							},
+							"required": [
+								"language"
+							]
+						}
+					},
+					"publicationDate": {
+						"title": "Publication date",
+						"type": "string",
+						"description": "From this moment anyone can read the broadcast without an account.",
+						"format": "date-time"
+					},
+					"depublicationDate": {
+						"title": "Depublication date",
+						"type": "string",
+						"description": "When the broadcast stops being public.",
+						"format": "date-time"
+					}
+				},
+				"x-openregister-lifecycle": {
+					"field": "lifecycle",
+					"initial": "planned",
+					"states": [
+						"planned",
+						"testing",
+						"live",
+						"paused",
+						"ended"
+					],
+					"terminal": [
+						"ended"
+					],
+					"transitions": [
+						{
+							"from": "planned",
+							"to": "testing"
+						},
+						{
+							"from": "testing",
+							"to": "planned"
+						},
+						{
+							"from": "planned",
+							"to": "live"
+						},
+						{
+							"from": "testing",
+							"to": "live"
+						},
+						{
+							"from": "live",
+							"to": "paused"
+						},
+						{
+							"from": "paused",
+							"to": "live"
+						},
+						{
+							"from": "live",
+							"to": "ended"
+						},
+						{
+							"from": "paused",
+							"to": "ended"
+						}
+					],
+					"_note": "Declarative broadcast states (ADR-031, live-public-livestream D2). A test ends back in planned; ended is terminal. MeetingBroadcastService moves the state through OpenRegister and never sets it by hand."
+				},
+				"authorization": {
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"read": [
+						{
+							"group": "public",
+							"match": {
+								"publicationDate": {
+									"$lte": "$now"
+								}
+							}
+						},
+						"authenticated"
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				}
+			}
+		}
+	}
+}

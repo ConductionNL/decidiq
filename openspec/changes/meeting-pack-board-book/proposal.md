@@ -80,3 +80,9 @@ The change is additive. Rollback = revert the code PRs; the `MeetingPack` schema
 
 - Whether delivery into each attendee's Files uses per-user shares from the meeting folder or a copy into a per-user `Vergaderbundels/` folder (provisional: per-user read-only share; see design.md).
 - Whether `document-annotations` (sibling change) will need per-page anchors from the pack; the bookmark structure is designed to be stable per agenda item so annotations can reference it later.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- age-12: Read meeting papers offline on a tablet.

@@ -19,9 +19,6 @@
     }
   },
   "src/components/VotingRoundPanel.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 9
-    },
     "jsdoc/require-param-type": {
       "count": 1
     }
@@ -37,9 +34,6 @@
   "src/components/liveMeeting/SpeakerQueuePanel.vue": {
     "jsdoc/require-param-type": {
       "count": 6
-    },
-    "no-console": {
-      "count": 1
     },
     "vue/custom-event-name-casing": {
       "count": 1
@@ -129,7 +123,7 @@
   },
   "src/components/tabs/MeetingParticipantsTab.vue": {
     "jsdoc/require-param-type": {
-      "count": 4
+      "count": 1
     }
   },
   "src/components/tabs/MeetingTranscriptionTab.vue": {
@@ -150,19 +144,6 @@
   "src/components/tabs/MotionAmendmentsTab.vue": {
     "jsdoc/require-param-type": {
       "count": 2
-    }
-  },
-  "src/components/tabs/MotionVotesTab.vue": {
-    "eqeqeq": {
-      "count": 2
-    },
-    "jsdoc/require-param-type": {
-      "count": 2
-    }
-  },
-  "src/components/tabs/MotionVotingRoundTab.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
     }
   },
   "src/components/tabs/RelatedDecisionsTab.vue": {
@@ -250,14 +231,8 @@
     }
   },
   "src/views/LiveMeeting.vue": {
-    "@typescript-eslint/no-unused-vars": {
-      "count": 1
-    },
     "jsdoc/require-param-type": {
       "count": 5
-    },
-    "no-console": {
-      "count": 8
     }
   },
   "src/views/dashboard/widgets/ActiveDecisionsKpiWidget.vue": {

@@ -48,6 +48,7 @@ on the open questions; tasks 7 to 10 wait for Q1 and Q2.
 ### Task 5: Service and controller without graph validation
 - **spec_ref**: `openspec/changes/process-templates-as-lifecycle-policies/specs/process-configuration/spec.md#requirement-process-template-management`
 - **files**: `lib/Service/ProcessTemplateService.php`, `lib/Controller/ProcessTemplateController.php`, `appinfo/routes.php`, `lib/Lifecycle/ProcessTemplatePolicyResolver.php`, delete `lib/Service/StateMachineValidator.php` and its test
+- **note (5 Oct 2026)**: `StateMachineValidator` is already gone: the graph check moved onto OpenRegister's `LifecycleTransitionsValidator` (openregister#4291), called from `ProcessTemplateService::validateStateMachine()`. What this task removes is that call, once templates hold policies instead of graphs.
 - **acceptance_criteria**:
   - GIVEN a template naming an action the live annotation does not declare WHEN saved THEN HTTP 400 naming it
   - GIVEN `POST /api/process-templates/validate` WHEN called THEN the route no longer exists

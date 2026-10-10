@@ -65,6 +65,8 @@
 
 <script>
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
+import { breakdownUrl, factionRows } from '../../utils/voteBreakdown.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -93,6 +95,7 @@ export default {
 				{ key: 'votesFor', label: this.t('decidiq', 'For') },
 				{ key: 'votesAgainst', label: this.t('decidiq', 'Against') },
 				{ key: 'votesAbstain', label: this.t('decidiq', 'Abstain') },
+				{ key: 'factions', label: this.t('decidiq', 'Per faction') },
 				{ key: 'result', label: this.t('decidiq', 'Result') },
 				{ key: 'timestamp', label: this.t('decidiq', 'When') },
 			]
@@ -170,6 +173,9 @@ export default {
 								votesAgainst: round.votesAgainst ?? 0,
 								votesAbstain: round.votesAbstain ?? 0,
 								result: round.result || '',
+								factions: await this.factionSummary(
+									round.id || round.uuid,
+								),
 								timestamp: round.closedAt || round.openedAt || '',
 							})
 						}
@@ -182,6 +188,40 @@ export default {
 					|| this.t('decidiq', 'Failed to load voting overview.')
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * One line per faction for a round, or a note for a secret round.
+		 *
+		 * @param {string} roundId The voting round id
+		 * @return {Promise<string>}
+		 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+		 */
+		async factionSummary(roundId) {
+			try {
+				const response = await fetch(generateUrl(breakdownUrl(roundId)), {
+					headers: { requesttoken: window.OC?.requestToken },
+				})
+				if (!response.ok) return ''
+				const breakdown = await response.json()
+				if (breakdown.secret) return this.t('decidiq', 'Secret vote')
+				return factionRows(breakdown)
+					.map((row) =>
+						this.t(
+							'decidiq',
+							'{faction}: {for} for, {against} against, {abstain} abstain',
+							{
+								faction: row.faction,
+								for: row.for,
+								against: row.against,
+								abstain: row.abstain,
+							},
+						),
+					)
+					.join('; ')
+			} catch {
+				return ''
 			}
 		},
 

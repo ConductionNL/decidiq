@@ -1,0 +1,19 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change meeting-stage-buttons-and-cost (REQ-MSB-001, matrix row pla-15). The stage of a meeting is the output of a guarded step on the meeting page, not a field on the create form. The create form no longer offers lifecycle, so a new meeting takes this default and starts as draft.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.6.0",
+        "properties": {
+          "lifecycle": {
+            "default": "draft"
+          }
+        }
+      }
+    }
+  }
+}

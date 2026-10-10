@@ -18,9 +18,7 @@
 // installIntegrationRegistry() first), register() lands live.
 
 import { translate as t } from '@nextcloud/l10n'
-import { createApp } from 'vue'
-import CnDecisionsTab from './CnDecisionsTab.vue'
-import CnDecisionsWidget from './CnDecisionsWidget.vue'
+import { createLazyMountPair } from './createLazyMountPair.js'
 
 /**
  * The integration id consuming apps (e.g. procest) must reference to
@@ -29,17 +27,6 @@ import CnDecisionsWidget from './CnDecisionsWidget.vue'
  * @type {string}
  */
 export const DECISIONS_INTEGRATION_ID = 'decidesk-decisions'
-
-/**
- * Per-element registry of the Vue 3 app instances this leaf has mounted, so
- * `unmount(el)` can find and destroy the right one. Keyed by the host-owned DOM
- * element — NOT by leaf id — because the same leaf may be mounted into several
- * elements on one page at once (e.g. a sidebar tab AND a detail-page widget),
- * each its own instance (openregister#2127, "keyed by el").
- *
- * @type {Map<Element, import('vue').App>}
- */
-const mountedApps = new Map()
 
 /**
  * Surfaces that render the per-object decisions WIDGET rather than the full tab.
@@ -68,59 +55,31 @@ const WIDGET_SURFACES = ['detail-page', 'app-dashboard', 'user-dashboard']
 const SURFACES = ['user-dashboard', 'app-dashboard', 'detail-page', 'single-entity']
 
 /**
- * Pick the root component for a mount off the host-forwarded `surface`.
+ * Load the root component for a mount off the host-forwarded `surface`: the
+ * widget on the three WIDGET_SURFACES, the full tab everywhere else.
+ *
+ * Dynamic on purpose. This module is part of `decidiq-integration-init.js`,
+ * which Nextcloud loads on every page; a static import would pull Vue and the
+ * component library into that script. The chunk loads only when a host mounts.
  *
  * @param {string} [surface] The render surface the host is mounting into.
- * @return {object} The Vue component to root at the element.
+ * @return {Promise<object>} The Vue component to root at the element.
  */
-function componentForSurface(surface) {
-	return WIDGET_SURFACES.includes(surface) ? CnDecisionsWidget : CnDecisionsTab
+function loadComponentForSurface(surface) {
+	const loader = WIDGET_SURFACES.includes(surface)
+		? import(/* webpackChunkName: "leaf-decisions" */ './CnDecisionsWidget.vue')
+		: import(/* webpackChunkName: "leaf-decisions" */ './CnDecisionsTab.vue')
+	return loader.then((module) => module.default)
 }
 
 /**
  * Mount hand-off (renderMode 'mount', ADR-066 / openregister#2127). decidiq is
- * Vue 3 while a consuming OpenBuild/OpenRegister host may be Vue 2.7. A Vue-3 SFC
- * handed to the host is interpreted under the host's own (incompatible) runtime
- * and renders blank. Instead the host hands us a bare, host-owned DOM element and
- * we root decidiq's OWN Vue 3 app at it with the forwarded object context as
- * root props, so each side runs its own framework across the neutral DOM
- * boundary. Idempotent per element.
- *
- * @param {Element} el    Host-owned container element to root the app at.
- * @param {object}  props Forwarded context: { register, schema, objectId, surface, integrationContext, … }.
- * @return {void}
+ * Vue 3 while a consuming host may be Vue 2.7; a Vue-3 SFC handed to the host
+ * renders blank under the host's runtime. So the host hands us a bare element
+ * and we root decidiq's own app at it, once the component chunk has loaded.
+ * Idempotent per element, and an unmount during the load cancels the mount.
  */
-function mount(el, props) {
-	if (el === undefined || el === null || mountedApps.has(el) === true) {
-		return
-	}
-	const app = createApp(componentForSurface(props && props.surface), {
-		...(props || {}),
-	})
-	// Global t/n install contract (ADR-066): the tab/widget SFCs call
-	// `this.t(...)`. In the app bundle main.js installs these; the leaf mounts
-	// its own app instance, so install them here too.
-	app.config.globalProperties.t = t
-	app.mount(el)
-	mountedApps.set(el, app)
-}
-
-/**
- * Teardown hand-off. Destroy the Vue 3 app instance rooted at `el` and release
- * the map entry so a mount/unmount cycle leaks no instance. Guarded against a
- * double-unmount and an unknown element.
- *
- * @param {Element} el The container element previously passed to `mount`.
- * @return {void}
- */
-function unmount(el) {
-	const app = mountedApps.get(el)
-	if (app === undefined) {
-		return
-	}
-	mountedApps.delete(el)
-	app.unmount()
-}
+const { mount, unmount } = createLazyMountPair(loadComponentForSurface, 'decisions')
 
 /**
  * The integration descriptor for the "Besluitvorming" leaf.

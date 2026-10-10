@@ -38,7 +38,7 @@ use Throwable;
 /**
  * Copies routed documents onto generic agenda items.
  *
- * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md
+ * @spec openspec/specs/documents-as-agenda-items/spec.md
  */
 class MigrateDocumentsToAgendaItems implements IRepairStep {
 	use ReadsLegacyRows;
@@ -189,7 +189,7 @@ class MigrateDocumentsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md#requirement-existing-documents-are-carried-across
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-existing-documents-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -223,7 +223,7 @@ class MigrateDocumentsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/documents-as-agenda-items/specs/documents-as-agenda-items/spec.md#requirement-existing-documents-are-carried-across
+	 * @spec openspec/specs/documents-as-agenda-items/spec.md#requirement-existing-documents-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$existing  = $this->originIndex(objectService: $objectService);

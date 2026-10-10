@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -271,6 +272,26 @@ class ParticipationLifecycleService {
 
 		return $this->deadlineInFuture(value: ($consultation['submissionDeadline'] ?? null));
 	}//end consultationAcceptsSubmissions()
+
+	/**
+	 * Refuse a submission on a consultation that does not accept one.
+	 *
+	 * The throwing form of consultationAcceptsSubmissions(), so the refusal
+	 * carries the window exception ParticipationResponder answers with 400.
+	 *
+	 * @param array<string, mixed> $consultation The consultation object.
+	 *
+	 * @return void
+	 *
+	 * @throws ParticipationWindowClosedException When the consultation is closed or past its deadline.
+	 *
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
+	 */
+	public function assertConsultationAcceptsSubmissions(array $consultation): void {
+		if ($this->consultationAcceptsSubmissions(consultation: $consultation) === false) {
+			throw new ParticipationWindowClosedException(message: 'This consultation is not open for submissions');
+		}
+	}//end assertConsultationAcceptsSubmissions()
 
 	/**
 	 * Determine whether a budget round currently accepts proposal submissions.

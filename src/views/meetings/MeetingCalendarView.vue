@@ -51,6 +51,25 @@
 			<MeetingViewToggle class="meeting-calendar__toggle" />
 		</div>
 
+		<div class="meeting-calendar__filters">
+			<NcSelect
+				v-model="audienceOption"
+				class="meeting-calendar__filter"
+				:options="audienceOptions"
+				:inputLabel="t('decidiq', 'Audience')"
+				:placeholder="t('decidiq', 'All audiences')"
+				label="label"
+				data-testid="meeting-calendar-audience" />
+			<NcSelect
+				v-model="bodyOption"
+				class="meeting-calendar__filter"
+				:options="bodyOptions"
+				:inputLabel="t('decidiq', 'Body')"
+				:placeholder="t('decidiq', 'All bodies')"
+				label="label"
+				data-testid="meeting-calendar-body" />
+		</div>
+
 		<NcLoadingIcon v-if="loading" :size="32" />
 
 		<template v-else>
@@ -72,16 +91,42 @@
 					}"
 					role="gridcell">
 					<span class="meeting-calendar__daynum">{{ cell.day }}</span>
-					<button
+					<div
 						v-for="meeting in cell.meetings"
 						:key="meeting.id"
-						type="button"
-						class="meeting-calendar__event"
-						:data-testid="`meeting-calendar-event-${meeting.id}`"
-						:title="meeting.title"
-						@click="open(meeting)">
-						{{ meeting.title }}
-					</button>
+						class="meeting-calendar__entry">
+						<button
+							type="button"
+							class="meeting-calendar__event"
+							:data-testid="`meeting-calendar-event-${meeting.id}`"
+							:title="meeting.title"
+							@click="open(meeting)">
+							{{ meeting.title }}
+						</button>
+						<!-- An evening's parallel sessions sit inside its event
+						     (planning-parallel-sessions, REQ-PPS-003). -->
+						<ul
+							v-if="meeting.sessions.length"
+							class="meeting-calendar__sessions"
+							:aria-label="
+								t('decidiq', 'Sessions of {title}', {
+									title: meeting.title,
+								})
+							"
+							:data-testid="`meeting-calendar-sessions-${meeting.id}`">
+							<li
+								v-for="session in meeting.sessions"
+								:key="session.id">
+								<button
+									type="button"
+									class="meeting-calendar__session"
+									:data-testid="`meeting-calendar-session-${session.id}`"
+									@click="open(session)">
+									{{ sessionLabel(session) }}
+								</button>
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
 
@@ -111,12 +156,20 @@
 </template>
 
 <script>
-import { NcButton, NcEmptyContent, NcLoadingIcon } from '@nextcloud/vue'
+import { NcButton, NcEmptyContent, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
 import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
 import ChevronLeft from 'vue-material-design-icons/ChevronLeft.vue'
 import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
 import MeetingViewToggle from './MeetingViewToggle.vue'
 import { getMeetings } from '../../services/dashboardData.js'
+import { useObjectStore } from '../../store/store.js'
+import {
+	AUDIENCES,
+	calendarParams,
+	NO_AUDIENCE,
+	withoutAudience,
+} from '../../utils/activityCalendar.js'
+import { groupSessions, sessionLabel } from '../../utils/meetingSessions.js'
 
 /** Milliseconds in one day, used to walk the six-week grid. */
 const DAY_MS = 24 * 60 * 60 * 1000
@@ -128,6 +181,7 @@ export default {
 		NcButton,
 		NcEmptyContent,
 		NcLoadingIcon,
+		NcSelect,
 		CalendarBlank,
 		ChevronLeft,
 		ChevronRight,
@@ -141,10 +195,83 @@ export default {
 			meetings: [],
 			year: now.getFullYear(),
 			month: now.getMonth(),
+			types: [],
+			bodies: [],
 		}
 	},
 
 	computed: {
+		/**
+		 * The audience filter's options: the five audiences and "No audience set".
+		 *
+		 * @return {Array<{id: string, label: string}>} Options.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		audienceOptions() {
+			const labels = {
+				council: this.t('decidiq', 'Council'),
+				executive: this.t('decidiq', 'Executive'),
+				'joint-arrangement': this.t('decidiq', 'Joint arrangement'),
+				residents: this.t('decidiq', 'Residents'),
+				staff: this.t('decidiq', 'Staff'),
+			}
+			return [
+				...AUDIENCES.map((id) => ({ id, label: labels[id] })),
+				{ id: NO_AUDIENCE, label: this.t('decidiq', 'No audience set') },
+			]
+		},
+
+		/**
+		 * The body filter's options.
+		 *
+		 * @return {Array<{id: string, label: string}>} Options.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		bodyOptions() {
+			return this.bodies.map((body) => ({
+				id: body.id ?? body['@self']?.id,
+				label: body.name || body.title || '',
+			}))
+		},
+
+		/**
+		 * The chosen audience, kept in the address so the view can be shared.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		audienceOption: {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			get() {
+				const id = this.$route?.query?.audience || ''
+				return this.audienceOptions.find((o) => o.id === id) || null
+			},
+
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			set(option) {
+				this.setQuery('audience', option ? option.id : '')
+			},
+		},
+
+		/**
+		 * The chosen body, kept in the address.
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		bodyOption: {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			get() {
+				const id = this.$route?.query?.body || ''
+				return this.bodyOptions.find((o) => o.id === id) || null
+			},
+
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			set(option) {
+				this.setQuery('body', option ? option.id : '')
+			},
+		},
+
 		/**
 		 * Localised weekday headers, Monday first.
 		 *
@@ -175,6 +302,18 @@ export default {
 		},
 
 		/**
+		 * The meetings as events: an evening holds its loaded sessions, and a
+		 * session whose evening is not loaded stands on its own.
+		 *
+		 * @return {Array<object>} Meetings, each with a `sessions` array.
+		 *
+		 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
+		 */
+		events() {
+			return groupSessions(this.meetings)
+		},
+
+		/**
 		 * Meetings that carry a parseable scheduledDate, keyed by local Y-M-D.
 		 *
 		 * @return {Object<string, Array<object>>} Date key → meetings.
@@ -183,7 +322,7 @@ export default {
 		 */
 		byDate() {
 			const map = {}
-			for (const meeting of this.meetings) {
+			for (const meeting of this.events) {
 				const key = this.dateKey(meeting.scheduledDate)
 				if (key === null) {
 					continue
@@ -201,9 +340,7 @@ export default {
 		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
 		 */
 		undated() {
-			return this.meetings.filter(
-				(m) => this.dateKey(m.scheduledDate) === null,
-			)
+			return this.events.filter((m) => this.dateKey(m.scheduledDate) === null)
 		},
 
 		/**
@@ -234,11 +371,43 @@ export default {
 		},
 	},
 
+	watch: {
+		'$route.query.audience': {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			handler() {
+				this.load()
+			},
+		},
+
+		'$route.query.body': {
+			/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
+			handler() {
+				this.load()
+			},
+		},
+	},
+
+	/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 	async mounted() {
+		const store = useObjectStore()
+		try {
+			const [types, bodies] = await Promise.all([
+				store.fetchCollection('meeting-type', { _limit: 200 }),
+				store.fetchCollection('governance-body', { _limit: 200 }),
+			])
+			this.types = types || []
+			this.bodies = bodies || []
+		} catch (e) {
+			// eslint-disable-next-line no-console
+			console.error('[decidiq] MeetingCalendarView filters failed to load', e)
+		}
 		await this.load()
 	},
 
 	methods: {
+		/** @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening */
+		sessionLabel,
+
 		/**
 		 * Local Y-M-D key for a date-ish value, or null when unusable.
 		 *
@@ -262,16 +431,25 @@ export default {
 		},
 
 		/**
-		 * Fetch every meeting once; the grid filters client-side by month.
+		 * Fetch the visible grid from the server, narrowed by body and audience.
 		 *
 		 * @return {Promise<void>}
 		 *
-		 * @spec openspec/changes/configurable-types-domain-model/tasks.md#task-1.23
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-003-the-calendar-asks-the-server-for-the-visible-month
 		 */
 		async load() {
 			this.loading = true
 			try {
-				this.meetings = await getMeetings({ _limit: 500 })
+				const audience = this.$route?.query?.audience || ''
+				const params = calendarParams({
+					year: this.year,
+					month: this.month,
+					audience,
+					body: this.$route?.query?.body || '',
+					types: this.types,
+				})
+				const meetings = params === null ? [] : await getMeetings(params)
+				this.meetings = withoutAudience(meetings || [], audience, this.types)
 			} catch (e) {
 				// A swallowed fetch error renders an empty calendar that is
 				// indistinguishable from a month with no meetings, so the console
@@ -297,6 +475,26 @@ export default {
 			const next = new Date(this.year, this.month + delta, 1)
 			this.year = next.getFullYear()
 			this.month = next.getMonth()
+			this.load()
+		},
+
+		/**
+		 * Write one filter into the address, or drop it when empty.
+		 *
+		 * @param {string} key The query key.
+		 * @param {string} value The value, empty to drop it.
+		 * @return {void}
+		 *
+		 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+		 */
+		setQuery(key, value) {
+			const query = { ...(this.$route?.query || {}) }
+			if (value) {
+				query[key] = value
+			} else {
+				delete query[key]
+			}
+			this.$router?.replace({ query }).catch(() => {})
 		},
 
 		/**
@@ -310,6 +508,7 @@ export default {
 			const now = new Date()
 			this.year = now.getFullYear()
 			this.month = now.getMonth()
+			this.load()
 		},
 
 		/**
@@ -347,6 +546,16 @@ export default {
 
 .meeting-calendar__toggle {
 	margin-inline-start: auto;
+}
+
+.meeting-calendar__filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.meeting-calendar__filter {
+	min-width: 220px;
 }
 
 .meeting-calendar__title {
@@ -433,5 +642,32 @@ export default {
 	color: var(--color-primary-element, #0082c9);
 	cursor: pointer;
 	padding: 4px 0;
+}
+
+.meeting-calendar__sessions {
+	margin: 2px 0 0;
+	padding: 0 0 0 8px;
+	list-style: none;
+	border-inline-start: 2px solid var(--color-primary-element, #00679e);
+}
+
+.meeting-calendar__session {
+	display: block;
+	width: 100%;
+	padding: 1px 4px;
+	border: none;
+	background: transparent;
+	color: var(--color-main-text, #222);
+	font-size: 0.75em;
+	text-align: start;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.meeting-calendar__session:hover,
+.meeting-calendar__session:focus-visible {
+	background: var(--color-background-hover, #f0f0f0);
 }
 </style>

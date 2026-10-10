@@ -12,6 +12,7 @@ Decidiq leverages Nextcloud's platform capabilities to provide a seamless govern
 
 **Standards**: Nextcloud OCP interfaces, CalDAV (RFC 4791), WebDAV
 **Feature tier**: V1
+
 ## Requirements
 
 ---
@@ -161,6 +162,25 @@ The system MUST register a search provider via `OCP\Search\IProvider` (`IRegistr
 - GIVEN a decision the searching user has no OpenRegister read access to
 - WHEN the user searches for that decision's title
 - THEN the provider MUST NOT return it (the provider queries ObjectService with RBAC enabled and never passes `_rbac: false`)
+
+### Requirement: REQ-MUS-001 Minutes appear in Nextcloud's unified search
+
+decidiq's unified search provider SHALL search minutes as well as decisions and meetings. A minutes hit SHALL show the minutes title, the word Minutes, its lifecycle and its approval date when it has one, and SHALL open the minutes page.
+
+#### Scenario: A member finds what was said
+- GIVEN the minutes of the council meeting of 14 October mention "woningbouw Noord"
+- WHEN council member Pieter types "woningbouw" into Nextcloud's search bar
+- THEN the Decidiq governance section lists those minutes with their approval date, and clicking opens the minutes page
+
+### Requirement: REQ-MUS-002 Search shows only minutes the searcher may read
+
+The provider SHALL return only minutes the searcher may read under OpenRegister's read rules.
+
+#### Scenario: Closed-session minutes stay hidden
+- GIVEN minutes of a closed session that council member Pieter may not read
+- WHEN he searches a word that appears in them
+- THEN those minutes are not listed
+@e2e exclude which minutes a member may read is OpenRegister's read rule, not the provider's; the provider keeps that rule on, proven by tests/Unit/Search/DecidiqSearchProviderTest.php testSearchKeepsOpenRegisterReadRules
 
 ## User Stories
 

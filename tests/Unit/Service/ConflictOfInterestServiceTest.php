@@ -559,12 +559,13 @@ class ConflictOfInterestServiceTest extends TestCase {
 	}//end testFindDeclarationsConvertsJsonSerializableRowObjects()
 
 	/**
-	 * A thrown exception from findAll() is caught inside findDeclarations():
-	 * getActiveConflicts() degrades to null instead of propagating.
+	 * A thrown exception from findAll() fails closed: getActiveConflicts()
+	 * throws instead of answering null, which would read as "no declaration"
+	 * and let a recused member vote.
 	 *
 	 * @return void
 	 */
-	public function testGetActiveConflictsReturnsNullWhenFindAllThrows(): void {
+	public function testGetActiveConflictsThrowsWhenFindAllThrows(): void {
 		$logger = $this->createMock(LoggerInterface::class);
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willThrowException(new \RuntimeException('OpenRegister unavailable'));
@@ -578,9 +579,11 @@ class ConflictOfInterestServiceTest extends TestCase {
 			authorizationGuard: $this->createMock(ConflictOfInterestAuthorizationGuard::class),
 		);
 
-		$this->assertNull($service->getActiveConflicts('m1', 'a1'));
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('could not be read');
+		$service->getActiveConflicts('m1', 'a1');
 
-	}//end testGetActiveConflictsReturnsNullWhenFindAllThrows()
+	}//end testGetActiveConflictsThrowsWhenFindAllThrows()
 
 	/**
 	 * declare() allows the caller to record a declaration about themselves —

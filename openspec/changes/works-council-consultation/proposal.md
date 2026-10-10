@@ -88,3 +88,9 @@ Revert the PR: removing the register.d and manifest.d fragments de-registers the
 
 - Whether the `x-openregister-calculations` dialect supports date arithmetic (+1 month) for `opschortingTot` (see Risk 2); resolved during implementation against OpenRegister's calculation resolver.
 - Rappel window before `requestedResponseDate` (provisional: 14 days before, weekly after) — griffie/ambtelijk-secretaris tuning deferred to a future admin-settings change.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- rou-09: Consult the works council on a proposed decision within the legal terms.

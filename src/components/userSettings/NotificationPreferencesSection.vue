@@ -150,6 +150,7 @@ export default {
 				taskAssigned: true,
 				commentMention: true,
 				meetingReminder: true,
+				agendaChanged: true,
 				reminderTimes: [...DEFAULT_REMINDER_TIMES],
 			},
 
@@ -184,6 +185,10 @@ export default {
 				{
 					key: 'meetingReminder',
 					label: this.t('decidiq', 'Meeting reminder'),
+				},
+				{
+					key: 'agendaChanged',
+					label: this.t('decidiq', 'Agenda published or changed'),
 				},
 			]
 		},
@@ -234,6 +239,7 @@ export default {
 				'taskAssigned',
 				'commentMention',
 				'meetingReminder',
+				'agendaChanged',
 			]) {
 				if (typeof pref[key] === 'boolean') {
 					this.form[key] = pref[key]

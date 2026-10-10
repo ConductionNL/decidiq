@@ -38,7 +38,7 @@
 
 		<template v-else>
 			<h3 class="decidiq-tab__title">
-				{{ t('decidiq', 'Public publication') }}
+				{{ title || t('decidiq', 'Public publication') }}
 			</h3>
 
 			<p
@@ -68,7 +68,7 @@
 					data-testid="publication-publish"
 					:disabled="working"
 					@click="publish">
-					{{ t('decidiq', 'Publish') }}
+					{{ publishLabel || t('decidiq', 'Publish') }}
 				</NcButton>
 				<NcButton
 					v-if="activeRecord"
@@ -164,6 +164,10 @@ export default {
 		objectId: { type: [String, Number], default: '' },
 		// The publication source type — set by the per-schema wrapper tab.
 		sourceType: { type: String, default: 'decision' },
+		/** The heading; the default reads "Public publication". */
+		title: { type: String, default: '' },
+		/** The publish button's label; the default reads "Publish". */
+		publishLabel: { type: String, default: '' },
 	},
 
 	data() {
@@ -244,6 +248,10 @@ export default {
 				return ['approved', 'signed', 'published'].includes(
 					this.source.lifecycle,
 				)
+			}
+			if (this.sourceType === 'activity') {
+				// A calendar entry needs a public meeting, not a convocation.
+				return this.source.isPublic === true
 			}
 			return false
 		},
@@ -342,7 +350,9 @@ export default {
 		 * @spec openspec/specs/public-publication/spec.md
 		 */
 		sourceSchemaType() {
-			return this.sourceType === 'agenda' ? 'meeting' : this.sourceType
+			return ['agenda', 'activity'].includes(this.sourceType)
+				? 'meeting'
+				: this.sourceType
 		},
 
 		/**

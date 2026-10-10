@@ -20,7 +20,7 @@
 				{{ t('decidiq', 'No active voting round.') }}
 			</p>
 			<NcButton
-				v-if="motionLifecycle === 'deliberating'"
+				v-if="motionLifecycle === 'deliberating' && permissions.canOpen"
 				variant="primary"
 				:disabled="!meetingId"
 				:title="
@@ -53,7 +53,71 @@
 					<option value="weighted">
 						{{ t('decidiq', 'Weighted vote') }}
 					</option>
+					<option value="ranked-choice">
+						{{ t('decidiq', 'Ranked preference (Borda count)') }}
+					</option>
 				</select>
+				<!-- Options of a ranked round (REQ-PRF-001, issue #1419) -->
+				<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice -->
+				<fieldset
+					v-if="newRound.votingMethod === 'ranked-choice'"
+					class="decidiq-ranked-options"
+					data-testid="ranked-options-editor">
+					<legend>{{ t('decidiq', 'Options to rank') }}</legend>
+					<div
+						v-for="(option, index) in newRound.options"
+						:key="index"
+						class="decidiq-ranked-options__row">
+						<NcTextField
+							v-model="option.label"
+							:label="
+								t('decidiq', 'Option {number}', {
+									number: index + 1,
+								})
+							"
+							:data-testid="`ranked-option-${index}`" />
+						<NcSelect
+							:modelValue="personPickFor(option)"
+							:options="personOptions"
+							:loading="loadingPeople"
+							:inputLabel="
+								t(
+									'decidiq',
+									'Person for option {number} (optional)',
+									{
+										number: index + 1,
+									},
+								)
+							"
+							:data-testid="`ranked-option-person-${index}`"
+							@update:modelValue="
+								(pick) =>
+									newRound.options.splice(
+										index,
+										1,
+										pickPerson(option, pick),
+									)
+							" />
+						<NcButton
+							variant="tertiary"
+							:aria-label="
+								t('decidiq', 'Remove option {number}', {
+									number: index + 1,
+								})
+							"
+							:disabled="newRound.options.length <= 2"
+							@click="newRound.options.splice(index, 1)">
+							{{ t('decidiq', 'Remove') }}
+						</NcButton>
+					</div>
+					<NcButton
+						variant="secondary"
+						data-testid="ranked-option-add"
+						:disabled="newRound.options.length >= 20"
+						@click="newRound.options.push({ label: '' })">
+						{{ t('decidiq', 'Add option') }}
+					</NcButton>
+				</fieldset>
 				<label>
 					<input v-model="newRound.isSecret" type="checkbox" />
 					{{ t('decidiq', 'Secret ballot') }}
@@ -67,6 +131,9 @@
 					id="voteThreshold"
 					v-model="newRound.voteThreshold"
 					data-testid="vote-threshold-select">
+					<option value="">
+						{{ t('decidiq', "The body's rule") }}
+					</option>
 					<option
 						v-for="value in voteThresholdOptions"
 						:key="value"
@@ -81,6 +148,9 @@
 					id="abstentionHandling"
 					v-model="newRound.abstentionHandling"
 					data-testid="abstention-handling-select">
+					<option value="">
+						{{ t('decidiq', "The body's rule") }}
+					</option>
 					<option
 						v-for="value in abstentionModeOptions"
 						:key="value"
@@ -95,8 +165,11 @@
 					id="tieBreakRule"
 					v-model="newRound.tieBreakRule"
 					data-testid="tie-break-rule-select">
+					<option value="">
+						{{ t('decidiq', "The body's rule") }}
+					</option>
 					<option
-						v-for="value in tieBreakRuleOptions"
+						v-for="value in openTieBreakRuleOptions"
 						:key="value"
 						:value="value">
 						{{ labels.tieBreakRule[value] }}
@@ -170,10 +243,23 @@
 
 			<!-- Vote casting buttons -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
+			<!-- Ranked ballot (REQ-PRF-002, issue #1419) -->
+			<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting -->
+			<template v-if="isRoundOpen && isRankedRound && !voteCast">
+				<RankedBallot
+					:options="currentRound.options || []"
+					:busy="castingRanking"
+					@submit="castRanking" />
+				<p v-if="castVoteError" class="decidiq-error" role="alert">
+					{{ castVoteError }}
+				</p>
+			</template>
+
 			<div
 				v-if="
 					isRoundOpen
 					&& currentRound.votingMethod !== 'show-of-hands'
+					&& !isRankedRound
 					&& !voteCast
 				"
 				class="decidiq-vote-buttons">
@@ -223,11 +309,11 @@
 					{{
 						t('decidiq', 'Cast: {cast} / {total}', {
 							cast: tallyTotal,
-							total: participantCount,
+							total: eligibleVoters,
 						})
 					}}
 				</p>
-				<template v-if="isChairOrSecretary">
+				<template v-if="isChairOrSecretary && !isRankedRound">
 					<p>
 						{{
 							t(
@@ -331,7 +417,9 @@
 					<strong>{{ t('decidiq', 'Result:') }}</strong>
 					<CnStatusBadge :status="currentRound.result" />
 				</p>
-				<p>
+				<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-004-ranked-results-are-displayed-as-a-ranking-table -->
+				<RankedResultsCard v-if="isRankedRound" :round="currentRound" />
+				<p v-else>
 					{{
 						t(
 							'decidiq',
@@ -368,7 +456,7 @@
 					v-if="
 						currentRound.result === 'tied'
 						&& activeRules.tieBreakRule === 'chair-decides'
-						&& isChairOrSecretary
+						&& permissions.canCastChairVote
 					"
 					class="decidiq-chair-casting"
 					data-testid="chair-casting-controls">
@@ -461,9 +549,21 @@
 
 <script>
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
-import { NcButton, NcTextField } from '@nextcloud/vue'
-import { useObjectStore, useSettingsStore } from '../store/store.js'
+import { generateUrl } from '@nextcloud/router'
+import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import RankedBallot from './RankedBallot.vue'
+import RankedResultsCard from './RankedResultsCard.vue'
+import { useObjectStore } from '../store/store.js'
+import { eligibleCount } from '../utils/conflicts.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
+import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
+import {
+	chosenRules,
+	NO_VOTING_PERMISSIONS,
+	readVotingPermissions,
+	votingPermissionsPath,
+	votingRoundBody,
+} from '../utils/votingPermissions.js'
 import {
 	ABSTENTION_MODES,
 	computeBase,
@@ -472,21 +572,39 @@ import {
 	TIE_BREAK_RULES,
 	VOTE_THRESHOLDS,
 } from '../utils/votingRules.js'
+import { ensureRelationType } from './tabs/useRelationStore.js'
 
 export default {
 	name: 'VotingRoundPanel',
-	components: { CnDetailCard, CnStatusBadge, NcButton, NcTextField },
+	components: {
+		CnDetailCard,
+		CnStatusBadge,
+		NcButton,
+		NcSelect,
+		NcTextField,
+		RankedBallot,
+		RankedResultsCard,
+	},
+
 	props: {
+		// The subject's id: a motion, or an amendment when subjectType is
+		// 'amendment' (the server names it motionId for both).
 		motionId: { type: String, required: true },
 		motionLifecycle: { type: String, default: '' },
 		meetingId: { type: String, default: '' },
+		/** The agenda item the motion is tabled under: its recusals count too (bod-10) */
+		agendaItemId: { type: String, default: '' },
+		subjectType: {
+			type: String,
+			default: 'motion',
+			validator: (value) => ['motion', 'amendment'].includes(value),
+		},
 	},
 
 	/** @spec exclude setup() only wires the shared object + settings store refs; no domain logic */
 	setup() {
 		const objectStore = useObjectStore()
-		const settingsStore = useSettingsStore()
-		return { objectStore, settingsStore }
+		return { objectStore }
 	},
 
 	data() {
@@ -508,19 +626,44 @@ export default {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
 				closedAt: '',
-				voteThreshold: 'simple-majority',
-				abstentionHandling: 'exclude',
-				tieBreakRule: 'rejected',
+				// Empty means "the body's rule": the server fills it from the
+				// meeting's governance body (meeting-rules-from-body-and-type).
+				voteThreshold: '',
+				abstentionHandling: '',
+				tieBreakRule: '',
+				options: [{ label: '' }, { label: '' }],
 			},
 
+			personOptions: [],
+			loadingPeople: false,
+
 			revoteOfRoundId: null,
+			castingRanking: false,
 			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
+			declarations: [],
+			// The server's answer on which controls this user may use
+			// (REQ-VCR-002); every control hidden until it arrives.
+			permissions: { ...NO_VOTING_PERMISSIONS },
 		}
 	},
 
 	computed: {
+		/**
+		 * The members who may vote: participants minus those recused on the
+		 * motion or its agenda item (bod-10).
+		 *
+		 * @return {number}
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+		 */
+		eligibleVoters() {
+			return eligibleCount(this.participantCount, this.declarations, [
+				this.motionId,
+				this.agendaItemId,
+			])
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
@@ -546,8 +689,14 @@ export default {
 			)
 		},
 
+		/**
+		 * Chair or secretary of this round's meeting, as the server answers it.
+		 *
+		 * @return {boolean} True when the close, split, revote and publish controls show.
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+		 */
 		isChairOrSecretary() {
-			return this.settingsStore.isAdmin === true
+			return this.permissions.canClose
 		},
 
 		/** Rule enum option lists for the open-round dialog. @spec openspec/specs/voting-system/spec.md */
@@ -563,6 +712,31 @@ export default {
 		/** @spec openspec/specs/voting-system/spec.md */
 		tieBreakRuleOptions() {
 			return TIE_BREAK_RULES
+		},
+
+		/**
+		 * Tie-break rules the open dialog offers: a ranked round cannot use
+		 * chair-decides, because a casting vote cannot name an option.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @return {Array<string>} The rules
+		 */
+		openTieBreakRuleOptions() {
+			if (this.newRound.votingMethod !== 'ranked-choice') {
+				return TIE_BREAK_RULES
+			}
+			return TIE_BREAK_RULES.filter((rule) => rule !== 'chair-decides')
+		},
+
+		/**
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+		 * @return {boolean} Whether the displayed round is a ranked preference round
+		 */
+		isRankedRound() {
+			return (
+				this.currentRound?.votingMethod === 'ranked-choice'
+				&& (this.currentRound?.options || []).length > 0
+			)
 		},
 
 		/** Translated labels per rule enum value. @spec openspec/specs/voting-system/spec.md */
@@ -607,8 +781,32 @@ export default {
 		},
 	},
 
+	watch: {
+		/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
+		meetingId() {
+			this.loadPermissions()
+		},
+
+		/**
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @param {string} method The picked voting method
+		 */
+		'newRound.votingMethod': function (method) {
+			if (
+				method === 'ranked-choice'
+				&& this.newRound.tieBreakRule === 'chair-decides'
+			) {
+				this.newRound.tieBreakRule = 'rejected'
+			}
+			if (method === 'ranked-choice') {
+				this.loadPeople()
+			}
+		},
+	},
+
 	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
+		this.loadPermissions()
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
 		this.pollInterval = setInterval(async () => {
@@ -626,6 +824,50 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * Ask the server once per meeting which voting controls this user may
+		 * use. Fail closed: an error leaves every control hidden.
+		 *
+		 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+		 */
+		async loadPermissions() {
+			try {
+				const resp = await fetch(
+					OC.generateUrl(votingPermissionsPath(this.meetingId)),
+					{ headers: { Accept: 'application/json' } },
+				)
+				this.permissions = resp.ok
+					? readVotingPermissions(await resp.json())
+					: { ...NO_VOTING_PERMISSIONS }
+			} catch {
+				this.permissions = { ...NO_VOTING_PERMISSIONS }
+			}
+		},
+
+		/**
+		 * Load the declarations on the motion and its agenda item; a failure
+		 * leaves the count at all participants.
+		 *
+		 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+		 */
+		async loadDeclarations() {
+			try {
+				const store = ensureRelationType('conflict-of-interest')
+				const ids = [this.motionId, this.agendaItemId].filter(Boolean)
+				const lists = await Promise.all(
+					ids.map((id) =>
+						store.fetchCollection('conflict-of-interest', {
+							agendaItem: id,
+							_limit: 100,
+						}),
+					),
+				)
+				this.declarations = lists.flat().filter(Boolean)
+			} catch {
+				this.declarations = []
+			}
+		},
+
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
@@ -671,7 +913,8 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
-			} catch (e) {
+				await this.loadDeclarations()
+			} catch {
 				this.currentRound = null
 			} finally {
 				this.loading = false
@@ -711,7 +954,7 @@ export default {
 					this.castVoteError =
 						data.message || this.t('decidiq', 'Failed to cast vote')
 				}
-			} catch (e) {
+			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			}
 		},
@@ -730,15 +973,17 @@ export default {
 							requesttoken: OC.requestToken,
 						},
 						body: JSON.stringify({
-							motionId: this.motionId,
-							meetingId: this.meetingId,
+							...votingRoundBody({
+								subjectId: this.motionId,
+								subjectType: this.subjectType,
+								meetingId: this.meetingId,
+							}),
 							votingMethod: this.newRound.votingMethod,
 							isSecret: this.newRound.isSecret,
 							closedAt: this.newRound.closedAt || null,
-							voteThreshold: this.newRound.voteThreshold,
-							abstentionHandling: this.newRound.abstentionHandling,
-							tieBreakRule: this.newRound.tieBreakRule,
+							...chosenRules(this.newRound),
 							revoteOfRound: this.revoteOfRoundId || null,
+							options: this.rankedOptions(),
 						}),
 					},
 				)
@@ -753,13 +998,118 @@ export default {
 						data.message
 						|| this.t('decidiq', 'Failed to open voting round')
 				}
-			} catch (e) {
+			} catch {
 				this.openRoundError = this.t(
 					'decidiq',
 					'Failed to open voting round',
 				)
 			} finally {
 				this.openingRound = false
+			}
+		},
+
+		/**
+		 * The options of a ranked round as the server stores them: a key made
+		 * from each label (unique within the round), the label and the picked
+		 * Person, if any. Empty for every other method, which takes no options.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @return {Array<{key: string, label: string, person?: string}>} The options
+		 */
+		rankedOptions() {
+			if (this.newRound.votingMethod !== 'ranked-choice') {
+				return []
+			}
+			return rankedOptionsFrom(this.newRound.options)
+		},
+
+		/**
+		 * The People a chair can pick as ranked options, loaded once when the
+		 * ranked method is first picked. A failed load leaves the picker empty;
+		 * typed labels still work.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 */
+		async loadPeople() {
+			if (this.personOptions.length > 0 || this.loadingPeople) {
+				return
+			}
+			this.loadingPeople = true
+			try {
+				const people = await this.objectStore.fetchCollection('person', {
+					_limit: 500,
+				})
+				this.personOptions = (Array.isArray(people) ? people : [])
+					.filter(
+						(person) =>
+							person && (person.id || person.uuid) && person.name,
+					)
+					.map((person) => ({
+						id: person.id || person.uuid,
+						label: person.name,
+					}))
+					.sort((a, b) => a.label.localeCompare(b.label))
+			} catch {
+				this.personOptions = []
+			} finally {
+				this.loadingPeople = false
+			}
+		},
+
+		/**
+		 * The picker's value for an editor row.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+		 * @param {{person?: string}} option The editor row
+		 * @return {object|null} The picked person option
+		 */
+		personPickFor(option) {
+			const id = String(option?.person || '')
+			return id === ''
+				? null
+				: this.personOptions.find((person) => person.id === id) || {
+						id,
+						label: option.label || id,
+					}
+		},
+
+		pickPerson,
+
+		/**
+		 * Cast a ranked ballot.
+		 *
+		 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+		 * @param {Array<string>} ranking The option keys, first preference first
+		 */
+		async castRanking(ranking) {
+			this.castVoteError = null
+			this.castingRanking = true
+			try {
+				const resp = await fetch(
+					generateUrl(
+						`/apps/decidiq/api/voting-rounds/${this.roundId}/cast`,
+					),
+					{
+						method: 'POST',
+						headers: {
+							'Content-Type': 'application/json',
+							requesttoken: OC.requestToken,
+						},
+						body: JSON.stringify({ ranking, isProxy: false }),
+					},
+				)
+				if (resp.ok) {
+					this.voteCast = true
+					await this.fetchCurrentRound()
+				} else {
+					const data = await resp.json()
+					this.castVoteError =
+						data.message || this.t('decidiq', 'Failed to cast vote')
+				}
+			} catch {
+				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
+			} finally {
+				this.castingRanking = false
 			}
 		},
 
@@ -782,7 +1132,7 @@ export default {
 				if (resp.ok) {
 					await this.fetchCurrentRound()
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -817,7 +1167,7 @@ export default {
 					this.chairCastingError =
 						data.message || this.t('decidiq', 'Casting vote failed')
 				}
-			} catch (e) {
+			} catch {
 				this.chairCastingError = this.t('decidiq', 'Casting vote failed')
 			}
 		},
@@ -839,6 +1189,10 @@ export default {
 				voteThreshold: rules.voteThreshold,
 				abstentionHandling: rules.abstentionHandling,
 				tieBreakRule: rules.tieBreakRule,
+				// The server offers a ranked revote the tied options only.
+				options: (this.currentRound?.options || []).map((option) => ({
+					label: option.label,
+				})),
 			}
 			this.revoteOfRoundId = this.roundId
 			this.openRoundError = null
@@ -874,7 +1228,7 @@ export default {
 				if (resp.ok) {
 					await this.fetchCurrentRound()
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -902,7 +1256,7 @@ export default {
 					this.activeProxy = this.proxyToId
 					this.showProxyDialog = false
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -926,7 +1280,7 @@ export default {
 				if (resp.ok) {
 					this.activeProxy = null
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},
@@ -950,7 +1304,7 @@ export default {
 					const data = await resp.json()
 					this.oriStatus = data.status
 				}
-			} catch (e) {
+			} catch {
 				// ignore
 			}
 		},

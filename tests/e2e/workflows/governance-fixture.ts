@@ -29,6 +29,7 @@
  */
 import type { Page } from '@playwright/test'
 
+import { randomInt } from 'node:crypto'
 import { BASE_URL as BASE } from '../base-url.ts'
 
 const OR = `${BASE}/index.php/apps/openregister/api/objects/decidiq`
@@ -68,6 +69,7 @@ export const MOTION_SCHEMA = 'decision'
  * respectively) so the child rows delete first.
  */
 const TEARDOWN_ORDER = [
+	'governance-commitment',
 	'vote',
 	'voting-round',
 	'decision',
@@ -81,10 +83,11 @@ const TEARDOWN_ORDER = [
 	'participant',
 	'meeting',
 	'governance-body',
+	'person',
 ]
 
 export function newLedger(): SeedLedger {
-	const runId = `${Date.now()}-${Math.floor(Math.random() * 1e4)}`
+	const runId = `${Date.now()}-${randomInt(10_000)}`
 	return { runId, created: {} }
 }
 

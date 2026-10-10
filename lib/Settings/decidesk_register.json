@@ -3,7 +3,7 @@
   "info": {
     "title": "Decidiq Register",
     "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release.",
-    "version": "0.13.0"
+    "version": "0.14.0"
   },
   "x-openregister": {
     "type": "application",
@@ -4409,45 +4409,72 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "transitions": {
-            "draft": [
-              "open",
-              "published",
-              "proposals-open",
-              "closed"
-            ],
-            "open": [
-              "closed"
-            ],
-            "proposals-open": [
-              "voting",
-              "closed"
-            ],
-            "voting": [
-              "closed"
-            ],
-            "published": [
-              "questions",
-              "submission",
-              "evaluation"
-            ],
-            "questions": [
-              "submission"
-            ],
-            "submission": [
-              "evaluation"
-            ],
-            "evaluation": [
-              "awarded"
-            ],
-            "closed": [
-              "results-published",
-              "report-published"
-            ],
-            "results-published": [],
-            "report-published": [],
-            "awarded": []
-          }
+          "transitions": [
+            {
+              "from": "draft",
+              "to": "open"
+            },
+            {
+              "from": "draft",
+              "to": "published"
+            },
+            {
+              "from": "draft",
+              "to": "proposals-open"
+            },
+            {
+              "from": "draft",
+              "to": "closed"
+            },
+            {
+              "from": "open",
+              "to": "closed"
+            },
+            {
+              "from": "proposals-open",
+              "to": "voting"
+            },
+            {
+              "from": "proposals-open",
+              "to": "closed"
+            },
+            {
+              "from": "voting",
+              "to": "closed"
+            },
+            {
+              "from": "published",
+              "to": "questions"
+            },
+            {
+              "from": "published",
+              "to": "submission"
+            },
+            {
+              "from": "published",
+              "to": "evaluation"
+            },
+            {
+              "from": "questions",
+              "to": "submission"
+            },
+            {
+              "from": "submission",
+              "to": "evaluation"
+            },
+            {
+              "from": "evaluation",
+              "to": "awarded"
+            },
+            {
+              "from": "closed",
+              "to": "results-published"
+            },
+            {
+              "from": "closed",
+              "to": "report-published"
+            }
+          ]
         }
       },
       "ConsultationReaction": {

@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\PublicationService;
 use OCA\Decidiq\Service\PublicationStaffGuard;
@@ -67,9 +68,12 @@ class PublicationController extends Controller {
 	 * Publish an eligible decision / agenda / minutes object.
 	 *
 	 * POST /api/publications
-	 * Body: { sourceType: decision|agenda|minutes, sourceId: <uuid> }
+	 * Body: { sourceType: decision|agenda|minutes|activity, sourceId: <uuid> }
+	 *
+	 * An activity is a public meeting on the residents' calendar.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
 	 *
 	 * @return JSONResponse
 	 */
@@ -82,8 +86,8 @@ class PublicationController extends Controller {
 
 		$sourceType = (string)$this->request->getParam('sourceType', '');
 		$sourceId = (string)$this->request->getParam('sourceId', '');
-		if (in_array($sourceType, ['decision', 'agenda', 'minutes'], true) === false || $sourceId === '') {
-			return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
+		if (in_array($sourceType, ['decision', 'agenda', 'minutes', 'activity'], true) === false || $sourceId === '') {
+			return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes|activity) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
 		}
 
 		$denied = $this->requireStaffForSource(sourceType: $sourceType, sourceId: $sourceId);
@@ -98,6 +102,8 @@ class PublicationController extends Controller {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		} catch (MissingObjectException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (ConfidentialityUnreadableException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		} catch (\Throwable $e) {
 			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}
@@ -179,6 +185,8 @@ class PublicationController extends Controller {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
 		} catch (MissingObjectException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (ConfidentialityUnreadableException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_SERVICE_UNAVAILABLE);
 		} catch (\Throwable $e) {
 			return new JSONResponse(['message' => 'Internal server error.'], Http::STATUS_INTERNAL_SERVER_ERROR);
 		}

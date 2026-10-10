@@ -297,8 +297,8 @@
               "intervalSec": 1209600,
               "filter": {
                 "status": [
-                  "uitstaand",
-                  "in-voorbereiding"
+                  "outstanding",
+                  "in-preparation"
                 ]
               }
             },
@@ -330,8 +330,8 @@
               "intervalSec": 604800,
               "filter": {
                 "status": [
-                  "uitstaand",
-                  "in-voorbereiding"
+                  "outstanding",
+                  "in-preparation"
                 ]
               }
             },

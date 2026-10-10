@@ -74,8 +74,8 @@
               }
             ],
             "subject": {
-              "nl": "Rappel: bevoegdheidstoedeling verloopt binnen 60 dagen — {{onderwerp}}",
-              "en": "Reminder: authorization expires within 60 days — {{onderwerp}}"
+              "nl": "Rappel: bevoegdheidstoedeling verloopt binnen 60 dagen — {{subject}}",
+              "en": "Reminder: authorization expires within 60 days — {{subject}}"
             },
             "_note": "Pre-expiry rappel at ~60 days (REQ-DMR-007). intervalSec 5184000 (~60 days) is PROVISIONAL (design open question — griffie-configurable tuning deferred). Filter targets status van-kracht only, so no notification fires for concept/ingetrokken/vervallen or for a toedeling without geldigTot; the 'geldigTot within window' comparison is carried by the scheduled engine's window semantics, which the simple filter shape cannot express as a date comparison — verify OR's scheduled-notification engine interprets these two triggers as 60-day/14-day before-expiry rappels during live import."
           },
@@ -104,8 +104,8 @@
               }
             ],
             "subject": {
-              "nl": "Rappel: bevoegdheidstoedeling verloopt binnen 14 dagen — {{onderwerp}}",
-              "en": "Reminder: authorization expires within 14 days — {{onderwerp}}"
+              "nl": "Rappel: bevoegdheidstoedeling verloopt binnen 14 dagen — {{subject}}",
+              "en": "Reminder: authorization expires within 14 days — {{subject}}"
             },
             "_note": "Pre-expiry rappel at ~14 days (REQ-DMR-007). intervalSec 1209600 (~14 days) is PROVISIONAL. Filters status van-kracht so no notification fires for terminal or open-ended (no geldigTot) toedelingen. Same window-semantics caveat as bevoegdheidExpiry60. Recipients approximate 'the responsible staff group' via object-acl (read) + decidesk-members group."
           }

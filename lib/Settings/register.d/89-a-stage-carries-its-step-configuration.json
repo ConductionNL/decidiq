@@ -1,0 +1,60 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process, reachability prerequisite. thresholdKind, thresholdValue, approvalBasis and stepKind existed ONLY on the ApprovalRoute step, which is the template. A running DecisionStage carried none of them, so the three services that read a step's configuration (ApprovalThresholdCalculator, ApprovalBasisWatcher, AdmissibilityVerdictService) had nothing to read even once they were called. This puts the four fields on the stage so the configuration travels with the work. Every one keeps the route step's own default, so no stored stage changes meaning. See openspec/changes/the-decision-as-a-walked-process/reachability-scope.md.",
+  "components": {
+    "schemas": {
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "version": "1.3.0",
+        "description": "Patched by the-decision-as-a-walked-process: a stage carries the step configuration it is running under, instead of leaving it on the template where nothing at runtime could read it.",
+        "properties": {
+          "thresholdKind": {
+            "title": "Threshold kind",
+            "type": "string",
+            "enum": [
+              "all",
+              "count",
+              "share"
+            ],
+            "default": "all",
+            "example": "share",
+            "description": "How many of a step's approvers have to grant before it closes. `all` is today's behaviour and stays the default, so no stored route changes meaning. COPIED onto the stage at instantiation, not read back off the route: editing a route must never change what a stage already in flight means, which is the same rule actorRule and onSilence follow (REQ-AR-012)."
+          },
+          "thresholdValue": {
+            "title": "Threshold value",
+            "type": "number",
+            "minimum": 0,
+            "example": 0.6,
+            "description": "The count, or the share between 0 and 1. Ignored when the kind is `all`. COPIED onto the stage at instantiation, not read back off the route: editing a route must never change what a stage already in flight means, which is the same rule actorRule and onSilence follow (REQ-AR-012)."
+          },
+          "approvalBasis": {
+            "title": "Approval basis",
+            "type": "array",
+            "description": "The property paths on the subject that this step's approvers are actually approving. When one of them changes after a grant, the grant is withdrawn and the step reopens, because an approval of a document that has since been rewritten is not an approval of the document in front of you. An EMPTY basis never withdraws anything, which is what keeps this opt-in (REQ-DWP-003). COPIED onto the stage at instantiation, not read back off the route: editing a route must never change what a stage already in flight means, which is the same rule actorRule and onSilence follow (REQ-AR-012).",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "body",
+              "attachments"
+            ]
+          },
+          "stepKind": {
+            "title": "Step kind",
+            "type": "string",
+            "enum": [
+              "approval",
+              "intake",
+              "committee"
+            ],
+            "default": "approval",
+            "example": "intake",
+            "description": "What kind of step this is beyond its stage type. `intake` is the admissibility test: it yields a verdict rather than an approval, and a `niet-ontvankelijk` verdict ends the route where it stands (REQ-DWP-004). COPIED onto the stage at instantiation, not read back off the route: editing a route must never change what a stage already in flight means, which is the same rule actorRule and onSilence follow (REQ-AR-012)."
+          }
+        }
+      }
+    }
+  }
+}

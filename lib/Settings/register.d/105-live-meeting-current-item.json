@@ -1,0 +1,22 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change live-meeting-shared-current-item (REQ-LSC-001, matrix rows liv-01 liv-04 liv-05 liv-11). The chair's current agenda item is saved on the meeting so members' live screens and the room screen follow it.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.9.0",
+        "properties": {
+          "currentAgendaItem": {
+            "title": "Current agenda item",
+            "type": "string",
+            "format": "uuid",
+            "description": "The agenda item the chair is dealing with now. Members' live screens and the room screen follow it."
+          }
+        }
+      }
+    }
+  }
+}

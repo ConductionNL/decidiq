@@ -227,7 +227,7 @@ class EIDASSignatureControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
 	 */
 	public function testVerifyReturnsForbiddenWhenNotASignatory(): void {
 		$service = $this->createMock(IEIDASSignatureService::class);
@@ -260,7 +260,7 @@ class EIDASSignatureControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 */
 	public function testFinalizeReturnsForbiddenWhenNotASignatory(): void {
 		$service = $this->createMock(IEIDASSignatureService::class);
@@ -290,7 +290,7 @@ class EIDASSignatureControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 */
 	public function testSignatoryIsAllowedAndTheGuardIsAskedAboutTheRoutedMinutes(): void {
 		$request = $this->createMock(IRequest::class);
@@ -419,7 +419,7 @@ class EIDASSignatureControllerTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
 	 */
 	public function testCertStatusStaysOpenToAnyAuthenticatedCaller(): void {
 		$service = $this->createMock(IEIDASSignatureService::class);

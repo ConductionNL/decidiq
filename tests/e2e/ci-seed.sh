@@ -169,6 +169,30 @@ if [ -f ./occ ]; then
 		exit 1
 	fi
 
+	# ── 0a. THE SUITE RUNS AGAINST THE FULL STRUCTURE ────────────────────────
+	#
+	# decidiq ships two structures from one manifest (simple-structure-profile).
+	# `simple` is the default: eight menu entries. The specs here were written
+	# against the full menu and reach pages through it (the entries nested
+	# under Decisions, Tasks & Commitments, Organisation and Registers), so the
+	# CI instance is put on `full`, the same switch an administrator has.
+	# `simple-structure-menu.spec.ts` turns the setting to `simple` for its own
+	# run and puts back what it found.
+	#
+	# Only here, never in global-setup: this script runs on a throwaway CI
+	# instance, and global-setup also runs against a shared instance people use.
+	if ! php ./occ config:app:set decidiq menu_structure --value=full >/dev/null; then
+		echo "::error::could not set decidiq menu_structure=full. The suite would run against the simple menu, and every spec that walks the full navigation would fail naming a missing entry rather than this step."
+		exit 1
+	fi
+	MENU_VALUE="$(php ./occ config:app:get decidiq menu_structure 2>/dev/null \
+		| grep -v '^[[:space:]]*$' | tail -1 | tr -d '[:space:]' || true)"
+	echo "[ci-seed] decidiq menu_structure -> '${MENU_VALUE}'"
+	if [ "$MENU_VALUE" != "full" ]; then
+		echo "::error::decidiq menu_structure reads '${MENU_VALUE}' after being set to full."
+		exit 1
+	fi
+
 	# ── 0a-bis. A VTODO-CAPABLE CALENDAR MUST EXIST FOR THE ACTING USER ──────
 	#
 	# Action items ARE CalDAV VTODOs (ADR-002): ActionItemWriter hands the write
@@ -1051,11 +1075,9 @@ echo "[ci-seed] done."
 # treated it as one. Tolerance that cannot distinguish "this app has no such
 # step" from "this app renamed it" is not tolerance, it is blindness.
 #
-# `example_profile=none` rather than the skip action, because it closes BOTH
-# steps: status() reports `example-set.done` from `$picked !== ''` and
-# `load-example-set.done` from `$picked === NONE_PROFILE`. The skip action
-# writes only DEMO_DECIDED_KEY and would leave `example-set` open — still
-# enough wizard to mask every click.
+# `example_profile=none` closes the step: status() reports `example-set.done`
+# once a pick is stored. Since wizard-dataset-card-load the cards load
+# themselves, so there is no separate `load-example-set` step to close.
 # 🔴 `${BASE}`, NOT ITS OWN RESOLUTION. This line used to read
 # `${BASE_URL:-${NEXTCLOUD_URL:-http://localhost:8080}}`, which ignores
 # PLAYWRIGHT_BASE_URL and falls back to the SHARED dev container — the exact
@@ -1086,7 +1108,7 @@ try:
     s = json.load(sys.stdin).get("steps", {})
 except Exception:
     sys.exit(1)
-sys.exit(0 if all(s.get(k, {}).get("done") for k in ("example-set", "load-example-set")) else 1)'; then
+sys.exit(0 if "example-set" in s and all(v.get("done") for v in s.values()) else 1)'; then
 	echo "[ci-seed] setup steps report done — the wizard will not mask the suite."
 else
 	echo "[ci-seed] ERROR: setup steps are NOT done after seeding." >&2

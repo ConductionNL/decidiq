@@ -20,6 +20,7 @@ Resolutions and minutes are the formal output of the decision-making process. A 
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Resolution and Minutes entity definitions including property tables and standards mappings.
+
 ## Requirements
 
 ---
@@ -215,6 +216,20 @@ The minute-taking editor SHALL support initialization from an AI-generated draft
 @e2e exclude metadata-retention contract — covered by PHPUnit on the minutes record
 - **WHEN** AI-initialized minutes reach `approved`
 - **THEN** the minutes record still carries the generation provenance (provider id, generated-at, sections accepted as generated vs. rewritten)
+
+### Requirement: REQ-AMP-005 The minutes page carries the per-item minutes editor
+
+The minutes page SHALL show a widget with one note field per regular agenda item of the minutes' meeting, backed by the same `MinutesPanel` component and the same `itemNotes` property the live screen uses. The fields SHALL be editable while the minutes are in draft and read-only once the minutes are submitted, approved or signed.
+
+#### Scenario: The secretary writes the minutes after the meeting
+- GIVEN draft minutes of a meeting with the items Opening, Budget and Any other business
+- WHEN the secretary opens the minutes page and types "Adopted without a vote" under Budget
+- THEN the note is saved to the minutes and still shows after a reload
+
+#### Scenario: Approved minutes cannot be changed here
+- GIVEN minutes that the council approved on 1 November
+- WHEN the secretary opens the minutes page
+- THEN the per-item notes show as text and no field can be edited
 
 ## User Stories
 

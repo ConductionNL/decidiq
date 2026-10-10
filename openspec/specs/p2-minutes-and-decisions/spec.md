@@ -41,6 +41,12 @@ The system SHALL allow a secretary to transition draft minutes to `review` state
 - **THEN** `lifecycle` transitions to `review`
 - **AND** an audit trail entry is created recording the transition, user, and timestamp
 
+#### Scenario: The chair and secretary are told
+- **GIVEN** minutes of a meeting of body X, whose current chair is Anna and secretary is Bert, and body Y whose chair is Dirk
+- **WHEN** the minutes are submitted for approval
+- **THEN** Anna and Bert each get a notice "Minutes wait for your approval" linking the minutes, through their notification preferences
+- **AND** a plain member of X, a former chair of X and Dirk get nothing
+
 ### Requirement: REQ-ML-004 Approve minutes
 The system SHALL allow a chair or secretary to approve minutes in `review` state. On approval the `approvedAt` timestamp SHALL be set and the approver's display name SHALL be appended to `signedBy`. `version` SHALL increment by 1.
 
@@ -403,3 +409,30 @@ Named routes SHALL be registered in `src/router/index.js` for `Minutes` (`/minut
 #### Scenario: Route resolves to correct view
 - **WHEN** the user navigates to `/decisions/abc123`
 - **THEN** the `DecisionDetail` view is rendered with the Decision id `abc123`
+
+### Requirement: REQ-MDS-001 Draft minutes from the meeting
+
+The minutes page SHALL draft the minutes from the meeting's agenda, attendance, votes and decisions.
+
+#### Scenario: The secretary starts from a draft
+- GIVEN the meeting of 14 October had 27 present and 2 excused and took 4 decisions
+- WHEN the secretary presses Draft from the meeting
+- THEN the minutes list the attendance, each item, its votes and its decisions
+
+### Requirement: REQ-MDS-002 Use the AI draft as the minutes
+
+An AI draft from the transcript SHALL be writable into the minutes record, keeping only the sections the secretary kept.
+
+#### Scenario: The AI draft lands in the minutes
+- GIVEN an AI draft with six sections of which one was discarded
+- WHEN the secretary presses Use as minutes
+- THEN the minutes hold the five kept sections
+
+### Requirement: REQ-MDS-003 Send approved minutes to the members
+
+Approved minutes SHALL be sendable to the body members from the minutes page.
+
+#### Scenario: Members receive the minutes
+- GIVEN the minutes of 14 October were approved
+- WHEN the secretary presses Send to members
+- THEN each member is notified with a link to the minutes

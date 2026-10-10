@@ -56,10 +56,10 @@
 			"config": {
 				"register": "decidiq",
 				"schema": "planning-cycle",
-				"_note": "PlanningCycleDetail (REQ-PCC-009). The year-view timeline is a custom widget shipped in src/ (design D7); the Related widget lists the child CyclusStap objects in sequence order as the degrade-gracefully fallback. Progress (completedStepCount of stepCount) and overdueStepCount read from the REQ-PCC-001 declarative aggregations, never recomputed. No meeting/agenda/decision is created here.",
+				"_note": "PlanningCycleDetail (REQ-PCC-009). The year-view timeline is a custom widget shipped in src/ (design D7); the Steps widget (PlanningCycleStepsTab, planning-cycle-generate-from-template) lists the steps in sequence order with an Overdue badge. Progress (completedStepCount of stepCount) and overdueStepCount read from the REQ-PCC-001 declarative aggregations, never recomputed. No meeting/agenda/decision is created here.",
 				"widgets": [
 					{ "id": "cyclus-data", "type": "data", "title": "P&C cycle", "icon": "Calendar", "content": { "columns": 2 } },
-					{ "id": "cyclus-steps", "type": "related", "title": "Steps", "icon": "ClipboardCheckOutline" }
+					{ "id": "cyclus-steps", "type": "custom", "component": "PlanningCycleStepsTab", "title": "Steps", "icon": "ClipboardCheckOutline" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "cyclus-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 4 },

@@ -111,6 +111,61 @@ class MeetingService {
 	}//end getAvailableActions()
 
 	/**
+	 * Tell a caller the meeting's stage and the steps they may take from it.
+	 *
+	 * Runs the same state machine, domain rules and chair-only gate that
+	 * transition() runs, so a stage button shows exactly when the server would
+	 * accept the step. Quorum is left to the step itself: it can change between
+	 * reading the page and pressing the button, and its refusal says why.
+	 *
+	 * @param string $meetingId UUID of the meeting
+	 * @param string $userId    Nextcloud UID of the caller
+	 *
+	 * @return array{lifecycle: string, actions: string[]}|null Null when the caller cannot read the meeting
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	public function availableActionsFor(string $meetingId, string $userId): ?array {
+		try {
+			$entity = $this->objectService->find(id: $meetingId);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		if ($entity === null) {
+			return null;
+		}
+
+		$meetingData = $entity->getObject();
+		$lifecycle = (string)($meetingData['lifecycle'] ?? 'draft');
+		$domain = (string)($meetingData['domain'] ?? 'operations');
+
+		$actions = [];
+		foreach ($this->getAvailableActions(currentLifecycle: $lifecycle) as $action) {
+			$toState = self::TRANSITIONS[$action]['to'];
+			if ($this->workflowService->isTransitionAllowed(domain: $domain, fromState: $lifecycle, toState: $toState) === false) {
+				continue;
+			}
+
+			if ($this->chairGateDenies(
+				domain: $domain,
+				fromState: $lifecycle,
+				toState: $toState,
+				meetingData: $meetingData,
+				currentUserId: $userId
+			) === true
+			) {
+				continue;
+			}
+
+			$actions[] = $action;
+		}
+
+		return ['lifecycle' => $lifecycle, 'actions' => $actions];
+
+	}//end availableActionsFor()
+
+	/**
 	 * Apply a lifecycle transition to a meeting object.
 	 *
 	 * Validates that `$action` is a known transition, enforces domain-specific

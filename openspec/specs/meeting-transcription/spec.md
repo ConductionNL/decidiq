@@ -6,7 +6,9 @@ status: done
 
 ## Purpose
 Lets the secretary or chair attach a meeting recording and, after a recorded consent confirmation, transcribe it asynchronously through the Nextcloud SpeechToText provider abstraction into timestamped segments. Aligns transcript segments to agenda items via the meeting timeline, optionally generates AI-assisted draft minutes (with provenance and verification against the structured record) through the Nextcloud AI provider, and enforces RBAC, a public-publication deny-list, and per-body retention of recordings and transcripts.
+
 ## Requirements
+
 ### Requirement: Recording attachment with consent precondition
 
 The system SHALL let the secretary or chair attach a transcription source to a meeting: the Talk call recording of the meeting's conversation, or an audio file from the meeting's Nextcloud Files folder. Before any transcription job is accepted, a consent confirmation SHALL be recorded on the `Transcript` object (`confirmedBy`, `confirmedAt` — the chair or secretary confirms participants were informed of the recording). The source SHALL remain a file reference into the meeting folder; audio content SHALL NOT be stored inside OpenRegister objects. Without a consent record the transcription request SHALL be refused.
@@ -129,3 +131,11 @@ Access to `Transcript` objects and their files SHALL be restricted to the govern
 - **WHEN** the retention job runs
 - **THEN** the recording and raw transcript files are deleted, the `Transcript` object reflects the retention state, and the deletion is recorded in the meeting's audit trail
 
+### Requirement: REQ-LRJ-001 Jump to an item in the recording
+
+The meeting Transcription widget SHALL play the recording and SHALL jump to the moment each agenda item started.
+
+#### Scenario: A member replays a debate
+- GIVEN the council meeting of 14 October was recorded and transcribed
+- WHEN member Pieter presses Play from here on item Housing plan
+- THEN the recording plays from the moment that item started

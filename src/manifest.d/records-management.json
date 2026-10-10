@@ -1,0 +1,102 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "records-management-archiving (pub-11, pub-18), task 6: the archive dashboard, the dossier index and the dossier detail with its route panel. Schema ref by slug (archival-dossier). The menu entry is relocated into Registers by src/menu-layout.json. Counters are stat widgets over the dossier's own lifecycle and disposition, scalar filters only: OpenRegister's aggregation endpoint honours nothing else (see the open-commitments-overdue note in src/manifest.json), so the overdue-transfer, unresolved-retention and meeting-without-dossier counters wait for OpenRegister to take range filters on retention.archiefactiedatum (design.md, Corrections).",
+	"menu": [
+		{
+			"id": "Archive",
+			"label": "Archive",
+			"icon": "ArchiveOutline",
+			"route": "ArchiveDashboard",
+			"order": 92
+		}
+	],
+	"pages": [
+		{
+			"id": "ArchiveDashboard",
+			"route": "/archive",
+			"type": "dashboard",
+			"title": "Archive",
+			"config": {
+				"widgets": [
+					{ "id": "dossiers-forming", "type": "stat", "title": "Forming", "content": { "label": "Forming", "icon": "ArchiveOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "forming" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "forming" } } } },
+					{ "id": "dossiers-closed", "type": "stat", "title": "Closed", "content": { "label": "Closed", "icon": "ArchiveCheckOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "closed" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "closed" } } } },
+					{ "id": "dossiers-awaiting-transfer", "type": "stat", "title": "Waiting for transfer", "content": { "label": "Waiting for transfer", "icon": "ArchiveArrowUpOutline", "variant": "warning", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "closed", "disposition": "transfer" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "closed", "disposition": "transfer" } } } },
+					{ "id": "dossiers-awaiting-destruction", "type": "stat", "title": "On a destruction list", "content": { "label": "On a destruction list", "icon": "DeleteClockOutline", "variant": "warning", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "closed", "disposition": "destruction" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "closed", "disposition": "destruction" } } } },
+					{ "id": "dossiers-transferred", "type": "stat", "title": "Transferred", "content": { "label": "Transferred", "icon": "ArchiveArrowUpOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "transferred" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "transferred" } } } },
+					{ "id": "dossiers-destroyed", "type": "stat", "title": "Destroyed", "content": { "label": "Destroyed", "icon": "DeleteClockOutline", "route": { "name": "ArchivalDossiers", "query": { "lifecycle": "destroyed" } }, "format": { "style": "decimal", "decimals": 0 }, "source": { "register": "decidiq", "schema": "archival-dossier", "metric": "count", "filter": { "lifecycle": "destroyed" } } } }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "dossiers-forming", "gridX": 0, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "2", "widgetId": "dossiers-closed", "gridX": 4, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "3", "widgetId": "dossiers-awaiting-transfer", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "4", "widgetId": "dossiers-awaiting-destruction", "gridX": 0, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "5", "widgetId": "dossiers-transferred", "gridX": 4, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
+					{ "id": "6", "widgetId": "dossiers-destroyed", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2 }
+				]
+			}
+		},
+		{
+			"id": "ArchivalDossiers",
+			"route": "/archive/dossiers",
+			"type": "index",
+			"title": "Archival dossiers",
+			"config": {
+				"register": "decidiq",
+				"schema": "archival-dossier",
+				"sortKey": "assembledAt",
+				"sortOrder": "desc",
+				"quickFilterMode": "dropdown",
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true },
+					{ "label": "Forming", "filter": { "lifecycle": "forming" } },
+					{ "label": "Closed", "filter": { "lifecycle": "closed" } },
+					{ "label": "Transferred", "filter": { "lifecycle": "transferred" } },
+					{ "label": "Destroyed", "filter": { "lifecycle": "destroyed" } }
+				],
+				"columns": [
+					{ "key": "title", "label": "Title", "widget": "link" },
+					{ "key": "meeting", "label": "Meeting", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "meeting", "labelField": "title" } },
+					{ "key": "lifecycle", "label": "Stage", "widget": "badge" },
+					{ "key": "disposition", "label": "Route", "widget": "badge" },
+					{ "key": "securityClassification", "label": "Security classification", "widget": "badge" }
+				],
+				"actions": [
+					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "ArchivalDossierDetail", "primary": true }
+				],
+				"sidebar": { "enabled": true, "showMetadata": true },
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "ArchivalDossierDetail",
+			"route": "/archive/dossiers/:id",
+			"type": "detail",
+			"title": "Archival dossier",
+			"slots": {
+				"widget-dossier-disposition": "DossierDispositionPanel"
+			},
+			"config": {
+				"register": "decidiq",
+				"schema": "archival-dossier",
+				"widgets": [
+					{ "id": "dossier-data", "type": "data", "title": "Archival dossier", "icon": "ArchiveOutline", "content": { "columns": 2 } },
+					{ "id": "dossier-disposition", "type": "custom", "component": "DossierDispositionPanel", "title": "Archive route", "icon": "ArchiveArrowUpOutline" },
+					{ "id": "dossier-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "dossier-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
+					{ "id": "2", "widgetId": "dossier-disposition", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "3", "widgetId": "dossier-related", "gridX": 8, "gridY": 5, "gridWidth": 4, "gridHeight": 3 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

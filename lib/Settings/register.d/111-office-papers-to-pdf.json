@@ -1,0 +1,58 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment, change agenda-office-files-to-pdf (REQ-OPDF-001 to REQ-OPDF-003, matrix row age-17). An Office paper added to a meeting or an agenda item is converted to PDF through filinq; the object records each paper, its PDF and the backend, or why it was not converted. Keys are written only when they hold a value, so no property is nullable.",
+	"components": {
+		"schemas": {
+			"AgendaItem": {
+				"slug": "agenda-item",
+				"version": "1.3.0",
+				"properties": {
+					"paperRenditions": {
+						"type": "array",
+						"title": "Converted papers",
+						"description": "Each Office paper on this agenda item with the PDF made of it, or why no PDF was made. Written by decidiq, not by hand.",
+						"items": {
+							"type": "object",
+							"properties": {
+								"sourceFileId": { "type": "integer", "title": "Original file", "description": "The file id of the Office paper." },
+								"sourceName": { "type": "string", "title": "Original name", "description": "The file name of the Office paper." },
+								"pdfFileId": { "type": "integer", "title": "PDF file", "description": "The file id of the PDF made of it." },
+								"backend": { "type": "string", "title": "Converted by", "description": "The filinq backend that made the PDF." },
+								"convertedAt": { "type": "string", "format": "date-time", "title": "Converted at", "description": "When the PDF was made." },
+								"failedAt": { "type": "string", "format": "date-time", "title": "Failed at", "description": "When the last conversion failed." },
+								"failure": { "type": "string", "title": "Why not converted", "description": "Why no PDF was made." }
+							},
+							"required": ["sourceFileId", "sourceName"]
+						}
+					}
+				}
+			},
+			"Meeting": {
+				"slug": "meeting",
+				"version": "1.10.0",
+				"properties": {
+					"paperRenditions": {
+						"type": "array",
+						"title": "Converted papers",
+						"description": "Each Office paper on this meeting with the PDF made of it, or why no PDF was made. Written by decidiq, not by hand.",
+						"items": {
+							"type": "object",
+							"properties": {
+								"sourceFileId": { "type": "integer", "title": "Original file", "description": "The file id of the Office paper." },
+								"sourceName": { "type": "string", "title": "Original name", "description": "The file name of the Office paper." },
+								"pdfFileId": { "type": "integer", "title": "PDF file", "description": "The file id of the PDF made of it." },
+								"backend": { "type": "string", "title": "Converted by", "description": "The filinq backend that made the PDF." },
+								"convertedAt": { "type": "string", "format": "date-time", "title": "Converted at", "description": "When the PDF was made." },
+								"failedAt": { "type": "string", "format": "date-time", "title": "Failed at", "description": "When the last conversion failed." },
+								"failure": { "type": "string", "title": "Why not converted", "description": "Why no PDF was made." }
+							},
+							"required": ["sourceFileId", "sourceName"]
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -423,6 +423,8 @@ class MeetingSeriesService {
 				dates: $expansion['dates'],
 				templateDay: substr($scheduledDate, 0, 10)
 			);
+
+			$this->copyAgenda(objectService: $objectService, fromMeetingId: $meetingId, instances: $instances);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidiq: MeetingSeriesService::generateSeries failed',
@@ -532,6 +534,43 @@ class MeetingSeriesService {
 
 		return $instances;
 	}//end createInstances()
+
+	/**
+	 * Give every generated meeting the template meeting's agenda
+	 * (agenda-templates-and-copy, pla-14).
+	 *
+	 * @param object                           $objectService OpenRegister ObjectService instance
+	 * @param string                           $fromMeetingId The template meeting
+	 * @param array<int, array<string, mixed>> $instances     The generated meetings
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
+	 */
+	private function copyAgenda(object $objectService, string $fromMeetingId, array $instances): void {
+		$items = $objectService->findAll(
+			[
+				'filters' => ['register' => 'decidiq', 'schema' => 'agenda-item', 'meeting' => $fromMeetingId],
+				'limit' => 500,
+			]
+		);
+		if ($items === []) {
+			return;
+		}
+
+		$copier = new AgendaItemCopier();
+		foreach ($instances as $instance) {
+			$toMeetingId = (string)($instance['id'] ?? $instance['@self']['id'] ?? '');
+			if ($toMeetingId === '') {
+				continue;
+			}
+
+			foreach ($copier->payloads(items: $items, fromMeetingId: $fromMeetingId, toMeetingId: $toMeetingId) as $payload) {
+				$objectService->saveObject(object: $payload, register: 'decidiq', schema: 'agenda-item');
+			}
+		}
+
+	}//end copyAgenda()
 
 	/**
 	 * Derive a stable series slug from the template title + start year.

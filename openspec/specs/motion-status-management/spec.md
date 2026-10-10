@@ -71,3 +71,21 @@ The admin settings surface SHALL include a `WorkflowConfigSection.vue` component
 - **GIVEN** the admin opens the workflow configuration editor
 - **WHEN** the admin clicks "Reset to defaults"
 - **THEN** `GovernanceBody.workflowTemplate` is cleared (set to `null`) and the motion forms revert to the platform default list
+
+### Requirement: REQ-MST-001 Move a motion through its stages on its page
+
+The motion page SHALL show the stage transitions the caller may take, including withdraw for the submitter.
+
+#### Scenario: A member withdraws her motion
+- GIVEN Anna submitted motion M-12
+- WHEN she presses Withdraw on the motion page
+- THEN the motion shows withdrawn and the list filter Withdrawn includes it
+
+### Requirement: REQ-MST-002 Tag motions by theme and filter
+
+Motions SHALL carry themes from a configurable list, and the motions list SHALL filter on them.
+
+#### Scenario: Filter on a theme
+- GIVEN motions are tagged Housing or Climate
+- WHEN a member filters the motions list on Housing
+- THEN only motions tagged Housing are shown

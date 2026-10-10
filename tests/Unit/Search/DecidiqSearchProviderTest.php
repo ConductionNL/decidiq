@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Search;
 
 use OCA\Decidiq\Search\DecidiqSearchProvider;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\IUser;
 use OCP\Search\ISearchQuery;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -40,41 +40,40 @@ use Psr\Log\LoggerInterface;
 class DecidiqSearchProviderTest extends TestCase {
 
 	/**
-	 * Build the provider over a schema-routed fake ObjectService.
+	 * The `_rbac` argument of every findAll() call, in order.
 	 *
-	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
-	 * @param bool $broken True = ObjectService unavailable
+	 * @var array<int, bool>
+	 */
+	private array $rbacArgs = [];
+
+	/**
+	 * Build the provider over a mock of OpenRegister's ObjectServiceInterface.
+	 *
+	 * The mock answers the way ObjectService::findAll() does: register and
+	 * schema are read ONLY from $config['filters'] (prepareFindAllConfig()),
+	 * top-level keys are ignored.
+	 *
+	 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema to rows
+	 * @param bool $broken True = the object service throws
 	 *
 	 * @return DecidiqSearchProvider
 	 */
 	private function makeProvider(array $rowsBySchema = [], bool $broken = false): DecidiqSearchProvider {
-		$objectService = new class($rowsBySchema) {
-
-			/**
-			 * @param array<string, array<int, array<string, mixed>>> $rowsBySchema schema → rows
-			 */
-			public function __construct(
-				private array $rowsBySchema,
-			) {
-			}
-
-			/**
-			 * Schema-routed findAll fixture.
-			 *
-			 * @param array<string, mixed> $config Query config
-			 *
-			 * @return array<int, array<string, mixed>>
-			 */
-			public function findAll(array $config = []): array {
-				return ($this->rowsBySchema[$config['schema'] ?? ''] ?? []);
-			}//end findAll()
-		};
-
-		$container = $this->createMock(ContainerInterface::class);
+		$this->rbacArgs = [];
+		$objectService = $this->createMock(ObjectServiceInterface::class);
 		if ($broken === true) {
-			$container->method('get')->willThrowException(new \RuntimeException('OR missing'));
+			$objectService->method('findAll')->willThrowException(new \RuntimeException('OR missing'));
 		} else {
-			$container->method('get')->willReturn($objectService);
+			$objectService->method('findAll')->willReturnCallback(
+				function (array $config = [], bool $_rbac = true) use ($rowsBySchema): array {
+					$this->rbacArgs[] = $_rbac;
+					if (($config['filters']['register'] ?? null) !== 'decidiq') {
+						return [];
+					}
+
+					return ($rowsBySchema[$config['filters']['schema'] ?? ''] ?? []);
+				}
+			);
 		}
 
 		$urlGenerator = $this->createMock(IURLGenerator::class);
@@ -85,7 +84,7 @@ class DecidiqSearchProviderTest extends TestCase {
 		$l10n->method('t')->willReturnArgument(0);
 
 		return new DecidiqSearchProvider(
-			container: $container,
+			objectService: $objectService,
 			urlGenerator: $urlGenerator,
 			l10n: $l10n,
 			logger: $this->createMock(LoggerInterface::class),
@@ -192,4 +191,76 @@ class DecidiqSearchProviderTest extends TestCase {
 		self::assertSame(expected: [], actual: $result->jsonSerialize()['entries']);
 
 	}//end testFailsSoftOnBrokenRegister()
+
+	/**
+	 * Minutes are searched, and a hit names Minutes, its lifecycle and its
+	 * approval date, opens the minutes page, and uses no em-dash.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
+	 *
+	 * @return void
+	 */
+	public function testMinutesAreFoundAndOpenTheMinutesPage(): void {
+		$provider = $this->makeProvider(
+			rowsBySchema: [
+				'minutes' => [
+					['id' => 'min-1', 'title' => 'Notulen raad 14 oktober', 'lifecycle' => 'approved', 'approvedAt' => '2026-11-01T10:00:00+00:00'],
+				],
+			]
+		);
+
+		$entries = $provider->search($this->createMock(IUser::class), $this->query('woningbouw'))->jsonSerialize()['entries'];
+
+		self::assertCount(1, $entries);
+		$entry = $entries[0]->jsonSerialize();
+		self::assertSame('Notulen raad 14 oktober', $entry['title']);
+		self::assertSame('Minutes · approved · 2026-11-01', $entry['subline']);
+		self::assertSame('/apps/decidiq/minutes/min-1', $entry['resourceUrl']);
+
+	}//end testMinutesAreFoundAndOpenTheMinutesPage()
+
+	/**
+	 * Every hit opens its detail page under the history router, never a
+	 * `#/` hash the router ignores, and no subline carries an em-dash.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md#requirement-req-mus-001-minutes-appear-in-nextclouds-unified-search
+	 *
+	 * @return void
+	 */
+	public function testEveryHitOpensItsPageWithoutAnEmDash(): void {
+		$provider = $this->makeProvider(
+			rowsBySchema: [
+				'decision' => [['id' => 'd-1', 'title' => 'Budget 2026', 'lifecycle' => 'enacted', 'decisionDate' => '2026-06-01']],
+				'meeting' => [['id' => 'm-1', 'title' => 'Raad', 'lifecycle' => 'scheduled', 'scheduledDate' => '2026-10-14T19:30:00Z']],
+			]
+		);
+
+		$entries = $provider->search($this->createMock(IUser::class), $this->query('raad'))->jsonSerialize()['entries'];
+		$urls = [];
+		foreach ($entries as $entry) {
+			$data = $entry->jsonSerialize();
+			$urls[] = $data['resourceUrl'];
+			self::assertStringNotContainsString('—', $data['subline']);
+		}
+
+		self::assertSame(['/apps/decidiq/decisions/d-1', '/apps/decidiq/meetings/m-1'], $urls);
+
+	}//end testEveryHitOpensItsPageWithoutAnEmDash()
+
+	/**
+	 * The provider never switches OpenRegister's read rules off: every query
+	 * passes only its config, so findAll() keeps its default `_rbac = true` and
+	 * a searcher gets only what they may read.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md#requirement-req-mus-002-search-shows-only-minutes-the-searcher-may-read
+	 *
+	 * @return void
+	 */
+	public function testSearchKeepsOpenRegisterReadRules(): void {
+		$provider = $this->makeProvider(rowsBySchema: []);
+		$provider->search($this->createMock(IUser::class), $this->query('woningbouw'));
+
+		self::assertSame([true, true, true], $this->rbacArgs, 'one findAll per schema, RBAC left on');
+
+	}//end testSearchKeepsOpenRegisterReadRules()
 }//end class

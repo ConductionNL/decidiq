@@ -112,6 +112,7 @@ class MotionControllerTest extends TestCase {
 			groupManager: $this->groupManager,
 			appConfig: $this->appConfig,
 			participantResolver: $participantResolver,
+			motionStages: $this->createMock(\OCA\Decidiq\Service\MotionStages::class),
 		);
 
 	}//end buildController()

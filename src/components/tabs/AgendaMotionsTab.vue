@@ -170,7 +170,17 @@ export default {
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
 		excludedFields() {
-			return ['id', 'uuid', 'agendaItem', 'decisionType', 'created', 'updated']
+			return [
+				'id',
+				'uuid',
+				'agendaItem',
+				'decisionType',
+				// Written by the server when an amendment is adopted (#1394).
+				'originalText',
+				'amendmentHistory',
+				'created',
+				'updated',
+			]
 		},
 	},
 

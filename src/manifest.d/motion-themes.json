@@ -1,0 +1,89 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "motions-stages-and-themes (mot-15): the list of policy themes motions are tagged with. An operator keeps it here; the motion form offers these names (DecisionFormDialog) and the Motions list filters on Decision.themes as a facet. Lives in the settings foldout next to the other configurable lists.",
+	"_spec": "openspec/specs/motion-status-management/spec.md#requirement-req-mst-002-tag-motions-by-theme-and-filter",
+	"menu": [
+		{
+			"id": "Themes",
+			"label": "Themes",
+			"icon": "TagOutline",
+			"route": "Themes",
+			"order": 77
+		}
+	],
+	"pages": [
+		{
+			"id": "Themes",
+			"route": "/themes",
+			"type": "index",
+			"title": "Themes",
+			"config": {
+				"register": "decidiq",
+				"schema": "motion-theme",
+				"sortKey": "name",
+				"sortOrder": "asc",
+				"columns": [
+					{
+						"key": "name",
+						"label": "Name",
+						"widget": "link"
+					},
+					{
+						"key": "description",
+						"label": "Description"
+					}
+				],
+				"rowRoute": "ThemeDetail",
+				"allowCreate": true,
+				"emptyText": "No themes yet. Add the policy themes your motions are about, such as housing or climate."
+			}
+		},
+		{
+			"id": "ThemeDetail",
+			"route": "/themes/:id",
+			"type": "detail",
+			"title": "Theme",
+			"config": {
+				"register": "decidiq",
+				"schema": "motion-theme",
+				"widgets": [
+					{
+						"id": "theme-data",
+						"type": "data",
+						"title": "Theme",
+						"icon": "TagOutline",
+						"content": {
+							"columns": 2
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "theme-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 5
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				}
+			}
+		}
+	]
+}

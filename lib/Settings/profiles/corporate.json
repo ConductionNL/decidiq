@@ -13,7 +13,7 @@
 			"label": "Company board",
 			"description": "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.",
 			"order": 3,
-			"objectCount": 84,
+			"objectCount": 99,
 			"icon": "BriefcaseOutline"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -179,6 +179,64 @@
 						"declaredAt": "2022-01-10",
 						"reviewedAt": "2026-06-15",
 						"lifecycle": "internal"
+					}
+				],
+				"board-competence": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-finance",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "Finance and audit",
+						"description": "Reads the annual accounts and the auditor's report and chairs the audit discussion.",
+						"requiredHolders": 1,
+						"order": 1,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-water",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "Water management",
+						"description": "Knows flood defence, water quality and the water board's statutory tasks.",
+						"requiredHolders": 1,
+						"order": 2,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-legal",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "Legal",
+						"description": "Knows corporate and administrative law and the articles of association.",
+						"requiredHolders": 1,
+						"order": 3,
+						"active": true
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "board-competence"
+						},
+						"slug": "bc-rvc-it",
+						"governanceBody": "rvc-waterschap-amstel",
+						"name": "IT and cybersecurity",
+						"description": "Can judge the information security and the digital resilience of the organisation.",
+						"requiredHolders": 1,
+						"order": 4,
+						"active": true
 					}
 				],
 				"board-evaluation": [
@@ -518,6 +576,21 @@
 						"outcome": "adopted",
 						"decisionDate": "2025-05-14T11:15:00Z",
 						"isPublished": "confidential"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "bezoldiging-rvc-2026",
+						"decisionType": "remuneration",
+						"title": "Bezoldiging raad van commissarissen 2026",
+						"text": "De algemene vergadering stelt de bezoldiging van de raad van commissarissen voor 2026 vast: voorzitter 32.000 euro per jaar en een onkostenvergoeding van 1.500 euro, lid 24.000 euro per jaar en een onkostenvergoeding van 1.000 euro.",
+						"lifecycle": "enacted",
+						"outcome": "adopted",
+						"decisionDate": "2026-04-15T19:00:00Z",
+						"targetBody": "rvc-waterschap-amstel"
 					}
 				],
 				"decision-stage": [
@@ -1324,7 +1397,14 @@
 						"domain": "water-authority",
 						"votingDefault": "for-against-abstain",
 						"termStart": "2023-01-01T00:00:00Z",
-						"termEnd": "2026-12-31T00:00:00Z"
+						"termEnd": "2026-12-31T00:00:00Z",
+						"diversityTargets": [
+							{
+								"dimension": "gender",
+								"value": "female",
+								"minimumShare": 0.33
+							}
+						]
 					}
 				],
 				"governance-body-composition": [
@@ -1370,6 +1450,64 @@
 						"isPublic": false,
 						"status": "in-force",
 						"currentEffectiveDate": "2025-09-01"
+					}
+				],
+				"mandate-remuneration": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "mandate-remuneration"
+						},
+						"slug": "rem-janneke-rvc-2026",
+						"positionHold": "ph-janneke-rvc-chair",
+						"person": "janneke-de-bruin",
+						"governanceBody": "rvc-waterschap-amstel",
+						"year": 2026,
+						"fixedFee": 32000,
+						"meetingFee": 0,
+						"expenseAllowance": 1500,
+						"currency": "EUR",
+						"setByDecision": "bezoldiging-rvc-2026",
+						"disclosed": true,
+						"publicationDate": "2026-04-30"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "mandate-remuneration"
+						},
+						"slug": "rem-mark-rvc-2026",
+						"positionHold": "ph-mark-rvc-member",
+						"person": "mark-van-den-berg",
+						"governanceBody": "rvc-waterschap-amstel",
+						"year": 2026,
+						"fixedFee": 24000,
+						"meetingFee": 0,
+						"expenseAllowance": 1000,
+						"currency": "EUR",
+						"setByDecision": "bezoldiging-rvc-2026",
+						"disclosed": true,
+						"publicationDate": "2026-04-30"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "mandate-remuneration"
+						},
+						"slug": "rem-janneke-rvc-2025",
+						"positionHold": "ph-janneke-rvc-chair",
+						"person": "janneke-de-bruin",
+						"governanceBody": "rvc-waterschap-amstel",
+						"year": 2025,
+						"fixedFee": 30000,
+						"meetingFee": 0,
+						"expenseAllowance": 1500,
+						"currency": "EUR",
+						"disclosed": true,
+						"publicationDate": "2025-04-30"
 					}
 				],
 				"meeting": [
@@ -1469,6 +1607,48 @@
 						"uuid": "c7d10000-0000-4000-a000-000000000031"
 					}
 				],
+				"member-competence": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "member-competence"
+						},
+						"slug": "mc-janneke-finance",
+						"membership": "m-janneke-rvc",
+						"competence": "bc-rvc-finance",
+						"level": "expert",
+						"note": "Former CFO of a regional utility.",
+						"confirmedBy": "admin",
+						"confirmedAt": "2026-01-15T10:00:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "member-competence"
+						},
+						"slug": "mc-jan-legal",
+						"membership": "m-jan-amstel",
+						"competence": "bc-rvc-legal",
+						"level": "experienced",
+						"note": "Clerk to the council since 2021.",
+						"confirmedBy": "admin",
+						"confirmedAt": "2026-01-15T10:00:00+00:00"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "member-competence"
+						},
+						"slug": "mc-mark-water",
+						"membership": "m-mark-rvb",
+						"competence": "bc-rvc-water",
+						"level": "expert",
+						"note": "Hydrologist, fifteen years at Rijkswaterstaat."
+					}
+				],
 				"membership": [
 					{
 						"@self": {
@@ -1496,7 +1676,6 @@
 						"label": "Voorzitter RvC",
 						"votingWeight": 1,
 						"startDate": "2022-04-01T00:00:00Z",
-						"endDate": "2026-04-01T00:00:00Z",
 						"independenceStatus": "independent",
 						"otherPositions": [
 							"RvC Stedin (vice-voorzitter)",
@@ -1517,7 +1696,6 @@
 						"label": "Lid RvB",
 						"votingWeight": 1,
 						"startDate": "2020-01-01T00:00:00Z",
-						"endDate": "2025-12-31T00:00:00Z",
 						"independenceStatus": "non-independent",
 						"otherPositions": [
 							"Bestuur Branchevereniging Tech NL"
@@ -1672,6 +1850,36 @@
 						"nationality": "NL"
 					}
 				],
+				"position-hold": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-hold"
+						},
+						"slug": "ph-janneke-rvc-chair",
+						"membership": "m-janneke-rvc",
+						"position": "position-rvc-amstel-chair",
+						"governanceBody": "rvc-waterschap-amstel",
+						"holdType": "regular",
+						"startDate": "2022-04-01",
+						"termNumber": 2
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-hold"
+						},
+						"slug": "ph-mark-rvc-member",
+						"membership": "m-mark-rvb",
+						"position": "position-rvc-amstel-member",
+						"governanceBody": "rvc-waterschap-amstel",
+						"holdType": "regular",
+						"startDate": "2020-01-01",
+						"termNumber": 2
+					}
+				],
 				"position-type": [
 					{
 						"@self": {
@@ -1734,6 +1942,30 @@
 						"termDurationMonths": 48,
 						"maxConsecutiveTerms": 2,
 						"notes": "Statutair: eenmaal herbenoembaar (art. 12 statuten)."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "position-rvc-amstel-chair",
+						"name": "Chair",
+						"governanceBody": "rvc-waterschap-amstel",
+						"termDurationMonths": 48,
+						"maxConsecutiveTerms": 2
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "position-type"
+						},
+						"slug": "position-rvc-amstel-member",
+						"name": "Member",
+						"governanceBody": "rvc-waterschap-amstel",
+						"termDurationMonths": 48,
+						"maxConsecutiveTerms": 2
 					}
 				],
 				"post": [

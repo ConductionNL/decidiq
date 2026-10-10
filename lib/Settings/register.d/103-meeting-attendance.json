@@ -1,0 +1,76 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change meeting-attendance-per-meeting (REQ-MAPM-001, matrix row pla-09). MeetingAttendance (slug meeting-attendance: attendance is too generic a slug for the fleet, gate-106) records one participant's attendance at one meeting, so a later meeting no longer overwrites an earlier one. The meeting Participants widget writes it; the meetings report, the quorum check and the meeting cost read it. Participant.attendanceStatus stays as the fallback for meetings that have no attendance records.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "meeting-attendance"
+        ]
+      }
+    },
+    "schemas": {
+      "MeetingAttendance": {
+        "slug": "meeting-attendance",
+        "icon": "AccountCheckOutline",
+        "version": "1.0.0",
+        "title": "Attendance",
+        "description": "Whether one participant attended one meeting.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:Event",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false
+        },
+        "required": [
+          "meeting",
+          "participant"
+        ],
+        "properties": {
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "meeting",
+            "facetable": true,
+            "description": "The meeting this attendance is for."
+          },
+          "participant": {
+            "title": "Participant",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "participant",
+            "description": "The participant whose attendance this is."
+          },
+          "status": {
+            "title": "Attendance",
+            "type": "string",
+            "enum": [
+              "present",
+              "absent",
+              "excused",
+              "proxy"
+            ],
+            "facetable": true,
+            "description": "Present, absent, sent apologies (excused) or represented by a proxy."
+          },
+          "arrivedAt": {
+            "title": "Arrived at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the participant arrived."
+          },
+          "leftAt": {
+            "title": "Left at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the participant left, if before the end."
+          }
+        }
+      }
+    }
+  }
+}

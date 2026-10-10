@@ -145,6 +145,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				relationFilter: $relationFilter,
 				objectService: $objectService,
 				container: $container,
+				recusal: $this->createMock(\OCA\Decidiq\Service\RecusalGuard::class),
 			),
 			closer: new VotingRoundCloser(
 				logger: $logger,
