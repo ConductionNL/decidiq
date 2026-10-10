@@ -3,7 +3,9 @@
 
 <!--
  MeetingViewToggle — the Table / Calendar segmented control on the meeting
- index, injected through the manifest page's `actionsComponent` slot.
+ index, injected through the manifest page's `actionsComponent` slot. It
+ also carries New ad hoc meeting, which opens the Nieuw overleg page of
+ board DcAdhocOverleg (meeting-ad-hoc-with-guests, pla-20).
 
  WHY THIS IS A LOCAL COMPONENT AND NOT A SHARED VIEW MODE
 
@@ -19,29 +21,40 @@
  @spec openspec/changes/configurable-types-domain-model/design.md
 -->
 <template>
-	<div
-		class="meeting-view-toggle"
-		role="group"
-		:aria-label="t('decidiq', 'Meeting view')">
+	<div class="meeting-view-actions">
+		<div
+			class="meeting-view-toggle"
+			role="group"
+			:aria-label="t('decidiq', 'Meeting view')">
+			<NcButton
+				:variant="isCalendar ? 'tertiary' : 'secondary'"
+				:aria-pressed="String(!isCalendar)"
+				data-testid="meeting-view-table"
+				@click="show('table')">
+				<template #icon>
+					<TableIcon :size="20" />
+				</template>
+				{{ t('decidiq', 'Table') }}
+			</NcButton>
+			<NcButton
+				:variant="isCalendar ? 'secondary' : 'tertiary'"
+				:aria-pressed="String(isCalendar)"
+				data-testid="meeting-view-calendar"
+				@click="show('calendar')">
+				<template #icon>
+					<CalendarMonthIcon :size="20" />
+				</template>
+				{{ t('decidiq', 'Calendar') }}
+			</NcButton>
+		</div>
 		<NcButton
-			:variant="isCalendar ? 'tertiary' : 'secondary'"
-			:aria-pressed="String(!isCalendar)"
-			data-testid="meeting-view-table"
-			@click="show('table')">
+			variant="primary"
+			data-testid="meeting-new-adhoc"
+			@click="$router.push({ name: 'AdhocMeetingNew' })">
 			<template #icon>
-				<TableIcon :size="20" />
+				<PlusIcon :size="20" />
 			</template>
-			{{ t('decidiq', 'Table') }}
-		</NcButton>
-		<NcButton
-			:variant="isCalendar ? 'secondary' : 'tertiary'"
-			:aria-pressed="String(isCalendar)"
-			data-testid="meeting-view-calendar"
-			@click="show('calendar')">
-			<template #icon>
-				<CalendarMonthIcon :size="20" />
-			</template>
-			{{ t('decidiq', 'Calendar') }}
+			{{ t('decidiq', 'New ad hoc meeting') }}
 		</NcButton>
 	</div>
 </template>
@@ -49,12 +62,13 @@
 <script>
 import { NcButton } from '@nextcloud/vue'
 import CalendarMonthIcon from 'vue-material-design-icons/CalendarMonth.vue'
+import PlusIcon from 'vue-material-design-icons/Plus.vue'
 import TableIcon from 'vue-material-design-icons/Table.vue'
 
 export default {
 	name: 'MeetingViewToggle',
 
-	components: { NcButton, CalendarMonthIcon, TableIcon },
+	components: { NcButton, CalendarMonthIcon, PlusIcon, TableIcon },
 
 	computed: {
 		/**
@@ -94,6 +108,12 @@ export default {
 </script>
 
 <style scoped>
+.meeting-view-actions {
+	display: inline-flex;
+	gap: 12px;
+	align-items: center;
+}
+
 .meeting-view-toggle {
 	display: inline-flex;
 	gap: 4px;

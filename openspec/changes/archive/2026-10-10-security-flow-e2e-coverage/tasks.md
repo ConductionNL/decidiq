@@ -14,9 +14,9 @@
   - GIVEN the registered proxy THEN a request to revoke it as the grantor (A) asserts success
   - Follow the existing `test.skip(condition, reason)` pattern used across
     `tests/e2e/spec-coverage/*.spec.ts` for environments where proxy-vote fixtures are not seeded
-- [ ] Add `tests/e2e/proxy-vote-delegation.spec.ts` covering register / unauthorized-revoke-403 /
+- [x] Amended to Newman (Playwright is for UI flows; these are API auth scenarios, and the spec already says so): `tests/integration/decidiq-security-flow-e2e.postman_collection.json` folder 1 (register as grantor 201, unrelated register and revoke 403, grantor revoke 200). Runs in CI's Newman job (`enable-newman: true`). Original: Add `tests/e2e/proxy-vote-delegation.spec.ts` covering register / unauthorized-revoke-403 /
       authorized-revoke-success against the real `/api/proxies*` routes.
-- [ ] Tag scenarios with `@e2e openspec/changes/security-flow-e2e-coverage/specs/security-
+- [x] Each scenario in the delta spec carries a reason-bearing `@e2e exclude` that names its Newman folder. Original: Tag scenarios with `@e2e openspec/changes/security-flow-e2e-coverage/specs/security-
       sensitive-e2e-coverage/spec.md#...` per this app's gate-19 convention.
 
 ### Task 2: eIDAS signing-endpoint reachability + auth-posture e2e spec
@@ -32,9 +32,9 @@
   - Full external QES provider round-trip (`initiate` → real signing → `finalize`) is explicitly
     OUT OF SCOPE for this e2e spec (requires a live signing provider); scope is reachability + auth
     posture only
-- [ ] Add `tests/e2e/eidas-signature-endpoints.spec.ts` covering the reachability + auth-posture
+- [x] Amended to Newman (Playwright is for UI flows; these are API auth scenarios, and the spec already says so): `tests/integration/decidiq-security-flow-e2e.postman_collection.json` folder 2 (certStatus 200 for an authenticated caller, 401 unauthenticated). Runs in CI's Newman job (`enable-newman: true`). Original: Add `tests/e2e/eidas-signature-endpoints.spec.ts` covering the reachability + auth-posture
       scenarios above via `page.request` against the real routes.
-- [ ] Tag scenarios with `@e2e ...` per gate-19 convention.
+- [x] Each scenario in the delta spec carries a reason-bearing `@e2e exclude` that names its Newman folder. Original: Tag scenarios with `@e2e ...` per gate-19 convention.
 
 ### Task 3: Governance-report and regulator-export e2e reachability spec
 - **spec_ref**: `openspec/changes/security-flow-e2e-coverage/specs/security-sensitive-e2e-coverage/spec.md#requirement-req-sfec-003-governance-report-and-regulator-export-routes-must-have-a-real-http-e2e-test`
@@ -43,5 +43,5 @@
   - GIVEN an authenticated caller with appropriate role THEN `POST /api/governance-reports` and
     `POST /api/regulator-exports` are reachable and produce a downloadable artifact reference
   - GIVEN an unauthenticated request THEN both are rejected by the real middleware chain
-- [ ] Add `tests/e2e/governance-regulator-exports.spec.ts` covering the scenarios above.
-- [ ] Tag scenarios with `@e2e ...` per gate-19 convention.
+- [x] Amended to Newman (Playwright is for UI flows; these are API auth scenarios, and the spec already says so): `tests/integration/decidiq-security-flow-e2e.postman_collection.json` folder 3 (governance report 201 and regulator export 200 as admin, both 401 unauthenticated). Runs in CI's Newman job (`enable-newman: true`). Original: Add `tests/e2e/governance-regulator-exports.spec.ts` covering the scenarios above.
+- [x] Each scenario in the delta spec carries a reason-bearing `@e2e exclude` that names its Newman folder. Original: Tag scenarios with `@e2e ...` per gate-19 convention.

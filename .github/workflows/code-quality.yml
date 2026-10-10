@@ -172,6 +172,11 @@ jobs:
       # short 289+ translations across the required locales. That is a
       # translation backlog, and a permanently-red leg is one that gets
       # switched off again.
+      # `test:l10n:parity:nl` IS listed (l10n-parity-ci-gate): the same
+      # checker scoped to Dutch through L10N_REQUIRED_LOCALES=nl. nl.json was
+      # backfilled to full parity with en.json, so this leg is green today and
+      # turns red the moment a new English string ships without its Dutch.
+      # Widening the set beyond nl is the translation backlog above.
       #
       # `format` (prettier --check) is listed because the shared workflow has NO
       # prettier job of its own — `quality.yml` runs eslint and stylelint and
@@ -204,7 +209,7 @@ jobs:
       # renders the English source inside an otherwise translated form, silently.
       # The fleet had 30,459 such strings, so this records the current count and
       # fails only when it GROWS — burning it down stays an ordinary PR.
-      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "format", "check:l10n-js", "check:schema-l10n"]'
+      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "test:l10n:parity:nl", "format", "check:l10n-js", "check:schema-l10n"]'
 
       # ── Coverage ratchet ─────────────────────────────────────────────────
       # `enable-coverage-guard` defaults to FALSE, which is why both

@@ -577,6 +577,18 @@
 			}
 		},
 		{
+			"id": "AdhocMeetingNew",
+			"route": "/meetings/new",
+			"type": "custom",
+			"title": "New ad hoc meeting",
+			"component": "AdhocMeetingPage",
+			"_note": "meeting-ad-hoc-with-guests Task 3 (pla-20), board DcAdhocOverleg: one page that sets up a meeting without a body with its agenda points, papers, colleagues and guests, and writes nothing until Overleg aanmaken. type:\"custom\" because no typed archetype collects several objects of four schemas before the first one exists: an index create dialog writes one object, a detail page needs an id. Declared ABOVE MeetingDetail so /meetings/new matches before /meetings/:id. Reached from the New ad hoc meeting button in MeetingViewToggle on the meeting index.",
+			"config": {
+				"register": "decidiq",
+				"schema": "meeting"
+			}
+		},
+		{
 			"id": "MeetingDetail",
 			"route": "/meetings/:id",
 			"type": "detail",

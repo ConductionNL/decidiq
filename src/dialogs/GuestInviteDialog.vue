@@ -5,7 +5,9 @@
  Invite a guest from outside to an ad hoc meeting (meeting-ad-hoc-with-
  guests, pla-20, board DcAdhocOverleg "Gast uitnodigen"). The server adds
  the guest to the meeting and mails the invitation with the agenda and a
- link to the papers.
+ link to the papers. Without a meetingId (the Nieuw overleg page, before the
+ meeting exists) the dialog only hands the guest back with `staged`; the
+ page invites them once the meeting is created.
 
  @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 -->
@@ -50,11 +52,7 @@
 				:disabled="sending || !email.trim()"
 				data-testid="guest-invite-submit"
 				@click="send">
-				{{
-					sending
-						? t('decidiq', 'Sending…')
-						: t('decidiq', 'Send invitation')
-				}}
+				{{ submitLabel }}
 			</NcButton>
 			<NcButton data-testid="guest-invite-cancel" @click="$emit('close')">
 				{{ t('decidiq', 'Cancel') }}
@@ -73,14 +71,27 @@ export default {
 	components: { NcButton, NcDialog, NcTextField },
 
 	props: {
-		/** OR object id of the meeting. */
-		meetingId: { type: String, required: true },
+		/** OR object id of the meeting; empty to stage the guest for a meeting not yet created. */
+		meetingId: { type: String, default: '' },
 	},
 
-	emits: ['close', 'invited'],
+	emits: ['close', 'invited', 'staged'],
 
 	data() {
 		return { name: '', email: '', sending: false, error: '' }
+	},
+
+	computed: {
+		/**
+		 * @return {string} The submit button text
+		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 */
+		submitLabel() {
+			if (!this.meetingId) return this.t('decidiq', 'Add guest')
+			return this.sending
+				? this.t('decidiq', 'Sending…')
+				: this.t('decidiq', 'Send invitation')
+		},
 	},
 
 	methods: {
@@ -91,6 +102,10 @@ export default {
 		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
 		 */
 		async send() {
+			if (!this.meetingId) {
+				this.stage()
+				return
+			}
 			this.sending = true
 			this.error = ''
 			try {
@@ -107,6 +122,22 @@ export default {
 			} finally {
 				this.sending = false
 			}
+		},
+
+		/**
+		 * Hand the guest back to the page; the invitation goes out once the
+		 * meeting exists.
+		 *
+		 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+		 */
+		stage() {
+			const email = this.email.trim()
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+				this.error = this.t('decidiq', 'Enter a valid email address.')
+				return
+			}
+			this.$emit('staged', { name: this.name.trim() || email, email })
+			this.$emit('close')
 		},
 	},
 }

@@ -79,3 +79,7 @@ Purely additive: revert the PR and re-import the register — the fragment's sch
 
 - Which LV Woo connection mode does the first pilot municipality need — harvest of our Woo-index sitemap only (provisional choice), or additionally an active push/notify to an aggregation point? Provisional: sitemap mandatory, push optional behind OpenConnector.
 - Should the per-object categorie override be restricted to categories from the TOOI waardelijst, or may municipalities add local extension URIs? Provisional: waardelijst-only, validated by URI pattern.
+
+## Closed
+
+Superseded by hand-woo-diwoo-to-integriq (decision 138, 10 Oct 2026). Archived with a note; nothing folded into the main specs.
