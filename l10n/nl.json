@@ -3519,7 +3519,13 @@
         "Loading the steps…": "Stappen laden…",
         "Step": "Stap",
         "Steps of this cycle in order": "Stappen van deze cyclus op volgorde",
-        "This cycle has no steps yet.": "Deze cyclus heeft nog geen stappen."
+        "This cycle has no steps yet.": "Deze cyclus heeft nog geen stappen.",
+        "Acts": "Handelingen",
+        "Delegate (account)": "Gemandateerde (account)",
+        "Delegate (group)": "Gemandateerde (groep)",
+        "The Nextcloud account that holds this authority. Optional. Together with delegateGroup and acts it lets an app ask whether a person may perform an act; a toedeling without either stays documentation only.": "Het Nextcloud-account dat deze bevoegdheid heeft. Optioneel. Samen met delegateGroup en acts kan een app hiermee vragen of iemand een handeling mag verrichten; een toedeling zonder een van beide blijft alleen documentatie.",
+        "The Nextcloud group whose members hold this authority, for an authority given to a function rather than a named person. Optional.": "De Nextcloud-groep waarvan de leden deze bevoegdheid hebben, voor een bevoegdheid die aan een functie is gegeven en niet aan een persoon met naam. Optioneel.",
+        "The act keys this authority covers, as the asking app names them (for example a decision type or a case type). An empty list covers no act: the delegated authority check never reads an empty list as 'everything'.": "De sleutels van de handelingen die deze bevoegdheid dekt, zoals de vragende app ze noemt (bijvoorbeeld een besluittype of een zaaktype). Een lege lijst dekt geen handeling: de controle op gedelegeerde bevoegdheid leest een lege lijst nooit als 'alles'."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

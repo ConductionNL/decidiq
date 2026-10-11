@@ -95,13 +95,13 @@ class DelegatedAuthorityCheck {
 	 * @param string                 $actor  The Nextcloud account that wants to act.
 	 * @param string                 $act    The act key, as the asking app names it.
 	 * @param float|null             $amount The amount in euro the act concerns, or null when it has none.
-	 * @param DateTimeImmutable|null $at     The moment of the act; now when null.
+	 * @param DateTimeImmutable|null $moment     The moment of the act; now when null.
 	 *
 	 * @return array{authorised: bool, reason: string, allocation: string|null}
 	 *
 	 * @spec openspec/changes/delegated-authority-check/specs/delegatie-mandaatregister/spec.md
 	 */
-	public function check(string $actor, string $act, ?float $amount=null, ?DateTimeImmutable $at=null): array {
+	public function check(string $actor, string $act, ?float $amount=null, ?DateTimeImmutable $moment=null): array {
 		$actor = trim($actor);
 		$act   = trim($act);
 		if ($actor === '') {
@@ -112,7 +112,7 @@ class DelegatedAuthorityCheck {
 			return $this->answer(reason: self::REASON_NO_ACT);
 		}
 
-		$at = ($at ?? new DateTimeImmutable());
+		$moment = ($moment ?? new DateTimeImmutable());
 
 		try {
 			$rows = $this->store->findAll(schema: self::SCHEMA, filters: ['status' => self::STATUS_EFFECTIVE]);
@@ -122,7 +122,7 @@ class DelegatedAuthorityCheck {
 
 		$overCeiling = false;
 		foreach ($rows as $row) {
-			if ($this->covers(row: $row, actor: $actor, act: $act, at: $at) === false) {
+			if ($this->covers(row: $row, actor: $actor, act: $act, moment: $moment) === false) {
 				continue;
 			}
 
@@ -151,11 +151,11 @@ class DelegatedAuthorityCheck {
 	 * @param array<string, mixed> $row   The toedeling.
 	 * @param string               $actor The account.
 	 * @param string               $act   The act key.
-	 * @param DateTimeImmutable    $at    The moment.
+	 * @param DateTimeImmutable    $moment    The moment.
 	 *
 	 * @return bool
 	 */
-	private function covers(array $row, string $actor, string $act, DateTimeImmutable $at): bool {
+	private function covers(array $row, string $actor, string $act, DateTimeImmutable $moment): bool {
 		$acts = $row['acts'] ?? [];
 		if (is_array($acts) === false || in_array($act, $acts, true) === false) {
 			return false;
@@ -165,7 +165,7 @@ class DelegatedAuthorityCheck {
 			return false;
 		}
 
-		return $this->inForce(row: $row, at: $at, depth: 0);
+		return $this->inForce(row: $row, moment: $moment, depth: 0);
 	}//end covers()
 
 	/**
@@ -194,12 +194,12 @@ class DelegatedAuthorityCheck {
 	 * Whether the row, and every parent it is an ondermandaat of, is in force.
 	 *
 	 * @param array<string, mixed> $row   The toedeling.
-	 * @param DateTimeImmutable    $at    The moment.
+	 * @param DateTimeImmutable    $moment    The moment.
 	 * @param int                  $depth How many parents were walked already.
 	 *
 	 * @return bool
 	 */
-	private function inForce(array $row, DateTimeImmutable $at, int $depth): bool {
+	private function inForce(array $row, DateTimeImmutable $moment, int $depth): bool {
 		if ($depth > self::MAX_CHAIN_DEPTH) {
 			return false;
 		}
@@ -208,7 +208,7 @@ class DelegatedAuthorityCheck {
 			return false;
 		}
 
-		if ($this->withinWindow(row: $row, at: $at) === false) {
+		if ($this->withinWindow(row: $row, moment: $moment) === false) {
 			return false;
 		}
 
@@ -227,7 +227,7 @@ class DelegatedAuthorityCheck {
 			return false;
 		}
 
-		return $this->inForce(row: $parent, at: $at, depth: ($depth + 1));
+		return $this->inForce(row: $parent, moment: $moment, depth: ($depth + 1));
 	}//end inForce()
 
 	/**
@@ -236,12 +236,12 @@ class DelegatedAuthorityCheck {
 	 * A date that cannot be read covers nothing.
 	 *
 	 * @param array<string, mixed> $row The toedeling.
-	 * @param DateTimeImmutable    $at  The moment.
+	 * @param DateTimeImmutable    $moment  The moment.
 	 *
 	 * @return bool
 	 */
-	private function withinWindow(array $row, DateTimeImmutable $at): bool {
-		$day  = $at->format('Y-m-d');
+	private function withinWindow(array $row, DateTimeImmutable $moment): bool {
+		$day  = $moment->format('Y-m-d');
 		$from = trim((string)($row['validFrom'] ?? ''));
 		$to   = trim((string)($row['validTo'] ?? ''));
 
