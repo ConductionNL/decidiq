@@ -175,12 +175,12 @@ class DelegatedAuthorityCheckTest extends TestCase {
 			['validTo' => '2026-05-31'],
 			['validFrom' => 'not a date'],
 		] as $change) {
-			$answer = $this->check(rows: [$this->row($change)])->check(actor: 'alice', act: 'sign-fixture-letter', moment: $at);
+			$answer = $this->check(rows: [$this->row($change)])->check(actor: 'alice', act: 'sign-fixture-letter', at: $at);
 			self::assertFalse($answer['authorised'], json_encode($change));
 		}
 
 		$lastDay = $this->check(rows: [$this->row(['validTo' => '2026-06-01'])])
-			->check(actor: 'alice', act: 'sign-fixture-letter', moment: $at);
+			->check(actor: 'alice', act: 'sign-fixture-letter', at: $at);
 		self::assertTrue($lastDay['authorised'], 'the last day of the window is inside it');
 	}//end testOnlyAnInForceRowCounts()
 

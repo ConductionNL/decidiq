@@ -87,15 +87,6 @@
 			</p>
 
 			<div v-if="mayAct" class="cn-approval-chain__actions">
-				<NcSelect
-					v-if="templateOptions.length"
-					v-model="reasonTemplate"
-					:options="templateOptions"
-					:inputLabel="templateLabel"
-					label="name"
-					trackBy="id"
-					data-testid="cn-approval-chain-reason-template"
-					@update:modelValue="useTemplate" />
 				<NcTextField
 					v-model="reason"
 					:label="reasonLabel"
@@ -135,15 +126,6 @@
 					:inputLabel="mandateLabel"
 					:getOptionLabel="mandateOptionLabel"
 					data-testid="cn-approval-chain-mandate" />
-				<NcSelect
-					v-if="templateOptions.length"
-					v-model="reasonTemplate"
-					:options="templateOptions"
-					:inputLabel="templateLabel"
-					label="name"
-					trackBy="id"
-					data-testid="cn-approval-chain-reason-template"
-					@update:modelValue="useTemplate" />
 				<NcTextField
 					v-model="reason"
 					:label="reasonLabel"
@@ -197,7 +179,6 @@ import {
 	liveStage,
 	mayActOnBehalf,
 	parseActors,
-	reasonTemplateOptions,
 	recordAction,
 } from './approvalChainLink.js'
 
@@ -240,12 +221,6 @@ export default {
 		 */
 		// eslint-disable-next-line vue/no-boolean-default
 		collapsible: { type: Boolean, default: true },
-		/**
-		 * Ready-made reasons the host offers, `[{ id, name, body }]`. Picking
-		 * one fills the reason field; the person can still edit it. Empty, the
-		 * picker is not shown. Falls back to `integrationContext.reasonTemplates`.
-		 */
-		reasonTemplates: { type: Array, default: () => [] },
 	},
 
 	data() {
@@ -255,7 +230,6 @@ export default {
 			busy: false,
 			error: '',
 			reason: '',
-			reasonTemplate: null,
 			mandates: [],
 			mandate: null,
 			startPeople: '',
@@ -464,19 +438,6 @@ export default {
 		reasonLabel() {
 			return t('decidiq', 'Reason, required to reject')
 		},
-
-		/** @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md */
-		templateLabel() {
-			return t('decidiq', 'Start from a template')
-		},
-
-		/** @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md */
-		templateOptions() {
-			const given = this.reasonTemplates.length
-				? this.reasonTemplates
-				: this.integrationContext.reasonTemplates
-			return reasonTemplateOptions(given)
-		},
 	},
 
 	watch: {
@@ -519,19 +480,6 @@ export default {
 		 * @return {Promise<void>} Nothing.
 		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
-		/**
-		 * Fill the reason from the picked template; the person may still edit it.
-		 *
-		 * @param {object|null} option The picked template option.
-		 * @return {void}
-		 * @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md
-		 */
-		useTemplate(option) {
-			if (option && option.body) {
-				this.reason = option.body
-			}
-		},
-
 		async act(verb, forAssignee = false) {
 			if (!this.current || this.busy) return
 			this.busy = true
