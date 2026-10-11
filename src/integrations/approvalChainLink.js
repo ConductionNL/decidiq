@@ -436,3 +436,27 @@ export function parseActors(text) {
 	}
 	return seen
 }
+
+/**
+ * The reason templates a host offers, as picker options.
+ *
+ * A host app (dossiq's starter-content templates, decision 156) may hand the
+ * leaf ready-made reasons: "Akkoord, conform advies". The leaf does not read
+ * any app's template library itself; it shows what it was given. A malformed
+ * list is an empty offer, never a crash and never a half-list, and an entry
+ * without a body is dropped because picking it would fill nothing.
+ *
+ * @param {Array<object>|null|undefined} raw What the host passed as `reasonTemplates`.
+ * @return {Array<{id: string, name: string, body: string}>} The options.
+ * @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md
+ */
+export function reasonTemplateOptions(raw) {
+	if (!Array.isArray(raw)) return []
+	return raw
+		.filter((item) => item && item.id && String(item.body || '').trim() !== '')
+		.map((item) => ({
+			id: String(item.id),
+			name: String(item.name || item.id),
+			body: String(item.body),
+		}))
+}
