@@ -12,7 +12,6 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="subscriptions-section">
-		<h3>{{ t('decidiq', 'Subscriptions') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(

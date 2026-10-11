@@ -3204,7 +3204,8 @@ OC.L10N.register(
         "Step": "Step",
         "Steps of this cycle in order": "Steps of this cycle in order",
         "This cycle has no steps yet.": "This cycle has no steps yet.",
-        "Start from a template": "Start from a template"
+        "Start from a template": "Start from a template",
+        "Credentials": "Credentials"
     },
     "nplurals=2; plural=(n != 1);"
 )

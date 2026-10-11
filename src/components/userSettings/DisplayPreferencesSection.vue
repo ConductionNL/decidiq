@@ -13,7 +13,6 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="display-preferences-section">
-		<h3>{{ t('decidiq', 'Display preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t('decidiq', 'Control how Decidiq presents itself for your account.')
