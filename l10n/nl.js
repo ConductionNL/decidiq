@@ -3521,7 +3521,14 @@ OC.L10N.register(
         "Step": "Stap",
         "Steps of this cycle in order": "Stappen van deze cyclus op volgorde",
         "This cycle has no steps yet.": "Deze cyclus heeft nog geen stappen.",
-        "Start from a template": "Begin met een sjabloon"
+        "Start from a template": "Begin met een sjabloon",
+        "Credentials": "Inloggegevens",
+        "Notices": "Meldingen",
+        "Absence": "Afwezigheid",
+        "Contact": "Contact",
+        "Guided tour": "Rondleiding",
+        "Continue the tour": "Verder met de rondleiding",
+        "Start again": "Opnieuw beginnen"
     },
     "nplurals=2; plural=(n != 1);"
 )

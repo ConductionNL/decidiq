@@ -582,9 +582,6 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <settings>
         <admin>OCA\Decidiq\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidiq\Sections\SettingsSection</admin-section>
-        <!-- @spec openspec/specs/user-settings/spec.md -->
-        <personal>OCA\Decidiq\Settings\PersonalSettings</personal>
-        <personal-section>OCA\Decidiq\Sections\PersonalSection</personal-section>
     </settings>
 
     <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
