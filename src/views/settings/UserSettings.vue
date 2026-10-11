@@ -14,16 +14,20 @@
 
  THE LIBRARY'S OWN SECTIONS ARE REPEATED HERE ON PURPOSE. Filling CnAppRoot's
  #user-settings slot replaces its fallback content entirely, and nothing
- reports that: the notifications pane, credentials and the walkthrough replay
- would have vanished from the dialog in silence. App.vue hands in the
- walkthrough state CnAppRoot owns.
+ reports that: credentials and the walkthrough replay would have vanished from
+ the dialog in silence. App.vue hands in the walkthrough state CnAppRoot owns.
+ The library's generic notifications pane is left out: the board draws one
+ Meldingen section, and decidiq's own notification preferences are it.
 
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
+	<!-- Order and names follow board DcMijnInstellingen: Meldingen, Afwezigheid,
+	     Weergave, Contact, Abonnementen. Credentials and the walkthrough replay
+	     come after, as CnAppRoot would have drawn them. -->
 	<NcAppSettingsSection
 		id="decidiq-notifications"
-		:name="t('decidiq', 'Notification preferences')">
+		:name="t('decidiq', 'Notices')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<NotificationPreferencesSection
 			v-else
@@ -32,14 +36,8 @@
 	</NcAppSettingsSection>
 
 	<NcAppSettingsSection
-		id="decidiq-display"
-		:name="t('decidiq', 'Display preferences')">
-		<DisplayPreferencesSection />
-	</NcAppSettingsSection>
-
-	<NcAppSettingsSection
 		id="decidiq-delegation"
-		:name="t('decidiq', 'Delegation and absence')">
+		:name="t('decidiq', 'Absence')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<DelegationSection
 			v-else
@@ -48,8 +46,14 @@
 	</NcAppSettingsSection>
 
 	<NcAppSettingsSection
+		id="decidiq-display"
+		:name="t('decidiq', 'Display')">
+		<DisplayPreferencesSection />
+	</NcAppSettingsSection>
+
+	<NcAppSettingsSection
 		id="decidiq-communication"
-		:name="t('decidiq', 'Communication preferences')">
+		:name="t('decidiq', 'Contact')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<CommunicationSection
 			v-else
@@ -62,10 +66,6 @@
 		:name="t('decidiq', 'Subscriptions')">
 		<SubscriptionsSection />
 	</NcAppSettingsSection>
-
-	<!-- The library's pane over OpenRegister's notification rules. It renders
-	     its own NcAppSettingsSection. -->
-	<CnNotificationPreferences />
 
 	<NcAppSettingsSection
 		id="credentials"
@@ -80,7 +80,7 @@
 	<NcAppSettingsSection
 		v-if="walkthrough"
 		id="cn-walkthrough"
-		:name="walkthrough.sectionName">
+		:name="t('decidiq', 'Guided tour')">
 		<p class="decidiq-user-settings__hint">
 			{{ walkthrough.hint }}
 		</p>
@@ -90,20 +90,20 @@
 				variant="primary"
 				data-testid="cn-walkthrough-continue"
 				@click="$emit('continueWalkthrough')">
-				{{ walkthrough.continueLabel }}
+				{{ t('decidiq', 'Continue the tour') }}
 			</NcButton>
 			<NcButton
 				variant="secondary"
 				data-testid="cn-walkthrough-restart"
 				@click="$emit('restartWalkthrough')">
-				{{ walkthrough.restartLabel }}
+				{{ t('decidiq', 'Start again') }}
 			</NcButton>
 		</div>
 	</NcAppSettingsSection>
 </template>
 
 <script>
-import { CnCredentials, CnNotificationPreferences } from '@conduction/nextcloud-vue'
+import { CnCredentials } from '@conduction/nextcloud-vue'
 import { NcAppSettingsSection, NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import CommunicationSection from '../../components/userSettings/CommunicationSection.vue'
 import DelegationSection from '../../components/userSettings/DelegationSection.vue'
@@ -117,7 +117,6 @@ export default {
 
 	components: {
 		CnCredentials,
-		CnNotificationPreferences,
 		CommunicationSection,
 		DelegationSection,
 		DisplayPreferencesSection,
