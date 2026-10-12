@@ -13,7 +13,6 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="delegation-section">
-		<h3>{{ t('decidiq', 'Delegation and absence') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(

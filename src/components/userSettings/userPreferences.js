@@ -1,9 +1,9 @@
 /**
  * User-settings logic module (user-settings spec).
  *
- * Shared by the four personal-settings section components and their three
- * mounts (Nextcloud personal settings panel, SPA settings page, in-app
- * dialog). Pure logic lives here so vitest can exercise it without a DOM:
+ * Shared by the personal-settings section components, which mount in one
+ * place: the in-app user settings dialog (views/settings/UserSettings.vue).
+ * Pure logic lives here so vitest can exercise it without a DOM:
  *   - fetch/save of the per-user NotificationPreference REST resource
  *   - fetch/save of IConfig-backed display preferences
  *   - the two-toggle ↔ deliveryMethod enum mapping
