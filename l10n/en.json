@@ -3220,7 +3220,9 @@
         "{total} meetings": "{total} meetings",
         "{total} motions": "{total} motions",
         "{total} decisions": "{total} decisions",
-        "{total} governance bodies": "{total} governance bodies"
+        "{total} governance bodies": "{total} governance bodies",
+        "Import": "Import",
+        "Refresh": "Refresh"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

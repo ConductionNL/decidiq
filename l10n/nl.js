@@ -3538,7 +3538,9 @@ OC.L10N.register(
         "{total} meetings": "{total} vergaderingen",
         "{total} motions": "{total} voorstellen",
         "{total} decisions": "{total} besluiten",
-        "{total} governance bodies": "{total} organen"
+        "{total} governance bodies": "{total} organen",
+        "Import": "Importeren",
+        "Refresh": "Vernieuwen"
     },
     "nplurals=2; plural=(n != 1);"
 )

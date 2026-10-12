@@ -446,7 +446,12 @@
 				"showTitle": true,
 				"showTitleIcon": false,
 				"countSubtitle": "{total} governance bodies",
-				"headerButtons": [{ "action": "add" }],
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "import", "label": "Import", "icon": "Upload" },
+					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "governance-body",
 				"sortKey": "@self.created",
@@ -545,7 +550,12 @@
 				"showTitle": true,
 				"showTitleIcon": false,
 				"countSubtitle": "{total} meetings",
-				"headerButtons": [{ "action": "add" }],
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "import", "label": "Import", "icon": "Upload" },
+					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "meeting",
 				"excludeFields": ["lifecycle"],
@@ -931,7 +941,12 @@
 				"showTitle": true,
 				"showTitleIcon": false,
 				"countSubtitle": "{total} motions",
-				"headerButtons": [{ "action": "add" }],
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "import", "label": "Import", "icon": "Upload" },
+					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
@@ -1166,7 +1181,12 @@
 				"showTitle": true,
 				"showTitleIcon": false,
 				"countSubtitle": "{total} decisions",
-				"headerButtons": [{ "action": "add" }],
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "import", "label": "Import", "icon": "Upload" },
+					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
