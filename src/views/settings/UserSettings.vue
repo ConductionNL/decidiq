@@ -25,9 +25,7 @@
 	<!-- Order and names follow board DcMijnInstellingen: Meldingen, Afwezigheid,
 	     Weergave, Contact, Abonnementen. Credentials and the walkthrough replay
 	     come after, as CnAppRoot would have drawn them. -->
-	<NcAppSettingsSection
-		id="decidiq-notifications"
-		:name="t('decidiq', 'Notices')">
+	<NcAppSettingsSection id="decidiq-notifications" :name="t('decidiq', 'Notices')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<NotificationPreferencesSection
 			v-else
@@ -35,9 +33,7 @@
 			@updated="preference = $event" />
 	</NcAppSettingsSection>
 
-	<NcAppSettingsSection
-		id="decidiq-delegation"
-		:name="t('decidiq', 'Absence')">
+	<NcAppSettingsSection id="decidiq-delegation" :name="t('decidiq', 'Absence')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<DelegationSection
 			v-else
@@ -45,15 +41,11 @@
 			@updated="preference = $event" />
 	</NcAppSettingsSection>
 
-	<NcAppSettingsSection
-		id="decidiq-display"
-		:name="t('decidiq', 'Display')">
+	<NcAppSettingsSection id="decidiq-display" :name="t('decidiq', 'Display')">
 		<DisplayPreferencesSection />
 	</NcAppSettingsSection>
 
-	<NcAppSettingsSection
-		id="decidiq-communication"
-		:name="t('decidiq', 'Contact')">
+	<NcAppSettingsSection id="decidiq-communication" :name="t('decidiq', 'Contact')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<CommunicationSection
 			v-else
@@ -67,9 +59,7 @@
 		<SubscriptionsSection />
 	</NcAppSettingsSection>
 
-	<NcAppSettingsSection
-		id="credentials"
-		:name="t('decidiq', 'Credentials')">
+	<NcAppSettingsSection id="credentials" :name="t('decidiq', 'Credentials')">
 		<CnCredentials
 			scope="personal"
 			appId="decidiq"
