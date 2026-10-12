@@ -3217,7 +3217,11 @@ OC.L10N.register(
         "Contact": "Contact",
         "Guided tour": "Guided tour",
         "Continue the tour": "Continue the tour",
-        "Start again": "Start again"
+        "Start again": "Start again",
+        "{total} meetings": "{total} meetings",
+        "{total} motions": "{total} motions",
+        "{total} decisions": "{total} decisions",
+        "{total} governance bodies": "{total} governance bodies"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3534,7 +3534,11 @@ OC.L10N.register(
         "Contact": "Contact",
         "Guided tour": "Rondleiding",
         "Continue the tour": "Verder met de rondleiding",
-        "Start again": "Opnieuw beginnen"
+        "Start again": "Opnieuw beginnen",
+        "{total} meetings": "{total} vergaderingen",
+        "{total} motions": "{total} voorstellen",
+        "{total} decisions": "{total} besluiten",
+        "{total} governance bodies": "{total} organen"
     },
     "nplurals=2; plural=(n != 1);"
 )
