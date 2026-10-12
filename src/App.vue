@@ -33,8 +33,12 @@
 			<UserSettings
 				:manifest="manifest"
 				:walkthrough="walkthroughSettings()"
-				@continueWalkthrough="appRoot() && appRoot().continueWalkthroughFromSettings()"
-				@restartWalkthrough="appRoot() && appRoot().restartWalkthroughFromSettings()" />
+				@continueWalkthrough="
+					appRoot() && appRoot().continueWalkthroughFromSettings()
+				"
+				@restartWalkthrough="
+					appRoot() && appRoot().restartWalkthroughFromSettings()
+				" />
 		</template>
 		<template #sidebar>
 			<CnObjectSidebar
