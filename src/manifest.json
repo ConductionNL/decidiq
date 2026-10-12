@@ -1,5 +1,6 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"look": "board",
 		"setup": {
 			"version": 1,
 			"completionConfigKey": "setup_completed_version",
