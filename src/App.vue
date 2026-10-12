@@ -11,6 +11,7 @@
 -->
 <template>
 	<CnAppRoot
+		ref="appRoot"
 		:aiCompanion="true"
 		:manifest="manifest"
 		:registry="registry"
@@ -21,6 +22,20 @@
 		data-testid="app-root"
 		:translate="translateForApp"
 		:permissions="permissions">
+		<!--
+			The user settings dialog. Every per-person preference lives here;
+			decidiq has no Nextcloud personal settings page and no
+			/user-settings page (Ruben, 11 Oct 2026). Filling this slot drops
+			CnAppRoot's fallback sections, so UserSettings repeats them and gets
+			the walkthrough replay from walkthroughSettings() below.
+		-->
+		<template #user-settings>
+			<UserSettings
+				:manifest="manifest"
+				:walkthrough="walkthroughSettings()"
+				@continueWalkthrough="appRoot() && appRoot().continueWalkthroughFromSettings()"
+				@restartWalkthrough="appRoot() && appRoot().restartWalkthroughFromSettings()" />
+		</template>
 		<template #sidebar>
 			<CnObjectSidebar
 				v-if="objectSidebarState.active"
@@ -55,11 +70,17 @@ import { translate as ncT } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
 import { reactive } from 'vue'
 import ExportBundleModal from './modals/ExportBundleModal.vue'
+import UserSettings from './views/settings/UserSettings.vue'
 import { DEFAULT_MODE, MODE_LABELS } from './config/modeLabels.js'
 import { initializeStores, useSettingsStore } from './store/store.js'
 import cellFormatters from './utils/cellFormatters.js'
 import { createConnectionHandlers } from './utils/connectionRegistry.js'
 import { createExportBundleHandlers } from './utils/exportBundle.js'
+
+/**
+ * The location hash that opens the user settings dialog.
+ */
+const USER_SETTINGS_HASH = '#user-settings'
 
 export default {
 	name: 'App',
@@ -68,6 +89,7 @@ export default {
 		CnAppRoot,
 		CnObjectSidebar,
 		ExportBundleModal,
+		UserSettings,
 	},
 
 	/** @spec exclude Vue provide() wiring only; exposes the objectSidebarState channel, no domain logic */
@@ -220,7 +242,67 @@ export default {
 		await initializeStores()
 	},
 
+	/** @spec openspec/specs/user-settings/spec.md */
+	mounted() {
+		window.addEventListener('hashchange', this.openUserSettingsFromHash)
+		this.openUserSettingsFromHash()
+	},
+
+	/** @spec openspec/specs/user-settings/spec.md */
+	beforeUnmount() {
+		window.removeEventListener('hashchange', this.openUserSettingsFromHash)
+	},
+
 	methods: {
+		/**
+		 * The mounted CnAppRoot, or null before it mounts.
+		 *
+		 * @return {object|null} The CnAppRoot instance.
+		 * @spec openspec/specs/user-settings/spec.md
+		 */
+		appRoot() {
+			return this.$refs.appRoot || null
+		},
+
+		/**
+		 * Open the user settings dialog when the location hash is
+		 * `#user-settings`, the deep link that replaces /settings/user/decidiq.
+		 *
+		 * @return {void}
+		 * @spec openspec/specs/user-settings/spec.md
+		 */
+		openUserSettingsFromHash() {
+			const root = this.appRoot()
+			if (root && window.location.hash === USER_SETTINGS_HASH) {
+				root.userSettingsOpen = true
+			}
+		},
+
+		/**
+		 * The walkthrough replay section CnAppRoot draws in its own fallback,
+		 * which filling the #user-settings slot switches off. Reads CnAppRoot's
+		 * state and labels, so the wording and the behaviour stay the library's.
+		 *
+		 * @return {object|null} Section props for UserSettings, or null without a tour.
+		 * @spec openspec/specs/user-settings/spec.md
+		 */
+		walkthroughSettings() {
+			const root = this.appRoot()
+			if (!root || !root.walkthroughEnabled) {
+				return null
+			}
+			const inProgress = Boolean(root.walkthroughProgressValue)
+			return {
+				sectionName: root.restartWalkthroughSectionName,
+				hint: root.restartWalkthroughHint,
+				inProgress,
+				continueLabel: root.continueWalkthroughLabel,
+				restartLabel: inProgress
+					? root.startOverWalkthroughLabel
+					: root.restartWalkthroughLabel,
+			}
+		},
+
 		/**
 		 * Translate function passed down to CnAppRoot / CnAppNav /
 		 * CnPageRenderer. Closes over the Nextcloud `translate` import so

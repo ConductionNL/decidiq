@@ -138,14 +138,14 @@ describe('the full profile', () => {
 		}
 	})
 
-	it('still counts 44 entries: 24 main, 3 footer, 17 settings', () => {
+	it('still counts 43 entries: 24 main, 3 footer, 16 settings', () => {
 		const menu = build(fullFile).menu
 		const count = (name) =>
 			flat(menu.filter((entry) => (entry.section || 'main') === name)).length
-		expect(flat(menu)).toHaveLength(44)
+		expect(flat(menu)).toHaveLength(43)
 		expect(count('main')).toBe(24)
 		expect(count('footer')).toBe(3)
-		expect(count('settings')).toBe(17)
+		expect(count('settings')).toBe(16)
 	})
 
 	it('still shows six entries at the top, the ones ADR-004 names', () => {
@@ -478,10 +478,10 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('builds the same 103 pages as the full profile, so every route stays', () => {
+	it('builds the same 102 pages as the full profile, so every route stays', () => {
 		const ids = (source) => source.pages.map((page) => page.id)
 		expect(ids(built)).toEqual(ids(build(fullFile)))
-		expect(built.pages).toHaveLength(103)
+		expect(built.pages).toHaveLength(102)
 	})
 
 	it('is a manifest the library accepts, captions and links included', () => {

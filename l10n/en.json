@@ -3209,7 +3209,14 @@
         "The Nextcloud account that holds this authority. Optional. Together with delegateGroup and acts it lets an app ask whether a person may perform an act; a toedeling without either stays documentation only.": "The Nextcloud account that holds this authority. Optional. Together with delegateGroup and acts it lets an app ask whether a person may perform an act; a toedeling without either stays documentation only.",
         "The Nextcloud group whose members hold this authority, for an authority given to a function rather than a named person. Optional.": "The Nextcloud group whose members hold this authority, for an authority given to a function rather than a named person. Optional.",
         "The act keys this authority covers, as the asking app names them (for example a decision type or a case type). An empty list covers no act: the delegated authority check never reads an empty list as 'everything'.": "The act keys this authority covers, as the asking app names them (for example a decision type or a case type). An empty list covers no act: the delegated authority check never reads an empty list as 'everything'.",
-        "Start from a template": "Start from a template"
+        "Start from a template": "Start from a template",
+        "Credentials": "Credentials",
+        "Notices": "Notices",
+        "Absence": "Absence",
+        "Contact": "Contact",
+        "Guided tour": "Guided tour",
+        "Continue the tour": "Continue the tour",
+        "Start again": "Start again"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

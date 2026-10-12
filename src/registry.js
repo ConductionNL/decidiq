@@ -136,7 +136,6 @@ import ParticipationPage from './views/participation/ParticipationPage.vue'
 // User settings (user-settings-v1): in-app mount of the personal settings
 // sections (notification / display / delegation / communication). The
 // canonical mount is the Nextcloud personal settings panel (ISettings).
-import UserSettingsPage from './views/settings/UserSettingsPage.vue'
 
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
@@ -459,7 +458,6 @@ export default {
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
-	UserSettingsPage: page(UserSettingsPage),
 
 	// --- Citizen participation (citizen-participation). ---
 	// Bespoke action surfaces: the citizen+staff participation view (reaction

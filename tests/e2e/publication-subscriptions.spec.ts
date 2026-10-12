@@ -19,7 +19,8 @@ test.describe('Publication subscriptions', () => {
 	test('a member subscribes to agendas and papers immediately, then removes it', async ({
 		page,
 	}) => {
-		await page.goto(`${BASE}/settings/user/decidiq`)
+		// The user settings dialog (no personal settings page since 11 Oct 2026).
+		await page.goto(`${BASE}/apps/decidiq/decisions#user-settings`)
 		const section = page.locator('[data-testid="subscriptions-section"]')
 		try {
 			await section.waitFor({ state: 'visible', timeout: 15_000 })
