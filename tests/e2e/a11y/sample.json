@@ -9,8 +9,7 @@
 		{ "id": "store", "pageId": "Store", "type": "store", "path": "/store", "owner": "decidiq" },
 		{ "id": "roadmap", "pageId": "FeaturesRoadmap", "type": "roadmap", "path": "/features-roadmap", "owner": "decidiq" },
 		{ "id": "flow", "pageId": "FlowDetail", "type": "flow-detail", "from": "/flows", "owner": "decidiq" },
-		{ "id": "live-meeting", "pageId": "LiveMeeting", "type": "custom", "from": "/meetings", "suffix": "/live", "owner": "decidiq" },
-		{ "id": "personal-settings", "pageId": "UserSettings", "type": "custom", "path": "/user-settings", "owner": "decidiq" }
+		{ "id": "live-meeting", "pageId": "LiveMeeting", "type": "custom", "from": "/meetings", "suffix": "/live", "owner": "decidiq" }
 	],
 	"processes": [
 		{ "id": "open-a-meeting", "title": "A member opens a meeting", "pages": ["meetings", "meeting"] },

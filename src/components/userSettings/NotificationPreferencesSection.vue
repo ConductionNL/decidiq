@@ -26,7 +26,6 @@
 	<div
 		class="user-settings-section"
 		data-testid="notification-preferences-section">
-		<h3>{{ t('decidiq', 'Notification preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(

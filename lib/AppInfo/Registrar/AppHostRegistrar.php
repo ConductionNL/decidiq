@@ -50,8 +50,7 @@ use Psr\Log\LoggerInterface;
  *     (`decidesk` register import — the register SLUG is frozen across the
  *     app-id rename, see appinfo/info.xml — plus publication-config CRUD).
  *   - `Settings\AdminSettings` (domain initial state: publication config,
- *     transcript-retention defaults) and `Sections\SettingsSection`,
- *     `Settings\PersonalSettings`, `Sections\PersonalSection`.
+ *     transcript-retention defaults) and `Sections\SettingsSection`.
  *   - `Repair\InitializeSettings` (voter_token_secret seeding + OR
  *     configuration import).
  *   - `Controller\PreferencesController` — the AppHost has no
