@@ -112,7 +112,7 @@ describe('contact details for members and bodies (REQ-BMT-002)', () => {
 		expect(
 			contactDetailPayload({
 				type: 'email',
-				value: 'griffie@raad.nl',
+				value: 'griffie@raad.example',
 				bodyId: COUNCIL,
 			}).governanceBody,
 		).toBe(COUNCIL)
@@ -123,9 +123,9 @@ describe('contact details for members and bodies (REQ-BMT-002)', () => {
 			contactSummary([
 				{ type: 'address', value: 'Stadhuisplein 1' },
 				{ type: 'cell', value: '06 12345678' },
-				{ type: 'email', value: 'pieter@raad.nl' },
+				{ type: 'email', value: 'pieter@raad.example' },
 			]),
-		).toEqual({ email: 'pieter@raad.nl', phone: '06 12345678' })
+		).toEqual({ email: 'pieter@raad.example', phone: '06 12345678' })
 		expect(contactSummary([])).toEqual({ email: '', phone: '' })
 	})
 

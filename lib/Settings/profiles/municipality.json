@@ -1473,7 +1473,7 @@
 						},
 						"slug": "cd-amsterdam-address",
 						"type": "address",
-						"value": "Amstel 1, Amsterdam",
+						"value": "Raadhuisplein 1, Voorbeeldstad",
 						"label": "Stadhuis",
 						"governanceBody": "gemeenteraad-amsterdam"
 					},
@@ -1485,9 +1485,9 @@
 						},
 						"slug": "cd-femke-email",
 						"type": "email",
-						"value": "f.halsema@amsterdam.nl",
+						"value": "w.doornbos@gemeente.example",
 						"label": "Werk",
-						"person": "femke-halsema"
+						"person": "wieteke-doornbos"
 					},
 					{
 						"@self": {
@@ -1499,7 +1499,7 @@
 						"type": "phone",
 						"value": "+31 20 624 1111",
 						"label": "Bestuurssecretariaat",
-						"person": "femke-halsema"
+						"person": "wieteke-doornbos"
 					}
 				],
 				"decision": [
@@ -1827,7 +1827,7 @@
 						"label": "Advies raadscommissie",
 						"note": "Commissie adviseert de raad de begroting ongewijzigd vast te stellen.",
 						"decision": "besluit-begroting-2027",
-						"assignedPerson": "femke-halsema"
+						"assignedPerson": "wieteke-doornbos"
 					},
 					{
 						"@self": {
@@ -2222,7 +2222,7 @@
 						"description": "Netto CO2-uitstoot van de gemeentelijke organisatie naar nul in 2050, conform het raadsbesluit klimaatakkoord.",
 						"horizon": "multi-year",
 						"body": "gemeenteraad-amsterdam",
-						"owner": "femke-halsema",
+						"owner": "wieteke-doornbos",
 						"startDate": "2026-01-01",
 						"deadline": "2050-01-01",
 						"status": "active",
@@ -2446,7 +2446,7 @@
 						"deadline": "2026-06-30",
 						"lifecycle": "disposed",
 						"settlementNotes": "Evaluatierapport aangeboden bij kadernota 2026; besproken in commissie Middelen.",
-						"settlementEvidence": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
+						"settlementEvidence": "https://gemeente-voorbeeldingen.example/raadsbrieven/evaluatie-afvalbeleid-2026.pdf",
 						"relatedMotion": "00000000-0000-0000-0000-000000000000",
 						"publicationDate": "2026-02-10T09:00:00Z"
 					},
@@ -3009,7 +3009,7 @@
 						"party": "GroenLinks",
 						"votingWeight": 1,
 						"startDate": "2018-05-30T00:00:00Z",
-						"person": "femke-halsema",
+						"person": "wieteke-doornbos",
 						"governanceBody": "gemeenteraad-amsterdam",
 						"post": "post-voorzitter-amsterdam"
 					},
@@ -3024,7 +3024,7 @@
 						"label": "Burgemeester",
 						"votingWeight": 1,
 						"startDate": "2018-07-12T00:00:00Z",
-						"person": "femke-halsema",
+						"person": "wieteke-doornbos",
 						"governanceBody": "college-van-b-en-w-amsterdam",
 						"portfolio": [
 							"Public order and safety",
@@ -3481,10 +3481,10 @@
 							"register": "decidiq",
 							"schema": "participant"
 						},
-						"slug": "femke-halsema",
-						"displayName": "Femke Halsema",
+						"slug": "wieteke-doornbos",
+						"displayName": "Wieteke Doornbos",
 						"role": "chair",
-						"email": "f.halsema@amsterdam.nl",
+						"email": "w.doornbos@gemeente.example",
 						"joinedAt": "2018-05-30T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -3497,7 +3497,7 @@
 						"slug": "jan-de-vries",
 						"displayName": "Jan de Vries",
 						"role": "secretary",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"joinedAt": "2021-01-15T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -3511,7 +3511,7 @@
 						"displayName": "Marie Janssen",
 						"role": "member",
 						"party": "D66",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"joinedAt": "2022-03-16T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -3524,7 +3524,7 @@
 						"slug": "pieter-bakker",
 						"displayName": "Pieter Bakker",
 						"role": "chair",
-						"email": "p.bakker@utrecht.nl",
+						"email": "p.bakker@gemeente.example",
 						"joinedAt": "2020-06-01T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -3580,13 +3580,13 @@
 							"register": "decidiq",
 							"schema": "person"
 						},
-						"slug": "femke-halsema",
-						"name": "Femke Halsema",
+						"slug": "wieteke-doornbos",
+						"name": "Wieteke Doornbos",
 						"givenName": "Femke",
-						"familyName": "Halsema",
+						"familyName": "Doornbos",
 						"gender": "female",
-						"email": "f.halsema@amsterdam.nl",
-						"biography": "Burgemeester van Amsterdam, voorzitter van de gemeenteraad."
+						"email": "w.doornbos@gemeente.example",
+						"biography": "Burgemeester, voorzitter van de gemeenteraad."
 					},
 					{
 						"@self": {
@@ -3599,7 +3599,7 @@
 						"givenName": "Jan",
 						"familyName": "de Vries",
 						"gender": "male",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"biography": "Secretaris / griffier."
 					},
 					{
@@ -3628,7 +3628,7 @@
 						"givenName": "Marie",
 						"familyName": "Janssen",
 						"gender": "female",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"biography": "Raadslid en lid van de VNG-ledenraad."
 					},
 					{
@@ -4132,7 +4132,7 @@
 						"castAt": "2026-04-15T21:05:00Z",
 						"castAs": "in-person",
 						"votingRound": "stemming-begroting-2027-gemeenteraad",
-						"participant": "femke-halsema"
+						"participant": "wieteke-doornbos"
 					},
 					{
 						"@self": {

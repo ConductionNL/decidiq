@@ -447,11 +447,20 @@
 				"schema": "governance-body",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"searchPlaceholder": "Search in this list",
+				"footerNote": "click a column header to sort",
+				"_boardNote": "Board DcOrganen: the lenses All, Governing bodies, Committees and Other bodies with their counts, over the stored bodyType. Governing bodies are the bodies that govern (legislative, executive-board, corporate-board, supervisory-board), Committees are the advisory bodies, Other bodies is every other bodyType, listed by value so a body of each type sits in exactly one lens. A list value filters as IN. The columns were already the board's four; they get the board's headers.",
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true, "showCount": true },
+					{ "label": "Governing bodies", "filter": { "bodyType": ["legislative", "executive-board", "corporate-board", "supervisory-board"] }, "showCount": true },
+					{ "label": "Committees", "filter": { "bodyType": ["advisory-body"] }, "showCount": true },
+					{ "label": "Other bodies", "filter": { "bodyType": ["association", "operational", "citizen-panel", "works-council", "shared-body", "faction"] }, "showCount": true }
+				],
 				"columns": [
-					"name",
-					"bodyType",
-					"domain",
-					"termEnd"
+					{ "key": "name", "label": "Name" },
+					{ "key": "bodyType", "label": "Type of body" },
+					{ "key": "domain", "label": "Domain" },
+					{ "key": "termEnd", "label": "Term ends", "widget": "date" }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -542,24 +551,27 @@
 				"schema": "meeting",
 				"excludeFields": ["lifecycle"],
 				"sortKey": "scheduledDate",
-				"sortOrder": "asc",
+				"sortOrder": "desc",
 				"searchPlaceholder": "Search in this list",
 				"footerNote": "click a column header to sort",
-				"_boardNote": "Board DcVergaderingen: the lenses Upcoming (default), This month and Completed with their counts, and the columns Date and time, Body (with the meeting's title under it), Location, Agenda items, Status and Chair. The list reads soonest first, as the board's count line says. ALL is a fourth lens the board does not draw: without it a scheduled meeting whose date has passed but that was never closed would sit in no lens at all, and the list used to show every meeting. Title, meeting type and attendance mode are no longer default columns (the title is the second line under Body); the columns tab adds any of them back. They are not declared with hidden:true because nextcloud-vue 2.81 renders such a column anyway. Upcoming and This month carry no count: nextcloud-vue 2.81 counts a flat `field[gte]` filter through the aggregate endpoint, which answers 0, while the list itself filters right.",
+				"_boardNote": "Board DcVergaderingen: the lenses Upcoming (default), This month and Completed with their counts, and the columns Date and time, Body (with the meeting's title under it), Location, Agenda items, Status and Chair. The page reads newest first; the Upcoming lens sets its own order, soonest first, as the board's count line says. ALL is a fourth lens the board does not draw: without it a scheduled meeting whose date has passed but that was never closed would sit in no lens at all, and the list used to show every meeting. Title, meeting type and attendance mode are declared hidden (the title is the second line under Body); the columns tab adds any of them back. Date and time is the date tile with the end time from endDate, Chair the avatar and name of the referenced participant (nextcloud-vue 2.82). The board's second lines under Body and Location (meeting type, attendance mode) wait for x-enum-labels on the meeting schema: without them the secondary line shows the stored value.",
 				"quickFilters": [
-					{ "label": "Upcoming", "filter": { "scheduledDate[gte]": "@now" }, "default": true },
-					{ "label": "This month", "filter": { "scheduledDate[gte]": "@monthStart", "scheduledDate[lt]": "@nextMonthStart" } },
+					{ "label": "Upcoming", "filter": { "scheduledDate[gte]": "@now" }, "sort": { "key": "scheduledDate", "order": "asc" }, "showCount": true, "default": true },
+					{ "label": "This month", "filter": { "scheduledDate[gte]": "@monthStart", "scheduledDate[lt]": "@nextMonthStart" }, "showCount": true },
 					{ "label": "Completed", "filter": { "lifecycle": "closed" }, "showCount": true },
 					{ "label": "All", "filter": {}, "showCount": true }
 				],
 				"_note": "actionsComponent injects the Table/Calendar segmented control (configurable-types-domain-model). CnIndexPage offers table/cards/list/map and its viewMode validator rejects anything else, so a calendar cannot be a shared view mode without editing @conduction/nextcloud-vue, which a leaf app must not fork; the toggle routes to the sibling MeetingsCalendar page instead and leaves this table untouched. The new `type` reference is DELIBERATELY NOT a column here: an index cell renders a reference as its raw uuid, and a table of uuids is worse than no column at all. It is surfaced on MeetingDetail, where the reference resolves. Restoring it as a column needs a `meetingTypeName` formatter of dossiq's lookupRelatedName shape, which decidiq has no formatter plumbing for yet — that is the follow-up, not a silent omission.",
 				"columns": [
-					{ "key": "scheduledDate", "label": "Date and time", "widget": "date", "widgetProps": { "showTime": true } },
+					{ "key": "scheduledDate", "label": "Date and time", "widget": "date", "widgetProps": { "layout": "block", "endField": "endDate" } },
 					{ "key": "governanceBody", "label": "Body", "labelField": "name", "secondary": "{title}" },
 					{ "key": "location", "label": "Location" },
 					{ "key": "agendaItems", "label": "Agenda items", "sortable": false, "align": "right", "aggregate": { "schema": "agenda-item", "op": "count", "where": { "meeting": "@self.id" }, "zeroLabel": "none yet" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge", "colorMap": { "draft": "default", "scheduled": "primary", "opened": "success", "paused": "warning", "adjourned": "warning", "closed": "default" } },
-					{ "key": "chair", "label": "Chair", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "participant", "labelField": "displayName" } }
+					{ "key": "chair", "label": "Chair", "widget": "avatar", "widgetProps": { "size": 28, "resolve": { "register": "decidiq", "schema": "participant", "labelField": "displayName" } } },
+					{ "key": "title", "label": "Title", "hidden": true },
+					{ "key": "meetingType", "label": "Meeting type", "hidden": true },
+					{ "key": "meetingMode", "label": "Mode", "hidden": true }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -1161,6 +1173,8 @@
 				"schema": "decision",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"searchPlaceholder": "Search in this list",
+				"footerNote": "click a column header to sort",
 				"bulkActions": [
 					{ "id": "export-bundle", "label": "Export with attachments", "icon": "FilePdfBox", "handler": "exportDecisionsWithAttachments" }
 				],
@@ -1189,7 +1203,7 @@
 					},
 					{
 						"key": "lifecycle",
-						"label": "Lifecycle",
+						"label": "Stage",
 						"widget": "badge"
 					},
 					{
@@ -1209,7 +1223,7 @@
 					},
 					{
 						"key": "effectiveStatus",
-						"label": "Effective status",
+						"label": "Validity",
 						"widget": "badge",
 						"computed": true
 					},
