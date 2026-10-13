@@ -46,7 +46,7 @@ test('a member profile with memberships, portfolio and outside positions', async
 		domain: 'municipality',
 	})
 	const femke = await createObject(page, ledger, 'person', {
-		name: `${tag}-Femke Halsema`,
+		name: `${tag}-Wieteke Doornbos`,
 		biography: `${tag} biography`,
 	})
 	await createObject(page, ledger, 'membership', {
@@ -79,7 +79,7 @@ test('a member profile with memberships, portfolio and outside positions', async
 	)
 	await page
 		.getByTestId('body-members-tab')
-		.getByRole('link', { name: `${tag}-Femke Halsema` })
+		.getByRole('link', { name: `${tag}-Wieteke Doornbos` })
 		.click()
 	await expect(page).toHaveURL(new RegExp(`/people/${idOf(femke)}`))
 

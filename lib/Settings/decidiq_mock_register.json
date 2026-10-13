@@ -1101,7 +1101,7 @@
             "title": "Value",
             "type": "string",
             "description": "Contact value e.g. email address (Popolo: value)",
-            "example": "f.halsema@amsterdam.nl"
+            "example": "w.doornbos@gemeente.example"
           },
           "label": {
             "title": "Label",
@@ -4425,13 +4425,13 @@
             "title": "Full name",
             "type": "string",
             "description": "Full name (Popolo: name)",
-            "example": "Femke Halsema"
+            "example": "Wieteke Doornbos"
           },
           "familyName": {
             "title": "Family name",
             "type": "string",
             "description": "Family name (Popolo: family_name)",
-            "example": "Halsema"
+            "example": "Doornbos"
           },
           "givenName": {
             "title": "Given name",

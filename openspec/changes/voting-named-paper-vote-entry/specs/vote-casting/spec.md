@@ -31,11 +31,11 @@ The system SHALL expose `POST /api/voting-rounds/{id}/recorded-votes` to the cha
 
 #### Scenario: The griffier enters a paper roll call
 
-- GIVEN a closed paper vote in meeting M where Halsema and Bakker voted for and Yilmaz against
+- GIVEN a closed paper vote in meeting M where Doornbos and Bakker voted for and Yilmaz against
 - AND `griffier1` is the secretary of M
 - WHEN `griffier1` opens "Record votes by name" on the open `roll-call` round, sets the three choices and saves
 - THEN three votes exist on the round, each naming its participant, with `entryMode: recorded` and `recordedBy: griffier1`
-- AND the motion's "Votes" widget lists Halsema for, Bakker for and Yilmaz against
+- AND the motion's "Votes" widget lists Doornbos for, Bakker for and Yilmaz against
 
 #### Scenario: A whole party at once
 
