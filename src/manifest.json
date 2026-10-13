@@ -544,10 +544,11 @@
 				"sortKey": "scheduledDate",
 				"sortOrder": "asc",
 				"searchPlaceholder": "Search in this list",
-				"_boardNote": "Board DcVergaderingen: the lenses Upcoming (default), This month and Completed with their counts, and the columns Date and time, Body (with the meeting's title under it), Location, Agenda items, Status and Chair. The list reads soonest first, as the board's count line says. ALL is a fourth lens the board does not draw: without it a scheduled meeting whose date has passed but that was never closed would sit in no lens at all, and the list used to show every meeting. Meeting type and attendance mode stay as hidden columns (the columns tab turns them on): the second line under a cell shows the stored value, not its label, so they cannot read Dutch there yet.",
+				"footerNote": "click a column header to sort",
+				"_boardNote": "Board DcVergaderingen: the lenses Upcoming (default), This month and Completed with their counts, and the columns Date and time, Body (with the meeting's title under it), Location, Agenda items, Status and Chair. The list reads soonest first, as the board's count line says. ALL is a fourth lens the board does not draw: without it a scheduled meeting whose date has passed but that was never closed would sit in no lens at all, and the list used to show every meeting. Title, meeting type and attendance mode are no longer default columns (the title is the second line under Body); the columns tab adds any of them back. They are not declared with hidden:true because nextcloud-vue 2.81 renders such a column anyway. Upcoming and This month carry no count: nextcloud-vue 2.81 counts a flat `field[gte]` filter through the aggregate endpoint, which answers 0, while the list itself filters right.",
 				"quickFilters": [
-					{ "label": "Upcoming", "filter": { "scheduledDate[gte]": "@now" }, "default": true, "showCount": true },
-					{ "label": "This month", "filter": { "scheduledDate[gte]": "@monthStart", "scheduledDate[lt]": "@nextMonthStart" }, "showCount": true },
+					{ "label": "Upcoming", "filter": { "scheduledDate[gte]": "@now" }, "default": true },
+					{ "label": "This month", "filter": { "scheduledDate[gte]": "@monthStart", "scheduledDate[lt]": "@nextMonthStart" } },
 					{ "label": "Completed", "filter": { "lifecycle": "closed" }, "showCount": true },
 					{ "label": "All", "filter": {}, "showCount": true }
 				],
@@ -558,10 +559,7 @@
 					{ "key": "location", "label": "Location" },
 					{ "key": "agendaItems", "label": "Agenda items", "sortable": false, "align": "right", "aggregate": { "schema": "agenda-item", "op": "count", "where": { "meeting": "@self.id" }, "zeroLabel": "none yet" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge", "colorMap": { "draft": "default", "scheduled": "primary", "opened": "success", "paused": "warning", "adjourned": "warning", "closed": "default" } },
-					{ "key": "chair", "label": "Chair", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "participant", "labelField": "displayName" } },
-					{ "key": "title", "label": "Title", "hidden": true },
-					{ "key": "meetingType", "label": "Meeting type", "hidden": true },
-					{ "key": "meetingMode", "label": "Mode", "widget": "badge", "hidden": true }
+					{ "key": "chair", "label": "Chair", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "participant", "labelField": "displayName" } }
 				],
 				"sidebar": {
 					"enabled": true,
