@@ -514,7 +514,7 @@
 						"slug": "or-p-sanne-de-groot",
 						"displayName": "Sanne de Groot",
 						"role": "chair",
-						"email": "s.degroot@acme.nl",
+						"email": "s.degroot@acme.example",
 						"joinedAt": "2025-04-01T00:00:00Z",
 						"votingWeight": 1,
 						"attendanceStatus": "present",
@@ -530,7 +530,7 @@
 						"slug": "or-p-youssef-benali",
 						"displayName": "Youssef Benali",
 						"role": "secretary",
-						"email": "y.benali@acme.nl",
+						"email": "y.benali@acme.example",
 						"joinedAt": "2025-04-01T00:00:00Z",
 						"votingWeight": 1,
 						"attendanceStatus": "present",
@@ -546,7 +546,7 @@
 						"slug": "or-p-linda-vermeer",
 						"displayName": "Linda Vermeer",
 						"role": "member",
-						"email": "l.vermeer@acme.nl",
+						"email": "l.vermeer@acme.example",
 						"joinedAt": "2025-04-01T00:00:00Z",
 						"votingWeight": 1,
 						"attendanceStatus": "present",
@@ -562,7 +562,7 @@
 						"slug": "or-p-dennis-kok",
 						"displayName": "Dennis Kok",
 						"role": "member",
-						"email": "d.kok@acme.nl",
+						"email": "d.kok@acme.example",
 						"joinedAt": "2025-04-01T00:00:00Z",
 						"votingWeight": 1,
 						"attendanceStatus": "present",
@@ -582,7 +582,7 @@
 						"givenName": "Sanne",
 						"familyName": "de Groot",
 						"gender": "female",
-						"email": "s.degroot@acme.nl",
+						"email": "s.degroot@acme.example",
 						"biography": "Voorzitter van de ondernemingsraad, teamleider logistiek."
 					},
 					{
@@ -596,7 +596,7 @@
 						"givenName": "Youssef",
 						"familyName": "Benali",
 						"gender": "male",
-						"email": "y.benali@acme.nl",
+						"email": "y.benali@acme.example",
 						"biography": "Secretaris van de ondernemingsraad, medewerker ICT-beheer."
 					},
 					{
@@ -610,7 +610,7 @@
 						"givenName": "Linda",
 						"familyName": "Vermeer",
 						"gender": "female",
-						"email": "l.vermeer@acme.nl",
+						"email": "l.vermeer@acme.example",
 						"biography": "OR-lid namens de productieploegen."
 					},
 					{
@@ -624,7 +624,7 @@
 						"givenName": "Dennis",
 						"familyName": "Kok",
 						"gender": "male",
-						"email": "d.kok@acme.nl",
+						"email": "d.kok@acme.example",
 						"biography": "OR-lid namens de servicedesk."
 					},
 					{
@@ -638,7 +638,7 @@
 						"givenName": "Hilde",
 						"familyName": "Jansen",
 						"gender": "female",
-						"email": "h.jansen@acme.nl",
+						"email": "h.jansen@acme.example",
 						"biography": "Bestuurder in de zin van de WOR, directeur bedrijfsvoering ACME B.V."
 					}
 				],

@@ -743,7 +743,7 @@ else
 	# their own bodies by slug (`gemeenteraad-amsterdam`, `ledenraad-vng`,
 	# `raad-van-bestuur-acme-bv`), none of which exist here — a dangling
 	# reference would seed an object the Goals index cannot resolve or render.
-	# `owner` is dropped for the same reason: `femke-halsema` is not a user on
+	# `owner` is dropped for the same reason: `wieteke-doornbos` is not a user on
 	# this instance, and it is not a required field.
 	seed_goal() {
 		# $1 = title, $2 = description, $3 = horizon, $4 = startDate,

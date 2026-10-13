@@ -285,14 +285,14 @@
 						"minRespondentThreshold": 3,
 						"invitedParticipantIds": [
 							"jan-de-vries",
-							"femke-halsema",
+							"wieteke-doornbos",
 							"marie-janssen"
 						],
 						"respondedParticipantIds": [
 							"jan-de-vries",
-							"femke-halsema"
+							"wieteke-doornbos"
 						],
-						"chairUserId": "femke.halsema",
+						"chairUserId": "wieteke.doornbos",
 						"secretaryUserId": "jan.devries",
 						"scoreSummary": "{\"overallScore\":3.6,\"respondentCount\":2,\"invitedMemberCount\":3,\"minRespondentThreshold\":3,\"thresholdMet\":false,\"suppressed\":true,\"dimensionScores\":null,\"themes\":null,\"computedAt\":\"2025-12-20T17:05:00Z\"}",
 						"governanceBody": "rvc-waterschap-amstel",
@@ -1522,7 +1522,7 @@
 						"meetingType": "regular",
 						"scheduledDate": "2025-04-14T09:00:00Z",
 						"endDate": "2025-04-14T11:00:00Z",
-						"location": "Stadskantoor Utrecht, Kamer 3.12",
+						"location": "Stadskantoor, kamer 3.12",
 						"meetingMode": "hybrid",
 						"lifecycle": "draft"
 					},
@@ -1573,7 +1573,7 @@
 						"meetingType": "regular",
 						"scheduledDate": "2025-02-05T10:00:00Z",
 						"endDate": "2025-02-05T13:00:00Z",
-						"location": "Waternet Kantoor, Amstel 1",
+						"location": "Kantoor waterschap, Dijkweg 1",
 						"meetingMode": "in-person",
 						"lifecycle": "closed"
 					}
@@ -1741,10 +1741,10 @@
 							"register": "decidiq",
 							"schema": "participant"
 						},
-						"slug": "femke-halsema",
-						"displayName": "Femke Halsema",
+						"slug": "wieteke-doornbos",
+						"displayName": "Wieteke Doornbos",
 						"role": "chair",
-						"email": "f.halsema@amsterdam.nl",
+						"email": "w.doornbos@gemeente.example",
 						"joinedAt": "2018-05-30T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -1757,7 +1757,7 @@
 						"slug": "jan-de-vries",
 						"displayName": "Jan de Vries",
 						"role": "secretary",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"joinedAt": "2021-01-15T00:00:00Z",
 						"votingWeight": 1
 					},
@@ -1771,7 +1771,7 @@
 						"displayName": "Marie Janssen",
 						"role": "member",
 						"party": "D66",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"joinedAt": "2022-03-16T00:00:00Z",
 						"votingWeight": 1
 					}
@@ -1783,13 +1783,13 @@
 							"register": "decidiq",
 							"schema": "person"
 						},
-						"slug": "femke-halsema",
-						"name": "Femke Halsema",
+						"slug": "wieteke-doornbos",
+						"name": "Wieteke Doornbos",
 						"givenName": "Femke",
-						"familyName": "Halsema",
+						"familyName": "Doornbos",
 						"gender": "female",
-						"email": "f.halsema@amsterdam.nl",
-						"biography": "Burgemeester van Amsterdam, voorzitter van de gemeenteraad."
+						"email": "w.doornbos@gemeente.example",
+						"biography": "Burgemeester, voorzitter van de gemeenteraad."
 					},
 					{
 						"@self": {
@@ -1802,7 +1802,7 @@
 						"givenName": "Jan",
 						"familyName": "de Vries",
 						"gender": "male",
-						"email": "j.devries@waterschap.nl",
+						"email": "j.devries@waterschap.example",
 						"biography": "Secretaris / griffier."
 					},
 					{
@@ -1831,7 +1831,7 @@
 						"givenName": "Marie",
 						"familyName": "Janssen",
 						"gender": "female",
-						"email": "m.janssen@amsterdam.nl",
+						"email": "m.janssen@gemeente.example",
 						"biography": "Raadslid en lid van de VNG-ledenraad."
 					},
 					{

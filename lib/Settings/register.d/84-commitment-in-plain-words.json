@@ -271,7 +271,7 @@
 						"title": "Afdoening evidence",
 						"type": "string",
 						"description": "Link or reference to evidence of afdoening (e.g. the raadsbrief). Optional. A plain URL/reference string: not a UID field, so the object stays fully publishable (design D4).",
-						"example": "https://gemeente-voorbeeldingen.nl/raadsbrieven/evaluatie-afvalbeleid-2026.pdf"
+						"example": "https://gemeente-voorbeeldingen.example/raadsbrieven/evaluatie-afvalbeleid-2026.pdf"
 					},
 					"relatedMotion": {
 						"title": "Related motion",
