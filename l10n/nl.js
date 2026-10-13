@@ -3534,7 +3534,18 @@ OC.L10N.register(
         "Contact": "Contact",
         "Guided tour": "Rondleiding",
         "Continue the tour": "Verder met de rondleiding",
-        "Start again": "Opnieuw beginnen"
+        "Start again": "Opnieuw beginnen",
+        "Governing bodies": "Bestuursorganen",
+        "Committees": "Commissies",
+        "Other bodies": "Overige organen",
+        "Type of body": "Soort orgaan",
+        "Term ends": "Zittingstermijn tot",
+        "click a column header to sort": "klik een kolomkop om te sorteren",
+        "Search in this list": "Zoeken in deze lijst",
+        "Validity": "Geldigheid",
+        "All commitments": "Alle toezeggingen",
+        "Still open": "Open",
+        "Over the deadline": "Over termijn"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3217,7 +3217,18 @@ OC.L10N.register(
         "Contact": "Contact",
         "Guided tour": "Guided tour",
         "Continue the tour": "Continue the tour",
-        "Start again": "Start again"
+        "Start again": "Start again",
+        "Governing bodies": "Governing bodies",
+        "Committees": "Committees",
+        "Other bodies": "Other bodies",
+        "Type of body": "Type of body",
+        "Term ends": "Term ends",
+        "click a column header to sort": "click a column header to sort",
+        "Search in this list": "Search in this list",
+        "Validity": "Validity",
+        "All commitments": "All commitments",
+        "Still open": "Still open",
+        "Over the deadline": "Over the deadline"
     },
     "nplurals=2; plural=(n != 1);"
 )
