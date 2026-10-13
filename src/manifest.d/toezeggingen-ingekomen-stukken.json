@@ -24,9 +24,10 @@
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
 				"_note": "Toezeggingenlijst (REQ-006). Columns text/madeBy/directedTo/deadline/lifecycle; quick filters on lifecycle and governance body. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome). The overdue-KPI deep-link (Dashboard) targets this page pre-filtered to non-terminal lifecycle (design D6).",
-				"_boardNote": "Board DcToezeggingen: the lenses as chips with counts (All commitments, Open, In execution, Over the deadline, Completed) instead of a multi-select dropdown. The Open lens is keyed Still open because the catalogue already translates Open as the verb Openen. Lapsed stays as the last chip so no lens is lost. Picking several statuses at once is still possible through the Status facet behind Filter, which is how the board draws it (Actief: Status open, Status in uitvoering). Over the deadline is a deadline before today on a commitment that is still open or in execution.",
+				"_boardNote": "Board DcToezeggingen: the lenses as chips with counts (All commitments, Open, In execution, Over the deadline, Completed) instead of a multi-select dropdown. The Open lens is keyed Still open because the catalogue already translates Open as the verb Openen. Lapsed stays as the last lens, behind the overflow chip (the board draws five), so no lens is lost. Picking several statuses at once is still possible through the Status facet behind Filter, which is how the board draws it (Actief: Status open, Status in uitvoering). Over the deadline is a deadline before today on a commitment that is still open or in execution.",
 				"searchPlaceholder": "Search in this list",
 				"footerNote": "click a column header to sort",
+				"quickFilterMaxVisible": 5,
 				"quickFilters": [
 					{ "label": "All commitments", "filter": {}, "default": true, "showCount": true },
 					{ "label": "Still open", "filter": { "lifecycle": "open" }, "showCount": true },
@@ -65,7 +66,7 @@
 						"key": "deadline",
 						"label": "Term",
 						"widget": "date",
-						"widgetProps": { "variantWhen": [{ "op": "lt", "value": 0, "variant": "error" }] }
+						"widgetProps": { "variantWhen": [{ "op": "lte", "value": 0, "variant": "error" }] }
 					},
 					{
 						"key": "lifecycle",

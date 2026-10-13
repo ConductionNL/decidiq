@@ -364,9 +364,12 @@ describe('the dashboard in the simple structure', () => {
 		expect(list.viewAllRoute.query).toEqual(asQuery(source.filter))
 		const target = pageOf(simple, list.viewAllRoute.name).config
 		expect(target.schema).toBe(source.schema)
+		// The lens is keyed 'Still open' (nl "Open"): the catalogue already
+		// translates the key 'Open' as the verb "Openen".
 		expect(target.quickFilters).toContainEqual({
-			label: 'Open',
+			label: 'Still open',
 			filter: source.filter,
+			showCount: true,
 		})
 		expect(pageOf(simple, list.rowRoute).type).toBe('detail')
 		// Today is late: zero days left is already the error colour.
