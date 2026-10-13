@@ -3539,8 +3539,6 @@ OC.L10N.register(
         "{total} motions": "{total} voorstellen",
         "{total} decisions": "{total} besluiten",
         "{total} governance bodies": "{total} organen",
-        "Import": "Importeren",
-        "Refresh": "Vernieuwen",
         "Upcoming": "Komende",
         "This month": "Deze maand",
         "Date and time": "Datum en tijd",

@@ -3222,8 +3222,6 @@ OC.L10N.register(
         "{total} motions": "{total} motions",
         "{total} decisions": "{total} decisions",
         "{total} governance bodies": "{total} governance bodies",
-        "Import": "Import",
-        "Refresh": "Refresh",
         "Upcoming": "Upcoming",
         "This month": "This month",
         "Date and time": "Date and time",

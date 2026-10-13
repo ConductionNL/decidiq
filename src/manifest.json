@@ -448,8 +448,7 @@
 				"countSubtitle": "{total} governance bodies",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "import", "label": "Import", "icon": "Upload" },
-					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
@@ -561,8 +560,7 @@
 				"countSubtitle": "{total} meetings",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "import", "label": "Import", "icon": "Upload" },
-					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
@@ -961,8 +959,7 @@
 				"countSubtitle": "{total} motions",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "import", "label": "Import", "icon": "Upload" },
-					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
@@ -1201,8 +1198,7 @@
 				"countSubtitle": "{total} decisions",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "import", "label": "Import", "icon": "Upload" },
-					{ "action": "refresh", "label": "Refresh", "icon": "Refresh" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
