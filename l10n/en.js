@@ -3217,7 +3217,12 @@ OC.L10N.register(
         "Contact": "Contact",
         "Guided tour": "Guided tour",
         "Continue the tour": "Continue the tour",
-        "Start again": "Start again"
+        "Start again": "Start again",
+        "Upcoming": "Upcoming",
+        "This month": "This month",
+        "Date and time": "Date and time",
+        "none yet": "none yet",
+        "Search in this list": "Search in this list"
     },
     "nplurals=2; plural=(n != 1);"
 )
