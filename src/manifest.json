@@ -447,11 +447,20 @@
 				"schema": "governance-body",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"searchPlaceholder": "Search in this list",
+				"footerNote": "click a column header to sort",
+				"_boardNote": "Board DcOrganen: the lenses All, Governing bodies, Committees and Other bodies with their counts, over the stored bodyType. Governing bodies are the bodies that govern (legislative, executive-board, corporate-board, supervisory-board), Committees are the advisory bodies, Other bodies is every other bodyType, listed by value so a body of each type sits in exactly one lens. A list value filters as IN. The columns were already the board's four; they get the board's headers.",
+				"quickFilters": [
+					{ "label": "All", "filter": {}, "default": true, "showCount": true },
+					{ "label": "Governing bodies", "filter": { "bodyType": ["legislative", "executive-board", "corporate-board", "supervisory-board"] }, "showCount": true },
+					{ "label": "Committees", "filter": { "bodyType": ["advisory-body"] }, "showCount": true },
+					{ "label": "Other bodies", "filter": { "bodyType": ["association", "operational", "citizen-panel", "works-council", "shared-body", "faction"] }, "showCount": true }
+				],
 				"columns": [
-					"name",
-					"bodyType",
-					"domain",
-					"termEnd"
+					{ "key": "name", "label": "Name" },
+					{ "key": "bodyType", "label": "Type of body" },
+					{ "key": "domain", "label": "Domain" },
+					{ "key": "termEnd", "label": "Term ends", "widget": "date" }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -1161,6 +1170,8 @@
 				"schema": "decision",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
+				"searchPlaceholder": "Search in this list",
+				"footerNote": "click a column header to sort",
 				"bulkActions": [
 					{ "id": "export-bundle", "label": "Export with attachments", "icon": "FilePdfBox", "handler": "exportDecisionsWithAttachments" }
 				],
@@ -1189,7 +1200,7 @@
 					},
 					{
 						"key": "lifecycle",
-						"label": "Lifecycle",
+						"label": "Stage",
 						"widget": "badge"
 					},
 					{
@@ -1209,7 +1220,7 @@
 					},
 					{
 						"key": "effectiveStatus",
-						"label": "Effective status",
+						"label": "Validity",
 						"widget": "badge",
 						"computed": true
 					},

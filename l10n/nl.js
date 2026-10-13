@@ -3540,7 +3540,13 @@ OC.L10N.register(
         "Date and time": "Datum en tijd",
         "none yet": "nog geen",
         "Search in this list": "Zoeken in deze lijst",
-        "click a column header to sort": "klik een kolomkop om te sorteren"
+        "click a column header to sort": "klik een kolomkop om te sorteren",
+        "Governing bodies": "Bestuursorganen",
+        "Committees": "Commissies",
+        "Other bodies": "Overige organen",
+        "Type of body": "Soort orgaan",
+        "Term ends": "Zittingstermijn tot",
+        "Validity": "Geldigheid"
     },
     "nplurals=2; plural=(n != 1);"
 )
