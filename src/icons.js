@@ -85,6 +85,7 @@ import Email from 'vue-material-design-icons/Email.vue'
 import EmailArrowLeftOutline from 'vue-material-design-icons/EmailArrowLeftOutline.vue'
 import EmailArrowRightOutline from 'vue-material-design-icons/EmailArrowRightOutline.vue'
 import EmailOutline from 'vue-material-design-icons/EmailOutline.vue'
+import Export from 'vue-material-design-icons/Export.vue'
 import EyeOutline from 'vue-material-design-icons/EyeOutline.vue'
 import FileChartOutline from 'vue-material-design-icons/FileChartOutline.vue'
 import FileCogOutline from 'vue-material-design-icons/FileCogOutline.vue'
@@ -107,6 +108,7 @@ import GiftOutline from 'vue-material-design-icons/GiftOutline.vue'
 import HandshakeOutline from 'vue-material-design-icons/HandshakeOutline.vue'
 import History from 'vue-material-design-icons/History.vue'
 import HomeOutline from 'vue-material-design-icons/HomeOutline.vue'
+import Import from 'vue-material-design-icons/Import.vue'
 import InboxOutline from 'vue-material-design-icons/InboxOutline.vue'
 import LibraryOutline from 'vue-material-design-icons/LibraryOutline.vue'
 import Lightbulb from 'vue-material-design-icons/Lightbulb.vue'
@@ -141,6 +143,7 @@ import TextBoxSearchOutline from 'vue-material-design-icons/TextBoxSearchOutline
 import ThumbUpOutline from 'vue-material-design-icons/ThumbUpOutline.vue'
 import Timeline from 'vue-material-design-icons/Timeline.vue'
 import TransitConnectionVariant from 'vue-material-design-icons/TransitConnectionVariant.vue'
+import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import TrayFull from 'vue-material-design-icons/TrayFull.vue'
 import Video from 'vue-material-design-icons/Video.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
@@ -221,6 +224,7 @@ export default {
 	EmailArrowLeftOutline,
 	EmailArrowRightOutline,
 	EmailOutline,
+	Export,
 	EyeOutline,
 	FileChartOutline,
 	FileDocument,
@@ -243,6 +247,7 @@ export default {
 	HandshakeOutline,
 	History,
 	HomeOutline,
+	Import,
 	InboxOutline,
 	LibraryOutline,
 	Lightbulb,
@@ -277,6 +282,7 @@ export default {
 	ThumbUpOutline,
 	Timeline,
 	TransitConnectionVariant,
+	TrashCanOutline,
 	TrayFull,
 	Video,
 	ViewDashboardOutline,
