@@ -1452,16 +1452,16 @@
 				"title": "Collegevergadering",
 				"meetingType": "regular",
 				"governanceBody": "{{object:body-college.id}}",
-				"scheduledDate": "{{datetime:-32 09:30}}",
-				"endDate": "{{datetime:-32 12:00}}",
+				"scheduledDate": "{{datetime:-32@tue 10:00}}",
+				"endDate": "{{datetime:-32@tue 12:30}}",
 				"location": "Stadskantoor, collegekamer",
 				"meetingMode": "in-person",
 				"lifecycle": "closed",
 				"chair": "Ingrid Tuinman",
 				"isPublic": false,
-				"agendaPublishedAt": "{{datetime:-39 09:00}}",
-				"openedAt": "{{datetime:-32 09:30}}",
-				"closedAt": "{{datetime:-32 12:00}}"
+				"agendaPublishedAt": "{{datetime:-39@tue 09:00}}",
+				"openedAt": "{{datetime:-32@tue 10:00}}",
+				"closedAt": "{{datetime:-32@tue 12:30}}"
 			}
 		},
 		{
@@ -1511,16 +1511,16 @@
 				"title": "Raadsvergadering",
 				"meetingType": "regular",
 				"governanceBody": "{{object:body-gemeenteraad.id}}",
-				"scheduledDate": "{{datetime:-25 19:30}}",
-				"endDate": "{{datetime:-25 23:00}}",
+				"scheduledDate": "{{datetime:-25@thu 19:30}}",
+				"endDate": "{{datetime:-25@thu 23:00}}",
 				"location": "Stadskantoor, raadzaal",
 				"meetingMode": "hybrid",
 				"lifecycle": "closed",
 				"chair": "Ingrid Tuinman",
 				"isPublic": true,
-				"agendaPublishedAt": "{{datetime:-32 09:00}}",
-				"openedAt": "{{datetime:-25 19:30}}",
-				"closedAt": "{{datetime:-25 23:00}}"
+				"agendaPublishedAt": "{{datetime:-32@thu 09:00}}",
+				"openedAt": "{{datetime:-25@thu 19:30}}",
+				"closedAt": "{{datetime:-25@thu 23:00}}"
 			}
 		},
 		{
@@ -1596,16 +1596,16 @@
 				"title": "Collegevergadering",
 				"meetingType": "regular",
 				"governanceBody": "{{object:body-college.id}}",
-				"scheduledDate": "{{datetime:-7 09:30}}",
-				"endDate": "{{datetime:-7 12:00}}",
+				"scheduledDate": "{{datetime:-7@tue 10:00}}",
+				"endDate": "{{datetime:-7@tue 12:30}}",
 				"location": "Stadskantoor, collegekamer",
 				"meetingMode": "in-person",
 				"lifecycle": "closed",
 				"chair": "Ingrid Tuinman",
 				"isPublic": false,
-				"agendaPublishedAt": "{{datetime:-14 09:00}}",
-				"openedAt": "{{datetime:-7 09:30}}",
-				"closedAt": "{{datetime:-7 12:00}}"
+				"agendaPublishedAt": "{{datetime:-14@tue 09:00}}",
+				"openedAt": "{{datetime:-7@tue 10:00}}",
+				"closedAt": "{{datetime:-7@tue 12:30}}"
 			}
 		},
 		{
@@ -1642,16 +1642,16 @@
 				"title": "Raadsvergadering",
 				"meetingType": "regular",
 				"governanceBody": "{{object:body-gemeenteraad.id}}",
-				"scheduledDate": "{{datetime:-11 19:30}}",
-				"endDate": "{{datetime:-11 22:30}}",
+				"scheduledDate": "{{datetime:-11@thu 19:30}}",
+				"endDate": "{{datetime:-11@thu 22:30}}",
 				"location": "Stadskantoor, raadzaal",
 				"meetingMode": "hybrid",
 				"lifecycle": "closed",
 				"chair": "Ingrid Tuinman",
 				"isPublic": true,
-				"agendaPublishedAt": "{{datetime:-18 09:00}}",
-				"openedAt": "{{datetime:-11 19:30}}",
-				"closedAt": "{{datetime:-11 22:30}}"
+				"agendaPublishedAt": "{{datetime:-18@thu 09:00}}",
+				"openedAt": "{{datetime:-11@thu 19:30}}",
+				"closedAt": "{{datetime:-11@thu 22:30}}"
 			}
 		},
 		{
@@ -1701,14 +1701,14 @@
 				"title": "Raadsvergadering",
 				"meetingType": "regular",
 				"governanceBody": "{{object:body-gemeenteraad.id}}",
-				"scheduledDate": "{{datetime:3 19:30}}",
-				"endDate": "{{datetime:3 23:00}}",
+				"scheduledDate": "{{datetime:3@thu 19:30}}",
+				"endDate": "{{datetime:3@thu 23:00}}",
 				"location": "Stadskantoor, raadzaal",
 				"meetingMode": "hybrid",
 				"lifecycle": "scheduled",
 				"chair": "Ingrid Tuinman",
 				"isPublic": true,
-				"agendaPublishedAt": "{{datetime:-4 09:00}}"
+				"agendaPublishedAt": "{{datetime:-4@thu 09:00}}"
 			}
 		},
 		{
@@ -1784,14 +1784,14 @@
 				"title": "Collegevergadering",
 				"meetingType": "regular",
 				"governanceBody": "{{object:body-college.id}}",
-				"scheduledDate": "{{datetime:6 09:30}}",
-				"endDate": "{{datetime:6 12:00}}",
+				"scheduledDate": "{{datetime:6@tue 10:00}}",
+				"endDate": "{{datetime:6@tue 12:30}}",
 				"location": "Stadskantoor, collegekamer",
 				"meetingMode": "in-person",
 				"lifecycle": "scheduled",
 				"chair": "Ingrid Tuinman",
 				"isPublic": false,
-				"agendaPublishedAt": "{{datetime:-1 09:00}}"
+				"agendaPublishedAt": "{{datetime:-1@tue 09:00}}"
 			}
 		},
 		{
@@ -1827,9 +1827,9 @@
 			"data": {
 				"meeting": "{{object:meeting-college-1.id}}",
 				"agendaItem": "{{object:agenda-college-1-2.id}}",
-				"decisionDate": "{{datetime:-32 10:15}}",
+				"decisionDate": "{{datetime:-32@tue 10:30}}",
 				"isPublished": "public",
-				"publishedAt": "{{datetime:-31 09:00}}",
+				"publishedAt": "{{datetime:-31@wed 09:00}}",
 				"securityClassification": "openbaar",
 				"decisionType": "meeting-outcome",
 				"title": "Collegebesluit: raadsvoorstel verlichting fietspad Lindelaan",
@@ -1853,9 +1853,9 @@
 			"data": {
 				"meeting": "{{object:meeting-college-1.id}}",
 				"agendaItem": "{{object:agenda-college-1-3.id}}",
-				"decisionDate": "{{datetime:-32 10:40}}",
+				"decisionDate": "{{datetime:-32@tue 11:00}}",
 				"isPublished": "public",
-				"publishedAt": "{{datetime:-31 09:00}}",
+				"publishedAt": "{{datetime:-31@wed 09:00}}",
 				"securityClassification": "openbaar",
 				"decisionType": "meeting-outcome",
 				"title": "Collegebesluit: raadsvoorstel afvalstoffenheffing 2027",
@@ -1878,9 +1878,9 @@
 			"data": {
 				"meeting": "{{object:meeting-raad-1.id}}",
 				"agendaItem": "{{object:agenda-raad-1-3.id}}",
-				"decisionDate": "{{datetime:-25 21:10}}",
+				"decisionDate": "{{datetime:-25@thu 21:10}}",
 				"isPublished": "public",
-				"publishedAt": "{{datetime:-24 09:00}}",
+				"publishedAt": "{{datetime:-24@fri 09:00}}",
 				"securityClassification": "openbaar",
 				"decisionType": "meeting-outcome",
 				"title": "Krediet verlichting fietspad Lindelaan",
@@ -1892,7 +1892,7 @@
 				"resolutionNumber": "RB-2026-047",
 				"voteType": "named",
 				"voteThreshold": "simple-majority",
-				"adoptionDate": "{{datetime:-25 21:10}}",
+				"adoptionDate": "{{datetime:-25@thu 21:10}}",
 				"themes": [
 					"verkeer",
 					"openbare ruimte"
@@ -1910,9 +1910,9 @@
 			"data": {
 				"meeting": "{{object:meeting-raad-1.id}}",
 				"agendaItem": "{{object:agenda-raad-1-4.id}}",
-				"decisionDate": "{{datetime:-25 21:45}}",
+				"decisionDate": "{{datetime:-25@thu 21:45}}",
 				"isPublished": "public",
-				"publishedAt": "{{datetime:-24 09:00}}",
+				"publishedAt": "{{datetime:-24@fri 09:00}}",
 				"securityClassification": "openbaar",
 				"decisionType": "motion",
 				"motionType": "motion",
@@ -1922,7 +1922,7 @@
 				"coSigners": [
 					"Nadia Ouali (Sociaal Zuiddrecht)"
 				],
-				"submittedAt": "{{datetime:-26 12:00}}",
+				"submittedAt": "{{datetime:-26@wed 12:00}}",
 				"lifecycle": "decided",
 				"outcome": "rejected",
 				"voteType": "named",
@@ -1940,9 +1940,9 @@
 			"data": {
 				"meeting": "{{object:meeting-raad-2.id}}",
 				"agendaItem": "{{object:agenda-raad-2-2.id}}",
-				"decisionDate": "{{datetime:-11 20:30}}",
+				"decisionDate": "{{datetime:-11@thu 20:30}}",
 				"isPublished": "public",
-				"publishedAt": "{{datetime:-10 09:00}}",
+				"publishedAt": "{{datetime:-10@fri 09:00}}",
 				"securityClassification": "openbaar",
 				"decisionType": "resolution",
 				"title": "Verordening afvalstoffenheffing 2027",
@@ -1953,7 +1953,7 @@
 				"resolutionNumber": "RB-2026-052",
 				"voteType": "named",
 				"voteThreshold": "simple-majority",
-				"adoptionDate": "{{datetime:-11 20:30}}",
+				"adoptionDate": "{{datetime:-11@thu 20:30}}",
 				"effectiveDate": "{{date:80}}",
 				"themes": [
 					"afval",
@@ -1971,9 +1971,9 @@
 			"data": {
 				"meeting": "{{object:meeting-college-2.id}}",
 				"agendaItem": "{{object:agenda-college-2-2.id}}",
-				"decisionDate": "{{datetime:-7 10:20}}",
+				"decisionDate": "{{datetime:-7@tue 10:45}}",
 				"isPublished": "public",
-				"publishedAt": "{{datetime:-6 09:00}}",
+				"publishedAt": "{{datetime:-6@wed 09:00}}",
 				"securityClassification": "openbaar",
 				"decisionType": "meeting-outcome",
 				"title": "Collegebesluit: opdracht aanleg verlichting fietspad Lindelaan",
@@ -2018,8 +2018,8 @@
 			"data": {
 				"votingMethod": "for-against-abstain",
 				"isSecret": false,
-				"openedAt": "{{datetime:-25 21:00}}",
-				"closedAt": "{{datetime:-25 21:05}}",
+				"openedAt": "{{datetime:-25@thu 21:00}}",
+				"closedAt": "{{datetime:-25@thu 21:05}}",
 				"quorumWith": true,
 				"result": "adopted",
 				"votesFor": 22,
@@ -2039,7 +2039,7 @@
 				"stageType": "decisive",
 				"status": "decided",
 				"outcome": "adopted",
-				"decidedAt": "{{datetime:-25 21:05}}",
+				"decidedAt": "{{datetime:-25@thu 21:05}}",
 				"method": "vote",
 				"decisionMakerType": "body",
 				"label": "Besluit van de gemeenteraad",
@@ -2056,7 +2056,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-gerard-lammers.id}}"
@@ -2070,7 +2070,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-monique-dekker.id}}"
@@ -2084,7 +2084,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-kees-hofman.id}}"
@@ -2098,7 +2098,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-yvonne-bosman.id}}"
@@ -2112,7 +2112,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-erik-veldhuis.id}}"
@@ -2126,7 +2126,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-sandra-kroon.id}}"
@@ -2140,7 +2140,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-bart-reijnders.id}}"
@@ -2154,7 +2154,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-wilma-schouten.id}}"
@@ -2168,7 +2168,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-lieke-vanrooij.id}}"
@@ -2182,7 +2182,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-joost-mulder.id}}"
@@ -2196,7 +2196,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-hatice-kaya.id}}"
@@ -2210,7 +2210,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-tim-groenewoud.id}}"
@@ -2224,7 +2224,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-floor-vos.id}}"
@@ -2238,7 +2238,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-roel-brands.id}}"
@@ -2252,7 +2252,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-maarten-wijnands.id}}"
@@ -2266,7 +2266,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-charlotte-hendriks.id}}"
@@ -2280,7 +2280,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-dirk-zwart.id}}"
@@ -2294,7 +2294,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-esther-lubbers.id}}"
@@ -2308,7 +2308,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-pim-kramer.id}}"
@@ -2322,7 +2322,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-nadia-ouali.id}}"
@@ -2336,7 +2336,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-frank-jonker.id}}"
@@ -2350,7 +2350,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-rianne-peeters.id}}"
@@ -2364,7 +2364,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-mohamed-tahiri.id}}"
@@ -2378,7 +2378,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-gertjan-bouwman.id}}"
@@ -2392,7 +2392,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-hanneke-westra.id}}"
@@ -2406,7 +2406,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-truus-wiersma.id}}"
@@ -2420,7 +2420,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:05}}",
+				"castAt": "{{datetime:-25@thu 21:05}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-lindelaan-krediet.id}}",
 				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
@@ -2433,8 +2433,8 @@
 			"data": {
 				"votingMethod": "for-against-abstain",
 				"isSecret": false,
-				"openedAt": "{{datetime:-25 21:35}}",
-				"closedAt": "{{datetime:-25 21:40}}",
+				"openedAt": "{{datetime:-25@thu 21:35}}",
+				"closedAt": "{{datetime:-25@thu 21:40}}",
 				"quorumWith": true,
 				"result": "rejected",
 				"votesFor": 11,
@@ -2454,7 +2454,7 @@
 				"stageType": "decisive",
 				"status": "decided",
 				"outcome": "rejected",
-				"decidedAt": "{{datetime:-25 21:40}}",
+				"decidedAt": "{{datetime:-25@thu 21:40}}",
 				"method": "vote",
 				"decisionMakerType": "body",
 				"label": "Besluit van de gemeenteraad",
@@ -2471,7 +2471,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-gerard-lammers.id}}"
@@ -2485,7 +2485,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-monique-dekker.id}}"
@@ -2499,7 +2499,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-kees-hofman.id}}"
@@ -2513,7 +2513,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-yvonne-bosman.id}}"
@@ -2527,7 +2527,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-erik-veldhuis.id}}"
@@ -2541,7 +2541,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-sandra-kroon.id}}"
@@ -2555,7 +2555,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-bart-reijnders.id}}"
@@ -2569,7 +2569,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-wilma-schouten.id}}"
@@ -2583,7 +2583,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-lieke-vanrooij.id}}"
@@ -2597,7 +2597,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-joost-mulder.id}}"
@@ -2611,7 +2611,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-hatice-kaya.id}}"
@@ -2625,7 +2625,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-tim-groenewoud.id}}"
@@ -2639,7 +2639,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-floor-vos.id}}"
@@ -2653,7 +2653,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-roel-brands.id}}"
@@ -2667,7 +2667,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-maarten-wijnands.id}}"
@@ -2681,7 +2681,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-charlotte-hendriks.id}}"
@@ -2695,7 +2695,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-dirk-zwart.id}}"
@@ -2709,7 +2709,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-esther-lubbers.id}}"
@@ -2723,7 +2723,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-pim-kramer.id}}"
@@ -2737,7 +2737,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-nadia-ouali.id}}"
@@ -2751,7 +2751,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-frank-jonker.id}}"
@@ -2765,7 +2765,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-rianne-peeters.id}}"
@@ -2779,7 +2779,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-mohamed-tahiri.id}}"
@@ -2793,7 +2793,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-gertjan-bouwman.id}}"
@@ -2807,7 +2807,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-hanneke-westra.id}}"
@@ -2821,7 +2821,7 @@
 				"value": "abstain",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-truus-wiersma.id}}"
@@ -2835,7 +2835,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-25 21:40}}",
+				"castAt": "{{datetime:-25@thu 21:40}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-motie-zonne-energie.id}}",
 				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
@@ -2848,8 +2848,8 @@
 			"data": {
 				"votingMethod": "for-against-abstain",
 				"isSecret": false,
-				"openedAt": "{{datetime:-11 20:20}}",
-				"closedAt": "{{datetime:-11 20:25}}",
+				"openedAt": "{{datetime:-11@thu 20:20}}",
+				"closedAt": "{{datetime:-11@thu 20:25}}",
 				"quorumWith": true,
 				"result": "adopted",
 				"votesFor": 25,
@@ -2869,7 +2869,7 @@
 				"stageType": "decisive",
 				"status": "decided",
 				"outcome": "adopted",
-				"decidedAt": "{{datetime:-11 20:25}}",
+				"decidedAt": "{{datetime:-11@thu 20:25}}",
 				"method": "vote",
 				"decisionMakerType": "body",
 				"label": "Besluit van de gemeenteraad",
@@ -2886,7 +2886,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-gerard-lammers.id}}"
@@ -2900,7 +2900,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-monique-dekker.id}}"
@@ -2914,7 +2914,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-kees-hofman.id}}"
@@ -2928,7 +2928,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-yvonne-bosman.id}}"
@@ -2942,7 +2942,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-erik-veldhuis.id}}"
@@ -2956,7 +2956,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-sandra-kroon.id}}"
@@ -2970,7 +2970,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-bart-reijnders.id}}"
@@ -2984,7 +2984,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-wilma-schouten.id}}"
@@ -2998,7 +2998,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-lieke-vanrooij.id}}"
@@ -3012,7 +3012,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-joost-mulder.id}}"
@@ -3026,7 +3026,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-hatice-kaya.id}}"
@@ -3040,7 +3040,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-tim-groenewoud.id}}"
@@ -3054,7 +3054,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-floor-vos.id}}"
@@ -3068,7 +3068,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-roel-brands.id}}"
@@ -3082,7 +3082,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-maarten-wijnands.id}}"
@@ -3096,7 +3096,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-charlotte-hendriks.id}}"
@@ -3110,7 +3110,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-dirk-zwart.id}}"
@@ -3124,7 +3124,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-esther-lubbers.id}}"
@@ -3138,7 +3138,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-pim-kramer.id}}"
@@ -3152,7 +3152,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-nadia-ouali.id}}"
@@ -3166,7 +3166,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-frank-jonker.id}}"
@@ -3180,7 +3180,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-rianne-peeters.id}}"
@@ -3194,7 +3194,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-mohamed-tahiri.id}}"
@@ -3208,7 +3208,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-gertjan-bouwman.id}}"
@@ -3222,7 +3222,7 @@
 				"value": "for",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-hanneke-westra.id}}"
@@ -3236,7 +3236,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-truus-wiersma.id}}"
@@ -3250,7 +3250,7 @@
 				"value": "against",
 				"weight": 1,
 				"isProxy": false,
-				"castAt": "{{datetime:-11 20:25}}",
+				"castAt": "{{datetime:-11@thu 20:25}}",
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
