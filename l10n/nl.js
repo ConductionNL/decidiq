@@ -3534,7 +3534,13 @@ OC.L10N.register(
         "Contact": "Contact",
         "Guided tour": "Rondleiding",
         "Continue the tour": "Verder met de rondleiding",
-        "Start again": "Opnieuw beginnen"
+        "Start again": "Opnieuw beginnen",
+        "Upcoming": "Komende",
+        "This month": "Deze maand",
+        "Date and time": "Datum en tijd",
+        "none yet": "nog geen",
+        "Search in this list": "Zoeken in deze lijst",
+        "click a column header to sort": "klik een kolomkop om te sorteren"
     },
     "nplurals=2; plural=(n != 1);"
 )
