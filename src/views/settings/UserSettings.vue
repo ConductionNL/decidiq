@@ -12,19 +12,18 @@
  configuration into the admin settings). The five decidiq sections below are
  the ones those two pages carried.
 
- THE LIBRARY'S OWN SECTIONS ARE REPEATED HERE ON PURPOSE. Filling CnAppRoot's
- #user-settings slot replaces its fallback content entirely, and nothing
- reports that: credentials and the walkthrough replay would have vanished from
- the dialog in silence. App.vue hands in the walkthrough state CnAppRoot owns.
- The library's generic notifications pane is left out: the board draws one
- Meldingen section, and decidiq's own notification preferences are it.
+ CnAppRoot hosts this in its #user-settings-sections slot, so the library's
+ own credentials, walkthrough replay and integrations sections stay (with
+ Dutch strings since nextcloud-vue 2.81.0) and the app only draws its five.
+ The `userSettingsSections` prop on CnAppRoot hides the library's generic
+ notifications pane: the board draws one Meldingen section, and decidiq's own
+ notification preferences are it.
 
  @spec openspec/specs/user-settings/spec.md
 -->
 <template>
 	<!-- Order and names follow board DcMijnInstellingen: Meldingen, Afwezigheid,
-	     Weergave, Contact, Abonnementen. Credentials and the walkthrough replay
-	     come after, as CnAppRoot would have drawn them. -->
+	     Weergave, Contact, Abonnementen. -->
 	<NcAppSettingsSection id="decidiq-notifications" :name="t('decidiq', 'Notices')">
 		<NcLoadingIcon v-if="loading" :size="32" />
 		<NotificationPreferencesSection
@@ -58,43 +57,10 @@
 		:name="t('decidiq', 'Subscriptions')">
 		<SubscriptionsSection />
 	</NcAppSettingsSection>
-
-	<NcAppSettingsSection id="credentials" :name="t('decidiq', 'Credentials')">
-		<CnCredentials
-			scope="personal"
-			appId="decidiq"
-			:appName="(manifest && manifest.name) || 'Decidiq'"
-			:appCredentials="(manifest && manifest.credentials) || []" />
-	</NcAppSettingsSection>
-
-	<NcAppSettingsSection
-		v-if="walkthrough"
-		id="cn-walkthrough"
-		:name="t('decidiq', 'Guided tour')">
-		<p class="decidiq-user-settings__hint">
-			{{ walkthrough.hint }}
-		</p>
-		<div class="decidiq-user-settings__actions">
-			<NcButton
-				v-if="walkthrough.inProgress"
-				variant="primary"
-				data-testid="cn-walkthrough-continue"
-				@click="$emit('continueWalkthrough')">
-				{{ t('decidiq', 'Continue the tour') }}
-			</NcButton>
-			<NcButton
-				variant="secondary"
-				data-testid="cn-walkthrough-restart"
-				@click="$emit('restartWalkthrough')">
-				{{ t('decidiq', 'Start again') }}
-			</NcButton>
-		</div>
-	</NcAppSettingsSection>
 </template>
 
 <script>
-import { CnCredentials } from '@conduction/nextcloud-vue'
-import { NcAppSettingsSection, NcButton, NcLoadingIcon } from '@nextcloud/vue'
+import { NcAppSettingsSection, NcLoadingIcon } from '@nextcloud/vue'
 import CommunicationSection from '../../components/userSettings/CommunicationSection.vue'
 import DelegationSection from '../../components/userSettings/DelegationSection.vue'
 import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
@@ -106,40 +72,14 @@ export default {
 	name: 'UserSettings',
 
 	components: {
-		CnCredentials,
 		CommunicationSection,
 		DelegationSection,
 		DisplayPreferencesSection,
 		NcAppSettingsSection,
-		NcButton,
 		NcLoadingIcon,
 		NotificationPreferencesSection,
 		SubscriptionsSection,
 	},
-
-	props: {
-		/**
-		 * The app manifest, for the credentials it declares.
-		 */
-		manifest: {
-			type: Object,
-			default: null,
-		},
-
-		/**
-		 * The walkthrough replay CnAppRoot would have drawn, or null when the
-		 * app declares no tour. Labels come from CnAppRoot so the wording stays
-		 * the library's.
-		 *
-		 * @type {{sectionName: string, hint: string, inProgress: boolean, continueLabel: string, restartLabel: string}|null}
-		 */
-		walkthrough: {
-			type: Object,
-			default: null,
-		},
-	},
-
-	emits: ['continueWalkthrough', 'restartWalkthrough'],
 
 	data() {
 		return {
@@ -172,16 +112,3 @@ export default {
 	},
 }
 </script>
-
-<style scoped>
-.decidiq-user-settings__hint {
-	margin-bottom: calc(var(--default-grid-baseline) * 3);
-	color: var(--color-text-maxcontrast);
-}
-
-.decidiq-user-settings__actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: calc(var(--default-grid-baseline) * 2);
-}
-</style>

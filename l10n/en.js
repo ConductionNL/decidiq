@@ -3223,7 +3223,19 @@ OC.L10N.register(
         "{total} decisions": "{total} decisions",
         "{total} governance bodies": "{total} governance bodies",
         "Import": "Import",
-        "Refresh": "Refresh"
+        "Refresh": "Refresh",
+        "Upcoming": "Upcoming",
+        "This month": "This month",
+        "Date and time": "Date and time",
+        "none yet": "none yet",
+        "Search in this list": "Search in this list",
+        "click a column header to sort": "click a column header to sort",
+        "Governing bodies": "Governing bodies",
+        "Committees": "Committees",
+        "Other bodies": "Other bodies",
+        "Type of body": "Type of body",
+        "Term ends": "Term ends",
+        "Validity": "Validity"
     },
     "nplurals=2; plural=(n != 1);"
 )

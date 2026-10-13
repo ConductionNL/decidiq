@@ -1784,7 +1784,7 @@
 						"id": "s4",
 						"widgetId": "simple-commitments-due",
 						"gridX": 8,
-						"gridY": 9,
+						"gridY": 12,
 						"gridWidth": 4,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1835,7 +1835,7 @@
 						"gridX": 8,
 						"gridY": 5,
 						"gridWidth": 4,
-						"gridHeight": 4,
+						"gridHeight": 7,
 						"showTitle": true
 					},
 					{

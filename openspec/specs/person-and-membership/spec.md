@@ -104,7 +104,7 @@ that exists independently of who fills it, mirroring the ADR-000 Post field set:
 The system MUST ship realistic `x-openregister-seeds` for `Person`, `Membership`, and `Post`
 covering general organisations (a municipal council, a corporate/supervisory board, and an
 association), including chair/secretary/treasurer Posts, reusing existing demo person names
-(e.g. femke-halsema, marie-janssen, jan-de-vries) where sensible.
+(e.g. wieteke-doornbos, marie-janssen, jan-de-vries) where sensible.
 
 #### Scenario: Seeded demo across org types
 - GIVEN the register is imported on a clean instance
@@ -137,7 +137,7 @@ A membership SHALL be able to carry a portfolio: a list of subjects the member h
 
 #### Scenario: An alderman's portfolio
 
-- GIVEN Femke Halsema's membership of the executive board has portfolio "Public order and safety" and "Communication"
+- GIVEN Wieteke Doornbos's membership of the executive board has portfolio "Public order and safety" and "Communication"
 - WHEN a member opens her profile
 - THEN the executive board membership shows both subjects
 - AND her council membership shows no portfolio

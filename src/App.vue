@@ -21,24 +21,18 @@
 		appId="decidiq"
 		data-testid="app-root"
 		:translate="translateForApp"
+		:userSettingsSections="['app', 'credentials', 'walkthrough', 'integrations']"
 		:permissions="permissions">
 		<!--
 			The user settings dialog. Every per-person preference lives here;
 			decidiq has no Nextcloud personal settings page and no
-			/user-settings page (Ruben, 11 Oct 2026). Filling this slot drops
-			CnAppRoot's fallback sections, so UserSettings repeats them and gets
-			the walkthrough replay from walkthroughSettings() below.
+			/user-settings page (Ruben, 11 Oct 2026). The five sections follow
+			board DcMijnInstellingen; the library draws credentials, the tour
+			replay and integrations after them. Its generic notifications pane
+			is hidden: the board draws one Meldingen section, decidiq's own.
 		-->
-		<template #user-settings>
-			<UserSettings
-				:manifest="manifest"
-				:walkthrough="walkthroughSettings()"
-				@continueWalkthrough="
-					appRoot() && appRoot().continueWalkthroughFromSettings()
-				"
-				@restartWalkthrough="
-					appRoot() && appRoot().restartWalkthroughFromSettings()
-				" />
+		<template #user-settings-sections>
+			<UserSettings />
 		</template>
 		<template #sidebar>
 			<CnObjectSidebar
@@ -279,31 +273,6 @@ export default {
 			const root = this.appRoot()
 			if (root && window.location.hash === USER_SETTINGS_HASH) {
 				root.userSettingsOpen = true
-			}
-		},
-
-		/**
-		 * The walkthrough replay section CnAppRoot draws in its own fallback,
-		 * which filling the #user-settings slot switches off. Reads CnAppRoot's
-		 * state and labels, so the wording and the behaviour stay the library's.
-		 *
-		 * @return {object|null} Section props for UserSettings, or null without a tour.
-		 * @spec openspec/specs/user-settings/spec.md
-		 */
-		walkthroughSettings() {
-			const root = this.appRoot()
-			if (!root || !root.walkthroughEnabled) {
-				return null
-			}
-			const inProgress = Boolean(root.walkthroughProgressValue)
-			return {
-				sectionName: root.restartWalkthroughSectionName,
-				hint: root.restartWalkthroughHint,
-				inProgress,
-				continueLabel: root.continueWalkthroughLabel,
-				restartLabel: inProgress
-					? root.startOverWalkthroughLabel
-					: root.restartWalkthroughLabel,
 			}
 		},
 
