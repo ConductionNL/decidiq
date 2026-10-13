@@ -3229,10 +3229,7 @@ OC.L10N.register(
         "Other bodies": "Other bodies",
         "Type of body": "Type of body",
         "Term ends": "Term ends",
-        "Validity": "Validity",
-        "All commitments": "All commitments",
-        "Still open": "Still open",
-        "Over the deadline": "Over the deadline"
+        "Validity": "Validity"
     },
     "nplurals=2; plural=(n != 1);"
 )

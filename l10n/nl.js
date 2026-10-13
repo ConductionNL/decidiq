@@ -3546,10 +3546,7 @@ OC.L10N.register(
         "Other bodies": "Overige organen",
         "Type of body": "Soort orgaan",
         "Term ends": "Zittingstermijn tot",
-        "Validity": "Geldigheid",
-        "All commitments": "Alle toezeggingen",
-        "Still open": "Open",
-        "Over the deadline": "Over termijn"
+        "Validity": "Geldigheid"
     },
     "nplurals=2; plural=(n != 1);"
 )
