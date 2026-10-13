@@ -19,6 +19,14 @@
 			"title": "Commitments",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
+				"showTitle": true,
+				"showTitleIcon": false,
+				"countSubtitle": "{total} commitments",
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "governance-commitment",
 				"sortKey": "@self.created",

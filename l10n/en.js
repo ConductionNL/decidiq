@@ -3227,6 +3227,7 @@ OC.L10N.register(
         "All commitments": "All commitments",
         "Still open": "Still open",
         "Over the deadline": "Over the deadline",
+        "{total} commitments": "{total} commitments",
         "Governing bodies": "Governing bodies",
         "Committees": "Committees",
         "Other bodies": "Other bodies",
