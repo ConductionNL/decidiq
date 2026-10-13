@@ -443,6 +443,14 @@
 			"type": "index",
 			"title": "Governance bodies",
 			"config": {
+				"showTitle": true,
+				"showTitleIcon": false,
+				"countSubtitle": "{total} governance bodies",
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "governance-body",
 				"sortKey": "@self.created",
@@ -547,6 +555,14 @@
 			"title": "Meetings",
 			"actionsComponent": "MeetingViewToggle",
 			"config": {
+				"showTitle": true,
+				"showTitleIcon": false,
+				"countSubtitle": "{total} meetings",
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "meeting",
 				"excludeFields": ["lifecycle"],
@@ -938,6 +954,14 @@
 			"slots": { "form-dialog": "DecisionFormDialog" },
 			"_note": "decision-types-as-configuration: the built-in create/edit dialog reads properties.decisionType.enum from the stored schema, which is deliberately empty since #1099 (the decision_types app config is the only authority), so its type picker rendered 'No results'. DecisionFormDialog is the same CnFormDialog over the same schema, with the vocabulary fetched from GET /api/v1/decision-types through the shared decisionLink.js helpers (#1104) and spliced in client-side. The note stays a SIBLING of slots: CnPageRenderer resolves every slots entry as a registry name and warns on one it cannot find.",
 			"config": {
+				"showTitle": true,
+				"showTitleIcon": false,
+				"countSubtitle": "{total} motions",
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
@@ -1169,6 +1193,14 @@
 			"slots": { "form-dialog": "DecisionFormDialog" },
 			"_note": "Same wiring as the Motions page, and for the same reason: the stored decision schema carries no decisionType enum since #1099, so the built-in dialog's type picker rendered 'No results'. DecisionFormDialog feeds the picker from the decision_types registry via the shared decisionLink.js helpers (#1104).",
 			"config": {
+				"showTitle": true,
+				"showTitleIcon": false,
+				"countSubtitle": "{total} decisions",
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "decision",
 				"sortKey": "@self.created",
