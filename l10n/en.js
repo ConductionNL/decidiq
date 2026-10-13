@@ -3223,7 +3223,10 @@ OC.L10N.register(
         "Date and time": "Date and time",
         "none yet": "none yet",
         "Search in this list": "Search in this list",
-        "click a column header to sort": "click a column header to sort"
+        "click a column header to sort": "click a column header to sort",
+        "All commitments": "All commitments",
+        "Still open": "Still open",
+        "Over the deadline": "Over the deadline"
     },
     "nplurals=2; plural=(n != 1);"
 )
