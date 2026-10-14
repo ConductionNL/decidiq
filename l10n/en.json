@@ -3236,7 +3236,22 @@
         "Other bodies": "Other bodies",
         "Type of body": "Type of body",
         "Term ends": "Term ends",
-        "Validity": "Validity"
+        "Validity": "Validity",
+        "Sets the words and defaults across the whole app.": "Sets the words and defaults across the whole app.",
+        "Kind of organisation": "Kind of organisation",
+        "Council, executive, committees, clerk": "Council, executive, committees, clerk",
+        "Association or owners' association": "Association or owners' association",
+        "Board, members, general meeting": "Board, members, general meeting",
+        "Company": "Company",
+        "Executive board, supervisory board": "Executive board, supervisory board",
+        "Team": "Team",
+        "Meetings, decisions, action items": "Meetings, decisions, action items",
+        "Citizen portal": "Citizen portal",
+        "Residents follow decisions and take part": "Residents follow decisions and take part",
+        "Reading it in again after an update is under Advanced.": "Reading it in again after an update is under Advanced.",
+        "Administration": "Administration",
+        "Administration settings": "Administration settings",
+        "For administrators of decidiq. Changes apply to everyone.": "For administrators of decidiq. Changes apply to everyone."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

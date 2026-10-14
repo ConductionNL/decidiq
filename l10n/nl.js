@@ -3554,7 +3554,22 @@ OC.L10N.register(
         "Other bodies": "Overige organen",
         "Type of body": "Soort orgaan",
         "Term ends": "Zittingstermijn tot",
-        "Validity": "Geldigheid"
+        "Validity": "Geldigheid",
+        "Sets the words and defaults across the whole app.": "Bepaalt de woorden en standaarden in de hele app.",
+        "Kind of organisation": "Soort organisatie",
+        "Council, executive, committees, clerk": "Raad, college, commissies, griffie",
+        "Association or owners' association": "Vereniging of VvE",
+        "Board, members, general meeting": "Bestuur, leden, algemene ledenvergadering",
+        "Company": "Onderneming",
+        "Executive board, supervisory board": "Raad van bestuur, raad van commissarissen",
+        "Team": "Team",
+        "Meetings, decisions, action items": "Overleg, besluiten, actiepunten",
+        "Citizen portal": "Burgerportaal",
+        "Residents follow decisions and take part": "Inwoners volgen besluiten en doen mee",
+        "Reading it in again after an update is under Advanced.": "Opnieuw inlezen na een update kan onder Geavanceerd.",
+        "Administration": "Beheer",
+        "Administration settings": "Beheerinstellingen",
+        "For administrators of decidiq. Changes apply to everyone.": "Voor beheerders van decidiq. Wijzigingen gelden voor iedereen."
     },
     "nplurals=2; plural=(n != 1);"
 )
