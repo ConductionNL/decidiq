@@ -124,6 +124,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import {
 	createHostDecision,
 	decisionBucket,
+	hostProposalPayload,
 	isProposal,
 	listDecisionTypes,
 	listHostDecisions,
@@ -432,19 +433,12 @@ export default {
 			this.creating = true
 			this.error = ''
 			try {
-				await createHostDecision({
-					title: formData.title || t('decidiq', 'Proposal'),
-					text: formData.text || '',
-					decisionType: formData.decisionType || 'motion',
-					lifecycle: 'proposed',
-					decisionDate: new Date().toISOString(),
-					outcome: 'pending',
-					sourceApp: this.hostSchema || 'openregister',
-					subjectRegister: this.hostRegister,
-					subjectSchema: this.hostSchema,
-					subjectId: this.hostObjectId,
-					subjectLabel: this.objectLabel || this.hostObjectId,
-				})
+				await createHostDecision(hostProposalPayload(formData, {
+					register: this.hostRegister,
+					schema: this.hostSchema,
+					objectId: this.hostObjectId,
+					label: this.objectLabel,
+				}, t('decidiq', 'Proposal')))
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {

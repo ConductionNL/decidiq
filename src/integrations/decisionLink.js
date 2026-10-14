@@ -106,6 +106,37 @@ export async function createHostDecision(payload) {
 }
 
 /**
+ * The decision a "Create proposal" form on a host object writes: a proposed
+ * decision linked back to that host (REQ-DCDH-001).
+ *
+ * It carries NO `outcome`. The schema's outcome is the voting result
+ * (`adopted` / `rejected`); a motion still in flight has none, and a
+ * placeholder such as `pending` is outside the enum, so OpenRegister refused
+ * every proposal with a 400.
+ *
+ * @param {object} formData The form's values (`title`, `text`, `decisionType`).
+ * @param {{register: string, schema: string, objectId: string, label?: string}} host The host object.
+ * @param {string} fallbackTitle The title when the form has none.
+ * @return {object} The decision object to persist.
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host.
+ */
+export function hostProposalPayload(formData, host, fallbackTitle) {
+	const data = formData || {}
+	return {
+		title: data.title || fallbackTitle,
+		text: data.text || '',
+		decisionType: data.decisionType || 'motion',
+		lifecycle: 'proposed',
+		decisionDate: new Date().toISOString(),
+		sourceApp: host.schema || 'openregister',
+		subjectRegister: host.register,
+		subjectSchema: host.schema,
+		subjectId: host.objectId,
+		subjectLabel: host.label || host.objectId,
+	}
+}
+
+/**
  * The shipped decision-type seed, mirrored from
  * `DecisionTypeRegistry::DEFAULT_TYPES`. NOT a second authority: the registry
  * (app-config `decision_types`) decides, and this list only carries the

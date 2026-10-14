@@ -118,6 +118,7 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import {
 	createHostDecision,
 	decisionBucket,
+	hostProposalPayload,
 	isProposal,
 	listDecisionTypes,
 	listHostDecisions,
@@ -162,6 +163,13 @@ export default {
 		objectLabel: { type: String, default: '' },
 		/** Whether the card body is collapsible. */
 		collapsible: { type: Boolean, default: true },
+		/**
+		 * The card title the host gives (CnDetailWidgetHost passes the widget's
+		 * translated `title`). A page that mounts this leaf twice, such as a
+		 * ticket that lists its own decisions and those on the case it became,
+		 * can so tell the two cards apart. Empty keeps "Besluitvorming".
+		 */
+		title: { type: String, default: '' },
 	},
 
 	data() {
@@ -178,7 +186,7 @@ export default {
 	computed: {
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget title. */
 		cardTitle() {
-			return t('decidiq', 'Besluitvorming')
+			return this.title || t('decidiq', 'Besluitvorming')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget icon. */
@@ -436,20 +444,12 @@ export default {
 			this.creating = true
 			this.error = ''
 			try {
-				await createHostDecision({
-					title: formData.title || t('decidiq', 'Proposal'),
-					text: formData.text || '',
-					decisionType: formData.decisionType || 'motion',
-					lifecycle: 'proposed',
-					decisionDate: new Date().toISOString(),
-					outcome: 'pending',
-					// Case-linking back-reference (REQ-DCDH-001).
-					sourceApp: this.hostSchema || 'openregister',
-					subjectRegister: this.hostRegister,
-					subjectSchema: this.hostSchema,
-					subjectId: this.hostObjectId,
-					subjectLabel: this.objectLabel || this.hostObjectId,
-				})
+				await createHostDecision(hostProposalPayload(formData, {
+					register: this.hostRegister,
+					schema: this.hostSchema,
+					objectId: this.hostObjectId,
+					label: this.objectLabel,
+				}, t('decidiq', 'Proposal')))
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {
