@@ -4,6 +4,7 @@
 		appId="decidiq"
 		appName="Decidiq"
 		look="board"
+		versionCardPosition="end"
 		:title="t('decidiq', 'Administration')"
 		:breadcrumbs="breadcrumbs"
 		:breadcrumbNote="t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')"
