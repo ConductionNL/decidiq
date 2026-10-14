@@ -3238,6 +3238,10 @@ OC.L10N.register(
         "Type of body": "Type of body",
         "Term ends": "Term ends",
         "Validity": "Validity",
+        "Meetings and efficiency": "Meetings and efficiency",
+        "Whole report": "Whole report",
+        "Meetings this year": "Meetings this year",
+        "Cost per meeting": "Cost per meeting",
         "Sets the words and defaults across the whole app.": "Sets the words and defaults across the whole app.",
         "Kind of organisation": "Kind of organisation",
         "Council, executive, committees, clerk": "Council, executive, committees, clerk",
@@ -3287,7 +3291,9 @@ OC.L10N.register(
         "Only open votes on published decisions. Secret votes are not shown here.": "Only open votes on published decisions. Secret votes are not shown here.",
         "No.": "No.",
         "The agenda of this meeting has not been published yet.": "The agenda of this meeting has not been published yet.",
-        "_in %n open vote_::_in %n open votes_": ["in %n open vote","in %n open votes"]
+        "_in %n open vote_::_in %n open votes_": ["in %n open vote","in %n open votes"],
+        "Decisions and votes": "Decisions and votes",
+        "Meetings and people": "Meetings and people"
     },
     "nplurals=2; plural=(n != 1);"
 )
