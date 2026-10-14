@@ -3554,7 +3554,11 @@ OC.L10N.register(
         "Other bodies": "Overige organen",
         "Type of body": "Soort orgaan",
         "Term ends": "Zittingstermijn tot",
-        "Validity": "Geldigheid"
+        "Validity": "Geldigheid",
+        "Meetings and efficiency": "Vergaderingen en efficiëntie",
+        "Whole report": "Hele rapportage",
+        "Meetings this year": "Vergaderingen dit jaar",
+        "Cost per meeting": "Kosten per vergadering"
     },
     "nplurals=2; plural=(n != 1);"
 )

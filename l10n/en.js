@@ -3237,7 +3237,11 @@ OC.L10N.register(
         "Other bodies": "Other bodies",
         "Type of body": "Type of body",
         "Term ends": "Term ends",
-        "Validity": "Validity"
+        "Validity": "Validity",
+        "Meetings and efficiency": "Meetings and efficiency",
+        "Whole report": "Whole report",
+        "Meetings this year": "Meetings this year",
+        "Cost per meeting": "Cost per meeting"
     },
     "nplurals=2; plural=(n != 1);"
 )
