@@ -448,11 +448,8 @@
 				"countSubtitle": "{total} governance bodies",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "goto-position-holders", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
+					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "open-meeting-calendar", "separator", "open-long-term-agenda", "open-planning-cycles", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
-				],
-				"headerActions": [
-					{"id": "goto-position-holders", "label": "Position holders", "icon": "AccountGroup", "handler": "navigate", "route": "PositionHolds"}
 				],
 				"register": "decidiq",
 				"schema": "governance-body",
@@ -565,11 +562,6 @@
 					{ "action": "export" },
 					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "goto-meeting-calendar", "separator", "goto-long-term-agenda", "goto-planning-cycles", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
-				],
-				"headerActions": [
-					{"id": "goto-meeting-calendar", "label": "Meeting calendar", "icon": "CalendarMonthOutline", "handler": "navigate", "route": "MeetingsCalendar"},
-					{"id": "goto-long-term-agenda", "label": "Long-term agenda", "icon": "CalendarTextOutline", "handler": "navigate", "route": "PlannedAgenda"},
-					{"id": "goto-planning-cycles", "label": "P&C cycles", "icon": "Calendar", "handler": "navigate", "route": "PlanningCycles"}
 				],
 				"register": "decidiq",
 				"schema": "meeting",
@@ -967,12 +959,8 @@
 				"countSubtitle": "{total} motions",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "goto-consultations", "goto-urgent-decisions", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
+					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "header-actions", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
-				],
-				"headerActions": [
-					{"id": "goto-consultations", "label": "Consultations", "icon": "CommentQuestionOutline", "handler": "navigate", "route": "GovernanceConsultations"},
-					{"id": "goto-urgent-decisions", "label": "Urgent decisions", "icon": "Gavel", "handler": "navigate", "route": "UrgentDecisions"}
 				],
 				"register": "decidiq",
 				"schema": "decision",

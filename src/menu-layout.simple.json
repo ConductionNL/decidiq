@@ -226,6 +226,13 @@
 			"configAppend": {
 				"headerActions": [
 					{
+						"id": "open-meeting-calendar",
+						"label": "Meeting calendar",
+						"icon": "CalendarMonthOutline",
+						"handler": "navigate",
+						"route": "MeetingsCalendar"
+					},
+					{
 						"id": "open-long-term-agenda",
 						"label": "Long-term agenda",
 						"icon": "CalendarTextOutline",
