@@ -6,234 +6,235 @@
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
 -->
 <template>
-	<div>
-		<!-- Board DcBeheer, section Organisatie: the kind of organisation as
-		     radio cards, then the register. Each saves the one field it changed
-		     through POST /api/settings (nextcloud-vue widget `save`), so an
-		     admin page without an object id can save it.
-		     @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting -->
-		<CnSettingsSection
-			id="section-organisation-mode"
-			:name="t('decidiq', 'Organisation')"
-			:description="t('decidiq', 'Sets the words and defaults across the whole app.')"
-			data-testid="organisation-mode-settings">
-			<CnRadioCardsWidget
-				:content="organisationModeContent"
-				:objectData="settingsStore.settings || {}"
-				data-testid="organisation-mode"
-				@saved="settingsStore.fetchSettings()" />
-			<CnSettingsFormWidget
-				:content="registerContent"
-				:objectData="settingsStore.settings || {}"
-				data-testid="organisation-register"
-				@saved="settingsStore.fetchSettings()" />
-		</CnSettingsSection>
+	<!-- No wrapper element: each section is a direct child of the admin
+	     shell, which draws its direct sections as cards in the board grid. -->
+	<!-- Board DcBeheer, section Organisatie: the kind of organisation as
+	     radio cards, then the register. Each saves the one field it changed
+	     through POST /api/settings (nextcloud-vue widget `save`), so an
+	     admin page without an object id can save it.
+	     @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting -->
+	<CnSettingsSection
+		id="section-organisation-mode"
+		:name="t('decidiq', 'Organisation')"
+		:description="t('decidiq', 'Sets the words and defaults across the whole app.')"
+		data-testid="organisation-mode-settings">
+		<CnRadioCardsWidget
+			:content="organisationModeContent"
+			:objectData="settingsStore.settings || {}"
+			data-testid="organisation-mode"
+			@saved="settingsStore.fetchSettings()" />
+		<CnSettingsFormWidget
+			:content="registerContent"
+			:objectData="settingsStore.settings || {}"
+			data-testid="organisation-register"
+			@saved="settingsStore.fetchSettings()" />
+	</CnSettingsSection>
 
-		<!-- Organization defaults -->
-		<!-- @spec openspec/specs/admin-settings/spec.md -->
-		<CnSettingsSection
-			:name="t('decidiq', 'Organization')"
-			:description="
-				t(
-					'decidiq',
-					'Organization defaults applied to meetings, decisions, and generated documents',
-				)
-			">
-			<form
-				data-testid="organisation-settings"
-				@submit.prevent="saveOrganisation">
-				<div class="form-group">
-					<label for="organisation_name">{{
-						t('decidiq', 'Organization name')
-					}}</label>
-					<input
-						id="organisation_name"
-						v-model="form.organisation_name"
-						type="text"
-						data-testid="organisation-name"
-						:placeholder="t('decidiq', 'e.g. Vereniging De Harmonie')" />
-				</div>
-				<div class="form-group">
-					<label for="organisation_logo">{{
-						t('decidiq', 'Logo URL')
-					}}</label>
-					<input
-						id="organisation_logo"
-						v-model="form.organisation_logo"
-						type="url"
-						data-testid="organisation-logo"
-						:placeholder="
-							t('decidiq', 'https://example.org/logo.png')
-						" />
-				</div>
-				<div class="form-group">
-					<NcSelect
-						v-model="form.organisation_timezone"
-						:inputLabel="t('decidiq', 'Timezone')"
-						:options="timezoneOptions"
-						data-testid="organisation-timezone" />
-				</div>
-				<div class="form-group">
-					<NcSelect
-						v-model="form.organisation_locale"
-						:inputLabel="t('decidiq', 'Default language')"
-						:options="localeOptions"
-						label="label"
-						data-testid="organisation-locale" />
-				</div>
-				<div class="form-group">
-					<NcSelect
-						v-model="form.organisation_currency"
-						:inputLabel="t('decidiq', 'Currency')"
-						:options="currencyOptions"
-						data-testid="organisation-currency" />
-				</div>
-				<div class="form-group">
-					<label for="organisation_retention_days">{{
-						t('decidiq', 'Archival retention period (days)')
-					}}</label>
-					<input
-						id="organisation_retention_days"
-						v-model="form.organisation_retention_days"
-						type="number"
-						min="0"
-						step="1"
-						data-testid="organisation-retention"
-						:placeholder="t('decidiq', 'e.g. 3650')" />
-				</div>
+	<!-- Process template management: second on board DcBeheer, full width.
+	     @spec openspec/specs/process-configuration/spec.md -->
+	<ProcessTemplates :wide="true" />
 
-				<div
-					v-if="organisationMessage"
-					class="success-message"
-					data-testid="organisation-saved">
-					{{ organisationMessage }}
-				</div>
-
-				<NcButton
-					variant="primary"
-					type="submit"
-					data-testid="organisation-save"
-					:disabled="savingOrganisation">
-					{{
-						savingOrganisation
-							? t('decidiq', 'Saving...')
-							: t('decidiq', 'Save')
-					}}
-				</NcButton>
-			</form>
-		</CnSettingsSection>
-
-		<!-- ORI publication settings -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
-		<!-- The id is the anchor lib/Settings/connections.json links to (adopt-connection-registry). -->
-		<CnSettingsSection
-			id="section-ori"
-			:name="t('decidiq', 'ORI endpoint')"
-			:description="t('decidiq', 'ORI API endpoint URL')">
-			<form @submit.prevent="saveOri">
-				<div class="form-group">
-					<label for="ori_endpoint">{{
-						t('decidiq', 'ORI endpoint')
-					}}</label>
-					<input
-						id="ori_endpoint"
-						v-model="form.ori_endpoint"
-						type="url"
-						placeholder="https://api.ori.example.nl/v1/stemmingen" />
-				</div>
-
-				<NcButton variant="primary" type="submit" :disabled="savingOri">
-					{{
-						savingOri ? t('decidiq', 'Saving...') : t('decidiq', 'Save')
-					}}
-				</NcButton>
-			</form>
-		</CnSettingsSection>
-
-		<!-- Process template management -->
-		<!-- @spec openspec/specs/process-configuration/spec.md -->
-		<ProcessTemplates />
-
-		<!-- Email voting toggle -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
-		<CnSettingsSection
-			id="section-email-voting"
-			:name="t('decidiq', 'Email voting')"
-			:description="t('decidiq', 'Enable voting by email reply')">
-			<div class="form-group form-group--checkbox">
-				<input
-					id="email_voting_enabled"
-					v-model="form.email_voting_enabled"
-					type="checkbox"
-					:aria-label="t('decidiq', 'Email voting')"
-					@change="saveEmailVoting" />
-				<label for="email_voting_enabled">{{
-					t('decidiq', 'Enable voting by email reply')
+	<!-- Organization defaults -->
+	<!-- @spec openspec/specs/admin-settings/spec.md -->
+	<CnSettingsSection
+		:name="t('decidiq', 'Organization')"
+		:description="
+			t(
+				'decidiq',
+				'Organization defaults applied to meetings, decisions, and generated documents',
+			)
+		">
+		<form
+			data-testid="organisation-settings"
+			@submit.prevent="saveOrganisation">
+			<div class="form-group">
+				<label for="organisation_name">{{
+					t('decidiq', 'Organization name')
 				}}</label>
+				<input
+					id="organisation_name"
+					v-model="form.organisation_name"
+					type="text"
+					data-testid="organisation-name"
+					:placeholder="t('decidiq', 'e.g. Vereniging De Harmonie')" />
 			</div>
-		</CnSettingsSection>
+			<div class="form-group">
+				<label for="organisation_logo">{{
+					t('decidiq', 'Logo URL')
+				}}</label>
+				<input
+					id="organisation_logo"
+					v-model="form.organisation_logo"
+					type="url"
+					data-testid="organisation-logo"
+					:placeholder="
+						t('decidiq', 'https://example.org/logo.png')
+					" />
+			</div>
+			<div class="form-group">
+				<NcSelect
+					v-model="form.organisation_timezone"
+					:inputLabel="t('decidiq', 'Timezone')"
+					:options="timezoneOptions"
+					data-testid="organisation-timezone" />
+			</div>
+			<div class="form-group">
+				<NcSelect
+					v-model="form.organisation_locale"
+					:inputLabel="t('decidiq', 'Default language')"
+					:options="localeOptions"
+					label="label"
+					data-testid="organisation-locale" />
+			</div>
+			<div class="form-group">
+				<NcSelect
+					v-model="form.organisation_currency"
+					:inputLabel="t('decidiq', 'Currency')"
+					:options="currencyOptions"
+					data-testid="organisation-currency" />
+			</div>
+			<div class="form-group">
+				<label for="organisation_retention_days">{{
+					t('decidiq', 'Archival retention period (days)')
+				}}</label>
+				<input
+					id="organisation_retention_days"
+					v-model="form.organisation_retention_days"
+					type="number"
+					min="0"
+					step="1"
+					data-testid="organisation-retention"
+					:placeholder="t('decidiq', 'e.g. 3650')" />
+			</div>
 
-		<!-- Citizen-participation instance defaults -->
-		<!-- @spec openspec/specs/citizen-participation/spec.md -->
-		<CnSettingsSection
-			:name="t('decidiq', 'Citizen participation defaults')"
-			:description="
-				t(
-					'decidiq',
-					'Defaults applied to new consultations and budget rounds. Staff can override per round.',
-				)
-			">
-			<form
-				data-testid="participation-settings"
-				@submit.prevent="saveParticipation">
-				<div class="form-group">
-					<NcSelect
-						v-model="form.participation_default_moderation_policy"
-						:options="moderationPolicyOptions"
-						:inputLabel="t('decidiq', 'Default moderation policy')"
-						label="label"
-						trackBy="id"
-						data-testid="participation-moderation-policy" />
-				</div>
-				<div class="form-group">
-					<label for="participation_catalog">{{
-						t('decidiq', 'Default OpenCatalogi catalog (UUID)')
-					}}</label>
-					<input
-						id="participation_catalog"
-						v-model="form.participation_catalog"
-						type="text"
-						data-testid="participation-catalog"
-						:placeholder="
-							t('decidiq', 'Leave empty to skip catalog routing')
-						" />
-				</div>
-				<div class="form-group">
-					<label for="participation_anon_rate_limit">{{
-						t('decidiq', 'Anonymous intake rate limit (per hour)')
-					}}</label>
-					<input
-						id="participation_anon_rate_limit"
-						v-model="form.participation_anon_rate_limit"
-						type="number"
-						min="1"
-						data-testid="participation-rate-limit"
-						placeholder="5" />
-				</div>
-				<NcButton
-					variant="primary"
-					type="submit"
-					data-testid="participation-save"
-					:disabled="savingParticipation">
-					{{
-						savingParticipation
-							? t('decidiq', 'Saving...')
-							: t('decidiq', 'Save')
-					}}
-				</NcButton>
-			</form>
-		</CnSettingsSection>
-	</div>
+			<div
+				v-if="organisationMessage"
+				class="success-message"
+				data-testid="organisation-saved">
+				{{ organisationMessage }}
+			</div>
+
+			<NcButton
+				variant="primary"
+				type="submit"
+				data-testid="organisation-save"
+				:disabled="savingOrganisation">
+				{{
+					savingOrganisation
+						? t('decidiq', 'Saving...')
+						: t('decidiq', 'Save')
+				}}
+			</NcButton>
+		</form>
+	</CnSettingsSection>
+
+	<!-- ORI publication settings -->
+	<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+	<!-- The id is the anchor lib/Settings/connections.json links to (adopt-connection-registry). -->
+	<CnSettingsSection
+		id="section-ori"
+		:name="t('decidiq', 'ORI endpoint')"
+		:description="t('decidiq', 'ORI API endpoint URL')">
+		<form @submit.prevent="saveOri">
+			<div class="form-group">
+				<label for="ori_endpoint">{{
+					t('decidiq', 'ORI endpoint')
+				}}</label>
+				<input
+					id="ori_endpoint"
+					v-model="form.ori_endpoint"
+					type="url"
+					placeholder="https://api.ori.example.nl/v1/stemmingen" />
+			</div>
+
+			<NcButton variant="primary" type="submit" :disabled="savingOri">
+				{{
+					savingOri ? t('decidiq', 'Saving...') : t('decidiq', 'Save')
+				}}
+			</NcButton>
+		</form>
+	</CnSettingsSection>
+
+	<!-- Email voting toggle -->
+	<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
+	<CnSettingsSection
+		id="section-email-voting"
+		:name="t('decidiq', 'Email voting')"
+		:description="t('decidiq', 'Enable voting by email reply')">
+		<div class="form-group form-group--checkbox">
+			<input
+				id="email_voting_enabled"
+				v-model="form.email_voting_enabled"
+				type="checkbox"
+				:aria-label="t('decidiq', 'Email voting')"
+				@change="saveEmailVoting" />
+			<label for="email_voting_enabled">{{
+				t('decidiq', 'Enable voting by email reply')
+			}}</label>
+		</div>
+	</CnSettingsSection>
+
+	<!-- Citizen-participation instance defaults -->
+	<!-- @spec openspec/specs/citizen-participation/spec.md -->
+	<CnSettingsSection
+		:name="t('decidiq', 'Citizen participation defaults')"
+		:description="
+			t(
+				'decidiq',
+				'Defaults applied to new consultations and budget rounds. Staff can override per round.',
+			)
+		">
+		<form
+			data-testid="participation-settings"
+			@submit.prevent="saveParticipation">
+			<div class="form-group">
+				<NcSelect
+					v-model="form.participation_default_moderation_policy"
+					:options="moderationPolicyOptions"
+					:inputLabel="t('decidiq', 'Default moderation policy')"
+					label="label"
+					trackBy="id"
+					data-testid="participation-moderation-policy" />
+			</div>
+			<div class="form-group">
+				<label for="participation_catalog">{{
+					t('decidiq', 'Default OpenCatalogi catalog (UUID)')
+				}}</label>
+				<input
+					id="participation_catalog"
+					v-model="form.participation_catalog"
+					type="text"
+					data-testid="participation-catalog"
+					:placeholder="
+						t('decidiq', 'Leave empty to skip catalog routing')
+					" />
+			</div>
+			<div class="form-group">
+				<label for="participation_anon_rate_limit">{{
+					t('decidiq', 'Anonymous intake rate limit (per hour)')
+				}}</label>
+				<input
+					id="participation_anon_rate_limit"
+					v-model="form.participation_anon_rate_limit"
+					type="number"
+					min="1"
+					data-testid="participation-rate-limit"
+					placeholder="5" />
+			</div>
+			<NcButton
+				variant="primary"
+				type="submit"
+				data-testid="participation-save"
+				:disabled="savingParticipation">
+				{{
+					savingParticipation
+						? t('decidiq', 'Saving...')
+						: t('decidiq', 'Save')
+				}}
+			</NcButton>
+		</form>
+	</CnSettingsSection>
+
 </template>
 
 <script>
@@ -327,7 +328,7 @@ export default {
 			return {
 				field: 'organisatie_modus',
 				label: this.t('decidiq', 'Kind of organisation'),
-				columns: 2,
+				columns: 1,
 				save: SETTINGS_SAVE,
 				options: [
 					{ value: 'gov', label: this.t('decidiq', 'Municipality'), description: this.t('decidiq', 'Council, executive, committees, clerk') },

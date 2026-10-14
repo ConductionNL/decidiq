@@ -11,7 +11,6 @@
 		:showSetup="true"
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
-		<MenuStructureTab />
 		<Settings v-if="storesReady" />
 		<CaseSystemSettings v-if="storesReady" />
 
@@ -20,6 +19,8 @@
 		<RoleRightsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
 		<DecisionTypeSettings v-if="storesReady" />
+		<!-- The menu structure is not on board DcBeheer: it follows the sections the board draws. -->
+		<MenuStructureTab />
 	</CnAdminSettingsShell>
 </template>
 
