@@ -22,6 +22,7 @@
  *
  * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
  * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+ * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md
  */
 
 declare(strict_types=1);
@@ -36,9 +37,11 @@ use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\PublicMeetingRecords;
 use OCA\Decidiq\Service\PublicVotingRecords;
 use OCA\Decidiq\Service\VoteContextReader;
+use OCA\Decidiq\Service\VoterEligibility;
 use OCA\Decidiq\Service\VotingRecordService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
@@ -163,6 +166,150 @@ final class PortalPublicRecordsTest extends TestCase {
 	}//end testNoRecordForSomeoneTheListDoesNotName()
 
 	/**
+	 * A council whose chair has no vote lists neither its chair (the mayor)
+	 * nor its secretary (the griffier), and neither has a record.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 */
+	public function testACouncilChairWithoutAVoteAndTheGriffierAreNotListed(): void {
+		$this->store['governance-body']['raad']['chairHasVote'] = false;
+		$this->put('person', 'mayor', ['name' => 'Anna Burgemeester']);
+		$this->put('person', 'griffier', ['name' => 'Bram Griffier']);
+		$this->put('membership', 'm-mayor', ['role' => 'chair', 'person' => 'mayor', 'governanceBody' => 'raad', 'startDate' => '2022-03-16T00:00:00Z']);
+		$this->put('membership', 'm-griffier', ['role' => 'secretary', 'person' => 'griffier', 'governanceBody' => 'raad', 'startDate' => '2022-03-16T00:00:00Z']);
+		$provider = $this->provider();
+
+		self::assertSame(expected: ['marie'], actual: array_column($provider->publicMembers(), 'id'));
+		self::assertNull(actual: $provider->publicVotingRecord('mayor'));
+		self::assertNull(actual: $provider->publicVotingRecord('griffier'));
+	}//end testACouncilChairWithoutAVoteAndTheGriffierAreNotListed()
+
+	/**
+	 * A committee that says nothing about its chair keeps the chair's vote:
+	 * the chair is listed; its secretary still is not.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 */
+	public function testACommitteeChairVotesUnlessTheBodySaysOtherwise(): void {
+		$this->put('governance-body', 'commissie', ['name' => 'Commissie ruimte', 'publishVotingRecords' => true]);
+		$this->put('person', 'voorzitter', ['name' => 'Cor Voorzitter']);
+		$this->put('person', 'secretaris', ['name' => 'Sara Secretaris']);
+		$this->put('membership', 'm-voorzitter', ['role' => 'chair', 'person' => 'voorzitter', 'governanceBody' => 'commissie', 'startDate' => '2022-03-16T00:00:00Z']);
+		$this->put('membership', 'm-secretaris', ['role' => 'secretary', 'person' => 'secretaris', 'governanceBody' => 'commissie', 'startDate' => '2022-03-16T00:00:00Z']);
+
+		$members = $this->provider()->publicMembers();
+
+		self::assertSame(expected: ['voorzitter', 'marie'], actual: array_column($members, 'id'));
+		self::assertSame(expected: 'Chair, Commissie ruimte', actual: $members[0]['subtitle']);
+	}//end testACommitteeChairVotesUnlessTheBodySaysOtherwise()
+
+	/**
+	 * A round whose stage names a decision that does not exist (by slug, or
+	 * deleted) is skipped; the member's other votes still show.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
+	 */
+	public function testADanglingDecisionReferenceSkipsOnlyThatRound(): void {
+		$this->put('decision-stage', 'stage-dangling', ['sequence' => 1, 'stageType' => 'decisive', 'decision' => 'besluit-by-slug', 'votingRound' => 'r-dangling', 'assignedBody' => 'raad']);
+		$this->put('voting-round', 'r-dangling', ['isSecret' => false, 'openedAt' => '2025-06-10T20:00:00Z', 'closedAt' => '2025-06-10T20:10:00Z', 'result' => 'adopted', 'decisionStage' => 'stage-dangling']);
+		$this->put('vote', 'v-marie-dangling', ['value' => 'against', 'castAt' => '2025-06-10T20:05:00Z', 'votingRound' => 'r-dangling', 'participant' => 'p-marie']);
+
+		$record = $this->provider()->publicVotingRecord('marie');
+
+		self::assertIsArray(actual: $record);
+		self::assertSame(expected: ['Groen dak op het stadhuis'], actual: array_column($record['rows'], 'subject'));
+	}//end testADanglingDecisionReferenceSkipsOnlyThatRound()
+
+	/**
+	 * The shipped example set, loaded as-is: every voting councillor has a
+	 * record with one named vote per public round, the votes add up to each
+	 * round's totals, and the mayor and the griffier are not listed.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 */
+	public function testTheExampleSetShowsEveryCouncillorsNamedVotes(): void {
+		$this->store = [];
+		$path = dirname(__DIR__, 3).'/lib/Settings/example-sets/zuiddrecht.json';
+		$set = json_decode((string)file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($set['objects'] as $row) {
+			if ($row['register'] === 'decidiq') {
+				$this->put($row['schema'], $row['key'], self::resolve(value: $row['data']));
+			}
+		}
+
+		$provider = $this->provider();
+		$members = array_column($provider->publicMembers(), 'id');
+		$voters = [];
+		foreach ($this->store['membership'] as $membership) {
+			if ($membership['governanceBody'] === 'body-gemeenteraad' && $membership['role'] === 'member') {
+				$voters[] = $membership['person'];
+			}
+		}
+
+		sort($members);
+		sort($voters);
+		self::assertCount(expectedCount: 27, haystack: $voters);
+		self::assertSame(expected: $voters, actual: $members, message: 'Only the voting councillors are listed: no mayor, no griffier');
+
+		$tally = [];
+		foreach ($voters as $personId) {
+			$record = $provider->publicVotingRecord($personId);
+			self::assertIsArray(actual: $record, message: $personId);
+			self::assertCount(expectedCount: 3, haystack: $record['rows'], message: $personId.' votes in each public round');
+			foreach ($record['rows'] as $row) {
+				$tally[$row['subject']][$row['choice']] = (($tally[$row['subject']][$row['choice']] ?? 0) + 1);
+			}
+		}
+
+		foreach ($this->store['decision-stage'] as $stage) {
+			$round = $this->store['voting-round'][$stage['votingRound']];
+			$subject = $this->store['decision'][$stage['decision']]['title'];
+			$expected = array_filter(['For' => $round['votesFor'], 'Against' => $round['votesAgainst'], 'Abstained' => $round['votesAbstain']]);
+			$actual = $tally[$subject];
+			ksort($expected);
+			ksort($actual);
+			self::assertSame(expected: $expected, actual: $actual, message: $subject.': the named votes add up to the totals');
+		}
+	}//end testTheExampleSetShowsEveryCouncillorsNamedVotes()
+
+	/**
+	 * Resolve the example-set placeholders the way the installer does, close enough
+	 * for a read: an object reference becomes the object's key, a relative
+	 * datetime becomes that many days from now at the given time.
+	 *
+	 * @param mixed $value A fragment value
+	 *
+	 * @return mixed
+	 */
+	private static function resolve(mixed $value): mixed {
+		if (is_array($value) === true) {
+			return array_map(static fn (mixed $item): mixed => self::resolve(value: $item), $value);
+		}
+
+		if (is_string($value) === false) {
+			return $value;
+		}
+
+		if (preg_match('/^\{\{object:([^.}]+)\.id\}\}$/', $value, $match) === 1) {
+			return $match[1];
+		}
+
+		if (preg_match('/^\{\{datetime:([+-]\d+)[^ }]*(?: (\d\d:\d\d))?\}\}$/', $value, $match) === 1) {
+			return gmdate('Y-m-d', (time() + ((int)$match[1] * 86400))).'T'.($match[2] ?? '00:00').':00Z';
+		}
+
+		return $value;
+	}//end resolve()
+
+	/**
 	 * Only meetings staff published and did not withdraw are listed, latest first.
 	 *
 	 * @return void
@@ -244,6 +391,7 @@ final class PortalPublicRecordsTest extends TestCase {
 				personRule: new OriPersonPublicationRule(context: $context, objectService: $objectService),
 				voteRule: new OriVotePublicationRule(records: $records, context: $context, people: $people, objectService: $objectService),
 				context: $context,
+				voters: new VoterEligibility(),
 				objectService: $objectService,
 				l10nFactory: $factory,
 			),
@@ -290,8 +438,13 @@ final class PortalPublicRecordsTest extends TestCase {
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null, bool $_rbac = true): ?ObjectEntity {
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
-				if ($data === null || $_rbac === true) {
+				if ($_rbac === true) {
 					return null;
+				}
+
+				// Like OpenRegister: a missing object throws, it does not read as null.
+				if ($data === null) {
+					throw new DoesNotExistException('Object not found in magic table');
 				}
 
 				return self::entity(schema: (string)$schema, id: (string)$id, data: $data);
