@@ -1519,23 +1519,26 @@
 						"gridX": 0,
 						"gridY": 0,
 						"gridWidth": 8,
-						"gridHeight": 4
+						"gridHeight": 2,
+						"sizeToContent": true
 					},
 					{
 						"id": "2",
 						"widgetId": "my-votes",
 						"gridX": 0,
-						"gridY": 4,
+						"gridY": 2,
 						"gridWidth": 8,
-						"gridHeight": 4
+						"gridHeight": 2,
+						"sizeToContent": true
 					},
 					{
 						"id": "3",
 						"widgetId": "my-action-items",
 						"gridX": 0,
-						"gridY": 8,
+						"gridY": 4,
 						"gridWidth": 8,
-						"gridHeight": 8
+						"gridHeight": 2,
+						"sizeToContent": true
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
