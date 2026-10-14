@@ -37,6 +37,8 @@ namespace OCA\Decidiq\Tests\Unit\Portal;
 
 use OCA\Decidiq\Portal\PortalContributionProvider;
 use OCA\Decidiq\Service\SettingsService;
+use OCP\IL10N;
+use OCP\L10N\IFactory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -78,8 +80,9 @@ final class PortalContributionProviderTest extends TestCase {
 	}//end setUp()
 
 	/**
-	 * The provider is plain: no parent, no interface, no constructor, and its
-	 * source references no portaliq symbol (inert without portaliq, A1).
+	 * The provider is plain: no parent, no interface, no required constructor
+	 * argument, and its source references no portaliq symbol (inert without
+	 * portaliq, A1).
 	 *
 	 * @return void
 	 */
@@ -88,7 +91,16 @@ final class PortalContributionProviderTest extends TestCase {
 
 		self::assertFalse(condition: $reflection->getParentClass(), message: 'Provider must not extend any class');
 		self::assertSame(expected: [], actual: $reflection->getInterfaceNames(), message: 'Provider must implement no interface');
-		self::assertNull(actual: $reflection->getConstructor(), message: 'Provider must declare no constructor');
+		// `new PortalContributionProvider()` must keep working without a
+		// container: a constructor may only take optional, nullable services
+		// (the l10n factory), never a required dependency.
+		$constructor = $reflection->getConstructor();
+		if ($constructor !== null) {
+			self::assertSame(expected: 0, actual: $constructor->getNumberOfRequiredParameters(), message: 'Provider must need no constructor argument');
+			foreach ($constructor->getParameters() as $parameter) {
+				self::assertTrue(condition: $parameter->allowsNull(), message: 'Constructor argument '.$parameter->getName().' must be nullable');
+			}
+		}
 
 		// The reflection interface check above already proves there is no
 		// implements clause. The docblock legitimately names portaliq in prose;
@@ -135,7 +147,7 @@ final class PortalContributionProviderTest extends TestCase {
 		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
 
 		self::assertIsArray(actual: $manifest);
-		self::assertSame(expected: 'Decidiq', actual: $manifest['label']);
+		self::assertSame(expected: 'Council and participation', actual: $manifest['label']);
 		self::assertCount(expectedCount: 5, haystack: $manifest['actions'], message: 'createReaction, createBudgetProposal, castMotionAdvice, subscribeToPublications and unsubscribeFromPublications');
 		self::assertSame(expected: [], actual: $manifest['notifications'], message: 'No manifest-level notification dispatch this wave');
 
@@ -689,4 +701,138 @@ final class PortalContributionProviderTest extends TestCase {
 
 		return $bySlug;
 	}//end schemasBySlug()
+
+	/**
+	 * Every word a visitor reads comes from decidiq's catalogue in the reader's
+	 * language; ids, schema slugs and field names stay as they are.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 */
+	public function testLabelsAreReadInTheReadersLanguage(): void {
+		$dutch    = $this->catalogue(locale: 'nl');
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $dutch));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+
+		self::assertIsArray(actual: $manifest);
+		self::assertSame(expected: 'Raad en inspraak', actual: $manifest['label']);
+
+		$votes = $this->collection(manifest: $manifest, id: 'citizenVotes');
+		self::assertSame(expected: 'Mijn stemmen', actual: $votes['label']);
+		self::assertSame(expected: 'citizen-vote', actual: $votes['schema'], message: 'A schema slug is never translated');
+		self::assertContains(needle: 'voteValue', haystack: $votes['fields'], message: 'A field name is never translated');
+		self::assertSame(expected: 'Vergaderkalender', actual: $this->collection(manifest: $manifest, id: 'publicCalendar')['label']);
+		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $this->collection(manifest: $manifest, id: 'publicCalendar')['defaultFilters']);
+	}//end testLabelsAreReadInTheReadersLanguage()
+
+	/**
+	 * A label added to the manifest without a Dutch entry in l10n/nl.json fails
+	 * here, instead of reaching a Dutch resident in English.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 */
+	public function testEveryVisibleLabelHasADutchTranslation(): void {
+		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+		$dutch   = $this->catalogue(locale: 'nl');
+		$source  = $this->catalogue(locale: 'en');
+
+		self::assertIsArray(actual: $english);
+		$missing = [];
+		foreach ($this->visibleLabels(manifest: $english) as $label) {
+			if (isset($dutch[$label]) === false || trim((string)$dutch[$label]) === '' || isset($source[$label]) === false) {
+				$missing[] = $label;
+			}
+		}
+
+		self::assertSame(expected: [], actual: $missing, message: 'Labels without an entry in l10n/en.json and l10n/nl.json');
+	}//end testEveryVisibleLabelHasADutchTranslation()
+
+	/**
+	 * Without a factory the provider answers in the English source, as before.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 */
+	public function testWithoutAFactoryTheSourceStays(): void {
+		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+
+		self::assertIsArray(actual: $manifest);
+		self::assertSame(expected: 'My votes', actual: $this->collection(manifest: $manifest, id: 'citizenVotes')['label']);
+	}//end testWithoutAFactoryTheSourceStays()
+
+	/**
+	 * One collection of a manifest by id.
+	 *
+	 * @param array<string, mixed> $manifest The manifest.
+	 * @param string               $id       The collection id.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function collection(array $manifest, string $id): array {
+		foreach ($manifest['collections'] as $collection) {
+			if ($collection['id'] === $id) {
+				return $collection;
+			}
+		}
+
+		self::fail('No collection '.$id);
+	}//end collection()
+
+	/**
+	 * The `label` and `group` strings of a manifest, at any depth outside machine keys.
+	 *
+	 * @param array<array-key, mixed> $manifest The manifest.
+	 *
+	 * @return array<int, string>
+	 */
+	private function visibleLabels(array $manifest): array {
+		$labels = [];
+		foreach ($manifest as $key => $value) {
+			if (is_array($value) === true && in_array($key, ['fields', 'defaults', 'defaultFilters', 'defaultSort', 'parentConstraint', 'set'], true) === false) {
+				$labels = array_merge($labels, $this->visibleLabels(manifest: $value));
+				continue;
+			}
+
+			if (in_array($key, ['label', 'group'], true) === true && is_string($value) === true && $value !== '') {
+				$labels[] = $value;
+			}
+		}
+
+		return $labels;
+	}//end visibleLabels()
+
+	/**
+	 * The shipped catalogue of one locale.
+	 *
+	 * @param string $locale The locale, e.g. `nl`.
+	 *
+	 * @return array<string, string>
+	 */
+	private function catalogue(string $locale): array {
+		$file = dirname(__DIR__, 3).'/l10n/'.$locale.'.json';
+		$json = json_decode((string)file_get_contents($file), true);
+
+		return (array)($json['translations'] ?? []);
+	}//end catalogue()
+
+	/**
+	 * A factory whose decidiq catalogue answers from the given map, and marks
+	 * anything else it is asked, so a machine value sent through it shows.
+	 *
+	 * @param array<string, string> $catalogue Source to translation.
+	 *
+	 * @return IFactory
+	 */
+	private function factoryFor(array $catalogue): IFactory {
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(static fn (string $text): string => (string)($catalogue[$text] ?? 'untranslated:'.$text));
+		$factory = $this->createMock(IFactory::class);
+		$factory->method('get')->with('decidiq')->willReturn($l10n);
+
+		return $factory;
+	}//end factoryFor()
 }//end class

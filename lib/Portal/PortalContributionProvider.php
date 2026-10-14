@@ -51,6 +51,7 @@ namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCP\L10N\IFactory;
 
 /**
  * Declares what an external portal subject may see and do in Decidiq.
@@ -85,11 +86,27 @@ class PortalContributionProvider {
 	private const REGISTER = 'decidiq';
 
 	/**
-	 * The human label portaliq renders for this app's portal section.
+	 * The heading portaliq renders over this app's portal section: what the
+	 * section is about, never the product name (a resident does not know it).
 	 *
 	 * @var string
 	 */
-	private const LABEL = 'Decidiq';
+	private const LABEL = 'Council and participation';
+
+	/**
+	 * Constructor; the container hands in the factory, `new` with no arguments answers in English.
+	 *
+	 * The only dependency is optional, so the class still resolves without
+	 * portaliq and without a container (amendment A1).
+	 *
+	 * @param IFactory|null $l10nFactory Puts the labels in the reader's language (PortalLabelTranslator).
+	 *
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 */
+	public function __construct(
+		private readonly ?IFactory $l10nFactory=null,
+	) {
+	}//end __construct()
 
 	/**
 	 * The audiences this provider contributes to (contract v2, preferred).
@@ -132,12 +149,14 @@ class PortalContributionProvider {
 	 * @return array<string, mixed>|null The manifest, or null when not contributing.
 	 *
 	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
 	 */
 	public function getContribution(array $subject): ?array {
 		$audience = ($subject['audience'] ?? '');
 
 		if ($audience === 'citizen') {
-			return $this->citizenContribution();
+			$translator = new PortalLabelTranslator(l10n: $this->l10nFactory?->get('decidiq'));
+			return $translator->translate(manifest: $this->citizenContribution());
 		}
 
 		return null;

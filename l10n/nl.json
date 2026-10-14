@@ -3566,7 +3566,21 @@
         "Submitted by {proposer}": "Indiener {proposer}",
         "No proposals are waiting for review.": "Er wachten geen voorstellen op beoordeling.",
         "No decision is up for a vote.": "Er staat geen besluit ter stemming.",
-        "No action items are waiting for you.": "Er wachten geen actiepunten op u."
+        "No action items are waiting for you.": "Er wachten geen actiepunten op u.",
+        "Council and participation": "Raad en inspraak",
+        "My consultation reactions": "Mijn reacties op consultaties",
+        "My votes": "Mijn stemmen",
+        "My budget proposals": "Mijn begrotingsvoorstellen",
+        "My notifications": "Mijn meldingen",
+        "My subscriptions": "Wat ik volg",
+        "Council calendar": "Vergaderkalender",
+        "Live and recent meetings": "Live en recente vergaderingen",
+        "Motions open for your advice": "Moties waarover u kunt adviseren",
+        "React to this consultation": "Reageren op deze consultatie",
+        "Submit a budget proposal": "Een begrotingsvoorstel indienen",
+        "Give your advice on this motion": "Uw advies over deze motie geven",
+        "Follow agendas and decisions": "Agenda's en besluiten volgen",
+        "Stop following": "Niet meer volgen"
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
