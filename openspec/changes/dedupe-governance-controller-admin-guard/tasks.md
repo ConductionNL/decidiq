@@ -37,5 +37,5 @@
   - GIVEN `ConflictOfInterestController` and `EIDASSignatureController` THEN neither is modified by
     this change — they already use `#[NoAdminRequired]` + per-object checks, a different and
     correct pattern, not the admin-only gate
-- [ ] No code change; verified by review only (documents the boundary so a future contributor does
+- [x] No code change; verified by review only (documents the boundary so a future contributor does (verified: lib/Controller/ConflictOfInterestController.php and EIDASSignatureController.php carry no admin guard; they use #[NoAdminRequired] with per-object checks)
       not "complete the set" by force-fitting these two onto `requireAdmin()`).

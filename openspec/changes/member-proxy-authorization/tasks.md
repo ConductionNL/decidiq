@@ -9,7 +9,7 @@
   - GIVEN a clean instance WHEN the register is imported THEN schema `proxyAuthorization` exists with grantor/holder/meeting (required), votingRound/proxyVote/document/signing fields, `signatureStatus` enum (`ongetekend`/`getekend`/`geweigerd`) under `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys; `ongetekend → getekend | geweigerd`), countersign and revocation fields; every property carries a `title`
   - GIVEN a `getekend` instrument WHEN a transition back to `ongetekend` is attempted THEN OR rejects it (undeclared transition)
   - GIVEN the base-file diff WHEN reviewed THEN the only `decidesk_register.json` change is the nullable `authorizationRef` property on the existing `vote` schema
-- [ ] Implement
+- [x] Implement (verified: lib/Settings/register.d/63-member-proxy-authorization.json ProxyAuthorization with signatureStatus lifecycle unsigned/signed/refused, Vote.authorizationRef; enum values and the Vote delta differ from the task text)
 - [ ] Test
 
 ### Task 2: Seed data — signed+countersigned, ongetekend, and revoked instruments + duplicated per-body template

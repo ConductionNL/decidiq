@@ -72,4 +72,4 @@
   - GIVEN a ranked ballot in the "Votes" widget WHEN listed THEN it reads as its ordered options (REQ-RPB-002)
   - Verification: Playwright red first (no ranked option in the dialog), then green, including a keyboard-only ranking; vitest for the ballot's move controls
 - [x] Implement (#1419: method, option editor with labels, keyboard ballot, results table and the ranking in both vote lists; Person picks per option in VotingRoundPanel.vue through `rankedOptionsFrom()` and `pickPerson()` in src/utils/rankedBallot.js, sent as `options[].person`, which RankedBallotRules already stores)
-- [ ] Test (vitest: the ranking text and tests/vitest/rankedOptionsPersonPick.spec.js; not run: the Playwright spec, red first then keyboard-only ranking, needs the live instance)
+- [ ] Test (vitest: the ranking text and tests/vitest/rankedOptionsPersonPick.spec.js; not run: the Playwright spec, red first then keyboard-only ranking, needs the live instance) (verified: tests/vitest/rankedOptionsPersonPick.spec.js; code exists, test missing: no Playwright ranked-ballot spec; live pass, decision 139)
