@@ -1362,6 +1362,186 @@
 			}
 		},
 		{
+			"id": "MyActions",
+			"route": "/my-actions",
+			"type": "dashboard",
+			"title": "My actions",
+			"config": {
+				"_boardNote": "Board DcMijnActies: one card per kind of work, each row with its status, its date and one action. Action items are the reader's own (assignee @me, the field the dashboard's My action items widget reads). Proposals and votes have no field that names the person who reviews or votes, so those two cards show every proposal waiting for review and every decision up for a vote. The full list stays one click away: the Action items card links to the ActionItems index. The side card Next meeting is not built here.",
+				"widgets": [
+					{
+						"id": "my-proposals",
+						"type": "record-list",
+						"title": "Proposals to review",
+						"content": {
+							"register": "decidiq",
+							"schema": "decision",
+							"filter": {
+								"decisionType": "motion",
+								"lifecycle": [
+									"proposed",
+									"deliberating"
+								]
+							},
+							"sort": {
+								"field": "submittedAt",
+								"dir": "asc"
+							},
+							"limit": 5,
+							"title": "{title}",
+							"meta": {
+								"parts": [
+									"Submitted by {proposer}",
+									"{submittedAt|date}"
+								]
+							},
+							"pill": {
+								"field": "lifecycle",
+								"labels": {
+									"proposed": "Proposed",
+									"deliberating": "Deliberating"
+								},
+								"colorMap": {
+									"proposed": "primary",
+									"deliberating": "primary"
+								}
+							},
+							"rowRoute": "MotionDetail",
+							"headerCount": true,
+							"rowAction": {
+								"type": "open-page",
+								"target": "MotionDetail",
+								"label": "Review"
+							},
+							"emptyText": "No proposals are waiting for review."
+						}
+					},
+					{
+						"id": "my-votes",
+						"type": "record-list",
+						"title": "Votes for you",
+						"content": {
+							"register": "decidiq",
+							"schema": "decision",
+							"filter": {
+								"lifecycle": "voting"
+							},
+							"sort": {
+								"field": "decisionDate",
+								"dir": "asc"
+							},
+							"limit": 5,
+							"title": "{title}",
+							"pill": {
+								"field": "lifecycle",
+								"labels": {
+									"voting": "Up for vote"
+								},
+								"colorMap": {
+									"voting": "warning"
+								}
+							},
+							"rowRoute": "DecisionDetail",
+							"headerCount": true,
+							"headerLink": {
+								"label": "To the meetings",
+								"route": "Meetings"
+							},
+							"rowAction": {
+								"type": "open-page",
+								"target": "DecisionDetail",
+								"label": "Cast vote"
+							},
+							"emptyText": "No decision is up for a vote."
+						}
+					},
+					{
+						"id": "my-action-items",
+						"type": "record-list",
+						"title": "Action items",
+						"content": {
+							"register": "decidiq",
+							"schema": "action-item",
+							"filter": {
+								"assignee": "@me",
+								"taskStatus": [
+									"open",
+									"in-progress",
+									"overdue"
+								]
+							},
+							"sort": {
+								"field": "dueDate",
+								"dir": "asc"
+							},
+							"limit": 10,
+							"title": "{title}",
+							"pill": {
+								"field": "taskStatus",
+								"labels": {
+									"open": "Still open",
+									"in-progress": "Busy",
+									"overdue": "Overdue"
+								},
+								"colorMap": {
+									"overdue": "error",
+									"in-progress": "purple"
+								}
+							},
+							"due": {
+								"field": "dueDate"
+							},
+							"rowRoute": "ActionItemDetail",
+							"headerCount": true,
+							"headerLink": {
+								"label": "All action items",
+								"route": "ActionItems"
+							},
+							"rowAction": {
+								"type": "open-page",
+								"target": "ActionItemDetail",
+								"label": "Complete",
+								"labels": {
+									"field": "taskStatus",
+									"map": {
+										"open": "Start"
+									}
+								}
+							},
+							"emptyText": "No action items are waiting for you."
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "my-proposals",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 4
+					},
+					{
+						"id": "2",
+						"widgetId": "my-votes",
+						"gridX": 0,
+						"gridY": 4,
+						"gridWidth": 8,
+						"gridHeight": 4
+					},
+					{
+						"id": "3",
+						"widgetId": "my-action-items",
+						"gridX": 0,
+						"gridY": 8,
+						"gridWidth": 8,
+						"gridHeight": 8
+					}
+				],
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
 			"id": "ActionItems",
 			"route": "/action-items",
 			"type": "index",
