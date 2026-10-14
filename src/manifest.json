@@ -1451,12 +1451,12 @@
 			"title": "Reports",
 			"config": {
 				"description": "Pick a report to open it.",
-				"_boardNote": "Board DcRapportages: the section Meetings and efficiency under the report cards, one card with its title and the link to the whole report. The board draws four tiles and a bar chart. Two tiles are built: meetings this year, and the average cost per meeting from meetingCost. Average duration, attendance and the chart of average duration per month have no source yet: the meeting holds a start and an end but no stored duration, and attendance is not stored per meeting. They are left out rather than drawn empty.",
+				"_boardNote": "Board DcRapportages: the section Meetings and efficiency under the report cards, one card with its title and the link to the whole report. The board draws four tiles and a bar chart. Two tiles are built: meetings this year, and the average cost per meeting from meetingCost, which hides itself while no meeting has a cost recorded. The tiles sit in a sections card because a bare stats-block draws no card title or link under the board look. Average duration, attendance and the chart of average duration per month have no source yet: the meeting holds a start and an end but no stored duration, and attendance is not stored per meeting. They are left out rather than drawn empty.",
 				"widgets": [
-					{"id": "efficiency", "type": "sections", "title": "Meetings and efficiency", "headerLink": {"label": "Whole report", "route": "MeetingsReport"}, "content": {"sections": [{"key": "figures", "widget": {"type": "stats-block", "content": {"entries": [{"title": "Meetings this year", "register": "decidiq", "schema": "meeting", "metric": "count", "filter": {"scheduledDate[gte]": "@yearStart"}}, {"title": "Cost per meeting", "register": "decidiq", "schema": "meeting", "metric": "avg", "field": "meetingCost", "format": "currency"}]}}}]}}
+					{"id": "efficiency", "type": "sections", "title": "Meetings and efficiency", "headerLink": {"label": "Whole report", "route": "MeetingsReport"}, "content": {"sections": [{"key": "figures", "widget": {"type": "stats-block", "content": {"entries": [{"title": "Meetings this year", "register": "decidiq", "schema": "meeting", "metric": "count", "filter": {"scheduledDate": {"gte": "@yearStart"}}}, {"title": "Cost per meeting", "register": "decidiq", "schema": "meeting", "metric": "avg", "field": "meetingCost", "format": "currency", "hideWhenZero": true}]}}}]}}
 				],
 				"layout": [
-					{"id": "1", "widgetId": "efficiency", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 3}
+					{"id": "1", "widgetId": "efficiency", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 3, "sizeToContent": true}
 				],
 				"categories": {
 					"decisions": "Decisions and votes",
