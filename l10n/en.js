@@ -3264,7 +3264,15 @@ OC.L10N.register(
         "Submit a budget proposal": "Submit a budget proposal",
         "Give your advice on this motion": "Give your advice on this motion",
         "Follow agendas and decisions": "Follow agendas and decisions",
-        "Stop following": "Stop following"
+        "Stop following": "Stop following",
+        "How members voted": "How members voted",
+        "Abstained": "Abstained",
+        "Unknown": "Unknown",
+        "Took part": "Took part",
+        "Only open votes on published decisions. Secret votes are not shown here.": "Only open votes on published decisions. Secret votes are not shown here.",
+        "No.": "No.",
+        "The agenda of this meeting has not been published yet.": "The agenda of this meeting has not been published yet.",
+        "_in %n open vote_::_in %n open votes_": ["in %n open vote","in %n open votes"]
     },
     "nplurals=2; plural=(n != 1);"
 )

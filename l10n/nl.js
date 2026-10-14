@@ -3581,7 +3581,15 @@ OC.L10N.register(
         "Submit a budget proposal": "Een begrotingsvoorstel indienen",
         "Give your advice on this motion": "Uw advies over deze motie geven",
         "Follow agendas and decisions": "Agenda's en besluiten volgen",
-        "Stop following": "Niet meer volgen"
+        "Stop following": "Niet meer volgen",
+        "How members voted": "Hoe stemden de raadsleden",
+        "Abstained": "Onthouden",
+        "Unknown": "Onbekend",
+        "Took part": "Deelname",
+        "Only open votes on published decisions. Secret votes are not shown here.": "Alleen openbare stemmingen over gepubliceerde besluiten. Geheime stemmingen staan hier niet.",
+        "No.": "Nr.",
+        "The agenda of this meeting has not been published yet.": "De agenda van deze vergadering is nog niet gepubliceerd.",
+        "_in %n open vote_::_in %n open votes_": ["aan %n openbare stemming","aan %n openbare stemmingen"]
     },
     "nplurals=2; plural=(n != 1);"
 )
