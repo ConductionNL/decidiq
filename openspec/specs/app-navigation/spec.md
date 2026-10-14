@@ -610,14 +610,14 @@ In the simple structure the navigation MUST open with a brand block (the instanc
 
 ### Requirement: REQ-SAP-006 My actions opens on the reader's own action items
 
-In the simple structure, the page the menu entry My actions opens MUST show the action items assigned to the reader first. It MUST find them by the `assignee` field, with the reader filled in when the list is fetched. The list of every action item MUST stay one view away. A view's count MUST ask the same question as its list. The full structure MUST keep the list as the manifest declares it.
+In the simple structure, the menu entry My actions MUST open the work list board DcMijnActies draws (page MyActions): proposals waiting for review, decisions up for a vote, and the action items assigned to the reader. The action items card MUST find them by the `assignee` field, with the reader filled in when the list is fetched. The list of every action item MUST stay one link away: the card's All action items link opens the action item list, which opens on the reader's own items and lists every item under the view Everyone. A view's count MUST ask the same question as its list. The full structure MUST keep the list as the manifest declares it.
 
 #### Scenario: A member opens My actions
 @e2e exclude The filter is resolved with the library's resolveFilterMap in simpleAmendmentPage.spec.js; the suite has no fixture with action items for two users.
 - **GIVEN** the simple structure and action items assigned to several people
 - **WHEN** a member opens My actions
-- **THEN** the list MUST show the items whose assignee is that member
-- **AND** the view Everyone MUST show all of them
+- **THEN** the Action items card MUST show the items whose assignee is that member
+- **AND** its All action items link MUST open the action item list, whose view Everyone shows all of them
 
 #### Scenario: A count and its list
 @e2e exclude Both addresses are built with the library's own calls and compared in simpleAmendmentPage.spec.js.

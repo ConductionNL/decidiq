@@ -52,6 +52,7 @@
 		{
 			"id": "ActionItems",
 			"label": "My actions",
+			"route": "MyActions",
 			"order": 12,
 			"icon": "InboxOutline",
 			"count": {

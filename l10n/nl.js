@@ -3569,7 +3569,20 @@ OC.L10N.register(
         "Reading it in again after an update is under Advanced.": "Opnieuw inlezen na een update kan onder Geavanceerd.",
         "Administration": "Beheer",
         "Administration settings": "Beheerinstellingen",
-        "For administrators of decidiq. Changes apply to everyone.": "Voor beheerders van decidiq. Wijzigingen gelden voor iedereen."
+        "For administrators of decidiq. Changes apply to everyone.": "Voor beheerders van decidiq. Wijzigingen gelden voor iedereen.",
+        "Proposals to review": "Voorstellen om te beoordelen",
+        "Votes for you": "Stemmingen voor u",
+        "Up for vote": "Ter stemming",
+        "Busy": "Bezig",
+        "Review": "Beoordelen",
+        "Complete": "Afronden",
+        "Cast vote": "Stem uitbrengen",
+        "All action items": "Alle actiepunten",
+        "To the meetings": "Naar de vergaderingen",
+        "Submitted by {proposer}": "Indiener {proposer}",
+        "No proposals are waiting for review.": "Er wachten geen voorstellen op beoordeling.",
+        "No decision is up for a vote.": "Er staat geen besluit ter stemming.",
+        "No action items are waiting for you.": "Er wachten geen actiepunten op u."
     },
     "nplurals=2; plural=(n != 1);"
 )

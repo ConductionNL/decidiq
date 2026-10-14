@@ -3251,7 +3251,20 @@
         "Reading it in again after an update is under Advanced.": "Reading it in again after an update is under Advanced.",
         "Administration": "Administration",
         "Administration settings": "Administration settings",
-        "For administrators of decidiq. Changes apply to everyone.": "For administrators of decidiq. Changes apply to everyone."
+        "For administrators of decidiq. Changes apply to everyone.": "For administrators of decidiq. Changes apply to everyone.",
+        "Proposals to review": "Proposals to review",
+        "Votes for you": "Votes for you",
+        "Up for vote": "Up for vote",
+        "Busy": "Busy",
+        "Review": "Review",
+        "Complete": "Complete",
+        "Cast vote": "Cast vote",
+        "All action items": "All action items",
+        "To the meetings": "To the meetings",
+        "Submitted by {proposer}": "Submitted by {proposer}",
+        "No proposals are waiting for review.": "No proposals are waiting for review.",
+        "No decision is up for a vote.": "No decision is up for a vote.",
+        "No action items are waiting for you.": "No action items are waiting for you."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
