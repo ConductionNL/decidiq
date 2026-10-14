@@ -19,43 +19,30 @@
 			"title": "Commitments",
 			"_note": "spec: openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register/spec.md",
 			"config": {
+				"showTitle": true,
+				"showTitleIcon": false,
+				"countSubtitle": "{total} commitments",
+				"headerButtons": [
+					{ "action": "export" },
+					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "add", "variant": "primary" }
+				],
 				"register": "decidiq",
 				"schema": "governance-commitment",
 				"sortKey": "@self.created",
 				"sortOrder": "desc",
 				"_note": "Toezeggingenlijst (REQ-006). Columns text/madeBy/directedTo/deadline/lifecycle; quick filters on lifecycle and governance body. CSV export via the shared ExportService + CnMassExportDialog (mass-export exposed by the index chrome). The overdue-KPI deep-link (Dashboard) targets this page pre-filtered to non-terminal lifecycle (design D6).",
-				"quickFilterMode": "dropdown",
-				"quickFilterMultiple": true,
+				"_boardNote": "Board DcToezeggingen: the lenses as chips with counts (All commitments, Open, In execution, Over the deadline, Completed) instead of a multi-select dropdown. The Open lens is keyed Still open because the catalogue already translates Open as the verb Openen. Lapsed stays as the last lens, behind the overflow chip (the board draws five), so no lens is lost. Picking several statuses at once is still possible through the Status facet behind Filter, which is how the board draws it (Actief: Status open, Status in uitvoering). Over the deadline is a deadline before today on a commitment that is still open or in execution.",
+				"searchPlaceholder": "Search in this list",
+				"footerNote": "click a column header to sort",
+				"quickFilterMaxVisible": 5,
 				"quickFilters": [
-					{
-						"label": "All",
-						"filter": {},
-						"default": true
-					},
-					{
-						"label": "Open",
-						"filter": {
-							"lifecycle": "open"
-						}
-					},
-					{
-						"label": "In progress",
-						"filter": {
-							"lifecycle": "in-execution"
-						}
-					},
-					{
-						"label": "Settled",
-						"filter": {
-							"lifecycle": "disposed"
-						}
-					},
-					{
-						"label": "Lapsed",
-						"filter": {
-							"lifecycle": "lapsed"
-						}
-					}
+					{ "label": "All commitments", "filter": {}, "default": true, "showCount": true },
+					{ "label": "Still open", "filter": { "lifecycle": "open" }, "showCount": true },
+					{ "label": "In execution", "filter": { "lifecycle": "in-execution" }, "showCount": true },
+					{ "label": "Over the deadline", "filter": { "deadline[lt]": "@today", "lifecycle": ["open", "in-execution"] }, "showCount": true },
+					{ "label": "Completed", "filter": { "lifecycle": "disposed" }, "showCount": true },
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" }, "showCount": true }
 				],
 				"columns": [
 					{
@@ -85,7 +72,9 @@
 					},
 					{
 						"key": "deadline",
-						"label": "Deadline"
+						"label": "Term",
+						"widget": "date",
+						"widgetProps": { "variantWhen": [{ "op": "lte", "value": 0, "variant": "error" }] }
 					},
 					{
 						"key": "lifecycle",
