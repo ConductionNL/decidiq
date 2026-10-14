@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
  * Reads the member, round, decision and body of a ballot.
@@ -218,22 +219,33 @@ class VoteContextReader {
 	/**
 	 * An object by id, read once per request and without the caller's RBAC.
 	 *
+	 * A reference to an object that does not exist (a deleted decision, a
+	 * stage that names its decision by slug) reads as null: OpenRegister
+	 * throws for it, and one dangling reference must not take down every
+	 * public list that walks past it.
+	 *
 	 * @param string $schema The schema slug
 	 * @param string $id     The object id
 	 *
 	 * @return array<string, mixed>|null
 	 *
 	 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
 	 */
 	public function object(string $schema, string $id): ?array {
 		if (array_key_exists($id, ($this->read[$schema] ?? [])) === false) {
-			$entity = $this->objectService->find(
-				id: $id,
-				register: self::REGISTER,
-				schema: $schema,
-				_rbac: false,
-				_multitenancy: false
-			);
+			try {
+				$entity = $this->objectService->find(
+					id: $id,
+					register: self::REGISTER,
+					schema: $schema,
+					_rbac: false,
+					_multitenancy: false
+				);
+			} catch (DoesNotExistException) {
+				$entity = null;
+			}
+
 			$this->read[$schema][$id] = null;
 			if ($entity !== null) {
 				$this->read[$schema][$id] = $entity->jsonSerialize();

@@ -3555,6 +3555,10 @@ OC.L10N.register(
         "Type of body": "Soort orgaan",
         "Term ends": "Zittingstermijn tot",
         "Validity": "Geldigheid",
+        "Meetings and efficiency": "Vergaderingen en efficiëntie",
+        "Whole report": "Hele rapportage",
+        "Meetings this year": "Vergaderingen dit jaar",
+        "Cost per meeting": "Kosten per vergadering",
         "Sets the words and defaults across the whole app.": "Bepaalt de woorden en standaarden in de hele app.",
         "Kind of organisation": "Soort organisatie",
         "Council, executive, committees, clerk": "Raad, college, commissies, griffie",
@@ -3607,7 +3611,9 @@ OC.L10N.register(
         "_in %n open vote_::_in %n open votes_": ["aan %n openbare stemming","aan %n openbare stemmingen"],
         "Go to": "Ga naar",
         "Selection": "Selectie",
-        "Meeting calendar": "Vergaderkalender"
+        "Meeting calendar": "Vergaderkalender",
+        "Decisions and votes": "Besluiten en stemmingen",
+        "Meetings and people": "Vergaderingen en mensen"
     },
     "nplurals=2; plural=(n != 1);"
 )

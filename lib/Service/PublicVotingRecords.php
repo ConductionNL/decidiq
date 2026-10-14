@@ -40,7 +40,7 @@ use OCP\L10N\IFactory;
  * OriVotePublicationRule returns are counted: closed, not secret rounds on
  * published decisions in bodies that publish their voting records.
  *
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects) -- two rules, the context reader, the object service and l10n.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects) -- two rules, the context reader, the voter rule, the object service and l10n.
  *
  * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
  */
@@ -100,6 +100,7 @@ class PublicVotingRecords {
 	 * @param OriPersonPublicationRule $personRule    Who may be named
 	 * @param OriVotePublicationRule   $voteRule      Which votes are public
 	 * @param VoteContextReader        $context       Reads one object in system context
+	 * @param VoterEligibility         $voters        Which roles vote in which body
 	 * @param ObjectServiceInterface   $objectService OpenRegister object service
 	 * @param IFactory                 $l10nFactory   The reader's language
 	 */
@@ -107,6 +108,7 @@ class PublicVotingRecords {
 		private readonly OriPersonPublicationRule $personRule,
 		private readonly OriVotePublicationRule $voteRule,
 		private readonly VoteContextReader $context,
+		private readonly VoterEligibility $voters,
 		private readonly ObjectServiceInterface $objectService,
 		IFactory $l10nFactory,
 	) {
@@ -114,18 +116,22 @@ class PublicVotingRecords {
 	}//end __construct()
 
 	/**
-	 * The public members as `{id, title, subtitle?}`, sorted by name.
+	 * The public members who vote, as `{id, title, subtitle?}`, sorted by name.
+	 *
+	 * A person the ORI API names but who holds no voting office (a chair
+	 * without a vote, a griffier) is not listed: there is no record to read.
 	 *
 	 * @return list<array<string, string>>
 	 *
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function members(): array {
 		$offices = $this->offices();
 		$entries = [];
 		foreach ($this->personRule->persons() as $person) {
 			$name = ($person['name'] ?? null);
-			if (is_string($name) === false) {
+			if (is_string($name) === false || isset($offices[$person['id']]) === false) {
 				continue;
 			}
 
@@ -151,15 +157,16 @@ class PublicVotingRecords {
 	 * @return array<string, mixed>|null `{title, subtitle?, summary, columns, rows, note}`
 	 *
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function record(string $personId): ?array {
 		$person = $this->personRule->person(personId: $personId);
-		if ($person === null || is_string($person['name'] ?? null) === false) {
+		$memberships = ($this->offices()[$personId] ?? []);
+		if ($person === null || is_string($person['name'] ?? null) === false || $memberships === []) {
 			return null;
 		}
 
 		$events = $this->publicEvents();
-		$memberships = ($this->offices()[$personId] ?? []);
 		$counts = ['yes' => 0, 'no' => 0, 'abstain' => 0];
 		$rows = [];
 		foreach ($this->voteRule->votes(voter: $personId) as $vote) {
@@ -282,8 +289,8 @@ class PublicVotingRecords {
 	}//end publicEvents()
 
 	/**
-	 * The public offices per person: memberships with a public role in a body
-	 * that publishes its voting records, the same test the person rule applies.
+	 * The voting offices per person: memberships in a body that publishes its
+	 * voting records, in a role that votes in that body (VoterEligibility).
 	 *
 	 * @return array<string, list<array<string, mixed>>>
 	 */
@@ -304,7 +311,7 @@ class PublicVotingRecords {
 			}
 
 			$body = $this->context->object(schema: 'governance-body', id: $bodyId);
-			if (($body['publishVotingRecords'] ?? false) !== true) {
+			if (($body['publishVotingRecords'] ?? false) !== true || $this->voters->mayVote(role: $membership['role'], body: $body) === false) {
 				continue;
 			}
 

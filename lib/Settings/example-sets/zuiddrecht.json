@@ -1,6 +1,6 @@
 {
 	"set": "zuiddrecht",
-	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these.",
+	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these. The named votes on the three open council rounds come from the vote rows; the council declares that its chair, the mayor, has no vote, and the griffier never votes.",
 	"objects": [
 		{
 			"key": "body-gemeenteraad",
@@ -18,7 +18,8 @@
 				"statutoryBasis": "Gemeentewet",
 				"votingDefault": "for-against-abstain",
 				"termStart": "{{datetime:-210 00:00}}",
-				"publishVotingRecords": true
+				"publishVotingRecords": true,
+				"chairHasVote": false
 			}
 		},
 		{
@@ -33,7 +34,8 @@
 				"jurisdiction": "Gemeente Zuiddrecht",
 				"statutoryBasis": "Gemeentewet",
 				"termStart": "{{datetime:-210 00:00}}",
-				"publishVotingRecords": false
+				"publishVotingRecords": false,
+				"chairHasVote": true
 			}
 		},
 		{
