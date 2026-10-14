@@ -3608,7 +3608,9 @@ OC.L10N.register(
         "Only open votes on published decisions. Secret votes are not shown here.": "Alleen openbare stemmingen over gepubliceerde besluiten. Geheime stemmingen staan hier niet.",
         "No.": "Nr.",
         "The agenda of this meeting has not been published yet.": "De agenda van deze vergadering is nog niet gepubliceerd.",
-        "_in %n open vote_::_in %n open votes_": ["aan %n openbare stemming","aan %n openbare stemmingen"]
+        "_in %n open vote_::_in %n open votes_": ["aan %n openbare stemming","aan %n openbare stemmingen"],
+        "Decisions and votes": "Besluiten en stemmingen",
+        "Meetings and people": "Vergaderingen en mensen"
     },
     "nplurals=2; plural=(n != 1);"
 )
