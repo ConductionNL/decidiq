@@ -2341,7 +2341,8 @@
 						"votingDefault": "for-against-abstain",
 						"termStart": "2022-03-16T00:00:00Z",
 						"termEnd": "2026-03-15T00:00:00Z",
-						"publishVotingRecords": true
+						"publishVotingRecords": true,
+						"chairHasVote": false
 					},
 					{
 						"@self": {
