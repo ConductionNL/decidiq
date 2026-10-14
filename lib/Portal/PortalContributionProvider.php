@@ -51,6 +51,9 @@ namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Service\PublicMeetingRecords;
+use OCA\Decidiq\Service\PublicVotingRecords;
+use OCP\L10N\IFactory;
 
 /**
  * Declares what an external portal subject may see and do in Decidiq.
@@ -85,11 +88,106 @@ class PortalContributionProvider {
 	private const REGISTER = 'decidiq';
 
 	/**
-	 * The human label portaliq renders for this app's portal section.
+	 * The heading portaliq renders over this app's portal section: what the
+	 * section is about, never the product name (a resident does not know it).
 	 *
 	 * @var string
 	 */
-	private const LABEL = 'Decidiq';
+	private const LABEL = 'Council and participation';
+
+	/**
+	 * Constructor; the container hands in the factory, `new` with no arguments answers in English.
+	 *
+	 * The only dependency is optional, so the class still resolves without
+	 * portaliq and without a container (amendment A1).
+	 *
+	 * @param IFactory|null             $l10nFactory    Puts the labels in the reader's language (PortalLabelTranslator).
+	 * @param PublicVotingRecords|null  $votingRecords  The public members and their votes (memberVotingRecords).
+	 * @param PublicMeetingRecords|null $meetingRecords The published meetings and decisions.
+	 *
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+	 */
+	public function __construct(
+		private readonly ?IFactory $l10nFactory=null,
+		private readonly ?PublicVotingRecords $votingRecords=null,
+		private readonly ?PublicMeetingRecords $meetingRecords=null,
+	) {
+	}//end __construct()
+
+	/**
+	 * The public members a visitor may look up (memberVotingRecords list).
+	 *
+	 * Empty without decidiq's services, never an error.
+	 *
+	 * @return list<array<string, string>> `{id, title, subtitle?}` per member.
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 */
+	public function publicMembers(): array {
+		return ($this->votingRecords?->members() ?? []);
+	}//end publicMembers()
+
+	/**
+	 * One public member's voting record, or null for anyone publicMembers() does not name.
+	 *
+	 * @param string $personId The person id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 */
+	public function publicVotingRecord(string $personId): ?array {
+		return $this->votingRecords?->record(personId: $personId);
+	}//end publicVotingRecord()
+
+	/**
+	 * The published meetings (publicMeetings list).
+	 *
+	 * @return list<array<string, string>>
+	 *
+	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 */
+	public function publicMeetings(): array {
+		return ($this->meetingRecords?->meetings() ?? []);
+	}//end publicMeetings()
+
+	/**
+	 * One published meeting with its agenda.
+	 *
+	 * @param string $id The publication id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 */
+	public function publicMeeting(string $id): ?array {
+		return $this->meetingRecords?->meeting(id: $id);
+	}//end publicMeeting()
+
+	/**
+	 * The published decisions (publicDecisions list).
+	 *
+	 * @return list<array<string, string>>
+	 *
+	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 */
+	public function publicDecisions(): array {
+		return ($this->meetingRecords?->decisions() ?? []);
+	}//end publicDecisions()
+
+	/**
+	 * One published decision with its outcome.
+	 *
+	 * @param string $id The publication id.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 */
+	public function publicDecision(string $id): ?array {
+		return $this->meetingRecords?->decision(id: $id);
+	}//end publicDecision()
 
 	/**
 	 * The audiences this provider contributes to (contract v2, preferred).
@@ -132,12 +230,14 @@ class PortalContributionProvider {
 	 * @return array<string, mixed>|null The manifest, or null when not contributing.
 	 *
 	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
 	 */
 	public function getContribution(array $subject): ?array {
 		$audience = ($subject['audience'] ?? '');
 
 		if ($audience === 'citizen') {
-			return $this->citizenContribution();
+			$translator = new PortalLabelTranslator(l10n: $this->l10nFactory?->get('decidiq'));
+			return $translator->translate(manifest: $this->citizenContribution());
 		}
 
 		return null;
@@ -205,9 +305,44 @@ class PortalContributionProvider {
 			'collections' => $this->citizenCollections(),
 			'actions' => $this->citizenActions(),
 			'notifications' => [],
+			'publicRecords' => $this->publicRecords(),
 		];
 
 	}//end citizenContribution()
+
+	/**
+	 * The record lists a visitor reads without signing in (portaliq's
+	 * public records block). Each names the two provider methods portaliq
+	 * calls; what they return is decidiq's publication rule, never the
+	 * caller's rights.
+	 *
+	 * @return list<array<string, string>>
+	 *
+	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
+	 */
+	private function publicRecords(): array {
+		$council = 'Council';
+
+		return [
+			['id' => 'publicMeetings', 'label' => 'Meetings', 'group' => $council, 'listProvider' => 'publicMeetings', 'recordProvider' => 'publicMeeting'],
+			[
+				'id' => 'publicDecisions',
+				'label' => 'Decisions',
+				'group' => $council,
+				'listProvider' => 'publicDecisions',
+				'recordProvider' => 'publicDecision',
+			],
+			[
+				'id' => 'memberVotingRecords',
+				'label' => 'How members voted',
+				'group' => $council,
+				'listProvider' => 'publicMembers',
+				'recordProvider' => 'publicVotingRecord',
+			],
+		];
+
+	}//end publicRecords()
 
 	/**
 	 * The four read/inbox collections on the `citizen` manifest (see
