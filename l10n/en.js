@@ -3250,7 +3250,21 @@ OC.L10N.register(
         "Submitted by {proposer}": "Submitted by {proposer}",
         "No proposals are waiting for review.": "No proposals are waiting for review.",
         "No decision is up for a vote.": "No decision is up for a vote.",
-        "No action items are waiting for you.": "No action items are waiting for you."
+        "No action items are waiting for you.": "No action items are waiting for you.",
+        "Council and participation": "Council and participation",
+        "My consultation reactions": "My consultation reactions",
+        "My votes": "My votes",
+        "My budget proposals": "My budget proposals",
+        "My notifications": "My notifications",
+        "My subscriptions": "My subscriptions",
+        "Council calendar": "Council calendar",
+        "Live and recent meetings": "Live and recent meetings",
+        "Motions open for your advice": "Motions open for your advice",
+        "React to this consultation": "React to this consultation",
+        "Submit a budget proposal": "Submit a budget proposal",
+        "Give your advice on this motion": "Give your advice on this motion",
+        "Follow agendas and decisions": "Follow agendas and decisions",
+        "Stop following": "Stop following"
     },
     "nplurals=2; plural=(n != 1);"
 )
