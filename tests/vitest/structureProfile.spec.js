@@ -438,7 +438,10 @@ describe('the simple profile', () => {
 			'Consultations',
 			'UrgentDecisions',
 		])
+		// Board DcVergaderingen opens its Ga naar group with the meeting
+		// calendar, before the long-term agenda and the P&C cycles.
 		expect(linksOf(built.pages.find((page) => page.id === 'Meetings'))).toEqual([
+			'MeetingsCalendar',
 			'PlannedAgenda',
 			'PlanningCycles',
 		])

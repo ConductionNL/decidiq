@@ -3294,6 +3294,9 @@
             "in %n open vote",
             "in %n open votes"
         ],
+        "Go to": "Go to",
+        "Selection": "Selection",
+        "Meeting calendar": "Meeting calendar",
         "Decisions and votes": "Decisions and votes",
         "Meetings and people": "Meetings and people"
     },

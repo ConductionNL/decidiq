@@ -3292,6 +3292,9 @@ OC.L10N.register(
         "No.": "No.",
         "The agenda of this meeting has not been published yet.": "The agenda of this meeting has not been published yet.",
         "_in %n open vote_::_in %n open votes_": ["in %n open vote","in %n open votes"],
+        "Go to": "Go to",
+        "Selection": "Selection",
+        "Meeting calendar": "Meeting calendar",
         "Decisions and votes": "Decisions and votes",
         "Meetings and people": "Meetings and people"
     },

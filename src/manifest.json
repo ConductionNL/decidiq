@@ -448,7 +448,7 @@
 				"countSubtitle": "{total} governance bodies",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "header-actions", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
@@ -560,7 +560,7 @@
 				"countSubtitle": "{total} meetings",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "open-meeting-calendar", "separator", "open-long-term-agenda", "open-planning-cycles", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
@@ -959,7 +959,7 @@
 				"countSubtitle": "{total} motions",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "actions-menu", "items": [{"heading": "Go to"}, "header-actions", "separator", "import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",
@@ -1198,7 +1198,7 @@
 				"countSubtitle": "{total} decisions",
 				"headerButtons": [
 					{ "action": "export" },
-					{ "action": "actions-menu", "items": ["import", "copy-selected", "delete-selected", "refresh", "documentation"] },
+					{ "action": "actions-menu", "items": ["import", "separator", {"heading": "Selection"}, "copy-selected", "delete-selected", "separator", "refresh", "documentation"] },
 					{ "action": "add", "variant": "primary" }
 				],
 				"register": "decidiq",

@@ -3609,6 +3609,9 @@ OC.L10N.register(
         "No.": "Nr.",
         "The agenda of this meeting has not been published yet.": "De agenda van deze vergadering is nog niet gepubliceerd.",
         "_in %n open vote_::_in %n open votes_": ["aan %n openbare stemming","aan %n openbare stemmingen"],
+        "Go to": "Ga naar",
+        "Selection": "Selectie",
+        "Meeting calendar": "Vergaderkalender",
         "Decisions and votes": "Besluiten en stemmingen",
         "Meetings and people": "Vergaderingen en mensen"
     },
