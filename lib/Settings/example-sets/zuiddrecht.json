@@ -1,6 +1,6 @@
 {
 	"set": "zuiddrecht",
-	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603).",
+	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these.",
 	"objects": [
 		{
 			"key": "body-gemeenteraad",
@@ -3254,6 +3254,273 @@
 				"castAs": "in-person",
 				"votingRound": "{{object:round-afvalstoffenheffing-2027.id}}",
 				"participant": "{{object:participant-gemeenteraad-jan-overdijk.id}}"
+			}
+		},
+		{
+			"key": "publication-meeting-raad-1",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Vergadering",
+				"schemaOrgType": "Event",
+				"documentType": "agenda",
+				"payloadVersion": 1,
+				"title": "Raadsvergadering",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"meetingDate": "{{datetime:-25@thu 19:30}}",
+				"meetingType": "regular",
+				"location": "Stadskantoor, raadzaal",
+				"agendaItems": [
+					{
+						"oriType": "AgendaPunt",
+						"order": 1,
+						"title": "Opening en vaststelling agenda",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 2,
+						"title": "Inspreken",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 3,
+						"title": "Krediet verlichting fietspad Lindelaan",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 4,
+						"title": "Motie lantaarnpalen op zonne-energie",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 5,
+						"title": "Sluiting",
+						"papers": []
+					}
+				],
+				"publicationDate": "{{datetime:-32@thu 09:00}}"
+			}
+		},
+		{
+			"key": "publication-meeting-raad-2",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Vergadering",
+				"schemaOrgType": "Event",
+				"documentType": "agenda",
+				"payloadVersion": 1,
+				"title": "Raadsvergadering",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"meetingDate": "{{datetime:-11@thu 19:30}}",
+				"meetingType": "regular",
+				"location": "Stadskantoor, raadzaal",
+				"agendaItems": [
+					{
+						"oriType": "AgendaPunt",
+						"order": 1,
+						"title": "Opening en vaststelling agenda",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 2,
+						"title": "Verordening afvalstoffenheffing 2027",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 3,
+						"title": "Sluiting",
+						"papers": []
+					}
+				],
+				"publicationDate": "{{datetime:-18@thu 09:00}}"
+			}
+		},
+		{
+			"key": "publication-meeting-raad-3",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Vergadering",
+				"schemaOrgType": "Event",
+				"documentType": "agenda",
+				"payloadVersion": 1,
+				"title": "Raadsvergadering",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"meetingDate": "{{datetime:3@thu 19:30}}",
+				"meetingType": "regular",
+				"location": "Stadskantoor, raadzaal",
+				"agendaItems": [
+					{
+						"oriType": "AgendaPunt",
+						"order": 1,
+						"title": "Opening en vaststelling agenda",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 2,
+						"title": "Inspreken",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 3,
+						"title": "Stand van zaken verlichting fietspad Lindelaan",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 4,
+						"title": "Programmabegroting 2027",
+						"papers": []
+					},
+					{
+						"oriType": "AgendaPunt",
+						"order": 5,
+						"title": "Sluiting",
+						"papers": []
+					}
+				],
+				"publicationDate": "{{datetime:-4@thu 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-college-voorstel-lindelaan",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Collegebesluit: raadsvoorstel verlichting fietspad Lindelaan",
+				"text": "Het college stelt de raad voor 186.000 euro vrij te maken voor verlichting langs het fietspad aan de Lindelaan.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-32@tue 10:30}}",
+				"bodyName": "College van burgemeester en wethouders Zuiddrecht",
+				"voteTotals": {
+					"for": 0,
+					"against": 0,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-31@wed 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-college-voorstel-afval",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Collegebesluit: raadsvoorstel afvalstoffenheffing 2027",
+				"text": "Het college stelt de raad de tarieven van de afvalstoffenheffing voor 2027 voor.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-32@tue 11:00}}",
+				"bodyName": "College van burgemeester en wethouders Zuiddrecht",
+				"voteTotals": {
+					"for": 0,
+					"against": 0,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-31@wed 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-lindelaan-krediet",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Krediet verlichting fietspad Lindelaan",
+				"text": "De raad stelt een krediet van 186.000 euro beschikbaar voor verlichting langs het fietspad aan de Lindelaan: 42 lantaarnpalen met zuinige ledlampen. Het werk begint in maart en duurt ongeveer zes weken.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-25@thu 21:10}}",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"voteTotals": {
+					"for": 22,
+					"against": 5,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-24@fri 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-motie-zonne-energie",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Motie lantaarnpalen op zonne-energie",
+				"text": "De raad verzoekt het college op de Lindelaan lantaarnpalen te plaatsen die hun stroom met een eigen zonnepaneel opwekken.",
+				"outcome": "rejected",
+				"decisionDate": "{{datetime:-25@thu 21:45}}",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"voteTotals": {
+					"for": 11,
+					"against": 15,
+					"abstain": 1
+				},
+				"publicationDate": "{{datetime:-24@fri 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-afvalstoffenheffing-2027",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Verordening afvalstoffenheffing 2027",
+				"text": "De raad stelt de verordening afvalstoffenheffing 2027 vast. Het vaste bedrag per huishouden blijft gelijk; het tarief per container gaat omhoog met de inflatie.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-11@thu 20:30}}",
+				"bodyName": "Gemeenteraad Zuiddrecht",
+				"voteTotals": {
+					"for": 25,
+					"against": 2,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-10@fri 09:00}}"
+			}
+		},
+		{
+			"key": "publication-decision-gunning-lindelaan",
+			"register": "decidiq",
+			"schema": "publication-payload",
+			"data": {
+				"oriType": "Besluit",
+				"schemaOrgType": "ChooseAction",
+				"documentType": "decision",
+				"payloadVersion": 1,
+				"title": "Collegebesluit: opdracht aanleg verlichting fietspad Lindelaan",
+				"text": "Het college geeft {{cast:vandam.name}} de opdracht om 42 lantaarnpalen te plaatsen langs het fietspad aan de Lindelaan, binnen het krediet dat de raad beschikbaar stelde.",
+				"outcome": "adopted",
+				"decisionDate": "{{datetime:-7@tue 10:45}}",
+				"bodyName": "College van burgemeester en wethouders Zuiddrecht",
+				"voteTotals": {
+					"for": 0,
+					"against": 0,
+					"abstain": 0
+				},
+				"publicationDate": "{{datetime:-6@wed 09:00}}"
 			}
 		}
 	],

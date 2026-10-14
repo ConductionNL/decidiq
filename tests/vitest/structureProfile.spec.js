@@ -287,10 +287,12 @@ describe('the simple profile', () => {
 				original.icon,
 			)
 		}
-		// Two entries are worded for the simple menu. Their page is the same.
+		// Two entries are worded for the simple menu. My actions opens the
+		// work list of board DcMijnActies (page MyActions); the action item
+		// list it opened before is the card's "All action items" link.
 		expect(main.find((entry) => entry.id === 'ActionItems')).toMatchObject({
 			label: 'My actions',
-			route: 'ActionItems',
+			route: 'MyActions',
 		})
 		expect(main.find((entry) => entry.id === 'GovernanceBodies')).toMatchObject({
 			label: 'Bodies and members',
@@ -478,10 +480,10 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('builds the same 102 pages as the full profile, so every route stays', () => {
+	it('builds the same 103 pages as the full profile, so every route stays', () => {
 		const ids = (source) => source.pages.map((page) => page.id)
 		expect(ids(built)).toEqual(ids(build(fullFile)))
-		expect(built.pages).toHaveLength(102)
+		expect(built.pages).toHaveLength(103)
 	})
 
 	it('is a manifest the library accepts, captions and links included', () => {
