@@ -3,11 +3,15 @@
 	<CnAdminSettingsShell
 		appId="decidiq"
 		appName="Decidiq"
+		look="board"
+		versionCardPosition="end"
+		:title="t('decidiq', 'Administration')"
+		:breadcrumbs="breadcrumbs"
+		:breadcrumbNote="t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')"
 		data-testid="admin-root"
 		:showSetup="true"
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
-		<MenuStructureTab />
 		<Settings v-if="storesReady" />
 		<CaseSystemSettings v-if="storesReady" />
 
@@ -16,11 +20,14 @@
 		<RoleRightsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
 		<DecisionTypeSettings v-if="storesReady" />
+		<!-- The menu structure is not on board DcBeheer: it follows the sections the board draws. -->
+		<MenuStructureTab />
 	</CnAdminSettingsShell>
 </template>
 
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
@@ -49,6 +56,17 @@ export default {
 	data() {
 		return {
 			storesReady: false,
+			/*
+			 * Board DcBeheer: the path under the title, "Beheerinstellingen /
+			 * Decidiq / Beheer". The first crumb goes back to the server's
+			 * administration settings.
+			 */
+			breadcrumbs: [
+				{ label: this.t('decidiq', 'Administration settings'), href: generateUrl('/settings/admin') },
+				{ label: 'Decidiq' },
+				{ label: this.t('decidiq', 'Administration') },
+			],
+
 			/*
 			 * 🔴 SETUP HAD NO WAY BACK IN. `CnAppRoot` opens the wizard while an
 			 * optional step is outstanding and never again once it is settled, so
