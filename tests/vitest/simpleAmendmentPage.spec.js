@@ -591,11 +591,18 @@ describe('My actions in the simple structure', () => {
 		asked.length = 0
 	})
 
-	it('is what the menu entry My actions opens', () => {
+	it('is one link away from the work list the menu entry My actions opens', () => {
+		// Board DcMijnActies: My actions opens the work list (MyActions). Its
+		// Action items card reads the reader's own items by `assignee` and
+		// links to this list, which keeps the views Mine and Everyone.
 		const entry = simple.menu.find((item) => item.id === 'ActionItems')
 		expect(entry.label).toBe('My actions')
-		expect(entry.route).toBe('ActionItems')
+		expect(entry.route).toBe('MyActions')
 		expect(page.route).toBe('/action-items')
+		const work = pageOf(simple, 'MyActions')
+		const card = work.config.widgets.find((widget) => widget.id === 'my-action-items')
+		expect(card.content.filter.assignee).toBe('@me')
+		expect(card.content.headerLink.route).toBe('ActionItems')
 	})
 
 	it('opens on the reader own action items, by the field that holds a user id', () => {
