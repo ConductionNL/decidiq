@@ -3289,7 +3289,10 @@
         "_in %n open vote_::_in %n open votes_": [
             "in %n open vote",
             "in %n open votes"
-        ]
+        ],
+        "Go to": "Go to",
+        "Selection": "Selection",
+        "Meeting calendar": "Meeting calendar"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

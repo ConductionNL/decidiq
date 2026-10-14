@@ -3606,7 +3606,10 @@
         "_in %n open vote_::_in %n open votes_": [
             "aan %n openbare stemming",
             "aan %n openbare stemmingen"
-        ]
+        ],
+        "Go to": "Ga naar",
+        "Selection": "Selectie",
+        "Meeting calendar": "Vergaderkalender"
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

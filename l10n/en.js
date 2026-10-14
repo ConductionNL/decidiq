@@ -3287,7 +3287,10 @@ OC.L10N.register(
         "Only open votes on published decisions. Secret votes are not shown here.": "Only open votes on published decisions. Secret votes are not shown here.",
         "No.": "No.",
         "The agenda of this meeting has not been published yet.": "The agenda of this meeting has not been published yet.",
-        "_in %n open vote_::_in %n open votes_": ["in %n open vote","in %n open votes"]
+        "_in %n open vote_::_in %n open votes_": ["in %n open vote","in %n open votes"],
+        "Go to": "Go to",
+        "Selection": "Selection",
+        "Meeting calendar": "Meeting calendar"
     },
     "nplurals=2; plural=(n != 1);"
 )
