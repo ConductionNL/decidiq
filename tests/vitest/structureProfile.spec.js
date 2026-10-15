@@ -232,16 +232,15 @@ describe('the simple profile', () => {
 		}
 	})
 
-	it('keeps relocations out of the file, because any relocation step drops the captions', () => {
-		// The library's relocation step ends by filtering out every entry with
-		// no route, href, action or children. That is a caption. `{}` is enough
-		// to run it, so the key has to be absent.
+	it('keeps its captions through a relocation step (nextcloud-vue 2.84.0)', () => {
+		// The simple menu is flat and declares no relocations. Before 2.84.0 a
+		// relocation step dropped every entry with no route, href, action or
+		// children, which is what a caption is; now the captions survive it.
 		expect(Object.hasOwn(simpleFile, 'relocations')).toBe(false)
+		const captions = (manifest) => manifest.menu.filter((entry) => entry.type === 'caption').map((entry) => entry.id)
 		const withRelocations = build({ ...simpleFile, relocations: {} })
-		expect(
-			withRelocations.menu.filter((entry) => entry.type === 'caption'),
-			'the library now keeps captions through relocations; the note in the profile file is stale',
-		).toEqual([])
+		expect(captions(withRelocations)).toEqual(captions(built))
+		expect(captions(built).length).toBeGreaterThan(0)
 	})
 
 	it('gives every entry a label, an icon the app registers and a page that exists', () => {
