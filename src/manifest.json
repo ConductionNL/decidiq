@@ -1367,6 +1367,7 @@
 			"type": "dashboard",
 			"title": "My actions",
 			"config": {
+				"gridFloat": false,
 				"_boardNote": "Board DcMijnActies: one card per kind of work, each row with its status, its date and one action. Action items are the reader's own (assignee @me, the field the dashboard's My action items widget reads). Proposals and votes have no field that names the person who reviews or votes, so those two cards show every proposal waiting for review and every decision up for a vote. The full list stays one click away: the Action items card links to the ActionItems index. The side card Next meeting is not built here.",
 				"widgets": [
 					{
@@ -1636,7 +1637,7 @@
 				"description": "Pick a report to open it.",
 				"_boardNote": "Board DcRapportages: the section Meetings and efficiency under the report cards, one card with its title and the link to the whole report. The board draws four tiles and a bar chart. Two tiles are built, in the board's four-column grid of one card (nextcloud-vue 2.83 stats-block layout grid): meetings this year, and the average cost per meeting from meetingCost, which shows a dash while no meeting has a cost recorded. Average duration, attendance and the chart of average duration per month have no source yet: the meeting holds a start and an end but no stored duration, and attendance is not stored per meeting. They are left out rather than drawn empty.",
 				"widgets": [
-					{"id": "efficiency", "type": "stats-block", "title": "Meetings and efficiency", "showTitle": true, "headerLink": {"label": "Whole report", "route": "MeetingsReport"}, "content": {"layout": "grid", "columns": 4, "stats": [{"label": "Meetings this year", "source": {"register": "decidiq", "schema": "meeting", "metric": "count", "filter": {"scheduledDate[gte]": "@yearStart"}}}, {"label": "Cost per meeting", "format": "currency", "source": {"register": "decidiq", "schema": "meeting", "metric": "avg", "field": "meetingCost"}}]}}
+					{"id": "efficiency", "type": "stats-block", "title": "Meetings and efficiency", "showTitle": true, "headerLink": {"label": "Whole report", "route": "MeetingsReport"}, "content": {"layout": "grid", "columns": 4, "tiles": "box", "stats": [{"label": "Meetings this year", "source": {"register": "decidiq", "schema": "meeting", "metric": "count", "filter": {"scheduledDate[gte]": "@yearStart"}}}, {"label": "Cost per meeting", "format": "currency", "source": {"register": "decidiq", "schema": "meeting", "metric": "avg", "field": "meetingCost"}}]}}
 				],
 				"layout": [
 					{"id": "1", "widgetId": "efficiency", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 3, "sizeToContent": true}
