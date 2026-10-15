@@ -60,6 +60,14 @@ class GovernanceRoleProjectionListener implements IEventListener {
 	public const SCHEMA_BODY = 'governance-body';
 
 	/**
+	 * Schema slugs whose deletion the listener handles: the roster, and a
+	 * body, whose scope groups go with it.
+	 *
+	 * @var string[]
+	 */
+	public const DELETE_SCHEMAS = ['participant', 'membership', self::SCHEMA_BODY];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param GovernanceRoleScopeProjector $projector      Scope projector

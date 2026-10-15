@@ -119,6 +119,16 @@ class GovernanceRoleProjectionListenerTest extends TestCase {
 	}//end testUpdatingABodyRemovesNothing()
 
 	/**
+	 * Deletions also reach the listener for a body; other writes only for the roster.
+	 *
+	 * @return void
+	 */
+	public function testABodyIsSubscribedForDeletionOnly(): void {
+		self::assertSame(['participant', 'membership', 'governance-body'], GovernanceRoleProjectionListener::DELETE_SCHEMAS);
+		self::assertNotContains('governance-body', GovernanceRoleProjectionListener::ROSTER_SCHEMAS);
+	}//end testABodyIsSubscribedForDeletionOnly()
+
+	/**
 	 * A participant write, its schema stamped as an id, reconciles its body.
 	 *
 	 * @return void
