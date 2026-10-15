@@ -119,9 +119,18 @@ class ObjectListenerRegistrar {
 				event: $rosterEvent,
 				listener: GovernanceRoleProjectionListener::class,
 				registers: null,
-				schemas: ['participant', 'membership']
+				schemas: GovernanceRoleProjectionListener::ROSTER_SCHEMAS
 			);
 		}
+
+		// A deleted body takes its two scope groups with it.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectDeletedEvent::class,
+			listener: GovernanceRoleProjectionListener::class,
+			registers: null,
+			schemas: [GovernanceRoleProjectionListener::SCHEMA_BODY]
+		);
 
 		// Technical questions (motions-technical-questions-to-officials, mot-17):
 		// assigning tells the official, answering tells the member who asked.

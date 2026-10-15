@@ -150,6 +150,28 @@ class GovernanceRoleScopeProjector {
 	}//end reconcileFromMemberRow()
 
 	/**
+	 * Remove both scope groups of a body that no longer exists.
+	 *
+	 * A deleted body has no roster, so it has no scope; its groups would
+	 * otherwise outlive it (an example set's remove left four behind).
+	 *
+	 * @param string $bodyId GovernanceBody UUID
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/body-scope-groups-end-with-the-body/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
+	 */
+	public function removeBody(string $bodyId): void {
+		if ($bodyId === '') {
+			return;
+		}
+
+		foreach ([GovernanceScopeGuard::SCOPE_CHAIR, GovernanceScopeGuard::SCOPE_SIGNATORY] as $scope) {
+			$this->removeScope(groupId: $this->scopeGuard->scopeGroupId(bodyId: $bodyId, scope: $scope));
+		}
+	}//end removeBody()
+
+	/**
 	 * Reconcile every GovernanceBody (backfill). Idempotent.
 	 *
 	 * @return int Number of bodies reconciled
@@ -237,12 +259,22 @@ class GovernanceRoleScopeProjector {
 	/**
 	 * Make a scope group's membership match the desired UID set exactly.
 	 *
+	 * A scope nobody holds has no group: an empty scope and a missing group
+	 * both deny, and a group is only created when it gets a member.
+	 *
 	 * @param string $groupId Scope group id
 	 * @param string[] $desiredUids Desired member UIDs
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/changes/body-scope-groups-end-with-the-body/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
 	 */
 	private function syncScope(string $groupId, array $desiredUids): void {
+		if ($desiredUids === []) {
+			$this->removeScope(groupId: $groupId);
+			return;
+		}
+
 		if ($this->groupManager->groupExists($groupId) === false) {
 			$this->groupManager->createGroup($groupId);
 		}
@@ -274,6 +306,20 @@ class GovernanceRoleScopeProjector {
 			}
 		}
 	}//end syncScope()
+
+	/**
+	 * Delete a scope group when it exists.
+	 *
+	 * @param string $groupId Scope group id
+	 *
+	 * @return void
+	 */
+	private function removeScope(string $groupId): void {
+		$group = $this->groupManager->get($groupId);
+		if ($group !== null) {
+			$group->delete();
+		}
+	}//end removeScope()
 
 	/**
 	 * Extract the GovernanceBody UUID from a serialised member row (relations

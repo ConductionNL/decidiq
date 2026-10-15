@@ -31,10 +31,12 @@ use OCA\Decidiq\Service\MeetingReminderService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Service\SystemWhenNobodySignedIn;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IL10N;
+use OCP\IUserSession;
 use OCP\L10N\IFactory;
 use OCP\Notification\IManager as INotificationManager;
 use OCP\Notification\INotification;
@@ -80,6 +82,20 @@ class MeetingReminderServiceTest extends TestCase {
 	private array $meeting = [];
 
 	/**
+	 * Saves made while the pass ran as the system.
+	 *
+	 * @var int
+	 */
+	private int $systemSaves = 0;
+
+	/**
+	 * Whether the pass is running inside runAsSystem().
+	 *
+	 * @var bool
+	 */
+	private bool $asSystem = false;
+
+	/**
 	 * Build the service over one meeting and two members.
 	 *
 	 * @param array<string, mixed> $meeting The meeting
@@ -92,6 +108,16 @@ class MeetingReminderServiceTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('setRegister')->willReturnSelf();
 		$objectService->method('setSchema')->willReturnSelf();
+		$objectService->method('runAsSystem')->willReturnCallback(
+			function (callable $operation): mixed {
+				$this->asSystem = true;
+				try {
+					return $operation();
+				} finally {
+					$this->asSystem = false;
+				}
+			}
+		);
 		$objectService->method('findAll')->willReturnCallback(
 			fn (array $config = []): array => (($config['filters']['lifecycle'] ?? '') === $this->meeting['lifecycle'] ? [$this->entity($this->meeting)] : [])
 		);
@@ -99,6 +125,10 @@ class MeetingReminderServiceTest extends TestCase {
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				$this->meeting = $object;
+				if ($this->asSystem === true) {
+					$this->systemSaves++;
+				}
+
 				return $this->entity($object);
 			}
 		);
@@ -125,6 +155,7 @@ class MeetingReminderServiceTest extends TestCase {
 				'anna' => ['person' => 'anna', 'meetingReminder' => false, 'meetingCreated' => false],
 			]),
 			l10nFactory: $factory,
+			system: new SystemWhenNobodySignedIn($objectService, $this->createMock(IUserSession::class)),
 			logger: new NullLogger(),
 		);
 
@@ -272,6 +303,7 @@ class MeetingReminderServiceTest extends TestCase {
 		$service = $this->service(['scheduledDate' => $this->at($now, 86400), 'scheduledNoticeSentAt' => $this->at($now, -600000)]);
 
 		$service->run(now: $now);
+		self::assertSame(1, $this->systemSaves, 'cron has no user, so the meeting is stamped as the system');
 
 		self::assertSame(['pieter:meeting_reminder'], $this->received());
 		self::assertSame(self::MEETING, $this->sent[0][3]);
