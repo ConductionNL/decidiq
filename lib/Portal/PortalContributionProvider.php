@@ -462,6 +462,9 @@ class PortalContributionProvider {
 				'audiences',
 				'oriType',
 			],
+			// The calendar lists meetings only: `filter` narrows the read,
+			// `defaultFilters` only presets what the list shows.
+			'filter' => ['oriType' => 'Vergadering'],
 			'defaultFilters' => ['oriType' => 'Vergadering'],
 			'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
 		];
@@ -536,6 +539,8 @@ class PortalContributionProvider {
 				'citizenAdviceAgainst',
 				'citizenAdviceAbstain',
 			],
+			// Only the motions the griffie opened for advice are read.
+			'filter' => ['citizenVotingAllowed' => true],
 			'defaultFilters' => ['citizenVotingAllowed' => true],
 		];
 
