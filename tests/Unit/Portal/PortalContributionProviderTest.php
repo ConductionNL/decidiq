@@ -240,6 +240,9 @@ final class PortalContributionProviderTest extends TestCase {
 			actual: $calendar['fields']
 		);
 		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['defaultFilters']);
+		// Portaliq reads an anonymous collection as the public may read it; the
+		// filter keeps decisions out of the calendar.
+		self::assertSame(expected: ['oriType' => 'Vergadering'], actual: $calendar['filter']);
 		self::assertSame(expected: ['field' => 'meetingDate', 'direction' => 'asc'], actual: $calendar['defaultSort']);
 
 	}//end testThePublicCalendarIsAnonymousWithCalendarFieldsOnly()
@@ -297,6 +300,7 @@ final class PortalContributionProviderTest extends TestCase {
 		self::assertTrue(condition: $motions['listable']);
 		self::assertArrayNotHasKey(key: 'minTrust', array: $motions, message: 'An anonymous entry with a minTrust is dropped fail-closed by portaliq');
 		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['defaultFilters']);
+		self::assertSame(expected: ['citizenVotingAllowed' => true], actual: $motions['filter']);
 		self::assertSame(
 			expected: ['title', 'text', 'motionType', 'citizenVotingStatus', 'citizenAdviceFor', 'citizenAdviceAgainst', 'citizenAdviceAbstain'],
 			actual: $motions['fields']
