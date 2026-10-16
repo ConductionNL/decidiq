@@ -731,6 +731,37 @@ final class PortalContributionProviderTest extends TestCase {
 	}//end testLabelsAreReadInTheReadersLanguage()
 
 	/**
+	 * The council calendar's headings are declared, so a Dutch reader reads
+	 * them in Dutch instead of the schema's English titles.
+	 *
+	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
+	 *
+	 * @return void
+	 */
+	public function testTheCouncilCalendarHeadingsReadInTheReadersLanguage(): void {
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $this->catalogue(locale: 'nl')));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $manifest);
+		$calendar = $this->collection(manifest: $manifest, id: 'publicCalendar');
+
+		$labels = array_map(static fn (array $config): string => $config['label'], $calendar['fieldConfigs']);
+		self::assertSame(
+			expected: ['title' => 'Vergadering', 'meetingDate' => 'Datum', 'bodyName' => 'Orgaan', 'meetingType' => 'Vergaderingstype', 'location' => 'Locatie'],
+			actual: $labels
+		);
+		self::assertSame(
+			expected: ['meetingDate', 'title', 'bodyName', 'meetingType'],
+			actual: array_column($calendar['columns'], 'field')
+		);
+		self::assertSame(expected: 'datetime', actual: $calendar['columns'][0]['render']);
+		foreach (array_merge(array_column($calendar['columns'], 'field'), $calendar['detail']['fields']) as $field) {
+			self::assertContains(needle: $field, haystack: $calendar['fields'], message: 'Only whitelisted fields are shown');
+			self::assertArrayHasKey(key: $field, array: $calendar['fieldConfigs'], message: 'Every shown field has a declared label');
+		}
+
+	}//end testTheCouncilCalendarHeadingsReadInTheReadersLanguage()
+
+	/**
 	 * A label added to the manifest without a Dutch entry in l10n/nl.json fails
 	 * here, instead of reaching a Dutch resident in English.
 	 *

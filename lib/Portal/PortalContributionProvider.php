@@ -442,6 +442,7 @@ class PortalContributionProvider {
 	 * payload is public once published; the whitelist holds calendar fields only.
 	 *
 	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-005-residents-read-the-calendar-without-an-account
+	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -467,6 +468,22 @@ class PortalContributionProvider {
 			'filter' => ['oriType' => 'Vergadering'],
 			'defaultFilters' => ['oriType' => 'Vergadering'],
 			'defaultSort' => ['field' => 'meetingDate', 'direction' => 'asc'],
+			// Declared labels, so the reader's language applies; without them
+			// portaliq heads the table with the schema's English titles.
+			'fieldConfigs' => [
+				'title' => ['label' => 'Meeting'],
+				'meetingDate' => ['label' => 'Date'],
+				'bodyName' => ['label' => 'Body'],
+				'meetingType' => ['label' => 'Meeting type'],
+				'location' => ['label' => 'Location'],
+			],
+			'columns' => [
+				['field' => 'meetingDate', 'render' => 'datetime'],
+				['field' => 'title'],
+				['field' => 'bodyName'],
+				['field' => 'meetingType'],
+			],
+			'detail' => ['layout' => 'card', 'fields' => ['title', 'meetingDate', 'bodyName', 'meetingType', 'location']],
 		];
 
 	}//end publicCalendarCollection()
