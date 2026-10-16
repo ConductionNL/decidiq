@@ -443,6 +443,7 @@ class PortalContributionProvider {
 	 *
 	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-005-residents-read-the-calendar-without-an-account
 	 * @spec openspec/changes/council-calendar-columns-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-reads-in-the-readers-language
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -474,8 +475,25 @@ class PortalContributionProvider {
 				'title' => ['label' => 'Meeting'],
 				'meetingDate' => ['label' => 'Date'],
 				'bodyName' => ['label' => 'Body'],
-				'meetingType' => ['label' => 'Meeting type'],
+				'meetingType' => [
+					'label' => 'Meeting type',
+					'valueLabels' => [
+						'regular' => 'Regular meeting',
+						'extraordinary' => 'Extraordinary meeting',
+						'committee' => 'Committee meeting',
+						'public hearing' => 'Public hearing',
+						'general_assembly' => 'General assembly',
+					],
+				],
 				'location' => ['label' => 'Location'],
+				'oriType' => [
+					'label' => 'Kind',
+					'valueLabels' => [
+						'Vergadering' => 'Meeting',
+						'Besluit' => 'Decision',
+						'Verslag' => 'Minutes',
+					],
+				],
 			],
 			'columns' => [
 				['field' => 'meetingDate', 'render' => 'datetime'],

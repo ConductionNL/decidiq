@@ -3613,7 +3613,12 @@ OC.L10N.register(
         "Selection": "Selectie",
         "Meeting calendar": "Vergaderkalender",
         "Decisions and votes": "Besluiten en stemmingen",
-        "Meetings and people": "Vergaderingen en mensen"
+        "Meetings and people": "Vergaderingen en mensen",
+        "Regular meeting": "Gewone vergadering",
+        "Extraordinary meeting": "Extra vergadering",
+        "Committee meeting": "Commissievergadering",
+        "Public hearing": "Openbare hoorzitting",
+        "General assembly": "Algemene vergadering"
     },
     "nplurals=2; plural=(n != 1);"
 )

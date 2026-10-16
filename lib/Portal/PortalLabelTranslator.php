@@ -51,6 +51,14 @@ class PortalLabelTranslator {
 	private const VISIBLE_KEYS = ['label', 'group'];
 
 	/**
+	 * The manifest key whose map holds the words a stored value reads as.
+	 * Every string below it is visible; its keys are the stored values.
+	 *
+	 * @var string
+	 */
+	private const VALUE_LABELS_KEY = 'valueLabels';
+
+	/**
 	 * Manifest keys that hold machine values only; nothing below them is read.
 	 *
 	 * @var array<int, string>
@@ -75,6 +83,7 @@ class PortalLabelTranslator {
 	 * @return array<array-key, mixed> The same manifest, its visible strings translated.
 	 *
 	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
 	 */
 	public function translate(array $manifest): array {
 		if ($this->l10n === null) {
@@ -82,16 +91,60 @@ class PortalLabelTranslator {
 		}
 
 		foreach ($manifest as $key => $value) {
-			if (is_array($value) === true && in_array($key, self::MACHINE_KEYS, true) === false) {
-				$manifest[$key] = $this->translate(manifest: $value);
-				continue;
-			}
-
-			if (is_string($value) === true && $value !== '' && in_array($key, self::VISIBLE_KEYS, true) === true) {
-				$manifest[$key] = $this->l10n->t($value);
-			}
+			$manifest[$key] = $this->translateEntry(key: $key, value: $value);
 		}
 
 		return $manifest;
 	}//end translate()
+
+	/**
+	 * One manifest entry with its visible strings translated.
+	 *
+	 * @param array-key $key   The entry's key.
+	 * @param mixed     $value The entry's value.
+	 *
+	 * @return mixed The value, translated where a reader sees it.
+	 *
+	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 */
+	private function translateEntry(int|string $key, mixed $value): mixed {
+		if ($key === self::VALUE_LABELS_KEY && is_array($value) === true) {
+			return $this->translateLabels(labels: $value);
+		}
+
+		if (is_array($value) === true && in_array($key, self::MACHINE_KEYS, true) === false) {
+			return $this->translate(manifest: $value);
+		}
+
+		if (is_string($value) === true && $value !== '' && $this->l10n !== null && in_array($key, self::VISIBLE_KEYS, true) === true) {
+			return $this->l10n->t($value);
+		}
+
+		return $value;
+	}//end translateEntry()
+
+	/**
+	 * A value-labels map with every label translated and every value kept.
+	 *
+	 * @param array<array-key, mixed> $labels The labels by value, or by field and value.
+	 *
+	 * @return array<array-key, mixed> The same map, its labels translated.
+	 *
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 */
+	private function translateLabels(array $labels): array {
+		foreach ($labels as $value => $label) {
+			if (is_array($label) === true) {
+				$labels[$value] = $this->translateLabels(labels: $label);
+				continue;
+			}
+
+			if (is_string($label) === true && $label !== '' && $this->l10n !== null) {
+				$labels[$value] = $this->l10n->t($label);
+			}
+		}
+
+		return $labels;
+	}//end translateLabels()
 }//end class
