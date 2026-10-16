@@ -3296,7 +3296,12 @@ OC.L10N.register(
         "Selection": "Selection",
         "Meeting calendar": "Meeting calendar",
         "Decisions and votes": "Decisions and votes",
-        "Meetings and people": "Meetings and people"
+        "Meetings and people": "Meetings and people",
+        "Regular meeting": "Regular meeting",
+        "Extraordinary meeting": "Extraordinary meeting",
+        "Committee meeting": "Committee meeting",
+        "Public hearing": "Public hearing",
+        "General assembly": "General assembly"
     },
     "nplurals=2; plural=(n != 1);"
 )

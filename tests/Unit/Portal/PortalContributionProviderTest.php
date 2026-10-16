@@ -746,7 +746,7 @@ final class PortalContributionProviderTest extends TestCase {
 
 		$labels = array_map(static fn (array $config): string => $config['label'], $calendar['fieldConfigs']);
 		self::assertSame(
-			expected: ['title' => 'Vergadering', 'meetingDate' => 'Datum', 'bodyName' => 'Orgaan', 'meetingType' => 'Vergaderingstype', 'location' => 'Locatie'],
+			expected: ['title' => 'Vergadering', 'meetingDate' => 'Datum', 'bodyName' => 'Orgaan', 'meetingType' => 'Vergaderingstype', 'location' => 'Locatie', 'oriType' => 'Soort'],
 			actual: $labels
 		);
 		self::assertSame(
@@ -760,6 +760,43 @@ final class PortalContributionProviderTest extends TestCase {
 		}
 
 	}//end testTheCouncilCalendarHeadingsReadInTheReadersLanguage()
+
+	/**
+	 * The meeting type and the kind of record read as words in the reader's
+	 * language; the stored values they label stay as they are.
+	 *
+	 * @spec openspec/changes/council-calendar-meeting-type-in-the-readers-language/specs/activity-calendar/spec.md#requirement-the-council-calendar-names-the-meeting-type-in-the-readers-language
+	 *
+	 * @return void
+	 */
+	public function testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage(): void {
+		$provider = new PortalContributionProvider(l10nFactory: $this->factoryFor(catalogue: $this->catalogue(locale: 'nl')));
+		$manifest = $provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $manifest);
+		$configs = $this->collection(manifest: $manifest, id: 'publicCalendar')['fieldConfigs'];
+
+		self::assertSame(
+			expected: [
+				'regular' => 'Gewone vergadering',
+				'extraordinary' => 'Extra vergadering',
+				'committee' => 'Commissievergadering',
+				'public hearing' => 'Openbare hoorzitting',
+				'general_assembly' => 'Algemene vergadering',
+			],
+			actual: $configs['meetingType']['valueLabels']
+		);
+		self::assertSame(
+			expected: ['Vergadering' => 'Vergadering', 'Besluit' => 'Besluit', 'Verslag' => 'Notulen'],
+			actual: $configs['oriType']['valueLabels']
+		);
+
+		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
+		self::assertIsArray(actual: $english);
+		self::assertSame(
+			expected: 'Regular meeting',
+			actual: $this->collection(manifest: $english, id: 'publicCalendar')['fieldConfigs']['meetingType']['valueLabels']['regular']
+		);
+	}//end testTheCouncilCalendarNamesTheMeetingTypeInTheReadersLanguage()
 
 	/**
 	 * A label added to the manifest without a Dutch entry in l10n/nl.json fails
@@ -827,6 +864,18 @@ final class PortalContributionProviderTest extends TestCase {
 	private function visibleLabels(array $manifest): array {
 		$labels = [];
 		foreach ($manifest as $key => $value) {
+			if ($key === 'valueLabels' && is_array($value) === true) {
+				array_walk_recursive(
+					$value,
+					static function (mixed $label) use (&$labels): void {
+						if (is_string($label) === true && $label !== '') {
+							$labels[] = $label;
+						}
+					}
+				);
+				continue;
+			}
+
 			if (is_array($value) === true && in_array($key, ['fields', 'defaults', 'defaultFilters', 'defaultSort', 'parentConstraint', 'set'], true) === false) {
 				$labels = array_merge($labels, $this->visibleLabels(manifest: $value));
 				continue;
