@@ -108,18 +108,21 @@ class ObjectListenerRegistrar {
 			schemas: ['meeting']
 		);
 
-		// Same narrowing as MeetingFolderListener above. The declared slug list
-		// is `GovernanceRoleProjectionListener::ROSTER_SCHEMAS` verbatim — the
-		// handler bails on
-		// `in_array($slug, self::ROSTER_SCHEMAS, true) === false` — so the
-		// declaration cannot be narrower than the guard it fronts.
-		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $rosterEvent) {
+		// Same narrowing as MeetingFolderListener above. The declared slug lists
+		// are the listener's own constants (a deletion also for a body, whose
+		// scope groups go with it), so the declaration cannot be narrower than
+		// the guard it fronts.
+		foreach ([
+			ObjectCreatedEvent::class => GovernanceRoleProjectionListener::ROSTER_SCHEMAS,
+			ObjectUpdatedEvent::class => GovernanceRoleProjectionListener::ROSTER_SCHEMAS,
+			ObjectDeletedEvent::class => GovernanceRoleProjectionListener::DELETE_SCHEMAS,
+		] as $rosterEvent => $rosterSchemas) {
 			$this->subscribe(
 				dispatcher: $dispatcher,
 				event: $rosterEvent,
 				listener: GovernanceRoleProjectionListener::class,
 				registers: null,
-				schemas: ['participant', 'membership']
+				schemas: $rosterSchemas
 			);
 		}
 

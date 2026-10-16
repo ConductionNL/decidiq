@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Service\SystemWhenNobodySignedIn;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -63,13 +64,15 @@ class AgendaItemChangeListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param AgendaService          $agendaService  Records the version and notifies
-	 * @param ListenerSchemaResolver $schemaResolver Resolves the entity's schema slug
-	 * @param LoggerInterface        $logger         Logger
+	 * @param AgendaService            $agendaService  Records the version and notifies
+	 * @param ListenerSchemaResolver   $schemaResolver Resolves the entity's schema slug
+	 * @param SystemWhenNobodySignedIn $system         Runs the notice as the system from cron or occ
+	 * @param LoggerInterface          $logger         Logger
 	 */
 	public function __construct(
 		private readonly AgendaService $agendaService,
 		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly SystemWhenNobodySignedIn $system,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -82,6 +85,7 @@ class AgendaItemChangeListener implements IEventListener {
 	 * @return void
 	 *
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof ObjectCreatedEvent) === false
@@ -94,7 +98,9 @@ class AgendaItemChangeListener implements IEventListener {
 		try {
 			$meetingId = $this->changedMeeting(event: $event);
 			if ($meetingId !== '') {
-				$this->agendaService->notifyAgendaChanged(meetingId: $meetingId);
+				$this->system->run(
+					operation: fn () => $this->agendaService->notifyAgendaChanged(meetingId: $meetingId)
+				);
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
