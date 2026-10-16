@@ -1459,7 +1459,7 @@
 				"location": "Stadskantoor, collegekamer",
 				"meetingMode": "in-person",
 				"lifecycle": "closed",
-				"chair": "Ingrid Tuinman",
+				"chair": "{{object:participant-college-ingrid-tuinman.id}}",
 				"isPublic": false,
 				"openedAt": "{{datetime:-32@tue 10:00}}",
 				"closedAt": "{{datetime:-32@tue 12:30}}"
@@ -1517,7 +1517,7 @@
 				"location": "Stadskantoor, raadzaal",
 				"meetingMode": "hybrid",
 				"lifecycle": "closed",
-				"chair": "Ingrid Tuinman",
+				"chair": "{{object:participant-gemeenteraad-ingrid-tuinman.id}}",
 				"isPublic": true,
 				"openedAt": "{{datetime:-25@thu 19:30}}",
 				"closedAt": "{{datetime:-25@thu 23:00}}"
@@ -1601,7 +1601,7 @@
 				"location": "Stadskantoor, collegekamer",
 				"meetingMode": "in-person",
 				"lifecycle": "closed",
-				"chair": "Ingrid Tuinman",
+				"chair": "{{object:participant-college-ingrid-tuinman.id}}",
 				"isPublic": false,
 				"openedAt": "{{datetime:-7@tue 10:00}}",
 				"closedAt": "{{datetime:-7@tue 12:30}}"
@@ -1646,7 +1646,7 @@
 				"location": "Stadskantoor, raadzaal",
 				"meetingMode": "hybrid",
 				"lifecycle": "closed",
-				"chair": "Ingrid Tuinman",
+				"chair": "{{object:participant-gemeenteraad-ingrid-tuinman.id}}",
 				"isPublic": true,
 				"openedAt": "{{datetime:-11@thu 19:30}}",
 				"closedAt": "{{datetime:-11@thu 22:30}}"
@@ -1704,7 +1704,7 @@
 				"location": "Stadskantoor, raadzaal",
 				"meetingMode": "hybrid",
 				"lifecycle": "scheduled",
-				"chair": "Ingrid Tuinman",
+				"chair": "{{object:participant-gemeenteraad-ingrid-tuinman.id}}",
 				"isPublic": true
 			}
 		},
@@ -1786,7 +1786,7 @@
 				"location": "Stadskantoor, collegekamer",
 				"meetingMode": "in-person",
 				"lifecycle": "scheduled",
-				"chair": "Ingrid Tuinman",
+				"chair": "{{object:participant-college-ingrid-tuinman.id}}",
 				"isPublic": false
 			}
 		},
