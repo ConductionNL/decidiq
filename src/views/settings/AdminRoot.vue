@@ -3,20 +3,39 @@
 	<CnAdminSettingsShell
 		appId="decidiq"
 		appName="Decidiq"
+		look="board"
+		versionCardPosition="end"
+		:title="t('decidiq', 'Administration')"
+		:breadcrumbs="breadcrumbs"
+		:breadcrumbNote="t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')"
 		data-testid="admin-root"
 		:showSetup="true"
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />
+		<CaseSystemSettings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
+		<FullExportSettings v-if="storesReady" />
+		<RoleRightsSettings v-if="storesReady" />
+		<OfficePaperSettings v-if="storesReady" />
+		<DecisionTypeSettings v-if="storesReady" />
+		<!-- The menu structure is not on board DcBeheer: it follows the sections the board draws. -->
+		<MenuStructureTab />
 	</CnAdminSettingsShell>
 </template>
 
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
+import CaseSystemSettings from './CaseSystemSettings.vue'
+import DecisionTypeSettings from './DecisionTypeSettings.vue'
+import FullExportSettings from './FullExportSettings.vue'
+import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
+import RoleRightsSettings from './RoleRightsSettings.vue'
 import Settings from './Settings.vue'
+import MenuStructureTab from './tabs/MenuStructureTab.vue'
 import manifest from '../../manifest.json'
 import { initializeStores } from '../../store/store.js'
 
@@ -24,13 +43,30 @@ export default {
 	name: 'AdminRoot',
 	components: {
 		CnAdminSettingsShell,
+		CaseSystemSettings,
+		DecisionTypeSettings,
+		MenuStructureTab,
 		Settings,
+		FullExportSettings,
+		OfficePaperSettings,
 		PublicationSettings,
+		RoleRightsSettings,
 	},
 
 	data() {
 		return {
 			storesReady: false,
+			/*
+			 * Board DcBeheer: the path under the title, "Beheerinstellingen /
+			 * Decidiq / Beheer". The first crumb goes back to the server's
+			 * administration settings.
+			 */
+			breadcrumbs: [
+				{ label: this.t('decidiq', 'Administration settings'), href: generateUrl('/settings/admin') },
+				{ label: 'Decidiq' },
+				{ label: this.t('decidiq', 'Administration') },
+			],
+
 			/*
 			 * 🔴 SETUP HAD NO WAY BACK IN. `CnAppRoot` opens the wizard while an
 			 * optional step is outstanding and never again once it is settled, so

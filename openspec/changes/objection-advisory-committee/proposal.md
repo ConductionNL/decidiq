@@ -54,3 +54,9 @@ The obstacle is not architectural, it is **four missing fields and one missing v
 - **Two quorum fields invite confusion.** Mitigated by making the descriptions state plainly that `quorumRule` is the calculation method and `quorum` the member count, and by not defaulting `quorum` — an unset value means "not specified", never "0".
 - **A write seam widens the API surface.** It is scoped, authorised the same way the read side is, and limited to `governance-body`; it does not open every resource for writing.
 - **`external` and `independenceStatus` look similar.** Both descriptions name the other and say what it is not. This is the `display-vs-stored` failure mode in a new place: two fields that read alike and mean different things.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- rou-12: Handle an objection to a decision with an advisory committee.

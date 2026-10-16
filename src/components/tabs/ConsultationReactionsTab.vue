@@ -72,6 +72,7 @@ import ReactionApproveModal from '../../modals/ReactionApproveModal.vue'
 import ReactionRejectModal from '../../modals/ReactionRejectModal.vue'
 import { approveReaction, rejectReaction } from '../../services/participationApi.js'
 import { useObjectStore } from '../../store/store.js'
+import { pendingReactionsFrom, pendingReactionsQuery } from './reactionQueue.js'
 
 export default {
 	name: 'ConsultationReactionsTab',
@@ -120,25 +121,14 @@ export default {
 			this.loading = true
 			try {
 				const store = useObjectStore()
-				const filter = { moderationStatus: 'pending', _limit: 200 }
-				if (this.objectId) {
-					// Reactions link to their consultation via OR's generic relations
-					// array (set server-side by ReactionIntakeService), not a plain
-					// property — so scope via the relation filter key.
-					filter['_relations.public-consultation'] = this.objectId
-				}
+				// Reactions link to their consultation through OR's generic
+				// relations array (set by ReactionIntakeService). See
+				// reactionQueue.js for why the scope is filtered twice.
 				const result = await store.fetchCollection(
 					'consultation-reaction',
-					filter,
+					pendingReactionsQuery(this.objectId),
 				)
-				const list = Array.isArray(result)
-					? result
-					: result && result.results
-						? result.results
-						: []
-				this.pending = list.filter(
-					(r) => (r.moderationStatus || 'pending') === 'pending',
-				)
+				this.pending = pendingReactionsFrom(result, this.objectId)
 			} catch (e) {
 				showError(t('decidiq', 'Could not load the moderation queue'))
 				this.pending = []

@@ -59,6 +59,9 @@ export const MODE_LABELS = {
 	corp: {
 		Organisation: 'Board',
 		Decisions: 'Resolutions',
+		// The simple structure words the entry 'Bodies and members'
+		// (src/menu-layout.simple.json). A company has a board, not bodies.
+		'Bodies and members': 'Board and members',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// ActionItems → 'Action items'
@@ -92,6 +95,8 @@ export const MODE_LABELS = {
 	 */
 	ops: {
 		Organisation: 'Teams',
+		// The simple structure's wording of the same entry, for a team.
+		'Bodies and members': 'Teams and members',
 		// Scaffold:
 		// Meetings    → 'Meetings'
 		// Decisions   → 'Decisions'

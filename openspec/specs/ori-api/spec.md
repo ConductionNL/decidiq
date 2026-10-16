@@ -10,7 +10,9 @@ openspec-changes:
 
 ## Purpose
 Exposes Decidiq meetings, motions, persons, and memberships through publicly accessible, ORI-compatible open-data endpoints using Popolo and Akoma Ntoso vocabularies. Meeting events are serialized from CalDAV VEVENTs and motions from published typed decisions, with support for date and organisation filtering, pagination, and JSON-LD or XML content negotiation so external consumers such as Dutch municipalities can harvest the data without authentication.
+
 ## Requirements
+
 ### Requirement: REQ-ORI-001 — ORI Meeting endpoint
 
 The system SHALL expose meetings via the ORI-compatible API endpoint `GET /api/ori/v1/events`. The endpoint SHALL serialize Meeting data from CalDAV VEVENTs into ORI Event/Meeting format with Popolo field names.
@@ -157,13 +159,104 @@ MUST remain unchanged.
 - AND `items` contains the seeded Memberships
 - AND no `Participant` objects are returned
 
-#### Scenario: Person email is exposed on public ORI serialization
+#### Scenario: Persons are read through the person publication rule
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
 - GIVEN a Person carries an `email`
 - WHEN GET `/api/ori/v1/persons` is called anonymously
-- THEN the serialized Person exposes `email` (open-government transparency for officeholders; the `serializeOri` email gate allows Person in addition to Organization)
+- THEN the serialized Person carries no `email`: persons are published by REQ-ORI-007, with their name, image and biography only
 
 #### Scenario: Endpoint paths and envelope unchanged
 - GIVEN an external ORI consumer
 - WHEN it requests `/api/ori/v1/persons` or `/api/ori/v1/memberships`
 - THEN the path and the `@context`/`@type`/`count`/`items` envelope are identical to before this change
 
+### Requirement: REQ-ORI-007 The public ORI API names public role holders only
+
+`GET /api/ori/v1/persons` SHALL return, to anonymous callers, every person who holds or held a public role: a membership with the role chair, vice-chair, secretary, treasurer or member (not observer or guest) in a governance body with `publishVotingRecords: true`, the body flag REQ-MPR-005 sets. The people are read in system context, so the caller's rights do not decide, and each person SHALL carry exactly `id`, `name`, `image` and `biography` (null when not set), never another field. `GET /api/ori/v1/persons/{id}` SHALL return exactly the people the collection returns and answer 404 for every other id. This lets a portal resolve the voter of a public vote (REQ-MPR-006) to a name.
+
+#### Scenario: A portal resolves a council member's name
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
+- GIVEN Marie Janssen is a member of Gemeenteraad Amsterdam, which publishes its voting records, with an image, a biography, an email and a birth date
+- WHEN an anonymous caller requests `/api/ori/v1/persons` or `/api/ori/v1/persons/{Marie's id}`
+- THEN Marie is returned with her id, name, image and biography only
+
+#### Scenario: Nobody without a public role is named
+
+@e2e exclude open-data API contract, not a UI flow; proven by tests/Unit/Controller/OriVotePublicationTest.php (persons tests) over the real OriPersonPublicationRule
+
+- GIVEN Bas Smit has no membership, Kees Bakker is a member of a supervisory board that does not publish its voting records, and Gerda Gast is a guest of the council
+- WHEN an anonymous caller requests `/api/ori/v1/persons`, or any of them by id
+- THEN none of them is returned, and the request by id answers 404
+
+### Requirement: REQ-FPP-001 The public sees commitment and motion progress
+
+Commitments and motions SHALL be available on the public ORI API with their status, deadline and progress, without internal fields. A commitment SHALL appear only once its publication date has passed and while it is not depublished. The commitment item SHALL carry only the allow-listed fields: text, status, deadline, progress entries (date and note only), settlement note, the related motion and the publication date. A motion's execution status is its status field (`enacted` once carried out); its progress is followed through the commitments that name it.
+
+#### Scenario: A journalist follows a promise
+- GIVEN the alderman committed to a housing report by 1 December with one progress entry
+- WHEN a journalist reads the public commitments list
+- THEN she sees the commitment, its deadline and the progress entry
+
+#### Scenario: Internal fields stay internal
+- GIVEN a published commitment that names who made it, a settlement evidence link and a migration reference
+- WHEN anyone reads it on the public commitments list or by its id
+- THEN the answer carries none of those fields, and a progress entry carries only its date and note
+
+#### Scenario: A commitment before its publication date is not public
+- GIVEN a commitment whose publication date is next week, and one with no publication date
+- WHEN anyone reads the public commitments list or asks for either by its id
+- THEN neither is listed and asking by id answers not found
+
+### Requirement: REQ-FPP-002 The clerk adds a progress entry
+
+The chair or secretary of the meeting a commitment was made in, or an administrator, SHALL be able to add a dated progress entry to the commitment from its page. Anyone else SHALL be refused.
+
+#### Scenario: The clerk records progress
+- GIVEN the secretary of the council meeting where the commitment was made
+- WHEN she adds the note "Draft report sent to the committee" on the commitment page
+- THEN the commitment lists that entry with today's date, newest first
+
+#### Scenario: A member cannot record progress
+- GIVEN a council member who is not chair or secretary of that meeting
+- WHEN she tries to add a progress entry
+- THEN the request is refused and the commitment is unchanged
+
+@e2e exclude the e2e session is an administrator, who may add progress; the refusal is proven by tests/Unit/Controller/CommitmentProgressTest.php::testMemberIsRefused over the real MeetingRoleGate.
+
+### Requirement: REQ-MPR-005 A body decides whether its members' votes are public
+
+A governance body SHALL carry `publishVotingRecords`, default `false`. Only votes in rounds of a body with `publishVotingRecords: true` SHALL be published by name.
+
+#### Scenario: A council publishes, a supervisory board does not
+
+- GIVEN Gemeenteraad Amsterdam with `publishVotingRecords: true` and Raad van Commissarissen ACME B.V. with the default
+- WHEN both hold an open, adopted and published vote
+- THEN the public API returns the council members' votes by name
+- AND returns no vote of the supervisory board members
+
+### Requirement: REQ-MPR-006 The public ORI API returns public votes with their voter
+
+`GET /api/ori/v1/votes` SHALL return, to anonymous callers, every vote whose round is closed and not secret, whose subject decision has `isPublished: public`, whose value is set, and whose body publishes voting records. Each vote SHALL name its voter as an ORI person, its option (`yes`, `no`, `abstain`), its vote event and the voter's party. The endpoint SHALL accept `?voter={personId}`. `GET /api/ori/v1/votes/{id}` SHALL return exactly the votes the collection returns and refuse every other id. `GET /api/ori/v1/voteevents` SHALL return closed rounds whose subject decision is published, with their totals and without per-member values.
+
+#### Scenario: A resident's portal reads a member's record
+
+- GIVEN Marie Janssen voted for the published motion "Groen dak op het stadhuis" in a closed, open round of Gemeenteraad Amsterdam
+- WHEN an anonymous caller requests `/api/ori/v1/votes?voter={Marie's person id}`
+- THEN the response contains that vote with `option: yes`, the vote event, and group "D66"
+
+#### Scenario: A secret or unpublished vote stays private
+
+- GIVEN a secret round in the same council, and an open round on a decision that is not published
+- WHEN an anonymous caller requests `/api/ori/v1/votes` or either vote by id
+- THEN neither vote is returned, and the request by id answers 404
+
+#### Scenario: Vote events publish totals only
+
+- GIVEN the closed round on the published motion, with 23 for, 8 against and 1 abstain
+- WHEN an anonymous caller requests `/api/ori/v1/voteevents`
+- THEN the round is returned with those totals and its result
+- AND no per-member value is part of the vote event

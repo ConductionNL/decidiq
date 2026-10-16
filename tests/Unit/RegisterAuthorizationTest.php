@@ -136,6 +136,12 @@ class RegisterAuthorizationTest extends TestCase {
 		'ConflictOfInterest'   => 'ConflictOfInterestService',
 		'ConsultationReaction' => 'ReactionIntakeService',
 		'PublicationPayload'   => 'the publish flow',
+		'CaseExchangeRecord'   => 'CaseExchangeRecords (case system exchange)',
+		'PublicationEvent'     => 'PublicationEventRecorder (publication subscriptions)',
+		'ArchivalDossier'      => 'ArchivalDossierService (records management)',
+		'BoardCompetence'      => 'MemberCompetenceService (board composition)',
+		'MemberCompetence'     => 'MemberCompetenceService (board composition)',
+		'MandateSubstitution'  => 'MandateSubstitutionService (substitute mandate swap)',
 	];
 
 	/**
@@ -448,6 +454,50 @@ class RegisterAuthorizationTest extends TestCase {
 	}//end testTheAppVersionMovedSoTheRepairStepRuns()
 
 	/**
+	 * The organiser of an ad hoc meeting keeps editing it; nobody else does.
+	 *
+	 * Meeting declares no authorization of its own, at schema or property
+	 * level, in any file, so the register baseline decides: any signed-in
+	 * user creates a meeting, update and delete are NOT open to every
+	 * authenticated user, and OpenRegister's unconditional owner bypass lets
+	 * the creator (Anna) edit and delete her own meeting while Pieter, who
+	 * did not create it, is refused. A Meeting block or a property rule would
+	 * silently change that, so this test fails first.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
+	 */
+	public function testTheOrganiserOfAMeetingKeepsEditingIt(): void {
+		$this->assertArrayNotHasKey('Meeting', $this->schemaBlocks(), 'Meeting must not override the register baseline that leaves the organiser in control.');
+
+		$files = array_merge(
+			[__DIR__ . '/../../lib/Settings/decidesk_register.json'],
+			glob(__DIR__ . '/../../lib/Settings/register.d/*.json') ?: []
+		);
+		foreach ($files as $file) {
+			$decoded = json_decode((string)file_get_contents($file), true);
+			foreach (($decoded['components']['schemas'] ?? []) as $name => $schema) {
+				if ($name !== 'Meeting' && (($schema['slug'] ?? '') !== 'meeting')) {
+					continue;
+				}
+
+				foreach (($schema['properties'] ?? []) as $property => $definition) {
+					$this->assertFalse(
+						is_array($definition) === true && isset($definition['authorization']) === true,
+						sprintf('Meeting.%s in %s declares a property rule that could refuse the organiser.', $property, basename($file))
+					);
+				}
+			}
+		}
+
+		$authorization = $this->registerRow()['authorization'];
+		$this->assertContains('authenticated', $authorization['create'], 'Any signed-in user can set up a meeting.');
+		$this->assertNotContains('authenticated', $authorization['update'], 'Pieter may not edit a meeting he did not create.');
+		$this->assertNotContains('authenticated', $authorization['delete'], 'Pieter may not delete a meeting he did not create.');
+	}//end testTheOrganiserOfAMeetingKeepsEditingIt()
+
+	/**
 	 * Every schema-level authorization block in the main register and its fragments, by schema name.
 	 *
 	 * @return array<string,array{block: array<string,mixed>, file: string}> The blocks.
@@ -583,6 +633,36 @@ class RegisterAuthorizationTest extends TestCase {
 				continue;
 			}
 
+			// PublicationSubscription (publication-subscriptions-and-daily-digest,
+			// REQ-PSD-001): any member may subscribe, and reads, changes and
+			// removes only the rows naming his own account.
+			if ($name === 'PublicationSubscription') {
+				$own = [['group' => 'authenticated', 'match' => ['subscriberUserId' => '$userId']], 'decidiq-administrators', 'decidesk-administrators'];
+				$this->assertSame(['authenticated'], $block['create'] ?? null, 'PublicationSubscription opens `create` to members and nothing wider.');
+				foreach (['update', 'delete'] as $action) {
+					$this->assertSame($own, $block[$action] ?? null, sprintf('PublicationSubscription must scope `%s` to the subscriber and administrators.', $action));
+				}
+
+				continue;
+			}
+
+			// MandateRemuneration (bodies-director-remuneration, REQ-DRM-001):
+			// pay is written by the secretariat and administrators only, the
+			// SPA writes it through the object API, and members never do.
+			// PaperSummary (agenda-ai-paper-summaries, REQ-APS-001/005): the
+			// clerk reviews a summary through the object API, guarded by the
+			// lifecycle; members never write one.
+			// MeetingBroadcast (live-public-livestream, REQ-LSTR-001): staff of
+			// the body run the broadcast; the public only reads it.
+			if (in_array($name, ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast'], true) === true) {
+				$writers = ['decidiq-secretariat', 'decidiq-administrators', 'decidesk-administrators'];
+				foreach (self::WRITE_ACTIONS as $action) {
+					$this->assertSame($writers, $block[$action] ?? null, sprintf('%s must grant `%s` to the secretariat and administrators only.', $name, $action));
+				}
+
+				continue;
+			}
+
 			if ($name === 'EvaluationResponse') {
 				$this->assertSame(
 					['authenticated'],
@@ -623,17 +703,17 @@ class RegisterAuthorizationTest extends TestCase {
 		}//end foreach
 
 		// Every listed schema really has a block, so a list entry cannot go stale unnoticed.
-		foreach (array_merge(self::RESTATES_THE_BASELINE_WRITES, array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED), self::RETIRED_READ_ONLY, ['EvaluationResponse']) as $listed) {
+		foreach (array_merge(self::RESTATES_THE_BASELINE_WRITES, array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED), self::RETIRED_READ_ONLY, ['EvaluationResponse', 'PublicationSubscription', 'MandateRemuneration', 'PaperSummary', 'MeetingBroadcast']) as $listed) {
 			$this->assertArrayHasKey($listed, $blocks, sprintf('`%s` is classified here but declares no block.', $listed));
 		}
 
 		// The count is the positive control: without it the loop above passes
 		// vacuously if the schemas move, are renamed, or stop being found at all.
-		// 14 restate the baseline writes, 4 are service owned, 1 is
-		// EvaluationResponse, 17 are retired. A different number means schemas
+		// 14 restate the baseline writes, 10 are service owned, 1 is
+		// EvaluationResponse, 1 is PublicationSubscription, 1 is MandateRemuneration, 1 is PaperSummary, 1 is MeetingBroadcast, 17 are retired. A different number means schemas
 		// gained or lost their own block, which changes which ones the register
 		// baseline governs.
-		$this->assertCount(36, $blocks, 'Expected 36 schema-level authorization blocks.');
+		$this->assertCount(46, $blocks, 'Expected 46 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**
@@ -839,4 +919,29 @@ class RegisterAuthorizationTest extends TestCase {
 		}
 
 	}//end testFlowOwnedPublicationFieldsRefuseADirectUpdate()
+	/**
+	 * Anonymous visitors read only published decisions.
+	 *
+	 * Without its own block, Decision falls back to the register baseline, which
+	 * grants `public` read of every draft. The block keeps `authenticated` read
+	 * whole and admits `public` only on `isPublished: public`.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 */
+	public function testAnonymousReadOfADecisionNeedsItToBePublished(): void {
+		$blocks = $this->schemaBlocks();
+		$this->assertArrayHasKey('Decision', $blocks, 'Decision must declare its own authorization block.');
+
+		$read = $blocks['Decision']['block']['read'] ?? [];
+		$this->assertContains('authenticated', $read, 'Signed-in readers keep reading every decision.');
+		$this->assertNotContains('public', $read, 'A bare public grant would publish every draft decision.');
+		$this->assertContains(
+			['group' => 'public', 'match' => ['isPublished' => 'public']],
+			$read,
+			'Anonymous read must be conditional on isPublished = public.'
+		);
+	}//end testAnonymousReadOfADecisionNeedsItToBePublished()
+
 }//end class

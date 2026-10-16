@@ -21,7 +21,6 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ALVMinutesService;
 use OCA\Decidiq\Service\MinutesContextResolver;
-use OCA\Decidiq\Service\ParticipantNotifier;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -61,7 +60,9 @@ class ALVMinutesServiceTest extends TestCase {
 		$this->service = new ALVMinutesService(
 			$this->logger,
 			new MinutesContextResolver(objectService: $this->objectService),
-			new ParticipantNotifier($this->container, $this->logger),
+			$this->createMock(\OCA\Decidiq\Service\ParticipantResolver::class),
+			$this->createMock(\OCA\Decidiq\Service\NotificationPreferenceService::class),
+			$this->createMock(\OCP\L10N\IFactory::class),
 		);
 	}
 

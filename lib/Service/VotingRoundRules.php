@@ -37,6 +37,7 @@ namespace OCA\Decidiq\Service;
  *
  * @spec openspec/specs/voting-system/spec.md
  * @spec openspec/specs/process-configuration/spec.md
+ * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
  */
 final class VotingRoundRules {
 	/**
@@ -47,6 +48,7 @@ final class VotingRoundRules {
 	 * @param string|null $tieBreakRule Tie-break rule (see VotingService::TIE_BREAK_RULES); null = body template default, then rejected
 	 * @param string $subjectType What is being voted: 'motion' (default) or 'amendment' (fail closed)
 	 * @param string|null $governanceBodyId Body opening the round; when set, its process template supplies rule defaults
+	 * @param array<int, mixed> $options The options of a ranked-choice round (RankedBallotRules checks them); empty for every other method
 	 *
 	 * @return void
 	 *
@@ -58,6 +60,7 @@ final class VotingRoundRules {
 		public readonly ?string $tieBreakRule = null,
 		public readonly string $subjectType = 'motion',
 		public readonly ?string $governanceBodyId = null,
+		public readonly array $options = [],
 	) {
 
 	}//end __construct()

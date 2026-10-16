@@ -98,30 +98,22 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	const section = page.getByTestId('organisation-mode-settings')
 	await expect(section).toBeVisible()
 
-	// Two nc-vue specifics, both already documented by passing tests in
-	// user-settings.spec.ts, and both fatal if ignored:
+	// The kind of organisation is a radio card per mode (board DcBeheer,
+	// nextcloud-vue radio-cards with `save`): choosing a card saves that one
+	// field through POST /api/settings, so there is no Save button. The card is
+	// found by its value, which does not depend on the language.
 	//
-	//  - NcSelect does NOT set `inheritAttrs: false`, so `data-testid` lands on
-	//    the WRAPPER, not the combobox. Clicking the wrapper does not open the
-	//    dropdown; click the inner input.
-	//  - Options render through NcEllipsisedOption, which splits any label of
-	//    10+ characters into two spans, so the option's ACCESSIBLE NAME gains a
-	//    space at the split point — an option named "Association (assoc)" never
-	//    exists. Match on text content instead, which is unaffected.
-	await section.locator('[data-testid="organisation-mode"] input').first().click()
 	// CORPORATE, not Association. `assoc` no longer relabels anything: under
 	// configurable-types-domain-model REQ-CTM-010 ("one concept, one label")
-	// MODE_LABELS.gov and MODE_LABELS.assoc are now the SAME map —
-	// `Organisation: 'Bodies'` in both — because 'Factions & bodies' implied two
-	// kinds of thing where a faction is just a GovernanceBody with
-	// bodyType 'faction'. Switching gov → assoc is therefore invisible in the
-	// nav, and this test could never pass again against it. `corp` maps
-	// Organisation → 'Board', so it still proves the round trip.
-	await page
-		.getByRole('option')
-		.filter({ hasText: /^Corporate \(corp\)$/ })
-		.click()
-	await section.getByTestId('organisation-mode-save').click()
+	// MODE_LABELS.gov and MODE_LABELS.assoc are the SAME map, so switching
+	// gov to assoc is invisible in the nav. `corp` maps Organisation to
+	// 'Board', so it still proves the round trip.
+	const saved = page.waitForResponse(
+		(response) => response.url().includes('/apps/decidiq/api/settings')
+			&& response.request().method() === 'POST',
+	)
+	await section.getByTestId('cn-radio-cards-option-corp').click()
+	expect((await saved).status(), 'saving organisatie_modus=corp').toBeLessThan(300)
 
 	// The round trip is proven against a DIFFERENT consumer, which is both
 	// stronger evidence and one page load cheaper than re-reading the form that

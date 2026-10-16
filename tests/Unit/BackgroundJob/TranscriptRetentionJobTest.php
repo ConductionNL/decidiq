@@ -274,6 +274,40 @@ class TranscriptRetentionJobTest extends TestCase {
 	}//end testDeleteBothPurgesAfterWindow()
 
 	/**
+	 * A purge removes the recording and the raw transcript, never a released caption track.
+	 *
+	 * The caption file follows the public recording, not the transcript
+	 * (meeting-transcription, "Retention keeps a released caption track").
+	 *
+	 * @spec openspec/changes/live-public-livestream/specs/meeting-transcription/spec.md#requirement-confidentiality-and-retention-of-recordings-and-transcripts
+	 *
+	 * @return void
+	 */
+	public function testAPurgeKeepsAReleasedCaptionTrack(): void {
+		$objectService = $this->buildObjectService(approvedAt: '2020-01-01T00:00:00Z');
+		$this->wireContainer(objectService: $objectService);
+		$job = new TranscriptRetentionJob($this->time, $this->container, $this->logger);
+
+		$state = $job->enforceForTranscript(
+			objectService: $objectService,
+			transcript: [
+				'id' => 't1',
+				'status' => 'done',
+				'retentionState' => 'active',
+				'sourceFilePath' => 'Decidesk/x/recording.mp3',
+				'transcriptFilePath' => 'Decidesk/x/Minutes/transcript-t1.txt',
+				'relations' => ['meeting' => 'm1'],
+			],
+			now: new \DateTimeImmutable('2026-06-15T00:00:00Z')
+		);
+
+		self::assertSame('purged', $state);
+		self::assertSame(['recording.mp3', 'transcript-t1.txt'], $this->deleted);
+		self::assertNotContains('captions-nl.vtt', $this->deleted);
+
+	}//end testAPurgeKeepsAReleasedCaptionTrack()
+
+	/**
 	 * Test delete-recording removes only the recording.
 	 *
 	 * @spec openspec/changes/meeting-transcription-ai-minutes/tasks.md#task-5.1

@@ -160,11 +160,11 @@
               "intervalSec": 1209600,
               "filter": {
                 "lifecycle": [
-                  "ontvangen",
-                  "in-behandeling",
+                  "received",
+                  "in-progress",
                   "constituencyConsultation",
                   "consultationMeeting",
-                  "vastgesteld"
+                  "adopted"
                 ]
               }
             },
@@ -196,11 +196,11 @@
               "intervalSec": 604800,
               "filter": {
                 "lifecycle": [
-                  "ontvangen",
-                  "in-behandeling",
+                  "received",
+                  "in-progress",
                   "constituencyConsultation",
                   "consultationMeeting",
-                  "vastgesteld"
+                  "adopted"
                 ]
               }
             },
@@ -232,7 +232,7 @@
               "intervalSec": 604800,
               "filter": {
                 "lifecycle": [
-                  "besluit-ontvangen"
+                  "decision-received"
                 ]
               }
             },

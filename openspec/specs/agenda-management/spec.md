@@ -15,6 +15,7 @@ Agenda management handles the creation, ordering, and conduct of meeting agendas
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full AgendaItem entity definition including property tables, Schema.org mappings, and OpenRaadsinformatie alignment.
+
 ## Requirements
 
 ---
@@ -130,6 +131,111 @@ The system MUST support assembling all agenda item documents into a single meeti
 - WHEN the package is assembled
 - THEN the assembly MUST complete successfully
 - AND the unresolvable document MUST be listed in the `skipped` report
+
+### Requirement: REQ-AMP-001 The meeting page asks the server for the caller's meeting roles
+
+The app SHALL expose `GET /api/meetings/{meetingId}/my-roles`, answering `chair`, `secretary` and `admin` as booleans for the signed-in caller only. It SHALL read the roles through `ParticipantResolver::hasRole()`, the same resolver `AgendaAuthorizationGuard::requireChairOrAdmin()` uses, so the page shows a control exactly when the server would accept the call behind it.
+
+#### Scenario: A secretary is recognised on the meeting page
+- GIVEN Sanne is a participant of the council meeting of 14 October with role secretary
+- WHEN her browser calls `GET /api/meetings/{meetingId}/my-roles`
+- THEN the response is 200 with `chair: false`, `secretary: true`, `admin: false`
+
+#### Scenario: Nobody is answered for someone else
+- GIVEN no signed-in session
+- WHEN the endpoint is called
+- THEN the response is 401 and names no roles
+
+### Requirement: REQ-AMP-002 A chair or secretary reorders the agenda on the meeting page
+
+The agenda widget on the meeting page SHALL let a chair, a secretary or an admin put agenda items in a new order by dragging a row, and SHALL offer Move up and Move down on every row as the keyboard alternative. A parent item SHALL carry its sub-items along. The new order SHALL be saved in one call to `PUT /api/agendas/{meetingId}/reorder`. Users without one of these roles SHALL see no drag handle and no move actions.
+
+#### Scenario: The chair drags an item to the top
+- GIVEN the chair opens the meeting page of a meeting with items 1 Opening, 2 Minutes, 3 Budget
+- WHEN she drags Budget above Opening
+- THEN the agenda reads 1 Budget, 2 Opening, 3 Minutes after a reload
+
+#### Scenario: A secretary moves an item with the keyboard
+- GIVEN the secretary focuses the row Minutes
+- WHEN he chooses Move up
+- THEN Minutes becomes item 1 and the order is saved
+
+#### Scenario: A member cannot reorder
+- GIVEN a council member without the chair or secretary role
+- WHEN he opens the meeting page
+- THEN the agenda shows no drag handle and no Move up or Move down action
+
+### Requirement: REQ-AMP-003 Every agenda row opens its item page
+
+Each row of the agenda widget SHALL carry an Open action that goes to the agenda item page (`/agenda-items/{id}`), where the item's documents are attached. Clicking the row itself SHALL keep opening the edit form.
+
+#### Scenario: A clerk attaches a paper to one item
+- GIVEN the clerk sees the agenda of next week's committee meeting
+- WHEN she chooses Open on the row Budget 2027
+- THEN the agenda item page opens with its Documents widget, and a file she adds there is listed on that item only
+
+### Requirement: REQ-AMP-004 The meeting page links the live meeting screen
+
+The agenda widget header SHALL show an Open live meeting button to a chair, a secretary or an admin, going to `/meetings/{id}/live`. Other users SHALL not see it.
+
+#### Scenario: The chair starts running the meeting
+- GIVEN the chair opens the meeting page on the evening of the meeting
+- WHEN she chooses Open live meeting
+- THEN the live meeting screen of that meeting opens
+
+#### Scenario: A member does not see the button
+- GIVEN a member without the chair or secretary role
+- WHEN he opens the meeting page
+- THEN no Open live meeting button is shown
+
+### Requirement: REQ-OPDF-001 An Office paper added to a meeting or agenda item is converted to PDF
+
+When a Word, Excel, PowerPoint or OpenDocument file is added to the files of a decidiq agenda item or meeting, the app SHALL queue a background conversion to PDF through filinq's `PdfConversionService`. The PDF SHALL be written beside the original, and the object SHALL record the source, the PDF and the backend that converted it in `paperRenditions`. The upload itself SHALL never wait for the conversion.
+
+#### Scenario: A clerk adds a Word paper
+- GIVEN the agenda item Begroting 2027 of the council meeting
+- WHEN the griffier adds "Programmabegroting 2027.docx" to its documents
+- THEN within a few minutes "Programmabegroting 2027.pdf" appears beside it and the item records the pair
+- @e2e exclude needs filinq and a background job run; covered by OfficePaperAddedListenerTest (the real NodeCreatedEvent) and ConvertPaperToPdfJobTest
+
+#### Scenario: A file outside decidiq is left alone
+- GIVEN a user saves a spreadsheet in his own Files folder
+- WHEN the file is created
+- THEN decidiq queues no conversion
+- @e2e exclude nothing visible happens; covered by OfficePaperAddedListenerTest (folder not named after a decidiq object)
+
+### Requirement: REQ-OPDF-002 A failed or impossible conversion is visible and the original stays
+
+When filinq cannot convert a file, the app SHALL keep the original, record the failure with the reason filinq gives, and show it to the secretariat with a Try again action. When filinq is not installed the app SHALL convert nothing and SHALL not report an error on the item.
+
+#### Scenario: A spreadsheet cannot be converted
+- GIVEN filinq reports that no backend could convert "Bijlage investeringen.xlsx"
+- WHEN the griffier opens the agenda item
+- THEN she sees the spreadsheet with "Not converted: no backend could convert this file" and a Try again action
+
+### Requirement: REQ-OPDF-003 Members read and download the PDF
+
+Where a paper has a PDF rendition, the agenda item page SHALL show the PDF as the paper, and the meeting package SHALL bundle the PDF instead of the original. The secretariat SHALL still be offered the original.
+
+#### Scenario: A member opens the paper
+- GIVEN "Programmabegroting 2027.docx" was converted
+- WHEN council member Pieter opens the agenda item
+- THEN he sees one entry, Programmabegroting 2027, that opens the PDF
+
+#### Scenario: The package carries the PDF
+- GIVEN the same item
+- WHEN the griffier assembles the meeting package
+- THEN the package folder holds the PDF and not the Word file
+- @e2e exclude package assembly writes to Files; covered by PaperRenditionFilterTest on MeetingPackageService's preference
+
+### Requirement: REQ-OPDF-004 An administrator can switch automatic conversion off
+
+The admin settings page SHALL offer a switch for automatic conversion, on by default, and SHALL say when filinq is not installed.
+
+#### Scenario: Conversion is switched off
+- GIVEN an administrator turns automatic conversion off
+- WHEN a clerk adds a Word file to an agenda item
+- THEN no PDF is made and the Word file is shown as the paper
 
 ## User Stories
 

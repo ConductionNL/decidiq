@@ -170,6 +170,9 @@ export default {
 		 * form showed an EMPTY required picker — decision-types-as-configuration
 		 * (#1099) dropped the enum from the stored schema, so the select had
 		 * no options and blocked the save.
+		 * `originalText` and `amendmentHistory` belong to the MOTION and are
+		 * written by the server when an amendment is adopted (#1394); an
+		 * amendment never carries them.
 		 *
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
@@ -179,6 +182,8 @@ export default {
 				'uuid',
 				'parentMotion',
 				'decisionType',
+				'originalText',
+				'amendmentHistory',
 				'created',
 				'updated',
 			]

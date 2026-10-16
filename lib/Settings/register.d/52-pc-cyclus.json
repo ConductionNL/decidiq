@@ -290,9 +290,9 @@
               "intervalSec": 604800,
               "filter": {
                 "status": [
-                  "gepland",
-                  "stukken-ontvangen",
-                  "in-behandeling"
+                  "planned",
+                  "documents-received",
+                  "in-progress"
                 ]
               }
             },

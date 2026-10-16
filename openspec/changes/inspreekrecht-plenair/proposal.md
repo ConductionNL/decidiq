@@ -77,3 +77,9 @@ Revert the decidiq PR: fragment 64 and the manifest fragment are additive files 
 
 - Should `Commissie` map onto `GovernanceBody` so one `inspraak-beleid` object also governs commissie inspraak, or does the commissie-level `inspraak-deadline-uren` setting stay authoritative for commissies? (Default assumed here: policy per governance body; the commissie change's per-commissie deadline overrides it where present.)
 - Does the `x-openregister-notifications` dialect support time-based triggers for deadline warnings, or do warnings stay a computed UI badge on the griffie overview (assumed here) with only created/status-change notifications declarative?
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- par-09: Let a citizen register to speak at a council meeting.
