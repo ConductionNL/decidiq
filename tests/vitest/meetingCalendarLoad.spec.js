@@ -124,3 +124,12 @@ describe('staff publish a public meeting to the residents calendar (REQ-ACAL-004
 		)
 	})
 })
+
+describe('the calendar filter loads the meeting types (REQ-ACAL-002)', () => {
+	it('registers meeting-type with the store before it fetches the collection', () => {
+		const view = read('src/views/meetings/MeetingCalendarView.vue')
+		expect(view).toMatch(
+			/ensureRelationType\('meeting-type'\)[\s\S]{0,200}fetchCollection\('meeting-type'/,
+		)
+	})
+})
