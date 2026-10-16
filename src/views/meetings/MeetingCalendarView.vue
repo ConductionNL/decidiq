@@ -161,8 +161,8 @@ import CalendarBlank from 'vue-material-design-icons/CalendarBlank.vue'
 import ChevronLeft from 'vue-material-design-icons/ChevronLeft.vue'
 import ChevronRight from 'vue-material-design-icons/ChevronRight.vue'
 import MeetingViewToggle from './MeetingViewToggle.vue'
+import { ensureRelationType } from '../../components/tabs/useRelationStore.js'
 import { getMeetings } from '../../services/dashboardData.js'
-import { useObjectStore } from '../../store/store.js'
 import {
 	AUDIENCES,
 	calendarParams,
@@ -389,7 +389,7 @@ export default {
 
 	/** @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body */
 	async mounted() {
-		const store = useObjectStore()
+		const store = ensureRelationType('meeting-type')
 		try {
 			const [types, bodies] = await Promise.all([
 				store.fetchCollection('meeting-type', { _limit: 200 }),
