@@ -3418,6 +3418,7 @@ OC.L10N.register(
         "Steps of this decision": "Stappen van dit besluit",
         "This decision was withdrawn.": "Dit besluit is ingetrokken.",
         "Key facts": "Kerngegevens",
+        "Overview": "Overzicht",
         "Now": "Nu",
         "Next": "Volgt",
         "Greeting": "Begroeting",
