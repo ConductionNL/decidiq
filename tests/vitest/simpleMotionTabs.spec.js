@@ -60,8 +60,8 @@ function decisionProperties() {
 	const dir = path.join(ROOT, 'lib', 'Settings', 'register.d')
 	for (const name of fs.readdirSync(dir).sort()) {
 		if (!name.endsWith('.json')) continue
-		const schemas = readJson('lib', 'Settings', 'register.d', name).components
-			?.schemas ?? {}
+		const schemas =
+			readJson('lib', 'Settings', 'register.d', name).components?.schemas ?? {}
 		for (const [key, schema] of Object.entries(schemas)) {
 			if (key.toLowerCase() === 'decision' || schema?.slug === 'decision') {
 				Object.assign(properties, schema.properties ?? {})
@@ -110,9 +110,7 @@ function sideWidgets() {
 describe('the motion page in the simple structure', () => {
 	it('lays out one tab strip and nothing else in the body', () => {
 		expect(strip?.type).toBe('tabs')
-		expect(config.layout.map((item) => item.widgetId)).toEqual([
-			'motion-panels',
-		])
+		expect(config.layout.map((item) => item.widgetId)).toEqual(['motion-panels'])
 	})
 
 	it('shows the board tabs in the board order, History last', () => {
@@ -207,7 +205,9 @@ describe('the motion page in the simple structure', () => {
 			...tabs.map((tab) => tab.label),
 			...config.widgets
 				.filter((widget) => widget.type === 'detail-sections')
-				.flatMap((panel) => panel.content.sections.map((section) => section.label)),
+				.flatMap((panel) =>
+					panel.content.sections.map((section) => section.label),
+				),
 		]
 		for (const text of texts) {
 			expect(dutch[text], text).toBeTruthy()
