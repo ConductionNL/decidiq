@@ -39,8 +39,9 @@ class ExampleSetWooConceptDecisionTest extends TestCase {
 	}//end fragment()
 
 	/**
-	 * The concept decision is a draft Woo decision on the dossiq case, found
-	 * by a lookup, and the fragment loads after dossiq's so the case exists.
+	 * The concept decision is a draft Woo decision on the Lindelaan case that
+	 * portaliq's fragment writes, found by its portal reference, and the fragment
+	 * loads after portaliq's so the case exists.
 	 *
 	 * @return void
 	 */
@@ -54,7 +55,7 @@ class ExampleSetWooConceptDecisionTest extends TestCase {
 		}
 
 		$this->assertNotNull(actual: $decision);
-		$this->assertContains(needle: 'dossiq', haystack: (array)($fragment['after'] ?? []));
+		$this->assertContains(needle: 'portaliq', haystack: (array)($fragment['after'] ?? []));
 		$this->assertSame(expected: 'draft', actual: $decision['data']['lifecycle']);
 		$this->assertSame(expected: 'woo-decision', actual: $decision['data']['decisionType']);
 		$this->assertArrayNotHasKey(key: 'decisionDate', array: $decision['data']);
@@ -63,7 +64,8 @@ class ExampleSetWooConceptDecisionTest extends TestCase {
 			actual: [$decision['data']['sourceApp'], $decision['data']['subjectRegister'], $decision['data']['subjectSchema'], $decision['data']['subjectId']]
 		);
 		$this->assertSame(expected: 'dossiq', actual: $decision['lookups']['case']['register']);
-		$this->assertSame(expected: 'Verlichting fietspad Lindelaan', actual: $decision['lookups']['case']['where']['title']);
+		// The case is portaliq's, found by the portal reference only it carries.
+		$this->assertSame(expected: ['externalReference' => 'MZ-ZDR-2026-0412'], actual: $decision['lookups']['case']['where']);
 	}//end testTheConceptDecisionPointsAtTheDossiqCase()
 
 	/**
