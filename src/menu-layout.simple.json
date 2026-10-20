@@ -134,6 +134,109 @@
 	},
 	"pages": [
 		{
+			"id": "PersonDetail",
+			"_note": "The person page in the simple structure (board DcPersoon): tabs Overview, Memberships, Voting record, Other positions and Gifts. Gifts is the declared gifts and invitations this person received (declared-gift.recipient), the list the body page shows per body. The full structure keeps the manifest's stack.",
+			"config": {
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "person-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"person-memberships": {
+						"type": "PersonMembershipsTab"
+					},
+					"person-voting-record": {
+						"type": "PersonVotingRecordTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "person-gifts",
+						"type": "object-list",
+						"title": "Gifts",
+						"icon": "Package",
+						"content": {
+							"register": "decidiq",
+							"schema": "declared-gift",
+							"filter": {
+								"recipient": "@objectId"
+							},
+							"sort": {
+								"field": "receivedOn",
+								"dir": "desc"
+							},
+							"columns": [
+								{
+									"key": "type",
+									"label": "Type",
+									"widget": "badge"
+								},
+								{
+									"key": "giver",
+									"label": "Giver"
+								},
+								{
+									"key": "estimatedValue",
+									"label": "Value (EUR)"
+								},
+								{
+									"key": "decision",
+									"label": "Decision",
+									"widget": "badge"
+								}
+							],
+							"limit": 10,
+							"allowCreate": false,
+							"rowRoute": "DeclaredGiftDetail"
+						}
+					},
+					{
+						"id": "person-panels",
+						"type": "tabs",
+						"title": "Person",
+						"icon": "AccountBoxOutline",
+						"content": {
+							"ariaLabel": "Person",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "person-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "person-memberships",
+									"label": "Memberships"
+								},
+								{
+									"widgetId": "person-voting-record",
+									"label": "Voting record"
+								},
+								{
+									"widgetId": "person-outside-positions",
+									"label": "Other positions"
+								},
+								{
+									"widgetId": "person-gifts",
+									"label": "Gifts"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Motions",
 			"configAppend": {
 				"headerActions": [
@@ -164,6 +267,17 @@
 						"icon": "Gavel",
 						"handler": "navigate",
 						"route": "UrgentDecisions"
+					}
+				],
+				"columns": [
+					{
+						"key": "governingBody",
+						"label": "Body"
+					},
+					{
+						"key": "meeting",
+						"label": "Next meeting",
+						"labelField": "title"
 					}
 				]
 			},
@@ -219,6 +333,134 @@
 						"showCount": true
 					}
 				]
+			},
+			"configOrder": {
+				"columns": [
+					"title",
+					"proposer",
+					"governingBody",
+					"lifecycle",
+					"meeting"
+				]
+			},
+			"_note": "THE COLUMNS follow board DcVoorstellen: Title, Proposer, Body (the decision's governingBody) and Stage, then Next meeting (the meeting the proposal is on, by its title), before the columns the list already had. The board's Portfolio holder has no field on a decision and is not drawn."
+		},
+		{
+			"id": "MinutesDetail",
+			"_note": "The minutes page in the simple structure (board DcNotulen): tabs Overview (the minutes, the notes per agenda item, draft and send, approval), Signers, Documents and Publication; the key facts beside them. The board's Transcription, Versions and Action items tabs are not drawn: the minutes record has no transcription, version list or action items of its own (the transcription is on the meeting page). The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "minutes-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"lifecycle",
+								"meeting",
+								"version",
+								"approvedAt",
+								"signingStatus",
+								"signedAt"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "minutes-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"minutes-approval": {
+						"type": "MinutesApprovalTab"
+					},
+					"minutes-actions": {
+						"type": "MinutesActionsTab"
+					},
+					"minutes-item-notes": {
+						"type": "MinutesItemNotesTab"
+					},
+					"minutes-documents": {
+						"type": "MinutesDocumentTab"
+					},
+					"minutes-signers": {
+						"type": "MinutesSignersTab"
+					},
+					"minutes-publication": {
+						"type": "MinutesPublicationTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "minutes-panel-overview",
+						"type": "detail-sections",
+						"title": "Minutes",
+						"icon": "NoteTextOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Minutes",
+									"widgetId": "minutes-data"
+								},
+								{
+									"label": "Minutes per agenda item",
+									"widgetId": "minutes-item-notes"
+								},
+								{
+									"label": "Draft and send",
+									"widgetId": "minutes-actions"
+								},
+								{
+									"label": "Approval",
+									"widgetId": "minutes-approval"
+								}
+							]
+						}
+					},
+					{
+						"id": "minutes-panels",
+						"type": "tabs",
+						"title": "Minutes",
+						"icon": "NoteTextOutline",
+						"content": {
+							"ariaLabel": "Minutes",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "minutes-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "minutes-signers",
+									"label": "Signers"
+								},
+								{
+									"widgetId": "minutes-documents",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "minutes-publication",
+									"label": "Publication"
+								}
+							]
+						}
+					}
+				]
 			}
 		},
 		{
@@ -250,6 +492,93 @@
 			}
 		},
 		{
+			"id": "CommitmentDetail",
+			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "commitment-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"madeBy",
+								"directedTo",
+								"deadline",
+								"meeting",
+								"agendaItem",
+								"lifecycle"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "commitment-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"commitment-progress": {
+						"type": "CommitmentProgressTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "commitment-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "commitment-panels",
+						"type": "tabs",
+						"title": "Commitment",
+						"icon": "HandshakeOutline",
+						"content": {
+							"ariaLabel": "Commitment",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "toezegging-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "commitment-progress",
+									"label": "Progress"
+								},
+								{
+									"widgetId": "toezegging-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "toezegging-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "commitment-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "GovernanceBodies",
 			"configAppend": {
 				"headerActions": [
@@ -264,8 +593,84 @@
 			}
 		},
 		{
+			"id": "ActionItemDetail",
+			"_note": "The action item page in the simple structure (board DcActie): tabs Overview, Documents, Related and History, the key facts (status, assignee, deadline) beside them. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "action-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"taskStatus",
+								"assignee",
+								"dueDate",
+								"meeting",
+								"decision",
+								"completedAt"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "action-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "action-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "action-panels",
+						"type": "tabs",
+						"title": "Action item",
+						"icon": "CheckCircleOutline",
+						"content": {
+							"ariaLabel": "Action item",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "action-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "action-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "action-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "action-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "DecisionDetail",
-			"_note": "The decision page in the simple structure (openspec/changes/simple-decision-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the decision's own state. Each state has ONE primary button, the transition that leaves it, and the button posts to the same guarded endpoint the Lifecycle block uses (POST /api/decisions/{id}/transition). The server decides who may use it: a chair-only transition a member tries is refused there, and the refusal is shown. `enacted` leads to Publish, which posts to the publication endpoint the Publication block uses. NOTHING IS TAKEN AWAY: the Lifecycle block is the last entry under More, with every transition the server offers, the chair-only mark and the publish prompt of a body that asks for one. THE SIX BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE STEP BAR is display only. QUICK ACTIONS: Archive and the discussion and integrations page. Archive is beside the primary button on a decided or enacted decision, so an enacted decision that is already public (where Publish no longer shows) still has a button for its next step and never a finished checklist with nothing to press. Adding a document or an action item stays inside its own block (Documents, More): the library has no header action that opens a block's own add dialog, and none is invented here. THE WHAT-NOW CHECKLIST IS ADVICE, NOT A GATE: an unticked item does not stop the button, because the server does not require those fields for the transition and this page adds no rule of its own. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box; the library cannot hide an empty side card.",
+			"_note": "The decision page in the simple structure (openspec/changes/simple-decision-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the decision's own state. Each state has ONE primary button, the transition that leaves it, and the button posts to the same guarded endpoint the Lifecycle block uses (POST /api/decisions/{id}/transition). The server decides who may use it: a chair-only transition a member tries is refused there, and the refusal is shown. `enacted` leads to Publish, which posts to the publication endpoint the Publication block uses. NOTHING IS TAKEN AWAY: the Lifecycle block is the last entry under More, with every transition the server offers, the chair-only mark and the publish prompt of a body that asks for one. THE SIX BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE STEP BAR is display only. QUICK ACTIONS: Archive and the discussion and integrations page. Archive is beside the primary button on a decided or enacted decision, so an enacted decision that is already public (where Publish no longer shows) still has a button for its next step and never a finished checklist with nothing to press. Adding a document or an action item stays inside its own block (Documents, More): the library has no header action that opens a block's own add dialog, and none is invented here. THE WHAT-NOW CHECKLIST IS ADVICE, NOT A GATE: an unticked item does not stop the button, because the server does not require those fields for the transition and this page adds no rule of its own. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box; the library cannot hide an empty side card. THE TAB STRIP FOLLOWS BOARD DcBesluit: Overview (the content and the governance), Route and voting, Documents, Consultation, Publication and History, the record history as the last tab.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -715,18 +1120,24 @@
 						"icon": "Timeline"
 					},
 					{
+						"id": "decision-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
 						"id": "decision-panels",
 						"type": "tabs",
 						"title": "Decision",
 						"icon": "Gavel",
 						"content": {
 							"ariaLabel": "Parts of this decision",
-							"maxVisibleTabs": 5,
+							"maxVisibleTabs": 6,
 							"moreLabel": "More",
 							"tabs": [
 								{
 									"widgetId": "decision-panel-content",
-									"label": "Content"
+									"label": "Overview"
 								},
 								{
 									"widgetId": "decision-panel-route",
@@ -743,6 +1154,10 @@
 								{
 									"widgetId": "decision-panel-publication",
 									"label": "Publication"
+								},
+								{
+									"widgetId": "decision-history",
+									"label": "History"
 								},
 								{
 									"widgetId": "decision-actions",
@@ -772,7 +1187,7 @@
 		},
 		{
 			"id": "MotionDetail",
-			"_note": "The motion page in the simple structure (openspec/changes/simple-decision-page). A motion is a decision, and its page gets the same header: the state as a pill, ONE primary button for the step that leaves the state, and a what-now card. The buttons post to the endpoint the Stage block uses (POST /api/motions/{id}/transition), so the server decides who may take a step, as it does today. `voting` has two ways out. Recording the motion as adopted is the primary button and recording it as rejected is a quick action beside it. Withdrawing and archiving stay in the Stage block, which is unchanged and still on the page. THE BLOCKS ARE NOT REGROUPED INTO TABS HERE: that is done for the decision page only.",
+			"_note": "The motion page in the simple structure (openspec/changes/simple-decision-page). A motion is a decision, and its page gets the same header: the state as a pill, ONE primary button for the step that leaves the state, and a what-now card. The buttons post to the endpoint the Stage block uses (POST /api/motions/{id}/transition), so the server decides who may take a step, as it does today. `voting` has two ways out. Recording the motion as adopted is the primary button and recording it as rejected is a quick action beside it. Withdrawing and archiving stay in the Stage block, which is unchanged and still on the page. THE BLOCKS ARE NOT REGROUPED INTO TABS HERE: that is done for the decision page only. THE TABS (boards DcVoorstel, DcVoorstelOndertekenaars, DcStemvolgorde, DcStemuitslag): Overview, Papers, Amendments, Voting and History in the strip; Signers, Voting order and Stage under More, as on the boards where they show only when they apply. Beside the tabs: the key facts, the residents' advisory vote and the conflicts of interest.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -858,7 +1273,43 @@
 							]
 						}
 					}
-				}
+				},
+				"sideColumn": [
+					{
+						"id": "motion-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"decisionType",
+								"governingBody",
+								"meeting",
+								"proposer",
+								"submittedAt",
+								"deliveryDate",
+								"outcome",
+								"decisionDate"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"motion-citizen-advice",
+					"motion-conflicts"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "motion-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
 			},
 			"configAppend": {
 				"headerActions": [
@@ -992,12 +1443,113 @@
 						"group": "Motion",
 						"target": "/motions/@objectId/integrations"
 					}
+				],
+				"widgets": [
+					{
+						"id": "motion-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "motion-panel-voting",
+						"type": "detail-sections",
+						"title": "Voting",
+						"icon": "Gavel",
+						"content": {
+							"sections": [
+								{
+									"label": "Voting round",
+									"widgetId": "motion-voting-round"
+								},
+								{
+									"label": "Votes",
+									"widgetId": "motion-votes"
+								}
+							]
+						}
+					},
+					{
+						"id": "motion-panels",
+						"type": "tabs",
+						"title": "Motion",
+						"icon": "NoteTextOutline",
+						"content": {
+							"ariaLabel": "Motion",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "motion-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "motion-files",
+									"label": "Papers"
+								},
+								{
+									"widgetId": "motion-amendments",
+									"label": "Amendments"
+								},
+								{
+									"widgetId": "motion-panel-voting",
+									"label": "Voting"
+								},
+								{
+									"widgetId": "motion-history",
+									"label": "History"
+								},
+								{
+									"widgetId": "motion-signers",
+									"label": "Signers",
+									"overflow": true
+								},
+								{
+									"widgetId": "motion-amendment-order",
+									"label": "Voting order",
+									"overflow": true
+								},
+								{
+									"widgetId": "motion-stage",
+									"label": "Stage",
+									"overflow": true
+								}
+							]
+						}
+					}
 				]
+			},
+			"configPatch": {
+				"widgets": {
+					"motion-stage": {
+						"type": "MotionStageTab"
+					},
+					"motion-amendments": {
+						"type": "MotionAmendmentsTab"
+					},
+					"motion-votes": {
+						"type": "MotionVotesTab"
+					},
+					"motion-amendment-order": {
+						"type": "MotionAmendmentOrderTab"
+					},
+					"motion-voting-round": {
+						"type": "MotionVotingRoundTab"
+					},
+					"motion-citizen-advice": {
+						"type": "MotionCitizenAdviceTab"
+					},
+					"motion-signers": {
+						"type": "MotionSignersTab"
+					},
+					"motion-conflicts": {
+						"type": "MotionConflictsTab"
+					}
+				}
 			}
 		},
 		{
 			"id": "MeetingDetail",
-			"_note": "The meeting page in the simple structure (openspec/changes/simple-meeting-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the meeting's own state. Each state but `closed` has ONE primary button, and it posts to the guarded endpoint the Stage block uses (POST /api/meetings/{id}/lifecycle) with the action and nothing else. The server decides who may use it: the chair or the secretary of the meeting, or an administrator. A member who presses it is refused there and the refusal is shown; the step bar asks the server first and says so in words (MeetingStepBar). ONLY FOUR OF THE SIX STEPS ARE BUTTONS HERE: convene, open, resume and close. Pause and adjourn are switched off per governance domain on the server (WorkflowService), and a manifest cannot know the domain, so those two stay in the Stage block, which draws exactly the steps the server offers. Close is the primary button of a meeting in session and sits under More in the other states the server allows it from. THE STAGE BLOCK IS STILL ON THE PAGE, the last entry under More. A CLOSED MEETING has no next step and so no card: its work is in the Minutes and Decisions tabs. A paused or adjourned meeting has its button and no card, because no field of a meeting says what a break still needs. THE NINETEEN BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE WHAT-NOW CHECKLIST IS ADVICE, with one exception: the server refuses to open a meeting without a quorum where the rules of the body ask for one, and that item says so. THE SIDE COLUMN is one card, Key facts. It leads with the date, which every meeting has, so the card is never an empty box. NO LINK TO THE LIVE SCREEN IS ADDED: that button is for the chair and the secretary only (REQ-AMP-004) and stays in the Agenda block, which asks the server who is looking.",
+			"_note": "The meeting page in the simple structure (openspec/changes/simple-meeting-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the meeting's own state. Each state but `closed` has ONE primary button, and it posts to the guarded endpoint the Stage block uses (POST /api/meetings/{id}/lifecycle) with the action and nothing else. The server decides who may use it: the chair or the secretary of the meeting, or an administrator. A member who presses it is refused there and the refusal is shown; the step bar asks the server first and says so in words (MeetingStepBar). ONLY FOUR OF THE SIX STEPS ARE BUTTONS HERE: convene, open, resume and close. Pause and adjourn are switched off per governance domain on the server (WorkflowService), and a manifest cannot know the domain, so those two stay in the Stage block, which draws exactly the steps the server offers. Close is the primary button of a meeting in session and sits under More in the other states the server allows it from. THE STAGE BLOCK IS STILL ON THE PAGE, the last entry under More. A CLOSED MEETING has no next step and so no card: its work is in the Minutes and Decisions tabs. A paused or adjourned meeting has its button and no card, because no field of a meeting says what a break still needs. THE NINETEEN BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE WHAT-NOW CHECKLIST IS ADVICE, with one exception: the server refuses to open a meeting without a quorum where the rules of the body ask for one, and that item says so. THE SIDE COLUMN is one card, Key facts. It leads with the date, which every meeting has, so the card is never an empty box. NO LINK TO THE LIVE SCREEN IS ADDED: that button is for the chair and the secretary only (REQ-AMP-004) and stays in the Agenda block, which asks the server who is looking. THE TAB STRIP FOLLOWS THE BOARDS (DcVergadering, DcVergaderingPlanning): Overview (the planning panel), Agenda, Participants, Papers, Decisions, Minutes and History, the record history as the last tab; Broadcast, Case system, Audit statements and Stage under More. The agenda tab carries `default`, so a library that knows the key opens a meeting on its agenda as the board does.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -1459,18 +2011,29 @@
 						"icon": "Timeline"
 					},
 					{
+						"id": "meeting-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
 						"id": "meeting-panels",
 						"type": "tabs",
 						"title": "Meeting",
 						"icon": "Calendar",
 						"content": {
 							"ariaLabel": "Parts of this meeting",
-							"maxVisibleTabs": 5,
+							"maxVisibleTabs": 7,
 							"moreLabel": "More",
 							"tabs": [
 								{
+									"widgetId": "meeting-panel-planning",
+									"label": "Overview"
+								},
+								{
 									"widgetId": "meeting-panel-agenda",
-									"label": "Agenda"
+									"label": "Agenda",
+									"default": true
 								},
 								{
 									"widgetId": "meeting-panel-people",
@@ -1478,7 +2041,7 @@
 								},
 								{
 									"widgetId": "meeting-panel-documents",
-									"label": "Documents"
+									"label": "Papers"
 								},
 								{
 									"widgetId": "meeting-panel-decisions",
@@ -1489,9 +2052,8 @@
 									"label": "Minutes"
 								},
 								{
-									"widgetId": "meeting-panel-planning",
-									"label": "Planning",
-									"overflow": true
+									"widgetId": "meeting-history",
+									"label": "History"
 								},
 								{
 									"widgetId": "meeting-broadcast",
@@ -1521,7 +2083,7 @@
 		},
 		{
 			"id": "AmendmentDetail",
-			"_note": "The amendment page in the simple structure (openspec/changes/simple-amendment-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`. An amendment has a shorter road than a decision: draft, proposed, deliberating, voting, decided (MotionLifecycleTransitioner::AMENDMENT_TRANSITIONS). TWO STEPS ARE HEADER BUTTONS: submitting a draft and starting the debate. They post to POST /api/amendments/{id}/transition with `newState` and nothing else. That endpoint exists and is guarded on the server (the chair group, or an administrator where none is set), and until now no control on any page called it, so an amendment could not leave draft from the page at all. THE VOTE IS NOT A HEADER BUTTON, on purpose. The same endpoint would accept `voting` and `decided`, and taking those steps there skips two things the Voting round block does on the server: it holds the voting order of the amendments when a round opens, and it writes an adopted amendment into the text of its motion when the round closes. So the vote stays in the Voting round block, which is a tab of its own here, and the step bar says so. NO ENDPOINT TELLS A PAGE WHETHER THE READER MAY TAKE A STEP ON AN AMENDMENT, so the step bar says who takes the first two steps for every reader, and the server's refusal is shown to anyone else who presses. THE THREE BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component, because a tab resolves a widget by type. THE WHAT-NOW CHECKLIST IS ADVICE: the server asks for none of those fields before a step. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box. NO QUICK ACTION: the link to the motion is in the Parent motion block, which reads both spellings of that link (`amends` and the retired `parentMotion`); a header link could read one.",
+			"_note": "The amendment page in the simple structure (openspec/changes/simple-amendment-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`. An amendment has a shorter road than a decision: draft, proposed, deliberating, voting, decided (MotionLifecycleTransitioner::AMENDMENT_TRANSITIONS). TWO STEPS ARE HEADER BUTTONS: submitting a draft and starting the debate. They post to POST /api/amendments/{id}/transition with `newState` and nothing else. That endpoint exists and is guarded on the server (the chair group, or an administrator where none is set), and until now no control on any page called it, so an amendment could not leave draft from the page at all. THE VOTE IS NOT A HEADER BUTTON, on purpose. The same endpoint would accept `voting` and `decided`, and taking those steps there skips two things the Voting round block does on the server: it holds the voting order of the amendments when a round opens, and it writes an adopted amendment into the text of its motion when the round closes. So the vote stays in the Voting round block, which is a tab of its own here, and the step bar says so. NO ENDPOINT TELLS A PAGE WHETHER THE READER MAY TAKE A STEP ON AN AMENDMENT, so the step bar says who takes the first two steps for every reader, and the server's refusal is shown to anyone else who presses. THE THREE BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component, because a tab resolves a widget by type. THE WHAT-NOW CHECKLIST IS ADVICE: the server asks for none of those fields before a step. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box. NO QUICK ACTION: the link to the motion is in the Parent motion block, which reads both spellings of that link (`amends` and the retired `parentMotion`); a header link could read one. THE TAB STRIP FOLLOWS BOARD DcAmendement: Overview (the amendment and its motion), Text changes, Voting round and History, the record history as the last tab. Text changes carries `default`, so a library that knows the key opens the page on it as the board does.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -1711,6 +2273,12 @@
 						"icon": "Timeline"
 					},
 					{
+						"id": "amend-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
 						"id": "amend-panels",
 						"type": "tabs",
 						"title": "Amendment",
@@ -1721,16 +2289,21 @@
 							"moreLabel": "More",
 							"tabs": [
 								{
-									"widgetId": "amend-diff",
-									"label": "Text changes"
+									"widgetId": "amend-panel-details",
+									"label": "Overview"
 								},
 								{
-									"widgetId": "amend-panel-details",
-									"label": "Amendment"
+									"widgetId": "amend-diff",
+									"label": "Text changes",
+									"default": true
 								},
 								{
 									"widgetId": "amend-voting-round",
 									"label": "Voting round"
+								},
+								{
+									"widgetId": "amend-history",
+									"label": "History"
 								}
 							]
 						}
@@ -2120,6 +2693,187 @@
 			}
 		},
 		{
+			"id": "GovernanceBodyDetail",
+			"_note": "The body page in the simple structure (boards DcOrgaan, DcZelfevaluatie): tabs Overview, Members, Meetings, Documents and History; the key facts and the workspace beside them. The board lists the other blocks (working method, positions, composition, consultations, remuneration) in the Actions menu under Go to, so they are tabs under More here, one per block in the board's order; nextcloud-vue's board look moves More into the Actions menu. No block is dropped. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "body-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"bodyType",
+								"domain",
+								"parentBody",
+								"termStart",
+								"termEnd",
+								"quorum"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"body-workspace"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "body-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"body-members": {
+						"type": "GovernanceBodyMembersTab"
+					},
+					"body-template": {
+						"type": "GovernanceBodyTemplateTab"
+					},
+					"body-efficiency": {
+						"type": "GovernanceBodyEfficiencyTab"
+					},
+					"body-retention": {
+						"type": "GovernanceBodyRetentionTab"
+					},
+					"body-composition": {
+						"type": "GovernanceBodyCompositionTab"
+					},
+					"body-evaluations": {
+						"type": "GovernanceBodyEvaluationsTab"
+					},
+					"body-participating-orgs": {
+						"type": "BodyParticipationsTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "body-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "body-panels",
+						"type": "tabs",
+						"title": "Governance body",
+						"icon": "AccountMultipleOutline",
+						"content": {
+							"ariaLabel": "Governance body",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "body-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "body-members",
+									"label": "Members"
+								},
+								{
+									"widgetId": "body-meetings",
+									"label": "Meetings"
+								},
+								{
+									"widgetId": "body-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "body-history",
+									"label": "History"
+								},
+								{
+									"widgetId": "body-template",
+									"label": "Process template",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-efficiency",
+									"label": "Efficiency",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-retention",
+									"label": "Recording retention",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-evaluations",
+									"label": "Self-evaluation",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-position-holders",
+									"label": "Position holders",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-positions",
+									"label": "Positions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-ancillary-positions",
+									"label": "Other positions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-gifts",
+									"label": "Gifts",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-composition",
+									"label": "Composition",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-factions",
+									"label": "Factions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-participating-orgs",
+									"label": "Participating organisations",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-shared-participations",
+									"label": "Shared-body participations",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-consultations",
+									"label": "Consultations",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-remuneration",
+									"label": "Remuneration this year",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-remuneration-total",
+									"label": "Remuneration total",
+									"overflow": true
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Decisions",
 			"_note": "The decisions list in the simple structure: five counted views in front, the rest behind the overflow chip. No view is dropped: Decisions and Motions are the manifest's own and keep their place in the list. Urgent is the view the design asks for instead of a menu entry; the Urgent decisions page still exists and Proposals links to it.",
 			"config": {
@@ -2185,6 +2939,143 @@
 					"Decision taken",
 					"Enacted",
 					"Urgent"
+				]
+			}
+		},
+		{
+			"id": "AgendaItemDetail",
+			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn: an agenda item has no speakers list outside the live meeting. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "agenda-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"itemType",
+								"orderNumber",
+								"meeting",
+								"estimatedDuration",
+								"caseReference",
+								"isFormality"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"agenda-conflicts",
+					"agenda-paper-summaries"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "agenda-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"agenda-case": {
+						"type": "AgendaItemCaseTab"
+					},
+					"agenda-document-details": {
+						"type": "DocumentMetadataTab"
+					},
+					"agenda-paper-renditions": {
+						"type": "AgendaPaperRenditionsTab"
+					},
+					"agenda-type-fields": {
+						"type": "AgendaItemTypeFieldsTab"
+					},
+					"agenda-motions": {
+						"type": "AgendaMotionsTab"
+					},
+					"agenda-conflicts": {
+						"type": "AgendaItemConflictsTab"
+					},
+					"agenda-paper-summaries": {
+						"type": "AgendaPaperSummariesTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "agenda-panel-overview",
+						"type": "detail-sections",
+						"title": "Agenda item",
+						"icon": "ClipboardList",
+						"content": {
+							"sections": [
+								{
+									"label": "Agenda item",
+									"widgetId": "agenda-data"
+								},
+								{
+									"label": "Type-specific fields",
+									"widgetId": "agenda-type-fields"
+								}
+							]
+						}
+					},
+					{
+						"id": "agenda-panel-papers",
+						"type": "detail-sections",
+						"title": "Papers",
+						"icon": "FolderOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Documents",
+									"widgetId": "agenda-files"
+								},
+								{
+									"label": "Document details",
+									"widgetId": "agenda-document-details"
+								},
+								{
+									"label": "Papers as PDF",
+									"widgetId": "agenda-paper-renditions"
+								}
+							]
+						}
+					},
+					{
+						"id": "agenda-panels",
+						"type": "tabs",
+						"title": "Agenda item",
+						"icon": "ClipboardList",
+						"content": {
+							"ariaLabel": "Agenda item",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "agenda-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "agenda-panel-papers",
+									"label": "Papers"
+								},
+								{
+									"widgetId": "agenda-motions",
+									"label": "Motions"
+								},
+								{
+									"widgetId": "agenda-case",
+									"label": "Case"
+								}
+							]
+						}
+					}
 				]
 			}
 		},

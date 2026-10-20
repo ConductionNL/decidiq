@@ -25,7 +25,7 @@ const VISIBLE_NL = [
 	'Reacties',
 	'Documenten',
 	'Gerelateerd',
-	'Geschiedenis',
+	'Historie',
 ]
 const OVERFLOW = []
 const SIDE = ['consult-side-facts']
