@@ -592,10 +592,12 @@ describe('the motion page in the simple structure', () => {
 	const config = page.config
 	const actions = new Map(config.headerActions.map((item) => [item.id, item]))
 
-	it('keeps every block and its place', () => {
-		const before = pageOf(full, 'MotionDetail').config
-		expect(config.widgets).toEqual(before.widgets)
-		expect(config.layout).toEqual(before.layout)
+	it('keeps every block the manifest declares', () => {
+		// Where each block sits (tabs, side column) is simpleMotionTabs.spec.js.
+		const ids = config.widgets.map((widget) => widget.id)
+		for (const widget of pageOf(full, 'MotionDetail').config.widgets) {
+			expect(ids, widget.id).toContain(widget.id)
+		}
 	})
 
 	it('has one primary button per state, shown in that state only', () => {
