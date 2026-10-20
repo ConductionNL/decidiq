@@ -772,7 +772,7 @@
 		},
 		{
 			"id": "MotionDetail",
-			"_note": "The motion page in the simple structure (openspec/changes/simple-decision-page). A motion is a decision, and its page gets the same header: the state as a pill, ONE primary button for the step that leaves the state, and a what-now card. The buttons post to the endpoint the Stage block uses (POST /api/motions/{id}/transition), so the server decides who may take a step, as it does today. `voting` has two ways out. Recording the motion as adopted is the primary button and recording it as rejected is a quick action beside it. Withdrawing and archiving stay in the Stage block, which is unchanged and still on the page. THE BLOCKS ARE NOT REGROUPED INTO TABS HERE: that is done for the decision page only.",
+			"_note": "The motion page in the simple structure (openspec/changes/simple-decision-page). A motion is a decision, and its page gets the same header: the state as a pill, ONE primary button for the step that leaves the state, and a what-now card. The buttons post to the endpoint the Stage block uses (POST /api/motions/{id}/transition), so the server decides who may take a step, as it does today. `voting` has two ways out. Recording the motion as adopted is the primary button and recording it as rejected is a quick action beside it. Withdrawing and archiving stay in the Stage block, which is unchanged and still on the page. THE BLOCKS ARE NOT REGROUPED INTO TABS HERE: that is done for the decision page only. THE TABS (boards DcVoorstel, DcVoorstelOndertekenaars, DcStemvolgorde, DcStemuitslag): Overview, Papers, Amendments, Voting and History in the strip; Signers, Voting order and Stage under More, as on the boards where they show only when they apply. Beside the tabs: the key facts, the residents' advisory vote and the conflicts of interest.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -858,7 +858,43 @@
 							]
 						}
 					}
-				}
+				},
+				"sideColumn": [
+					{
+						"id": "motion-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"decisionType",
+								"governingBody",
+								"meeting",
+								"proposer",
+								"submittedAt",
+								"deliveryDate",
+								"outcome",
+								"decisionDate"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"motion-citizen-advice",
+					"motion-conflicts"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "motion-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
 			},
 			"configAppend": {
 				"headerActions": [
@@ -992,7 +1028,108 @@
 						"group": "Motion",
 						"target": "/motions/@objectId/integrations"
 					}
+				],
+				"widgets": [
+					{
+						"id": "motion-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "motion-panel-voting",
+						"type": "detail-sections",
+						"title": "Voting",
+						"icon": "Gavel",
+						"content": {
+							"sections": [
+								{
+									"label": "Voting round",
+									"widgetId": "motion-voting-round"
+								},
+								{
+									"label": "Votes",
+									"widgetId": "motion-votes"
+								}
+							]
+						}
+					},
+					{
+						"id": "motion-panels",
+						"type": "tabs",
+						"title": "Motion",
+						"icon": "NoteTextOutline",
+						"content": {
+							"ariaLabel": "Motion",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "motion-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "motion-files",
+									"label": "Papers"
+								},
+								{
+									"widgetId": "motion-amendments",
+									"label": "Amendments"
+								},
+								{
+									"widgetId": "motion-panel-voting",
+									"label": "Voting"
+								},
+								{
+									"widgetId": "motion-history",
+									"label": "History"
+								},
+								{
+									"widgetId": "motion-signers",
+									"label": "Signers",
+									"overflow": true
+								},
+								{
+									"widgetId": "motion-amendment-order",
+									"label": "Voting order",
+									"overflow": true
+								},
+								{
+									"widgetId": "motion-stage",
+									"label": "Stage",
+									"overflow": true
+								}
+							]
+						}
+					}
 				]
+			},
+			"configPatch": {
+				"widgets": {
+					"motion-stage": {
+						"type": "MotionStageTab"
+					},
+					"motion-amendments": {
+						"type": "MotionAmendmentsTab"
+					},
+					"motion-votes": {
+						"type": "MotionVotesTab"
+					},
+					"motion-amendment-order": {
+						"type": "MotionAmendmentOrderTab"
+					},
+					"motion-voting-round": {
+						"type": "MotionVotingRoundTab"
+					},
+					"motion-citizen-advice": {
+						"type": "MotionCitizenAdviceTab"
+					},
+					"motion-signers": {
+						"type": "MotionSignersTab"
+					},
+					"motion-conflicts": {
+						"type": "MotionConflictsTab"
+					}
+				}
 			}
 		},
 		{
