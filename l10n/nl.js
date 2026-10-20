@@ -3042,6 +3042,8 @@ OC.L10N.register(
         "Works council (WOR)": "Ondernemingsraad (WOR)",
         "Works-council consultation": "OR-adviesaanvraag",
         "Works-council consultations": "OR-adviesaanvragen",
+        "Governance consultations": "Bestuurlijke consultaties",
+        "Moderation": "Moderatie",
         "Workspace": "Werkruimte",
         "Workspace name": "Naam werkruimte",
         "Workspace type": "Type werkruimte",

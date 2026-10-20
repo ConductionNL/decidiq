@@ -33,6 +33,7 @@
 			"type": "index",
 			"title": "Public consultations",
 			"config": {
+				"pageTabs": [{"label": "Governance consultations", "route": "GovernanceConsultations", "countFrom": {"register": "decidiq", "schema": "governance-consultation"}}, {"label": "Works-council consultations", "route": "WorksCouncilConsultations", "countFrom": {"register": "decidiq", "schema": "consultation-request"}}, {"label": "Public consultations", "route": "Consultations", "countFrom": {"register": "decidiq", "schema": "public-consultation"}}, {"label": "Participatory budgets", "route": "BudgetRounds", "countFrom": {"register": "decidiq", "schema": "participatory-budget"}}, {"label": "Moderation", "route": "ModerationQueue", "countFrom": {"register": "decidiq", "schema": "consultation-reaction", "filter": {"moderationStatus": "pending"}}}],
 				"register": "decidiq",
 				"schema": "public-consultation",
 				"sortKey": "@self.created",
@@ -158,6 +159,7 @@
 			"title": "Participatory budgets",
 			"_note": "Retained transitional view for the legacy participatory-budget flow; reachable from the Consultations hub Participatory budgets quick-filter, not a top-level menu peer.",
 			"config": {
+				"pageTabs": [{"label": "Governance consultations", "route": "GovernanceConsultations", "countFrom": {"register": "decidiq", "schema": "governance-consultation"}}, {"label": "Works-council consultations", "route": "WorksCouncilConsultations", "countFrom": {"register": "decidiq", "schema": "consultation-request"}}, {"label": "Public consultations", "route": "Consultations", "countFrom": {"register": "decidiq", "schema": "public-consultation"}}, {"label": "Participatory budgets", "route": "BudgetRounds", "countFrom": {"register": "decidiq", "schema": "participatory-budget"}}, {"label": "Moderation", "route": "ModerationQueue", "countFrom": {"register": "decidiq", "schema": "consultation-reaction", "filter": {"moderationStatus": "pending"}}}],
 				"register": "decidiq",
 				"schema": "participatory-budget",
 				"sortKey": "@self.created",
