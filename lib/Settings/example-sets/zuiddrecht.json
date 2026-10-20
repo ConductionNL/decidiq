@@ -1,6 +1,9 @@
 {
 	"set": "zuiddrecht",
 	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these. The named votes on the three open council rounds come from the vote rows; the council declares that its chair, the mayor, has no vote, and the griffier never votes. Each agenda is published by a change after its items are written: an item written to a published agenda records a new agenda version, which would stamp the publication with the install time.",
+	"after": [
+		"dossiq"
+	],
 	"objects": [
 		{
 			"key": "body-gemeenteraad",
@@ -3517,6 +3520,93 @@
 					"abstain": 0
 				},
 				"publicationDate": "{{datetime:-6@wed 09:00}}"
+			}
+		},
+		{
+			"key": "decision-woo-lindelaan-concept",
+			"register": "decidiq",
+			"schema": "decision",
+			"lookups": {
+				"case": {
+					"register": "dossiq",
+					"schema": "case",
+					"where": {
+						"title": "Verlichting fietspad Lindelaan",
+						"description": "Een bewoner vraagt alle stukken over de verlichting van het fietspad Lindelaan: de adviezen, het raadsvoorstel, de offerte en de interne notities over het budget."
+					}
+				}
+			},
+			"data": {
+				"title": "Besluit op Woo-verzoek verlichting fietspad Lindelaan",
+				"text": "Concept: het college maakt de adviezen en het raadsvoorstel openbaar, de mail van de aannemer deels en de klachtenlijst van bewoners niet.",
+				"decisionType": "woo-decision",
+				"lifecycle": "draft",
+				"isPublished": "internal",
+				"securityClassification": "intern",
+				"sourceApp": "dossiq",
+				"subjectRegister": "dossiq",
+				"subjectSchema": "case",
+				"subjectId": "{{lookup:case}}",
+				"subjectLabel": "Verlichting fietspad Lindelaan",
+				"legalBasis": "Wet open overheid"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-opgesteld",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 1,
+				"stageType": "preparatory",
+				"status": "decided",
+				"outcome": "approved",
+				"decidedAt": "{{datetime:-10 15:30}}",
+				"method": "manual",
+				"decisionMakerType": "person",
+				"label": "Opgesteld door de behandelaar",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-paraaf",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 2,
+				"stageType": "endorsement",
+				"status": "active",
+				"method": "manual",
+				"decisionMakerType": "person",
+				"label": "Paraaf teamleider",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-ondertekenen",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 3,
+				"stageType": "decisive",
+				"status": "pending",
+				"method": "signature",
+				"decisionMakerType": "person",
+				"label": "Ondertekend onder mandaat Woo-besluiten",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+			}
+		},
+		{
+			"key": "stage-woo-lindelaan-bekendmaken",
+			"register": "decidiq",
+			"schema": "decision-stage",
+			"data": {
+				"sequence": 4,
+				"stageType": "ratifying",
+				"status": "pending",
+				"method": "manual",
+				"decisionMakerType": "person",
+				"label": "Bekendgemaakt aan de verzoeker",
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
 			}
 		}
 	],
