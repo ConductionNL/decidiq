@@ -134,6 +134,109 @@
 	},
 	"pages": [
 		{
+			"id": "PersonDetail",
+			"_note": "The person page in the simple structure (board DcPersoon): tabs Overview, Memberships, Voting record, Other positions and Gifts. Gifts is the declared gifts and invitations this person received (declared-gift.recipient), the list the body page shows per body. The full structure keeps the manifest's stack.",
+			"config": {
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "person-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"person-memberships": {
+						"type": "PersonMembershipsTab"
+					},
+					"person-voting-record": {
+						"type": "PersonVotingRecordTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "person-gifts",
+						"type": "object-list",
+						"title": "Gifts",
+						"icon": "Package",
+						"content": {
+							"register": "decidiq",
+							"schema": "declared-gift",
+							"filter": {
+								"recipient": "@objectId"
+							},
+							"sort": {
+								"field": "receivedOn",
+								"dir": "desc"
+							},
+							"columns": [
+								{
+									"key": "type",
+									"label": "Type",
+									"widget": "badge"
+								},
+								{
+									"key": "giver",
+									"label": "Giver"
+								},
+								{
+									"key": "estimatedValue",
+									"label": "Value (EUR)"
+								},
+								{
+									"key": "decision",
+									"label": "Decision",
+									"widget": "badge"
+								}
+							],
+							"limit": 10,
+							"allowCreate": false,
+							"rowRoute": "DeclaredGiftDetail"
+						}
+					},
+					{
+						"id": "person-panels",
+						"type": "tabs",
+						"title": "Person",
+						"icon": "AccountBoxOutline",
+						"content": {
+							"ariaLabel": "Person",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "person-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "person-memberships",
+									"label": "Memberships"
+								},
+								{
+									"widgetId": "person-voting-record",
+									"label": "Voting record"
+								},
+								{
+									"widgetId": "person-outside-positions",
+									"label": "Other positions"
+								},
+								{
+									"widgetId": "person-gifts",
+									"label": "Gifts"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Motions",
 			"configAppend": {
 				"headerActions": [
