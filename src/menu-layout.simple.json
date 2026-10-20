@@ -222,6 +222,124 @@
 			}
 		},
 		{
+			"id": "MinutesDetail",
+			"_note": "The minutes page in the simple structure (board DcNotulen): tabs Overview (the minutes, the notes per agenda item, draft and send, approval), Signers, Documents and Publication; the key facts beside them. The board's Transcription, Versions and Action items tabs are not drawn: the minutes record has no transcription, version list or action items of its own (the transcription is on the meeting page). The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "minutes-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"lifecycle",
+								"meeting",
+								"version",
+								"approvedAt",
+								"signingStatus",
+								"signedAt"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "minutes-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"minutes-approval": {
+						"type": "MinutesApprovalTab"
+					},
+					"minutes-actions": {
+						"type": "MinutesActionsTab"
+					},
+					"minutes-item-notes": {
+						"type": "MinutesItemNotesTab"
+					},
+					"minutes-documents": {
+						"type": "MinutesDocumentTab"
+					},
+					"minutes-signers": {
+						"type": "MinutesSignersTab"
+					},
+					"minutes-publication": {
+						"type": "MinutesPublicationTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "minutes-panel-overview",
+						"type": "detail-sections",
+						"title": "Minutes",
+						"icon": "NoteTextOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Minutes",
+									"widgetId": "minutes-data"
+								},
+								{
+									"label": "Minutes per agenda item",
+									"widgetId": "minutes-item-notes"
+								},
+								{
+									"label": "Draft and send",
+									"widgetId": "minutes-actions"
+								},
+								{
+									"label": "Approval",
+									"widgetId": "minutes-approval"
+								}
+							]
+						}
+					},
+					{
+						"id": "minutes-panels",
+						"type": "tabs",
+						"title": "Minutes",
+						"icon": "NoteTextOutline",
+						"content": {
+							"ariaLabel": "Minutes",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "minutes-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "minutes-signers",
+									"label": "Signers"
+								},
+								{
+									"widgetId": "minutes-documents",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "minutes-publication",
+									"label": "Publication"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Meetings",
 			"configAppend": {
 				"headerActions": [
