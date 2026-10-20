@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "rotta ta' approvazzjoni",
         "#": "#",
         "+ Action item": "+ Punt ta' azzjoni",
         "1 hour before": "Siegħa qabel",

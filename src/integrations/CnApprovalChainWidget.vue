@@ -23,7 +23,9 @@
  to decidiq's own controller.
 -->
 <template>
-	<CnDetailCard :title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+	<CnDetailCard
+		v-if="!summarised"
+		:title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-approval-chain__error" role="alert">
@@ -200,6 +202,7 @@ import {
 	reasonTemplateOptions,
 	recordAction,
 } from './approvalChainLink.js'
+import { leafReportMixin } from './leafReport.js'
 
 /**
  * CnApprovalChainWidget — the live step of a host object's sign-off route,
@@ -219,6 +222,8 @@ export default {
 		Check,
 		Close,
 	},
+
+	mixins: [leafReportMixin],
 
 	props: {
 		/** Stable integration id (forwarded from the registry). */
@@ -265,6 +270,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * What this leaf reports to a "linked" card: the route, where it stands.
+		 *
+		 * @return {object} The report.
+		 * @spec openspec/changes/leaves-linked-card/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 */
+		leafReport() {
+			const where = this.current ? this.stepLabel : this.concludedLabel
+			return {
+				count: this.stages.length > 0 ? 1 : 0,
+				emptyLabel: this.emptyLabel,
+				noun: t('decidiq', 'sign-off route'),
+				rows: [{ label: `${this.cardTitle}: ${where}`, icon: 'Signature' }],
+			}
+		},
+
 		/** @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010) */
 		cardTitle() {
 			return t('decidiq', 'Parafering')

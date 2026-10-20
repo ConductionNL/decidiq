@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "tvirtinimo maršrutas",
         "#": "#",
         "+ Action item": "+ Veiksmo punktas",
         "1 hour before": "1 valandą prieš",

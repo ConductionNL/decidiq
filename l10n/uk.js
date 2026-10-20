@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "маршрут погодження",
         "#": "№",
         "%1$d for, %2$d against, %3$d abstained": "%1$d за, %2$d проти, %3$d утрималися",
         "%1$d updates from %2$s": "Оновлень від %2$s: %1$d",

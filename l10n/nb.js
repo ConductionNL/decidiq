@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "godkjenningsløp",
         "#": "#",
         "+ Action item": "+ Oppgavepunkt",
         "1 hour before": "1 time før",

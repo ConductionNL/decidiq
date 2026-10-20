@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "saskaņošanas maršruts",
         "#": "#",
         "+ Action item": "+ Rīcības punkts",
         "1 hour before": "1 stundu pirms",

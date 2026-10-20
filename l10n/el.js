@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "διαδρομή έγκρισης",
         "#": "#",
         "+ Action item": "+ Στοιχείο δράσης",
         "1 hour before": "1 ώρα πριν",

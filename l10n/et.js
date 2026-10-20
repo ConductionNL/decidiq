@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "kinnitusmarsruut",
         "#": "#",
         "+ Action item": "+ Toimepunkt",
         "1 hour before": "1 tund enne",

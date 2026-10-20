@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "jóváhagyási útvonal",
         "#": "#",
         "+ Action item": "+ Teendő",
         "1 hour before": "1 órával korábban",

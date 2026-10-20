@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "onay akışı",
         "#": "#",
         "+ Action item": "+ Eylem maddesi",
         "1 hour before": "1 saat önce",

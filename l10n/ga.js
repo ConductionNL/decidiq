@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "bealach faofa",
         "#": "#",
         "+ Action item": "+ Mír gníomhaíochta",
         "1 hour before": "1 uair an chloig roimhe",

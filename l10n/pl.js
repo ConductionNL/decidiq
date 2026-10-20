@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "ścieżka akceptacji",
         "#": "#",
         "+ Action item": "+ Element działania",
         "1 hour before": "1 godzinę przed",

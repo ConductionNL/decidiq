@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "hyväksyntäreitti",
         "#": "#",
         "+ Action item": "+ Toimintakohde",
         "1 hour before": "1 tunti ennen",

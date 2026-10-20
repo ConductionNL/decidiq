@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "schvalovací postup",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d pro, %2$d proti, %3$d se zdrželo",
         "%1$d updates from %2$s": "%1$d aktualizací od %2$s",
