@@ -221,6 +221,7 @@ $extra = [
         ['name' => 'voting#open',        'url' => '/api/voting-rounds',             'verb' => 'POST'],
         ['name' => 'voting#cast',        'url' => '/api/voting-rounds/{id}/cast',   'verb' => 'POST'],
         ['name' => 'voting#close',       'url' => '/api/voting-rounds/{id}/close',  'verb' => 'POST'],
+        ['name' => 'voting#record',      'url' => '/api/voting-rounds/{id}/recorded-votes', 'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).

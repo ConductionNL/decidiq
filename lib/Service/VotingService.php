@@ -216,6 +216,58 @@ class VotingService {
 	}//end castVote()
 
 	/**
+	 * Record a named vote taken on paper: one ballot per member, entered by
+	 * the chair or the secretary (board DcStemmenInvoeren).
+	 *
+	 * Every ballot goes through the caster a member's own vote goes through,
+	 * so the round must be open and each member must sit in the meeting, hold
+	 * a seat and not be recused. A ballot the caster refuses is reported with
+	 * its reason and the others are still recorded. The caller's authority is
+	 * checked by VotingController::record().
+	 *
+	 * @param string $votingRoundId The voting round UUID
+	 * @param array<int, mixed> $votes Rows of `{participant, value}`, value for | against | abstain
+	 * @param string $callerUid The Nextcloud UID of the chair or secretary entering them
+	 *
+	 * @return array{recorded: int, refused: array<int, array{participant: string, message: string}>}
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function recordVotes(string $votingRoundId, array $votes, string $callerUid): array {
+		$recorded = 0;
+		$refused = [];
+		foreach ($votes as $row) {
+			$participant = '';
+			$value = '';
+			if (is_array($row) === true) {
+				$participant = trim((string)($row['participant'] ?? ''));
+				$value = (string)($row['value'] ?? '');
+			}
+
+			if ($participant === '' || in_array($value, ['for', 'against', 'abstain'], true) === false) {
+				$refused[] = ['participant' => $participant, 'message' => 'A row needs a member and for, against or abstain'];
+				continue;
+			}
+
+			try {
+				$this->caster->castVote(
+					votingRoundId: $votingRoundId,
+					participantId: $participant,
+					value: $value,
+					isProxy: false,
+					delegatorId: null,
+					callerUid: $callerUid
+				);
+				$recorded++;
+			} catch (\RuntimeException $e) {
+				$refused[] = ['participant' => $participant, 'message' => $e->getMessage()];
+			}
+		}//end foreach
+
+		return ['recorded' => $recorded, 'refused' => $refused];
+	}//end recordVotes()
+
+	/**
 	 * Close a VotingRound, keeping the individual ballot values intact.
 	 *
 	 * When $chairCasting is provided, it is the chair's explicit casting vote
