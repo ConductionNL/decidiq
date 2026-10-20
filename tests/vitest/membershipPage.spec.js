@@ -115,7 +115,7 @@ describe('the membership page', () => {
 	it('is linked from each membership on the person page', () => {
 		const tab = read('src', 'components', 'tabs', 'PersonMembershipsTab.vue')
 		expect(
-			tab.match(/name: 'MembershipDetail', params: \{ id: row\.id \}/g),
+			tab.match(/name: 'MembershipDetail',\s*params: \{ id: row\.id \}/g),
 		).toHaveLength(2)
 	})
 })

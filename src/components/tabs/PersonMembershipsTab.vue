@@ -105,7 +105,10 @@
 						</router-link>
 						<router-link
 							class="decidiq-person__meta"
-							:to="{ name: 'MembershipDetail', params: { id: row.id } }">
+							:to="{
+								name: 'MembershipDetail',
+								params: { id: row.id },
+							}">
 							{{ t('decidiq', 'Membership') }}
 						</router-link>
 						<span class="decidiq-person__meta">
