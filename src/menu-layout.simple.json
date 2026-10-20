@@ -1678,7 +1678,7 @@
 		},
 		{
 			"id": "AmendmentDetail",
-			"_note": "The amendment page in the simple structure (openspec/changes/simple-amendment-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`. An amendment has a shorter road than a decision: draft, proposed, deliberating, voting, decided (MotionLifecycleTransitioner::AMENDMENT_TRANSITIONS). TWO STEPS ARE HEADER BUTTONS: submitting a draft and starting the debate. They post to POST /api/amendments/{id}/transition with `newState` and nothing else. That endpoint exists and is guarded on the server (the chair group, or an administrator where none is set), and until now no control on any page called it, so an amendment could not leave draft from the page at all. THE VOTE IS NOT A HEADER BUTTON, on purpose. The same endpoint would accept `voting` and `decided`, and taking those steps there skips two things the Voting round block does on the server: it holds the voting order of the amendments when a round opens, and it writes an adopted amendment into the text of its motion when the round closes. So the vote stays in the Voting round block, which is a tab of its own here, and the step bar says so. NO ENDPOINT TELLS A PAGE WHETHER THE READER MAY TAKE A STEP ON AN AMENDMENT, so the step bar says who takes the first two steps for every reader, and the server's refusal is shown to anyone else who presses. THE THREE BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component, because a tab resolves a widget by type. THE WHAT-NOW CHECKLIST IS ADVICE: the server asks for none of those fields before a step. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box. NO QUICK ACTION: the link to the motion is in the Parent motion block, which reads both spellings of that link (`amends` and the retired `parentMotion`); a header link could read one.",
+			"_note": "The amendment page in the simple structure (openspec/changes/simple-amendment-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`. An amendment has a shorter road than a decision: draft, proposed, deliberating, voting, decided (MotionLifecycleTransitioner::AMENDMENT_TRANSITIONS). TWO STEPS ARE HEADER BUTTONS: submitting a draft and starting the debate. They post to POST /api/amendments/{id}/transition with `newState` and nothing else. That endpoint exists and is guarded on the server (the chair group, or an administrator where none is set), and until now no control on any page called it, so an amendment could not leave draft from the page at all. THE VOTE IS NOT A HEADER BUTTON, on purpose. The same endpoint would accept `voting` and `decided`, and taking those steps there skips two things the Voting round block does on the server: it holds the voting order of the amendments when a round opens, and it writes an adopted amendment into the text of its motion when the round closes. So the vote stays in the Voting round block, which is a tab of its own here, and the step bar says so. NO ENDPOINT TELLS A PAGE WHETHER THE READER MAY TAKE A STEP ON AN AMENDMENT, so the step bar says who takes the first two steps for every reader, and the server's refusal is shown to anyone else who presses. THE THREE BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component, because a tab resolves a widget by type. THE WHAT-NOW CHECKLIST IS ADVICE: the server asks for none of those fields before a step. THE SIDE COLUMN is one card, Key facts. It leads with the decision type, which every decision has, so the card is never an empty box. NO QUICK ACTION: the link to the motion is in the Parent motion block, which reads both spellings of that link (`amends` and the retired `parentMotion`); a header link could read one. THE TAB STRIP FOLLOWS BOARD DcAmendement: Overview (the amendment and its motion), Text changes, Voting round and History, the record history as the last tab. Text changes carries `default`, so a library that knows the key opens the page on it as the board does.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -1868,6 +1868,12 @@
 						"icon": "Timeline"
 					},
 					{
+						"id": "amend-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
 						"id": "amend-panels",
 						"type": "tabs",
 						"title": "Amendment",
@@ -1878,16 +1884,21 @@
 							"moreLabel": "More",
 							"tabs": [
 								{
-									"widgetId": "amend-diff",
-									"label": "Text changes"
+									"widgetId": "amend-panel-details",
+									"label": "Overview"
 								},
 								{
-									"widgetId": "amend-panel-details",
-									"label": "Amendment"
+									"widgetId": "amend-diff",
+									"label": "Text changes",
+									"default": true
 								},
 								{
 									"widgetId": "amend-voting-round",
 									"label": "Voting round"
+								},
+								{
+									"widgetId": "amend-history",
+									"label": "History"
 								}
 							]
 						}

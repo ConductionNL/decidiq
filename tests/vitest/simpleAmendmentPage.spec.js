@@ -494,16 +494,31 @@ describe('the amendment page in the simple structure', () => {
 		expect(decision.properties.decisionType.default).toBeTruthy()
 	})
 
-	it('puts the blocks behind three tabs, the text changes first, each label short', () => {
+	it('puts the board tabs in the strip, Overview first and History last, each label short', () => {
 		const strip = widgets.get('amend-panels')
 		expect(strip.type).toBe('tabs')
 		expect(strip.content.maxVisibleTabs).toBe(5)
 		const tabs = strip.content.tabs
+		// Board DcAmendement: Overzicht, Tekstwijzigingen, Stemronde, Historie,
+		// opened on the text changes.
 		expect(tabs.map((tab) => tab.label)).toEqual([
+			'Overview',
 			'Text changes',
-			'Amendment',
 			'Voting round',
+			'History',
 		])
+		expect(tabs.map((tab) => dutch[tab.label])).toEqual([
+			'Overzicht',
+			'Tekstwijzigingen',
+			'Stemronde',
+			'Geschiedenis',
+		])
+		expect(tabs.filter((tab) => tab.default).map((tab) => tab.label)).toEqual([
+			'Text changes',
+		])
+		expect(
+			widgets.get(tabs.find((tab) => tab.label === 'History').widgetId).type,
+		).toBe('audit-trail')
 		expect(tabs.length).toBeLessThanOrEqual(strip.content.maxVisibleTabs)
 		for (const tab of tabs) {
 			expect(tab.overflow).toBeUndefined()
@@ -518,11 +533,13 @@ describe('the amendment page in the simple structure', () => {
 			(item) => item.id,
 		)
 		expect(declared).toHaveLength(4)
+		// The History tab is the one block the profile adds.
 		const shown = widgets
 			.get('amend-panels')
 			.content.tabs.flatMap((tab) =>
 				blocksOf(widgets, tab).map((block) => block.id),
 			)
+			.filter((id) => id !== 'amend-history')
 		expect([...shown].sort()).toEqual([...declared].sort())
 		expect(new Set(shown).size).toBe(shown.length)
 	})
@@ -600,7 +617,9 @@ describe('My actions in the simple structure', () => {
 		expect(entry.route).toBe('MyActions')
 		expect(page.route).toBe('/action-items')
 		const work = pageOf(simple, 'MyActions')
-		const card = work.config.widgets.find((widget) => widget.id === 'my-action-items')
+		const card = work.config.widgets.find(
+			(widget) => widget.id === 'my-action-items',
+		)
 		expect(card.content.filter.assignee).toBe('@me')
 		expect(card.content.headerLink.route).toBe('ActionItems')
 	})
