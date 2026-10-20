@@ -187,45 +187,6 @@ class VotingController extends Controller {
 	}//end cast()
 
 	/**
-	 * Record a named vote taken on paper (board DcStemmenInvoeren).
-	 *
-	 * POST /api/voting-rounds/{id}/recorded-votes
-	 * Body: { "votes": [ { "participant": "<uuid>", "value": "for"|"against"|"abstain" } ] }
-	 *
-	 * Only the chair or the secretary of the round's meeting may enter them;
-	 * each ballot is then checked as a member's own vote is.
-	 *
-	 * @param string $id The voting round UUID
-	 *
-	 * @NoAdminRequired
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return JSONResponse
-	 */
-	#[NoAdminRequired]
-	public function record(string $id): JSONResponse {
-		$meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
-		$guard = $this->guard->requireChairOrSecretary(meetingId: $meetingId);
-		if ($guard !== null) {
-			return $guard;
-		}
-
-		$votes = $this->request->getParams()['votes'] ?? null;
-		if (is_array($votes) === false || $votes === []) {
-			return new JSONResponse(['message' => 'votes must be a non-empty list'], Http::STATUS_BAD_REQUEST);
-		}
-
-		$callerUid = $this->userSession->getUser()?->getUID() ?? '';
-
-		return new JSONResponse(
-			$this->votingService->recordVotes(votingRoundId: $id, votes: array_values($votes), callerUid: $callerUid),
-			Http::STATUS_CREATED
-		);
-
-	}//end record()
-
-	/**
 	 * Close a VotingRound, optionally anonymising votes.
 	 *
 	 * POST /api/voting-rounds/{id}/close

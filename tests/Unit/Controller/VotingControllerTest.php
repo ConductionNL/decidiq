@@ -274,67 +274,6 @@ class VotingControllerTest extends TestCase {
 	}//end testRevokeProxyUnauthenticatedReturns401()
 
 	/**
-	 * record() returns 401 for unauthenticated requests and records nothing.
-	 *
-	 * @return void
-	 */
-	public function testRecordUnauthenticatedReturns401(): void {
-		$this->votingService->expects($this->never())->method('recordVotes');
-
-		$result = $this->buildController(session: $this->unauthSession)->record(id: 'round-uuid-001');
-
-		self::assertSame(expected: Http::STATUS_UNAUTHORIZED, actual: $result->getStatus());
-
-	}//end testRecordUnauthenticatedReturns401()
-
-	/**
-	 * record() hands the paper ballots of an authorised caller to the service,
-	 * with the caller as the one who entered them.
-	 *
-	 * @return void
-	 */
-	public function testRecordPassesThePaperBallotsOn(): void {
-		$user = $this->createMock(originalClassName: \OCP\IUser::class);
-		$user->method('getUID')->willReturn('griffier');
-		$session = $this->createMock(originalClassName: IUserSession::class);
-		$session->method('getUser')->willReturn($user);
-		$this->groupManager->method('isAdmin')->willReturn(true);
-		$votes = [['participant' => 'p-1', 'value' => 'for']];
-		$this->request->method('getParams')->willReturn(['votes' => $votes]);
-
-		$this->votingService->expects($this->once())
-			->method('recordVotes')
-			->with('round-uuid-001', $votes, 'griffier')
-			->willReturn(['recorded' => 1, 'refused' => []]);
-
-		$result = $this->buildController(session: $session)->record(id: 'round-uuid-001');
-
-		self::assertSame(expected: Http::STATUS_CREATED, actual: $result->getStatus());
-		self::assertSame(expected: ['recorded' => 1, 'refused' => []], actual: $result->getData());
-
-	}//end testRecordPassesThePaperBallotsOn()
-
-	/**
-	 * record() refuses a request without ballots.
-	 *
-	 * @return void
-	 */
-	public function testRecordRefusesAnEmptyList(): void {
-		$user = $this->createMock(originalClassName: \OCP\IUser::class);
-		$user->method('getUID')->willReturn('griffier');
-		$session = $this->createMock(originalClassName: IUserSession::class);
-		$session->method('getUser')->willReturn($user);
-		$this->groupManager->method('isAdmin')->willReturn(true);
-		$this->request->method('getParams')->willReturn(['votes' => []]);
-		$this->votingService->expects($this->never())->method('recordVotes');
-
-		$result = $this->buildController(session: $session)->record(id: 'round-uuid-001');
-
-		self::assertSame(expected: Http::STATUS_BAD_REQUEST, actual: $result->getStatus());
-
-	}//end testRecordRefusesAnEmptyList()
-
-	/**
 	 * All public action methods carry the #[NoAdminRequired] PHP attribute.
 	 *
 	 * Without this attribute, NC middleware may block non-admin authenticated

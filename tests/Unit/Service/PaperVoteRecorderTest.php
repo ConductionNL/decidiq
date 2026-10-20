@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Unit tests for VotingService::recordVotes(): a named vote taken on paper,
+ * Unit tests for PaperVoteRecorder::recordVotes(): a named vote taken on paper,
  * entered by the chair or the secretary (board DcStemmenInvoeren).
  *
  * @category Test
@@ -23,37 +23,25 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
-use OCA\Decidiq\Service\ParticipantUuidLookup;
+use OCA\Decidiq\Service\PaperVoteRecorder;
 use OCA\Decidiq\Service\VoteCastingService;
-use OCA\Decidiq\Service\VotingRoundCloser;
-use OCA\Decidiq\Service\VotingRoundOpener;
-use OCA\Decidiq\Service\VotingRoundProjection;
-use OCA\Decidiq\Service\VotingRoundResults;
-use OCA\Decidiq\Service\VotingService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
 /**
  * Each paper vote goes through the same caster a member's own vote does.
  */
-class VotingServiceRecordVotesTest extends TestCase {
+class PaperVoteRecorderTest extends TestCase {
 
 	/**
-	 * Build the service around a caster double.
+	 * Build the recorder around a caster double.
 	 *
 	 * @param VoteCastingService $caster The caster.
 	 *
-	 * @return VotingService
+	 * @return PaperVoteRecorder
 	 */
-	private function service(VoteCastingService $caster): VotingService {
-		return new VotingService(
-			opener: $this->createMock(originalClassName: VotingRoundOpener::class),
-			caster: $caster,
-			closer: $this->createMock(originalClassName: VotingRoundCloser::class),
-			results: $this->createMock(originalClassName: VotingRoundResults::class),
-			projection: $this->createMock(originalClassName: VotingRoundProjection::class),
-			participants: $this->createMock(originalClassName: ParticipantUuidLookup::class),
-		);
+	private function service(VoteCastingService $caster): PaperVoteRecorder {
+		return new PaperVoteRecorder(caster: $caster);
 	}//end service()
 
 	/**
