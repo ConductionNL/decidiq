@@ -1134,7 +1134,7 @@
 		},
 		{
 			"id": "MeetingDetail",
-			"_note": "The meeting page in the simple structure (openspec/changes/simple-meeting-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the meeting's own state. Each state but `closed` has ONE primary button, and it posts to the guarded endpoint the Stage block uses (POST /api/meetings/{id}/lifecycle) with the action and nothing else. The server decides who may use it: the chair or the secretary of the meeting, or an administrator. A member who presses it is refused there and the refusal is shown; the step bar asks the server first and says so in words (MeetingStepBar). ONLY FOUR OF THE SIX STEPS ARE BUTTONS HERE: convene, open, resume and close. Pause and adjourn are switched off per governance domain on the server (WorkflowService), and a manifest cannot know the domain, so those two stay in the Stage block, which draws exactly the steps the server offers. Close is the primary button of a meeting in session and sits under More in the other states the server allows it from. THE STAGE BLOCK IS STILL ON THE PAGE, the last entry under More. A CLOSED MEETING has no next step and so no card: its work is in the Minutes and Decisions tabs. A paused or adjourned meeting has its button and no card, because no field of a meeting says what a break still needs. THE NINETEEN BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE WHAT-NOW CHECKLIST IS ADVICE, with one exception: the server refuses to open a meeting without a quorum where the rules of the body ask for one, and that item says so. THE SIDE COLUMN is one card, Key facts. It leads with the date, which every meeting has, so the card is never an empty box. NO LINK TO THE LIVE SCREEN IS ADDED: that button is for the chair and the secretary only (REQ-AMP-004) and stays in the Agenda block, which asks the server who is looking.",
+			"_note": "The meeting page in the simple structure (openspec/changes/simple-meeting-page). The full structure has no overlay, so its page is today's page. STAGE: `lifecycle`, the meeting's own state. Each state but `closed` has ONE primary button, and it posts to the guarded endpoint the Stage block uses (POST /api/meetings/{id}/lifecycle) with the action and nothing else. The server decides who may use it: the chair or the secretary of the meeting, or an administrator. A member who presses it is refused there and the refusal is shown; the step bar asks the server first and says so in words (MeetingStepBar). ONLY FOUR OF THE SIX STEPS ARE BUTTONS HERE: convene, open, resume and close. Pause and adjourn are switched off per governance domain on the server (WorkflowService), and a manifest cannot know the domain, so those two stay in the Stage block, which draws exactly the steps the server offers. Close is the primary button of a meeting in session and sits under More in the other states the server allows it from. THE STAGE BLOCK IS STILL ON THE PAGE, the last entry under More. A CLOSED MEETING has no next step and so no card: its work is in the Minutes and Decisions tabs. A paused or adjourned meeting has its button and no card, because no field of a meeting says what a break still needs. THE NINETEEN BLOCKS THE MANIFEST DECLARES AS `custom` are named here by their registry component (`configPatch.widgets`), because a tab resolves a widget by type and a `custom` one only resolves through the page's slot map, which a tab does not read. THE WHAT-NOW CHECKLIST IS ADVICE, with one exception: the server refuses to open a meeting without a quorum where the rules of the body ask for one, and that item says so. THE SIDE COLUMN is one card, Key facts. It leads with the date, which every meeting has, so the card is never an empty box. NO LINK TO THE LIVE SCREEN IS ADDED: that button is for the chair and the secretary only (REQ-AMP-004) and stays in the Agenda block, which asks the server who is looking. THE TAB STRIP FOLLOWS THE BOARDS (DcVergadering, DcVergaderingPlanning): Overview (the planning panel), Agenda, Participants, Papers, Decisions, Minutes and History, the record history as the last tab; Broadcast, Case system, Audit statements and Stage under More. The agenda tab carries `default`, so a library that knows the key opens a meeting on its agenda as the board does.",
 			"config": {
 				"stageField": "lifecycle",
 				"primaryActionByStage": {
@@ -1596,18 +1596,29 @@
 						"icon": "Timeline"
 					},
 					{
+						"id": "meeting-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
 						"id": "meeting-panels",
 						"type": "tabs",
 						"title": "Meeting",
 						"icon": "Calendar",
 						"content": {
 							"ariaLabel": "Parts of this meeting",
-							"maxVisibleTabs": 5,
+							"maxVisibleTabs": 7,
 							"moreLabel": "More",
 							"tabs": [
 								{
+									"widgetId": "meeting-panel-planning",
+									"label": "Overview"
+								},
+								{
 									"widgetId": "meeting-panel-agenda",
-									"label": "Agenda"
+									"label": "Agenda",
+									"default": true
 								},
 								{
 									"widgetId": "meeting-panel-people",
@@ -1615,7 +1626,7 @@
 								},
 								{
 									"widgetId": "meeting-panel-documents",
-									"label": "Documents"
+									"label": "Papers"
 								},
 								{
 									"widgetId": "meeting-panel-decisions",
@@ -1626,9 +1637,8 @@
 									"label": "Minutes"
 								},
 								{
-									"widgetId": "meeting-panel-planning",
-									"label": "Planning",
-									"overflow": true
+									"widgetId": "meeting-history",
+									"label": "History"
 								},
 								{
 									"widgetId": "meeting-broadcast",
