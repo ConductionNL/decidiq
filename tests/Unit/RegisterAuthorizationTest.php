@@ -654,7 +654,9 @@ class RegisterAuthorizationTest extends TestCase {
 			// lifecycle; members never write one.
 			// MeetingBroadcast (live-public-livestream, REQ-LSTR-001): staff of
 			// the body run the broadcast; the public only reads it.
-			if (in_array($name, ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast'], true) === true) {
+			// VotingGroup (voting-groups, board DcBeheer): the secretariat keeps
+			// the groups the chair picks from; members only read them.
+			if (in_array($name, ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast', 'VotingGroup'], true) === true) {
 				$writers = ['decidiq-secretariat', 'decidiq-administrators', 'decidesk-administrators'];
 				foreach (self::WRITE_ACTIONS as $action) {
 					$this->assertSame($writers, $block[$action] ?? null, sprintf('%s must grant `%s` to the secretariat and administrators only.', $name, $action));
@@ -703,17 +705,27 @@ class RegisterAuthorizationTest extends TestCase {
 		}//end foreach
 
 		// Every listed schema really has a block, so a list entry cannot go stale unnoticed.
-		foreach (array_merge(self::RESTATES_THE_BASELINE_WRITES, array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED), self::RETIRED_READ_ONLY, ['EvaluationResponse', 'PublicationSubscription', 'MandateRemuneration', 'PaperSummary', 'MeetingBroadcast']) as $listed) {
+		$staffWritten = ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast', 'VotingGroup'];
+		$listedSchemas = array_merge(
+			self::RESTATES_THE_BASELINE_WRITES,
+			array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED),
+			self::RETIRED_READ_ONLY,
+			['EvaluationResponse', 'PublicationSubscription'],
+			$staffWritten
+		);
+		foreach ($listedSchemas as $listed) {
 			$this->assertArrayHasKey($listed, $blocks, sprintf('`%s` is classified here but declares no block.', $listed));
 		}
 
 		// The count is the positive control: without it the loop above passes
 		// vacuously if the schemas move, are renamed, or stop being found at all.
 		// 14 restate the baseline writes, 10 are service owned, 1 is
-		// EvaluationResponse, 1 is PublicationSubscription, 1 is MandateRemuneration, 1 is PaperSummary, 1 is MeetingBroadcast, 17 are retired. A different number means schemas
+		// EvaluationResponse, 1 is PublicationSubscription, 4 are written by
+		// the secretariat (MandateRemuneration, PaperSummary, MeetingBroadcast,
+		// VotingGroup), 17 are retired. A different number means schemas
 		// gained or lost their own block, which changes which ones the register
 		// baseline governs.
-		$this->assertCount(46, $blocks, 'Expected 46 schema-level authorization blocks.');
+		$this->assertCount(expectedCount: 47, haystack: $blocks, message: 'Expected 47 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**
