@@ -459,17 +459,20 @@ describe('the decision page in the simple structure', () => {
 		}
 	})
 
-	it('puts the blocks behind five tabs and More', () => {
+	it('puts the board tabs in the strip, History last, the rest under More', () => {
 		const strip = widgets.get('decision-panels')
 		expect(strip.type).toBe('tabs')
 		const tabs = strip.content.tabs
-		expect(strip.content.maxVisibleTabs).toBe(5)
+		expect(strip.content.maxVisibleTabs).toBe(6)
+		// Board DcBesluit: Overzicht, Route en stemming, Documenten,
+		// Consultatie, Publicatie, Historie.
 		expect(tabs.filter((tab) => !tab.overflow).map((tab) => tab.label)).toEqual([
-			'Content',
+			'Overview',
 			'Route and voting',
 			'Documents',
 			'Consultation',
 			'Publication',
+			'History',
 		])
 		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual([
 			'Action items',
@@ -480,12 +483,18 @@ describe('the decision page in the simple structure', () => {
 		expect(
 			tabs.filter((tab) => !tab.overflow).map((tab) => dutch[tab.label]),
 		).toEqual([
-			'Inhoud',
+			'Overzicht',
 			'Route en stemming',
 			'Documenten',
 			'Consultatie',
 			'Publicatie',
+			'Geschiedenis',
 		])
+		expect(widgets.get(tabs[0].widgetId).id).toBe('decision-panel-content')
+		expect(
+			widgets.get(tabs.find((tab) => tab.label === 'History').widgetId).type,
+		).toBe('audit-trail')
+		expect(LIBRARY_WIDGET_KEYS).toContain('audit-trail')
 		for (const tab of tabs) {
 			expect(widgets.has(tab.widgetId), tab.widgetId).toBe(true)
 		}
