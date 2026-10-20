@@ -7,7 +7,9 @@
 		versionCardPosition="end"
 		:title="t('decidiq', 'Administration')"
 		:breadcrumbs="breadcrumbs"
-		:breadcrumbNote="t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')"
+		:breadcrumbNote="
+			t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')
+		"
 		data-testid="admin-root"
 		:showSetup="true"
 		:setupSteps="setupSteps"
@@ -17,6 +19,7 @@
 
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
+		<AccessibilitySettings />
 		<RoleRightsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
 		<DecisionTypeSettings v-if="storesReady" />
@@ -28,6 +31,7 @@
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
+import AccessibilitySettings from './AccessibilitySettings.vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
@@ -42,6 +46,7 @@ import { initializeStores } from '../../store/store.js'
 export default {
 	name: 'AdminRoot',
 	components: {
+		AccessibilitySettings,
 		CnAdminSettingsShell,
 		CaseSystemSettings,
 		DecisionTypeSettings,
@@ -62,7 +67,10 @@ export default {
 			 * administration settings.
 			 */
 			breadcrumbs: [
-				{ label: this.t('decidiq', 'Administration settings'), href: generateUrl('/settings/admin') },
+				{
+					label: this.t('decidiq', 'Administration settings'),
+					href: generateUrl('/settings/admin'),
+				},
 				{ label: 'Decidiq' },
 				{ label: this.t('decidiq', 'Administration') },
 			],
