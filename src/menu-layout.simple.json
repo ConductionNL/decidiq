@@ -175,6 +175,11 @@
 						"key": "meeting",
 						"label": "Next meeting",
 						"labelField": "title"
+					},
+					{
+						"key": "portfolioHolder",
+						"label": "Portfolio holder",
+						"labelField": "name"
 					}
 				]
 			},
@@ -237,10 +242,11 @@
 					"proposer",
 					"governingBody",
 					"lifecycle",
-					"meeting"
+					"meeting",
+					"portfolioHolder"
 				]
 			},
-			"_note": "THE COLUMNS follow board DcVoorstellen: Title, Proposer, Body (the decision's governingBody) and Stage, then Next meeting (the meeting the proposal is on, by its title), before the columns the list already had. The board's Portfolio holder has no field on a decision and is not drawn."
+			"_note": "THE COLUMNS follow board DcVoorstellen: Title, Proposer, Body (the decision's governingBody) and Stage, then Next meeting (the meeting the proposal is on, by its title), before the columns the list already had. Portfolio holder is the decision's portfolioHolder (register fragment 126), by name."
 		},
 		{
 			"id": "Meetings",
