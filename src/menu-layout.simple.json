@@ -2211,7 +2211,7 @@
 		},
 		{
 			"id": "GoalDetail",
-			"_note": "The goal page in the simple structure (board DcDoel): tabs Overview, Related and History, the key facts beside them. The board's sub-goals list and contribution table have no widget yet. The full structure keeps the manifest's stack.",
+			"_note": "The goal page in the simple structure (board DcDoel): tabs Overview, Related and History, the key facts beside them. The full structure keeps the manifest's stack. THE OVERVIEW (board DcDoel) holds the goal, its sub-goals (goals whose parentGoal is this one; adding one fills in the parent) and what contributes to it: the action items and the commitments that name this goal.",
 			"config": {
 				"sideColumn": [
 					{
@@ -2257,6 +2257,148 @@
 						"icon": "History"
 					},
 					{
+						"id": "goal-subgoals",
+						"type": "object-list",
+						"title": "Sub-goals",
+						"icon": "FileSign",
+						"content": {
+							"register": "decidiq",
+							"schema": "goal",
+							"filter": {
+								"parentGoal": "@objectId"
+							},
+							"sort": {
+								"field": "deadline",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "title",
+									"label": "Title"
+								},
+								{
+									"key": "owner",
+									"label": "Owner"
+								},
+								{
+									"key": "deadline",
+									"label": "Deadline"
+								},
+								{
+									"key": "status",
+									"label": "Status",
+									"widget": "badge"
+								}
+							],
+							"limit": 10,
+							"rowRoute": "GoalDetail"
+						}
+					},
+					{
+						"id": "goal-contributing-actions",
+						"type": "object-list",
+						"title": "Action items",
+						"icon": "CheckCircleOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "action-item",
+							"filter": {
+								"goal": "@objectId"
+							},
+							"sort": {
+								"field": "dueDate",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "title",
+									"label": "Title"
+								},
+								{
+									"key": "assignee",
+									"label": "Assignee"
+								},
+								{
+									"key": "dueDate",
+									"label": "Deadline"
+								},
+								{
+									"key": "taskStatus",
+									"label": "Status",
+									"widget": "badge"
+								}
+							],
+							"limit": 10,
+							"allowCreate": false,
+							"rowRoute": "ActionItemDetail"
+						}
+					},
+					{
+						"id": "goal-contributing-commitments",
+						"type": "object-list",
+						"title": "Commitments",
+						"icon": "HandshakeOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "governance-commitment",
+							"filter": {
+								"goal": "@objectId"
+							},
+							"sort": {
+								"field": "deadline",
+								"dir": "asc"
+							},
+							"columns": [
+								{
+									"key": "text",
+									"label": "Commitment"
+								},
+								{
+									"key": "madeBy",
+									"label": "Made by"
+								},
+								{
+									"key": "deadline",
+									"label": "Deadline"
+								},
+								{
+									"key": "lifecycle",
+									"label": "Status",
+									"widget": "badge"
+								}
+							],
+							"limit": 10,
+							"allowCreate": false,
+							"rowRoute": "CommitmentDetail"
+						}
+					},
+					{
+						"id": "goal-panel-overview",
+						"type": "detail-sections",
+						"title": "Goal",
+						"icon": "FileSign",
+						"content": {
+							"sections": [
+								{
+									"label": "Goal",
+									"widgetId": "goal-data"
+								},
+								{
+									"label": "Sub-goals",
+									"widgetId": "goal-subgoals"
+								},
+								{
+									"label": "Action items",
+									"widgetId": "goal-contributing-actions"
+								},
+								{
+									"label": "Commitments",
+									"widgetId": "goal-contributing-commitments"
+								}
+							]
+						}
+					},
+					{
 						"id": "goal-panels",
 						"type": "tabs",
 						"title": "Goal",
@@ -2266,7 +2408,7 @@
 							"moreLabel": "More",
 							"tabs": [
 								{
-									"widgetId": "goal-data",
+									"widgetId": "goal-panel-overview",
 									"label": "Overview"
 								},
 								{
