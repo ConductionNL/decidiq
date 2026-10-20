@@ -1368,7 +1368,10 @@
 			"title": "My actions",
 			"config": {
 				"gridFloat": false,
-				"_boardNote": "Board DcMijnActies: one card per kind of work, each row with its status, its date and one action. Action items are the reader's own (assignee @me, the field the dashboard's My action items widget reads). Proposals and votes have no field that names the person who reviews or votes, so those two cards show every proposal waiting for review and every decision up for a vote. The full list stays one click away: the Action items card links to the ActionItems index. The side card Next meeting is not built here.",
+				"_boardNote": "Board DcMijnActies: one card per kind of work, each row with its status, its date and one action. Action items are the reader's own (assignee @me, the field the dashboard's My action items widget reads). Proposals and votes have no field that names the person who reviews or votes, so those two cards show every proposal waiting for review and every decision up for a vote. The full list stays one click away: the Action items card links to the ActionItems index. The side cards Next meeting and After that list the meetings from now on, the second skipping the first (record-list offset).",
+				"headerActions": [
+					{ "id": "my-actions-new", "type": "open-form", "label": "New action item", "icon": "CheckCircleOutline", "variant": "primary", "register": "decidiq", "schema": "action-item" }
+				],
 				"widgets": [
 					{
 						"id": "my-proposals",
@@ -1511,6 +1514,40 @@
 							},
 							"emptyText": "No action items are waiting for you."
 						}
+					},
+					{
+						"id": "my-next-meeting",
+						"type": "record-list",
+						"title": "Next meeting",
+						"content": {
+							"register": "decidiq",
+							"schema": "meeting",
+							"filter": { "scheduledDate[gte]": "@now" },
+							"sort": { "field": "scheduledDate", "dir": "asc" },
+							"limit": 1,
+							"title": "{title}",
+							"meta": { "parts": ["{scheduledDate|date}", "{location}"] },
+							"rowRoute": "MeetingDetail",
+							"rowAction": { "type": "open-page", "target": "MeetingDetail", "label": "View agenda" },
+							"emptyText": "No meeting is planned."
+						}
+					},
+					{
+						"id": "my-meetings-after",
+						"type": "record-list",
+						"title": "After that",
+						"content": {
+							"register": "decidiq",
+							"schema": "meeting",
+							"filter": { "scheduledDate[gte]": "@now" },
+							"sort": { "field": "scheduledDate", "dir": "asc" },
+							"limit": 2,
+							"offset": 1,
+							"title": "{title}",
+							"meta": { "parts": ["{scheduledDate|date}"] },
+							"rowRoute": "MeetingDetail",
+							"emptyText": "No meeting is planned after that."
+						}
 					}
 				],
 				"layout": [
@@ -1540,7 +1577,9 @@
 						"gridWidth": 8,
 						"gridHeight": 2,
 						"sizeToContent": true
-					}
+					},
+					{ "id": "4", "widgetId": "my-next-meeting", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2, "sizeToContent": true },
+					{ "id": "5", "widgetId": "my-meetings-after", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2, "sizeToContent": true }
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
 			}
