@@ -130,7 +130,10 @@ class MotionForwardingService {
 		);
 
 		// Send notification if approval is required.
-		if ($appConfig->getValueBool(Application::APP_ID, 'motion_forwarding_requires_approval', false) === true) {
+		// Stored as a string by SettingsService; reading it as a bool would
+		// conflict with the stored type.
+		$requiresApproval = $appConfig->getValueString(Application::APP_ID, 'motion_forwarding_requires_approval', 'false');
+		if (in_array(strtolower(trim($requiresApproval)), ['true', '1'], true) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
 				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),

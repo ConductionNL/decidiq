@@ -269,6 +269,27 @@ class SettingsServiceTest extends TestCase {
 	}//end testAnAdministratorTurnsConversionOff()
 
 	/**
+	 * Forwarding a motion needs no approval until an administrator asks for it,
+	 * and the switch is a setting the admin page can write.
+	 *
+	 * @return void
+	 */
+	public function testForwardingApprovalIsOffByDefaultAndCanBeTurnedOn(): void {
+		$this->appConfig->expects($this->once())
+			->method('setValueString')
+			->with('decidiq', 'motion_forwarding_requires_approval', 'true');
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->appManager->method('isEnabledForAnyone')->willReturn(true);
+
+		$settings = $this->service->getSettings();
+		self::assertSame(expected: 'false', actual: $settings['motion_forwarding_requires_approval']);
+
+		$this->service->updateSettings(['motion_forwarding_requires_approval' => 'true']);
+
+	}//end testForwardingApprovalIsOffByDefaultAndCanBeTurnedOn()
+
+	/**
 	 * Test that loadConfiguration returns failure when OpenRegister is not available.
 	 *
 	 * @return void

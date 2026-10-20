@@ -7,12 +7,15 @@
 		versionCardPosition="end"
 		:title="t('decidiq', 'Administration')"
 		:breadcrumbs="breadcrumbs"
-		:breadcrumbNote="t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')"
+		:breadcrumbNote="
+			t('decidiq', 'For administrators of decidiq. Changes apply to everyone.')
+		"
 		data-testid="admin-root"
 		:showSetup="true"
 		:setupSteps="setupSteps"
 		@reimported="onReimported">
 		<Settings v-if="storesReady" />
+		<MotionForwardingSettings v-if="storesReady" />
 		<CaseSystemSettings v-if="storesReady" />
 
 		<PublicationSettings v-if="storesReady" />
@@ -31,6 +34,7 @@ import { generateUrl } from '@nextcloud/router'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
+import MotionForwardingSettings from './MotionForwardingSettings.vue'
 import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
 import RoleRightsSettings from './RoleRightsSettings.vue'
@@ -46,6 +50,7 @@ export default {
 		CaseSystemSettings,
 		DecisionTypeSettings,
 		MenuStructureTab,
+		MotionForwardingSettings,
 		Settings,
 		FullExportSettings,
 		OfficePaperSettings,
@@ -62,7 +67,10 @@ export default {
 			 * administration settings.
 			 */
 			breadcrumbs: [
-				{ label: this.t('decidiq', 'Administration settings'), href: generateUrl('/settings/admin') },
+				{
+					label: this.t('decidiq', 'Administration settings'),
+					href: generateUrl('/settings/admin'),
+				},
 				{ label: 'Decidiq' },
 				{ label: this.t('decidiq', 'Administration') },
 			],
