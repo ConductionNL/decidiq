@@ -1,0 +1,23 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "The search page (board DcZoeken): one search over meetings, decisions, minutes and documents, the four as a Type filter, each result opening its own page. Config over nextcloud-vue's `search` page type with `sources`. No menu entry: the board draws none, and Nextcloud's own search (DecidiqSearchProvider) covers the header. Documents have no detail page yet, so a document result does not open.",
+	"pages": [
+		{
+			"id": "Search",
+			"route": "/search",
+			"type": "search",
+			"title": "Search",
+			"config": {
+				"title": "Search",
+				"placeholder": "Search decisions, minutes and papers",
+				"typeLabel": "Type",
+				"sources": [
+					{ "id": "meetings", "label": "Meetings", "register": "decidiq", "schema": "meeting", "route": "MeetingDetail" },
+					{ "id": "decisions", "label": "Decisions", "register": "decidiq", "schema": "decision", "route": "DecisionDetail", "snippetField": "text" },
+					{ "id": "minutes", "label": "Minutes", "register": "decidiq", "schema": "minutes", "route": "MinutesDetail" },
+					{ "id": "documents", "label": "Documents", "register": "decidiq", "schema": "digital-document", "titleField": "name", "snippetField": "description" }
+				]
+			}
+		}
+	]
+}
