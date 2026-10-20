@@ -269,7 +269,13 @@ final class PortalPublicRecordsTest extends TestCase {
 			}
 		}
 
+		$tallied = 0;
 		foreach ($this->store['decision-stage'] as $stage) {
+			// A stage decided without a vote (drafting, initials, signature) has no round to tally.
+			if (isset($stage['votingRound']) === false) {
+				continue;
+			}
+
 			$round = $this->store['voting-round'][$stage['votingRound']];
 			$subject = $this->store['decision'][$stage['decision']]['title'];
 			$expected = array_filter(['For' => $round['votesFor'], 'Against' => $round['votesAgainst'], 'Abstained' => $round['votesAbstain']]);
@@ -277,7 +283,10 @@ final class PortalPublicRecordsTest extends TestCase {
 			ksort($expected);
 			ksort($actual);
 			self::assertSame(expected: $expected, actual: $actual, message: $subject.': the named votes add up to the totals');
+			$tallied++;
 		}
+
+		self::assertSame(expected: 3, actual: $tallied, message: 'Each of the three public rounds is checked against its totals');
 	}//end testTheExampleSetShowsEveryCouncillorsNamedVotes()
 
 	/**
