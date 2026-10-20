@@ -19,10 +19,16 @@ import { buildProfiledManifest } from '../../src/utils/structureProfile.js'
 const PAGE = 'CommitmentDetail'
 const SCHEMA = 'governance-commitment'
 const STRIP = 'commitment-panels'
-const VISIBLE = ["Overview", "Progress", "Documents", "Related", "History"]
-const VISIBLE_NL = ["Overzicht", "Voortgang", "Documenten", "Gerelateerd", "Geschiedenis"]
+const VISIBLE = ['Overview', 'Progress', 'Documents', 'Related', 'History']
+const VISIBLE_NL = [
+	'Overzicht',
+	'Voortgang',
+	'Documenten',
+	'Gerelateerd',
+	'Geschiedenis',
+]
 const OVERFLOW = []
-const SIDE = ["commitment-side-facts"]
+const SIDE = ['commitment-side-facts']
 const FACTS_LEAD = 'madeBy'
 
 const ROOT = path.resolve(__dirname, '../..')
@@ -62,7 +68,8 @@ function schemaProperties(slug) {
 	const files = [path.join('lib', 'Settings', 'decidesk_register.json')]
 	const dir = path.join(ROOT, 'lib', 'Settings', 'register.d')
 	for (const name of fs.readdirSync(dir).sort()) {
-		if (name.endsWith('.json')) files.push(path.join('lib', 'Settings', 'register.d', name))
+		if (name.endsWith('.json'))
+			files.push(path.join('lib', 'Settings', 'register.d', name))
 	}
 	for (const file of files) {
 		const schemas = readJson(file).components?.schemas ?? {}
@@ -123,7 +130,9 @@ describe(`${PAGE} in the simple structure`, () => {
 		const visible = tabs.filter((tab) => !tab.overflow)
 		expect(visible.map((tab) => tab.label)).toEqual(VISIBLE)
 		expect(visible.map((tab) => dutch[tab.label])).toEqual(VISIBLE_NL)
-		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual(OVERFLOW)
+		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual(
+			OVERFLOW,
+		)
 	})
 
 	it('shows the record history in the History tab', () => {
@@ -190,7 +199,9 @@ describe(`${PAGE} in the simple structure`, () => {
 			...tabs.map((tab) => tab.label),
 			...config.widgets
 				.filter((widget) => widget.type === 'detail-sections')
-				.flatMap((panel) => panel.content.sections.map((section) => section.label)),
+				.flatMap((panel) =>
+					panel.content.sections.map((section) => section.label),
+				),
 		].filter(Boolean)
 		for (const text of texts) {
 			expect(dutch[text], text).toBeTruthy()
