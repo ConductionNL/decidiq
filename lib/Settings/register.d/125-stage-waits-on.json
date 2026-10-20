@@ -12,7 +12,6 @@
           "waitingOn": {
             "type": "string",
             "title": "Waiting on",
-            "description": "The Nextcloud user this stage waits on while it is active: the assigned person. Empty when the stage is pending, decided or skipped. Kept by the approval engine, never edited by hand.",
             "nullable": true,
             "facetable": true
           }
