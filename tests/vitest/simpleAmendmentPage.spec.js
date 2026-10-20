@@ -617,7 +617,9 @@ describe('My actions in the simple structure', () => {
 		expect(entry.route).toBe('MyActions')
 		expect(page.route).toBe('/action-items')
 		const work = pageOf(simple, 'MyActions')
-		const card = work.config.widgets.find((widget) => widget.id === 'my-action-items')
+		const card = work.config.widgets.find(
+			(widget) => widget.id === 'my-action-items',
+		)
 		expect(card.content.filter.assignee).toBe('@me')
 		expect(card.content.headerLink.route).toBe('ActionItems')
 	})
