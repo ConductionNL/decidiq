@@ -1075,7 +1075,7 @@
         "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.": "Het RSIN van de organisatie die verantwoordelijk is voor het besluit. Een RSIN en niet een `$ref`: de BRC identificeert de verantwoordelijke met dit nummer, en een verwijzing die alleen binnen deze instantie oplost zou het contract breken.",
         "Hide": "Verbergen",
         "Hide meeting cost": "Vergaderkosten verbergen",
-        "History": "Geschiedenis",
+        "History": "Historie",
         "Hold": "Vorm",
         "Hold type": "Bekledingstype",
         "Holder": "Gemachtigde",
