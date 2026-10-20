@@ -3523,6 +3523,32 @@
 			}
 		},
 		{
+			"key": "person-marleen-postma",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:marleen.displayName}}",
+				"givenName": "{{cast:marleen.givenName}}",
+				"familyName": "{{cast:marleen.familyName}}",
+				"email": "{{cast:marleen.email}}",
+				"nextcloudUserId": "{{cast:marleen.uid}}",
+				"biography": "Teamleider. Zet de paraaf onder een Woo-besluit voordat het wordt ondertekend."
+			}
+		},
+		{
+			"key": "person-thomas-kuiper",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:thomas.displayName}}",
+				"givenName": "{{cast:thomas.givenName}}",
+				"familyName": "{{cast:thomas.familyName}}",
+				"email": "{{cast:thomas.email}}",
+				"nextcloudUserId": "{{cast:thomas.uid}}",
+				"biography": "Woo-coordinator. Neemt Woo-besluiten onder mandaat, tot en met deels openbaar maken."
+			}
+		},
+		{
 			"key": "decision-woo-lindelaan-concept",
 			"register": "decidiq",
 			"schema": "decision",
@@ -3564,7 +3590,8 @@
 				"method": "manual",
 				"decisionMakerType": "person",
 				"label": "Opgesteld door de behandelaar",
-				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
+				"registeredBy": "{{object:person-thomas-kuiper.id}}"
 			}
 		},
 		{
@@ -3578,7 +3605,8 @@
 				"method": "manual",
 				"decisionMakerType": "person",
 				"label": "Paraaf teamleider",
-				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
+				"assignedPerson": "{{object:person-marleen-postma.id}}"
 			}
 		},
 		{
@@ -3592,7 +3620,8 @@
 				"method": "signature",
 				"decisionMakerType": "person",
 				"label": "Ondertekend onder mandaat Woo-besluiten",
-				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
+				"assignedPerson": "{{object:person-thomas-kuiper.id}}"
 			}
 		},
 		{

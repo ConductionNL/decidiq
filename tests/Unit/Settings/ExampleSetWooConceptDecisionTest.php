@@ -85,4 +85,26 @@ class ExampleSetWooConceptDecisionTest extends TestCase {
 			actual: $stages
 		);
 	}//end testTheStagesAwaitInitialsAndSignature()
+	/**
+	 * The initials and the signature name someone, as the board does: the
+	 * cast's team lead initials, the Woo coordinator signs under mandate.
+	 *
+	 * @return void
+	 */
+	public function testThePeopleOnTheStagesAreTheCastsStaff(): void {
+		$byKey = [];
+		foreach (self::fragment()['objects'] as $object) {
+			$byKey[$object['key']] = $object;
+		}
+
+		$this->assertSame(expected: '{{object:person-marleen-postma.id}}', actual: $byKey['stage-woo-lindelaan-paraaf']['data']['assignedPerson']);
+		$this->assertSame(expected: '{{object:person-thomas-kuiper.id}}', actual: $byKey['stage-woo-lindelaan-ondertekenen']['data']['assignedPerson']);
+		$this->assertSame(expected: '{{cast:marleen.uid}}', actual: $byKey['person-marleen-postma']['data']['nextcloudUserId']);
+		$this->assertSame(expected: '{{cast:thomas.uid}}', actual: $byKey['person-thomas-kuiper']['data']['nextcloudUserId']);
+		$keys = array_keys($byKey);
+		$this->assertLessThan(
+			expected: array_search('stage-woo-lindelaan-paraaf', $keys, true),
+			actual: array_search('person-marleen-postma', $keys, true)
+		);
+	}//end testThePeopleOnTheStagesAreTheCastsStaff()
 }//end class
