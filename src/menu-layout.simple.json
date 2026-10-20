@@ -2189,6 +2189,143 @@
 			}
 		},
 		{
+			"id": "AgendaItemDetail",
+			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn: an agenda item has no speakers list outside the live meeting. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "agenda-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"itemType",
+								"orderNumber",
+								"meeting",
+								"estimatedDuration",
+								"caseReference",
+								"isFormality"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"agenda-conflicts",
+					"agenda-paper-summaries"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "agenda-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"agenda-case": {
+						"type": "AgendaItemCaseTab"
+					},
+					"agenda-document-details": {
+						"type": "DocumentMetadataTab"
+					},
+					"agenda-paper-renditions": {
+						"type": "AgendaPaperRenditionsTab"
+					},
+					"agenda-type-fields": {
+						"type": "AgendaItemTypeFieldsTab"
+					},
+					"agenda-motions": {
+						"type": "AgendaMotionsTab"
+					},
+					"agenda-conflicts": {
+						"type": "AgendaItemConflictsTab"
+					},
+					"agenda-paper-summaries": {
+						"type": "AgendaPaperSummariesTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "agenda-panel-overview",
+						"type": "detail-sections",
+						"title": "Agenda item",
+						"icon": "ClipboardList",
+						"content": {
+							"sections": [
+								{
+									"label": "Agenda item",
+									"widgetId": "agenda-data"
+								},
+								{
+									"label": "Type-specific fields",
+									"widgetId": "agenda-type-fields"
+								}
+							]
+						}
+					},
+					{
+						"id": "agenda-panel-papers",
+						"type": "detail-sections",
+						"title": "Papers",
+						"icon": "FolderOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Documents",
+									"widgetId": "agenda-files"
+								},
+								{
+									"label": "Document details",
+									"widgetId": "agenda-document-details"
+								},
+								{
+									"label": "Papers as PDF",
+									"widgetId": "agenda-paper-renditions"
+								}
+							]
+						}
+					},
+					{
+						"id": "agenda-panels",
+						"type": "tabs",
+						"title": "Agenda item",
+						"icon": "ClipboardList",
+						"content": {
+							"ariaLabel": "Agenda item",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "agenda-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "agenda-panel-papers",
+									"label": "Papers"
+								},
+								{
+									"widgetId": "agenda-motions",
+									"label": "Motions"
+								},
+								{
+									"widgetId": "agenda-case",
+									"label": "Case"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "ActionItems",
 			"_note": "My actions in the simple structure (openspec/changes/simple-amendment-page). The menu entry reads My actions and the page listed everybody's action items. It now opens on the reader's own: the view Mine filters on `assignee`, the field that holds a Nextcloud user id (the dashboard's My action items widget filters on the same field). `@me` is the library's word for the reader and is filled in when the list is fetched, so no user id is written here. THE OLD LIST IS ONE CLICK AWAY as the view Everyone, which has no filter and is the page as it was. Both views carry a count, taken with the filter of the view. ONLY ACTION ITEMS ARE ON THIS PAGE. A vote that waits for somebody has no record with a person on it until it is cast (a vote names a participant, and a participant names a user: two steps, which a list filter cannot take), and a commitment names the member who made it by a record id, not by a user id. Those two are left as they are: pending votes on the dashboard, commitments under their own menu entry.",
 			"config": {
