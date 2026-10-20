@@ -616,32 +616,57 @@ describe('the meeting page in the simple structure', () => {
 		expect(schema.required).toContain('scheduledDate')
 	})
 
-	it('puts the blocks behind five tabs and More, the agenda first', () => {
+	it('puts the board tabs in the strip, Overview first and History last, the rest under More', () => {
 		const strip = widgets.get('meeting-panels')
 		expect(strip.type).toBe('tabs')
 		const tabs = strip.content.tabs
-		expect(strip.content.maxVisibleTabs).toBe(5)
+		expect(strip.content.maxVisibleTabs).toBe(7)
 		expect(strip.content.moreLabel).toBe('More')
+		// Boards DcVergadering and DcVergaderingPlanning: the planning panel is
+		// the Overview, the papers tab reads Stukken, the history is a tab.
 		expect(tabs.filter((tab) => !tab.overflow).map((tab) => tab.label)).toEqual([
+			'Overview',
 			'Agenda',
 			'Participants',
-			'Documents',
+			'Papers',
 			'Decisions',
 			'Minutes',
+			'History',
+		])
+		expect(
+			tabs.filter((tab) => !tab.overflow).map((tab) => dutch[tab.label]),
+		).toEqual([
+			'Overzicht',
+			'Agenda',
+			'Deelnemers',
+			'Stukken',
+			'Besluiten',
+			'Notulen',
+			'Geschiedenis',
 		])
 		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual([
-			'Planning',
 			'Broadcast',
 			'Case system',
 			'Audit statements',
 			'Stage',
 		])
 		// The tabs that show come first, so the strip never has to reorder.
-		expect(tabs.findIndex((tab) => tab.overflow)).toBe(5)
-		expect(blocksOf(widgets, tabs[0])[0].id).toBe('meeting-agenda')
+		expect(tabs.findIndex((tab) => tab.overflow)).toBe(7)
+		expect(blocksOf(widgets, tabs[0])[0].id).toBe('meeting-planning')
+		// The board opens a meeting on its agenda.
+		expect(tabs.filter((tab) => tab.default).map((tab) => tab.label)).toEqual([
+			'Agenda',
+		])
 		for (const tab of tabs) {
 			expect(widgets.has(tab.widgetId), tab.widgetId).toBe(true)
 		}
+	})
+
+	it('shows the record history in the History tab', () => {
+		const tabs = widgets.get('meeting-panels').content.tabs
+		const history = tabs.find((tab) => tab.label === 'History')
+		expect(widgets.get(history.widgetId).type).toBe('audit-trail')
+		expect(LIBRARY_WIDGET_KEYS).toContain('audit-trail')
 	})
 
 	it('keeps every tab label short, in English and in Dutch', () => {
@@ -662,9 +687,10 @@ describe('the meeting page in the simple structure', () => {
 		)
 		expect(declared).toHaveLength(25)
 		const tabs = widgets.get('meeting-panels').content.tabs
-		const shown = tabs.flatMap((tab) =>
-			blocksOf(widgets, tab).map((block) => block.id),
-		)
+		// The History tab is the one block the profile adds.
+		const shown = tabs
+			.flatMap((tab) => blocksOf(widgets, tab).map((block) => block.id))
+			.filter((id) => id !== 'meeting-history')
 		expect(declared.filter((id) => !shown.includes(id))).toEqual([])
 		expect(shown.filter((id) => !declared.includes(id))).toEqual([])
 		// No block is shown twice either.
