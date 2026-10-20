@@ -1,0 +1,23 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change stage-waits-on. A stage that is live names the person it waits on, so a 'waiting for you' list (board DcDashboard, card Wacht op u) can filter on the reader with plain equality. Written by ApprovalStageTaskProjector whenever a route moves; empty on every stage that is not active. The kind of ask (sign-off, advice, review) is the stage's own stageType.",
+  "components": {
+    "schemas": {
+      "DecisionStage": {
+        "slug": "decision-stage",
+        "version": "1.4.0",
+        "properties": {
+          "waitingOn": {
+            "type": "string",
+            "title": "Waiting on",
+            "description": "The Nextcloud user this stage waits on while it is active: the assigned person. Empty when the stage is pending, decided or skipped. Kept by the approval engine, never edited by hand.",
+            "nullable": true,
+            "facetable": true
+          }
+        }
+      }
+    }
+  }
+}

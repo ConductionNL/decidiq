@@ -1740,7 +1740,7 @@
 		},
 		{
 			"id": "Dashboard",
-			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE. The board (DcDashboard, 6 October 2026) puts the page in TWO COLUMNS under the counters: the main column (8 of 12) holds the proposals per step, the pending votes and my action items; the side column (4) holds the upcoming meetings and the commitments with a deadline. The widgets the board does not show keep their full width below those rows, in the order they had. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list).",
+			"_note": "The dashboard in the simple structure (openspec/changes/simple-list-and-dashboard). ON TOP: a greeting, the attention card, then the four counters the page already had, the proposals per step, and further down the open commitments by deadline. EVERY WIDGET THE FULL DASHBOARD HAS IS STILL HERE. The board (DcDashboard, 6 October 2026) puts the page in TWO COLUMNS under the counters: the main column (8 of 12) holds the proposals per step, the pending votes and my action items; the side column (4) holds the upcoming meetings and the commitments with a deadline. The widgets the board does not show keep their full width below those rows, in the order they had. WHAT THE DESIGN CALLS PARAAF (initials) is not a concept in decidiq. The attention card and the 'waiting for you' lists read what exists: decisions open for voting (the pending votes widgets) and my action items. EVERY NUMBER IS A FILTER ON STORED FIELDS WITH PLAIN EQUALITY, the one form OpenRegister's aggregation endpoint is known to answer, and each links to the list with the same filter: the card counts decisions with lifecycle voting and opens Decisions on lifecycle=voting; the bar groups proposals (decisionType motion) by lifecycle, which is what the views on the Proposals list count; the commitments list shows lifecycle open and its 'view all' opens Commitments on lifecycle=open. 'Late' and 'due soon' are colours on the deadline, not counts: a count over a date range is the kind the endpoint has not answered. THE ATTENTION CARD CARRIES `text` EQUAL TO ITS TITLE: nextcloud-vue 2.60.0 gives up the cell of a banner with an empty `content.text` before it reads `visibleWhen`, so a card without it can never show. ONE OLD TILE IS REWORDED HERE: 'Commitments over deadline' was cut off in its three-column tile, and reads 'Past the deadline' in this structure. Its count, filter and link are the manifest's, copied whole. THE LAYOUT IS A FULL LIST, so a widget added to the manifest's dashboard later is NOT on this one until it is added here too. tests/vitest/simpleListAndDashboard.spec.js fails on that day and names the widget (it did for the incoming documents list). WAITING FOR YOU (board card Wacht op u) sits under the proposals per step: the approval stages that wait on the reader (decision-stage.waitingOn, register fragment 125, kept by the approval engine), the step named by the stage type (sign off for an endorsement, give advice for an advisory step, view for the rest) and a link to the decision. Everything below it moved down two rows.",
 			"config": {
 				"layout": [
 					{
@@ -1787,6 +1787,16 @@
 							"label": "All proposals",
 							"route": "Motions"
 						}
+					},
+					{
+						"id": "s5",
+						"widgetId": "simple-waiting-for-you",
+						"gridX": 0,
+						"gridY": 8,
+						"gridWidth": 8,
+						"gridHeight": 2,
+						"showTitle": true,
+						"sizeToContent": true
 					},
 					{
 						"id": "s4",
@@ -1850,7 +1860,7 @@
 						"id": "6",
 						"widgetId": "pending-votes-list",
 						"gridX": 0,
-						"gridY": 8,
+						"gridY": 10,
 						"gridWidth": 8,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1859,7 +1869,7 @@
 						"id": "7",
 						"widgetId": "running-processes",
 						"gridX": 0,
-						"gridY": 18,
+						"gridY": 20,
 						"gridWidth": 6,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1868,7 +1878,7 @@
 						"id": "8",
 						"widgetId": "my-action-items",
 						"gridX": 0,
-						"gridY": 12,
+						"gridY": 14,
 						"gridWidth": 8,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1877,7 +1887,7 @@
 						"id": "9",
 						"widgetId": "recent-decisions",
 						"gridX": 0,
-						"gridY": 22,
+						"gridY": 24,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1886,7 +1896,7 @@
 						"id": "10",
 						"widgetId": "minutes-in-review",
 						"gridX": 3,
-						"gridY": 16,
+						"gridY": 18,
 						"gridWidth": 9,
 						"gridHeight": 2,
 						"showTitle": true
@@ -1895,7 +1905,7 @@
 						"id": "11",
 						"widgetId": "governance-health",
 						"gridX": 0,
-						"gridY": 26,
+						"gridY": 28,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -1905,7 +1915,7 @@
 						"id": "12",
 						"widgetId": "open-commitments-overdue",
 						"gridX": 0,
-						"gridY": 16,
+						"gridY": 18,
 						"gridWidth": 3,
 						"gridHeight": 2,
 						"showTitle": false,
@@ -1915,7 +1925,7 @@
 						"id": "13",
 						"widgetId": "incoming-documents",
 						"gridX": 0,
-						"gridY": 30,
+						"gridY": 32,
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
@@ -2074,6 +2084,43 @@
 							"borderless": true,
 							"fixedLayout": true,
 							"emptyText": "No open commitments."
+						}
+					},
+					{
+						"id": "simple-waiting-for-you",
+						"type": "record-list",
+						"title": "Waiting for you",
+						"icon": "InboxOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "decision-stage",
+							"filter": {
+								"waitingOn": "@me",
+								"status": "active"
+							},
+							"sort": {
+								"field": "dueAt",
+								"dir": "asc"
+							},
+							"limit": 5,
+							"title": "{label}",
+							"due": {
+								"field": "dueAt"
+							},
+							"headerCount": true,
+							"rowAction": {
+								"type": "navigate",
+								"target": "/decisions/@object.decision",
+								"label": "View",
+								"labels": {
+									"field": "stageType",
+									"map": {
+										"endorsement": "Sign off",
+										"advisory": "Give advice"
+									}
+								}
+							},
+							"emptyText": "Nothing is waiting for you."
 						}
 					}
 				]
