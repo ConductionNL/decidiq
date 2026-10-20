@@ -1,0 +1,59 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "The document page (board DcStuk): a paper of a meeting or an agenda item (digital-document) as a page of its own. Tabs Overview (its details and its file), Notes and History; what it is linked to beside them. The sections write their widget in place, because a sections panel inside a tab cannot look a sibling widget up by id. No menu entry: a document is reached from its meeting, its agenda item or the search page. Not built: the board's in-page viewer with page navigation and the accessibility check of the file, which have no source yet.",
+	"pages": [
+		{
+			"id": "DocumentDetail",
+			"route": "/documents/:id",
+			"type": "detail",
+			"title": "Document",
+			"config": {
+				"register": "decidiq",
+				"schema": "digital-document",
+				"widgets": [
+					{
+						"id": "document-panel-overview",
+						"type": "detail-sections",
+						"title": "Document",
+						"icon": "FileDocumentOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Document details",
+									"widget": { "id": "document-data", "type": "data", "title": "Document details", "icon": "FileDocumentOutline", "content": { "columns": 2, "include": ["name", "documentType", "type", "description", "meeting", "agendaItem", "encodingFormat", "contentSize", "securityClassification"] } }
+								},
+								{
+									"label": "Files",
+									"widget": { "id": "document-files", "type": "integration", "integrationId": "files", "title": "Files", "icon": "FolderOutline" }
+								}
+							]
+						}
+					},
+					{ "id": "document-notes", "type": "integration", "integrationId": "notes", "title": "Notes", "icon": "NoteTextOutline" },
+					{ "id": "document-history", "type": "audit-trail", "title": "History", "icon": "History" },
+					{ "id": "document-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
+					{
+						"id": "document-panels",
+						"type": "tabs",
+						"title": "Document",
+						"icon": "FileDocumentOutline",
+						"content": {
+							"ariaLabel": "Document",
+							"moreLabel": "More",
+							"tabs": [
+								{ "widgetId": "document-panel-overview", "label": "Overview" },
+								{ "widgetId": "document-notes", "label": "Notes" },
+								{ "widgetId": "document-history", "label": "History" }
+							]
+						}
+					}
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "document-panels", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 12, "showTitle": false }
+				],
+				"sideColumn": ["document-related"],
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}
