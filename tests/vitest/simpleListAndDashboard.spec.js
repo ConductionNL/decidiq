@@ -462,9 +462,11 @@ describe.each([
 			quickFilterMaxVisible,
 			headerActions,
 			headerFilters,
+			columns,
 			...rest
 		}) => rest
 		// `headerFilters` is the full profile's pageDefaults, not this overlay.
+		// The columns follow the board: simpleProposalColumns.spec.js.
 		expect(strip(config)).toEqual(strip(before))
 	})
 })

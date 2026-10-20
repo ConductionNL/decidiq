@@ -165,6 +165,17 @@
 						"handler": "navigate",
 						"route": "UrgentDecisions"
 					}
+				],
+				"columns": [
+					{
+						"key": "governingBody",
+						"label": "Body"
+					},
+					{
+						"key": "meeting",
+						"label": "Next meeting",
+						"labelField": "title"
+					}
 				]
 			},
 			"config": {
@@ -219,7 +230,17 @@
 						"showCount": true
 					}
 				]
-			}
+			},
+			"configOrder": {
+				"columns": [
+					"title",
+					"proposer",
+					"governingBody",
+					"lifecycle",
+					"meeting"
+				]
+			},
+			"_note": "THE COLUMNS follow board DcVoorstellen: Title, Proposer, Body (the decision's governingBody) and Stage, then Next meeting (the meeting the proposal is on, by its title), before the columns the list already had. The board's Portfolio holder has no field on a decision and is not drawn."
 		},
 		{
 			"id": "Meetings",
