@@ -642,7 +642,7 @@ describe('the meeting page in the simple structure', () => {
 			'Stukken',
 			'Besluiten',
 			'Notulen',
-			'Geschiedenis',
+			'Historie',
 		])
 		expect(tabs.filter((tab) => tab.overflow).map((tab) => tab.label)).toEqual([
 			'Broadcast',

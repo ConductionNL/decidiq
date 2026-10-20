@@ -25,7 +25,7 @@ const VISIBLE_NL = [
 	'Voortgang',
 	'Documenten',
 	'Gerelateerd',
-	'Geschiedenis',
+	'Historie',
 ]
 const OVERFLOW = []
 const SIDE = ['commitment-side-facts']

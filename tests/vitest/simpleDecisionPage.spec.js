@@ -488,7 +488,7 @@ describe('the decision page in the simple structure', () => {
 			'Documenten',
 			'Consultatie',
 			'Publicatie',
-			'Geschiedenis',
+			'Historie',
 		])
 		expect(widgets.get(tabs[0].widgetId).id).toBe('decision-panel-content')
 		expect(

@@ -25,7 +25,7 @@ const VISIBLE_NL = [
 	'Leden',
 	'Vergaderingen',
 	'Documenten',
-	'Geschiedenis',
+	'Historie',
 ]
 const OVERFLOW = [
 	'Process template',

@@ -511,7 +511,7 @@ describe('the amendment page in the simple structure', () => {
 			'Overzicht',
 			'Tekstwijzigingen',
 			'Stemronde',
-			'Geschiedenis',
+			'Historie',
 		])
 		expect(tabs.filter((tab) => tab.default).map((tab) => tab.label)).toEqual([
 			'Text changes',
