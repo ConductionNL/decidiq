@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "godkännandeflöde",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d för, %2$d emot, %3$d avstod",
         "%1$d updates from %2$s": "%1$d uppdateringar från %2$s",

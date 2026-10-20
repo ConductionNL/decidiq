@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "circuit d'aprovació",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d a favor, %2$d en contra, %3$d abstencions",
         "%1$d updates from %2$s": "%1$d actualitzacions de %2$s",

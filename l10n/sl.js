@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "pot odobritve",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d za, %2$d proti, %3$d vzdržanih",
         "%1$d updates from %2$s": "%1$d posodobitev od %2$s",

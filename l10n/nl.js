@@ -3,6 +3,7 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "sign-off route": "paraferingsroute",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d voor, %2$d tegen, %3$d onthouden",
         "%1$d updates from %2$s": "%1$d updates van %2$s",

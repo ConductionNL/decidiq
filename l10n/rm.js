@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "via d'approvaziun",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d per, %2$d cunter, %3$d abstenziuns",
         "%1$d updates from %2$s": "%1$d actualisaziuns da %2$s",

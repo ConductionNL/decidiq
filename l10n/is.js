@@ -1,6 +1,7 @@
 OC.L10N.register(
     "decidiq",
     {
+        "sign-off route": "samþykktarferli",
         "#": "#",
         "+ Action item": "+ Aðgerðarliður",
         "1 hour before": "1 klukkustund fyrir",

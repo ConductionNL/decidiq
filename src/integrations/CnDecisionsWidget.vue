@@ -25,7 +25,9 @@
  Nextcloud CSS variables only so the nldesign overrides apply (ADR-010).
 -->
 <template>
-	<CnDetailCard :title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+	<CnDetailCard
+		v-if="!summarised"
+		:title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-decisions-widget__error" role="alert">
@@ -125,6 +127,7 @@ import {
 	objId,
 	proposalFormSchema,
 } from './decisionLink.js'
+import { leafReportMixin } from './leafReport.js'
 
 const DASHBOARD_SURFACES = ['user-dashboard', 'app-dashboard']
 
@@ -145,6 +148,8 @@ export default {
 		OpenInNew,
 		Plus,
 	},
+
+	mixins: [leafReportMixin],
 
 	props: {
 		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
@@ -184,6 +189,22 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * What this leaf reports to a "linked" card.
+		 *
+		 * @return {object} The report.
+		 * @spec openspec/changes/leaves-linked-card/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 */
+		leafReport() {
+			return {
+				count: this.decisions.length,
+				emptyLabel: this.emptyLabel,
+				noun: t('decidiq', 'decisions'),
+				rows: this.decisions.map((decision) => ({ label: this.rowTitle(decision), href: this.decisionUrl(decision), icon: 'Gavel' })),
+				actions: [{ label: this.openInDecidiqLabel, run: () => window.location.assign(this.appUrl) }],
+			}
+		},
+
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget title. */
 		cardTitle() {
 			return this.title || t('decidiq', 'Besluitvorming')
