@@ -56,6 +56,11 @@
 					<router-link :to="{ path: `/governance-bodies/${row.bodyId}` }">
 						{{ row.bodyName || t('decidiq', 'Unnamed body') }}
 					</router-link>
+					<router-link
+						class="decidiq-person__meta"
+						:to="{ name: 'MembershipDetail', params: { id: row.id } }">
+						{{ t('decidiq', 'Membership') }}
+					</router-link>
 					<span class="decidiq-person__meta">
 						{{ [row.role, row.party].filter(Boolean).join(' · ') }}
 					</span>
@@ -97,6 +102,11 @@
 						<router-link
 							:to="{ path: `/governance-bodies/${row.bodyId}` }">
 							{{ row.bodyName || t('decidiq', 'Unnamed body') }}
+						</router-link>
+						<router-link
+							class="decidiq-person__meta"
+							:to="{ name: 'MembershipDetail', params: { id: row.id } }">
+							{{ t('decidiq', 'Membership') }}
 						</router-link>
 						<span class="decidiq-person__meta">
 							{{
