@@ -2120,6 +2120,187 @@
 			}
 		},
 		{
+			"id": "GovernanceBodyDetail",
+			"_note": "The body page in the simple structure (boards DcOrgaan, DcZelfevaluatie): tabs Overview, Members, Meetings, Documents and History; the key facts and the workspace beside them. The board lists the other blocks (working method, positions, composition, consultations, remuneration) in the Actions menu under Go to, so they are tabs under More here, one per block in the board's order; nextcloud-vue's board look moves More into the Actions menu. No block is dropped. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "body-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"bodyType",
+								"domain",
+								"parentBody",
+								"termStart",
+								"termEnd",
+								"quorum"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"body-workspace"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "body-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"body-members": {
+						"type": "GovernanceBodyMembersTab"
+					},
+					"body-template": {
+						"type": "GovernanceBodyTemplateTab"
+					},
+					"body-efficiency": {
+						"type": "GovernanceBodyEfficiencyTab"
+					},
+					"body-retention": {
+						"type": "GovernanceBodyRetentionTab"
+					},
+					"body-composition": {
+						"type": "GovernanceBodyCompositionTab"
+					},
+					"body-evaluations": {
+						"type": "GovernanceBodyEvaluationsTab"
+					},
+					"body-participating-orgs": {
+						"type": "BodyParticipationsTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "body-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "body-panels",
+						"type": "tabs",
+						"title": "Governance body",
+						"icon": "AccountMultipleOutline",
+						"content": {
+							"ariaLabel": "Governance body",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "body-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "body-members",
+									"label": "Members"
+								},
+								{
+									"widgetId": "body-meetings",
+									"label": "Meetings"
+								},
+								{
+									"widgetId": "body-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "body-history",
+									"label": "History"
+								},
+								{
+									"widgetId": "body-template",
+									"label": "Process template",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-efficiency",
+									"label": "Efficiency",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-retention",
+									"label": "Recording retention",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-evaluations",
+									"label": "Self-evaluation",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-position-holders",
+									"label": "Position holders",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-positions",
+									"label": "Positions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-ancillary-positions",
+									"label": "Other positions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-gifts",
+									"label": "Gifts",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-composition",
+									"label": "Composition",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-factions",
+									"label": "Factions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-participating-orgs",
+									"label": "Participating organisations",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-shared-participations",
+									"label": "Shared-body participations",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-consultations",
+									"label": "Consultations",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-remuneration",
+									"label": "Remuneration this year",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-remuneration-total",
+									"label": "Remuneration total",
+									"overflow": true
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "Decisions",
 			"_note": "The decisions list in the simple structure: five counted views in front, the rest behind the overflow chip. No view is dropped: Decisions and Motions are the manifest's own and keep their place in the list. Urgent is the view the design asks for instead of a menu entry; the Urgent decisions page still exists and Proposals links to it.",
 			"config": {
