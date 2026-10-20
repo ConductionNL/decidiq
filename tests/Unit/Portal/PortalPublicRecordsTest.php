@@ -270,12 +270,9 @@ final class PortalPublicRecordsTest extends TestCase {
 		}
 
 		$tallied = 0;
-		foreach ($this->store['decision-stage'] as $stage) {
-			// A stage decided without a vote (drafting, initials, signature) has no round to tally.
-			if (isset($stage['votingRound']) === false) {
-				continue;
-			}
-
+		// A stage decided without a vote (drafting, initials, signature) has no round to tally.
+		$votedStages = array_filter(array: $this->store['decision-stage'], callback: static fn (array $stage): bool => isset($stage['votingRound']));
+		foreach ($votedStages as $stage) {
 			$round = $this->store['voting-round'][$stage['votingRound']];
 			$subject = $this->store['decision'][$stage['decision']]['title'];
 			$expected = array_filter(['For' => $round['votesFor'], 'Against' => $round['votesAgainst'], 'Abstained' => $round['votesAbstain']]);
