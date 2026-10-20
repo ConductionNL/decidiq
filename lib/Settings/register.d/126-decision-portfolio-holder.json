@@ -15,8 +15,7 @@
             "format": "uuid",
             "$ref": "Person",
             "nullable": true,
-            "facetable": true,
-            "description": "The executive member responsible for this decision or proposal, such as the alderman whose portfolio it falls under. Optional."
+            "facetable": true
           }
         }
       }
