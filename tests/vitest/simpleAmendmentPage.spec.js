@@ -733,8 +733,17 @@ describe('My actions in the simple structure', () => {
 		const commitment = schemaOf('Commitment', 'governance-commitment')
 		expect(commitment.properties.madeBy.format).toBe('uuid')
 		expect(commitment.properties.assignee).toBeUndefined()
-		for (const id of ['Commitments', 'CommitmentDetail']) {
-			expect(pageOf(simple, id), id).toEqual(pageOf(full, id))
+		// The commitments list is untouched. The commitment page gets the
+		// board's tabs, which simpleCommitmentTabs.spec.js checks; its blocks
+		// and their filters stay the manifest's.
+		expect(pageOf(simple, 'Commitments')).toEqual(pageOf(full, 'Commitments'))
+		const declared = pageOf(full, 'CommitmentDetail').config.widgets
+		const built = pageOf(simple, 'CommitmentDetail').config.widgets
+		for (const widget of declared) {
+			expect(
+				built.find((item) => item.id === widget.id).content,
+				widget.id,
+			).toEqual(widget.content)
 		}
 	})
 })

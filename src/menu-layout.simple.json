@@ -368,6 +368,93 @@
 			}
 		},
 		{
+			"id": "CommitmentDetail",
+			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "commitment-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"madeBy",
+								"directedTo",
+								"deadline",
+								"meeting",
+								"agendaItem",
+								"lifecycle"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "commitment-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"commitment-progress": {
+						"type": "CommitmentProgressTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "commitment-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "commitment-panels",
+						"type": "tabs",
+						"title": "Commitment",
+						"icon": "HandshakeOutline",
+						"content": {
+							"ariaLabel": "Commitment",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "toezegging-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "commitment-progress",
+									"label": "Progress"
+								},
+								{
+									"widgetId": "toezegging-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "toezegging-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "commitment-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
 			"id": "GovernanceBodies",
 			"configAppend": {
 				"headerActions": [
