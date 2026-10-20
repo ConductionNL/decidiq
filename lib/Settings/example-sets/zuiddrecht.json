@@ -2,7 +2,8 @@
 	"set": "zuiddrecht",
 	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these. The named votes on the three open council rounds come from the vote rows; the council declares that its chair, the mayor, has no vote, and the griffier never votes. Each agenda is published by a change after its items are written: an item written to a published agenda records a new agenda version, which would stamp the publication with the install time.",
 	"after": [
-		"dossiq"
+		"dossiq",
+		"portaliq"
 	],
 	"objects": [
 		{
@@ -3557,8 +3558,7 @@
 					"register": "dossiq",
 					"schema": "case",
 					"where": {
-						"title": "Verlichting fietspad Lindelaan",
-						"description": "Een bewoner vraagt alle stukken over de verlichting van het fietspad Lindelaan: de adviezen, het raadsvoorstel, de offerte en de interne notities over het budget."
+						"externalReference": "MZ-ZDR-2026-0412"
 					}
 				}
 			},

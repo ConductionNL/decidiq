@@ -96,7 +96,7 @@ describe('the proposals list in the simple structure', () => {
 		expect(new Set(simple.map(keyOf)).size).toBe(simple.length)
 	})
 
-	it('reads the new columns off real fields, the meeting by its title', () => {
+	it('reads the two new columns off real fields, the meeting by its title', () => {
 		const added = simple.filter((column) => typeof column === 'object')
 		expect(added.map(keyOf)).toEqual([
 			'governingBody',
