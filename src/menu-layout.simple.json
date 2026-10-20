@@ -3099,6 +3099,554 @@
 					}
 				]
 			}
+		},
+		{
+			"id": "GoalDetail",
+			"_note": "The goal page in the simple structure (board DcDoel): tabs Overview, Related and History, the key facts beside them. The board's sub-goals list and contribution table have no widget yet. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "goal-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"status",
+								"horizon",
+								"body",
+								"owner",
+								"deadline",
+								"parentGoal",
+								"currentValue",
+								"targetValue"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "goal-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "goal-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "goal-panels",
+						"type": "tabs",
+						"title": "Goal",
+						"icon": "FileSign",
+						"content": {
+							"ariaLabel": "Goal",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "goal-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "goal-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "goal-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "AuthorityDelegationDetail",
+			"_note": "The delegation and mandate page in the simple structure (board DcMandaat): tabs Overview (the sub-mandate chain, then the delegation), Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "toedeling-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"type",
+								"status",
+								"delegatingBody",
+								"delegateBody",
+								"delegatePerson",
+								"validFrom",
+								"validTo",
+								"subMandatePermitted"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "toedeling-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "toedeling-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "toedeling-panel-overview",
+						"type": "detail-sections",
+						"title": "Delegation / mandate",
+						"icon": "AccountKeyOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Ondermandaat chain",
+									"widgetId": "toedeling-chain"
+								},
+								{
+									"label": "Delegation / mandate",
+									"widgetId": "toedeling-data"
+								}
+							]
+						}
+					},
+					{
+						"id": "toedeling-panels",
+						"type": "tabs",
+						"title": "Delegation / mandate",
+						"icon": "AccountKeyOutline",
+						"content": {
+							"ariaLabel": "Delegation / mandate",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "toedeling-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "toedeling-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "toedeling-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "toedeling-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "ConfidentialityRestrictionDetail",
+			"_note": "The confidentiality page in the simple structure (board DcGeheimhouding): tabs Overview (the status timeline, then the restriction), Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "geheimhouding-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"lifecycle",
+								"ground",
+								"scope",
+								"imposedBy",
+								"imposedAt",
+								"ratificationDeadline"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "geheimhouding-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "geheimhouding-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "geheimhouding-panel-overview",
+						"type": "detail-sections",
+						"title": "Confidentiality",
+						"icon": "ShieldLockOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Confidentiality status timeline",
+									"widgetId": "geheimhouding-timeline"
+								},
+								{
+									"label": "Confidentiality",
+									"widgetId": "geheimhouding-data"
+								}
+							]
+						}
+					},
+					{
+						"id": "geheimhouding-panels",
+						"type": "tabs",
+						"title": "Confidentiality",
+						"icon": "ShieldLockOutline",
+						"content": {
+							"ariaLabel": "Confidentiality",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "geheimhouding-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "geheimhouding-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "geheimhouding-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "AuditStatementDetail",
+			"_note": "The audit statement page in the simple structure (board DcAuditverklaring): tabs Overview, Papers and History; the key facts and the linked records beside them. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "verklaring-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"financialYear",
+								"verdict",
+								"governanceBody",
+								"agendaItem"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					},
+					"verklaring-related"
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "verklaring-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "verklaring-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "verklaring-panels",
+						"type": "tabs",
+						"title": "Audit statement",
+						"icon": "ScaleBalance",
+						"content": {
+							"ariaLabel": "Audit statement",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "verklaring-data",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "verklaring-files",
+									"label": "Papers"
+								},
+								{
+									"widgetId": "verklaring-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "BudgetRoundDetail",
+			"_note": "The budget round page in the simple structure (board DcBudgetronde): tabs Overview (the round, the budget and the proposals), Documents and History, the key facts beside them. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "budget-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"status",
+								"totalAmount",
+								"currency",
+								"governanceBody",
+								"submissionDeadline",
+								"votingDeadline"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "budget-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "budget-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "budget-panel-overview",
+						"type": "detail-sections",
+						"title": "Budget round",
+						"icon": "Cash",
+						"content": {
+							"sections": [
+								{
+									"label": "Budget round",
+									"widgetId": "budget-data"
+								},
+								{
+									"label": "Budget",
+									"widgetId": "budget-stats"
+								},
+								{
+									"label": "Proposals",
+									"widgetId": "budget-proposals"
+								}
+							]
+						}
+					},
+					{
+						"id": "budget-panels",
+						"type": "tabs",
+						"title": "Budget round",
+						"icon": "Cash",
+						"content": {
+							"ariaLabel": "Budget round",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "budget-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "budget-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "budget-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
+		},
+		{
+			"id": "ConsultationDetail",
+			"_note": "The public consultation page in the simple structure (boards DcPubliekeConsultatie, DcModeratie): tabs Overview (the consultation and its counts), Reactions (the moderation queue, then all reactions), Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
+			"config": {
+				"sideColumn": [
+					{
+						"id": "consult-side-facts",
+						"type": "data",
+						"title": "Key facts",
+						"content": {
+							"title": "Key facts",
+							"columns": 1,
+							"include": [
+								"status",
+								"consultationType",
+								"governanceBody",
+								"submissionDeadline",
+								"publicationDate",
+								"relatedDecision"
+							],
+							"hideEmpty": true,
+							"editable": false
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "consult-panels",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 12,
+						"showTitle": false
+					}
+				]
+			},
+			"configPatch": {
+				"widgets": {
+					"consult-moderation": {
+						"type": "ConsultationReactionsTab"
+					}
+				}
+			},
+			"configAppend": {
+				"widgets": [
+					{
+						"id": "consult-history",
+						"type": "audit-trail",
+						"title": "History",
+						"icon": "History"
+					},
+					{
+						"id": "consult-panel-overview",
+						"type": "detail-sections",
+						"title": "Consultation",
+						"icon": "CommentQuestionOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Consultation",
+									"widgetId": "consult-data"
+								},
+								{
+									"label": "Reactions",
+									"widgetId": "consult-stats"
+								}
+							]
+						}
+					},
+					{
+						"id": "consult-panel-reactions",
+						"type": "detail-sections",
+						"title": "Reactions",
+						"icon": "CommentQuestionOutline",
+						"content": {
+							"sections": [
+								{
+									"label": "Moderation queue",
+									"widgetId": "consult-moderation"
+								},
+								{
+									"label": "Reactions",
+									"widgetId": "consult-reactions"
+								}
+							]
+						}
+					},
+					{
+						"id": "consult-panels",
+						"type": "tabs",
+						"title": "Public consultation",
+						"icon": "CommentQuestionOutline",
+						"content": {
+							"ariaLabel": "Public consultation",
+							"moreLabel": "More",
+							"tabs": [
+								{
+									"widgetId": "consult-panel-overview",
+									"label": "Overview"
+								},
+								{
+									"widgetId": "consult-panel-reactions",
+									"label": "Reactions"
+								},
+								{
+									"widgetId": "consult-files",
+									"label": "Documents"
+								},
+								{
+									"widgetId": "consult-related",
+									"label": "Related"
+								},
+								{
+									"widgetId": "consult-history",
+									"label": "History"
+								}
+							]
+						}
+					}
+				]
+			}
 		}
 	]
 }
