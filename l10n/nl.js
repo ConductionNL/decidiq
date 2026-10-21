@@ -1275,6 +1275,7 @@ OC.L10N.register(
         "Machtiging": "Machtiging",
         "Machtiging document": "Machtigingsdocument",
         "Made by": "Gedaan door",
+        "Sub-goals": "Subdoelen",
         "Majority overrides": "Afwijkende meerderheden",
         "Majority threshold": "Meerderheidsdrempel",
         "Manage the OpenRegister configuration for Decidiq.": "Beheer de OpenRegister-configuratie voor Decidiq.",
