@@ -463,11 +463,13 @@ describe('the decision page in the simple structure', () => {
 		const strip = widgets.get('decision-panels')
 		expect(strip.type).toBe('tabs')
 		const tabs = strip.content.tabs
-		expect(strip.content.maxVisibleTabs).toBe(6)
+		expect(strip.content.maxVisibleTabs).toBe(7)
 		// Board DcBesluit: Overzicht, Route en stemming, Documenten,
-		// Consultatie, Publicatie, Historie.
+		// Consultatie, Publicatie, Historie. Responses shows on a written
+		// resolution only (writtenResolutionResponses.spec.js).
 		expect(tabs.filter((tab) => !tab.overflow).map((tab) => tab.label)).toEqual([
 			'Overview',
+			'Responses',
 			'Route and voting',
 			'Documents',
 			'Consultation',
@@ -484,6 +486,7 @@ describe('the decision page in the simple structure', () => {
 			tabs.filter((tab) => !tab.overflow).map((tab) => dutch[tab.label]),
 		).toEqual([
 			'Overzicht',
+			'Reacties',
 			'Route en stemming',
 			'Documenten',
 			'Consultatie',

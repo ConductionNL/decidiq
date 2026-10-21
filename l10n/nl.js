@@ -2118,6 +2118,7 @@ OC.L10N.register(
         "Respondent body": "Reagerende organisatie",
         "Respondent identifier": "Aanduiding van de respondent",
         "Response": "Reactie",
+        "Written": "Schriftelijk",
         "Responses": "Reacties",
         "Restore version": "Versie herstellen",
         "Restricted": "Beperkt",
