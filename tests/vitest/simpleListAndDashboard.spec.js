@@ -119,7 +119,7 @@ describe('the dashboard in the simple structure', () => {
 			title: old.title,
 			content: { ...now.content, label: old.content.label },
 		}).toEqual(old)
-		expect(config.widgets).toHaveLength(before.widgets.length + 5)
+		expect(config.widgets).toHaveLength(before.widgets.length + 6)
 	})
 
 	it('lays every old card out once, in two columns as the board draws them', () => {
@@ -134,6 +134,7 @@ describe('the dashboard in the simple structure', () => {
 		}
 		const main = [
 			'simple-proposals-per-step',
+			'simple-waiting-for-you',
 			'pending-votes-list',
 			'my-action-items',
 		]
@@ -478,13 +479,18 @@ describe('both', () => {
 		)
 		const seen = new Set()
 		JSON.stringify(overlay.configAppend, (key, value) => {
+			// A `{field}` title is a row template, not a text.
 			if (
 				['title', 'label', 'kicker', 'reason', 'emptyText'].includes(key)
 				&& typeof value === 'string'
+				&& !value.startsWith('{')
 			) {
 				seen.add(value)
 			}
-			if (key === 'labels') Object.values(value).forEach((v) => seen.add(v))
+			if (key === 'labels') {
+				// A row action's labels are `{ field, map }`; a pill's are the map.
+				Object.values(value.map ?? value).forEach((v) => seen.add(v))
+			}
 			return value
 		})
 		expect(seen.size).toBeGreaterThan(10)
