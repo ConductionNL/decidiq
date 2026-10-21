@@ -21,6 +21,7 @@
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
 		<RoleRightsSettings v-if="storesReady" />
+		<VotingGroupsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
 		<DecisionTypeSettings v-if="storesReady" />
 		<!-- The menu structure is not on board DcBeheer: it follows the sections the board draws. -->
@@ -39,6 +40,7 @@ import OfficePaperSettings from './OfficePaperSettings.vue'
 import PublicationSettings from './PublicationSettings.vue'
 import RoleRightsSettings from './RoleRightsSettings.vue'
 import Settings from './Settings.vue'
+import VotingGroupsSettings from './VotingGroupsSettings.vue'
 import MenuStructureTab from './tabs/MenuStructureTab.vue'
 import manifest from '../../manifest.json'
 import { initializeStores } from '../../store/store.js'
@@ -56,6 +58,7 @@ export default {
 		OfficePaperSettings,
 		PublicationSettings,
 		RoleRightsSettings,
+		VotingGroupsSettings,
 	},
 
 	data() {
