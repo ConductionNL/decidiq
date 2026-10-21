@@ -105,12 +105,35 @@ class AdminSettings implements IDelegatedSettings {
 			)
 		);
 
+		// The last accessibility audit, as scripts/wcag-audit-report.mjs wrote
+		// it next to this class (board DcBeheerSysteem, Toegankelijkheid).
+		$this->initialState->provideInitialState('accessibilityAudit', $this->accessibilityAudit());
+
 		return new TemplateResponse(
 			Application::APP_ID,
 			'settings/admin',
 			[]
 		);
 	}//end getForm()
+
+	/**
+	 * The accessibility audit digest the app ships, or null without one.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function accessibilityAudit(): ?array {
+		$path = __DIR__ . '/accessibility-audit.json';
+		if (is_readable($path) === false) {
+			return null;
+		}
+
+		$digest = json_decode((string)file_get_contents($path), true);
+		if (is_array($digest) === false) {
+			return null;
+		}
+
+		return $digest;
+	}//end accessibilityAudit()
 
 	/**
 	 * Get the section ID this settings page belongs to.

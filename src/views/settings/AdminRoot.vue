@@ -20,6 +20,7 @@
 
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
+		<AccessibilitySettings />
 		<RoleRightsSettings v-if="storesReady" />
 		<VotingGroupsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
@@ -32,6 +33,7 @@
 <script>
 import { CnAdminSettingsShell } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
+import AccessibilitySettings from './AccessibilitySettings.vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
@@ -48,6 +50,7 @@ import { initializeStores } from '../../store/store.js'
 export default {
 	name: 'AdminRoot',
 	components: {
+		AccessibilitySettings,
 		CnAdminSettingsShell,
 		CaseSystemSettings,
 		DecisionTypeSettings,
