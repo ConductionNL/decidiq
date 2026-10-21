@@ -796,6 +796,8 @@ OC.L10N.register(
         "Document version": "Documentversie",
         "Documentation": "Documentatie",
         "Documents": "Documenten",
+        "Search": "Zoeken",
+        "Search decisions, minutes and papers": "Zoek in besluiten, notulen en stukken",
         "Documents of this type": "Documenten van dit type",
         "Documents received": "Stukken ontvangen",
         "Does not vote": "Stemt niet mee",
