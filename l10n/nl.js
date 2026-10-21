@@ -787,6 +787,7 @@ OC.L10N.register(
         "Diversity targets": "Diversiteitsdoelen",
         "Do not ask a substitute": "Geen vervanger vragen",
         "Document details": "Documentgegevens",
+        "Document": "Document",
         "Document format": "Documentformaat",
         "Document generation error": "Fout bij documentgeneratie",
         "Document line": "Documentregel",
