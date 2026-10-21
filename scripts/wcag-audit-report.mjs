@@ -97,6 +97,37 @@ export function summary(rows) {
 	return counts
 }
 
+/**
+ * The digest the app ships (lib/Settings/accessibility-audit.json) for the
+ * admin page's Accessibility section: the standard, the sample size, the
+ * counts per outcome and every finding with its criterion, page and owner.
+ *
+ * @param {{version: string, date: string, sample: object, rows: Array, scanned: boolean}} input What to digest.
+ * @return {object} The digest.
+ */
+export function auditDigest({ version, date, sample, rows, scanned }) {
+	return {
+		standard: 'WCAG 2.1 AA',
+		version,
+		date,
+		scanned,
+		sampleSize:
+			(sample?.pages || []).length + (sample?.processPages || []).length,
+		outcomes: summary(rows),
+		findings: rows
+			.filter((row) => row.outcome === 'fail')
+			.flatMap((row) =>
+				(row.findings || []).map((finding) => ({
+					criterion: row.id,
+					name: row.name,
+					page: finding.page,
+					rule: finding.rule,
+					owner: finding.owner,
+				})),
+			),
+	}
+}
+
 const LABELS = {
 	pass: 'pass',
 	fail: 'fail',
@@ -193,14 +224,19 @@ if (process.argv[1] === self) {
 		scan,
 		checklist: read('docs/compliance/wcag-manual-checks.json'),
 	})
-	const markdown = renderReport({
+	const input = {
 		version: read('package.json').version,
 		date: (scan?.timestamp || new Date().toISOString()).slice(0, 10),
 		sample: read('tests/e2e/a11y/sample.json'),
 		rows,
 		scanned: scan !== null,
 		theme: scan?.theme,
-	})
+	}
+	const markdown = renderReport(input)
 	writeFileSync(join(root, 'docs/compliance/wcag-2.1-aa-audit.md'), markdown)
+	writeFileSync(
+		join(root, 'lib/Settings/accessibility-audit.json'),
+		JSON.stringify(auditDigest(input), null, '\t') + '\n',
+	)
 	console.log('Wrote docs/compliance/wcag-2.1-aa-audit.md', summary(rows))
 }

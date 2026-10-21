@@ -379,6 +379,20 @@
 				</div>
 			</div>
 
+			<!-- A named vote taken on paper, entered by the chair or the secretary (board DcStemmenInvoeren). -->
+			<NcButton
+				v-if="isRoundOpen && isChairOrSecretary && canEnterPaperVotes"
+				data-testid="record-votes-open"
+				@click="showRecordVotes = true">
+				{{ t('decidiq', 'Enter paper votes') }}
+			</NcButton>
+			<RecordVotesDialog
+				v-if="showRecordVotes"
+				:roundId="roundId"
+				:participants="participants"
+				@recorded="fetchCurrentRound"
+				@close="showRecordVotes = false" />
+
 			<!-- Close round button (chair/secretary) -->
 			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 -->
 			<NcButton
@@ -551,6 +565,7 @@
 import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import RecordVotesDialog from '../dialogs/RecordVotesDialog.vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
@@ -584,6 +599,7 @@ export default {
 		NcTextField,
 		RankedBallot,
 		RankedResultsCard,
+		RecordVotesDialog,
 	},
 
 	props: {
@@ -642,6 +658,8 @@ export default {
 			chairCastingError: null,
 			pollInterval: null,
 			participantCount: 0,
+			participants: [],
+			showRecordVotes: false,
 			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
@@ -668,6 +686,21 @@ export default {
 		roundId() {
 			if (!this.currentRound) return null
 			return this.currentRound.id || this.currentRound.uuid || null
+		},
+
+		/**
+		 * Whether a paper vote can be entered: a named for/against/abstain
+		 * round, not a show of hands, a ranked or a secret one.
+		 *
+		 * @return {boolean}
+		 */
+		canEnterPaperVotes() {
+			const round = this.currentRound || {}
+			return (
+				round.votingMethod !== 'show-of-hands'
+				&& !this.isRankedRound
+				&& round.isSecret !== true
+			)
 		},
 
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
@@ -913,6 +946,11 @@ export default {
 					)[0]
 				this.currentRound = open || recent || null
 				this.participantCount = participants?.length ?? 0
+				this.participants = (participants || []).map((member) => ({
+					id: member.id || member.uuid,
+					displayName: member.displayName || '',
+					party: member.party || '',
+				}))
 				await this.loadDeclarations()
 			} catch {
 				this.currentRound = null

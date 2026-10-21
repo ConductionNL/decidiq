@@ -88,6 +88,9 @@ class SettingsService {
 		// @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
 		// Office papers are converted to PDF on arrival unless this reads false.
 		'convert_office_papers',
+		// 'true' makes a motion forwarded to another body wait for that body's
+		// chair (MotionForwardingService).
+		'motion_forwarding_requires_approval',
 		// Which structure the app shows (simple-structure-profile). A key that
 		// is not on this list is dropped by updateSettings() while the write
 		// still answers success.
@@ -172,6 +175,7 @@ class SettingsService {
 			'actionItemSchema' => 'action-item',
 			'organisatie_modus' => 'gov',
 			'convert_office_papers' => 'true',
+			'motion_forwarding_requires_approval' => 'false',
 		];
 
 		$settings = [];

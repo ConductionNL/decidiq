@@ -4,8 +4,8 @@
  *
  * The proposals list in the simple structure (board DcVoorstellen): the
  * columns read Title, Proposer, Body, Stage and Next meeting, in the board's
- * order, before the columns the list already had. The board's Portfolio
- * holder has no field on a decision and is not drawn.
+ * order, before the columns the list already had. The Portfolio holder
+ * column is decisionPortfolioHolder.spec.js.
  */
 
 import { buildManifest } from '@conduction/nextcloud-vue/src/utils/buildManifest.js'
@@ -98,7 +98,11 @@ describe('the proposals list in the simple structure', () => {
 
 	it('reads the two new columns off real fields, the meeting by its title', () => {
 		const added = simple.filter((column) => typeof column === 'object')
-		expect(added.map(keyOf)).toEqual(['governingBody', 'meeting'])
+		expect(added.map(keyOf)).toEqual([
+			'governingBody',
+			'meeting',
+			'portfolioHolder',
+		])
 		for (const column of added) {
 			expect(properties[column.key], column.key).toBeDefined()
 			expect(dutch[column.label], column.label).toBeTruthy()

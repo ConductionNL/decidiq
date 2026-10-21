@@ -48,6 +48,13 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 	private array $stagePatches = [];
 
 	/**
+	 * Patches that only set who a stage waits on, kept apart from the task linkage.
+	 *
+	 * @var array<int, array{0: string, 1: array<string, mixed>, 2: string|null}>
+	 */
+	private array $waitingPatches = [];
+
+	/**
 	 * Build the fake task surface.
 	 *
 	 * @return void
@@ -122,6 +129,12 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		$store = $this->createMock(RegisterObjectStore::class);
 		$store->method('patch')->willReturnCallback(
 			function (string $schema, array $data, string $uuid) : array {
+				if (array_keys($data) === ['waitingOn']) {
+					$this->waitingPatches[] = [$schema, $data, $uuid];
+
+					return ($data + ['id' => $uuid]);
+				}
+
 				$this->stagePatches[] = [$schema, $data, $uuid];
 
 				return ($data + ['id' => $uuid]);
@@ -220,5 +233,47 @@ class ApprovalStageTaskProjectorTest extends TestCase {
 		);
 
 		$this->assertSame([], $this->stagePatches);
+	}
+
+	/**
+	 * An active stage names the person it waits on, so a "waiting for you"
+	 * list can filter on the reader; a stage that stops waiting clears it.
+	 *
+	 * @return void
+	 */
+	public function testAStageNamesWhoItWaitsOnWhileActive(): void {
+		$this->projector()->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'status' => 'active', 'assignedPerson' => 'alice', 'taskUuid' => 'task-1'],
+				['id' => 's-2', 'status' => 'decided', 'assignedPerson' => 'bob', 'waitingOn' => 'bob', 'taskUuid' => ''],
+				['id' => 's-3', 'status' => 'active', 'assignedPerson' => 'carol', 'waitingOn' => 'carol', 'taskUuid' => 'task-3'],
+				['id' => 's-4', 'status' => 'pending', 'assignedPerson' => 'dave', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertSame(
+			expected: [
+				['decision-stage', ['waitingOn' => 'alice'], 's-1'],
+				['decision-stage', ['waitingOn' => null], 's-2'],
+			],
+			actual: $this->waitingPatches
+		);
+	}
+
+	/**
+	 * Who a stage waits on does not depend on the task surface.
+	 *
+	 * @return void
+	 */
+	public function testWaitingOnIsWrittenWithoutATaskSurface(): void {
+		$this->projector(withTaskService: false)->sync(
+			subject: 'v-1',
+			stages: [
+				['id' => 's-1', 'status' => 'active', 'assignedPerson' => 'alice', 'taskUuid' => ''],
+			],
+		);
+
+		$this->assertSame(expected: [['decision-stage', ['waitingOn' => 'alice'], 's-1']], actual: $this->waitingPatches);
 	}
 }
