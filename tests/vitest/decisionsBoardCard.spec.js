@@ -12,17 +12,19 @@
 
 import { describe, expect, it, vi } from 'vitest'
 vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn() } }))
-vi.mock('@nextcloud/router', () => ({ generateUrl: (url) => url }))
+vi.mock('@nextcloud/router', () => ({ generateUrl: (url) => url, generateOcsUrl: (url, params = {}) => `/ocs/v2.php/${url.replace(/\{(\w+)\}/g, (m, k) => params[k])}` }))
 
 import axios from '@nextcloud/axios'
 import {
 	decisionAuthority,
 	decisionMetaLine,
+	drafterName,
 	initialsOf,
 	listDecisionStages,
 	mandateNotice,
 	personNames,
 	stageSteps,
+	userDisplayNames,
 } from '../../src/integrations/decisionCard.js'
 
 const day = (iso) => iso.slice(0, 10)
@@ -112,5 +114,28 @@ describe('the reads behind the card', () => {
 		expect(axios.get.mock.calls[0][0]).toBe('/apps/decidiq/api/decisions/d-1/authority')
 		axios.get.mockRejectedValueOnce(new Error('404'))
 		expect(await decisionAuthority('d-1')).toBeNull()
+	})
+})
+
+describe('the drafter by name', () => {
+	it('looks up each account once and leaves out one it cannot read', async () => {
+		axios.get.mockReset()
+		axios.get.mockImplementation(async (url) => {
+			if (url.endsWith('/cloud/users/pieter')) {
+				return { data: { ocs: { data: { id: 'pieter', displayname: 'Pieter Jansen' } } } }
+			}
+			throw new Error('404')
+		})
+		expect(await userDisplayNames(['pieter', 'pieter', 'ghost', ''])).toEqual({ pieter: 'Pieter Jansen' })
+		expect(axios.get).toHaveBeenCalledTimes(2)
+		expect(axios.get.mock.calls[0][1].headers).toMatchObject({ 'OCS-APIRequest': 'true' })
+	})
+
+	it('names the drafter by the proposer, else the owner\'s display name, else the account', () => {
+		const names = { pieter: 'Pieter Jansen' }
+		expect(drafterName({ proposer: 'Raad', '@self': { owner: 'pieter' } }, names)).toBe('Raad')
+		expect(drafterName({ '@self': { owner: 'pieter' } }, names)).toBe('Pieter Jansen')
+		expect(drafterName({ '@self': { owner: 'anouk' } }, names)).toBe('anouk')
+		expect(drafterName({}, names)).toBe('')
 	})
 })
