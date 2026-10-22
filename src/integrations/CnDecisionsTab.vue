@@ -126,11 +126,13 @@ import ShieldCheckOutline from 'vue-material-design-icons/ShieldCheckOutline.vue
 import {
 	decisionAuthority,
 	decisionMetaLine,
+	drafterName,
 	initialsOf,
 	listDecisionStages,
 	mandateNotice,
 	personNames,
 	stageSteps,
+	userDisplayNames,
 } from './decisionCard.js'
 import {
 	createHostDecision,
@@ -189,6 +191,8 @@ export default {
 			people: {},
 			/** Authority answers by decision id. */
 			authority: {},
+			/** Display names by account, for the drafters. */
+			userNames: {},
 		}
 	},
 
@@ -391,14 +395,14 @@ export default {
 		},
 
 		/**
-		 * Who drafted a decision: its proposer, else its owner's account.
+		 * Who drafted a decision: its proposer, else its owner by display name.
 		 *
 		 * @param {object} decision The decision.
 		 * @return {string} The name, or ''.
 		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		drafterOf(decision) {
-			return String(decision?.proposer || decision?.['@self']?.owner || '').trim()
+			return drafterName(decision, this.userNames)
 		},
 
 		/**
@@ -486,7 +490,13 @@ export default {
 			}))
 			this.stages = stages
 			this.authority = authority
-			this.people = await personNames(Object.values(stages).flat().map((stage) => stage?.assignedPerson))
+			const owners = this.decisions.filter((decision) => !decision?.proposer).map((decision) => decision?.['@self']?.owner)
+			const [people, userNames] = await Promise.all([
+				personNames(Object.values(stages).flat().map((stage) => stage?.assignedPerson)),
+				userDisplayNames(owners),
+			])
+			this.people = people
+			this.userNames = userNames
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 open create-proposal dialog. */

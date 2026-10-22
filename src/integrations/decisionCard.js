@@ -7,7 +7,7 @@
 // at the bottom and go through the shared OpenRegister and decidiq APIs.
 
 import axios from '@nextcloud/axios'
-import { generateUrl } from '@nextcloud/router'
+import { generateOcsUrl, generateUrl } from '@nextcloud/router'
 
 /**
  * Up to two initials of a name, for the row's avatar.
@@ -23,6 +23,24 @@ export function initialsOf(name) {
 	}
 	const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : ''
 	return (parts[0].charAt(0) + last).toUpperCase()
+}
+
+/**
+ * Who drafted a decision, by name: its proposer, else its owner's display
+ * name, else the owner's account.
+ *
+ * @param {object} decision The decision.
+ * @param {Object<string, string>} names Display names by account.
+ * @return {string} The name, or ''.
+ * @spec openspec/changes/decisions-leaf-drafter-name/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-names-the-drafter-by-display-name
+ */
+export function drafterName(decision, names) {
+	const proposer = String(decision?.proposer || '').trim()
+	if (proposer !== '') {
+		return proposer
+	}
+	const owner = String(decision?.['@self']?.owner || '').trim()
+	return (names && names[owner]) || owner
 }
 
 /**
@@ -158,4 +176,29 @@ export async function decisionAuthority(decisionId) {
 	} catch {
 		return null
 	}
+}
+
+/**
+ * Display names by account, from Nextcloud's user directory; an account that
+ * cannot be read is left out, so the caller shows the account itself.
+ *
+ * @param {Array<string>} uids Account ids.
+ * @return {Promise<Object<string, string>>} The names.
+ * @spec openspec/changes/decisions-leaf-drafter-name/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-names-the-drafter-by-display-name
+ */
+export async function userDisplayNames(uids) {
+	const unique = [...new Set((uids || []).filter(Boolean).map(String))]
+	const entries = await Promise.all(unique.map(async (uid) => {
+		try {
+			const res = await axios.get(generateOcsUrl('cloud/users/{userId}', { userId: uid }), {
+				headers: { 'OCS-APIRequest': 'true' },
+				params: { format: 'json' },
+			})
+			const name = res?.data?.ocs?.data?.displayname
+			return typeof name === 'string' && name !== '' ? [uid, name] : null
+		} catch {
+			return null
+		}
+	}))
+	return Object.fromEntries(entries.filter(Boolean))
 }
