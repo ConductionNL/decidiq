@@ -25,7 +25,9 @@
  Nextcloud CSS variables only so the nldesign overrides apply (ADR-010).
 -->
 <template>
-	<CnDetailCard :title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+	<CnDetailCard
+		v-if="!summarised"
+		:title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-decisions-widget__error" role="alert">
@@ -118,12 +120,14 @@ import Plus from 'vue-material-design-icons/Plus.vue'
 import {
 	createHostDecision,
 	decisionBucket,
+	hostProposalPayload,
 	isProposal,
 	listDecisionTypes,
 	listHostDecisions,
 	objId,
 	proposalFormSchema,
 } from './decisionLink.js'
+import { leafReportMixin } from './leafReport.js'
 
 const DASHBOARD_SURFACES = ['user-dashboard', 'app-dashboard']
 
@@ -145,6 +149,8 @@ export default {
 		Plus,
 	},
 
+	mixins: [leafReportMixin],
+
 	props: {
 		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
 		integrationId: { type: String, default: 'decidesk-decisions' },
@@ -162,6 +168,13 @@ export default {
 		objectLabel: { type: String, default: '' },
 		/** Whether the card body is collapsible. */
 		collapsible: { type: Boolean, default: true },
+		/**
+		 * The card title the host gives (CnDetailWidgetHost passes the widget's
+		 * translated `title`). A page that mounts this leaf twice, such as a
+		 * ticket that lists its own decisions and those on the case it became,
+		 * can so tell the two cards apart. Empty keeps "Besluitvorming".
+		 */
+		title: { type: String, default: '' },
 	},
 
 	data() {
@@ -176,9 +189,25 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * What this leaf reports to a "linked" card.
+		 *
+		 * @return {object} The report.
+		 * @spec openspec/changes/leaves-linked-card/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 */
+		leafReport() {
+			return {
+				count: this.decisions.length,
+				emptyLabel: this.emptyLabel,
+				noun: t('decidiq', 'decisions'),
+				rows: this.decisions.map((decision) => ({ label: this.rowTitle(decision), href: this.decisionUrl(decision), icon: 'Gavel' })),
+				actions: [{ label: this.openInDecidiqLabel, run: () => window.location.assign(this.appUrl) }],
+			}
+		},
+
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget title. */
 		cardTitle() {
-			return t('decidiq', 'Besluitvorming')
+			return this.title || t('decidiq', 'Besluitvorming')
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — Besluitvorming widget icon. */
@@ -436,20 +465,12 @@ export default {
 			this.creating = true
 			this.error = ''
 			try {
-				await createHostDecision({
-					title: formData.title || t('decidiq', 'Proposal'),
-					text: formData.text || '',
-					decisionType: formData.decisionType || 'motion',
-					lifecycle: 'proposed',
-					decisionDate: new Date().toISOString(),
-					outcome: 'pending',
-					// Case-linking back-reference (REQ-DCDH-001).
-					sourceApp: this.hostSchema || 'openregister',
-					subjectRegister: this.hostRegister,
-					subjectSchema: this.hostSchema,
-					subjectId: this.hostObjectId,
-					subjectLabel: this.objectLabel || this.hostObjectId,
-				})
+				await createHostDecision(hostProposalPayload(formData, {
+					register: this.hostRegister,
+					schema: this.hostSchema,
+					objectId: this.hostObjectId,
+					label: this.objectLabel,
+				}, t('decidiq', 'Proposal')))
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {

@@ -1,0 +1,36 @@
+{
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"_comment": "ADR-037 register fragment, change bodies-member-profile-and-voting-record (REQ-MPR-002, REQ-MPR-005, matrix rows bod-05, vot-18, pub-14). A membership carries the subjects the member holds in that body, and a body decides whether its members' votes are published by name.",
+	"components": {
+		"schemas": {
+			"Membership": {
+				"slug": "membership",
+				"version": "0.4.0",
+				"properties": {
+					"portfolio": {
+						"type": "array",
+						"title": "Portfolio",
+						"description": "The subjects the member holds in this body, such as an alderman's Finance and Housing. It belongs to the membership, not the person: the same alderman holds nothing in the council.",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"GovernanceBody": {
+				"slug": "governance-body",
+				"version": "0.4.0",
+				"properties": {
+					"publishVotingRecords": {
+						"type": "boolean",
+						"title": "Publish voting records",
+						"description": "Whether the public ORI API publishes the votes of this body's members by name, for rounds that were not secret on published decisions. A council's votes are public by law, a supervisory board's are not.",
+						"default": false
+					}
+				}
+			}
+		}
+	}
+}

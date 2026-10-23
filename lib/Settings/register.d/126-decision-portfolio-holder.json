@@ -1,0 +1,24 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change decision-portfolio-holder. A decision names the executive member responsible for it (board DcVoorstellen, column Portefeuillehouder; board DcVoorstel, side card). A Person, like the portfolio holder an oral question is put to (fragment 49). Optional: a board or an association has none.",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "version": "1.7.0",
+        "properties": {
+          "portfolioHolder": {
+            "title": "Portfolio holder",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "nullable": true,
+            "facetable": true
+          }
+        }
+      }
+    }
+  }
+}

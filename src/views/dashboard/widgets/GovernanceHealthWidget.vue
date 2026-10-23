@@ -33,6 +33,7 @@
 		<CnChartWidget
 			v-else
 			type="line"
+			height="100%"
 			:series="chart.series"
 			:categories="categoryLabels"
 			data-testid="governance-health-chart" />
@@ -149,6 +150,11 @@ export default {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
+	/* The chart fits the tile (height 100% on CnChartWidget) and needs a
+	   resolved height to fit to. A pinned 250px chart was 12px taller than
+	   its own box and scrolled inside the tile. */
+	height: 100%;
+	box-sizing: border-box;
 	/* The card content box has no padding of its own; every decidiq-local
 	   dashboard widget therefore sits flush at gapTop 0, where shared-library
 	   widgets on the same dashboard inset by ~17px. Same fix as

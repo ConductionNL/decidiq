@@ -43,21 +43,43 @@ use Throwable;
  * @spec openspec/specs/voting-system/spec.md
  */
 class VoteBallotFactory {
+
+	/**
+	 * Derives the secret-ballot tokens. The factory owns it: the slug of a
+	 * secret ballot and the dedup lookup before a cast must use the same one.
+	 *
+	 * @var VoterTokenSecret
+	 */
+	private readonly VoterTokenSecret $tokens;
+
 	/**
 	 * Constructor for the VoteBallotFactory.
 	 *
 	 * @param ContainerInterface $container The DI container (for ObjectService)
 	 * @param LoggerInterface $logger The logger
-	 * @param VoterTokenSecret $tokens Derives secret-ballot tokens
+	 * @param VoterTokenSecret|null $tokens Derives secret-ballot tokens; built from the container when null
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
-		private readonly VoterTokenSecret $tokens,
+		?VoterTokenSecret $tokens = null,
 	) {
+		$this->tokens = ($tokens ?? new VoterTokenSecret(container: $container));
 	}//end __construct()
+
+	/**
+	 * The token secret this factory signs secret ballots with, for the guards
+	 * and lookups of the same cast.
+	 *
+	 * @return VoterTokenSecret The token secret.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	public function tokens(): VoterTokenSecret {
+		return $this->tokens;
+	}//end tokens()
 
 	/**
 	 * Assemble the ballot payload, including the idempotency slug.
@@ -69,9 +91,11 @@ class VoteBallotFactory {
 	 * @param string|null $delegatorId The delegator UUID for a proxy vote
 	 * @param bool $isSecret Whether the round is a secret ballot
 	 * @param array<string,mixed>|null $existingVote The ballot being overwritten, when any
+	 * @param array<int, mixed>|null $ranking The checked ranking of a ranked ballot, or null
 	 *
 	 * @return array<string,mixed> The vote payload to persist.
 	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function buildVote(
@@ -82,6 +106,7 @@ class VoteBallotFactory {
 		?string $delegatorId,
 		bool $isSecret,
 		?array $existingVote,
+		?array $ranking = null,
 	): array {
 		$relations = $this->voteRelations(
 			votingRoundId: $votingRoundId,
@@ -108,6 +133,11 @@ class VoteBallotFactory {
 			'castAs' => $this->resolveCastAs(participantId: $participantId),
 			'relations' => $relations,
 		];
+
+		// A ranked ballot carries the member's order in its own field (REQ-PRF-002).
+		if ($ranking !== null) {
+			$vote['ranking'] = array_values(array_map(static fn (mixed $key): string => (string)$key, $ranking));
+		}
 
 		// Store opaque dedup token for secret rounds (never contains participant identity).
 		if ($isSecret === true) {

@@ -110,6 +110,21 @@ class ApprovalStageTaskProjector {
 	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
 	 */
 	public function sync(string $subject, array $stages): void {
+		foreach ($stages as $stage) {
+			try {
+				$this->syncWaitingOn(stage: $stage);
+			} catch (Throwable $e) {
+				$this->logger->warning(
+					'Decidiq: could not record who an approval stage waits on',
+					[
+						'subject' => $subject,
+						'stage' => ($stage['id'] ?? null),
+						'error' => $e->getMessage(),
+					]
+				);
+			}
+		}
+
 		$tasks = $this->taskService();
 		if ($tasks === null) {
 			return;
@@ -130,6 +145,41 @@ class ApprovalStageTaskProjector {
 			}
 		}
 	}//end sync()
+
+	/**
+	 * Keep `waitingOn` naming the person an active stage waits on, and empty otherwise.
+	 *
+	 * A list of "what waits for me" filters on this one field with plain
+	 * equality, which is the filter the register answers; it cannot read the
+	 * stage status and the assignee together through the task surface.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 *
+	 * @return void
+	 */
+	private function syncWaitingOn(array $stage): void {
+		$id = (string)($stage['id'] ?? '');
+		if ($id === '') {
+			return;
+		}
+
+		$wanted = '';
+		if ((string)($stage['status'] ?? '') === 'active') {
+			$wanted = trim((string)($stage['assignedPerson'] ?? ''));
+		}
+
+		$current = trim((string)($stage['waitingOn'] ?? ''));
+		if ($wanted === $current) {
+			return;
+		}
+
+		$value = null;
+		if ($wanted !== '') {
+			$value = $wanted;
+		}
+
+		$this->store->patch(schema: 'decision-stage', data: ['waitingOn' => $value], uuid: $id);
+	}//end syncWaitingOn()
 
 	/**
 	 * Bring one stage's task in line with its status.

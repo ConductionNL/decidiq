@@ -23,12 +23,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AgendaService;
+use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\CalendarEventService;
-use OCP\Notification\IManager as INotificationManager;
-use OCP\Notification\INotification;
+use OCP\IL10N;
+use OCP\L10N\IFactory;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -63,11 +64,19 @@ class AgendaServiceTest extends TestCase {
 	private CalendarEventService&MockObject $calendarEventService;
 
 	/**
-	 * Mock INotificationManager.
+	 * Mock NotificationPreferenceService: the one place a member's delivery
+	 * choice is applied (agenda-change-notices-reach-members).
 	 *
-	 * @var INotificationManager&MockObject
+	 * @var NotificationPreferenceService&MockObject
 	 */
-	private INotificationManager&MockObject $notificationManager;
+	private NotificationPreferenceService&MockObject $preferences;
+
+	/**
+	 * Every dispatch() call, in order.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private array $dispatched = [];
 
 	/**
 	 * Mock LoggerInterface.
@@ -75,6 +84,13 @@ class AgendaServiceTest extends TestCase {
 	 * @var LoggerInterface&MockObject
 	 */
 	private LoggerInterface&MockObject $logger;
+
+	/**
+	 * Translations (English, %s filled).
+	 *
+	 * @var IFactory&MockObject
+	 */
+	private IFactory&MockObject $l10nFactory;
 
 	/**
 	 * Mock ParticipantResolver.
@@ -93,16 +109,25 @@ class AgendaServiceTest extends TestCase {
 
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 		$this->calendarEventService = $this->createMock(CalendarEventService::class);
-		$this->notificationManager = $this->createMock(INotificationManager::class);
+		$this->preferences = $this->createMock(NotificationPreferenceService::class);
+		$this->dispatched = [];
+		$l10n = $this->createMock(IL10N::class);
+		$l10n->method('t')->willReturnCallback(
+			fn (string $text, array|string $params = []): string => vsprintf($text, (array)$params)
+		);
+		$this->l10nFactory = $this->createMock(IFactory::class);
+		$this->l10nFactory->method('get')->willReturn($l10n);
 		$this->logger = $this->createMock(LoggerInterface::class);
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 
 		$this->service = new AgendaService(
 			objectService: $this->objectService,
 			calendarEventService: $this->calendarEventService,
-			notificationManager: $this->notificationManager,
+			preferences: $this->preferences,
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
+			l10nFactory: $this->l10nFactory,
+			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 
 	}//end setUp()
@@ -179,21 +204,11 @@ class AgendaServiceTest extends TestCase {
 			->with($meetingId)
 			->willReturn($participants);
 
-		$notification = $this->createMock(INotification::class);
-		$notification->method('setApp')->willReturnSelf();
-		$notification->method('setUser')->willReturnSelf();
-		$notification->method('setDateTime')->willReturnSelf();
-		$notification->method('setObject')->willReturnSelf();
-		$notification->method('setSubject')->willReturnSelf();
-
-		$this->notificationManager
-			->method('createNotification')
-			->willReturn($notification);
-
-		// Only 2 active participants → notify() called exactly 2 times.
-		$this->notificationManager
+		// Only 2 active participants: dispatch() is called exactly 2 times.
+		$this->preferences
 			->expects($this->exactly(2))
-			->method('notify');
+			->method('dispatch')
+			->willReturn(1);
 
 		$this->objectService
 			->expects($this->atLeastOnce())
@@ -251,9 +266,11 @@ class AgendaServiceTest extends TestCase {
 			$freshService = new AgendaService(
 				objectService: $objectService,
 				calendarEventService: $this->calendarEventService,
-				notificationManager: $this->notificationManager,
+				preferences: $this->preferences,
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
+				l10nFactory: $this->l10nFactory,
+				eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 			);
 
 			$freshService->advanceBobPhase($itemId);
@@ -339,22 +356,23 @@ class AgendaServiceTest extends TestCase {
 	// -----------------------------------------------------------------------
 
 	/**
-	 * processHamerstukken bulk-updates only items tagged 'hamerstuk'.
-	 *
-	 * The items come back from findAll() as entities, the way OpenRegister
-	 * returns them, and each tagged one must be patched to 'completed'. The
-	 * untagged item-2 must be left alone.
+	 * The chair adopts the formalities: every item marked as a formality
+	 * (and one still carrying the older `hamerstuk` tag) records "adopted
+	 * without debate" and the time. Items that are not formalities, and a
+	 * formality already adopted, are left alone. It used to write
+	 * `status: completed`, a field AgendaItem does not declare.
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-9.1
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
-	public function testProcessHamerstukkenUpdatesTaggedItemsOnly(): void {
-		$meetingId = 'meeting-uuid-1';
+	public function testFormalitiesAreAdoptedWithoutDebate(): void {
 		$items = [
-			['id' => 'item-1', 'title' => 'Item 1', 'tags' => ['hamerstuk'], 'status' => 'besluitvorming'],
-			['id' => 'item-2', 'title' => 'Item 2', 'tags' => [],            'status' => 'beeldvorming'],
-			['id' => 'item-3', 'title' => 'Item 3', 'tags' => ['hamerstuk'], 'status' => 'oordeelsvorming'],
+			['id' => 'item-3', 'title' => 'Item 3', 'isFormality' => true],
+			['id' => 'item-2', 'title' => 'Item 2', 'isFormality' => false],
+			['id' => 'item-4', 'title' => 'Item 4', 'tags' => ['hamerstuk']],
+			['id' => 'item-7', 'title' => 'Item 7', 'isFormality' => true],
+			['id' => 'item-8', 'title' => 'Item 8', 'isFormality' => true, 'formalityOutcome' => 'adopted-without-debate'],
 		];
 
 		$this->objectService
@@ -364,17 +382,99 @@ class AgendaServiceTest extends TestCase {
 
 		$patches = $this->capturePatches();
 
-		$this->service->processHamerstukken($meetingId);
+		$adopted = $this->service->processHamerstukken('meeting-uuid-1');
 
-		$this->assertSame(
-			[
-				['id' => 'item-1', 'data' => ['status' => 'completed']],
-				['id' => 'item-3', 'data' => ['status' => 'completed']],
-			],
-			$patches->getArrayCopy()
+		$this->assertSame(3, $adopted);
+		$this->assertSame(['item-3', 'item-4', 'item-7'], array_column($patches->getArrayCopy(), 'id'));
+		foreach ($patches as $patch) {
+			$this->assertSame('adopted-without-debate', $patch['data']['formalityOutcome']);
+			$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T/', $patch['data']['adoptedAt']);
+			$this->assertValidAgendaItemFields($patch['data']);
+		}
+
+	}//end testFormalitiesAreAdoptedWithoutDebate()
+
+	/**
+	 * The chair or secretary marks an item of the meeting as a formality.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function testAnItemOfTheMeetingIsMarkedAsAFormality(): void {
+		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-4', 'meeting' => 'meeting-uuid-1']));
+		$patches = $this->capturePatches();
+
+		$this->service->setFormality(meetingId: 'meeting-uuid-1', itemId: 'item-4', isFormality: true);
+
+		$this->assertSame([['id' => 'item-4', 'data' => ['isFormality' => true]]], $patches->getArrayCopy());
+		$this->assertValidAgendaItemFields($patches[0]['data']);
+
+	}//end testAnItemOfTheMeetingIsMarkedAsAFormality()
+
+	/**
+	 * An item of another meeting cannot be marked through this meeting.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function testAnItemOfAnotherMeetingIsRefused(): void {
+		$this->objectService->method('find')->willReturn($this->entity(['id' => 'item-4', 'meeting' => 'other-meeting']));
+		$this->objectService->expects($this->never())->method('patchObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->setFormality(meetingId: 'meeting-uuid-1', itemId: 'item-4', isFormality: true);
+
+	}//end testAnItemOfAnotherMeetingIsRefused()
+
+	/**
+	 * An adopted formality stays one: it cannot be taken back off.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
+	 */
+	public function testAnAdoptedFormalityCannotBeUnmarked(): void {
+		$this->objectService->method('find')->willReturn(
+			$this->entity(['id' => 'item-4', 'meeting' => 'meeting-uuid-1', 'isFormality' => true, 'formalityOutcome' => 'adopted-without-debate'])
 		);
+		$this->objectService->expects($this->never())->method('patchObject');
 
-	}//end testProcessHamerstukkenUpdatesTaggedItemsOnly()
+		$this->expectException(\InvalidArgumentException::class);
+		$this->service->setFormality(meetingId: 'meeting-uuid-1', itemId: 'item-4', isFormality: false);
+
+	}//end testAnAdoptedFormalityCannotBeUnmarked()
+
+	/**
+	 * Every key of a patch is declared by the merged AgendaItem schema (base
+	 * register plus every register.d fragment) and carries a value it
+	 * accepts, checked with the opis validator.
+	 *
+	 * @param array<string, mixed> $data The patch
+	 *
+	 * @return void
+	 */
+	private function assertValidAgendaItemFields(array $data): void {
+		$settings = __DIR__ . '/../../../lib/Settings/';
+		$files = array_merge([$settings . 'decidesk_register.json'], (glob($settings . 'register.d/*.json') ?: []));
+		$properties = [];
+		foreach ($files as $file) {
+			$doc = json_decode((string)file_get_contents($file), true);
+			foreach (($doc['components']['schemas'] ?? []) as $name => $schema) {
+				if (($schema['slug'] ?? $name) === 'agenda-item' || $name === 'AgendaItem') {
+					$properties = array_replace_recursive($properties, ($schema['properties'] ?? []));
+				}
+			}
+		}
+
+		$result = (new \Opis\JsonSchema\Validator())->validate(
+			json_decode((string)json_encode($data)),
+			json_decode((string)json_encode(['type' => 'object', 'properties' => $properties, 'additionalProperties' => false]))
+		);
+		$this->assertTrue($result->isValid(), 'The patch must validate against AgendaItem: ' . json_encode($result->error()?->args()));
+
+	}//end assertValidAgendaItemFields()
 
 	// -----------------------------------------------------------------------
 	// reorderItems tests
@@ -417,6 +517,210 @@ class AgendaServiceTest extends TestCase {
 		);
 
 	}//end testReorderItemsAssignsSequentialNumbers()
+
+	// -----------------------------------------------------------------------
+	// agenda publication state and change notices (#1396)
+	// -----------------------------------------------------------------------
+
+	/**
+	 * Publishing records version 1 and a snapshot, notifies, and leaves the
+	 * meeting lifecycle alone: a published agenda is not a meeting in session.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testPublishAgendaRecordsAVersionAndLeavesTheLifecycleAlone(): void {
+		$saved = $this->wirePublishedMeeting(meeting: ['lifecycle' => 'scheduled']);
+		$subjects = $this->captureNotifications();
+
+		$this->service->publishAgenda('meeting-uuid-1');
+
+		self::assertCount(1, $saved);
+		self::assertSame('scheduled', $saved[0]['lifecycle'], 'Publishing an agenda MUST NOT open the meeting');
+		self::assertSame(1, $saved[0]['agendaVersion']);
+		self::assertNotEmpty($saved[0]['agendaPublishedAt']);
+		self::assertFalse($saved[0]['agendaUnderRevision']);
+		self::assertCount(1, $saved[0]['agendaVersions']);
+		self::assertSame(['item-1', 'item-2'], array_column($saved[0]['agendaVersions'][0]['items'], 'id'));
+		self::assertSame(['alice' => 'agenda_published'], $subjects->getArrayCopy());
+
+	}//end testPublishAgendaRecordsAVersionAndLeavesTheLifecycleAlone()
+
+	/**
+	 * Publishing again after a revision tells members the agenda was revised.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testRepublishAfterRevisionNotifiesARevisedAgenda(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: [
+				'lifecycle' => 'scheduled',
+				'agendaPublishedAt' => '2026-09-01T10:00:00+00:00',
+				'agendaVersion' => 1,
+				'agendaUnderRevision' => true,
+				'agendaVersions' => [['version' => 1, 'publishedAt' => '2026-09-01T10:00:00+00:00', 'items' => []]],
+			]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->publishAgenda('meeting-uuid-1');
+
+		self::assertSame(2, $saved[0]['agendaVersion']);
+		self::assertFalse($saved[0]['agendaUnderRevision']);
+		self::assertCount(2, $saved[0]['agendaVersions'], 'The earlier version MUST be kept');
+		self::assertSame(['alice' => 'agenda_revised'], $subjects->getArrayCopy());
+
+	}//end testRepublishAfterRevisionNotifiesARevisedAgenda()
+
+	/**
+	 * Revising tells members and never moves a running meeting back to scheduled.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testReviseAgendaNotifiesAndKeepsTheLifecycle(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['lifecycle' => 'opened', 'agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->reviseAgenda('meeting-uuid-1');
+
+		self::assertCount(1, $saved);
+		self::assertSame('opened', $saved[0]['lifecycle'], 'Revising MUST NOT move a running meeting back to scheduled');
+		self::assertTrue($saved[0]['agendaUnderRevision']);
+		self::assertSame(['alice' => 'agenda_revision_started'], $subjects->getArrayCopy());
+
+	}//end testReviseAgendaNotifiesAndKeepsTheLifecycle()
+
+	/**
+	 * A change to the agenda of a published meeting records a version and notifies.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testAgendaChangeOnAPublishedMeetingNotifiesAndRecordsAVersion(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['lifecycle' => 'scheduled', 'agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertCount(1, $saved);
+		self::assertSame(2, $saved[0]['agendaVersion']);
+		self::assertSame('scheduled', $saved[0]['lifecycle']);
+		self::assertSame(['alice' => 'agenda_changed'], $subjects->getArrayCopy());
+
+	}//end testAgendaChangeOnAPublishedMeetingNotifiesAndRecordsAVersion()
+
+	/**
+	 * Before publication, or while a revision is open, an agenda edit is silent.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testAgendaChangeIsSilentWhenUnpublishedOrUnderRevision(): void {
+		foreach ([['lifecycle' => 'scheduled'], ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaUnderRevision' => true]] as $meeting) {
+			$this->setUp();
+			$saved = $this->wirePublishedMeeting(meeting: $meeting);
+			$subjects = $this->captureNotifications();
+
+			$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+			self::assertCount(0, $saved);
+			self::assertCount(0, $subjects);
+		}
+
+	}//end testAgendaChangeIsSilentWhenUnpublishedOrUnderRevision()
+
+	/**
+	 * Reordering a published agenda sends one notice per member, not one per item.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	public function testReorderOnAPublishedAgendaNotifiesOnce(): void {
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 3]
+		);
+		$subjects = $this->captureNotifications();
+		$this->capturePatches();
+
+		$this->service->reorderItems('meeting-uuid-1', ['item-2', 'item-1']);
+
+		self::assertTrue($this->service->isSuppressingItemNotices() === false);
+		self::assertSame(['alice' => 'agenda_changed'], $subjects->getArrayCopy());
+		self::assertSame(4, $saved[0]['agendaVersion']);
+
+	}//end testReorderOnAPublishedAgendaNotifiesOnce()
+
+	/**
+	 * Wire a meeting, two agenda items and two participants (one left).
+	 *
+	 * @param array<string, mixed> $meeting Meeting fields over the defaults.
+	 *
+	 * @return \ArrayObject<int, array<string, mixed>> Every meeting object handed to saveObject().
+	 */
+	private function wirePublishedMeeting(array $meeting): \ArrayObject {
+		$meetingData = array_merge(['id' => 'meeting-uuid-1', 'title' => 'Council', 'lifecycle' => 'scheduled'], $meeting);
+		$this->objectService->method('find')->willReturn($this->entity($meetingData));
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) {
+				if (($config['filters']['schema'] ?? '') === 'agenda-item') {
+					return [
+						$this->entity(['id' => 'item-1', 'title' => 'Opening', 'orderNumber' => 1]),
+						$this->entity(['id' => 'item-2', 'title' => 'Budget', 'orderNumber' => 2]),
+					];
+				}
+
+				return [];
+			}
+		);
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn(
+			[
+				['owner' => 'alice', 'leftAt' => null],
+				['owner' => 'bob', 'leftAt' => '2025-01-01T00:00:00Z'],
+			]
+		);
+
+		$saved = new \ArrayObject();
+		$this->objectService->method('saveObject')->willReturnCallback(
+			function (array $object) use ($saved): ObjectEntity {
+				$saved->append($object);
+				return $this->entity($object);
+			}
+		);
+
+		return $saved;
+
+	}//end wirePublishedMeeting()
+
+	/**
+	 * Record the subject of every notification sent, keyed by user.
+	 *
+	 * @return \ArrayObject<string, string> user => subject
+	 */
+	private function captureNotifications(): \ArrayObject {
+		$subjects = new \ArrayObject();
+		$this->preferences->method('dispatch')->willReturnCallback(
+			function (string $personId, string $eventType, string $title, string $message, string $deepLink='', ?array $inApp=null) use ($subjects): int {
+				$subjects[$personId] = (string)($inApp['subject'] ?? '');
+				$this->dispatched[] = compact('personId', 'eventType', 'title', 'message', 'deepLink', 'inApp');
+				return 1;
+			}
+		);
+
+		return $subjects;
+
+	}//end captureNotifications()
 
 	// -----------------------------------------------------------------------
 	// helpers
@@ -462,4 +766,89 @@ class AgendaServiceTest extends TestCase {
 		return $entity;
 
 	}//end entity()
+
+	/**
+	 * Agenda notices go through the member's preferences as agendaChanged, with
+	 * the agenda subject for the bell and the meeting's title and link.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testAgendaNoticeGoesThroughThePreferences(): void {
+		$this->wirePublishedMeeting(meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]);
+		$this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertCount(1, $this->dispatched);
+		$call = $this->dispatched[0];
+		self::assertSame('agendaChanged', $call['eventType']);
+		self::assertSame('The agenda of Council changed', $call['title']);
+		self::assertSame('/meetings/meeting-uuid-1', $call['deepLink']);
+		self::assertSame('agenda_changed', $call['inApp']['subject']);
+		self::assertSame(['meetingId' => 'meeting-uuid-1', 'meetingTitle' => 'Council'], $call['inApp']['parameters']);
+		self::assertSame(['meeting', 'meeting-uuid-1'], [$call['inApp']['objectType'], $call['inApp']['objectId']]);
+
+	}//end testAgendaNoticeGoesThroughThePreferences()
+
+	/**
+	 * The recipient is the participant's linked Nextcloud user, not whoever
+	 * created the participant record.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 *
+	 * @return void
+	 */
+	public function testTheLinkedNextcloudUserIsTheRecipient(): void {
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn(
+			[
+				['nextcloudUserId' => 'pieter', 'owner' => 'admin', 'leftAt' => null],
+				['owner' => 'legacy-owner', 'leftAt' => null],
+			]
+		);
+		$this->wirePublishedMeeting(meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 1]);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertSame(['pieter' => 'agenda_changed', 'legacy-owner' => 'agenda_changed'], $subjects->getArrayCopy());
+
+	}//end testTheLinkedNextcloudUserIsTheRecipient()
+
+	/**
+	 * A burst of edits records a version each time but tells a member once in
+	 * five minutes; after that window the next edit notifies again.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-004-a-burst-of-agenda-edits-sends-one-notice
+	 *
+	 * @return void
+	 */
+	public function testABurstOfEditsSendsOneNotice(): void {
+		$recent = (new \DateTimeImmutable('-2 minutes'))->format(DATE_ATOM);
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 3, 'agendaNoticeSentAt' => ['alice' => $recent]]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertCount(1, $saved, 'The version is recorded even without a notice');
+		self::assertSame(4, $saved[0]['agendaVersion']);
+		self::assertCount(0, $subjects, 'alice was told two minutes ago');
+		self::assertSame($recent, $saved[0]['agendaNoticeSentAt']['alice']);
+
+		$this->setUp();
+		$old = (new \DateTimeImmutable('-6 minutes'))->format(DATE_ATOM);
+		$saved = $this->wirePublishedMeeting(
+			meeting: ['agendaPublishedAt' => '2026-09-01T10:00:00+00:00', 'agendaVersion' => 4, 'agendaNoticeSentAt' => ['alice' => $old]]
+		);
+		$subjects = $this->captureNotifications();
+
+		$this->service->notifyAgendaChanged('meeting-uuid-1');
+
+		self::assertSame(['alice' => 'agenda_changed'], $subjects->getArrayCopy());
+		self::assertGreaterThan(strtotime($old), strtotime($saved[0]['agendaNoticeSentAt']['alice']));
+
+	}//end testABurstOfEditsSendsOneNotice()
 }//end class

@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the forward agenda and the authority delegation into plain words.
  *
- * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md
+ * @spec openspec/specs/the-last-two-dutch-names/spec.md
  */
 class MigrateTheLastTwoDutchNames implements IRepairStep {
 	use ReadsLegacyRows;
@@ -146,7 +146,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -180,7 +180,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,
@@ -191,7 +191,8 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 		foreach (self::RENAMES as $source => $target) {
 			$existing = $this->originIndex(objectService: $objectService, schema: $target);
 
-			foreach ($this->readRows(objectService: $objectService, schema: $source, limit: 10000) as $row) {
+			$rows = $this->parentsFirst(rows: $this->readRows(objectService: $objectService, schema: $source, limit: 10000));
+			foreach ($rows as $row) {
 				$origin = $this->identifierOf(object: $row);
 				if ($origin === '' || isset($existing[$origin]) === true) {
 					continue;
@@ -253,6 +254,49 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 		return $index;
 
 	}//end originIndex()
+
+	/**
+	 * Order the rows so a parent allocation is copied before its sub-delegations.
+	 *
+	 * A sub-delegation's `parentAllocation` follows its parent to the copy only
+	 * when the parent was copied first. The source list carries no order, so a
+	 * child read before its parent would keep pointing at the retired row.
+	 *
+	 * @param array<int,array<string,mixed>> $rows The source rows.
+	 *
+	 * @return array<int,array<string,mixed>> The rows, parents first.
+	 *
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 */
+	private function parentsFirst(array $rows): array {
+		$pending = [];
+		foreach ($rows as $row) {
+			$pending[$this->identifierOf(object: $row)] = $row;
+		}
+
+		$ordered = [];
+		while ($pending !== []) {
+			$progress = false;
+			foreach ($pending as $id => $row) {
+				$parent = (string)($row['parentAllocation'] ?? '');
+				if ($parent !== '' && isset($pending[$parent]) === true && $parent !== strval($id)) {
+					continue;
+				}
+
+				$ordered[] = $row;
+				unset($pending[$id]);
+				$progress = true;
+			}
+
+			if ($progress === false) {
+				// A cycle: copy the rest as read rather than loop forever.
+				return array_merge($ordered, array_values($pending));
+			}
+		}
+
+		return $ordered;
+
+	}//end parentsFirst()
 
 	/**
 	 * Copy one row across, resolving and retargeting its references.

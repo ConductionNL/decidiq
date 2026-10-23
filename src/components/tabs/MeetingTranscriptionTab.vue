@@ -126,6 +126,24 @@
 			v-if="transcript && transcript.status === 'done'"
 			class="decidiq-transcription__transcript"
 			data-testid="transcript-view">
+			<video
+				v-if="recordingIsVideo"
+				ref="player"
+				class="decidiq-transcription__player"
+				data-testid="transcript-player"
+				controls
+				preload="metadata"
+				:src="recordingUrl"
+				:aria-label="t('decidiq', 'Meeting recording')" />
+			<audio
+				v-else
+				ref="player"
+				class="decidiq-transcription__player"
+				data-testid="transcript-player"
+				controls
+				preload="metadata"
+				:src="recordingUrl"
+				:aria-label="t('decidiq', 'Meeting recording')" />
 			<div
 				v-for="group in groupedSegments"
 				:key="group.key"
@@ -135,9 +153,26 @@
 						? 'transcript-group-unassigned'
 						: 'transcript-group'
 				">
-				<h4 class="decidiq-transcription__group-title">
-					{{ group.title }}
-				</h4>
+				<div class="decidiq-transcription__group-header">
+					<h4 class="decidiq-transcription__group-title">
+						{{ group.title }}
+					</h4>
+					<NcButton
+						v-if="
+							group.key === 'item'
+							&& startTimes[group.id] !== undefined
+						"
+						variant="tertiary"
+						data-testid="transcript-play-from-item"
+						:aria-label="
+							t('decidiq', 'Play the recording from {title}', {
+								title: group.title,
+							})
+						"
+						@click="playFrom(startTimes[group.id])">
+						{{ t('decidiq', 'Play from here') }}
+					</NcButton>
+				</div>
 				<p
 					v-for="(seg, i) in group.segments"
 					:key="i"
@@ -176,6 +211,30 @@
 					)
 				}}
 			</CnNoteCard>
+
+			<div class="decidiq-transcription__use">
+				<NcButton
+					variant="primary"
+					data-testid="draft-use-as-minutes"
+					:disabled="working || keptCount === 0"
+					@click="useAsMinutes">
+					{{ t('decidiq', 'Use as minutes') }}
+				</NcButton>
+				<span class="decidiq-transcription__use-hint">
+					{{
+						t(
+							'decidiq',
+							'Kept sections that go into the minutes of this meeting: {count}',
+							{ count: keptCount },
+						)
+					}}
+				</span>
+			</div>
+			<CnNoteCard
+				v-if="usedNotice"
+				type="success"
+				data-testid="draft-used-notice"
+				:title="usedNotice" />
 
 			<div
 				v-for="(section, idx) in draft.sections"
@@ -261,6 +320,12 @@ import { CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextArea } from '@nextcloud/vue'
 import TranscriptionConsentModal from '../../modals/TranscriptionConsentModal.vue'
+import {
+	keptSections,
+	minutesFromAiDraft,
+	newMinutesFor,
+} from '../../utils/minutesDraft.js'
+import { isVideoRecording, itemStartTimes } from '../../utils/recordingJump.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -307,11 +372,22 @@ export default {
 			transcript: null,
 			agendaTitles: {},
 			draft: null,
+			usedNotice: '',
 			consentOpen: false,
 		}
 	},
 
 	computed: {
+		/**
+		 * How many sections of the AI draft the secretary kept.
+		 *
+		 * @return {number} The kept count
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 */
+		keptCount() {
+			return keptSections(this.draft).length
+		},
+
 		/**
 		 * The meeting this panel acts on: the explicit `objectId` prop when
 		 * mounted directly, otherwise the id CnDetailPage provides on
@@ -363,6 +439,39 @@ export default {
 				&& this.transcript
 				&& ['pending', 'failed'].includes(this.transcript.status)
 			)
+		},
+
+		/**
+		 * Where the player streams the recording from.
+		 *
+		 * @return {string}
+		 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+		 */
+		recordingUrl() {
+			const id = this.transcriptId()
+			return id
+				? generateUrl('/apps/decidiq/api/transcripts/{id}/recording', { id })
+				: ''
+		},
+
+		/**
+		 * Whether the recording plays in a video player.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+		 */
+		recordingIsVideo() {
+			return isVideoRecording(this.transcript?.sourceFilePath)
+		},
+
+		/**
+		 * The moment each agenda item started in the recording.
+		 *
+		 * @return {Object<string, number>}
+		 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+		 */
+		startTimes() {
+			return itemStartTimes(this.transcript?.segments)
 		},
 
 		/**
@@ -481,6 +590,24 @@ export default {
 			this.selectedSource = value
 		},
 
+		/**
+		 * Play the recording from a moment, in seconds.
+		 *
+		 * @param {number} seconds Where the agenda item started.
+		 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
+		 */
+		playFrom(seconds) {
+			const player = this.$refs.player
+			if (!player) return
+			player.currentTime = seconds
+			const playing = player.play?.()
+			if (playing && typeof playing.catch === 'function') {
+				// A browser that blocks autoplay still leaves the player at
+				// the moment; the member presses play.
+				playing.catch(() => {})
+			}
+		},
+
 		/** @spec openspec/specs/meeting-transcription/spec.md */
 		openConsent() {
 			if (!this.selectedSource) return
@@ -571,6 +698,60 @@ export default {
 		},
 
 		/**
+		 * Write the kept sections of the AI draft into this meeting's minutes:
+		 * the draft minutes if there are any, else a new draft record.
+		 * Minutes past the draft stage are not overwritten.
+		 *
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 */
+		async useAsMinutes() {
+			const meetingId = this.resolvedObjectId
+			if (!meetingId || !this.draft) return
+			this.working = true
+			this.error = ''
+			this.usedNotice = ''
+			try {
+				const store = ensureRelationType('minutes')
+				const found = await store.fetchCollection('minutes', {
+					meeting: meetingId,
+					_limit: 20,
+				})
+				const refOf = (ref) =>
+					ref && typeof ref === 'object' ? ref.id || ref.uuid : ref
+				let minutes = (found || []).find(
+					(m) => refOf(m.meeting) === meetingId,
+				)
+				if (minutes && (minutes.lifecycle || 'draft') !== 'draft') {
+					this.error = this.t(
+						'decidiq',
+						'The minutes of this meeting are past the draft stage, so the AI draft was not written into them.',
+					)
+					return
+				}
+				if (!minutes) {
+					minutes = newMinutesFor(meetingId, this.t('decidiq', 'Minutes'))
+				}
+				await store.saveObject(
+					'minutes',
+					minutesFromAiDraft(minutes, this.draft),
+				)
+				this.usedNotice = this.t(
+					'decidiq',
+					'The kept sections are in the minutes. Open the minutes to review them.',
+				)
+			} catch (e) {
+				this.error =
+					e?.message
+					|| this.t(
+						'decidiq',
+						'The draft could not be written into the minutes.',
+					)
+			} finally {
+				this.working = false
+			}
+		},
+
+		/**
 		 * Discard a generated section (removes its AI content + marker).
 		 *
 		 * @param {object} section The draft section.
@@ -630,6 +811,18 @@ export default {
 </script>
 
 <style scoped>
+.decidiq-transcription__use {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--default-grid-baseline);
+	margin-block: var(--default-grid-baseline);
+}
+
+.decidiq-transcription__use-hint {
+	color: var(--color-text-maxcontrast);
+}
+
 .decidiq-tab {
 	display: flex;
 	flex-direction: column;
@@ -680,6 +873,19 @@ export default {
 
 .decidiq-transcription__group-title {
 	margin: 0 0 4px;
+}
+
+.decidiq-transcription__group-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: calc(var(--default-grid-baseline) * 2);
+}
+
+.decidiq-transcription__player {
+	width: 100%;
+	max-height: 360px;
+	margin-bottom: calc(var(--default-grid-baseline) * 3);
 }
 
 .decidiq-transcription__segment {

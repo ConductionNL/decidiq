@@ -19,9 +19,8 @@ use RuntimeException;
  * so "the step is reported" and "a decision closes it" are the contract, not
  * incidental detail.
  *
- * The seed-profiles change split one question in two, because
- * `CnSetupWizard::runAction()` posts no body: the `choice` step records WHICH
- * example set, and the `run-action` step that follows imports it.
+ * Since wizard-dataset-card-load the question is one cards step again: each
+ * card's Load button posts `{ dataset }` to `load-example-set`.
  */
 class SetupControllerTest extends TestCase {
 	private IAppConfig $appConfig;
@@ -44,18 +43,22 @@ class SetupControllerTest extends TestCase {
 		);
 	}
 
-	public function testStatusReportsBothExampleSetSteps(): void {
+	public function testStatusReportsEveryManifestStepId(): void {
 		$this->appConfig->method('getValueString')->willReturn('');
 		$this->seedProfiles->method('listChoices')->willReturn([]);
 
 		$data = $this->controller->status()->getData();
 
 		// Absence is the defect this guards: a step the wizard is never told
-		// about cannot be offered and cannot be completed.
-		$this->assertArrayHasKey('example-set', $data['steps']);
-		$this->assertArrayHasKey('load-example-set', $data['steps']);
+		// about stays open and reopens the wizard. Read from the manifest.
+		$manifest = json_decode((string)file_get_contents(__DIR__ . '/../../../src/manifest.json'), true);
+		$declared = array_column($manifest['setup']['steps'], 'id');
+		$reported = array_keys($data['steps']);
+		sort($declared);
+		sort($reported);
+		$this->assertSame($declared, $reported);
+		$this->assertSame('load-example-set', array_column($manifest['setup']['steps'], null, 'id')['example-set']['loadAction'] ?? null);
 		$this->assertFalse($data['steps']['example-set']['done']);
-		$this->assertFalse($data['steps']['load-example-set']['done']);
 		// This app declares no REQUIRED step, so setup must never gate the app.
 		$this->assertTrue($data['completed']);
 		$this->assertSame(1, $data['version']);
@@ -80,7 +83,7 @@ class SetupControllerTest extends TestCase {
 		$this->assertSame('Domain', $data['profiles'][1]['icon']);
 	}
 
-	public function testChoosingNoneClosesTheLoadStepWithoutRunningIt(): void {
+	public function testChoosingNoneClosesTheStepWithoutRunningAnything(): void {
 		// 🔴 THE POINT OF THIS TEST. "None" is an ANSWER, not the absence of
 		// one. If picking it left the load step outstanding, the wizard would
 		// reopen over every page for an operator who has already said no.
@@ -92,7 +95,7 @@ class SetupControllerTest extends TestCase {
 		$data = $this->controller->status()->getData();
 
 		$this->assertTrue($data['steps']['example-set']['done']);
-		$this->assertTrue($data['steps']['load-example-set']['done']);
+		$this->assertArrayNotHasKey('load-example-set', $data['steps']);
 	}
 
 	public function testTheChoiceIsPersisted(): void {
@@ -240,11 +243,17 @@ class SetupControllerTest extends TestCase {
 		$this->seedProfiles->method('install')->with('municipality')
 			->willReturn(['objects' => 199, 'profile' => 'municipality']);
 
-		$this->appConfig->expects($this->once())
-			->method('setValueString')
-			->with('decidiq', 'demo_data_decided', 'installed');
+		$written = [];
+		$this->appConfig->method('setValueString')
+			->willReturnCallback(static function (string $app, string $key, string $value) use (&$written): bool {
+				$written[$key] = $value;
+
+				return true;
+			});
 
 		$data = $this->controller->runAction('load-example-set')->getData();
+
+		$this->assertSame(['example_profile' => 'municipality', 'demo_data_decided' => 'installed'], $written);
 
 		$this->assertTrue($data['success']);
 		// A success message that names no count cannot be told apart from an
@@ -307,5 +316,124 @@ class SetupControllerTest extends TestCase {
 		$this->assertSame(500, $response->getStatus());
 		$this->assertFalse($response->getData()['success']);
 		$this->assertStringContainsString('OpenRegister is not installed.', $response->getData()['message']);
+	}
+
+	/**
+	 * Build a controller whose request carries the given body params.
+	 *
+	 * @param array<string, mixed> $params The posted body.
+	 *
+	 * @return SetupController
+	 */
+	private function controllerPosting(array $params): SetupController {
+		$request = $this->createMock(IRequest::class);
+		$request->method('getParam')
+			->willReturnCallback(static fn (string $key) => ($params[$key] ?? null));
+
+		return new SetupController($request, $this->appConfig, $this->logger, $this->seedProfiles);
+	}
+
+	/**
+	 * @return \ArrayObject<string, string> Writes, by key, as they happen.
+	 */
+	private function recordWrites(): \ArrayObject {
+		$written = new \ArrayObject();
+		$this->appConfig->method('setValueString')
+			->willReturnCallback(static function (string $app, string $key, string $value) use ($written): bool {
+				$written[$key] = $value;
+
+				return true;
+			});
+
+		return $written;
+	}
+
+	public function testTheCardLoadsOnlyItsOwnSetAndAddsItToThePicks(): void {
+		// The step is `multiple`: a second card adds its set to the first one
+		// rather than replacing it, and only the posted set is imported.
+		$this->appConfig->method('getValueString')
+			->willReturnCallback(static fn (string $app, string $key): string
+				=> ($key === 'example_profile' ? 'municipality' : ''));
+		$this->seedProfiles->method('isKnown')->willReturn(true);
+		$this->seedProfiles->expects($this->once())->method('install')->with('works-council')
+			->willReturn(['objects' => 45, 'profile' => 'works-council']);
+		$written = $this->recordWrites();
+
+		$data = $this->controllerPosting(['dataset' => 'works-council'])->runAction('load-example-set')->getData();
+
+		$this->assertTrue($data['success']);
+		$this->assertStringContainsString('45', $data['message']);
+		$this->assertSame(
+			['example_profile' => 'municipality,works-council', 'demo_data_decided' => 'installed'],
+			$written->getArrayCopy()
+		);
+	}
+
+	public function testALoadedSetReplacesAnEarlierNone(): void {
+		$this->appConfig->method('getValueString')
+			->willReturnCallback(static fn (string $app, string $key): string
+				=> ($key === 'example_profile' ? 'none' : ''));
+		$this->seedProfiles->method('isKnown')->willReturn(true);
+		$this->seedProfiles->method('install')->willReturn(['objects' => 199, 'profile' => 'municipality']);
+		$written = $this->recordWrites();
+
+		$this->controllerPosting(['dataset' => 'municipality'])->runAction('load-example-set');
+
+		$this->assertSame('municipality', $written['example_profile'] ?? null);
+	}
+
+	public function testAnUnknownPostedSetIsRefusedAndNothingLoads(): void {
+		$this->appConfig->method('getValueString')->willReturn('municipality');
+		$this->seedProfiles->method('isKnown')->willReturn(false);
+		$this->seedProfiles->expects($this->never())->method('install');
+		$written = $this->recordWrites();
+
+		$response = $this->controllerPosting(['dataset' => 'atlantis'])->runAction('load-example-set');
+
+		$this->assertSame(400, $response->getStatus());
+		$this->assertStringContainsString('atlantis', $response->getData()['message']);
+		$this->assertSame([], $written->getArrayCopy());
+	}
+
+	public function testAFailedCardLoadStoresNothing(): void {
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->seedProfiles->method('isKnown')->willReturn(true);
+		$this->seedProfiles->method('install')->willThrowException(new RuntimeException('OpenRegister is not installed.'));
+		$written = $this->recordWrites();
+
+		$response = $this->controllerPosting(['dataset' => 'municipality'])->runAction('load-example-set');
+
+		$this->assertSame(500, $response->getStatus());
+		$this->assertSame([], $written->getArrayCopy());
+	}
+
+	public function testTheNoneCardRecordsTheAnswerAndImportsNothing(): void {
+		// "None" is a card too. Loading it is the answer: both keys say so and
+		// nothing is imported.
+		$this->appConfig->method('getValueString')->willReturn('');
+		$this->seedProfiles->expects($this->never())->method('install');
+		$written = $this->recordWrites();
+
+		$response = $this->controllerPosting(['dataset' => 'none'])->runAction('load-example-set');
+
+		$this->assertSame(200, $response->getStatus());
+		$this->assertTrue($response->getData()['success']);
+		$this->assertSame(
+			['example_profile' => 'none', 'demo_data_decided' => 'skipped'],
+			$written->getArrayCopy()
+		);
+	}
+
+	public function testAPostedValueThatIsNotAStringIsRefused(): void {
+		$this->appConfig->method('getValueString')->willReturn('municipality');
+		$this->seedProfiles->method('isKnown')->willReturn(true);
+		$this->seedProfiles->expects($this->never())->method('install');
+		$written = $this->recordWrites();
+
+		$response = $this->controllerPosting(['dataset' => ['municipality']])->runAction('load-example-set');
+
+		$this->assertSame(400, $response->getStatus());
+		$this->assertStringContainsString('No example set is called "that"', $response->getData()['message']);
+		$this->assertSame([], $written->getArrayCopy());
 	}
 }

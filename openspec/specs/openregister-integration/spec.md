@@ -113,6 +113,26 @@ Backend services (VotingService, WorkflowService) MUST access OpenRegister data 
 - AND it MUST use the ObjectService or VoteMapper to retrieve the data
 - AND calculations MUST be performed on the retrieved data without caching in a separate table
 
+### Requirement: REQ-PFE-001 An administrator exports all data
+
+An administrator SHALL be able to export every decidiq record and its files in one archive with a description of the format.
+
+#### Scenario: The organisation leaves
+- GIVEN the municipality moves to another supplier
+- WHEN the administrator presses Export all data
+- THEN she receives a link to an archive with every record per type and the meeting files
+- AND the archive holds one JSON file per record type, the files of meetings, agenda items and decisions under files/<type>/<id>/, and a manifest.json naming each type, its count and its relations
+
+#### Scenario: A record type that cannot be read is named, not dropped
+- GIVEN one record type cannot be read while the export runs
+- WHEN the export finishes
+- THEN the manifest lists that type under skipped with the reason, and the other types are in the archive
+
+#### Scenario: Only administrators export, and only exports download
+- GIVEN a member who is not an administrator
+- WHEN she asks for the export or its download
+- THEN she is refused; and a download name that is not an export answers 404
+
 ## User Stories
 
 1. **Administrator setting up Decidiq**: As an administrator, I want Decidiq to automatically create its data schemas when installed so that the app is ready to use without manual database configuration. (Source: OpenRegister integration pattern)

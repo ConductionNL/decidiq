@@ -50,8 +50,7 @@ use Psr\Log\LoggerInterface;
  *     (`decidesk` register import — the register SLUG is frozen across the
  *     app-id rename, see appinfo/info.xml — plus publication-config CRUD).
  *   - `Settings\AdminSettings` (domain initial state: publication config,
- *     transcript-retention defaults) and `Sections\SettingsSection`,
- *     `Settings\PersonalSettings`, `Sections\PersonalSection`.
+ *     transcript-retention defaults) and `Sections\SettingsSection`.
  *   - `Repair\InitializeSettings` (voter_token_secret seeding + OR
  *     configuration import).
  *   - `Controller\PreferencesController` — the AppHost has no
@@ -71,6 +70,19 @@ class AppHostRegistrar {
 	 * @var string
 	 */
 	private const DEEP_LINK_LISTENER = 'OCA\\OpenRegister\\AppHost\\Listener\\GenericDeepLinkRegistrationListener';
+
+	/**
+	 * The name decidiq registers that listener under, in its own namespace.
+	 *
+	 * Nextcloud resolves a listener class through the container of the app
+	 * that owns its namespace. Registered under the OpenRegister class name,
+	 * the listener was built by OpenRegister's container, which cannot supply
+	 * the `appId` argument ("Could not resolve appId!", on every request that
+	 * dispatched the event), so decidiq's deep links were never registered.
+	 *
+	 * @var string
+	 */
+	public const DEEP_LINK_LISTENER_SERVICE = 'OCA\\Decidiq\\Listener\\DeepLinkRegistrationListener';
 
 	/**
 	 * Register the adopted AppHost boilerplate.
@@ -102,13 +114,14 @@ class AppHostRegistrar {
 	 *
 	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2
 	 * @spec openspec/specs/apphost-adoption/spec.md
+	 * @spec openspec/changes/deep-link-listener-in-decidiqs-namespace/specs/apphost-adoption/spec.md#requirement-the-deep-link-listener-is-registered-in-decidiqs-namespace
 	 */
 	public function register(IRegistrationContext $context): void {
 		// Generic, manifest-driven deep-link listener replaces the former
 		// hand-written listener. Patterns now live in the manifest `deepLinks`
 		// block. Fires only when OpenRegister dispatches the event.
 		$context->registerService(
-			self::DEEP_LINK_LISTENER,
+			self::DEEP_LINK_LISTENER_SERVICE,
 			static function ($c): object {
 				$class = self::DEEP_LINK_LISTENER;
 				return new $class(
@@ -123,7 +136,7 @@ class AppHostRegistrar {
 		// openregister is installed, so PHPStan cannot verify it is a
 		// class-string<IEventListener>. It is registered as a service just above
 		// and is only instantiated when OpenRegister dispatches the event.
-		$listenerClass = self::DEEP_LINK_LISTENER;
+		$listenerClass = self::DEEP_LINK_LISTENER_SERVICE;
 		// @phpstan-ignore-next-line
 		$context->registerEventListener(event: DeepLinkRegistrationEvent::class, listener: $listenerClass);
 

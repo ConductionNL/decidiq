@@ -1,0 +1,92 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change publication-papers-and-search (REQ-PPS-001, matrix rows pub-01 pub-09). A published agenda carries the public papers of each public item and every publication names its document type, so citizens can filter on body, date and type. The publication record keeps which files were made public, so a withdrawal takes them offline again.",
+  "components": {
+    "schemas": {
+      "PublicationPayload": {
+        "slug": "publication-payload",
+        "version": "0.2.0",
+        "properties": {
+          "documentType": {
+            "type": "string",
+            "title": "Document type",
+            "description": "What was published: an agenda, a decision or minutes. Citizens filter on it.",
+            "enum": [
+              "agenda",
+              "decision",
+              "minutes"
+            ],
+            "facetable": true
+          },
+          "bodyName": {
+            "facetable": true
+          },
+          "meetingDate": {
+            "facetable": true
+          },
+          "agendaItems": {
+            "title": "Agenda items",
+            "description": "Ordered, non-confidential agenda items (Vergadering → AgendaPunt). Confidential items and their document references are stripped during construction and never appear here.",
+            "items": {
+              "properties": {
+                "papers": {
+                  "type": "array",
+                  "title": "Papers",
+                  "description": "The public papers of this agenda item. Papers of an item under confidentiality, and papers labelled confidential, are never listed.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string",
+                        "title": "Title",
+                        "description": "The file name of the paper."
+                      },
+                      "url": {
+                        "type": "string",
+                        "title": "Download link",
+                        "description": "The public link to download the paper."
+                      },
+                      "type": {
+                        "type": "string",
+                        "title": "File type",
+                        "description": "The media type of the paper, such as application/pdf."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "PublicationRecord": {
+        "slug": "publication-record",
+        "version": "0.2.0",
+        "properties": {
+          "publishedPapers": {
+            "type": "array",
+            "title": "Published papers",
+            "description": "The files this publication made public, as agenda item and file. A withdrawal takes them offline again.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "agendaItem": {
+                  "type": "string",
+                  "title": "Agenda item",
+                  "description": "The agenda item the paper belongs to."
+                },
+                "file": {
+                  "type": "integer",
+                  "title": "File",
+                  "description": "The id of the published file."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

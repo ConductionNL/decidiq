@@ -1,0 +1,83 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change voting-groups (board DcBeheer, Stemgroepen). A voting group is a fixed set of members of one body, such as the whole council, the presidium or the members of a committee, kept by the secretariat so the chair can pick it when a voting round opens.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "voting-group"
+        ]
+      }
+    },
+    "schemas": {
+      "VotingGroup": {
+        "slug": "voting-group",
+        "icon": "AccountGroup",
+        "version": "0.1.0",
+        "title": "Voting group",
+        "description": "A fixed set of members of one body that the chair can pick when a voting round opens.",
+        "type": "object",
+        "x-openregister": {
+          "active": true,
+          "hardDelete": false,
+          "searchable": false,
+          "mailEnabled": false
+        },
+        "required": [
+          "name",
+          "governanceBody"
+        ],
+        "authorization": {
+          "create": [
+            "decidiq-secretariat",
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "update": [
+            "decidiq-secretariat",
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "delete": [
+            "decidiq-secretariat",
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        },
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "governanceBody": {
+            "title": "Body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "facetable": true
+          },
+          "members": {
+            "title": "Members",
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "person"
+            }
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,214 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change signing-external-service-with-order (REQ-SES-001, matrix row min-17). Minutes, decision lists (a meeting's decisions) and motions carry an ordered signer list and the result of the signing round: the request reference, the status and the signed copy stored back in the record's files. Minutes already wrote signers from the Signers widget without the schema declaring them.",
+  "components": {
+    "schemas": {
+      "Minutes": {
+        "slug": "minutes",
+        "version": "0.2.0",
+        "properties": {
+          "signers": {
+            "title": "Signers",
+            "type": "array",
+            "description": "Who signs this record, in the order they sign. The first entry signs first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "participant": {
+                  "title": "Participant",
+                  "type": "string",
+                  "description": "The participant who signs."
+                },
+                "order": {
+                  "title": "Order",
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Position in the signing order, 1 signs first."
+                },
+                "signedAt": {
+                  "title": "Signed on",
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When this signer signed."
+                }
+              },
+              "required": [
+                "participant"
+              ]
+            },
+            "x-notes": "Written by the Signers widget. SigningRoundService sends them to the signing service sorted by order."
+          },
+          "signingRequestId": {
+            "title": "Signing request",
+            "type": "string",
+            "description": "The signing service's reference for the request that is out for signature."
+          },
+          "signingStatus": {
+            "title": "Signing status",
+            "type": "string",
+            "enum": [
+              "sent",
+              "signed",
+              "failed"
+            ],
+            "description": "Where the signing round stands: sent to the signing service, signed, or failed."
+          },
+          "signedCopy": {
+            "title": "Signed copy",
+            "type": "string",
+            "description": "The file name of the signed copy, stored in this record's files."
+          },
+          "signedCopyHash": {
+            "title": "Signed copy hash",
+            "type": "string",
+            "description": "SHA-256 of the signed copy as it was stored."
+          },
+          "signedAt": {
+            "title": "Signed on",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the last signer signed and the signed copy was stored."
+          }
+        }
+      },
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.5.0",
+        "properties": {
+          "signers": {
+            "title": "Signers",
+            "type": "array",
+            "description": "Who signs this record, in the order they sign. The first entry signs first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "participant": {
+                  "title": "Participant",
+                  "type": "string",
+                  "description": "The participant who signs."
+                },
+                "order": {
+                  "title": "Order",
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Position in the signing order, 1 signs first."
+                },
+                "signedAt": {
+                  "title": "Signed on",
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When this signer signed."
+                }
+              },
+              "required": [
+                "participant"
+              ]
+            },
+            "x-notes": "Written by the Signers widget. SigningRoundService sends them to the signing service sorted by order."
+          },
+          "signingRequestId": {
+            "title": "Signing request",
+            "type": "string",
+            "description": "The signing service's reference for the request that is out for signature."
+          },
+          "signingStatus": {
+            "title": "Signing status",
+            "type": "string",
+            "enum": [
+              "sent",
+              "signed",
+              "failed"
+            ],
+            "description": "Where the signing round stands: sent to the signing service, signed, or failed."
+          },
+          "signedCopy": {
+            "title": "Signed copy",
+            "type": "string",
+            "description": "The file name of the signed copy, stored in this record's files."
+          },
+          "signedCopyHash": {
+            "title": "Signed copy hash",
+            "type": "string",
+            "description": "SHA-256 of the signed copy as it was stored."
+          },
+          "signedAt": {
+            "title": "Signed on",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the last signer signed and the signed copy was stored."
+          }
+        }
+      },
+      "Decision": {
+        "slug": "decision",
+        "version": "1.5.0",
+        "properties": {
+          "signers": {
+            "title": "Signers",
+            "type": "array",
+            "description": "Who signs this record, in the order they sign. The first entry signs first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "participant": {
+                  "title": "Participant",
+                  "type": "string",
+                  "description": "The participant who signs."
+                },
+                "order": {
+                  "title": "Order",
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Position in the signing order, 1 signs first."
+                },
+                "signedAt": {
+                  "title": "Signed on",
+                  "type": "string",
+                  "format": "date-time",
+                  "description": "When this signer signed."
+                }
+              },
+              "required": [
+                "participant"
+              ]
+            },
+            "x-notes": "Written by the Signers widget. SigningRoundService sends them to the signing service sorted by order."
+          },
+          "signingRequestId": {
+            "title": "Signing request",
+            "type": "string",
+            "description": "The signing service's reference for the request that is out for signature."
+          },
+          "signingStatus": {
+            "title": "Signing status",
+            "type": "string",
+            "enum": [
+              "sent",
+              "signed",
+              "failed"
+            ],
+            "description": "Where the signing round stands: sent to the signing service, signed, or failed."
+          },
+          "signedCopy": {
+            "title": "Signed copy",
+            "type": "string",
+            "description": "The file name of the signed copy, stored in this record's files."
+          },
+          "signedCopyHash": {
+            "title": "Signed copy hash",
+            "type": "string",
+            "description": "SHA-256 of the signed copy as it was stored."
+          },
+          "signedAt": {
+            "title": "Signed on",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the last signer signed and the signed copy was stored."
+          }
+        }
+      }
+    }
+  }
+}

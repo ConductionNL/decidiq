@@ -180,8 +180,8 @@
               }
             ],
             "subject": {
-              "nl": "Herbenoemingsrappel (6 maanden): termijn van {{persoonNaam}} ({{role}}) loopt af op {{eindeTermijnDatum}}",
-              "en": "Reappointment reminder (6 months): term of {{persoonNaam}} ({{role}}) ends on {{eindeTermijnDatum}}"
+              "nl": "Herbenoemingsrappel (6 maanden): termijn van {{personName}} ({{role}}) loopt af op {{endTermDate}}",
+              "en": "Reappointment reminder (6 months): term of {{personName}} ({{role}}) ends on {{endTermDate}}"
             },
             "_note": "Six-month herbenoemingsrappel (REQ-APT-010). intervalSec 15552000 (~6 months) is the default rappel window and is PROVISIONAL / griffie-configurable (design open question — per-body windows may move into TermijnRegeling with regeneration stamping the window onto the regel, see design Risks). Filter targets herbenoembaar regels; the 'eindeTermijnDatum enters the window' vs a plain interval is carried by OR's scheduled-notification window semantics, which the simple filter shape cannot express as a relative-date comparison on eindeTermijnDatum — VERIFY OR's scheduled-notification engine interprets these two triggers as 6/3-month before-term-end rappels during live import (same window-semantics caveat as the toezeggingen deadline rappels). Body/role are best surfaced via persoonNaam+role; the body name is not a direct field on the regel."
           },
@@ -210,8 +210,8 @@
               }
             ],
             "subject": {
-              "nl": "Herbenoemingsrappel (3 maanden): termijn van {{persoonNaam}} ({{role}}) loopt af op {{eindeTermijnDatum}}",
-              "en": "Reappointment reminder (3 months): term of {{persoonNaam}} ({{role}}) ends on {{eindeTermijnDatum}}"
+              "nl": "Herbenoemingsrappel (3 maanden): termijn van {{personName}} ({{role}}) loopt af op {{endTermDate}}",
+              "en": "Reappointment reminder (3 months): term of {{personName}} ({{role}}) ends on {{endTermDate}}"
             },
             "_note": "Three-month herbenoemingsrappel (REQ-APT-010). intervalSec 7776000 (~3 months) is the default second rappel window, PROVISIONAL / configurable. Same window-semantics caveat as herbenoemingsrappel6Maanden."
           }
