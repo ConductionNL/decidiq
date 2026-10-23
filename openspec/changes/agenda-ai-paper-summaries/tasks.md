@@ -10,7 +10,7 @@
   - GIVEN a member WHEN he lists paper summaries THEN only `shown` ones return
   - GIVEN a `draft` summary WHEN someone saves it as `requested` THEN OpenRegister rejects the transition
 - [x] Implement (fragment 119, not 92: 92 was taken; seeds on the existing budget item `begroting-2026-bespreking` and its papers, not a new Begroting 2027 item; `reviewedBy` holds the clerk's display name)
-- [ ] Test (Newman: member and clerk read the same collection and get different counts)
+- [ ] Test (Newman: member and clerk read the same collection and get different counts) (code exists, test missing: no Newman collection for paper summaries in tests/integration; live pass, decision 139)
 
 ### Task 2: Request a summary or a comparison
 - **spec_ref**: `openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper`
@@ -50,7 +50,7 @@
   - GIVEN a shown summary WHEN a member opens the item THEN he reads it with the AI-generated label and the reviewer
   - GIVEN no provider WHEN the clerk opens the item THEN the Summarise and Compare actions are absent
 - [x] Implement (widget `agenda-paper-summaries`; the availability answer carries `canRequest`, so a member gets no actions; edit is inline in the widget, no modal; review rules and payloads in src/utils/paperSummaries.js with tests/vitest/paperSummaries.spec.js, payloads validated against the PaperSummary schema)
-- [ ] Test (Playwright tests/e2e/paper-summaries.spec.ts, written, not run: needs the live instance with the municipality example set; the provider-dependent tests skip with a named reason)
+- [ ] Test (Playwright tests/e2e/paper-summaries.spec.ts, written, not run: needs the live instance with the municipality example set; the provider-dependent tests skip with a named reason) (code exists: tests/e2e/paper-summaries.spec.ts written; live pass, decision 139)
 
 ## Verification
 

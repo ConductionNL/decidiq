@@ -11,8 +11,8 @@
   - GIVEN the descriptions of `quorum` and `quorumRule` WHEN read THEN each names the other and states which question it answers; the same for `external` and `independenceStatus`
   - GIVEN a create setting `quorum: 1` WHEN saved THEN validation rejects it
   - GIVEN `required` on both schemas WHEN compared to before THEN it is unchanged — every new field is optional, so no existing object becomes invalid
-- [ ] Implement
-- [ ] Test
+- [x] Implement (verified: lib/Settings/decidesk_register.json GovernanceBody active/quorum(min 2, no default)/jurisdiction/statutoryBasis, Membership external)
+- [x] Test (verified: tests/Unit/Settings/ObjectionAdvisoryCommitteeFieldsTest.php)
 
 ### Task 2: A scoped write path for governance bodies on the cross-app API
 - **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-005-governance-bodies-are-writable-through-the-cross-app-api`
@@ -22,8 +22,8 @@
   - GIVEN a caller with only the read scope WHEN it POSTs THEN the request is refused and nothing is created
   - GIVEN the same caller WHEN it POSTs to any other resource THEN the request is refused
   - GIVEN the existing GET routes WHEN exercised THEN their behaviour is unchanged
-- [ ] Implement
-- [ ] Test
+- [ ] Implement (code exists, differs from the task: lib/Controller/ApiController.php create()/update() write governance-bodies under OpenRegister RBAC; no governance-bodies:write scope is enforced, see Q-decidiq-S3)
+- [ ] Test (code exists: tests/Unit/Controller/ApiControllerWriteTest.php; scope-refusal case not applicable, see Q-decidiq-S3)
 
 ### Task 3: Seed one objection advisory committee and surface the fields
 - **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-006-the-new-fields-are-seeded-and-surfaced`

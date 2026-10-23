@@ -9,7 +9,7 @@
   - GIVEN a clean instance WHEN the register is imported THEN schema `bevoegdheidstoedeling` exists with `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys; `concept → van-kracht → ingetrokken | vervallen`), relations (delegans/delegatarisBody→governance-body, delegatarisPersoon→person, besluit/ingetrokkenDoor→decision, parentToedeling→self), the `authorization.read` public predicate on `publicatiedatum <= $now`, and ADR-031-dialect expiry notifications (60d/14d before geldigTot, REQ-DMR-007)
   - GIVEN a toedeling without `besluit`, without any delegataris field, or without any delegans field WHEN saved THEN OR schema validation rejects it (REQ-DMR-001)
   - GIVEN a toedeling in `ingetrokken` WHEN a transition back to `van-kracht` is attempted THEN OR rejects it (undeclared transition, REQ-DMR-002)
-- [ ] Implement
+- [x] Implement (verified: lib/Settings/register.d/54-delegatie-mandaatregister.json Bevoegdheidstoedeling)
 - [ ] Test
 
 ### Task 2: Seed data — delegatie, mandaat + published ondermandaat chain, concept volmacht, ingetrokken machtiging
@@ -38,7 +38,7 @@
   - GIVEN seeded toedelingen WHEN filtering per delegans, per delegataris, per type, or per status THEN only matches list; full-text search hits onderwerp/beperkingen/delegataris description
   - GIVEN the "geldig op" date filter set to a boundary date (day of geldigVanaf, day of geldigTot) WHEN applied THEN exactly the in-force set is returned as a pure query (no per-row N+1)
   - GIVEN a filtered list WHEN exported via `CnMassExportDialog` THEN the CSV contains type, delegans, delegataris, onderwerp, financieelPlafond, grondslag, besluit, geldigheid, status; manifest refs use the slug `bevoegdheidstoedeling`, never PascalCase; detail page shows the ondermandaat chain with depth, keyboard-navigable (WCAG 2.1 AA)
-- [ ] Implement
+- [x] Implement (verified: src/manifest.d/delegatie-mandaatregister.json pages AuthorityDelegations, AuthorityDelegationDetail)
 - [ ] Test
 
 ### Task 5: Public register via the published predicate — live intrekking

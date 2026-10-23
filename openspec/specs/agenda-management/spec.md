@@ -237,6 +237,15 @@ The admin settings page SHALL offer a switch for automatic conversion, on by def
 - WHEN a clerk adds a Word file to an agenda item
 - THEN no PDF is made and the Word file is shown as the paper
 
+### Requirement: REQ-AIDL-001 Incoming documents reach the agenda
+
+The griffier SHALL see incoming documents that wait for a meeting and put one on a meeting agenda; the meeting page SHALL show the incoming documents on its agenda.
+
+#### Scenario: putting a letter on the agenda
+- GIVEN an incoming letter from a resident with no meeting
+- WHEN griffier Anna presses Put on agenda and picks the council meeting of 14 October
+- THEN the letter leaves the waiting list and the meeting shows it under incoming documents
+
 ## User Stories
 
 1. **Board secretary creating AGM agenda**: As a board secretary, I want to create and manage the AGM agenda with drag-and-drop resolution ordering, so that I can efficiently prepare a compliant meeting agenda within statutory deadlines. (Source: intelligence DB #1)

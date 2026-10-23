@@ -10,7 +10,7 @@
   - GIVEN a GoverningDocument without citeertitel or governingBody WHEN saved THEN schema validation rejects it (REQ-GDR-001)
   - GIVEN a GoverningDocumentVersie in `in-werking` WHEN its inwerkingtreding, notarial metadata, or consolidated-text reference is edited THEN the write is rejected as sealed (REQ-GDR-003)
   - GIVEN pre-existing decisions without the citation property WHEN the updated schema is imported THEN they validate unchanged
-- [ ] Implement
+- [x] Implement (verified: lib/Settings/register.d/55-governing-documents-register.json GoverningDocument, GoverningDocumentVersie)
 - [ ] Test
 
 ### Task 2: Seed data — vereniging statuten, gemeenteraad reglement van orde, VvE splitsingsakte

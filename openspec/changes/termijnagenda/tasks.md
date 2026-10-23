@@ -10,7 +10,7 @@
   - GIVEN the schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with `gepland → verschoven ⟲ → gerealiseerd | vervallen` and terminal states final, `vervallen` requires `redenVervallen`, ownerType `portefeuillehouder` requires an `owner` Person reference, and `plannedPeriod` rejects anything but `YYYY-Qn`/`YYYY-MM`
   - GIVEN the schema WHEN inspected THEN `x-openregister-notifications` declares the scheduled period-arrival rappel (owner + griffie, nl+en subjects, never for terminal/realised items) and no imperative dispatch exists anywhere
   - GIVEN an item with `publicatiedatum` in the past WHEN read anonymously via the OR predicate surface THEN it is returned live (including shift history); without the predicate it is not
-- [ ] Implement
+- [x] Implement (verified: lib/Settings/register.d/50-termijnagenda.json TermijnagendaItem with lifecycle, notifications)
 - [ ] Test
 
 ### Task 2: Seed data — realistic Dutch municipal termijnagenda objects
@@ -28,7 +28,7 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the Termijnagenda index renders with columns onderwerp/governanceBody/plannedPeriod/expectedType/owner/lifecycle and quick filters on body, lifecycle, expectedType, and period (schema referenced by slug `termijnagenda-item`, never PascalCase)
   - GIVEN a detail page WHEN opened THEN shift history, origin links (toezegging/motie/decision), and realisation links render as navigable references, and CSV export works via the mass-export dialog including shift count and reason fields
-- [ ] Implement
+- [x] Implement (verified: src/manifest.d/termijnagenda.json pages PlannedAgenda, PlannedAgendaDetail)
 - [ ] Test
 
 ### Task 4: Board view — per-body period columns with drag-to-reschedule and mandatory-reason dialog
