@@ -1,6 +1,6 @@
 {
 	"set": "zuiddrecht",
-	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these. The named votes on the three open council rounds come from the vote rows; the council declares that its chair, the mayor, has no vote, and the griffier never votes. Each agenda is published by a change after its items are written: an item written to a published agenda records a new agenda version, which would stamp the publication with the install time.",
+	"$comment": "decidiq's part of the Zuiddrecht example set: the gemeenteraad and the college of the fictitious municipality Zuiddrecht, three council and three college meetings with agendas, the decision on the lighting of the Lindelaan cycle path with its named votes, and the griffie. The council members, the mayor and the aldermen are fictitious and exist only here, without a Nextcloud account; the cast's bram is the griffier. Install with `occ openregister:example-set:install zuiddrecht` (openregister PR #4603). The publication-payload rows are what staff published through the publication flow: the agendas of the three public council meetings and the six published decisions (totals only, never who voted how); the public site reads only these. The named votes on the three open council rounds come from the vote rows; the council declares that its chair, the mayor, has no vote, and the griffier never votes. Each agenda is published by a change after its items are written: an item written to a published agenda records a new agenda version, which would stamp the publication with the install time. Citizen participation has one closed round and one open consultation: the college's Wijkbudget 2027 with its ten proposals and published result, and the council's consultation on the draft parking regulation for the town centre, with reactions approved, rejected and waiting for moderation.",
 	"after": [
 		"dossiq",
 		"portaliq"
@@ -3636,6 +3636,269 @@
 				"decisionMakerType": "person",
 				"label": "Bekendgemaakt aan de verzoeker",
 				"decision": "{{object:decision-woo-lindelaan-concept.id}}"
+			}
+		},
+		{
+			"key": "budget-round-wijkbudget-2027",
+			"register": "decidiq",
+			"schema": "participatory-budget",
+			"data": {
+				"name": "Wijkbudget Zuiddrecht 2027",
+				"description": "Inwoners dragen ideeën aan voor hun wijk en stemmen over de voorstellen. Het college neemt de uitslag mee in de begroting 2027.",
+				"totalAmount": 250000,
+				"currency": "EUR",
+				"submissionDeadline": "{{datetime:-115 23:59}}",
+				"votingDeadline": "{{datetime:-38 23:59}}",
+				"status": "closed",
+				"resultsPublished": true,
+				"resultsSummary": "€ 240.000 toegekend aan 4 voorstellen, binnen het budget van € 250.000. 1.284 inwoners deden mee. De stemmen zijn een advies, geen besluit.",
+				"publicationDate": "{{datetime:-31 09:00}}",
+				"governanceBody": "{{object:body-college.id}}"
+			}
+		},
+		{
+			"key": "budget-proposal-speeltuin-wilgenpark",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Speeltuin Wilgenpark vernieuwen",
+				"category": "Spelen",
+				"requestedAmount": 95000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 812,
+				"votesAgainst": 140
+			}
+		},
+		{
+			"key": "budget-proposal-verlichting-fietspad-vaart",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Verlichting fietspad langs de Vaart",
+				"category": "Verkeer",
+				"requestedAmount": 80000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 655,
+				"votesAgainst": 201
+			}
+		},
+		{
+			"key": "budget-proposal-keuken-buurthuis-de-schakel",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Nieuwe keuken buurthuis De Schakel",
+				"category": "Sociaal",
+				"requestedAmount": 62500,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 430,
+				"votesAgainst": 188
+			}
+		},
+		{
+			"key": "budget-proposal-groen-marktplein",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Bankjes en groen op het Marktplein",
+				"category": "Groen",
+				"requestedAmount": 45000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 701,
+				"votesAgainst": 96
+			}
+		},
+		{
+			"key": "budget-proposal-moestuin-de-esdoorn",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Moestuin bij basisschool De Esdoorn",
+				"category": "Groen",
+				"requestedAmount": 38000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 388,
+				"votesAgainst": 121
+			}
+		},
+		{
+			"key": "budget-proposal-hondenuitlaatveld-oost",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Hondenuitlaatveld Zuiddrecht-Oost",
+				"category": "Groen",
+				"requestedAmount": 32000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 214,
+				"votesAgainst": 310
+			}
+		},
+		{
+			"key": "budget-proposal-parkeren-dorpskerk",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Extra parkeerplaatsen bij de Dorpskerk",
+				"category": "Verkeer",
+				"requestedAmount": 30000,
+				"status": "rejected",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}"
+			}
+		},
+		{
+			"key": "budget-proposal-jeu-de-boules-havenkade",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Jeu de boulesbaan aan de Havenkade",
+				"category": "Sport",
+				"requestedAmount": 25000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 167,
+				"votesAgainst": 142
+			}
+		},
+		{
+			"key": "budget-proposal-kunstwerk-stationstunnel",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Kunstwerk in de stationstunnel",
+				"category": "Cultuur",
+				"requestedAmount": 20000,
+				"status": "awarded",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 302,
+				"votesAgainst": 87
+			}
+		},
+		{
+			"key": "budget-proposal-watertappunt-sportpark",
+			"register": "decidiq",
+			"schema": "budget-proposal",
+			"data": {
+				"title": "Watertappunt bij het sportpark",
+				"category": "Sport",
+				"requestedAmount": 15000,
+				"status": "validated",
+				"participatoryBudget": "{{object:budget-round-wijkbudget-2027.id}}",
+				"votesFor": 95,
+				"votesAgainst": 33
+			}
+		},
+		{
+			"key": "decision-parkeren-binnenstad-concept",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"title": "Verordening parkeren binnenstad 2027",
+				"text": "Concept: de raad stelt de verordening parkeren binnenstad 2027 vast. Bewoners krijgen één vergunning per adres, de blauwe zone in de Molenstraat vervalt en bezoekers parkeren goedkoper in de garages aan de rand.",
+				"decisionType": "resolution",
+				"lifecycle": "draft",
+				"isPublished": "internal",
+				"securityClassification": "intern",
+				"themes": [
+					"parkeren",
+					"binnenstad"
+				]
+			}
+		},
+		{
+			"key": "consultation-parkeren-binnenstad",
+			"register": "decidiq",
+			"schema": "public-consultation",
+			"data": {
+				"title": "Inspraak op de parkeerverordening binnenstad",
+				"description": "Inwoners en ondernemers reageren op het ontwerp van de Verordening parkeren binnenstad 2027, voordat de raad besluit.",
+				"consultationType": "citizen-participation",
+				"status": "open",
+				"submissionDeadline": "{{datetime:8 23:59}}",
+				"moderationPolicy": "pre-moderation",
+				"anonymousReactionsAllowed": true,
+				"feedbackRequired": false,
+				"publicationDate": "{{datetime:-22 09:00}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"decision": "{{object:decision-parkeren-binnenstad-concept.id}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-kerkstraat",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Bewoners van de Kerkstraat hebben geen eigen oprit. Eén vergunning per adres is voor gezinnen met twee auto's te weinig.",
+				"moderationStatus": "pending",
+				"submittedAt": "{{datetime:-17 21:14}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-laadpalen-molenstraat",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Graag de laadpalen in de Molenstraat laten staan als de blauwe zone verdwijnt.",
+				"moderationStatus": "pending",
+				"submittedAt": "{{datetime:-17 17:02}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-garages-rand",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Goed dat de garages aan de rand goedkoper worden voor bezoekers.",
+				"moderationStatus": "approved",
+				"submittedAt": "{{datetime:-19 10:12}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"submitterId": "m.dekker",
+				"publicationDate": "{{datetime:-19 10:12}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-tarieven-markt",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "De tarieven voor ondernemers op de markt zijn niet duidelijk in de bijlage.",
+				"moderationStatus": "approved",
+				"submittedAt": "{{datetime:-20 14:40}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"publicationDate": "{{datetime:-20 14:40}}"
+			}
+		},
+		{
+			"key": "consultation-reaction-reclame",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Dit is een reclamebericht voor een parkeerapp.",
+				"moderationStatus": "rejected",
+				"submittedAt": "{{datetime:-21 08:05}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"moderationReason": "Reclame, geen reactie op de verordening."
+			}
+		},
+		{
+			"key": "consultation-reaction-molenstraat-autoluw",
+			"register": "decidiq",
+			"schema": "consultation-reaction",
+			"data": {
+				"body": "Fijn dat de Molenstraat autoluw wordt, dan kunnen kinderen er veilig fietsen.",
+				"moderationStatus": "approved",
+				"submittedAt": "{{datetime:-22 19:30}}",
+				"consultation": "{{object:consultation-parkeren-binnenstad.id}}",
+				"submitterId": "s.yilmaz",
+				"publicationDate": "{{datetime:-22 19:30}}"
 			}
 		}
 	],
