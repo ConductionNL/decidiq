@@ -19,15 +19,15 @@
  publication stay in decidiq.
 -->
 <template>
-	<section class="cn-decisions-tab" data-testid="decisions-leaf-tab" :aria-labelledby="headingId">
+	<section class="cn-decisions-tab cn-case-widget-card" data-testid="decisions-leaf-tab" :aria-labelledby="headingId">
 		<div class="cn-decisions-tab__header">
 			<div class="cn-decisions-tab__heading">
 				<h3 :id="headingId" class="cn-decisions-tab__title">
 					{{ titleLabel }}
 				</h3>
-				<p class="cn-decisions-tab__subtitle">
+				<span class="cn-decisions-tab__subtitle">
 					{{ subtitleLabel }}
-				</p>
+				</span>
 			</div>
 			<NcButton
 				variant="secondary"
@@ -599,10 +599,13 @@ export default {
 	margin: 0;
 	font-size: 17px;
 	font-weight: 700;
+	line-height: 1.2;
 }
 
 .cn-decisions-tab__subtitle,
 .cn-decisions-tab__empty {
+	/* A theme sizes every paragraph through this token with !important. */
+	--nldesign-component-paragraph-font-size: 14px;
 	margin: 0;
 	font-size: 14px;
 	color: var(--color-text-maxcontrast);
