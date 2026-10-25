@@ -735,10 +735,10 @@ export default {
 	margin: 0;
 	padding: 10px 14px;
 	border-radius: 10px;
-	/* The board's light success ground (DqZaakBesluiten), the host
-	   library's success badge tone where it is loaded. */
-	background: var(--cn-status-success-bg, #e7f3ea);
-	color: var(--cn-status-success-text, var(--color-success-text, #1e6b2a));
+	/* The board's light success ground (DqZaakBesluiten), the theme's
+	   green-light token as the success badge reads it. */
+	background: var(--nl-color-green-light, #e7f3ea);
+	color: var(--nl-color-green-text, var(--color-success-text, #1e6b2a));
 	font-size: 13px;
 }
 
