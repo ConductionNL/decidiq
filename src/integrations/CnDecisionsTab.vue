@@ -608,6 +608,7 @@ export default {
 	--nldesign-component-paragraph-font-size: 14px;
 	margin: 0;
 	font-size: 14px;
+	line-height: 1.2;
 	color: var(--color-text-maxcontrast);
 }
 
@@ -664,6 +665,7 @@ export default {
 .cn-decisions-tab__name {
 	font-size: 15px;
 	font-weight: 600;
+	line-height: 1.2;
 }
 
 .cn-decisions-tab__meta {

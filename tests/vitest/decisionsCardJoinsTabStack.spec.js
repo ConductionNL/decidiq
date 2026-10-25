@@ -36,4 +36,9 @@ describe('the decisions card on a host tab', () => {
 		expect(sfc).toContain('<span class="cn-decisions-tab__subtitle">')
 		expect(sfc).toContain('--nldesign-component-paragraph-font-size: 14px;')
 	})
+
+	it('sets the subtitle and each decision title on a 1.2 line, as the board (header 41px, first row 45px under the title)', () => {
+		expect(rule('.cn-decisions-tab__subtitle,\n.cn-decisions-tab__empty')).toContain('line-height: 1.2')
+		expect(rule('.cn-decisions-tab__name')).toContain('line-height: 1.2')
+	})
 })
