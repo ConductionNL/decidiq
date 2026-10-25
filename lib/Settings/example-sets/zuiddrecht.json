@@ -3550,6 +3550,68 @@
 			}
 		},
 		{
+			"key": "person-pieter-jansen",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:pieter.displayName}}",
+				"givenName": "{{cast:pieter.givenName}}",
+				"familyName": "{{cast:pieter.familyName}}",
+				"email": "{{cast:pieter.email}}",
+				"nextcloudUserId": "{{cast:pieter.uid}}",
+				"biography": "Woo-coördinator. Stelt Woo-besluiten op en neemt ze onder mandaat, tot en met deels openbaar maken."
+			}
+		},
+		{
+			"key": "person-anouk-bakker",
+			"register": "decidiq",
+			"schema": "person",
+			"data": {
+				"name": "{{cast:anouk.displayName}}",
+				"givenName": "{{cast:anouk.givenName}}",
+				"familyName": "{{cast:anouk.familyName}}",
+				"email": "{{cast:anouk.email}}",
+				"nextcloudUserId": "{{cast:anouk.uid}}",
+				"biography": "Teamleider Woo en informatie. Zet de paraaf onder een Woo-besluit en tekent zelf als stukken niet openbaar worden."
+			}
+		},
+		{
+			"key": "decision-mandaatbesluit-woo",
+			"register": "decidiq",
+			"schema": "decision",
+			"data": {
+				"title": "Mandaatbesluit Woo-besluiten",
+				"text": "Het college mandateert de Woo-coördinator om besluiten op Woo-verzoeken te nemen, tot en met het deels openbaar maken van stukken. Een besluit om stukken niet openbaar te maken tekent de teamleider Woo en informatie.",
+				"decisionType": "mandate-decision",
+				"lifecycle": "decided",
+				"isPublished": "public",
+				"securityClassification": "openbaar",
+				"proposer": "College van burgemeester en wethouders",
+				"legalBasis": "Algemene wet bestuursrecht, artikel 10:3"
+			}
+		},
+		{
+			"key": "mandaat-woo-besluiten-pieter",
+			"register": "decidiq",
+			"schema": "bevoegdheidstoedeling",
+			"data": {
+				"type": "mandate",
+				"delegans": "{{object:body-college.id}}",
+				"delegateRole": "Woo-coördinator",
+				"delegatePerson": "{{object:person-pieter-jansen.id}}",
+				"delegateUser": "{{cast:pieter.uid}}",
+				"acts": [
+					"woo-decision"
+				],
+				"subject": "Woo-besluiten",
+				"beperkingen": "Tot en met deels openbaar maken. Bij niet openbaar tekent de teamleider.",
+				"subMandatePermitted": false,
+				"decision": "{{object:decision-mandaatbesluit-woo.id}}",
+				"validFrom": "{{date:-200}}",
+				"status": "effective"
+			}
+		},
+		{
 			"key": "decision-woo-lindelaan-concept",
 			"register": "decidiq",
 			"schema": "decision",
@@ -3591,7 +3653,7 @@
 				"decisionMakerType": "person",
 				"label": "Opgesteld door de behandelaar",
 				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
-				"registeredBy": "{{object:person-thomas-kuiper.id}}"
+				"registeredBy": "{{object:person-pieter-jansen.id}}"
 			}
 		},
 		{
@@ -3606,7 +3668,7 @@
 				"decisionMakerType": "person",
 				"label": "Paraaf teamleider",
 				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
-				"assignedPerson": "{{object:person-marleen-postma.id}}"
+				"assignedPerson": "{{object:person-anouk-bakker.id}}"
 			}
 		},
 		{
@@ -3621,7 +3683,7 @@
 				"decisionMakerType": "person",
 				"label": "Ondertekend onder mandaat Woo-besluiten",
 				"decision": "{{object:decision-woo-lindelaan-concept.id}}",
-				"assignedPerson": "{{object:person-thomas-kuiper.id}}"
+				"assignedPerson": "{{object:person-pieter-jansen.id}}"
 			}
 		},
 		{

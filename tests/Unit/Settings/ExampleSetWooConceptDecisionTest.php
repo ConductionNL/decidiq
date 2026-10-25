@@ -88,25 +88,52 @@ class ExampleSetWooConceptDecisionTest extends TestCase {
 		);
 	}//end testTheStagesAwaitInitialsAndSignature()
 	/**
-	 * The initials and the signature name someone, as the board does: the
-	 * cast's team lead initials, the Woo coordinator signs under mandate.
+	 * The people on the stages are the cast's Woo team, as the board draws
+	 * them: Pieter Jansen drafted it and signs under mandate, Anouk Bakker,
+	 * the team lead, initials it.
 	 *
 	 * @return void
 	 */
-	public function testThePeopleOnTheStagesAreTheCastsStaff(): void {
+	public function testThePeopleOnTheStagesAreTheCastsWooTeam(): void {
 		$byKey = [];
 		foreach (self::fragment()['objects'] as $object) {
 			$byKey[$object['key']] = $object;
 		}
 
-		$this->assertSame(expected: '{{object:person-marleen-postma.id}}', actual: $byKey['stage-woo-lindelaan-paraaf']['data']['assignedPerson']);
-		$this->assertSame(expected: '{{object:person-thomas-kuiper.id}}', actual: $byKey['stage-woo-lindelaan-ondertekenen']['data']['assignedPerson']);
-		$this->assertSame(expected: '{{cast:marleen.uid}}', actual: $byKey['person-marleen-postma']['data']['nextcloudUserId']);
-		$this->assertSame(expected: '{{cast:thomas.uid}}', actual: $byKey['person-thomas-kuiper']['data']['nextcloudUserId']);
+		$this->assertSame(expected: '{{object:person-pieter-jansen.id}}', actual: $byKey['stage-woo-lindelaan-opgesteld']['data']['registeredBy']);
+		$this->assertSame(expected: '{{object:person-anouk-bakker.id}}', actual: $byKey['stage-woo-lindelaan-paraaf']['data']['assignedPerson']);
+		$this->assertSame(expected: '{{object:person-pieter-jansen.id}}', actual: $byKey['stage-woo-lindelaan-ondertekenen']['data']['assignedPerson']);
+		$this->assertSame(expected: '{{cast:pieter.uid}}', actual: $byKey['person-pieter-jansen']['data']['nextcloudUserId']);
+		$this->assertSame(expected: '{{cast:anouk.uid}}', actual: $byKey['person-anouk-bakker']['data']['nextcloudUserId']);
 		$keys = array_keys($byKey);
-		$this->assertLessThan(
-			expected: array_search('stage-woo-lindelaan-paraaf', $keys, true),
-			actual: array_search('person-marleen-postma', $keys, true)
-		);
-	}//end testThePeopleOnTheStagesAreTheCastsStaff()
+		foreach (['person-pieter-jansen', 'person-anouk-bakker'] as $person) {
+			$this->assertLessThan(expected: array_search('stage-woo-lindelaan-opgesteld', $keys, true), actual: array_search($person, $keys, true));
+		}
+	}//end testThePeopleOnTheStagesAreTheCastsWooTeam()
+
+	/**
+	 * Pieter holds the mandate for Woo decisions up to "deels openbaar"; "niet
+	 * openbaar" stays with the team lead. The allocation is in force and rests
+	 * on the college's mandate decision, so the authority check finds it.
+	 *
+	 * @return void
+	 */
+	public function testPieterHoldsTheWooMandate(): void {
+		$byKey = [];
+		foreach (self::fragment()['objects'] as $object) {
+			$byKey[$object['key']] = $object;
+		}
+
+		$mandate = $byKey['mandaat-woo-besluiten-pieter'];
+		$this->assertSame(expected: 'bevoegdheidstoedeling', actual: $mandate['schema']);
+		$this->assertSame(expected: 'mandate', actual: $mandate['data']['type']);
+		$this->assertSame(expected: 'effective', actual: $mandate['data']['status']);
+		$this->assertSame(expected: '{{cast:pieter.uid}}', actual: $mandate['data']['delegateUser']);
+		$this->assertSame(expected: ['woo-decision'], actual: $mandate['data']['acts']);
+		$this->assertSame(expected: 'Woo-besluiten', actual: $mandate['data']['subject']);
+		$this->assertStringContainsString(needle: 'deels openbaar', haystack: $mandate['data']['beperkingen']);
+		$this->assertStringContainsString(needle: 'teamleider', haystack: $mandate['data']['beperkingen']);
+		$this->assertSame(expected: '{{object:decision-mandaatbesluit-woo.id}}', actual: $mandate['data']['decision']);
+		$this->assertSame(expected: 'woo-decision', actual: $byKey['decision-woo-lindelaan-concept']['data']['decisionType'], message: 'the act the mandate covers');
+	}//end testPieterHoldsTheWooMandate()
 }//end class
