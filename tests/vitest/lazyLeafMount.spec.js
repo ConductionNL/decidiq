@@ -74,6 +74,25 @@ describe('createLazyMountPair', () => {
 		expect(vue.apps[0].mount).toHaveBeenCalledWith(el)
 	})
 
+	it('loads decidiq\'s translations before it mounts, so a host page reads the leaf in Dutch', async () => {
+		const vue = fakeVue()
+		const l10n = deferred()
+		const { mount } = createLazyMountPair(() => Promise.resolve({ name: 'Widget' }), 'test', () => Promise.resolve(vue), () => l10n.promise)
+		const done = mount({}, { surface: 'detail-page' })
+		await new Promise((resolve) => setTimeout(resolve, 0))
+		expect(vue.apps).toHaveLength(0)
+		l10n.resolve({})
+		await done
+		expect(vue.apps).toHaveLength(1)
+	})
+
+	it('mounts in English when the translations do not load', async () => {
+		const vue = fakeVue()
+		const { mount } = createLazyMountPair(() => Promise.resolve({ name: 'Widget' }), 'test', () => Promise.resolve(vue), () => Promise.reject(new Error('404')))
+		await mount({}, { surface: 'detail-page' })
+		expect(vue.apps).toHaveLength(1)
+	})
+
 	it('does not mount when unmount runs before the chunk resolves', async () => {
 		const vue = fakeVue()
 		const chunk = deferred()
