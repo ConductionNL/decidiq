@@ -3615,6 +3615,7 @@
 			"key": "decision-woo-lindelaan-concept",
 			"register": "decidiq",
 			"schema": "decision",
+			"owner": "{{cast:pieter.uid}}",
 			"lookups": {
 				"case": {
 					"register": "dossiq",

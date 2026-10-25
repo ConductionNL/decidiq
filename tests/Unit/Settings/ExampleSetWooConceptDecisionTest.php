@@ -135,5 +135,7 @@ class ExampleSetWooConceptDecisionTest extends TestCase {
 		$this->assertStringContainsString(needle: 'teamleider', haystack: $mandate['data']['beperkingen']);
 		$this->assertSame(expected: '{{object:decision-mandaatbesluit-woo.id}}', actual: $mandate['data']['decision']);
 		$this->assertSame(expected: 'woo-decision', actual: $byKey['decision-woo-lindelaan-concept']['data']['decisionType'], message: 'the act the mandate covers');
+		// The authority check takes the decision's owner as the actor (openregister example-set object owner).
+		$this->assertSame(expected: '{{cast:pieter.uid}}', actual: $byKey['decision-woo-lindelaan-concept']['owner']);
 	}//end testPieterHoldsTheWooMandate()
 }//end class
