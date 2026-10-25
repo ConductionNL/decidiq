@@ -41,4 +41,8 @@ describe('the decisions card on a host tab', () => {
 		expect(rule('.cn-decisions-tab__subtitle,\n.cn-decisions-tab__empty')).toContain('line-height: 1.2')
 		expect(rule('.cn-decisions-tab__name')).toContain('line-height: 1.2')
 	})
+
+	it('draws the mandate notice on the board\'s light success ground', () => {
+		expect(rule('.cn-decisions-tab__notice')).toContain('background: var(--nl-color-green-light, #e7f3ea)')
+	})
 })

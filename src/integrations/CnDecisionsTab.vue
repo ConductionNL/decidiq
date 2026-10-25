@@ -734,9 +734,11 @@ export default {
 	gap: 10px;
 	margin: 0;
 	padding: 10px 14px;
-	border-radius: var(--border-radius-large, 8px);
-	background: var(--color-success-hover, var(--color-background-hover));
-	color: var(--color-success-text, var(--color-main-text));
+	border-radius: 10px;
+	/* The board's light success ground (DqZaakBesluiten), the theme's
+	   green-light token as the success badge reads it. */
+	background: var(--nl-color-green-light, #e7f3ea);
+	color: var(--nl-color-green-text, var(--color-success-text, #1e6b2a));
 	font-size: 13px;
 }
 
