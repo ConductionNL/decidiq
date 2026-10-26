@@ -30,6 +30,7 @@
 				</span>
 			</div>
 			<NcButton
+				class="cn-decisions-tab__prepare"
 				variant="secondary"
 				:disabled="!hostObjectId"
 				data-testid="decisions-leaf-prepare"
@@ -366,6 +367,9 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant.
 		 */
 		lifecycleVariant(decision) {
+			if (String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '') === 'draft') {
+				return 'default'
+			}
 			if (isProposal(decision)) {
 				return 'info'
 			}
@@ -683,24 +687,26 @@ export default {
 
 .cn-decisions-tab__steps {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-	gap: 10px;
-	margin: 0;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 8px;
+	margin: 4px 0 0;
 	padding: 0;
 	list-style: none;
 }
 
+/* A route step as the board draws it: a 6px bar, the step and its line on
+   the normal line height, 6px apart (DqZaakBesluiten, 49px a step). */
 .cn-decisions-tab__step {
 	display: flex;
 	flex-direction: column;
-	gap: 2px;
+	gap: 6px;
 	min-width: 0;
+	line-height: normal;
 }
 
 .cn-decisions-tab__step-bar {
-	height: 4px;
-	margin-bottom: 8px;
-	border-radius: 2px;
+	height: 6px;
+	border-radius: 3px;
 	background: var(--color-background-darker);
 }
 
@@ -714,13 +720,21 @@ export default {
 
 .cn-decisions-tab__step-label {
 	font-size: 14px;
-	color: var(--color-text-maxcontrast);
+	font-weight: 400;
+	color: var(--color-main-text);
 }
 
-.cn-decisions-tab__step--done .cn-decisions-tab__step-label,
-.cn-decisions-tab__step--current .cn-decisions-tab__step-label {
+.cn-decisions-tab__step--done .cn-decisions-tab__step-label {
 	font-weight: 600;
-	color: var(--color-main-text);
+}
+
+.cn-decisions-tab__step--current .cn-decisions-tab__step-label {
+	font-weight: 700;
+}
+
+/* "Prepare decision" is the board's 40px header control. */
+.cn-decisions-tab__prepare.button-vue {
+	--button-size: var(--cn-board-control-height, 40px);
 }
 
 .cn-decisions-tab__step-line {
