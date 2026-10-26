@@ -46,3 +46,25 @@ describe('the decisions card on a host tab', () => {
 		expect(rule('.cn-decisions-tab__notice')).toContain('background: var(--nl-color-green-light, #e7f3ea)')
 	})
 })
+
+describe('the decisions card as DqZaakBesluiten draws it (r31 verdicts)', () => {
+	it('draws a route step on the normal line: a 6px bar, 6px apart, the current step 700, a later one 400', () => {
+		expect(rule('.cn-decisions-tab__step')).toContain('line-height: normal')
+		expect(rule('.cn-decisions-tab__step')).toContain('gap: 6px')
+		expect(rule('.cn-decisions-tab__step-bar')).toContain('height: 6px')
+		expect(rule('.cn-decisions-tab__step--current .cn-decisions-tab__step-label')).toContain('font-weight: 700')
+		expect(rule('.cn-decisions-tab__step-label')).toContain('font-weight: 400')
+	})
+
+	it('draws "Prepare decision" as the 40px header control', () => {
+		expect(rule('.cn-decisions-tab__prepare.button-vue')).toContain('--button-size: var(--cn-board-control-height, 40px)')
+	})
+
+	it('draws a draft decision with the neutral pill, before a proposal reads as info', () => {
+		const body = sfc.slice(sfc.indexOf('lifecycleVariant(decision) {'), sfc.indexOf('decisionUrl(decision) {'))
+		const draft = body.indexOf("=== 'draft'")
+		expect(draft).toBeGreaterThan(-1)
+		expect(body.slice(draft, body.indexOf('}', draft))).toContain("return 'default'")
+		expect(draft).toBeLessThan(body.indexOf('isProposal(decision)'))
+	})
+})
