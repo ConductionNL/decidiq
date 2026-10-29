@@ -68,3 +68,18 @@ describe('the decisions card as DqZaakBesluiten draws it (r31 verdicts)', () => 
 		expect(draft).toBeLessThan(body.indexOf('isProposal(decision)'))
 	})
 })
+
+describe('the decisions card rhythm as DqZaakBesluiten draws it (r34 card 315.7 against 308)', () => {
+	it('sets the meta line on the normal line height, so the row text is 35.6 high', () => {
+		expect(rule('.cn-decisions-tab__meta')).toContain('line-height: normal')
+	})
+
+	it('puts the route 28px under the row and the notice 12px under the route', () => {
+		expect(rule('.cn-decisions-tab__decision')).toContain('gap: 12px')
+		expect(rule('.cn-decisions-tab__steps')).toContain('margin: 16px 0 0')
+	})
+
+	it('ends the last decision on its notice, with no padding under it', () => {
+		expect(rule('.cn-decisions-tab__decision:last-child')).toContain('padding-bottom: 0')
+	})
+})

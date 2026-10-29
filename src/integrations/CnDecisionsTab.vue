@@ -629,12 +629,19 @@ export default {
 	list-style: none;
 }
 
+/* The route stands 28px under the row (12px here plus its 16px margin) and
+   the notice 12px under the route; the last decision ends on its notice
+   (DqZaakBesluiten). */
 .cn-decisions-tab__decision {
 	display: flex;
 	flex-direction: column;
-	gap: 14px;
+	gap: 12px;
 	padding: 12px 0;
 	border-top: 1px solid var(--color-border);
+}
+
+.cn-decisions-tab__decision:last-child {
+	padding-bottom: 0;
 }
 
 .cn-decisions-tab__row {
@@ -674,6 +681,7 @@ export default {
 
 .cn-decisions-tab__meta {
 	font-size: 13px;
+	line-height: normal;
 	color: var(--color-text-maxcontrast);
 }
 
@@ -689,7 +697,7 @@ export default {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 	gap: 8px;
-	margin: 4px 0 0;
+	margin: 16px 0 0;
 	padding: 0;
 	list-style: none;
 }
