@@ -46,7 +46,39 @@
 			<!-- Detail-page (and fallback) surface: grouped list. -->
 			<template v-else>
 				<div
-					v-if="decisions.length === 0"
+					v-if="decisions.length === 0 && wording.emptyTitle"
+					class="cn-decisions-widget__empty-panel">
+					<span class="cn-decisions-widget__empty-icon" aria-hidden="true">
+						<Gavel :size="32" />
+					</span>
+					<h3 class="cn-decisions-widget__empty-title">
+						{{ wording.emptyTitle }}
+					</h3>
+					<p v-if="wording.emptyText" class="cn-decisions-widget__empty-text">
+						{{ wording.emptyText }}
+					</p>
+					<div class="cn-decisions-widget__empty-actions">
+						<NcButton
+							variant="primary"
+							:disabled="!objectId"
+							@click="openCreate">
+							<template #icon>
+								<Plus :size="18" />
+							</template>
+							{{ createProposalLabel }}
+						</NcButton>
+						<a
+							:href="appUrl"
+							target="_blank"
+							rel="noopener"
+							class="cn-decisions-widget__empty-link">
+							<OpenInNew :size="18" />
+							{{ openInDecidiqLabel }}
+						</a>
+					</div>
+				</div>
+				<div
+					v-else-if="decisions.length === 0"
 					class="cn-decisions-widget__empty">
 					{{ emptyLabel }}
 				</div>
@@ -80,7 +112,7 @@
 					</ul>
 				</div>
 
-				<div class="cn-decisions-widget__actions">
+				<div v-if="!(decisions.length === 0 && wording.emptyTitle)" class="cn-decisions-widget__actions">
 					<NcButton
 						variant="primary"
 						:disabled="!objectId"
@@ -127,6 +159,7 @@ import {
 	objId,
 	proposalFormSchema,
 } from './decisionLink.js'
+import { hostWording } from './hostWording.js'
 import { leafReportMixin } from './leafReport.js'
 
 const DASHBOARD_SURFACES = ['user-dashboard', 'app-dashboard']
@@ -143,6 +176,7 @@ export default {
 		CnDetailCard,
 		CnStatusBadge,
 		CnFormDialog,
+		Gavel,
 		NcButton,
 		NcLoadingIcon,
 		OpenInNew,
@@ -175,6 +209,15 @@ export default {
 		 * can so tell the two cards apart. Empty keeps "Besluitvorming".
 		 */
 		title: { type: String, default: '' },
+		/**
+		 * The empty state's title in the host's words, already translated
+		 * (nextcloud-vue `labels`). Given, an empty list draws the panel.
+		 */
+		emptyTitle: { type: String, default: '' },
+		/** The host's line under the empty state's title, already translated. */
+		emptyText: { type: String, default: '' },
+		/** The create-proposal button in the host's words, already translated. */
+		createLabel: { type: String, default: '' },
 	},
 
 	data() {
@@ -245,9 +288,22 @@ export default {
 			return t('decidiq', 'No decision-making linked to this object yet.')
 		},
 
+		/**
+		 * The host's words over the leaf's own.
+		 *
+		 * @return {object} emptyTitle, emptyText and createLabel.
+		 * @spec openspec/changes/decisions-leaf-speaks-the-hosts-words/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-009-the-decisions-leaf-speaks-the-hosts-words
+		 */
+		wording() {
+			return hostWording(
+				{ emptyTitle: this.emptyTitle, emptyText: this.emptyText, createLabel: this.createLabel },
+				{ emptyTitle: '', emptyText: '', createLabel: t('decidiq', 'Create proposal for this object') },
+			)
+		},
+
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal action label. */
 		createProposalLabel() {
-			return t('decidiq', 'Create proposal for this object')
+			return this.wording.createLabel
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
@@ -494,6 +550,61 @@ export default {
 	color: var(--color-text-maxcontrast);
 	font-size: 0.9em;
 	padding: 8px 0;
+}
+
+.cn-decisions-widget__empty-panel {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	padding: 40px 24px 44px;
+	text-align: center;
+	border: 1px dashed var(--color-border-maxcontrast);
+	border-radius: var(--border-radius-container-large, 12px);
+}
+
+.cn-decisions-widget__empty-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: var(--color-background-dark);
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-widget__empty-title {
+	margin: 4px 0 0;
+	font-size: 18px;
+	font-weight: 700;
+}
+
+.cn-decisions-widget__empty-text {
+	max-width: 460px;
+	margin: 0;
+	font-size: 15px;
+	line-height: 1.6;
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-widget__empty-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 8px;
+}
+
+.cn-decisions-widget__empty-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	height: 40px;
+	padding: 0 6px;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--color-primary-element);
 }
 
 .cn-decisions-widget__headline {
