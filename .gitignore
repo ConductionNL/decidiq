@@ -80,12 +80,11 @@ phpqa_output.log
 # A negation cannot resurrect a file inside an ignored DIRECTORY, but every
 # glob here matches files, so each one takes effect.
 **/*Analysis*
-# Junk note files named "references ..." — anchored to the filename START so
-# legitimate sources containing "…Preferences…" (which embeds the substring
-# "references") are not silently ignored. Observed 2026-06-12: the old
-# `**/*references*` pattern swallowed src/components/userSettings/
-# userPreferences.js + *PreferencesSection.vue (user-settings-v1).
-**/references*
+# Junk note files named "references <words>". The space is required: the old
+# `**/*references*` swallowed userPreferences.js (user-settings-v1), and
+# `**/references*` still ignored any `references/` directory or
+# `openspec/changes/references-*` change, which no negation can rescue.
+**/references *
 **/*encoding*
 **/ter
 **/clearCache*
