@@ -2631,6 +2631,46 @@
 			}
 		},
 		{
+			"id": "age-08",
+			"area": "agenda",
+			"name": "Track an item through the phases of forming a picture, forming an opinion and deciding.",
+			"origin": "code",
+			"decidiq": "partial",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Service/AgendaService.php:244 advanceBobPhase() steps the item through BOB_PHASE_TRANSITIONS (:57) with patchObject on 'status'; src/views/LiveMeeting.vue:172-192 shows the phase (CnTimelineStages) and Next phase for the chair; the live screen is reached from the meeting page (src/components/tabs/MeetingAgendaTab.vue:875 openLive(), REQ-AMP-004). Missing half: AgendaItem declares no 'status' or phase property (lib/Settings/decidesk_register.json, register.d 70/98/111/112), and the agenda item page shows no phase.",
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/agenda-live-management",
+				"change": "agenda-item-phase-is-declared",
+				"requirement": [
+					"openspec/specs/agenda-live-management :: REQ-LIV-002 BOB phase is tracked per agenda item during the meeting",
+					"openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management :: REQ-LIV-010 The agenda item declares its phase",
+					"openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management :: REQ-LIV-011 The agenda item page shows the phase"
+				],
+				"plan": "openspec/changes/agenda-item-phase-is-declared",
+				"readOn": "2026-10-30"
+			},
+			"reachedOn": "MeetingDetail Agenda widget > live meeting (/meetings/:id/live), chair only",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "agenda-phases",
+			"featureConfidence": "medium",
+			"note": "The code moves an item through picture-forming, opinion-forming and deciding, but on a live screen nothing links to, and it stores the phase in a property the schema does not declare. Whether OpenRegister keeps an undeclared property decides whether the phase ever advances past the first step; that cannot be settled from this repo.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"DcAgendapunt",
+					"DcLiveVergadering"
+				]
+			},
+			"source": "coverage-2026-10-30"
+		},
+		{
 			"id": "age-09",
 			"area": "agenda",
 			"name": "Mark an agenda item as confidential so only authorised people see its papers.",
@@ -6788,6 +6828,47 @@
 			}
 		},
 		{
+			"id": "par-10",
+			"area": "participation",
+			"name": "Let citizens submit a contribution through the public portal.",
+			"origin": "code",
+			"decidiq": "partial",
+			"built": {
+				"state": "building",
+				"evidence": "lib/Portal/PortalContributionProvider.php:200 citizenContribution(), :219 four read collections, :308 citizenActions() createReaction + createBudgetProposal; lib/Listener/PortalCreateOpenParentGuardListener.php:342 guards portal creates (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:144)",
+				"owner": "ConductionNL/portaliq",
+				"spec": "openspec/specs/portal-citizen-create-actions",
+				"change": "portal-citizen-contribution-live-pass",
+				"requirement": [
+					"openspec/specs/portal-citizen-create-actions :: Citizen reacts to an open consultation via a scope-stamped create action (REQ-DKPCA-001)",
+					"openspec/specs/portal-citizen-create-actions :: Citizen proposes a budget item into an open participatory budget via a scope-stamped create action (REQ-DKPCA-002)",
+					"openspec/changes/portal-citizen-contribution-live-pass/specs/portal-citizen-create-actions :: A resident's contribution reaches the griffie and comes back on Mijn inspraak (REQ-DKPCA-005)"
+				],
+				"plan": "openspec/changes/portal-citizen-contribution-live-pass",
+				"readOn": "2026-10-30"
+			},
+			"reachedOn": "nothing reaches it in decidiq: portaliq discovers the provider by convention; the portal UI lives in portaliq",
+			"provider": "portaliq",
+			"providerHow": "read-from-code",
+			"feature": "citizen-participation",
+			"featureConfidence": "medium",
+			"note": "decidiq declares what an accountless citizen may read and create through portaliq and guards those creates, but the portal that executes the declaration is portaliq and cannot be proven from this repo.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"DcMijnInspraak",
+					"DcPubliekeConsultatie",
+					"DcModeratie"
+				]
+			},
+			"source": "coverage-2026-10-30"
+		},
+		{
 			"id": "par-11",
 			"area": "participation",
 			"name": "Discuss a topic in a threaded forum linked to a motion.",
@@ -7320,7 +7401,8 @@
 				"state": "built",
 				"evidence": "decidiq has no login of its own: every controller relies on the Nextcloud session (IUserSession, e.g. lib/Controller/VotingBehaviourController.php:108); navigation entry appinfo/info.xml <navigations>; SSO is supplied by Nextcloud's user_oidc / user_saml apps",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-001 Members sign in with the organisation's single sign-on through Nextcloud"
 			},
 			"reachedOn": "Nextcloud login page, then the Decidiq app (/apps/decidiq/)",
 			"provider": "nextcloud",
@@ -7453,6 +7535,42 @@
 			}
 		},
 		{
+			"id": "plt-05",
+			"area": "platform",
+			"name": "Use the app on a phone.",
+			"origin": "competitor",
+			"decidiq": "unknown",
+			"built": {
+				"state": "specified",
+				"evidence": "grep @media in src: one hit, src/components/liveMeeting/AgendaItemTimer.vue:346 (prefers-reduced-motion); no isMobile / breakpoint handling in decidiq's own components; layout comes from @nextcloud/vue and the manifest-driven Cn* pages",
+				"owner": "ConductionNL/decidiq",
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-008 Every page works at phone width",
+				"plan": "openspec/changes/platform-baseline-on-nextcloud"
+			},
+			"reachedOn": "Whole app in a phone browser (not checked)",
+			"provider": "nextcloud",
+			"providerHow": "read-from-code",
+			"feature": "responsive-ui",
+			"featureConfidence": "low",
+			"note": "decidiq adds no responsive work of its own and relies on Nextcloud's and nextcloud-vue's layout. Whether its grid dashboards and detail pages work at phone width can only be settled by running it.",
+			"notubiz": "unknown",
+			"ibabs": "yes",
+			"go-raadsinformatie": "yes",
+			"diligent-boards": "unknown",
+			"openslides": "yes",
+			"evidence": {
+				"ibabs": "docs-only, intelligence DB competitor_features #611 'Offline Access: Work with documents offline on mobile devices' (captured 2026-03-26)",
+				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19656 'Mobile Toegang: Mobile access for council members' (captured 2026-04-10)",
+				"openslides": "docs-only, intelligence DB competitor_features #714 'PWA Support: Installable progressive web app for mobile' (captured 2026-03-26)"
+			},
+			"screen": {
+				"board": null,
+				"reason": "no screen of its own: phone width applies to every board"
+			},
+			"source": "coverage-2026-10-30"
+		},
+		{
 			"id": "plt-06",
 			"area": "platform",
 			"name": "Run it on your own servers.",
@@ -7462,7 +7580,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml Nextcloud app (min-version 32, max 34); decidiq-compose.yaml:67 services (postgres:16-alpine, nextcloud:34-apache); hard dependency on OpenRegister",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-004 decidiq runs on any self-hosted Nextcloud with OpenRegister"
 			},
 			"reachedOn": "Installed from the Nextcloud App Store on your own Nextcloud",
 			"provider": "decidiq",
@@ -7874,6 +7993,42 @@
 			}
 		},
 		{
+			"id": "plt-18",
+			"area": "platform",
+			"name": "Let another system subscribe to changes in a decision.",
+			"origin": "code",
+			"decidiq": "partial",
+			"built": {
+				"state": "building",
+				"evidence": "appinfo/routes.php:293 POST /api/v1/decisions/{id}/subscriptions -> lib/Service/DecisionIntegrationService.php:446 registerOutcomeCallback() validates the URL against the integration registry and stores outcomeCallbackUrl on the decision (:473 'declarative delivery is then handled by x-openregister-notifications outcomeEmitted trigger'); lib/Settings/decidesk_register.json:1830 outcomeEmitted declaration; in-process lib/Service/DecisionLifecycleService.php:691 dispatches DecisionConcludedEvent. Read 2026-10-30: the outcomeEmitted rule uses operator 'in' on an updated trigger, which OpenRegister's AnnotationNotificationDispatcher::fieldChangeConditionMatches() does not support (only changed and equals), so it never fires; its only channel is nc-notification, and OpenRegister's webhook channel takes a fixed url per rule, not the decision's outcomeCallbackUrl.",
+				"owner": "ConductionNL/openregister",
+				"spec": "openspec/specs/decidesk-contract-decision-hub",
+				"change": "decision-outcome-reaches-the-subscriber",
+				"requirement": [
+					"openspec/specs/decidesk-contract-decision-hub :: REQ-DCDH-004 \u2014 Subscribe to outcome via registry callback",
+					"openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub :: REQ-DCDH-010 The outcome reaches the subscriber's callback"
+				],
+				"plan": "openspec/changes/decision-outcome-reaches-the-subscriber",
+				"readOn": "2026-10-30"
+			},
+			"reachedOn": "API only: POST /apps/decidiq/api/v1/decisions/{id}/subscriptions",
+			"provider": "openregister",
+			"providerHow": "read-from-code",
+			"feature": "decision-hub",
+			"featureConfidence": "medium",
+			"note": "Subscribing works and co-installed Nextcloud apps get an in-process event when a decision concludes. Actual delivery to an external callback URL rests on OpenRegister executing the outcomeEmitted notification declaration, which this repo cannot prove.",
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"screen": {
+				"board": null,
+				"reason": "no screen: API only, a subscriber registers through the decisions API"
+			},
+			"source": "coverage-2026-10-30"
+		},
+		{
 			"id": "plt-19",
 			"area": "platform",
 			"name": "Configure the app through a guided setup when it is first installed.",
@@ -8224,7 +8379,8 @@
 				"state": "built",
 				"evidence": "decidiq has no user administration of its own: users and groups are Nextcloud's, managed by admins or group sub-admins in Nextcloud's Users settings; lib/Controller/MemberImportController.php:71 groups() reads Nextcloud groups to import body members; lib/Service/GovernanceRoleScopeProjector.php:247 creates the per-body chair and signatory groups itself under fixed names",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-003 A functional administrator manages users and groups in Nextcloud"
 			},
 			"reachedOn": "Nextcloud Users settings (/settings/users); GovernanceBodyDetail Members widget 'Import from Nextcloud group'",
 			"provider": "nextcloud",
@@ -9355,7 +9511,8 @@
 				"state": "built",
 				"evidence": "decidiq has no login of its own and relies on the Nextcloud session (matrix row plt-01, e.g. lib/Controller/VotingBehaviourController.php:108 IUserSession); grep -rniE 'mfa|two.?factor|2fa|totp' lib src: none in decidiq; second factors and their enforcement come from Nextcloud's two-factor providers (twofactor_totp, WebAuthn) and the admin Security setting",
 				"owner": "nextcloud/server",
-				"spec": "none"
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-002 A second sign-in factor is enforced by Nextcloud"
 			},
 			"reachedOn": "Nextcloud login, with two-factor enforced under Administration settings > Security",
 			"provider": "nextcloud",
@@ -9691,7 +9848,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml Nextcloud app on the customer's own Nextcloud with OpenRegister as the store (matrix row plt-06, decidiq-compose.yaml:67); grep -rnoE 'https?://' lib: no hardcoded outbound host (lib/Service/OriSerializer.php:49 argu.co is a JSON-LD context name, not a call); outbound traffic only to endpoints the admin sets (ORI endpoint, lib/Settings/connections.json:4-11; integriq sources)",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-005 Data stays where the instance runs"
 			},
 			"reachedOn": "Wherever the organisation hosts its Nextcloud; outbound endpoints set on the admin settings page",
 			"provider": "decidiq",
@@ -9766,105 +9924,6 @@
 					"DcBeheer"
 				]
 			}
-		}
-	],
-	"pending": [
-		{
-			"id": "age-08",
-			"area": "agenda",
-			"name": "Track an item through the phases of forming a picture, forming an opinion and deciding.",
-			"origin": "code",
-			"decidiq": "unknown",
-			"built": {
-				"state": "building",
-				"evidence": "lib/Service/AgendaService.php:244 advanceBobPhase() steps 'status' through BOB_PHASE_TRANSITIONS (:57) with patchObject; called from src/views/LiveMeeting.vue:488-490 PUT /api/agenda-items/{id}/bob-phase; AgendaItem declares no 'status' property (lib/Settings/decidesk_register.json:1255, register.d/70 adds only type/typeFields)",
-				"owner": "ConductionNL/decidiq"
-			},
-			"reachedOn": "LiveMeeting (/meetings/:id/live, chair only, reached by typed URL)",
-			"provider": "decidiq",
-			"providerHow": "read-from-code",
-			"feature": "agenda-phases",
-			"featureConfidence": "medium",
-			"note": "The code moves an item through picture-forming, opinion-forming and deciding, but on a live screen nothing links to, and it stores the phase in a property the schema does not declare. Whether OpenRegister keeps an undeclared property decides whether the phase ever advances past the first step; that cannot be settled from this repo.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
-			"openslides": "unknown"
-		},
-		{
-			"id": "par-10",
-			"area": "participation",
-			"name": "Let citizens submit a contribution through the public portal.",
-			"origin": "code",
-			"decidiq": "unknown",
-			"built": {
-				"state": "building",
-				"evidence": "lib/Portal/PortalContributionProvider.php:200 citizenContribution(), :219 four read collections, :308 citizenActions() createReaction + createBudgetProposal; lib/Listener/PortalCreateOpenParentGuardListener.php:342 guards portal creates (registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:144)",
-				"owner": "ConductionNL/portaliq"
-			},
-			"reachedOn": "nothing reaches it in decidiq: portaliq discovers the provider by convention; the portal UI lives in portaliq",
-			"provider": "portaliq",
-			"providerHow": "read-from-code",
-			"feature": "citizen-participation",
-			"featureConfidence": "medium",
-			"note": "decidiq declares what an accountless citizen may read and create through portaliq and guards those creates, but the portal that executes the declaration is portaliq and cannot be proven from this repo.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
-			"openslides": "unknown"
-		},
-		{
-			"id": "plt-05",
-			"area": "platform",
-			"name": "Use the app on a phone.",
-			"origin": "competitor",
-			"decidiq": "unknown",
-			"built": {
-				"state": "none",
-				"evidence": "grep @media in src: one hit, src/components/liveMeeting/AgendaItemTimer.vue:346 (prefers-reduced-motion); no isMobile / breakpoint handling in decidiq's own components; layout comes from @nextcloud/vue and the manifest-driven Cn* pages",
-				"owner": "ConductionNL/decidiq"
-			},
-			"reachedOn": "Whole app in a phone browser (not checked)",
-			"provider": "nextcloud",
-			"providerHow": "read-from-code",
-			"feature": "responsive-ui",
-			"featureConfidence": "low",
-			"note": "decidiq adds no responsive work of its own and relies on Nextcloud's and nextcloud-vue's layout. Whether its grid dashboards and detail pages work at phone width can only be settled by running it.",
-			"notubiz": "unknown",
-			"ibabs": "yes",
-			"go-raadsinformatie": "yes",
-			"diligent-boards": "unknown",
-			"openslides": "yes",
-			"evidence": {
-				"ibabs": "docs-only, intelligence DB competitor_features #611 'Offline Access: Work with documents offline on mobile devices' (captured 2026-03-26)",
-				"go-raadsinformatie": "docs-only, intelligence DB competitor_features #19656 'Mobile Toegang: Mobile access for council members' (captured 2026-04-10)",
-				"openslides": "docs-only, intelligence DB competitor_features #714 'PWA Support: Installable progressive web app for mobile' (captured 2026-03-26)"
-			}
-		},
-		{
-			"id": "plt-18",
-			"area": "platform",
-			"name": "Let another system subscribe to changes in a decision.",
-			"origin": "code",
-			"decidiq": "unknown",
-			"built": {
-				"state": "building",
-				"evidence": "appinfo/routes.php:293 POST /api/v1/decisions/{id}/subscriptions -> lib/Service/DecisionIntegrationService.php:446 registerOutcomeCallback() validates the URL against the integration registry and stores outcomeCallbackUrl on the decision (:473 'declarative delivery is then handled by x-openregister-notifications outcomeEmitted trigger'); lib/Settings/decidesk_register.json:1830 outcomeEmitted declaration; in-process lib/Service/DecisionLifecycleService.php:691 dispatches DecisionConcludedEvent",
-				"owner": "ConductionNL/openregister"
-			},
-			"reachedOn": "API only: POST /apps/decidiq/api/v1/decisions/{id}/subscriptions",
-			"provider": "openregister",
-			"providerHow": "read-from-code",
-			"feature": "decision-hub",
-			"featureConfidence": "medium",
-			"note": "Subscribing works and co-installed Nextcloud apps get an in-process event when a decision concludes. Actual delivery to an external callback URL rests on OpenRegister executing the outcomeEmitted notification declaration, which this repo cannot prove.",
-			"notubiz": "unknown",
-			"ibabs": "unknown",
-			"go-raadsinformatie": "unknown",
-			"diligent-boards": "unknown",
-			"openslides": "unknown"
 		},
 		{
 			"id": "pen-01",
@@ -9878,14 +9937,25 @@
 				"ibabs": "docs-only, intelligence DB competitor_features #612 'ISO 27001 Certified: ISO 9001, 27001:2022, 27002:2022 compliance' (captured 2026-03-26); docs-only, intelligence DB competitor_features #28370 'ISO 27001 hosting: Azure hosting met ISO 27001 en NEN 7510 compliance' (captured 2026-04-18)",
 				"diligent-boards": "docs-only, intelligence DB competitor_features #639 'Security (SOC 1/2/3, ISO): SOC 1,2,3 + ISO 27001/27017/27018' (captured 2026-03-26)"
 			},
-			"decidiq": "unknown",
+			"decidiq": "yes",
 			"built": {
-				"state": "none",
-				"evidence": "not settled, see note"
+				"state": "built",
+				"evidence": "decidiq stores records only in the instance's OpenRegister database and documents only in its Nextcloud Files, and calls no host the administrator did not configure (rows plt-06 and plt-32: appinfo/info.xml, decidiq-compose.yaml, grep -rnoE 'https?://' lib). The ISO 27001 certificate therefore belongs to whoever hosts the instance; whether Conduction's hosted offering carries one was not checked.",
+				"owner": "ConductionNL/decidiq",
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-005 Data stays where the instance runs"
 			},
 			"notubiz": "unknown",
 			"go-raadsinformatie": "unknown",
-			"openslides": "unknown"
+			"openslides": "unknown",
+			"provider": "hosting",
+			"providerHow": "read-from-code",
+			"feature": "sovereign-hosting",
+			"screen": {
+				"board": null,
+				"reason": "no screen: hosting"
+			},
+			"source": "coverage-2026-10-30"
 		},
 		{
 			"id": "pen-02",
@@ -9893,16 +9963,30 @@
 			"name": "Drive the room's microphones and cameras from the meeting, so the recording follows the speaker.",
 			"origin": "competitor",
 			"note": "A tender requirement (raadsinformatie/README.md §4.1, AV integration with Jacott and ARK), not tied to a vendor in the research. Nothing in decidiq was found for it by the planning pass; not read in depth.",
-			"decidiq": "unknown",
+			"decidiq": "no",
 			"built": {
-				"state": "none",
-				"evidence": "not settled, see note"
+				"state": "specified",
+				"evidence": "Read 2026-10-30: the speaker queue lives in the browser (src/utils/speakerQueue.js, src/components/liveMeeting/SpeakerQueuePanel.vue); nothing sends the current speaker anywhere. openspec/changes/live-room-conference-system-link adds the inbound room-system connection (integriq) and Participant.roomSeat, not the outbound speaker signal.",
+				"owner": "ConductionNL/decidiq",
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-006 The room's cameras and microphones follow the speaker",
+				"plan": "openspec/changes/platform-baseline-on-nextcloud"
 			},
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "unknown",
+			"provider": "integriq",
+			"providerHow": "read-from-code",
+			"feature": "live-meeting-mode",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"DcVergaderingUitzending"
+				]
+			},
+			"source": "coverage-2026-10-30"
 		},
 		{
 			"id": "pen-03",
@@ -9910,17 +9994,32 @@
 			"name": "Keep a public register of which members sit on which outside boards, the way tenders ask for member profile pages.",
 			"origin": "competitor",
 			"note": "Overlaps bod-05 and bod-09. Whether decidiq publishes the ancillary-positions register to the public portal, or only keeps it internally, was not settled.",
-			"decidiq": "unknown",
+			"decidiq": "partial",
 			"built": {
-				"state": "none",
-				"evidence": "not settled, see note"
+				"state": "building",
+				"evidence": "lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json AncillaryPosition.publicationDate: a verified public position with a past publication date is anonymously readable through OpenRegister's published predicate; staff keep the register on the person page (DcPersoon, rows bod-05 and bod-09). Missing half: lib/Portal/PortalContributionProvider.php offers the portal no ancillary-positions collection, so no portal page lists them.",
+				"owner": "ConductionNL/decidiq",
+				"change": "platform-baseline-on-nextcloud",
+				"requirement": "openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline :: REQ-PLB-007 Residents read members' ancillary positions without an account",
+				"plan": "openspec/changes/platform-baseline-on-nextcloud"
 			},
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
 			"diligent-boards": "unknown",
-			"openslides": "unknown"
+			"openslides": "unknown",
+			"provider": "decidiq",
+			"providerHow": "read-from-code",
+			"feature": "governance-bodies",
+			"screen": {
+				"canvas": "design-system",
+				"board": [
+					"DcPersoon"
+				]
+			},
+			"source": "coverage-2026-10-30"
 		}
 	],
+	"pending": [],
 	"_comment": "Competitor rating rule (wave 5, 2026-09-26): a row phrased in Nextcloud terms (a Nextcloud dashboard widget, Nextcloud Files, Deck, Calendar, activity stream, search bar) rates a competitor partial when the competitor has its own equivalent, and no only when nothing equivalent exists. Decision-oriented rows are rated against OpenSlides motions, which carry its decisions."
 }
