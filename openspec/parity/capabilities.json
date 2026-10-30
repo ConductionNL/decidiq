@@ -8261,7 +8261,9 @@
 				"evidence": "tests/e2e/a11y/sample.json (WCAG-EM structured sample, checked by scripts/wcag-sample-check.mjs), tests/e2e/a11y/wcag-audit.spec.ts + owner.js (axe-core WCAG 2.1 A/AA scan per sampled page, findings owned by decidiq, nextcloud or portaliq, writes tests/axe/report.json; npm run a11y:scan), docs/compliance/wcag-manual-checks.json (manual checklist), scripts/wcag-audit-report.mjs -> docs/compliance/wcag-2.1-aa-audit.md (npm run a11y:report). Missing half: the scan on every release build, which runs in the shared quality workflow (ConductionNL/.github, DECISIONS row 28, drafted for Ruben), and a first tester pass on the checklist.",
 				"owner": "ConductionNL/decidiq",
 				"change": "platform-accessibility-audit-report",
-				"readOn": "2026-09-30"
+				"readOn": "2026-09-30",
+				"plan": "openspec/changes/platform-accessibility-audit-report",
+				"requirement": "openspec/changes/platform-accessibility-audit-report/specs/accessibility-baseline :: REQ-AAR-004 Each release has a readable WCAG 2.1 AA audit report"
 			},
 			"reachedOn": "nothing reaches it: no public site and no audit report in this repo",
 			"provider": "decidiq",
@@ -9746,11 +9748,18 @@
 			"id": "vot-25",
 			"area": "voting",
 			"name": "Restrict a vote to a fixed group of members, chosen from a preset when the vote is opened.",
-			"decidiq": "no",
+			"decidiq": "partial",
 			"built": {
-				"state": "specified",
-				"evidence": "openspec/specs/voting-group-presets (REQ-VGP-001 to 004) specifies presets per body and selecting one when opening a round; grep for VotingGroupPreset, voting-group-preset and presetParticipantIds in lib/ and src/ finds only a docblock example in lib/Controller/VotingController.php:86, so nothing is built",
-				"spec": "openspec/specs/voting-group-presets"
+				"state": "building",
+				"evidence": "Read 2026-10-30: voting groups exist as register objects (lib/Settings/register.d/127-voting-groups.json VotingGroup: name, governanceBody, members as person ids) kept on the admin page Stemgroepen (src/views/settings/VotingGroupsSettings.vue, src/manifest.d/voting-groups.json, #1776); the server accepts presetParticipantIds when a round opens and leaves out anyone without an active membership (lib/Service/VotingRoundOpener.php:215 seatHoldersFor, lib/Service/VotingRoundPreflight.php splitPresetParticipants, excludedPresetUuids). Missing half: nothing turns a group into the meeting's participants, and src/components/VotingRoundPanel.vue offers no group to pick.",
+				"spec": "openspec/specs/voting-group-presets",
+				"change": "voting-groups-chosen-when-a-round-opens",
+				"plan": "openspec/changes/voting-groups-chosen-when-a-round-opens",
+				"readOn": "2026-10-30",
+				"requirement": [
+					"openspec/specs/voting-group-presets :: REQ-VGP-002 Chair can select a voting group preset when opening a VotingRound",
+					"openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets :: REQ-VGP-005 The chair sees who a voting group left out"
+				]
 			},
 			"feature": "voting-system",
 			"notubiz": "unknown",
