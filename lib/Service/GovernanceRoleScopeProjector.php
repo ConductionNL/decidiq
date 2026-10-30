@@ -159,7 +159,7 @@ class GovernanceRoleScopeProjector {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/body-scope-groups-end-with-the-body/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
 	 */
 	public function removeBody(string $bodyId): void {
 		if ($bodyId === '') {
@@ -267,7 +267,7 @@ class GovernanceRoleScopeProjector {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/body-scope-groups-end-with-the-body/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
 	 */
 	private function syncScope(string $groupId, array $desiredUids): void {
 		if ($desiredUids === []) {

@@ -105,8 +105,8 @@ class PortalContributionProvider {
 	 * @param PublicVotingRecords|null  $votingRecords  The public members and their votes (memberVotingRecords).
 	 * @param PublicMeetingRecords|null $meetingRecords The published meetings and decisions.
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function __construct(
 		private readonly ?IFactory $l10nFactory=null,
@@ -146,7 +146,7 @@ class PortalContributionProvider {
 	 *
 	 * @return list<array<string, string>>
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
 	 */
 	public function publicMeetings(): array {
 		return ($this->meetingRecords?->meetings() ?? []);
@@ -159,7 +159,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-001-a-visitor-finds-the-published-meetings-with-their-agenda
 	 */
 	public function publicMeeting(string $id): ?array {
 		return $this->meetingRecords?->meeting(id: $id);
@@ -170,7 +170,7 @@ class PortalContributionProvider {
 	 *
 	 * @return list<array<string, string>>
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
 	 */
 	public function publicDecisions(): array {
 		return ($this->meetingRecords?->decisions() ?? []);
@@ -183,7 +183,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
+	 * @spec openspec/specs/portal-contribution/spec.md#requirement-req-pcr-002-a-visitor-reads-the-published-decisions-with-their-outcome
 	 */
 	public function publicDecision(string $id): ?array {
 		return $this->meetingRecords?->decision(id: $id);
@@ -230,7 +230,7 @@ class PortalContributionProvider {
 	 * @return array<string, mixed>|null The manifest, or null when not contributing.
 	 *
 	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getContribution(array $subject): ?array {
 		$audience = ($subject['audience'] ?? '');
@@ -318,7 +318,7 @@ class PortalContributionProvider {
 	 *
 	 * @return list<array<string, string>>
 	 *
-	 * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
 	 */
 	private function publicRecords(): array {

@@ -236,7 +236,7 @@ export default {
 		 * What this leaf reports to a "linked" card.
 		 *
 		 * @return {object} The report.
-		 * @spec openspec/changes/leaves-linked-card/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 * @spec openspec/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
 		 */
 		leafReport() {
 			return {

@@ -27,7 +27,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * GET /api/decisions/{decisionId}/authority.
  *
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
  */
 class DecisionAuthorityControllerTest extends TestCase {
 

@@ -340,7 +340,7 @@
     "matrix": "decidiq",
     "decision": "existing",
     "reason": "Owned by openregister; its lane recorded audit-log-page (one log across records) with 2026-09-22-audit-trail-readable-scope limiting it to the caller's scope.",
-    "change": "audit-log-page",
+    "change": "openregister/audit-log-page",
     "decidedOn": "2026-09-27"
   },
   {
@@ -348,15 +348,15 @@
     "matrix": "decidiq",
     "decision": "existing",
     "reason": "Owned by openregister; its lane recorded object-dates-as-a-calendar-feed. decidiq's own half, replacing the method_exists() stub in AgendaService with the feed declaration, is in platform-microsoft-365-calendar-and-teams.",
-    "change": "object-dates-as-a-calendar-feed",
+    "change": "openregister/object-dates-as-a-calendar-feed",
     "decidedOn": "2026-09-27"
   },
   {
     "row": "plt-02",
     "matrix": "decidiq",
     "decision": "existing",
-    "reason": "Owned by portaliq; the portaliq lane specified it in ConductionNL/portaliq openspec/changes/signin-integriq-broker-login (portaliq#761).",
-    "change": "signin-integriq-broker-login",
+    "reason": "Owned by portaliq for the sign-in: the portaliq lane specified and archived it as ConductionNL/portaliq openspec/changes/archive/2026-09-29-signin-integriq-broker-login (portaliq#761), now in portaliq's main spec portal-broker-envelope-login. decidiq's half, offering a confidential paper to a portal session at a raised trust level, is the open change portal-voting-record-and-confidential-papers.",
+    "change": "portal-voting-record-and-confidential-papers",
     "decidedOn": "2026-09-27"
   },
   {
@@ -396,7 +396,7 @@
     "matrix": "decidiq",
     "decision": "existing",
     "reason": "Owned by openregister. Boolean operators are its search-quality-operators-and-facets and highlighting its zoeken-filteren; the openregister lane found the zoeken-filteren claim that ILIKE ignores diacritics is false (no unaccent in lib) and specified accent folding in search-accent-insensitive.",
-    "change": "search-accent-insensitive",
+    "change": "openregister/search-accent-insensitive",
     "decidedOn": "2026-09-27"
   },
   {
@@ -1726,5 +1726,13 @@
     "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcGeheimhouding draws it. Specified in confidentiality-term-and-lapse.",
     "change": "confidentiality-term-and-lapse",
     "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "liv-13",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Supersedes the 2026-09-27 decided-no, which predates #1517 (29 Sep). A digital or hybrid meeting links its Talk room from the meeting page (MeetingVideoCallTab, REQ-MVC-001), and participants chat in that room (REQ-DISC-TALK-003). decidiq keeps no chat of its own; an in-person meeting has none, so the row stays partial.",
+    "change": "2026-10-30-meeting-chat-in-the-talk-room",
+    "decidedOn": "2026-10-30"
   }
 ]

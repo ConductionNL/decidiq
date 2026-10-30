@@ -14,7 +14,7 @@ import { generateOcsUrl, generateUrl } from '@nextcloud/router'
  *
  * @param {string} name The name.
  * @return {string} The initials, or '' for no name.
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
  */
 export function initialsOf(name) {
 	const parts = String(name || '').trim().split(/\s+/).filter(Boolean)
@@ -32,7 +32,7 @@ export function initialsOf(name) {
  * @param {object} decision The decision.
  * @param {Object<string, string>} names Display names by account.
  * @return {string} The name, or ''.
- * @spec openspec/changes/decisions-leaf-drafter-name/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-names-the-drafter-by-display-name
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-names-the-drafter-by-display-name
  */
 export function drafterName(decision, names) {
 	const proposer = String(decision?.proposer || '').trim()
@@ -50,7 +50,7 @@ export function drafterName(decision, names) {
  * @param {{state: string, outcome?: string, drafter?: string, date?: string}} parts The parts, already in words.
  * @param {(drafter: string, date: string) => string} [drafted] Words "drafted by {drafter} on {date}".
  * @return {string} The line.
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
  */
 export function decisionMetaLine(parts, drafted = (drafter, date) => `drafted by ${drafter} on ${date}`) {
 	const line = [parts.state]
@@ -73,7 +73,7 @@ export function decisionMetaLine(parts, drafted = (drafter, date) => `drafted by
  * @param {(iso: string) => string} formatDate Words for a date.
  * @param {string} notYet Words for "not yet".
  * @return {Array<{key: string, label: string, state: 'done'|'current'|'todo', line: string}>} The steps.
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
  */
 export function stageSteps(stages, people, formatDate, notYet) {
 	if (!Array.isArray(stages)) {
@@ -110,7 +110,7 @@ export function stageSteps(stages, people, formatDate, notYet) {
  * @param {object|null} answer The `/api/decisions/{id}/authority` answer.
  * @param {string} drafter The drafter's name.
  * @return {{tone: string, drafter: string, allocation: string, restrictions: string}|null} The notice, or null.
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
  */
 export function mandateNotice(answer, drafter) {
 	if (!answer || answer.authorised !== true) {
@@ -184,7 +184,7 @@ export async function decisionAuthority(decisionId) {
  *
  * @param {Array<string>} uids Account ids.
  * @return {Promise<Object<string, string>>} The names.
- * @spec openspec/changes/decisions-leaf-drafter-name/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-names-the-drafter-by-display-name
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-names-the-drafter-by-display-name
  */
 export async function userDisplayNames(uids) {
 	const unique = [...new Set((uids || []).filter(Boolean).map(String))]

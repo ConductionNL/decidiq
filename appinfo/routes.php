@@ -161,7 +161,7 @@ $extra = [
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
 
         // Whether a decision's drafter may take it (delegatie- en mandaatregister), for the decisions leaf.
-        // @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md
+        // @spec openspec/specs/decidesk-contract-decision-hub/spec.md
         ['name' => 'decisionAuthority#show', 'url' => '/api/decisions/{decisionId}/authority', 'verb' => 'GET'],
 
         // Meeting lifecycle transitions (CRUD is handled by OpenRegister's object API directly).

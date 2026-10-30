@@ -712,7 +712,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function testLabelsAreReadInTheReadersLanguage(): void {
 		$dutch    = $this->catalogue(locale: 'nl');
@@ -804,7 +804,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function testEveryVisibleLabelHasADutchTranslation(): void {
 		$english = $this->provider->getContribution(self::CITIZEN_SUBJECT);
@@ -827,7 +827,7 @@ final class PortalContributionProviderTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/portal-labels-in-the-readers-language/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function testWithoutAFactoryTheSourceStays(): void {
 		$manifest = $this->provider->getContribution(self::CITIZEN_SUBJECT);
