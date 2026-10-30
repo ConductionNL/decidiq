@@ -1726,5 +1726,13 @@
     "reason": "Reopened by decision 100 (Ruben, 8 Oct 2026): board DcGeheimhouding draws it. Specified in confidentiality-term-and-lapse.",
     "change": "confidentiality-term-and-lapse",
     "decidedOn": "2026-10-08"
+  },
+  {
+    "row": "liv-13",
+    "matrix": "decidiq",
+    "decision": "existing",
+    "reason": "Supersedes the 2026-09-27 decided-no, which predates #1517 (29 Sep). A digital or hybrid meeting links its Talk room from the meeting page (MeetingVideoCallTab, REQ-MVC-001), and participants chat in that room (REQ-DISC-TALK-003). decidiq keeps no chat of its own; an in-person meeting has none, so the row stays partial.",
+    "change": "2026-10-30-meeting-chat-in-the-talk-room",
+    "decidedOn": "2026-10-30"
   }
 ]

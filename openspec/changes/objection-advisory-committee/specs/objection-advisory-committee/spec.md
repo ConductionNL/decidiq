@@ -162,3 +162,21 @@ The system SHALL seed one objection advisory committee demonstrating the new fie
 - WHEN it renders
 - THEN the four new fields are shown
 - AND a field that is unset renders as unset rather than as a wrong value
+
+### Requirement: REQ-OAC-008 An objection runs as a decision through its configured route
+
+An objection to a decision SHALL be a decision of the configured objection decision type (`bezwaar-decision`), linked to the decision it contests, walked through the approval route that type configures: receipt with an admissibility verdict, a hearing, the advice of the advisory committee, the decision on the objection, and sending it. The code SHALL stay generic: the steps, the advisory committee and the decision term are configuration of the decision type, not code named after objections. The advice SHALL be a consultation that asks the advisory committee body, and the decision term SHALL be computed from the period the type configures, counted from the end of the objection period. The decision page SHALL show the steps with their dates, the current step and the term, as DcBezwaar draws it.
+
+#### Scenario: A clerk handles an objection to a refused permit
+
+- GIVEN the decision type `bezwaar-decision` configured with the five steps, the body Onafhankelijke bezwaarcommissie Zuiddrecht as adviser and a term of twelve weeks
+- WHEN clerk Lisa records an objection by J. Vos against the refused permit for Kerkstraat 12, received 4 August 2026
+- THEN the objection page shows Received as done, the hearing, the committee's advice and the decision on the objection as next steps, and the term
+- AND after the committee's advice is recorded as well-founded, the current step is Decision on the objection
+
+#### Scenario: Another organisation configures a different route
+
+- GIVEN an organisation whose objection route has no hearing step
+- WHEN it records an objection
+- THEN the objection walks its own configured steps
+- AND no code change was needed

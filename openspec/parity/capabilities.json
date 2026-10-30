@@ -1655,7 +1655,8 @@
 				"evidence": "src/components/tabs/BodyParticipationsTab.vue (add, edit, end a participation; seats filled per organisation from Membership.onBehalfOf) with src/dialogs/BodyParticipationDialog.vue on GovernanceBodyDetail (widget body-participating-orgs); On behalf of in src/modals/MemberAddDialog.vue; tests/vitest/bodyParticipations.spec.js",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-10-09-bodies-shared-body-participations",
-				"readOn": "2026-10-09"
+				"readOn": "2026-10-09",
+				"requirement": "openspec/specs/shared-governance-bodies :: REQ-SGBP-001 The secretary keeps the participations of a shared body"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), 'Participating organisations' and 'Shared-body participations' lists",
 			"provider": "decidiq",
@@ -1805,7 +1806,8 @@
 				"evidence": "Built in change bodies-director-remuneration: mandate-remuneration schema with its read rule (secretariat and administrators, plus public on disclosed records past their publication date; lib/Settings/register.d/117-mandate-remuneration.json), corporate and association seeds, the body page's remuneration list and fixed-fee total and the position hold's list over the years (src/manifest.json, src/manifest.d/configurable-types.json). Register tests green (tests/Unit/Settings/MandateRemunerationRegisterTest.php); the Newman read-rule run with three users and the Playwright runs are still owed, so not yet built.",
 				"owner": "ConductionNL/decidiq",
 				"change": "bodies-director-remuneration",
-				"readOn": "2026-10-03"
+				"readOn": "2026-10-03",
+				"requirement": "openspec/changes/bodies-director-remuneration/specs/governance-bodies :: REQ-DRM-001 A position holder's remuneration is recorded per year"
 			},
 			"reachedOn": "nothing reaches it: no remuneration data for directors",
 			"provider": "decidiq",
@@ -1840,7 +1842,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/decidesk_register.json:665 Meeting (title, governanceBody, scheduledDate, endDate, location, meetingMode, required title/meetingType/scheduledDate/meetingMode/lifecycle); src/manifest.json:516 Meetings index and :561 MeetingDetail with 'meeting-planning' data widget (:570); src/manifest.json:472 body-meetings list on GovernanceBodyDetail",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/meeting-crud"
+				"spec": "openspec/specs/meeting-crud",
+				"requirement": "openspec/specs/meeting-crud :: Meeting list view"
 			},
 			"reachedOn": "Meetings index (/meetings, menu 'Meetings') create form; MeetingDetail (/meetings/:id) Planning widget",
 			"provider": "decidiq",
@@ -2675,7 +2678,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/MeetingController.php:276 assemblePackage(), appinfo/routes.php:150 POST /api/meetings/{id}/package; lib/Service/MeetingPackageService.php:95 assemble() copies each agenda item's documents into 'NN - title/' folders with a generated table of contents (:326); src/components/tabs/MeetingAgendaTab.vue:25-35 button and :386-420 call, :243-249 'Open package folder' link",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-meeting-agenda-gaps-v1"
+				"change": "2026-06-12-meeting-agenda-gaps-v1",
+				"requirement": "openspec/specs/agenda-management :: Agenda Ordering and Structure"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget, 'Assemble meeting package'",
 			"provider": "decidiq",
@@ -2710,7 +2714,8 @@
 				"state": "specified",
 				"evidence": "openspec/changes/document-annotations/ (proposal, design, tasks, specs) proposes an Annotation schema and overlay; no Annotation schema in lib/Settings and no annotation code in src/ (grep 'annotation')",
 				"owner": "ConductionNL/decidiq",
-				"change": "document-annotations"
+				"change": "document-annotations",
+				"requirement": "openspec/changes/document-annotations/specs/document-annotations :: REQ-ANN-001 Annotation is an OpenRegister object anchored to a document version"
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
 			"provider": "decidiq",
@@ -3334,11 +3339,15 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "built",
-				"evidence": "src/manifest.json:594 MeetingDetail widget meeting-video-call (src/components/tabs/MeetingVideoCallTab.vue, #1517, 29 Sep): on a digital or hybrid meeting the chair or secretary creates a Talk room with the body's members invited, or links one, through OpenRegister's Talk link (src/utils/videoCall.js:32 /apps/openregister/api/objects/decidiq/meeting/{id}/talk), and members get Join video call; the Talk room carries Talk's chat. Per motion: the Motions index Discussion action (src/manifest.json:951) opens /motions/:id/integrations with the Talk tab (src/views/MotionIntegrations.vue). /meetings/:id/integrations (src/manifest.json:671) still has no link from any page. The live view has no chat.",
+				"evidence": "src/manifest.json:594 MeetingDetail widget meeting-video-call (src/components/tabs/MeetingVideoCallTab.vue, #1517, 29 Sep): on a digital or hybrid meeting the chair or secretary creates a Talk room with the body's members invited, or links one, through OpenRegister's Talk link (src/utils/videoCall.js:32 /apps/openregister/api/objects/decidiq/meeting/{id}/talk), and members get Join video call; the Talk room carries Talk's chat. Per motion: the Motions index Discussion action (src/manifest.json:951) opens /motions/:id/integrations with the Talk tab (src/views/MotionIntegrations.vue). /meetings/:id/integrations (src/manifest.json:671) still has no link from any page. The live view has no chat. Re-read 2026-10-30 (src/components/tabs/MeetingVideoCallTab.vue, src/utils/videoCall.js): unchanged; an in-person meeting shows no room.",
 				"owner": "nextcloud/spreed",
-				"readOn": "2026-10-07",
+				"readOn": "2026-10-30",
 				"change": "2026-09-29-meeting-video-call",
-				"spec": "openspec/specs/discussion-via-talk-leaf"
+				"spec": "openspec/specs/discussion-via-talk-leaf",
+				"requirement": [
+					"openspec/specs/discussion-via-talk-leaf :: REQ-DISC-TALK-003 Participants chat in the meeting's Talk room",
+					"openspec/specs/digital-meetings-and-recurrence :: REQ-MVC-001 A digital or hybrid meeting has its video call"
+				]
 			},
 			"reachedOn": "MeetingDetail Video call widget > Join video call (Talk room with chat) on a digital or hybrid meeting; Motions index > Discussion (Talk tab per motion)",
 			"provider": "talk",
@@ -4520,7 +4529,8 @@
 				"evidence": "GET /api/people/{personId}/voting-record (lib/Controller/VotingRecordController.php, lib/Service/VotingRecordService.php, lib/Service/PersonParticipantLookup.php): closed non-secret rounds, date, decision, choice, result, party at the time, creates nothing; PersonVotingRecordTab on /people/:id. Tests: tests/Unit/Service/VotingRecordServiceTest.php, tests/Unit/Controller/VotingRecordControllerTest.php, tests/e2e/member-profile-and-voting-record.spec.ts",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-10-01-bodies-member-profile-and-voting-record",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/ori-api :: REQ-MPR-005 A body decides whether its members' votes are public"
 			},
 			"reachedOn": "the Voting record widget on /people/:id",
 			"provider": "decidiq",
@@ -5101,7 +5111,8 @@
 				"state": "built",
 				"evidence": "DecisionDetail widget decision-actions -> src/components/tabs/ActionItemsSurface.vue (DecisionActionItemsTab or ActionItemDeckBoard); DecisionActionItemsTab.vue:142-143 assignee/dueDate columns, :256 createActionItem({...formData, decision}) -> src/services/actionItemApi.js POST /api/action-items (routes.php:78) -> lib/Service/ActionItemWriter.php:98 create() writes a CalDAV VTODO via OpenRegister TaskService.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-23-action-items-vtodo-deck-reconcile"
+				"change": "2026-06-23-action-items-vtodo-deck-reconcile",
+				"requirement": "openspec/specs/action-item-board-via-deck-leaf :: REQ-AI-DECK-004 Creation paths write VTODOs, not an app-local store"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Action items widget (ActionItemsSurface)",
 			"provider": "decidiq",
@@ -5586,7 +5597,8 @@
 				"state": "built",
 				"evidence": "src/manifest.d/delegatie-mandaatregister.json pages AuthorityDelegations (/authority-delegations) and AuthorityDelegationDetail with the delegation-chain widget (:100) rendered by src/components/widgets/DelegationChainWidget.vue, registered in src/components/widgets/registerDetailWidgets.js:272 (called from src/main.js:280); schema AuthorityDelegation in lib/Settings/register.d/86-the-last-two-dutch-names.json.",
 				"owner": "ConductionNL/decidiq",
-				"change": "delegatie-mandaatregister"
+				"change": "delegatie-mandaatregister",
+				"requirement": "openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister :: REQ-DMR-001 Bevoegdheidstoedeling schema"
 			},
 			"reachedOn": "Delegations & mandates index (/authority-delegations) and detail with sub-mandate chain",
 			"provider": "decidiq",
@@ -5625,7 +5637,8 @@
 				"evidence": "src/manifest.d/urgent-decision-procedure.json:15 UrgentDecisions list (/urgent-decisions, filter isUrgent, quick filters on awaitingRatification); fields and awaitingRatification calculation declared in lib/Settings/register.d/46-urgency-policy.json:12. Nothing sets them: no PHP under lib/ handles urgency, no route, and the UrgencyTriggerGuard the schema names does not exist, so the list is always empty. The declare flow and ratification stage are specified in openspec/changes/urgent-decision-procedure; urgent-decisions-register adds the board's declaring body and report date.",
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
-				"change": "urgent-decisions-register"
+				"change": "urgent-decisions-register",
+				"requirement": "openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure :: REQ-020 The declaration records the declaring body or office"
 			},
 			"reachedOn": "Urgent decisions index (/urgent-decisions); setting a decision urgent only through the generic decision form, if at all",
 			"provider": "decidiq",
@@ -5767,7 +5780,11 @@
 				"state": "built",
 				"evidence": "Consultation with audienceType members/groups, choiceOptions and anonymousResponses (lib/Settings/register.d/79-one-consultation-schema.json, MemberConsultation superseded); pages GovernanceConsultations and GovernanceConsultationResponses (src/manifest.d/consultations.json). No member-facing answer screen or PHP logic reading governance-consultation found.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-09-28-constituency-consultation"
+				"change": "2026-09-28-constituency-consultation",
+				"requirement": [
+					"openspec/changes/archive/2026-09-28-constituency-consultation/specs/constituency-consultation :: REQ-CCO-001 MemberConsultation schema on OpenRegister",
+					"openspec/changes/one-consultation-schema/specs/one-consultation-schema :: One pair of schemas models being asked and answering"
+				]
 			},
 			"reachedOn": "Consultations index (/governance-consultations) and Consultation responses index (/governance-consultation-responses)",
 			"provider": "decidiq",
@@ -5802,7 +5819,8 @@
 				"state": "built",
 				"evidence": "Consultation with askingBody/audienceBody and ConsultationResponse.respondentBody (register.d/79, Zienswijzeronde/Zienswijze superseded); GovernanceBodyDetail widgets body-participating-orgs / body-shared-participations (body-participation) and body-consultations (src/manifest.json).",
 				"owner": "ConductionNL/decidiq",
-				"change": "one-consultation-schema"
+				"change": "one-consultation-schema",
+				"requirement": "openspec/changes/one-consultation-schema/specs/one-consultation-schema :: A joint arrangement collects the views of its participating councils"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Participating organisations and Consultations widgets; Consultations index (/governance-consultations)",
 			"provider": "decidiq",
@@ -5840,7 +5858,8 @@
 				"state": "specified",
 				"evidence": "lib/Service/DecisionTypeRegistry.php:88 seeds a 'bezwaar-decision' decision type; lib/Settings/register.d/80-decision-as-a-walked-process.json:197-269 legal remedy kind 'bezwaar'; advice from an advisory committee can be recorded as a Consultation (register.d/79). No objection record (objector, grounds, hearing) schema, page or service found (grep bezwaar/objection in lib/Service and manifests).",
 				"owner": "ConductionNL/decidiq",
-				"change": "objection-advisory-committee"
+				"change": "objection-advisory-committee",
+				"requirement": "openspec/changes/objection-advisory-committee/specs/objection-advisory-committee :: REQ-OAC-008 An objection runs as a decision through its configured route"
 			},
 			"reachedOn": "nothing dedicated reaches it: a 'bezwaar-decision' type Decision on /decisions plus a Consultation on /governance-consultations",
 			"provider": "decidiq",
@@ -6052,7 +6071,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/OriController.php:61 RESOURCE_MAP (organizations, persons, memberships, events, agendaitems, motions, amendments, voteevents, votes, reports, publications), :183 index() #[PublicPage] + AnonRateLimit, :377 show(), CORS preflight; appinfo/routes.php:268-271 /api/ori/v1/{resource}",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/ori-api"
+				"spec": "openspec/specs/ori-api",
+				"requirement": "openspec/specs/ori-api :: REQ-ORI-001 \u2014 ORI Meeting endpoint"
 			},
 			"reachedOn": "API only: GET /apps/decidiq/api/ori/v1/{resource}[/{id}]",
 			"provider": "decidiq",
@@ -6290,7 +6310,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/register.d/113-publication-subscriptions.json (publication-subscription, publication-event), src/components/userSettings/SubscriptionsSection.vue (members subscribe per body, kind and frequency), lib/Portal/PortalContributionProvider.php subscribeToPublications + citizenSubscriptions (residents on the portal), lib/Service/PublicationDigestService.php + lib/BackgroundJob/PublicationDigestJob.php (email or bell per member choice, resident portal inbox). Email alert, no RSS feed.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-09-30-publication-subscriptions-and-daily-digest"
+				"change": "2026-09-30-publication-subscriptions-and-daily-digest",
+				"requirement": "openspec/specs/public-publication :: REQ-PSD-001 Anyone can subscribe per body and kind, and choose how often"
 			},
 			"reachedOn": "nothing reaches it: no RSS feed or citizen email alert",
 			"provider": "decidiq",
@@ -7427,7 +7448,9 @@
 				"state": "built",
 				"evidence": "l10n/ holds 26 languages (bg..tr); l10n/nl.json 2359 keys, l10n/en.json 2109, l10n/de.json and l10n/fr.json 1083 each; src/settings.js:13 loadTranslations('decidiq'); UI strings via t('decidiq', ...)",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/app-foundation"
+				"spec": "openspec/specs/app-foundation",
+				"change": "2026-10-30-app-follows-the-users-language",
+				"requirement": "openspec/specs/app-foundation :: Pages follow the member's Nextcloud language"
 			},
 			"reachedOn": "Whole app, following the Nextcloud user language",
 			"provider": "decidiq",
@@ -7563,7 +7586,8 @@
 				"evidence": "lib/Service/MeetingReminderService.php sends meetingCreated (meeting_scheduled) once for a scheduled meeting and meetingReminder (meeting_reminder) at each of the member's reminderTimes before the start, through NotificationPreferenceService::dispatch() so the Meeting scheduled and Meeting reminder switches and delivery method apply; lib/Notification/Notifier.php renders the subjects; the switchless declarative OpenRegister meetingScheduled and meetingReminder notices are disabled (lib/Settings/register.d/101-meeting-reminders.json)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-reminders-before-deadlines",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/decidesk-notifications :: REQ-MRD-001 Meeting notices follow the member switches"
 			},
 			"reachedOn": "Personal settings, Decidiq notifications: Meeting scheduled, Meeting reminder and reminder times; the bell or email by the chosen delivery",
 			"provider": "decidiq",
@@ -7598,7 +7622,8 @@
 				"state": "built",
 				"evidence": "lib/Service/DecisionIntegrationService.php:60 PROVENANCE_FIELDS sourceApp/subjectRegister/subjectSchema/subjectId/externalReference, :135 createDecision() idempotent; appinfo/routes.php:291-293 /api/v1/decisions; lib/AppInfo/Registrar/CrossAppEventRegistrar.php:67 DecisionRequestedEvent -> DecisionRequestedListener; src/integrations/registerDecisionsLeaf.js mounted globally via src/integration-init.js:24 (lib/AppInfo/Application.php:198 addInitScript); lib/Event/DecisionConcludedEvent.php (procest ZGW advance)",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-14-decidesk-contract-decision-hub"
+				"change": "2026-06-14-decidesk-contract-decision-hub",
+				"requirement": "openspec/specs/decidesk-contract-decision-hub :: REQ-DCDH-001 \u2014 Subject reference and provenance on a Decision"
 			},
 			"reachedOn": "Decisions tab/widget (CnDecisionsTab) on other apps' OpenRegister object pages, e.g. a dossiq case; or API only: POST /apps/decidiq/api/v1/decisions",
 			"provider": "decidiq",
@@ -9247,7 +9272,11 @@
 				"state": "built",
 				"evidence": "appinfo/routes.php:356 dashboard#catchAll serves the app for every path (lib/Controller/DashboardController.php:97-99 NoAdminRequired, not public, so Nextcloud sends a signed-out visitor to its login with a redirect back); src/main.js:159 routerBase() derives the base from the pathname so both /apps/decidiq/... and /index.php/apps/decidiq/... deep links resolve; MotionDetail route /motions/:id (src/manifest.json:899)",
 				"owner": "ConductionNL/decidiq",
-				"spec": "none"
+				"spec": "openspec/specs/app-navigation",
+				"requirement": [
+					"openspec/specs/app-navigation :: REQ-RMN-002 \u2014 Keep the Motions page and routes reachable for deep links",
+					"openspec/specs/app-navigation :: REQ-NAV-003 Router uses history mode with flat named routes"
+				]
 			},
 			"reachedOn": "Any record URL, such as /apps/decidiq/motions/{id}, opened from a mail, notification or bookmark",
 			"provider": "decidiq",
@@ -9618,7 +9647,8 @@
 				"state": "building",
 				"evidence": "lib/Settings/decidesk_register.json:62 register authorization lets any authenticated user create objects (create: authenticated) while update and delete are for decidiq-administrators; Meetings index (/meetings) create form, agenda and Documents widgets on MeetingDetail; src/dialogs/MeetingParticipantAddDialog.vue:23 picks participants from existing participant records only, no invite for people outside the organisation",
 				"owner": "ConductionNL/decidiq",
-				"change": "meeting-ad-hoc-with-guests"
+				"change": "meeting-ad-hoc-with-guests",
+				"requirement": "openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management :: REQ-MAH-001 An organiser runs their own ad hoc meeting"
 			},
 			"reachedOn": "Meetings index (/meetings) create, then MeetingDetail (/meetings/:id) Agenda, Participants and Documents widgets",
 			"provider": "decidiq",
