@@ -7,7 +7,7 @@
  * as a step bar (done, current, still to come, each with its line), and the
  * mandate notice that says who may take it.
  *
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
  */
 
 import { describe, expect, it, vi } from 'vitest'

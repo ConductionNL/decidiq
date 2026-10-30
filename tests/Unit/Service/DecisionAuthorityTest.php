@@ -31,7 +31,7 @@ use Psr\Log\NullLogger;
  * delegatie- en mandaatregister: the answer the decisions leaf shows as its
  * mandate notice.
  *
- * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
  */
 class DecisionAuthorityTest extends TestCase {
 

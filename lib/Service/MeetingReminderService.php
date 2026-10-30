@@ -102,7 +102,7 @@ class MeetingReminderService {
 	 * @return int Deliveries made
 	 *
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches
-	 * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function run(int $now): int {
 		return (int)$this->system->run(operation: fn (): int => $this->sendDue(now: $now));

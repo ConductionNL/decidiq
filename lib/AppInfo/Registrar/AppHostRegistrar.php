@@ -114,7 +114,7 @@ class AppHostRegistrar {
 	 *
 	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2
 	 * @spec openspec/specs/apphost-adoption/spec.md
-	 * @spec openspec/changes/deep-link-listener-in-decidiqs-namespace/specs/apphost-adoption/spec.md#requirement-the-deep-link-listener-is-registered-in-decidiqs-namespace
+	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-the-deep-link-listener-is-registered-in-decidiqs-namespace
 	 */
 	public function register(IRegistrationContext $context): void {
 		// Generic, manifest-driven deep-link listener replaces the former

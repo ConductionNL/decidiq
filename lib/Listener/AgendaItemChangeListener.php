@@ -85,7 +85,7 @@ class AgendaItemChangeListener implements IEventListener {
 	 * @return void
 	 *
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
-	 * @spec openspec/changes/notices-without-a-user-run-as-the-system/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof ObjectCreatedEvent) === false

@@ -274,7 +274,7 @@ export default {
 		 * What this leaf reports to a "linked" card: the route, where it stands.
 		 *
 		 * @return {object} The report.
-		 * @spec openspec/changes/leaves-linked-card/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
+		 * @spec openspec/specs/leaves-linked-card/spec.md#requirement-the-decision-leaves-report-a-summary-to-the-linked-card
 		 */
 		leafReport() {
 			const where = this.current ? this.stepLabel : this.concludedLabel
@@ -486,12 +486,12 @@ export default {
 			return t('decidiq', 'Reason, required to reject')
 		},
 
-		/** @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md */
+		/** @spec openspec/specs/approval-routes/spec.md */
 		templateLabel() {
 			return t('decidiq', 'Start from a template')
 		},
 
-		/** @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md */
+		/** @spec openspec/specs/approval-routes/spec.md */
 		templateOptions() {
 			const given = this.reasonTemplates.length
 				? this.reasonTemplates
@@ -545,7 +545,7 @@ export default {
 		 *
 		 * @param {object|null} option The picked template option.
 		 * @return {void}
-		 * @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md
+		 * @spec openspec/specs/approval-routes/spec.md
 		 */
 		useTemplate(option) {
 			if (option && option.body) {
