@@ -124,7 +124,7 @@ class PublicVotingRecords {
 	 * @return list<array<string, string>>
 	 *
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function members(): array {
 		$offices = $this->offices();
@@ -157,7 +157,7 @@ class PublicVotingRecords {
 	 * @return array<string, mixed>|null `{title, subtitle?, summary, columns, rows, note}`
 	 *
 	 * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function record(string $personId): ?array {
 		$person = $this->personRule->person(personId: $personId);

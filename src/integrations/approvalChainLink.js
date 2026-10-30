@@ -448,7 +448,7 @@ export function parseActors(text) {
  *
  * @param {Array<object>|null|undefined} raw What the host passed as `reasonTemplates`.
  * @return {Array<{id: string, name: string, body: string}>} The options.
- * @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 export function reasonTemplateOptions(raw) {
 	if (!Array.isArray(raw)) return []

@@ -10,7 +10,7 @@
  * leaf shows them above the reason field. The widget cannot be mounted here
  * (no SFC transform), so the mapping lives in approvalChainLink.js.
  *
- * @spec openspec/changes/approval-reason-templates/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 
 import { describe, expect, it, vi } from 'vitest'

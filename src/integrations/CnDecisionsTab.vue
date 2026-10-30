@@ -223,7 +223,7 @@ export default {
 			return t('decidiq', 'No decision has been prepared yet.')
 		},
 
-		/** @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route */
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route */
 		createProposalLabel() {
 			return t('decidiq', 'Prepare decision')
 		},
@@ -231,7 +231,7 @@ export default {
 		/**
 		 * @return {string} The card's title.
 		 *
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		titleLabel() {
 			return t('decidiq', 'Decisions')
@@ -240,7 +240,7 @@ export default {
 		/**
 		 * @return {string} The line under the title.
 		 *
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		subtitleLabel() {
 			return t('decidiq', 'From decision-making in decidiq, shown here')
@@ -249,7 +249,7 @@ export default {
 		/**
 		 * @return {string} The step bar's accessible name.
 		 *
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		routeLabel() {
 			return t('decidiq', 'Route of the decision')
@@ -258,7 +258,7 @@ export default {
 		/**
 		 * @return {string} A unique id for the heading.
 		 *
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		headingId() {
 			return `cn-decisions-tab-${this.hostObjectId || 'none'}`
@@ -403,7 +403,7 @@ export default {
 		 *
 		 * @param {object} decision The decision.
 		 * @return {string} The name, or ''.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		drafterOf(decision) {
 			return drafterName(decision, this.userNames)
@@ -412,7 +412,7 @@ export default {
 		/**
 		 * @param {object} decision The decision.
 		 * @return {string} The row's initials.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		initials(decision) {
 			return initialsOf(this.drafterOf(decision))
@@ -421,7 +421,7 @@ export default {
 		/**
 		 * @param {object} decision The decision.
 		 * @return {string} The line under the row's title.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		metaLine(decision) {
 			const created = decision?.['@self']?.created || ''
@@ -439,7 +439,7 @@ export default {
 		/**
 		 * @param {string} iso An ISO date.
 		 * @return {string} The date in short words, or ''.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		shortDate(iso) {
 			const d = new Date(iso)
@@ -449,7 +449,7 @@ export default {
 		/**
 		 * @param {object} decision The decision.
 		 * @return {Array<object>} Its route as steps.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		stepsOf(decision) {
 			return stageSteps(this.stages[objId(decision)] || [], this.people, (iso) => this.shortDate(iso), t('decidiq', 'not yet'))
@@ -458,7 +458,7 @@ export default {
 		/**
 		 * @param {object} decision The decision.
 		 * @return {object|null} Its mandate notice, or null.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
 		 */
 		noticeOf(decision) {
 			return mandateNotice(this.authority[objId(decision)] || null, this.drafterOf(decision))
@@ -467,7 +467,7 @@ export default {
 		/**
 		 * @param {{drafter: string, allocation: string, restrictions: string}} notice The notice.
 		 * @return {string} The notice in words.
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		noticeText(notice) {
 			const head = notice.allocation
@@ -481,7 +481,7 @@ export default {
 		 * routes name. A part that cannot be read is left out of the card.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/decisions-leaf-board-card/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		async loadRoutes() {
 			const ids = this.decisions.map((decision) => objId(decision)).filter(Boolean)

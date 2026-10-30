@@ -20,9 +20,9 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
- * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md
+ * @spec openspec/specs/voting-system/spec.md
  */
 
 declare(strict_types=1);
@@ -50,7 +50,7 @@ use ReflectionMethod;
 /**
  * The meetings, decisions and voting records a visitor reads without signing in.
  *
- * @spec openspec/changes/portal-public-council-records/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 final class PortalPublicRecordsTest extends TestCase {
 
@@ -171,7 +171,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function testACouncilChairWithoutAVoteAndTheGriffierAreNotListed(): void {
 		$this->store['governance-body']['raad']['chairHasVote'] = false;
@@ -192,7 +192,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function testACommitteeChairVotesUnlessTheBodySaysOtherwise(): void {
 		$this->put('governance-body', 'commissie', ['name' => 'Commissie ruimte', 'publishVotingRecords' => true]);
@@ -213,7 +213,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-002-a-dangling-reference-skips-one-object-not-the-whole-list
 	 */
 	public function testADanglingDecisionReferenceSkipsOnlyThatRound(): void {
 		$this->put('decision-stage', 'stage-dangling', ['sequence' => 1, 'stageType' => 'decisive', 'decision' => 'besluit-by-slug', 'votingRound' => 'r-dangling', 'assignedBody' => 'raad']);
@@ -233,7 +233,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/voting-per-body-chair-and-staff/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
+	 * @spec openspec/specs/voting-system/spec.md#requirement-req-vpb-001-a-body-declares-whether-its-chair-votes-and-staff-never-vote
 	 */
 	public function testTheExampleSetShowsEveryCouncillorsNamedVotes(): void {
 		$this->store = [];
