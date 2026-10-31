@@ -1,0 +1,22 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change voting-per-body-chair-and-staff (REQ-VPB-001). Voting is per body: a body declares whether its chair has a vote. A council's chair, the mayor, chairs without one; a committee's or a board's chair usually votes. Staff roles (the secretary, the griffier) never vote, whatever the body says; that rule lives in VoterEligibility.",
+  "components": {
+    "schemas": {
+      "GovernanceBody": {
+        "slug": "governance-body",
+        "version": "0.6.0",
+        "properties": {
+          "chairHasVote": {
+            "type": "boolean",
+            "title": "Chair has a vote",
+            "description": "Whether the chair of this body casts a vote. Off for a council, whose chair (the mayor) chairs without a vote; on for most committees and boards. Staff such as the secretary never vote.",
+            "default": true
+          }
+        }
+      }
+    }
+  }
+}

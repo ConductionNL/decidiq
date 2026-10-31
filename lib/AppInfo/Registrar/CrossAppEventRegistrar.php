@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,18 +38,20 @@ use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Event\DecisionRequestedEvent;
 use OCA\Decidiq\Event\DecisionStateRequestedEvent;
 use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
+use OCA\Decidiq\Event\GovernanceBodyStateRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalActionRequestedListener;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
 use OCA\Decidiq\Listener\ApprovalTaskDecisionListener;
 use OCA\Decidiq\Listener\DecisionRequestedListener;
 use OCA\Decidiq\Listener\DecisionStateRequestedListener;
 use OCA\Decidiq\Listener\GovernanceBodyRequestedListener;
+use OCA\Decidiq\Listener\GovernanceBodyStateRequestedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 
 /**
  * Registers every inbound cross-app command listener.
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
 class CrossAppEventRegistrar {
 
@@ -76,6 +78,10 @@ class CrossAppEventRegistrar {
 		// Hold a governance body — a committee, a board — with its roster.
 		GovernanceBodyRequestedEvent::class => GovernanceBodyRequestedListener::class,
 
+		// Read that governance body back, with its roster. The READ half of the
+		// pair above, so a consumer stops reading its own stale copy.
+		GovernanceBodyStateRequestedEvent::class => GovernanceBodyStateRequestedListener::class,
+
 		// Hold a sign-off route, and travel a subject down it. Both delegate to
 		// the EXISTING ApprovalRouteService: these add a door, not a second
 		// engine, so the event path and the REST path cannot answer differently
@@ -91,7 +97,8 @@ class CrossAppEventRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
+	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function register(IRegistrationContext $context): void {
 		foreach (self::COMMANDS as $event => $listener) {
@@ -99,6 +106,23 @@ class CrossAppEventRegistrar {
 		}
 
 		$this->registerTaskDecisionListener(context: $context);
+
+		// OpenRegister's flow engine asks decidiq for its nodes, and a flow
+		// decision's conclusion wakes the run that asked. Its own registrar,
+		// guarded on the engine, so decidiq boots without OpenRegister.
+		// @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+		(new FlowNodeRegistrar())->register(context: $context);
+
+		// Nextcloud Files events: an Office paper added to a meeting or agenda
+		// item folder is queued for conversion to PDF, which filinq performs
+		// (agenda-office-files-to-pdf, REQ-OPDF-001). Its own registrar, like
+		// the flow nodes above.
+		(new FilesEventRegistrar())->register(context: $context);
+
+		// Nextcloud TaskProcessing events: the AI answer to a paper summary
+		// request lands as a draft (agenda-ai-paper-summaries, REQ-APS-004).
+		// Its own registrar, like the two above.
+		(new TaskProcessingEventRegistrar())->register(context: $context);
 
 	}//end register()
 

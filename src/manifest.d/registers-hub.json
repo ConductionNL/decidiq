@@ -1,0 +1,349 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "The Registers page (openspec/changes/simple-structure-profile, REQ-SSP-006). One counted tile per register, each opening the list that register already has. The simple structure's `Registers` menu entry opens it; the full structure nests the same lists under `Registers` and does not need it, but the page is routable in both, because a profile never adds or removes a page. No menu entry is declared here: src/menu-layout.simple.json gives the manifest's own `Registers` entry this page as its route. Every count is a plain count of one schema with no filter, the only kind OpenRegister's aggregation endpoint is certain to evaluate (see the note on DecisionsReport).",
+	"pages": [
+		{
+			"id": "RegistersHub",
+			"route": "/registers",
+			"type": "dashboard",
+			"title": "Registers",
+			"config": {
+				"widgets": [
+					{
+						"id": "registers-governing-documents",
+						"type": "stat",
+						"title": "Governing documents",
+						"content": {
+							"label": "Governing documents",
+							"icon": "FileDocumentMultipleOutline",
+							"route": {
+								"name": "GoverningDocuments"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "governing-document",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-delegations",
+						"type": "stat",
+						"title": "Delegations & mandates",
+						"content": {
+							"label": "Delegations & mandates",
+							"icon": "Cog",
+							"route": {
+								"name": "AuthorityDelegations"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "authority-delegation",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-confidentiality",
+						"type": "stat",
+						"title": "Confidentiality register",
+						"content": {
+							"label": "Confidentiality register",
+							"icon": "DatabaseOutline",
+							"route": {
+								"name": "ConfidentialityRestrictions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "confidentiality-restriction",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-gifts",
+						"type": "stat",
+						"title": "Gifts",
+						"content": {
+							"label": "Gifts",
+							"icon": "Star",
+							"route": {
+								"name": "DeclaredGifts"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "declared-gift",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-other-positions",
+						"type": "stat",
+						"title": "Other positions",
+						"content": {
+							"label": "Other positions",
+							"icon": "Domain",
+							"route": {
+								"name": "AncillaryPositions"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "ancillary-position",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-proxy-authorizations",
+						"type": "stat",
+						"title": "Proxy authorizations",
+						"content": {
+							"label": "Proxy authorizations",
+							"icon": "ShieldKeyOutline",
+							"route": {
+								"name": "ProxyAuthorizations"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "proxy-authorization",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-onboarding",
+						"type": "stat",
+						"title": "Onboarding",
+						"content": {
+							"label": "Onboarding",
+							"icon": "AccountPlusOutline",
+							"route": {
+								"name": "MemberOnboarding"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "member-onboarding",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-offboarding",
+						"type": "stat",
+						"title": "Offboarding",
+						"content": {
+							"label": "Offboarding",
+							"icon": "AccountMinusOutline",
+							"route": {
+								"name": "MemberOffboarding"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "member-offboarding",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-audit-statements",
+						"type": "stat",
+						"title": "Audit statements",
+						"content": {
+							"label": "Audit statements",
+							"icon": "Check",
+							"route": {
+								"name": "AuditStatements"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "audit-statement",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-goals",
+						"type": "stat",
+						"title": "Goals",
+						"content": {
+							"label": "Goals",
+							"icon": "TargetVariant",
+							"route": {
+								"name": "Goals"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "goal",
+								"metric": "count"
+							}
+						}
+					},
+					{
+						"id": "registers-archive",
+						"type": "stat",
+						"title": "Archive",
+						"content": {
+							"label": "Archive",
+							"icon": "ArchiveOutline",
+							"route": {
+								"name": "ArchiveDashboard"
+							},
+							"format": {
+								"style": "decimal",
+								"decimals": 0
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "archival-dossier",
+								"metric": "count"
+							}
+						}
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "registers-governing-documents",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "2",
+						"widgetId": "registers-delegations",
+						"gridX": 3,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "3",
+						"widgetId": "registers-confidentiality",
+						"gridX": 6,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "4",
+						"widgetId": "registers-gifts",
+						"gridX": 9,
+						"gridY": 0,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "5",
+						"widgetId": "registers-other-positions",
+						"gridX": 0,
+						"gridY": 2,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "6",
+						"widgetId": "registers-proxy-authorizations",
+						"gridX": 3,
+						"gridY": 2,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "7",
+						"widgetId": "registers-onboarding",
+						"gridX": 6,
+						"gridY": 2,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "8",
+						"widgetId": "registers-offboarding",
+						"gridX": 9,
+						"gridY": 2,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "9",
+						"widgetId": "registers-audit-statements",
+						"gridX": 0,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "10",
+						"widgetId": "registers-goals",
+						"gridX": 3,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					},
+					{
+						"id": "11",
+						"widgetId": "registers-archive",
+						"gridX": 6,
+						"gridY": 4,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false
+					}
+				],
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the commitment schema into plain words.
  *
- * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md
+ * @spec openspec/specs/commitment-in-plain-words/spec.md
  */
 class MigrateCommitments implements IRepairStep {
 	use ReadsLegacyRows;
@@ -126,7 +126,7 @@ class MigrateCommitments implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
+	 * @spec openspec/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -160,7 +160,7 @@ class MigrateCommitments implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
+	 * @spec openspec/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,

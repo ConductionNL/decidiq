@@ -1,0 +1,42 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Member profile (bodies-member-profile-and-voting-record, rows bod-05 and vot-18), appended onto src/manifest.json by main.js::mergeManifestFragments (ADR-037). No menu entry: a profile is reached from a body's members widget and from the participant page.",
+	"_spec": "openspec/specs/person-and-membership/spec.md",
+	"pages": [
+		{
+			"id": "PersonDetail",
+			"route": "/people/:id",
+			"type": "detail",
+			"title": "Member profile",
+			"slots": {
+				"widget-person-memberships": "PersonMembershipsTab",
+				"widget-person-voting-record": "PersonVotingRecordTab"
+			},
+			"config": {
+				"register": "decidiq",
+				"schema": "person",
+				"_note": "REQ-MPR-001 to REQ-MPR-004. The memberships widget leads with the photo, or the initials when there is none, because a data widget renders `image` as text. Outside positions are the person's declared ancillary positions; the object API applies their own publication rules.",
+				"widgets": [
+					{ "id": "person-data", "type": "data", "title": "About", "icon": "AccountBoxOutline", "content": { "columns": 1, "include": ["name", "biography", "email"] } },
+					{ "id": "person-memberships", "type": "custom", "component": "PersonMembershipsTab", "title": "Memberships", "icon": "AccountGroup" },
+					{ "id": "person-voting-record", "type": "custom", "component": "PersonVotingRecordTab", "title": "Voting record", "icon": "VoteOutline" },
+					{ "id": "person-outside-positions", "type": "object-list", "title": "Outside positions", "icon": "Briefcase", "content": { "register": "decidiq", "schema": "ancillary-position", "filter": { "person": "@objectId" }, "sort": { "field": "startDate", "dir": "desc" }, "columns": [ { "key": "organisation", "label": "Organisation" }, { "key": "role", "label": "Function" }, { "key": "remunerated", "label": "Paid", "widget": "badge" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "allowCreate": false, "emptyText": "No outside positions declared.", "rowRoute": "AncillaryPositionDetail" } }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "person-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
+					{ "id": "2", "widgetId": "person-memberships", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
+					{ "id": "3", "widgetId": "person-voting-record", "gridX": 0, "gridY": 5, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "4", "widgetId": "person-outside-positions", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 4 }
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

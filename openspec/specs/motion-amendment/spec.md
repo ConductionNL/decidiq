@@ -16,6 +16,7 @@ Motions and amendments are the formal mechanisms for proposing decisions and mod
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Motion and Amendment entity definitions including property tables, Akoma Ntoso alignment, and OpenRaadsinformatie mapping.
+
 ## Requirements
 
 ---
@@ -151,6 +152,70 @@ The system MUST support motion withdrawal by the proposer before voting. Motions
 - THEN the lifecycle MUST change to `withdrawn`
 - AND the withdrawal MUST be recorded in the audit trail
 - AND the motion MUST remain visible in the meeting record but marked as withdrawn
+
+### Requirement: REQ-SUBW-001 A meeting can open submission at a set time
+
+A meeting SHALL carry an optional `submissionOpensAt` beside `submissionDeadline`, and the meeting page SHALL show both.
+
+#### Scenario: The griffier sets the window
+- GIVEN the council meeting of 14 October
+- WHEN the griffier sets submission to open on 4 October at 09:00 and close on 13 October at 12:00
+- THEN the meeting's Planning widget shows "Submission opens 4 October 09:00" and "Submission deadline 13 October 12:00"
+
+### Requirement: REQ-SUBW-002 A motion or amendment submitted before the window opens is refused
+
+The app SHALL refuse, with HTTP 422 and a message naming the opening time, the creation of a motion or an amendment for a meeting whose `submissionOpensAt` lies in the future. Without an opening time, submission SHALL be open until the deadline, as before.
+
+#### Scenario: A member is too early
+- GIVEN submission for the council meeting of 14 October opens on 4 October at 09:00
+- WHEN council member Pieter submits a motion on 2 October
+- THEN the motion is refused with "Submission of motions and amendments for this meeting opens on 4 October 2026 09:00."
+
+#### Scenario: Inside the window
+- GIVEN the same meeting
+- WHEN Pieter submits the motion on 6 October
+- THEN the motion is created
+
+### Requirement: REQ-SUBW-003 A window that opens after it closes is refused
+
+The app SHALL refuse to save a meeting whose `submissionOpensAt` is not before its `submissionDeadline`.
+
+#### Scenario: A typo in the dates
+- GIVEN the griffier sets submission to open on 14 October and close on 13 October
+- WHEN she saves the meeting
+- THEN the save is refused with "The submission window opens after it closes."
+
+### Requirement: REQ-AMT-001 An adopted amendment changes the motion text
+
+When a voting round adopts an amendment, the system SHALL work the amendment's change into the parent motion's `text`, so the motion text is the final text with every adopted amendment merged in. An amendment MAY name `targetPassage`, the exact words it replaces; the first occurrence of that passage MUST then be replaced by `proposedText`. Without a passage, `proposedText` (or, for an amendment written before these fields existed, its `text`) MUST become the motion's whole wording. The motion MUST keep its first wording once in `originalText` and MUST append to `amendmentHistory` an entry with the amendment, the mode (`passage` or `full`), the text before, the text after and the time. An amendment that already has an entry in `amendmentHistory` MUST NOT be applied again. A passage that does not occur in the motion text, or an amendment with no replacement text, MUST be refused and the motion text MUST stay unchanged.
+
+Built after the fact (spec written 2026-10-07, matrix row mot-20, #1394): `lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json` declares `targetPassage`, `proposedText`, `originalText` and `amendmentHistory` on `decision`; `lib/Service/VotingRoundCloser.php` `incorporateAdoptedAmendment()` calls `lib/Service/MotionAmendmentService.php` `applyAmendment()` when a round adopts an amendment, which saves the result of `lib/Service/AmendmentTextMerger.php` `merge()`. A refusal is logged by the closer and does not stop the round from closing.
+
+#### Scenario: An adopted amendment replaces its passage
+
+- GIVEN the motion "Verlichting fietspaden 2027" with the text "Een krediet van 640.000 euro beschikbaar stellen."
+- AND an amendment with `targetPassage` "640.000 euro" and `proposedText` "735.000 euro"
+- WHEN the amendment's voting round closes as adopted
+- THEN the motion text reads "Een krediet van 735.000 euro beschikbaar stellen."
+- AND `originalText` holds the first wording
+- AND `amendmentHistory` has one entry with mode `passage` and the text before and after
+- @e2e exclude proven by PHPUnit tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage; the merge runs server-side when a round closes
+
+#### Scenario: A second adopted amendment keeps the first wording
+
+- GIVEN a motion that already carries one applied amendment in `amendmentHistory`
+- WHEN a second amendment is adopted
+- THEN `originalText` still holds the wording from before the first amendment
+- AND `amendmentHistory` has two entries, in the order they were applied
+- @e2e exclude proven by PHPUnit testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory
+
+#### Scenario: A passage that is not in the text is refused
+
+- GIVEN an amendment whose `targetPassage` does not occur in the motion text
+- WHEN its voting round closes as adopted
+- THEN the motion text is not changed
+- AND no entry is added to `amendmentHistory`
+- @e2e exclude proven by PHPUnit testApplyAmendmentRefusesAPassageThatIsNotInTheText
 
 ## User Stories
 

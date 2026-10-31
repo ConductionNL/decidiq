@@ -131,6 +131,8 @@
 					}}
 				</p>
 			</div>
+
+			<CaseSystemSendButton :minutes="minutes" :meetingId="meetingId" />
 		</template>
 	</div>
 </template>
@@ -139,11 +141,13 @@
 import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon, NcSelect } from '@nextcloud/vue'
+import CaseSystemSendButton from '../CaseSystemSendButton.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MinutesDocumentTab',
 	components: {
+		CaseSystemSendButton,
 		CnNoteCard,
 		NcButton,
 		NcLoadingIcon,

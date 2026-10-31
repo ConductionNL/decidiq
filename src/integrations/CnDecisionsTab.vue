@@ -5,13 +5,13 @@
  CnDecisionsTab — "Besluitvorming" sidebar tab for the
  `decidesk-decisions` integration leaf (ADR-019 / ADR-022).
 
- The sidebar counterpart of CnDecisionsWidget. Renders the decidiq
- decisions linked to the host object as NcListItem rows grouped by kind
- (Proposals / Advice / Decisions), each deep-linking to decidiq and
- carrying an "Open in decidiq" row action. A header "Create proposal"
- button opens an in-tab CnFormDialog that creates a decision pre-linked
- to the host object via the Decision schema's `subjectId` back-reference
- (decidiq-contract-decision-hub, REQ-DCDH-001).
+ The card a host page shows the decidiq decisions on (dossiq DqZaakBesluiten):
+ a title and a line under it, "Prepare decision", and per decision a row
+ (initials, title, a meta line, a status pill, "Open in decidiq"), its route
+ as a step bar, and a notice when the register says the drafter may take
+ it. "Prepare decision" opens an in-tab CnFormDialog that creates a decision
+ pre-linked to the host object via the Decision schema's `subjectId`
+ back-reference (decidiq-contract-decision-hub, REQ-DCDH-001).
 
  Generic by construction: the host object identity arrives through the
  registry-supplied props (register / schema / objectId); the tab never
@@ -19,22 +19,26 @@
  publication stay in decidiq.
 -->
 <template>
-	<div class="cn-sidebar-tab cn-decisions-tab" data-testid="decisions-leaf-tab">
-		<div class="cn-decisions-tab__actions">
+	<section class="cn-decisions-tab cn-case-widget-card" data-testid="decisions-leaf-tab" :aria-labelledby="headingId">
+		<div class="cn-decisions-tab__header">
+			<div class="cn-decisions-tab__heading">
+				<h3 :id="headingId" class="cn-decisions-tab__title">
+					{{ titleLabel }}
+				</h3>
+				<span class="cn-decisions-tab__subtitle">
+					{{ subtitleLabel }}
+				</span>
+			</div>
 			<NcButton
-				variant="primary"
+				class="cn-decisions-tab__prepare"
+				variant="secondary"
 				:disabled="!hostObjectId"
+				data-testid="decisions-leaf-prepare"
 				@click="openCreate">
 				<template #icon>
-					<Plus :size="18" />
+					<Gavel :size="18" />
 				</template>
 				{{ createProposalLabel }}
-			</NcButton>
-			<NcButton variant="secondary" @click="openApp">
-				<template #icon>
-					<OpenInNew :size="18" />
-				</template>
-				{{ openInDecidiqLabel }}
 			</NcButton>
 		</div>
 
@@ -44,65 +48,64 @@
 			{{ error }}
 		</div>
 
-		<div
-			v-else-if="decisions.length === 0"
-			class="cn-sidebar-tab__empty cn-decisions-tab__empty">
-			<Gavel :size="32" class="cn-decisions-tab__empty-icon" />
-			<p>{{ emptyLabel }}</p>
-		</div>
+		<p v-else-if="decisions.length === 0" class="cn-decisions-tab__empty">
+			{{ emptyLabel }}
+		</p>
 
-		<template v-else>
-			<div
-				v-for="group in nonEmptyGroups"
-				:key="group.key"
-				class="cn-decisions-tab__group">
-				<h4 class="cn-decisions-tab__group-title">
-					{{ group.label }}
-					<span class="cn-decisions-tab__group-count"
-						>({{ group.items.length }})</span
-					>
-				</h4>
-				<ul class="cn-decisions-tab__list">
-					<NcListItem
-						v-for="decision in group.items"
-						:key="rowKey(decision)"
-						:name="rowTitle(decision)"
-						:bold="true"
-						:href="decisionUrl(decision)"
-						target="_blank"
-						:forceDisplayActions="true">
-						<template #icon>
-							<span class="cn-decisions-tab__row-icon">
-								<Gavel :size="20" />
-							</span>
-						</template>
-						<template #subname>
-							<span class="cn-decisions-tab__sub">
-								<CnStatusBadge
-									size="small"
-									:variant="lifecycleVariant(decision)"
-									:label="lifecycleLabel(decision)" />
-								<span
-									v-if="decisionDate(decision)"
-									class="cn-decisions-tab__when">
-									· {{ decisionDate(decision) }}
-								</span>
-							</span>
-						</template>
-						<template #actions>
-							<NcActionButton
-								:closeAfterClick="true"
-								@click="openDecision(decision)">
-								<template #icon>
-									<OpenInNew :size="20" />
-								</template>
-								{{ openInDecidiqLabel }}
-							</NcActionButton>
-						</template>
-					</NcListItem>
-				</ul>
-			</div>
-		</template>
+		<ul v-else class="cn-decisions-tab__list">
+			<li
+				v-for="decision in decisions"
+				:key="rowKey(decision)"
+				class="cn-decisions-tab__decision"
+				data-testid="decisions-leaf-row">
+				<div class="cn-decisions-tab__row">
+					<span class="cn-decisions-tab__avatar" aria-hidden="true">{{ initials(decision) }}</span>
+					<span class="cn-decisions-tab__text">
+						<strong class="cn-decisions-tab__name">{{ rowTitle(decision) }}</strong>
+						<span class="cn-decisions-tab__meta">{{ metaLine(decision) }}</span>
+					</span>
+					<span class="cn-decisions-tab__row-actions">
+						<CnStatusBadge
+							size="small"
+							:variant="lifecycleVariant(decision)"
+							:label="lifecycleLabel(decision)" />
+						<NcButton
+							variant="secondary"
+							:href="decisionUrl(decision)"
+							target="_blank">
+							<template #icon>
+								<OpenInNew :size="18" />
+							</template>
+							{{ openInDecidiqLabel }}
+						</NcButton>
+					</span>
+				</div>
+
+				<ol
+					v-if="stepsOf(decision).length > 0"
+					class="cn-decisions-tab__steps"
+					:aria-label="routeLabel"
+					data-testid="decisions-leaf-steps">
+					<li
+						v-for="step in stepsOf(decision)"
+						:key="step.key"
+						class="cn-decisions-tab__step"
+						:class="`cn-decisions-tab__step--${step.state}`">
+						<span class="cn-decisions-tab__step-bar" aria-hidden="true" />
+						<span class="cn-decisions-tab__step-label">{{ step.label }}</span>
+						<span v-if="step.line" class="cn-decisions-tab__step-line">{{ step.line }}</span>
+					</li>
+				</ol>
+
+				<p
+					v-if="noticeOf(decision)"
+					class="cn-decisions-tab__notice"
+					data-testid="decisions-leaf-mandate">
+					<ShieldCheckOutline :size="18" class="cn-decisions-tab__notice-icon" />
+					<span>{{ noticeText(noticeOf(decision)) }}</span>
+				</p>
+			</li>
+		</ul>
 
 		<CnFormDialog
 			v-if="createOpen"
@@ -110,20 +113,31 @@
 			:dialogTitle="createProposalLabel"
 			@close="createOpen = false"
 			@confirm="onCreate" />
-	</div>
+	</section>
 </template>
 
 <script>
 import { CnFormDialog, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
 import { generateUrl } from '@nextcloud/router'
-import { NcActionButton, NcButton, NcListItem, NcLoadingIcon } from '@nextcloud/vue'
+import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
-import Plus from 'vue-material-design-icons/Plus.vue'
+import ShieldCheckOutline from 'vue-material-design-icons/ShieldCheckOutline.vue'
+import {
+	decisionAuthority,
+	decisionMetaLine,
+	drafterName,
+	initialsOf,
+	listDecisionStages,
+	mandateNotice,
+	personNames,
+	stageSteps,
+	userDisplayNames,
+} from './decisionCard.js'
 import {
 	createHostDecision,
-	decisionBucket,
+	hostProposalPayload,
 	isProposal,
 	listDecisionTypes,
 	listHostDecisions,
@@ -142,13 +156,11 @@ export default {
 	components: {
 		CnStatusBadge,
 		CnFormDialog,
-		NcActionButton,
 		NcButton,
-		NcListItem,
 		NcLoadingIcon,
 		Gavel,
 		OpenInNew,
-		Plus,
+		ShieldCheckOutline,
 	},
 
 	props: {
@@ -174,6 +186,14 @@ export default {
 			creating: false,
 			error: '',
 			createOpen: false,
+			/** Route stages by decision id. */
+			stages: {},
+			/** Person names by id, for the stages. */
+			people: {},
+			/** Authority answers by decision id. */
+			authority: {},
+			/** Display names by account, for the drafters. */
+			userNames: {},
 		}
 	},
 
@@ -200,47 +220,53 @@ export default {
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — empty-state copy for the leaf surface. */
 		emptyLabel() {
-			return t('decidiq', 'No decision-making linked to this object yet.')
+			return t('decidiq', 'No decision has been prepared yet.')
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal action label. */
+		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route */
 		createProposalLabel() {
-			return t('decidiq', 'Create proposal for this object')
+			return t('decidiq', 'Prepare decision')
+		},
+
+		/**
+		 * @return {string} The card's title.
+		 *
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		titleLabel() {
+			return t('decidiq', 'Decisions')
+		},
+
+		/**
+		 * @return {string} The line under the title.
+		 *
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		subtitleLabel() {
+			return t('decidiq', 'From decision-making in decidiq, shown here')
+		},
+
+		/**
+		 * @return {string} The step bar's accessible name.
+		 *
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		routeLabel() {
+			return t('decidiq', 'Route of the decision')
+		},
+
+		/**
+		 * @return {string} A unique id for the heading.
+		 *
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		headingId() {
+			return `cn-decisions-tab-${this.hostObjectId || 'none'}`
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
 		openInDecidiqLabel() {
 			return t('decidiq', 'Open in decidiq')
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — group host decisions by kind. */
-		groups() {
-			const buckets = { proposals: [], advice: [], decisions: [] }
-			for (const decision of this.decisions) {
-				buckets[decisionBucket(decision)].push(decision)
-			}
-			return [
-				{
-					key: 'proposals',
-					label: t('decidiq', 'Proposals'),
-					items: buckets.proposals,
-				},
-				{
-					key: 'advice',
-					label: t('decidiq', 'Advice'),
-					items: buckets.advice,
-				},
-				{
-					key: 'decisions',
-					label: t('decidiq', 'Decisions'),
-					items: buckets.decisions,
-				},
-			]
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — render only populated decision groups. */
-		nonEmptyGroups() {
-			return this.groups.filter((g) => g.items.length > 0)
 		},
 
 		/**
@@ -313,6 +339,9 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label.
 		 */
 		lifecycleLabel(decision) {
+			if (String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '') === 'draft') {
+				return t('decidiq', 'Draft')
+			}
 			if (isProposal(decision)) {
 				return t('decidiq', 'Proposal')
 			}
@@ -338,6 +367,9 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant.
 		 */
 		lifecycleVariant(decision) {
+			if (String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '') === 'draft') {
+				return 'default'
+			}
 			if (isProposal(decision)) {
 				return 'info'
 			}
@@ -367,20 +399,108 @@ export default {
 		},
 
 		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open a decision in decidiq.
+		 * Who drafted a decision: its proposer, else its owner by display name.
+		 *
+		 * @param {object} decision The decision.
+		 * @return {string} The name, or ''.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
-		openDecision(decision) {
-			if (typeof window !== 'undefined') {
-				window.open(this.decisionUrl(decision), '_blank', 'noopener')
-			}
+		drafterOf(decision) {
+			return drafterName(decision, this.userNames)
 		},
 
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 open decidiq decisions app. */
-		openApp() {
-			if (typeof window !== 'undefined') {
-				window.open(this.appUrl, '_blank', 'noopener')
-			}
+		/**
+		 * @param {object} decision The decision.
+		 * @return {string} The row's initials.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		initials(decision) {
+			return initialsOf(this.drafterOf(decision))
+		},
+
+		/**
+		 * @param {object} decision The decision.
+		 * @return {string} The line under the row's title.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		metaLine(decision) {
+			const created = decision?.['@self']?.created || ''
+			return decisionMetaLine(
+				{
+					state: this.lifecycleLabel(decision),
+					outcome: String(decision?.outcome || ''),
+					drafter: this.drafterOf(decision),
+					date: created ? this.shortDate(created) : '',
+				},
+				(drafter, date) => t('decidiq', 'drafted by {drafter} on {date}', { drafter, date }),
+			)
+		},
+
+		/**
+		 * @param {string} iso An ISO date.
+		 * @return {string} The date in short words, or ''.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		shortDate(iso) {
+			const d = new Date(iso)
+			return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+		},
+
+		/**
+		 * @param {object} decision The decision.
+		 * @return {Array<object>} Its route as steps.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		stepsOf(decision) {
+			return stageSteps(this.stages[objId(decision)] || [], this.people, (iso) => this.shortDate(iso), t('decidiq', 'not yet'))
+		},
+
+		/**
+		 * @param {object} decision The decision.
+		 * @return {object|null} Its mandate notice, or null.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
+		 */
+		noticeOf(decision) {
+			return mandateNotice(this.authority[objId(decision)] || null, this.drafterOf(decision))
+		},
+
+		/**
+		 * @param {{drafter: string, allocation: string, restrictions: string}} notice The notice.
+		 * @return {string} The notice in words.
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		noticeText(notice) {
+			const head = notice.allocation
+				? t('decidiq', '{drafter} may take this decision: mandate {allocation}.', { drafter: notice.drafter, allocation: notice.allocation })
+				: t('decidiq', '{drafter} may take this decision.', { drafter: notice.drafter })
+			return notice.restrictions ? `${head} ${notice.restrictions}` : head
+		},
+
+		/**
+		 * Read each decision's route and authority answer, and the people the
+		 * routes name. A part that cannot be read is left out of the card.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
+		 */
+		async loadRoutes() {
+			const ids = this.decisions.map((decision) => objId(decision)).filter(Boolean)
+			const stages = {}
+			const authority = {}
+			await Promise.all(ids.map(async (id) => {
+				const [routeStages, answer] = await Promise.all([listDecisionStages(id), decisionAuthority(id)])
+				stages[id] = routeStages
+				authority[id] = answer
+			}))
+			this.stages = stages
+			this.authority = authority
+			const owners = this.decisions.filter((decision) => !decision?.proposer).map((decision) => decision?.['@self']?.owner)
+			const [people, userNames] = await Promise.all([
+				personNames(Object.values(stages).flat().map((stage) => stage?.assignedPerson)),
+				userDisplayNames(owners),
+			])
+			this.people = people
+			this.userNames = userNames
 		},
 
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 open create-proposal dialog. */
@@ -413,6 +533,7 @@ export default {
 			this.error = ''
 			try {
 				this.decisions = await listHostDecisions(this.hostObjectId, 100)
+				await this.loadRoutes()
 			} catch (e) {
 				this.error =
 					e?.message || t('decidiq', 'Could not load decision-making.')
@@ -432,19 +553,12 @@ export default {
 			this.creating = true
 			this.error = ''
 			try {
-				await createHostDecision({
-					title: formData.title || t('decidiq', 'Proposal'),
-					text: formData.text || '',
-					decisionType: formData.decisionType || 'motion',
-					lifecycle: 'proposed',
-					decisionDate: new Date().toISOString(),
-					outcome: 'pending',
-					sourceApp: this.hostSchema || 'openregister',
-					subjectRegister: this.hostRegister,
-					subjectSchema: this.hostSchema,
-					subjectId: this.hostObjectId,
-					subjectLabel: this.objectLabel || this.hostObjectId,
-				})
+				await createHostDecision(hostProposalPayload(formData, {
+					register: this.hostRegister,
+					schema: this.hostSchema,
+					objectId: this.hostObjectId,
+					label: this.objectLabel,
+				}, t('decidiq', 'Proposal')))
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {
@@ -459,85 +573,198 @@ export default {
 
 <style scoped>
 .cn-decisions-tab {
-	padding: 12px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 20px 22px;
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius-container-large, 12px);
+	background: var(--color-main-background);
 	overflow-x: hidden;
 }
 
-.cn-decisions-tab__actions {
-	display: flex;
-	gap: 8px;
-	margin-bottom: 10px;
-	flex-wrap: wrap;
-}
-
-.cn-decisions-tab__error {
-	color: var(--color-error);
-	font-size: 0.9em;
-	margin: 4px 0 8px;
-}
-
-.cn-decisions-tab__empty {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 8px;
-	padding: 16px 8px;
-	color: var(--color-text-maxcontrast);
-	text-align: center;
-}
-
-.cn-decisions-tab__empty-icon {
-	color: var(--color-text-maxcontrast);
-}
-
-.cn-decisions-tab__group {
-	margin-bottom: 12px;
-}
-
-.cn-decisions-tab__group-title {
-	margin: 6px 0 4px;
-	font-size: 0.85em;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	color: var(--color-text-maxcontrast);
-}
-
-.cn-decisions-tab__group-count {
-	font-weight: normal;
-}
-
-.cn-decisions-tab__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-}
-
-.cn-decisions-tab__row-icon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 40px;
-	height: 40px;
-	border-radius: var(--border-radius-large, 8px);
-	background: var(--color-primary-element-light, var(--color-background-hover));
-	color: var(--color-primary-element, #0082c9);
-}
-
-.cn-decisions-tab__sub {
+.cn-decisions-tab__header {
 	display: flex;
 	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px;
-	font-size: 11px;
-	color: var(--color-text-maxcontrast);
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 10px 16px;
+}
+
+.cn-decisions-tab__heading {
+	display: flex;
+	flex: 1 1 260px;
+	flex-direction: column;
+	gap: 3px;
 	min-width: 0;
 }
 
-.cn-decisions-tab__when {
-	white-space: nowrap;
+.cn-decisions-tab__title {
+	margin: 0;
+	font-size: 17px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.cn-decisions-tab__subtitle,
+.cn-decisions-tab__empty {
+	/* A theme sizes every paragraph through this token with !important. */
+	--nldesign-component-paragraph-font-size: 14px;
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.2;
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-tab__error {
+	color: var(--color-error-text, var(--color-error));
+	font-size: 14px;
+}
+
+.cn-decisions-tab__list {
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* The route stands 28px under the row (12px here plus its 16px margin) and
+   the notice 12px under the route; the last decision ends on its notice
+   (DqZaakBesluiten). */
+.cn-decisions-tab__decision {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px 0;
+	border-top: 1px solid var(--color-border);
+}
+
+.cn-decisions-tab__decision:last-child {
+	padding-bottom: 0;
+}
+
+.cn-decisions-tab__row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 12px;
+}
+
+.cn-decisions-tab__avatar {
+	display: inline-flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 16px;
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text);
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.cn-decisions-tab__text {
+	display: flex;
+	flex: 1 1 240px;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.cn-decisions-tab__name {
+	font-size: 15px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.cn-decisions-tab__meta {
+	font-size: 13px;
+	line-height: normal;
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-tab__row-actions {
+	display: flex;
+	flex: none;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+.cn-decisions-tab__steps {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 8px;
+	margin: 16px 0 0;
+	padding: 0;
+	list-style: none;
+}
+
+/* A route step as the board draws it: a 6px bar, the step and its line on
+   the normal line height, 6px apart (DqZaakBesluiten, 49px a step). */
+.cn-decisions-tab__step {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 0;
+	line-height: normal;
+}
+
+.cn-decisions-tab__step-bar {
+	height: 6px;
+	border-radius: 3px;
+	background: var(--color-background-darker);
+}
+
+.cn-decisions-tab__step--done .cn-decisions-tab__step-bar {
+	background: var(--color-primary-element);
+}
+
+.cn-decisions-tab__step--current .cn-decisions-tab__step-bar {
+	background: var(--color-error);
+}
+
+.cn-decisions-tab__step-label {
+	font-size: 14px;
+	font-weight: 400;
+	color: var(--color-main-text);
+}
+
+.cn-decisions-tab__step--done .cn-decisions-tab__step-label {
+	font-weight: 600;
+}
+
+.cn-decisions-tab__step--current .cn-decisions-tab__step-label {
+	font-weight: 700;
+}
+
+/* "Prepare decision" is the board's 40px header control. */
+.cn-decisions-tab__prepare.button-vue {
+	--button-size: var(--cn-board-control-height, 40px);
+}
+
+.cn-decisions-tab__step-line {
+	font-size: 12px;
+	color: var(--color-text-maxcontrast);
+}
+
+.cn-decisions-tab__notice {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	margin: 0;
+	padding: 10px 14px;
+	border-radius: 10px;
+	/* The board's light success ground (DqZaakBesluiten), the theme's
+	   green-light token as the success badge reads it. */
+	background: var(--nl-color-green-light, #e7f3ea);
+	color: var(--nl-color-green-text, var(--color-success-text, #1e6b2a));
+	font-size: 13px;
+}
+
+.cn-decisions-tab__notice-icon {
+	flex: none;
 }
 </style>

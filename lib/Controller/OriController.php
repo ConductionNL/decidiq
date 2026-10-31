@@ -29,6 +29,8 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriPersonPublicationRule;
+use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -77,6 +79,10 @@ class OriController extends Controller {
 		// is gated by the same RBAC published-predicate the payload schema declares
 		// (publicationDate <= $now, not depublished).
 		'publications' => 'publication-payload',
+		// Commitments (followup-public-progress, fol-06) with their progress.
+		// Public once publicationDate has passed (the schema's own published
+		// predicate); the serializer carries an allow-list of public fields.
+		'commitments' => 'governance-commitment',
 	];
 
 	/**
@@ -101,8 +107,20 @@ class OriController extends Controller {
 	 * @var list<string>
 	 */
 	private const NO_LIFECYCLE_GATE = [
-		'persons',
 		'memberships',
+	];
+
+	/**
+	 * ORI resources whose visibility is OriVotePublicationRule's, not a filter:
+	 * `vote` and `voting-round` carry no lifecycle, so the published-lifecycle
+	 * gate listed nothing and refused every id (bodies-member-profile-and-voting-record).
+	 *
+	 * @var list<string>
+	 */
+	private const RULED_RESOURCES = [
+		'votes',
+		'voteevents',
+		'persons',
 	];
 
 	/**
@@ -125,6 +143,7 @@ class OriController extends Controller {
 		// payload's own `oriType` (Besluit / Vergadering / Verslag); this envelope
 		// label describes the harvest collection.
 		'publications' => 'Publication',
+		'commitments' => OriSerializer::COMMITMENT_TYPE,
 	];
 
 	/**
@@ -145,6 +164,8 @@ class OriController extends Controller {
 	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param OriSerializer $serializer The ORI JSON-LD serializer
+	 * @param OriVotePublicationRule $voteRule The publication rule for votes and vote events
+	 * @param OriPersonPublicationRule $personRule The publication rule for persons
 	 *
 	 * @return void
 	 */
@@ -154,6 +175,8 @@ class OriController extends Controller {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly OriSerializer $serializer,
+		private readonly OriVotePublicationRule $voteRule,
+		private readonly OriPersonPublicationRule $personRule,
 	) {
 		parent::__construct(appName: Application::APP_ID, request: $request);
 
@@ -184,6 +207,10 @@ class OriController extends Controller {
 		$schema = self::RESOURCE_MAP[$resource] ?? null;
 		if ($schema === null) {
 			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
+		}
+
+		if (in_array(needle: $resource, haystack: self::RULED_RESOURCES, strict: true) === true) {
+			return $this->ruledIndex(resource: $resource);
 		}
 
 		try {
@@ -240,7 +267,7 @@ class OriController extends Controller {
 			'schema' => $schema,
 		];
 
-		if ($resource === self::PUBLICATIONS) {
+		if (in_array(needle: $resource, haystack: OriSerializer::WINDOWED_RESOURCES, strict: true) === true) {
 			// Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
 			// feed has no `lifecycle`/`isPublished` field; its anonymous visibility
 			// is governed solely by the RBAC published-predicate the schema declares
@@ -262,7 +289,8 @@ class OriController extends Controller {
 		}
 
 		if (in_array(needle: $resource, haystack: self::NO_LIFECYCLE_GATE, strict: true) === false) {
-			// Person/Membership are public reference data without a lifecycle field;
+			// Membership is public reference data without a lifecycle field (persons
+			// go through OriPersonPublicationRule);
 			// all other resources require the published lifecycle gate (#316).
 			$filters['lifecycle'] = 'published';
 		}
@@ -300,6 +328,77 @@ class OriController extends Controller {
 	}//end narrowToDecisionType()
 
 	/**
+	 * Drop an object the collection endpoint would never have returned.
+	 *
+	 * The invariant: show() must never return an object index() would exclude.
+	 * index() expresses anonymous visibility as OpenRegister filters in
+	 * buildFilters(); this evaluates the same predicate against a fetched
+	 * object, so the item endpoint and the collection endpoint cannot drift.
+	 *
+	 * It replaces isLifecycleBlocked(), which asked the wrong question two ways:
+	 *
+	 * - It gated `motions`/`amendments` on `lifecycle === 'published'`. Those are
+	 *   `decision` objects, whose lifecycle enum has no `published` member, so
+	 *   `/motions/{id}` and `/amendments/{id}` answered 404 for every motion,
+	 *   public ones included. index() gates decisions on `isPublished=public`.
+	 * - It fell open when the object carried no lifecycle/status field at all.
+	 *   `vote`, `voting-round`, `agenda-item` and `governance-body` declare no
+	 *   such property, so `/votes/{id}`, `/voteevents/{id}`, `/agendaitems/{id}`
+	 *   and `/organizations/{id}` served the object to any anonymous caller
+	 *   holding a UUID, while index() filters `lifecycle=published` and lists
+	 *   nothing for those resources. Individual ballots were readable one UUID
+	 *   at a time.
+	 *
+	 * Nothing downstream refuses either: the register-level authorization block
+	 * grants `read` to `public`, and none of those four schemas declares its own.
+	 *
+	 * An absent gating field means withheld: the check fails closed, matching
+	 * what index()'s filter does to an object that cannot satisfy it.
+	 * PUBLICATIONS is excluded here and gated by isPayloadLive() in show(),
+	 * mirroring buildFilters()'s own early return for that resource.
+	 *
+	 * @param string $resource The ORI resource slug
+	 * @param array<string, mixed>|null $object The serialized object, or null
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 *
+	 * @return array<string, mixed>|null The object, or null when it is not publicly visible
+	 */
+	private function narrowToPublicVisibility(string $resource, ?array $object): ?array {
+		if ($object === null || $resource === self::PUBLICATIONS) {
+			return $object;
+		}
+
+		if ($resource === OriSerializer::COMMITMENTS_RESOURCE) {
+			// A commitment's lifecycle is its progress (open .. disposed), not
+			// its visibility: it is public from its publication date on.
+			if ($this->serializer->isPayloadLive(object: $object) === false) {
+				return null;
+			}
+
+			return $object;
+		}
+
+		if ((self::DECISION_TYPE_MAP[$resource] ?? null) !== null) {
+			if (($object['isPublished'] ?? null) !== 'public') {
+				return null;
+			}
+
+			return $object;
+		}
+
+		if (in_array(needle: $resource, haystack: self::NO_LIFECYCLE_GATE, strict: true) === true) {
+			return $object;
+		}
+
+		if (($object['lifecycle'] ?? null) !== 'published') {
+			return null;
+		}
+
+		return $object;
+	}//end narrowToPublicVisibility()
+
+	/**
 	 * Retrieve a single ORI resource by id.
 	 *
 	 * @param string $resource The ORI resource slug
@@ -319,6 +418,10 @@ class OriController extends Controller {
 			return $this->errorResponse(message: 'Unknown resource', status: Http::STATUS_NOT_FOUND);
 		}
 
+		if (in_array(needle: $resource, haystack: self::RULED_RESOURCES, strict: true) === true) {
+			return $this->ruledShow(resource: $resource, id: $id);
+		}
+
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
 			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
@@ -328,6 +431,7 @@ class OriController extends Controller {
 			}
 
 			$object = $this->narrowToDecisionType(resource: $resource, object: $object);
+			$object = $this->narrowToPublicVisibility(resource: $resource, object: $object);
 		} catch (DoesNotExistException $e) {
 			// OpenRegister's published-predicate RBAC hides a future-dated or
 			// depublished payload from an anonymous caller by making find() THROW,
@@ -362,33 +466,105 @@ class OriController extends Controller {
 			);
 		}//end if
 
-		// #316: Treat non-published objects as not-found for anonymous callers.
-		// Return 404 (not 403) to avoid confirming the object exists.
-		if ($this->isLifecycleBlocked(object: $object) === true) {
-			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
-		}
-
+		// #316's visibility gate is applied by narrowToPublicVisibility() above,
+		// alongside the decisionType discriminator, so a withheld object and a
+		// wrong-type object leave through the same 404 and the endpoint never
+		// confirms that an unpublished object exists.
 		return $this->jsonLdResponse(payload: $this->serializer->serialize(type: $type, object: $object));
 	}//end show()
 
 	/**
-	 * Decide whether the lifecycle gate hides an object from anonymous callers.
+	 * List votes or vote events through the publication rule.
 	 *
-	 * M2: only enforce the lifecycle gate when the object actually carries a
-	 * lifecycle/status field; schemas without it (votes, persons, etc.) pass
-	 * through.
+	 * `votes` accepts `?voter={personId}`.
 	 *
-	 * @param array<string, mixed> $object The serialized register object
+	 * @param string $resource `votes` or `voteevents`
 	 *
-	 * @return bool True when the object must be reported as not-found
+	 * @return JSONResponse JSON-LD list envelope or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
 	 */
-	private function isLifecycleBlocked(array $object): bool {
-		$lifecycle = ($object['lifecycle'] ?? ($object['status'] ?? null));
+	private function ruledIndex(string $resource): JSONResponse {
+		$type = self::ORI_TYPE_MAP[$resource];
+		try {
+			$rows = $this->ruledRows(resource: $resource);
+		} catch (Throwable $e) {
+			$this->logger->error(message: 'OriController index failed', context: ['resource' => $resource, 'exception' => $e]);
+			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
 
-		return ($lifecycle !== null && $lifecycle !== 'published');
-	}//end isLifecycleBlocked()
+		$items = [];
+		foreach ($rows as $row) {
+			$items[] = $this->serializer->serializeAllowed(type: $type, fields: $row);
+		}
+
+		return $this->jsonLdResponse(
+			payload: [
+				'@context' => self::ORI_CONTEXT,
+				'@type' => $type,
+				'count' => count($items),
+				'items' => $items,
+			]
+		);
+	}//end ruledIndex()
+
+	/**
+	 * The rows a ruled collection publishes.
+	 *
+	 * @param string $resource `votes`, `voteevents` or `persons`
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-ori-007-the-public-ori-api-names-public-role-holders-only
+	 */
+	private function ruledRows(string $resource): array {
+		if ($resource === 'persons') {
+			return $this->personRule->persons();
+		}
+
+		if ($resource === 'voteevents') {
+			return $this->voteRule->voteEvents();
+		}
+
+		$voter = $this->request->getParam('voter');
+		if (is_string($voter) === false) {
+			$voter = null;
+		}
+
+		return $this->voteRule->votes(voter: $voter);
+	}//end ruledRows()
+
+	/**
+	 * One vote or vote event through the publication rule; anything the rule
+	 * withholds is not found, so the endpoint never confirms it exists.
+	 *
+	 * @param string $resource `votes` or `voteevents`
+	 * @param string $id       The object id
+	 *
+	 * @return JSONResponse The JSON-LD entity or error
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	private function ruledShow(string $resource, string $id): JSONResponse {
+		try {
+			$row = match ($resource) {
+				'votes' => $this->voteRule->vote(voteId: $id),
+				'persons' => $this->personRule->person(personId: $id),
+				default => $this->voteRule->voteEvent(roundId: $id),
+			};
+		} catch (DoesNotExistException $e) {
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		} catch (Throwable $e) {
+			$this->logger->error(message: 'OriController show failed', context: ['resource' => $resource, 'id' => $id, 'exception' => $e]);
+			return $this->errorResponse(message: 'Internal server error', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		if ($row === null) {
+			return $this->errorResponse(message: 'Not found', status: Http::STATUS_NOT_FOUND);
+		}
+
+		return $this->jsonLdResponse(payload: $this->serializer->serializeAllowed(type: self::ORI_TYPE_MAP[$resource], fields: $row));
+	}//end ruledShow()
 
 	/**
 	 * Wrap a payload in a CORS-decorated JSON-LD response.

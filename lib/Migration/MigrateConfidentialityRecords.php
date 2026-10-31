@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the confidentiality records into plain words.
  *
- * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md
+ * @spec openspec/specs/confidentiality-in-plain-words/spec.md
  */
 class MigrateConfidentialityRecords implements IRepairStep {
 	use ReadsLegacyRows;
@@ -130,7 +130,7 @@ class MigrateConfidentialityRecords implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
+	 * @spec openspec/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -164,7 +164,7 @@ class MigrateConfidentialityRecords implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
+	 * @spec openspec/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,

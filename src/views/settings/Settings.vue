@@ -6,29 +6,34 @@
  @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
 -->
 <template>
-	<div>
+	<!-- One wrapper around the sections: nextcloud-vue 2.83 draws sections
+	     inside a wrapping element as cards in the admin shell's board grid. -->
+	<div class="decidiq-admin-settings">
+		<!-- Board DcBeheer, section Organisatie: the kind of organisation as
+		     radio cards, then the register. Each saves the one field it changed
+		     through POST /api/settings (nextcloud-vue widget `save`), so an
+		     admin page without an object id can save it.
+		     @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting -->
 		<CnSettingsSection
-			:name="t('decidiq', 'Configuration')"
-			:description="t('decidiq', 'Configure the app settings')">
-			<form @submit.prevent="save">
-				<div class="form-group">
-					<label for="register">{{ t('decidiq', 'Register') }}</label>
-					<input
-						id="register"
-						v-model="form.register"
-						type="text"
-						:placeholder="t('decidiq', 'OpenRegister register ID')" />
-				</div>
-
-				<div v-if="successMessage" class="success-message">
-					{{ successMessage }}
-				</div>
-
-				<NcButton variant="primary" type="submit" :disabled="saving">
-					{{ saving ? t('decidiq', 'Saving...') : t('decidiq', 'Save') }}
-				</NcButton>
-			</form>
+			id="section-organisation-mode"
+			:name="t('decidiq', 'Organisation')"
+			:description="t('decidiq', 'Sets the words and defaults across the whole app.')"
+			data-testid="organisation-mode-settings">
+			<CnRadioCardsWidget
+				:content="organisationModeContent"
+				:objectData="settingsStore.settings || {}"
+				data-testid="organisation-mode"
+				@saved="settingsStore.fetchSettings()" />
+			<CnSettingsFormWidget
+				:content="registerContent"
+				:objectData="settingsStore.settings || {}"
+				data-testid="organisation-register"
+				@saved="settingsStore.fetchSettings()" />
 		</CnSettingsSection>
+
+		<!-- Process template management: second on board DcBeheer, full width.
+		     @spec openspec/specs/process-configuration/spec.md -->
+		<ProcessTemplates :wide="true" />
 
 		<!-- Organization defaults -->
 		<!-- @spec openspec/specs/admin-settings/spec.md -->
@@ -124,53 +129,11 @@
 			</form>
 		</CnSettingsSection>
 
-		<!-- Organisation mode -->
-		<!--
-		 REHOMED from the in-app `type:"settings"` page deleted under ADR-079 D1.
-		 That page's "Advanced" section held three keys; `ori_endpoint` and
-		 `email_voting_enabled` already had a home here, `organisatie_modus` did
-		 not — this section was the difference, and deleting the page without it
-		 would have left the key writable only by occ.
-		 @spec openspec/specs/admin-settings/spec.md
-		-->
-		<CnSettingsSection
-			:name="t('decidiq', 'Organisation mode')"
-			:description="
-				t(
-					'decidiq',
-					'Controls mode-specific labels across the app — for example what a governance body is called. Default: government.',
-				)
-			">
-			<form
-				data-testid="organisation-mode-settings"
-				@submit.prevent="saveOrganisationMode">
-				<div class="form-group">
-					<NcSelect
-						v-model="form.organisatie_modus"
-						:options="organisationModeOptions"
-						:inputLabel="t('decidiq', 'Organisation mode')"
-						label="label"
-						trackBy="id"
-						data-testid="organisation-mode" />
-				</div>
-
-				<NcButton
-					variant="primary"
-					type="submit"
-					data-testid="organisation-mode-save"
-					:disabled="savingOrganisationMode">
-					{{
-						savingOrganisationMode
-							? t('decidiq', 'Saving...')
-							: t('decidiq', 'Save')
-					}}
-				</NcButton>
-			</form>
-		</CnSettingsSection>
-
 		<!-- ORI publication settings -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+		<!-- The id is the anchor lib/Settings/connections.json links to (adopt-connection-registry). -->
 		<CnSettingsSection
+			id="section-ori"
 			:name="t('decidiq', 'ORI endpoint')"
 			:description="t('decidiq', 'ORI API endpoint URL')">
 			<form @submit.prevent="saveOri">
@@ -193,26 +156,17 @@
 			</form>
 		</CnSettingsSection>
 
-		<!-- Process template management -->
-		<!-- @spec openspec/specs/process-configuration/spec.md -->
-		<ProcessTemplates />
-
 		<!-- Email voting toggle -->
 		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
+			id="section-email-voting"
 			:name="t('decidiq', 'Email voting')"
 			:description="t('decidiq', 'Enable voting by email reply')">
-			<div class="form-group form-group--checkbox">
-				<input
-					id="email_voting_enabled"
-					v-model="form.email_voting_enabled"
-					type="checkbox"
-					:aria-label="t('decidiq', 'Email voting')"
-					@change="saveEmailVoting" />
-				<label for="email_voting_enabled">{{
-					t('decidiq', 'Enable voting by email reply')
-				}}</label>
-			</div>
+			<CnSwitchRowsWidget
+				:content="emailVotingContent"
+				:objectData="settingsStore.settings || {}"
+				data-testid="email-voting"
+				@saved="settingsStore.fetchSettings()" />
 		</CnSettingsSection>
 
 		<!-- Citizen-participation instance defaults -->
@@ -276,30 +230,34 @@
 			</form>
 		</CnSettingsSection>
 	</div>
+
 </template>
 
 <script>
-import { CnSettingsSection } from '@conduction/nextcloud-vue'
+import { CnRadioCardsWidget, CnSettingsFormWidget, CnSettingsSection, CnSwitchRowsWidget } from '@conduction/nextcloud-vue'
 import { NcButton, NcSelect } from '@nextcloud/vue'
 import ProcessTemplates from '../../components/processTemplates/ProcessTemplates.vue'
 import { useSettingsStore } from '../../store/modules/settings.js'
+
+/** Where the settings widgets save: the app config endpoint, with the changed fields only. */
+const SETTINGS_SAVE = { url: '/apps/decidiq/api/settings', method: 'POST', payload: '{changes}' }
 
 export default {
 	name: 'Settings',
 	components: {
 		NcButton,
 		NcSelect,
+		CnRadioCardsWidget,
+		CnSettingsFormWidget,
 		CnSettingsSection,
+		CnSwitchRowsWidget,
 		ProcessTemplates,
 	},
 
 	data() {
 		return {
 			form: {
-				register: '',
-				organisatie_modus: null,
 				ori_endpoint: '',
-				email_voting_enabled: false,
 				organisation_name: '',
 				organisation_logo: '',
 				organisation_timezone: '',
@@ -311,12 +269,9 @@ export default {
 				participation_anon_rate_limit: '',
 			},
 
-			saving: false,
-			savingOrganisationMode: false,
 			savingOri: false,
 			savingOrganisation: false,
 			savingParticipation: false,
-			successMessage: '',
 			organisationMessage: '',
 		}
 	},
@@ -350,25 +305,68 @@ export default {
 			return ['EUR', 'USD', 'GBP', 'CHF']
 		},
 
+		/** @return {object} The settings store, whose `settings` the widgets read. */
+		settingsStore() {
+			return useSettingsStore()
+		},
+
 		/**
-		 * The five organisatie_modus values, matching MODE_LABELS in
-		 * src/config/modeLabels.js and the `organisatie_modus` whitelist entry in
-		 * lib/Service/SettingsService.php. Cosmetic UI hint only — it selects
-		 * label vocabulary and drives no authorization decision.
+		 * The five organisatie_modus values as radio cards, matching MODE_LABELS
+		 * in src/config/modeLabels.js and the `organisatie_modus` whitelist entry
+		 * in lib/Service/SettingsService.php. Cosmetic UI hint only: it selects
+		 * label vocabulary and drives no authorization decision. The board draws
+		 * four; the citizen portal is kept as the fifth.
 		 *
+		 * @return {object} The radio-cards widget content.
 		 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
 		 */
-		organisationModeOptions() {
-			return [
-				{ id: 'gov', label: this.t('decidiq', 'Government (gov)') },
-				{ id: 'corp', label: this.t('decidiq', 'Corporate (corp)') },
-				{ id: 'assoc', label: this.t('decidiq', 'Association (assoc)') },
-				{ id: 'ops', label: this.t('decidiq', 'Operations (ops)') },
-				{
-					id: 'citizen',
-					label: this.t('decidiq', 'Citizen portal (citizen)'),
-				},
-			]
+		organisationModeContent() {
+			return {
+				field: 'organisatie_modus',
+				label: this.t('decidiq', 'Kind of organisation'),
+				variant: 'list',
+				save: SETTINGS_SAVE,
+				options: [
+					{ value: 'gov', label: this.t('decidiq', 'Municipality'), description: this.t('decidiq', 'Council, executive, committees, clerk') },
+					{ value: 'assoc', label: this.t('decidiq', 'Association or owners\' association'), description: this.t('decidiq', 'Board, members, general meeting') },
+					{ value: 'corp', label: this.t('decidiq', 'Company'), description: this.t('decidiq', 'Executive board, supervisory board') },
+					{ value: 'ops', label: this.t('decidiq', 'Team'), description: this.t('decidiq', 'Meetings, decisions, action items') },
+					{ value: 'citizen', label: this.t('decidiq', 'Citizen portal'), description: this.t('decidiq', 'Residents follow decisions and take part') },
+				],
+			}
+		},
+
+		/**
+		 * E-mail voting as a switch over the stored strings "1" and "0"
+		 * (nextcloud-vue 2.83 switch `values`), saved on its own.
+		 *
+		 * @return {object} The switch-rows widget content.
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2
+		 */
+		emailVotingContent() {
+			return {
+				save: SETTINGS_SAVE,
+				rows: [
+					{ key: 'email_voting_enabled', label: this.t('decidiq', 'Enable voting by email reply'), values: { on: '1', off: '0' } },
+				],
+			}
+		},
+
+		/**
+		 * The register field, saved on its own.
+		 *
+		 * @return {object} The settings-form widget content.
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+		 */
+		registerContent() {
+			return {
+				columns: 1,
+				save: SETTINGS_SAVE,
+				saveLabel: this.t('decidiq', 'Save'),
+				fields: [
+					{ key: 'register', label: this.t('decidiq', 'Register'), type: 'text', placeholder: this.t('decidiq', 'OpenRegister register ID'), hint: this.t('decidiq', 'Reading it in again after an update is under Advanced.') },
+				],
+			}
 		},
 
 		/** @spec openspec/specs/citizen-participation/spec.md */
@@ -396,18 +394,7 @@ export default {
 	created() {
 		const settingsStore = useSettingsStore()
 		const settings = settingsStore.settings || {}
-		this.form.register = settings.register || ''
-		// SettingsService::getSettings() defaults this to 'gov', but fall back
-		// here too so an instance predating the key still selects a valid option
-		// rather than rendering an empty combobox.
-		this.form.organisatie_modus =
-			this.organisationModeOptions.find(
-				(o) => o.id === settings.organisatie_modus,
-			) || this.organisationModeOptions[0]
 		this.form.ori_endpoint = settings.ori_endpoint || ''
-		this.form.email_voting_enabled =
-			settings.email_voting_enabled === '1'
-			|| settings.email_voting_enabled === true
 		this.form.organisation_name = settings.organisation_name || ''
 		this.form.organisation_logo = settings.organisation_logo || ''
 		this.form.organisation_timezone = settings.organisation_timezone || ''
@@ -427,23 +414,6 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
-		async save() {
-			this.saving = true
-			this.successMessage = ''
-			const settingsStore = useSettingsStore()
-			const result = await settingsStore.saveSettings({
-				register: this.form.register,
-			})
-			if (result) {
-				this.successMessage = this.t(
-					'decidiq',
-					'Settings saved successfully',
-				)
-			}
-			this.saving = false
-		},
-
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveOrganisation() {
 			this.savingOrganisation = true
@@ -484,16 +454,6 @@ export default {
 			this.savingParticipation = false
 		},
 
-		/** @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting */
-		async saveOrganisationMode() {
-			this.savingOrganisationMode = true
-			const settingsStore = useSettingsStore()
-			await settingsStore.saveSettings({
-				organisatie_modus: this.form.organisatie_modus?.id || 'gov',
-			})
-			this.savingOrganisationMode = false
-		},
-
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {
 			this.savingOri = true
@@ -502,14 +462,6 @@ export default {
 				ori_endpoint: this.form.ori_endpoint,
 			})
 			this.savingOri = false
-		},
-
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 */
-		async saveEmailVoting() {
-			const settingsStore = useSettingsStore()
-			await settingsStore.saveSettings({
-				email_voting_enabled: this.form.email_voting_enabled ? '1' : '0',
-			})
 		},
 	},
 }
@@ -524,16 +476,6 @@ export default {
 	display: block;
 	margin-bottom: 4px;
 	font-weight: 600;
-}
-
-.form-group--checkbox {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-}
-
-.form-group--checkbox label {
-	margin-bottom: 0;
 }
 
 .success-message {

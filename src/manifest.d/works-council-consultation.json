@@ -19,6 +19,7 @@
 			"title": "Works-council consultations",
 			"_note": "spec: openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md — WOR-trajecten index (REQ-WCC-008). Columns subject/type/worArticle/bestuurder/receivedDate/requestedResponseDate/lifecycle; quick filters on type, lifecycle and governance body. The dashboard KPI deep-links target this page pre-filtered (non-terminal lifecycle / overdue set); the KPI widgets themselves are a deferred base-manifest edit (see top _note).",
 			"config": {
+				"pageTabs": [{"label": "Governance consultations", "route": "GovernanceConsultations", "countFrom": {"register": "decidiq", "schema": "governance-consultation"}}, {"label": "Works-council consultations", "route": "WorksCouncilConsultations", "countFrom": {"register": "decidiq", "schema": "consultation-request"}}, {"label": "Public consultations", "route": "Consultations", "countFrom": {"register": "decidiq", "schema": "public-consultation"}}, {"label": "Participatory budgets", "route": "BudgetRounds", "countFrom": {"register": "decidiq", "schema": "participatory-budget"}}, {"label": "Moderation", "route": "ModerationQueue", "countFrom": {"register": "decidiq", "schema": "consultation-reaction", "filter": {"moderationStatus": "pending"}}}],
 				"register": "decidiq",
 				"schema": "consultation-request",
 				"sortKey": "@self.created",

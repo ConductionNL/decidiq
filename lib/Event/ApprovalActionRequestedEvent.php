@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -40,7 +40,7 @@ use OCP\EventDispatcher\Event;
  * is a different trust boundary from an HTTP request. Any future path that lets
  * an untrusted party construct this event must resolve the actor itself.
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
 class ApprovalActionRequestedEvent extends Event {
 
@@ -91,7 +91,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 * PUBLISHED CROSS-APP CONTRACT constructed POSITIONALLY through a
 	 * class-string by consumers that must stay installable without Decidiq.
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function __construct(
 		private readonly string $sourceApp,
@@ -115,7 +115,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The app id
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getSourceApp(): string {
 		return $this->sourceApp;
@@ -127,7 +127,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The subject id
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getSubject(): string {
 		return $this->subject;
@@ -139,7 +139,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The actor
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getActor(): string {
 		return $this->actor;
@@ -151,7 +151,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The verb
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getAction(): string {
 		return $this->action;
@@ -163,7 +163,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return integer The step number, or 0
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getReturnToStep(): int {
 		return $this->returnToStep;
@@ -175,7 +175,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The comment
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getComment(): string {
 		return $this->comment;
@@ -187,7 +187,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The advice
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getAdvice(): string {
 		return $this->advice;
@@ -199,7 +199,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The actor type
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getActorType(): string {
 		return $this->actorType;
@@ -211,7 +211,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The principal's uid
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getOnBehalfOf(): string {
 		return $this->onBehalfOf;
@@ -223,7 +223,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The mandate
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getMandate(): string {
 		return $this->mandate;
@@ -235,7 +235,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The correlation id
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getCorrelationId(): string {
 		return $this->correlationId;
@@ -247,7 +247,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return boolean The recorded flag
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function isRecorded(): bool {
 		return $this->recorded;
@@ -261,7 +261,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function setRecorded(bool $recorded): void {
 		$this->recorded = $recorded;
@@ -273,7 +273,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return boolean The completed flag
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function isCompleted(): bool {
 		return $this->completed;
@@ -287,7 +287,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function setCompleted(bool $completed): void {
 		$this->completed = $completed;
@@ -299,7 +299,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return boolean The handled flag
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function isHandled(): bool {
 		return $this->handled;
@@ -313,7 +313,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function setHandled(bool $handled): void {
 		$this->handled = $handled;
@@ -329,7 +329,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return string The refusal reason, or an empty string
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function getRefusal(): string {
 		return $this->refusal;
@@ -343,7 +343,7 @@ class ApprovalActionRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function setRefusal(string $refusal): void {
 		$this->refusal = $refusal;

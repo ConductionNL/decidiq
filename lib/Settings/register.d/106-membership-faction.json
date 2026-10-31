@@ -1,0 +1,23 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change bodies-membership-terms-contacts-and-factions (REQ-BMT-003, matrix row bod-06). A council membership names the faction body the member sits in.",
+  "components": {
+    "schemas": {
+      "Membership": {
+        "slug": "membership",
+        "version": "0.3.0",
+        "properties": {
+          "faction": {
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "title": "Faction",
+            "description": "The faction (a governance body of type faction under this body) the member sits in."
+          }
+        }
+      }
+    }
+  }
+}

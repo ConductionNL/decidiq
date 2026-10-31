@@ -1,0 +1,24 @@
+{
+	"version": 1,
+	"items": [
+		{
+			"id": "decisions-open-for-voting",
+			"title": "Decisions wait for the vote",
+			"reason": "{value} decisions are open for voting.",
+			"severity": "warning",
+			"source": {
+				"register": "decidiq",
+				"schema": "decision",
+				"filter": {
+					"lifecycle": "voting"
+				}
+			},
+			"op": "gt",
+			"value": 0,
+			"action": {
+				"label": "Open these decisions",
+				"path": "/decisions"
+			}
+		}
+	]
+}

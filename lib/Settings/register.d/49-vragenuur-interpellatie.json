@@ -102,8 +102,8 @@
               }
             ],
             "subject": {
-              "nl": "Mondelinge vraag ingediend: {{vraagNummer}} — {{onderwerp}}",
-              "en": "Oral question submitted: {{vraagNummer}} — {{onderwerp}}"
+              "nl": "Mondelinge vraag ingediend: {{questionNumber}} — {{subject}}",
+              "en": "Oral question submitted: {{questionNumber}} — {{subject}}"
             },
             "_note": "Submission confirmation to the indiener and the griffie group (REQ-VRI-007). Declarative created-trigger (ADR-031); gate-18 hard-fails imperative dispatch. Recipients resolve via object-acl (read) + the decidesk-members group, never kind:field on the indiener Person reference (per decidesk-notifications recipient rules — no recipient kind targets a Person reference directly)."
           },
@@ -134,8 +134,8 @@
               }
             ],
             "subject": {
-              "nl": "Mondelinge vraag toegelaten: {{vraagNummer}} — {{onderwerp}}",
-              "en": "Oral question admitted: {{vraagNummer}} — {{onderwerp}}"
+              "nl": "Mondelinge vraag toegelaten: {{questionNumber}} — {{subject}}",
+              "en": "Oral question admitted: {{questionNumber}} — {{subject}}"
             },
             "_note": "Admission notification to the indiener and portefeuillehouder (REQ-VRI-007). updated-trigger filtered on lifecycle toegelaten."
           },
@@ -166,8 +166,8 @@
               }
             ],
             "subject": {
-              "nl": "Mondelinge vraag afgewezen: {{vraagNummer}} — {{afwijzingsReden}}",
-              "en": "Oral question rejected: {{vraagNummer}} — {{afwijzingsReden}}"
+              "nl": "Mondelinge vraag afgewezen: {{questionNumber}} — {{rejectionReason}}",
+              "en": "Oral question rejected: {{questionNumber}} — {{rejectionReason}}"
             },
             "_note": "Rejection notification to the indiener including the afwijzingsReden (REQ-VRI-007). updated-trigger filtered on lifecycle afgewezen."
           },
@@ -198,8 +198,8 @@
               }
             ],
             "subject": {
-              "nl": "Mondelinge vraag ingepland voor het vragenuur: {{vraagNummer}} — {{onderwerp}}",
-              "en": "Oral question scheduled for the question hour: {{vraagNummer}} — {{onderwerp}}"
+              "nl": "Mondelinge vraag ingepland voor het vragenuur: {{questionNumber}} — {{subject}}",
+              "en": "Oral question scheduled for the question hour: {{questionNumber}} — {{subject}}"
             }
           }
         },
@@ -418,8 +418,8 @@
               }
             ],
             "subject": {
-              "nl": "Interpellatieverzoek ingediend: {{verzoekNummer}} — {{onderwerp}}",
-              "en": "Interpellation request submitted: {{verzoekNummer}} — {{onderwerp}}"
+              "nl": "Interpellatieverzoek ingediend: {{requestNumber}} — {{subject}}",
+              "en": "Interpellation request submitted: {{requestNumber}} — {{subject}}"
             },
             "_note": "Submission confirmation to the verzoeker and the griffie group (REQ-VRI-014). Declarative created-trigger (ADR-031); gate-18 hard-fails imperative dispatch. Recipients via object-acl (read) + decidesk-members group, never kind:field on the verzoeker Person reference."
           },
@@ -450,8 +450,8 @@
               }
             ],
             "subject": {
-              "nl": "Interpellatieverzoek toegelaten: {{verzoekNummer}} — {{onderwerp}}",
-              "en": "Interpellation request admitted: {{verzoekNummer}} — {{onderwerp}}"
+              "nl": "Interpellatieverzoek toegelaten: {{requestNumber}} — {{subject}}",
+              "en": "Interpellation request admitted: {{requestNumber}} — {{subject}}"
             },
             "_note": "Admission-decision notification to the verzoeker and portefeuillehouder (REQ-VRI-014). updated-trigger filtered on lifecycle toegelaten."
           },
@@ -482,8 +482,8 @@
               }
             ],
             "subject": {
-              "nl": "Interpellatieverzoek afgewezen: {{verzoekNummer}} — {{afwijzingsReden}}",
-              "en": "Interpellation request rejected: {{verzoekNummer}} — {{afwijzingsReden}}"
+              "nl": "Interpellatieverzoek afgewezen: {{requestNumber}} — {{rejectionReason}}",
+              "en": "Interpellation request rejected: {{requestNumber}} — {{rejectionReason}}"
             },
             "_note": "Rejection notification to the verzoeker including the afwijzingsReden (REQ-VRI-014). updated-trigger filtered on lifecycle afgewezen."
           },
@@ -514,8 +514,8 @@
               }
             ],
             "subject": {
-              "nl": "Interpellatie geagendeerd: {{verzoekNummer}} — {{onderwerp}}",
-              "en": "Interpellation scheduled: {{verzoekNummer}} — {{onderwerp}}"
+              "nl": "Interpellatie geagendeerd: {{requestNumber}} — {{subject}}",
+              "en": "Interpellation scheduled: {{requestNumber}} — {{subject}}"
             },
             "_note": "Scheduling notification to the verzoeker and portefeuillehouder (REQ-VRI-014). updated-trigger filtered on lifecycle geagendeerd."
           }

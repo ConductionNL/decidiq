@@ -13,12 +13,17 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="delegation-section">
-		<h3>{{ t('decidiq', 'Delegation and absence') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t(
 					'decidiq',
 					'During the configured period your delegate receives your Decidiq notifications and can follow your pending votes and action items.',
+				)
+			}}
+			{{
+				t(
+					'decidiq',
+					'Sign-offs that reach you in this period are also put to your delegate, who can sign them on your behalf.',
 				)
 			}}
 		</p>

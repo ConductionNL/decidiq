@@ -31,6 +31,14 @@ class ObjectCreatingEvent extends Event {
 	 */
 	private array $errors = [];
 
+	/**
+	 * Data a hook asks to merge into the object (OpenRegister MagicMapper
+	 * merges it after dispatch).
+	 *
+	 * @var array<string, mixed>
+	 */
+	private array $modifiedData = [];
+
 	public function __construct(?ObjectEntity $object = null) {
 		parent::__construct();
 		$this->object = $object;
@@ -60,5 +68,19 @@ class ObjectCreatingEvent extends Event {
 	 */
 	public function getErrors(): array {
 		return $this->errors;
+	}
+
+	/**
+	 * @param array<string, mixed> $data
+	 */
+	public function setModifiedData(array $data): void {
+		$this->modifiedData = $data;
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function getModifiedData(): array {
+		return $this->modifiedData;
 	}
 }

@@ -409,7 +409,7 @@ WCAG 2.1 AA: participation mode SHALL be conveyed via text label + icon (not col
 
 #### Scenario: Create hybrid meeting
 - **GIVEN** a governance body that supports hybrid attendance
-- **WHEN** a meeting is created with `meetingMode: "hybrid"` and `location: "Stadhuis, Amstel 1, Amsterdam | https://meet.example.nl/raad"`
+- **WHEN** a meeting is created with `meetingMode: "hybrid"` and `location: "Stadhuis, Raadhuisplein 1, Voorbeeldstad | https://meet.example.org/raad"`
 - **THEN** the VEVENT `LOCATION` field contains both the physical address and the video link
 
 #### Scenario: Participation mode shown without color-only indicator

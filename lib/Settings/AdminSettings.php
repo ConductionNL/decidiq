@@ -25,9 +25,11 @@ namespace OCA\Decidiq\Settings;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\PublicationConfigService;
+use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
 use OCP\AppFramework\Services\IInitialState;
+use OCP\IAppConfig;
 use OCP\Settings\IDelegatedSettings;
 
 /**
@@ -48,11 +50,13 @@ class AdminSettings implements IDelegatedSettings {
 	 * @param IAppManager $appManager The app manager.
 	 * @param IInitialState $initialState The initial state service.
 	 * @param PublicationConfigService $publicationConfig The publication configuration service.
+	 * @param IAppConfig $appConfig App config, read for the structure setting.
 	 */
 	public function __construct(
 		private IAppManager $appManager,
 		private IInitialState $initialState,
 		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
+		private IAppConfig $appConfig,
 	) {
 	}//end __construct()
 
@@ -64,6 +68,7 @@ class AdminSettings implements IDelegatedSettings {
 	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
 	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 	 */
 	public function getForm(): TemplateResponse {
 		$version = $this->appManager->getAppVersion(appId: Application::APP_ID);
@@ -90,12 +95,45 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState('transcriptRetentionDefaultPolicy', 'delete-both');
 		$this->initialState->provideInitialState('transcriptRetentionDefaultDays', 30);
 
+		// @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+		// The structure choice reads what is stored now, already normalised, so
+		// a mistyped stored value shows as the simple structure it behaves as.
+		$this->initialState->provideInitialState(
+			MenuStructure::KEY,
+			(new MenuStructure())->normalise(
+				stored: $this->appConfig->getValueString(Application::APP_ID, MenuStructure::KEY, '')
+			)
+		);
+
+		// The last accessibility audit, as scripts/wcag-audit-report.mjs wrote
+		// it next to this class (board DcBeheerSysteem, Toegankelijkheid).
+		$this->initialState->provideInitialState('accessibilityAudit', $this->accessibilityAudit());
+
 		return new TemplateResponse(
 			Application::APP_ID,
 			'settings/admin',
 			[]
 		);
 	}//end getForm()
+
+	/**
+	 * The accessibility audit digest the app ships, or null without one.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function accessibilityAudit(): ?array {
+		$path = __DIR__ . '/accessibility-audit.json';
+		if (is_readable($path) === false) {
+			return null;
+		}
+
+		$digest = json_decode((string)file_get_contents($path), true);
+		if (is_array($digest) === false) {
+			return null;
+		}
+
+		return $digest;
+	}//end accessibilityAudit()
 
 	/**
 	 * Get the section ID this settings page belongs to.

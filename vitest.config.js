@@ -19,7 +19,34 @@
 
 const path = require('path')
 
+/**
+ * Resolve `.vue` imports to an inert options object.
+ *
+ * The environment is `node` with no SFC transform, so a module that imports a
+ * component cannot be loaded at all, which is why the leaf descriptors, whose
+ * whole job is to name components, had no unit coverage of their own. The
+ * assertions that need them (tests/vitest/integrationLeafRenderContract.spec.js)
+ * read the descriptor's KEYS, never the component's behaviour, so a stub is
+ * indistinguishable from the real SFC there. Anything that wants to render a
+ * component still needs a real transform and must not rely on this.
+ *
+ * @type {import('vite').Plugin}
+ */
+const stubSingleFileComponents = {
+	name: 'decidiq-stub-sfc',
+	enforce: 'pre',
+	resolveId(source) {
+		return source.endsWith('.vue') ? '\0decidiq-sfc-stub' : null
+	},
+	load(id) {
+		return id === '\0decidiq-sfc-stub'
+			? 'export default { name: "SfcStub", render() { return null } }'
+			: null
+	},
+}
+
 module.exports = {
+	plugins: [stubSingleFileComponents],
 	test: {
 		environment: 'node',
 		globals: false,

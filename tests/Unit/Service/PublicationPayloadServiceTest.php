@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\PublicationConfigService;
 use OCA\Decidiq\Service\PublicationPayloadService;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -48,10 +50,14 @@ class PublicationPayloadServiceTest extends TestCase {
 		$appConfig->method('getValueString')->willReturn($configBlob);
 		$configService = new PublicationConfigService($appConfig);
 
+		// No confidentiality restrictions: the agenda tests carry their items inline.
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturn([]);
 		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturn($objectService);
 		$logger = $this->createMock(LoggerInterface::class);
 
-		return new PublicationPayloadService($container, $logger, $configService);
+		return new PublicationPayloadService($container, $logger, $configService, new AgendaPapers($objectService, $container, $logger));
 	}//end makeService()
 
 	/**
@@ -134,7 +140,7 @@ class PublicationPayloadServiceTest extends TestCase {
 			'title' => 'Notulen',
 			'content' => 'Inhoud',
 			'attendees' => [
-				['displayName' => 'Femke', 'role' => 'chair', 'nextcloudUserId' => 'f.halsema'],
+				['displayName' => 'Wieteke', 'role' => 'chair', 'nextcloudUserId' => 'w.doornbos'],
 				['displayName' => 'Jan', 'role' => 'member'],
 			],
 		];
@@ -147,7 +153,7 @@ class PublicationPayloadServiceTest extends TestCase {
 		$this->assertArrayNotHasKey('roleHolders', $payload['attendance']);
 
 		$encoded = json_encode($payload);
-		$this->assertStringNotContainsString('f.halsema', $encoded);
+		$this->assertStringNotContainsString('w.doornbos', $encoded);
 
 	}//end testMinutesAttendanceCountsPolicy()
 
@@ -163,7 +169,7 @@ class PublicationPayloadServiceTest extends TestCase {
 			'title' => 'Notulen',
 			'content' => 'Inhoud',
 			'attendees' => [
-				['displayName' => 'Femke', 'role' => 'chair', 'nextcloudUserId' => 'f.halsema'],
+				['displayName' => 'Wieteke', 'role' => 'chair', 'nextcloudUserId' => 'w.doornbos'],
 				['displayName' => 'Roos', 'role' => 'secretary'],
 				['displayName' => 'Jan', 'role' => 'member'],
 			],
@@ -172,12 +178,12 @@ class PublicationPayloadServiceTest extends TestCase {
 		$payload = $service->build('minutes', $source, 'body-1', 1);
 
 		$this->assertSame('role-holders', $payload['attendance']['policy']);
-		$this->assertContains('Femke', $payload['attendance']['roleHolders']);
+		$this->assertContains('Wieteke', $payload['attendance']['roleHolders']);
 		$this->assertContains('Roos', $payload['attendance']['roleHolders']);
 		$this->assertNotContains('Jan', $payload['attendance']['roleHolders']);
 
 		$encoded = json_encode($payload);
-		$this->assertStringNotContainsString('f.halsema', $encoded);
+		$this->assertStringNotContainsString('w.doornbos', $encoded);
 
 	}//end testMinutesAttendanceRoleHoldersPolicy()
 

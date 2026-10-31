@@ -767,7 +767,22 @@ test.describe('Integration registry — OCS / JS agreement', () => {
 		// assertion, and the second assertion fails as soon as either side is
 		// repaired, forcing this list to be deleted rather than quietly
 		// outliving the defect it documents.
-		const KNOWN_UPSTREAM_DRIFT = ['kvk', 'opencorporates']
+		//
+		// The same holds for four integriq ids. integriq's
+		// lib/AppInfo/Application.php::registerIntegrationProviders() registers
+		// AzureVirtualDesktopAdapter, SharePointOnlineAdapter,
+		// Microsoft365Adapter and S3Adapter with OR's IntegrationRegistry, and
+		// its src/integration.js registers only `sync-contract` on the JS side.
+		// They surfaced here when decidiq's E2E began installing integriq
+		// (decidiq#1313). Reported upstream as integriq#2046.
+		const KNOWN_UPSTREAM_DRIFT = [
+			'kvk',
+			'opencorporates',
+			'azure-virtual-desktop',
+			'data-infra-s3',
+			'microsoft-365',
+			'sharepoint-online',
+		]
 
 		const unexpected = missing.filter(
 			(id: string) => !KNOWN_UPSTREAM_DRIFT.includes(id),
