@@ -50,6 +50,7 @@ use Psr\Log\LoggerInterface;
  * collection and the item endpoint apply the same rule.
  *
  * @covers \OCA\Decidiq\Controller\OriController
+ * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Service\OriVotePublicationRule
  * @covers \OCA\Decidiq\Service\OriPersonPublicationRule
  * @covers \OCA\Decidiq\Service\OriSerializer
