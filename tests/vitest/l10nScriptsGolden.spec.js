@@ -44,26 +44,39 @@ const SCHEMAS = {
 	'lib/Settings/register.d/motion.json': json({
 		title: 'Motion',
 		properties: { days: { title: 'Days', description: 'Name' } },
-		nested: { properties: 'not an object', other: { properties: [] }, listed: { title: 'Array props', properties: [{ title: 'Array item' }] } },
+		nested: {
+			properties: 'not an object',
+			other: { properties: [] },
+			listed: { title: 'Array props', properties: [{ title: 'Array item' }] },
+		},
 	}),
 	'lib/Settings/register.d/notes.txt': 'not json',
 	'lib/Settings/register.d/bad.json': '{ broken',
 }
 
 const CATALOGUE = {
-	'l10n/en.json': json({ translations: { Meeting: 'Meeting', Name: 'Name', 'Tag A': 'Tag A' } }),
+	'l10n/en.json': json({
+		translations: { Meeting: 'Meeting', Name: 'Name', 'Tag A': 'Tag A' },
+	}),
 }
 
 const L10N = {
 	'appinfo/info.xml': '<info>\n\t<id> decidiq </id>\n</info>\n',
-	'l10n/en.json': json({ translations: { Hello: 'Hello', 'Say "hi"': 'Say "hi"' } }),
-	'l10n/nl.json': json({ translations: { Hello: 'Hallo' }, pluralForm: 'nplurals=2; plural=(n > 1);' }),
+	'l10n/en.json': json({
+		translations: { Hello: 'Hello', 'Say "hi"': 'Say "hi"' },
+	}),
+	'l10n/nl.json': json({
+		translations: { Hello: 'Hallo' },
+		pluralForm: 'nplurals=2; plural=(n > 1);',
+	}),
 	'l10n/.schema-l10n-baseline.json': json({ uncovered: 3 }),
 	'l10n/README.md': 'not a catalogue',
 }
 
-const NL_JS = 'OC.L10N.register(\n    "decidiq",\n    {\n        "Hello": "Hallo"\n    },\n    "nplurals=2; plural=(n > 1);"\n)\n'
-const EN_JS = 'OC.L10N.register(\n    "decidiq",\n    {\n        "Hello": "Hello",\n        "Say \\"hi\\"": "Say \\"hi\\""\n    },\n    "nplurals=2; plural=(n != 1);"\n)\n'
+const NL_JS =
+	'OC.L10N.register(\n    "decidiq",\n    {\n        "Hello": "Hallo"\n    },\n    "nplurals=2; plural=(n > 1);"\n)\n'
+const EN_JS =
+	'OC.L10N.register(\n    "decidiq",\n    {\n        "Hello": "Hello",\n        "Say \\"hi\\"": "Say \\"hi\\""\n    },\n    "nplurals=2; plural=(n != 1);"\n)\n'
 
 /**
  * Write every file of a fixture under a root directory.
@@ -92,12 +105,15 @@ function readTree(root) {
 			if (entry.isDirectory()) {
 				walk(abs)
 			} else if (!abs.includes(`${path.sep}scripts${path.sep}`)) {
-				tree[path.relative(root, abs).split(path.sep).join('/')] = fs.readFileSync(abs, 'utf8')
+				tree[path.relative(root, abs).split(path.sep).join('/')] =
+					fs.readFileSync(abs, 'utf8')
 			}
 		}
 	}
 	walk(root)
-	return Object.fromEntries(Object.entries(tree).sort(([a], [b]) => a.localeCompare(b)))
+	return Object.fromEntries(
+		Object.entries(tree).sort(([a], [b]) => a.localeCompare(b)),
+	)
 }
 
 /**
@@ -109,41 +125,184 @@ function readTree(root) {
 function runCase(spec) {
 	const root = fs.mkdtempSync(path.join(os.tmpdir(), 'dq-golden-'))
 	try {
-		writeFiles(root, { [`scripts/${spec.script}`]: fs.readFileSync(path.join(REPO, 'scripts', spec.script), 'utf8') })
-		writeFiles(root, spec.files)
-		const run = spawnSync(process.execPath, [path.join(root, 'scripts', spec.script), ...(spec.args || [])], {
-			cwd: root,
-			encoding: 'utf8',
+		writeFiles(root, {
+			[`scripts/${spec.script}`]: fs.readFileSync(
+				path.join(REPO, 'scripts', spec.script),
+				'utf8',
+			),
 		})
-		const normalise = (text) => text.replace(/(does not parse|is unreadable): .*/g, '$1: <message>')
-		return { status: run.status, stdout: normalise(run.stdout), stderr: normalise(run.stderr), files: readTree(root) }
+		writeFiles(root, spec.files)
+		const run = spawnSync(
+			process.execPath,
+			[path.join(root, 'scripts', spec.script), ...(spec.args || [])],
+			{
+				cwd: root,
+				encoding: 'utf8',
+			},
+		)
+		const normalise = (text) =>
+			text.replace(/(does not parse|is unreadable): .*/g, '$1: <message>')
+		return {
+			status: run.status,
+			stdout: normalise(run.stdout),
+			stderr: normalise(run.stderr),
+			files: readTree(root),
+		}
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true })
 	}
 }
 
 const CASES = {
-	'schema-l10n: at the baseline': { script: 'check-schema-l10n.js', files: { ...SCHEMAS, ...CATALOGUE, 'l10n/.schema-l10n-baseline.json': json({ uncovered: 10 }) } },
-	'schema-l10n: --list': { script: 'check-schema-l10n.js', args: ['--list'], files: { ...SCHEMAS, ...CATALOGUE, 'l10n/.schema-l10n-baseline.json': json({ uncovered: 10 }) } },
-	'schema-l10n: --update': { script: 'check-schema-l10n.js', args: ['--update'], files: { ...SCHEMAS, ...CATALOGUE } },
-	'schema-l10n: --update and --list': { script: 'check-schema-l10n.js', args: ['--list', '--update'], files: { ...SCHEMAS, ...CATALOGUE } },
-	'schema-l10n: no baseline': { script: 'check-schema-l10n.js', files: { ...SCHEMAS, ...CATALOGUE } },
-	'schema-l10n: grew past the baseline': { script: 'check-schema-l10n.js', files: { ...SCHEMAS, ...CATALOGUE, 'l10n/.schema-l10n-baseline.json': json({ uncovered: 5 }) } },
-	'schema-l10n: fell below the baseline': { script: 'check-schema-l10n.js', files: { ...SCHEMAS, ...CATALOGUE, 'l10n/.schema-l10n-baseline.json': json({ uncovered: 12 }) } },
-	'schema-l10n: no catalogue': { script: 'check-schema-l10n.js', files: { ...SCHEMAS, 'l10n/.schema-l10n-baseline.json': json({ uncovered: 13 }) } },
-	'schema-l10n: catalogue without translations': { script: 'check-schema-l10n.js', files: { ...SCHEMAS, 'l10n/en.json': json({}), 'l10n/.schema-l10n-baseline.json': json({ uncovered: 13 }) } },
-	'schema-l10n: no lib/Settings': { script: 'check-schema-l10n.js', files: { 'l10n/.schema-l10n-baseline.json': json({ uncovered: 0 }) } },
+	'schema-l10n: at the baseline': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 10 }),
+		},
+	},
+	'schema-l10n: --list': {
+		script: 'check-schema-l10n.js',
+		args: ['--list'],
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 10 }),
+		},
+	},
+	'schema-l10n: --update': {
+		script: 'check-schema-l10n.js',
+		args: ['--update'],
+		files: { ...SCHEMAS, ...CATALOGUE },
+	},
+	'schema-l10n: --update and --list': {
+		script: 'check-schema-l10n.js',
+		args: ['--list', '--update'],
+		files: { ...SCHEMAS, ...CATALOGUE },
+	},
+	'schema-l10n: no baseline': {
+		script: 'check-schema-l10n.js',
+		files: { ...SCHEMAS, ...CATALOGUE },
+	},
+	'schema-l10n: grew past the baseline': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 5 }),
+		},
+	},
+	'schema-l10n: exactly at the baseline': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 7 }),
+		},
+	},
+	'schema-l10n: one past the baseline': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 6 }),
+		},
+	},
+	'schema-l10n: one below the baseline': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 8 }),
+		},
+	},
+	'schema-l10n: a schema-shaped file that is not .json': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'lib/Settings/register.d/draft.json.bak': json({
+				title: 'Draft only',
+				properties: { note: { title: 'Draft note' } },
+			}),
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 7 }),
+		},
+	},
+	'schema-l10n: fell below the baseline': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			...CATALOGUE,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 12 }),
+		},
+	},
+	'schema-l10n: no catalogue': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 13 }),
+		},
+	},
+	'schema-l10n: catalogue without translations': {
+		script: 'check-schema-l10n.js',
+		files: {
+			...SCHEMAS,
+			'l10n/en.json': json({}),
+			'l10n/.schema-l10n-baseline.json': json({ uncovered: 13 }),
+		},
+	},
+	'schema-l10n: no lib/Settings': {
+		script: 'check-schema-l10n.js',
+		files: { 'l10n/.schema-l10n-baseline.json': json({ uncovered: 0 }) },
+	},
 
 	'l10n-js: writes every catalogue': { script: 'build-l10n-js.js', files: L10N },
-	'l10n-js: --check when current': { script: 'build-l10n-js.js', args: ['--check'], files: { ...L10N, 'l10n/en.js': EN_JS, 'l10n/nl.js': NL_JS } },
-	'l10n-js: --check when stale': { script: 'build-l10n-js.js', args: ['--check'], files: { ...L10N, 'l10n/en.js': 'old\n' } },
-	'l10n-js: rewrites only the stale one': { script: 'build-l10n-js.js', files: { ...L10N, 'l10n/nl.js': NL_JS, 'l10n/en.js': 'old\n' } },
-	'l10n-js: --check with one stale': { script: 'build-l10n-js.js', args: ['--check'], files: { ...L10N, 'l10n/nl.js': NL_JS, 'l10n/en.js': 'old\n' } },
-	'l10n-js: empty translations': { script: 'build-l10n-js.js', files: { 'appinfo/info.xml': '<id>decidiq</id>', 'l10n/de.json': json({ translations: {} }) } },
-	'l10n-js: no catalogue': { script: 'build-l10n-js.js', files: { 'appinfo/info.xml': '<id>decidiq</id>', 'l10n/.schema-l10n-baseline.json': '{}' } },
-	'l10n-js: catalogue does not parse': { script: 'build-l10n-js.js', files: { ...L10N, 'l10n/nl.json': '{ nope' } },
-	'l10n-js: catalogue without translations': { script: 'build-l10n-js.js', files: { ...L10N, 'l10n/nl.json': json({ pluralForm: 'x' }) } },
-	'l10n-js: info.xml without an id': { script: 'build-l10n-js.js', files: { ...L10N, 'appinfo/info.xml': '<info></info>' } },
+	'l10n-js: --check when current': {
+		script: 'build-l10n-js.js',
+		args: ['--check'],
+		files: { ...L10N, 'l10n/en.js': EN_JS, 'l10n/nl.js': NL_JS },
+	},
+	'l10n-js: --check when stale': {
+		script: 'build-l10n-js.js',
+		args: ['--check'],
+		files: { ...L10N, 'l10n/en.js': 'old\n' },
+	},
+	'l10n-js: rewrites only the stale one': {
+		script: 'build-l10n-js.js',
+		files: { ...L10N, 'l10n/nl.js': NL_JS, 'l10n/en.js': 'old\n' },
+	},
+	'l10n-js: --check with one stale': {
+		script: 'build-l10n-js.js',
+		args: ['--check'],
+		files: { ...L10N, 'l10n/nl.js': NL_JS, 'l10n/en.js': 'old\n' },
+	},
+	'l10n-js: empty translations': {
+		script: 'build-l10n-js.js',
+		files: {
+			'appinfo/info.xml': '<id>decidiq</id>',
+			'l10n/de.json': json({ translations: {} }),
+		},
+	},
+	'l10n-js: no catalogue': {
+		script: 'build-l10n-js.js',
+		files: {
+			'appinfo/info.xml': '<id>decidiq</id>',
+			'l10n/.schema-l10n-baseline.json': '{}',
+		},
+	},
+	'l10n-js: catalogue does not parse': {
+		script: 'build-l10n-js.js',
+		files: { ...L10N, 'l10n/nl.json': '{ nope' },
+	},
+	'l10n-js: catalogue without translations': {
+		script: 'build-l10n-js.js',
+		files: { ...L10N, 'l10n/nl.json': json({ pluralForm: 'x' }) },
+	},
+	'l10n-js: info.xml without an id': {
+		script: 'build-l10n-js.js',
+		files: { ...L10N, 'appinfo/info.xml': '<info></info>' },
+	},
 }
 
 describe('l10n build and check scripts', () => {

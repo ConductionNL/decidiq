@@ -675,6 +675,107 @@ baseline written: 7 uncovered schema string(s)
 }
 `;
 
+exports[`l10n build and check scripts > schema-l10n: a schema-shaped file that is not .json 1`] = `
+{
+  "files": {
+    "l10n/.schema-l10n-baseline.json": "{
+  "uncovered": 7
+}",
+    "l10n/en.json": "{
+  "translations": {
+    "Meeting": "Meeting",
+    "Name": "Name",
+    "Tag A": "Tag A"
+  }
+}",
+    "lib/Settings/decidiq_register.json": "{
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "title": "Meeting",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "description": "Full name"
+          },
+          "status": {
+            "title": "Status",
+            "description": "Full name",
+            "x-enum-labels": {
+              "open": "Open",
+              "closed": "Closed"
+            }
+          },
+          "tags": {
+            "items": {
+              "x-enum-labels": {
+                "a": "Tag A",
+                "b": " "
+              }
+            }
+          },
+          "broken": null,
+          "count": 3,
+          "blank": {
+            "title": "",
+            "description": 42
+          }
+        }
+      },
+      "List": [
+        {
+          "properties": {
+            "item": {
+              "title": "Item title"
+            }
+          }
+        },
+        "text"
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/bad.json": "{ broken",
+    "lib/Settings/register.d/draft.json.bak": "{
+  "title": "Draft only",
+  "properties": {
+    "note": {
+      "title": "Draft note"
+    }
+  }
+}",
+    "lib/Settings/register.d/motion.json": "{
+  "title": "Motion",
+  "properties": {
+    "days": {
+      "title": "Days",
+      "description": "Name"
+    }
+  },
+  "nested": {
+    "properties": "not an object",
+    "other": {
+      "properties": []
+    },
+    "listed": {
+      "title": "Array props",
+      "properties": [
+        {
+          "title": "Array item"
+        }
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/notes.txt": "not json",
+  },
+  "status": 0,
+  "stderr": "",
+  "stdout": "10 schema string(s); 7 uncovered, baseline 7
+",
+}
+`;
+
 exports[`l10n build and check scripts > schema-l10n: at the baseline 1`] = `
 {
   "files": {
@@ -855,6 +956,99 @@ exports[`l10n build and check scripts > schema-l10n: catalogue without translati
   "stdout": "10 schema string(s); 10 uncovered, baseline 13
 3 fewer than the baseline — lower it with:
   npm run check:schema-l10n -- --update
+",
+}
+`;
+
+exports[`l10n build and check scripts > schema-l10n: exactly at the baseline 1`] = `
+{
+  "files": {
+    "l10n/.schema-l10n-baseline.json": "{
+  "uncovered": 7
+}",
+    "l10n/en.json": "{
+  "translations": {
+    "Meeting": "Meeting",
+    "Name": "Name",
+    "Tag A": "Tag A"
+  }
+}",
+    "lib/Settings/decidiq_register.json": "{
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "title": "Meeting",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "description": "Full name"
+          },
+          "status": {
+            "title": "Status",
+            "description": "Full name",
+            "x-enum-labels": {
+              "open": "Open",
+              "closed": "Closed"
+            }
+          },
+          "tags": {
+            "items": {
+              "x-enum-labels": {
+                "a": "Tag A",
+                "b": " "
+              }
+            }
+          },
+          "broken": null,
+          "count": 3,
+          "blank": {
+            "title": "",
+            "description": 42
+          }
+        }
+      },
+      "List": [
+        {
+          "properties": {
+            "item": {
+              "title": "Item title"
+            }
+          }
+        },
+        "text"
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/bad.json": "{ broken",
+    "lib/Settings/register.d/motion.json": "{
+  "title": "Motion",
+  "properties": {
+    "days": {
+      "title": "Days",
+      "description": "Name"
+    }
+  },
+  "nested": {
+    "properties": "not an object",
+    "other": {
+      "properties": []
+    },
+    "listed": {
+      "title": "Array props",
+      "properties": [
+        {
+          "title": "Array item"
+        }
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/notes.txt": "not json",
+  },
+  "status": 0,
+  "stderr": "",
+  "stdout": "10 schema string(s); 7 uncovered, baseline 7
 ",
 }
 `;
@@ -1242,6 +1436,201 @@ exports[`l10n build and check scripts > schema-l10n: no lib/Settings 1`] = `
   "status": 0,
   "stderr": "",
   "stdout": "0 schema string(s); 0 uncovered, baseline 0
+",
+}
+`;
+
+exports[`l10n build and check scripts > schema-l10n: one below the baseline 1`] = `
+{
+  "files": {
+    "l10n/.schema-l10n-baseline.json": "{
+  "uncovered": 8
+}",
+    "l10n/en.json": "{
+  "translations": {
+    "Meeting": "Meeting",
+    "Name": "Name",
+    "Tag A": "Tag A"
+  }
+}",
+    "lib/Settings/decidiq_register.json": "{
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "title": "Meeting",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "description": "Full name"
+          },
+          "status": {
+            "title": "Status",
+            "description": "Full name",
+            "x-enum-labels": {
+              "open": "Open",
+              "closed": "Closed"
+            }
+          },
+          "tags": {
+            "items": {
+              "x-enum-labels": {
+                "a": "Tag A",
+                "b": " "
+              }
+            }
+          },
+          "broken": null,
+          "count": 3,
+          "blank": {
+            "title": "",
+            "description": 42
+          }
+        }
+      },
+      "List": [
+        {
+          "properties": {
+            "item": {
+              "title": "Item title"
+            }
+          }
+        },
+        "text"
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/bad.json": "{ broken",
+    "lib/Settings/register.d/motion.json": "{
+  "title": "Motion",
+  "properties": {
+    "days": {
+      "title": "Days",
+      "description": "Name"
+    }
+  },
+  "nested": {
+    "properties": "not an object",
+    "other": {
+      "properties": []
+    },
+    "listed": {
+      "title": "Array props",
+      "properties": [
+        {
+          "title": "Array item"
+        }
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/notes.txt": "not json",
+  },
+  "status": 0,
+  "stderr": "",
+  "stdout": "10 schema string(s); 7 uncovered, baseline 8
+1 fewer than the baseline — lower it with:
+  npm run check:schema-l10n -- --update
+",
+}
+`;
+
+exports[`l10n build and check scripts > schema-l10n: one past the baseline 1`] = `
+{
+  "files": {
+    "l10n/.schema-l10n-baseline.json": "{
+  "uncovered": 6
+}",
+    "l10n/en.json": "{
+  "translations": {
+    "Meeting": "Meeting",
+    "Name": "Name",
+    "Tag A": "Tag A"
+  }
+}",
+    "lib/Settings/decidiq_register.json": "{
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "title": "Meeting",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "description": "Full name"
+          },
+          "status": {
+            "title": "Status",
+            "description": "Full name",
+            "x-enum-labels": {
+              "open": "Open",
+              "closed": "Closed"
+            }
+          },
+          "tags": {
+            "items": {
+              "x-enum-labels": {
+                "a": "Tag A",
+                "b": " "
+              }
+            }
+          },
+          "broken": null,
+          "count": 3,
+          "blank": {
+            "title": "",
+            "description": 42
+          }
+        }
+      },
+      "List": [
+        {
+          "properties": {
+            "item": {
+              "title": "Item title"
+            }
+          }
+        },
+        "text"
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/bad.json": "{ broken",
+    "lib/Settings/register.d/motion.json": "{
+  "title": "Motion",
+  "properties": {
+    "days": {
+      "title": "Days",
+      "description": "Name"
+    }
+  },
+  "nested": {
+    "properties": "not an object",
+    "other": {
+      "properties": []
+    },
+    "listed": {
+      "title": "Array props",
+      "properties": [
+        {
+          "title": "Array item"
+        }
+      ]
+    }
+  }
+}",
+    "lib/Settings/register.d/notes.txt": "not json",
+  },
+  "status": 1,
+  "stderr": "
+1 schema string(s) added with no catalogue key — they will render
+in English inside an otherwise translated form.
+
+Add them to l10n/en.json (identity) and l10n/nl.json (translated), then
+run \`npm run l10n:build\`. See what is uncovered with:
+  node scripts/check-schema-l10n.js --list
+",
+  "stdout": "10 schema string(s); 7 uncovered, baseline 6
 ",
 }
 `;
