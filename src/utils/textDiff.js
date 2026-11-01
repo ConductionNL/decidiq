@@ -77,97 +77,159 @@ export function diffWords(original, proposed) {
 	const b = tokenizeWords(proposed)
 	const segments = []
 
-	if (!a.length && !b.length) return segments
-	if (!a.length) {
+	if (!a.length || !b.length) {
+		pushSegment(segments, 'removed', a)
 		pushSegment(segments, 'added', b)
 		return segments
 	}
-	if (!b.length) {
-		pushSegment(segments, 'removed', a)
-		return segments
-	}
 
-	// Common prefix.
-	let start = 0
-	while (start < a.length && start < b.length && a[start] === b[start]) start++
-
-	// Common suffix (never overlapping the prefix).
-	let endA = a.length
-	let endB = b.length
-	while (endA > start && endB > start && a[endA - 1] === b[endB - 1]) {
-		endA--
-		endB--
-	}
+	const start = prefixLength(a, b)
+	const suffix = suffixLength(a.slice(start), b.slice(start))
+	const endA = a.length - suffix
 
 	pushSegment(segments, 'equal', a.slice(0, start))
-
-	const midA = a.slice(start, endA)
-	const midB = b.slice(start, endB)
-
-	if (midA.length && midB.length && midA.length * midB.length > LCS_CELL_LIMIT) {
-		// Bounded fallback: whole middle replaced.
-		pushSegment(segments, 'removed', midA)
-		pushSegment(segments, 'added', midB)
-	} else if (midA.length || midB.length) {
-		appendLcsDiff(segments, midA, midB)
-	}
-
+	appendMiddle(segments, {
+		a: a.slice(start, endA),
+		b: b.slice(start, b.length - suffix),
+	})
 	pushSegment(segments, 'equal', a.slice(endA))
 	return segments
 }
 
 /**
- * LCS dynamic programming + backtrack over the trimmed middle windows,
- * appending segments to the accumulator.
+ * Number of leading tokens two token lists share.
  *
- * @param {Array<{type: string, text: string}>} segments Accumulator.
- * @param {string[]} a Original middle tokens.
- * @param {string[]} b Proposed middle tokens.
+ * @param {string[]} a Original tokens.
+ * @param {string[]} b Proposed tokens.
+ * @return {number} Shared prefix length.
  * @spec openspec/specs/motion-amendment/spec.md
  */
-function appendLcsDiff(segments, a, b) {
+function prefixLength(a, b) {
+	let length = 0
+	while (length < a.length && length < b.length && a[length] === b[length])
+		length++
+	return length
+}
+
+/**
+ * Number of trailing tokens two token lists share.
+ *
+ * @param {string[]} a Original tokens.
+ * @param {string[]} b Proposed tokens.
+ * @return {number} Shared suffix length.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function suffixLength(a, b) {
+	let length = 0
+	while (
+		length < a.length
+		&& length < b.length
+		&& a[a.length - 1 - length] === b[b.length - 1 - length]
+	)
+		length++
+	return length
+}
+
+/**
+ * Append the diff of the middle windows: LCS-based, or one removal plus
+ * one addition when the LCS table would exceed LCS_CELL_LIMIT cells.
+ *
+ * @param {Array<{type: string, text: string}>} segments Accumulator.
+ * @param {{a: string[], b: string[]}} mid Original and proposed middle tokens.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function appendMiddle(segments, mid) {
+	if (mid.a.length * mid.b.length > LCS_CELL_LIMIT) {
+		pushSegment(segments, 'removed', mid.a)
+		pushSegment(segments, 'added', mid.b)
+		return
+	}
+	appendLcsDiff(segments, mid)
+}
+
+/**
+ * The LCS table of two token lists: dp[i][j] is the LCS length of a[i:]
+ * and b[j:].
+ *
+ * @param {string[]} a Original middle tokens.
+ * @param {string[]} b Proposed middle tokens.
+ * @return {Uint32Array[]} The table, (a.length + 1) rows of b.length + 1.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function lcsTable(a, b) {
 	const m = a.length
 	const n = b.length
-
-	// dp[i][j] = LCS length of a[i:] and b[j:].
 	const dp = new Array(m + 1)
 	for (let i = m; i >= 0; i--) {
 		dp[i] = new Uint32Array(n + 1)
 		if (i === m) continue
 		for (let j = n - 1; j >= 0; j--) {
-			if (a[i] === b[j]) {
-				dp[i][j] = dp[i + 1][j + 1] + 1
-			} else {
-				dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1])
-			}
+			dp[i][j] =
+				a[i] === b[j]
+					? dp[i + 1][j + 1] + 1
+					: Math.max(dp[i + 1][j], dp[i][j + 1])
 		}
 	}
+	return dp
+}
 
-	let i = 0
-	let j = 0
-	const removed = []
-	const added = []
-	const flush = () => {
-		pushSegment(segments, 'removed', removed.splice(0))
-		pushSegment(segments, 'added', added.splice(0))
+/**
+ * LCS backtrack over the trimmed middle windows, appending segments to the
+ * accumulator.
+ *
+ * @param {Array<{type: string, text: string}>} segments Accumulator.
+ * @param {{a: string[], b: string[]}} mid Original and proposed middle tokens.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function appendLcsDiff(segments, mid) {
+	const run = {
+		a: mid.a,
+		b: mid.b,
+		dp: lcsTable(mid.a, mid.b),
+		i: 0,
+		j: 0,
+		removed: [],
+		added: [],
 	}
-	while (i < m && j < n) {
-		if (a[i] === b[j]) {
-			flush()
-			pushSegment(segments, 'equal', [a[i]])
-			i++
-			j++
-		} else if (dp[i + 1][j] >= dp[i][j + 1]) {
-			removed.push(a[i])
-			i++
-		} else {
-			added.push(b[j])
-			j++
-		}
+	while (run.i < run.a.length && run.j < run.b.length) backtrackStep(segments, run)
+	for (const token of run.a.slice(run.i)) run.removed.push(token)
+	for (const token of run.b.slice(run.j)) run.added.push(token)
+	flushChanges(segments, run)
+}
+
+/**
+ * One backtrack step: an equal token, a removal or an addition.
+ *
+ * @param {Array<{type: string, text: string}>} segments Accumulator.
+ * @param {object} run The backtrack state: tokens, table, positions and pending changes.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function backtrackStep(segments, run) {
+	const { a, b, dp, i, j } = run
+	if (a[i] === b[j]) {
+		flushChanges(segments, run)
+		pushSegment(segments, 'equal', [a[i]])
+		run.i++
+		run.j++
+	} else if (dp[i + 1][j] >= dp[i][j + 1]) {
+		run.removed.push(a[i])
+		run.i++
+	} else {
+		run.added.push(b[j])
+		run.j++
 	}
-	while (i < m) removed.push(a[i++])
-	while (j < n) added.push(b[j++])
-	flush()
+}
+
+/**
+ * Emit the pending removals, then the pending additions.
+ *
+ * @param {Array<{type: string, text: string}>} segments Accumulator.
+ * @param {object} run The backtrack state.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function flushChanges(segments, run) {
+	pushSegment(segments, 'removed', run.removed.splice(0))
+	pushSegment(segments, 'added', run.added.splice(0))
 }
 
 /**
@@ -208,14 +270,36 @@ export function suggestVotingOrder(amendments, motionText) {
 			amendment?.proposedText || amendment?.text || '',
 		),
 	}))
-	items.sort((x, y) => {
-		if (x.magnitude !== y.magnitude) return y.magnitude - x.magnitude
-		const subX = String(x.amendment?.submittedAt || '')
-		const subY = String(y.amendment?.submittedAt || '')
-		if (subX !== subY) return subX < subY ? -1 : 1
-		const idX = String(x.amendment?.id || '')
-		const idY = String(y.amendment?.id || '')
-		return idX < idY ? -1 : idX > idY ? 1 : 0
-	})
+	items.sort(
+		(x, y) =>
+			y.magnitude - x.magnitude
+			|| textOrder(orderKey(x, 'submittedAt'), orderKey(y, 'submittedAt'))
+			|| textOrder(orderKey(x, 'id'), orderKey(y, 'id')),
+	)
 	return items.map((item) => item.amendment)
+}
+
+/**
+ * An amendment field as sort text; a missing value sorts as ''.
+ *
+ * @param {{amendment: object}} item A sort item.
+ * @param {string} field The amendment field.
+ * @return {string} The field as text.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function orderKey(item, field) {
+	return String(item.amendment?.[field] || '')
+}
+
+/**
+ * Compare two texts: -1, 0 or 1.
+ *
+ * @param {string} x The first text.
+ * @param {string} y The second text.
+ * @return {number} The order.
+ * @spec openspec/specs/motion-amendment/spec.md
+ */
+function textOrder(x, y) {
+	if (x === y) return 0
+	return x < y ? -1 : 1
 }
