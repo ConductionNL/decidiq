@@ -36,6 +36,7 @@ use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -254,21 +255,21 @@ class McpToolsGoldenTest extends TestCase {
 	 *
 	 * @param string $id The meeting id.
 	 *
-	 * @return ObjectEntity|null The entity.
+	 * @return ObjectEntity The entity; an unknown id throws, as OpenRegister's find() does.
 	 */
-	private function meeting(string $id): ?ObjectEntity {
+	private function meeting(string $id): ObjectEntity {
 		$data = match ($id) {
 			self::SCHEDULED => ['id' => $id, 'title' => 'Raad', 'chair' => 'carla', 'lifecycle' => 'scheduled'],
 			self::OPENED    => ['id' => $id, 'title' => 'Commissie', 'chair' => 'carla', 'lifecycle' => 'opened'],
 			self::STUCK     => ['id' => $id, 'title' => 'Vast', 'chair' => 'carla', 'lifecycle' => 'scheduled'],
 			self::THROWS    => new RuntimeException('register down'),
-			default         => null,
+			default         => new DoesNotExistException('Object not found'),
 		};
 		if ($data instanceof Throwable) {
 			throw $data;
 		}
 
-		return ($data === null ? null : $this->entity(data: $data));
+		return $this->entity(data: $data);
 	}//end meeting()
 
 	/**
