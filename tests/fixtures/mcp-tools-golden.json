@@ -2,133 +2,19 @@
     "anonymous": {
         "items default": {
             "returns": {
-                "success": true,
-                "items": [
-                    {
-                        "id": "ai-1",
-                        "title": "Mine",
-                        "assignee": "mia",
-                        "taskStatus": "open",
-                        "relations": {
-                            "Meeting": [
-                                "11111111-1111-4111-8111-111111111111"
-                            ]
-                        }
-                    },
-                    {
-                        "id": "ai-2",
-                        "name": "Theirs",
-                        "assignee": "sam",
-                        "taskStatus": "open",
-                        "meeting": "22222222-2222-4222-8222-222222222222"
-                    },
-                    {
-                        "id": "ai-3",
-                        "title": "Done",
-                        "assignee": "mia",
-                        "taskStatus": "completed"
-                    }
-                ],
-                "sources": [
-                    {
-                        "type": "decidesk.actionItem",
-                        "uuid": "ai-1",
-                        "url": "/apps/decidiq/action-items/ai-1",
-                        "label": "Mine"
-                    },
-                    {
-                        "type": "decidesk.actionItem",
-                        "uuid": "ai-2",
-                        "url": "/apps/decidiq/action-items/ai-2",
-                        "label": "Theirs"
-                    },
-                    {
-                        "type": "decidesk.actionItem",
-                        "uuid": "ai-3",
-                        "url": "/apps/decidiq/action-items/ai-3",
-                        "label": "Done"
-                    }
-                ]
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
             },
-            "calls": [
-                {
-                    "findAll": {
-                        "config": {
-                            "filters": {
-                                "register": "decidiq",
-                                "schema": "action-item",
-                                "completed": false,
-                                "_limit": 20
-                            }
-                        }
-                    }
-                }
-            ]
+            "calls": []
         },
         "items all": {
             "returns": {
-                "success": true,
-                "items": [
-                    {
-                        "id": "ai-1",
-                        "title": "Mine",
-                        "assignee": "mia",
-                        "taskStatus": "open",
-                        "relations": {
-                            "Meeting": [
-                                "11111111-1111-4111-8111-111111111111"
-                            ]
-                        }
-                    },
-                    {
-                        "id": "ai-2",
-                        "name": "Theirs",
-                        "assignee": "sam",
-                        "taskStatus": "open",
-                        "meeting": "22222222-2222-4222-8222-222222222222"
-                    },
-                    {
-                        "id": "ai-3",
-                        "title": "Done",
-                        "assignee": "mia",
-                        "taskStatus": "completed"
-                    }
-                ],
-                "sources": [
-                    {
-                        "type": "decidesk.actionItem",
-                        "uuid": "ai-1",
-                        "url": "/apps/decidiq/action-items/ai-1",
-                        "label": "Mine"
-                    },
-                    {
-                        "type": "decidesk.actionItem",
-                        "uuid": "ai-2",
-                        "url": "/apps/decidiq/action-items/ai-2",
-                        "label": "Theirs"
-                    },
-                    {
-                        "type": "decidesk.actionItem",
-                        "uuid": "ai-3",
-                        "url": "/apps/decidiq/action-items/ai-3",
-                        "label": "Done"
-                    }
-                ]
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
             },
-            "calls": [
-                {
-                    "findAll": {
-                        "config": {
-                            "filters": {
-                                "register": "decidiq",
-                                "schema": "action-item",
-                                "completed": false,
-                                "_limit": 5
-                            }
-                        }
-                    }
-                }
-            ]
+            "calls": []
         },
         "items bad scope": {
             "returns": {
@@ -148,124 +34,19 @@
         },
         "meetings default": {
             "returns": {
-                "success": true,
-                "meetings": [
-                    {
-                        "id": "11111111-1111-4111-8111-111111111111",
-                        "title": "Raad",
-                        "date": "2030-02-01",
-                        "lifecycle": "scheduled"
-                    },
-                    {
-                        "uuid": "22222222-2222-4222-8222-222222222222",
-                        "title": "Commissie",
-                        "date": "2030-03-01",
-                        "lifecycle": "opened"
-                    },
-                    {
-                        "id": "55555555-5555-4555-8555-555555555555",
-                        "name": "Vastgelopen",
-                        "date": "2029-12-01"
-                    }
-                ],
-                "sources": [
-                    {
-                        "type": "decidesk.meeting",
-                        "uuid": "11111111-1111-4111-8111-111111111111",
-                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
-                        "label": "Raad"
-                    },
-                    {
-                        "type": "decidesk.meeting",
-                        "uuid": "22222222-2222-4222-8222-222222222222",
-                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
-                        "label": "Commissie"
-                    },
-                    {
-                        "type": "decidesk.meeting",
-                        "uuid": "55555555-5555-4555-8555-555555555555",
-                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
-                        "label": "Meeting"
-                    }
-                ]
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
             },
-            "calls": [
-                {
-                    "findAll": {
-                        "config": {
-                            "filters": {
-                                "register": "decidiq",
-                                "schema": "meeting",
-                                "_limit": 10,
-                                "_order": {
-                                    "scheduledDate": "DESC"
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
+            "calls": []
         },
         "meetings closed": {
             "returns": {
-                "success": true,
-                "meetings": [
-                    {
-                        "id": "11111111-1111-4111-8111-111111111111",
-                        "title": "Raad",
-                        "date": "2030-02-01",
-                        "lifecycle": "scheduled"
-                    },
-                    {
-                        "uuid": "22222222-2222-4222-8222-222222222222",
-                        "title": "Commissie",
-                        "date": "2030-03-01",
-                        "lifecycle": "opened"
-                    },
-                    {
-                        "id": "55555555-5555-4555-8555-555555555555",
-                        "name": "Vastgelopen",
-                        "date": "2029-12-01"
-                    }
-                ],
-                "sources": [
-                    {
-                        "type": "decidesk.meeting",
-                        "uuid": "11111111-1111-4111-8111-111111111111",
-                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
-                        "label": "Raad"
-                    },
-                    {
-                        "type": "decidesk.meeting",
-                        "uuid": "22222222-2222-4222-8222-222222222222",
-                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
-                        "label": "Commissie"
-                    },
-                    {
-                        "type": "decidesk.meeting",
-                        "uuid": "55555555-5555-4555-8555-555555555555",
-                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
-                        "label": "Meeting"
-                    }
-                ]
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
             },
-            "calls": [
-                {
-                    "findAll": {
-                        "config": {
-                            "filters": {
-                                "register": "decidiq",
-                                "schema": "meeting",
-                                "_limit": 1,
-                                "_order": {
-                                    "scheduledDate": "DESC"
-                                },
-                                "lifecycle": "closed"
-                            }
-                        }
-                    }
-                }
-            ]
+            "calls": []
         },
         "meetings bad limit": {
             "returns": {
@@ -294,8 +75,8 @@
         "details gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -308,14 +89,24 @@
             ]
         },
         "details throws": {
-            "throws": "RuntimeException",
-            "message": "register down",
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
             "calls": [
                 {
                     "find": {
                         "id": "44444444-4444-4444-8444-444444444444",
                         "register": "decidiq",
                         "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
                     }
                 }
             ]
@@ -387,8 +178,8 @@
         "start gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
             },
             "calls": [
                 {
@@ -451,8 +242,8 @@
         "add gone meeting": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -928,18 +719,31 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "admin"
                 }
             ]
         },
         "details throws": {
-            "throws": "RuntimeException",
-            "message": "register down",
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
             "calls": [
                 {
                     "find": {
                         "id": "44444444-4444-4444-8444-444444444444",
                         "register": "decidiq",
                         "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
                     }
                 }
             ]
@@ -1053,6 +857,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "admin"
                 }
             ]
         },
@@ -1178,6 +985,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "admin"
                 }
             ]
         },
@@ -1678,8 +1488,8 @@
         "details gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -1688,18 +1498,31 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "carla"
                 }
             ]
         },
         "details throws": {
-            "throws": "RuntimeException",
-            "message": "register down",
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
             "calls": [
                 {
                     "find": {
                         "id": "44444444-4444-4444-8444-444444444444",
                         "register": "decidiq",
                         "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
                     }
                 }
             ]
@@ -1803,8 +1626,8 @@
         "start gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
             },
             "calls": [
                 {
@@ -1813,6 +1636,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "carla"
                 }
             ]
         },
@@ -1940,8 +1766,8 @@
         "add gone meeting": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -1950,6 +1776,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "carla"
                 }
             ]
         },
@@ -2450,8 +2279,8 @@
         "details gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -2460,18 +2289,31 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "mia"
                 }
             ]
         },
         "details throws": {
-            "throws": "RuntimeException",
-            "message": "register down",
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
             "calls": [
                 {
                     "find": {
                         "id": "44444444-4444-4444-8444-444444444444",
                         "register": "decidiq",
                         "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
                     }
                 }
             ]
@@ -2552,8 +2394,8 @@
         "start gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
             },
             "calls": [
                 {
@@ -2562,6 +2404,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "mia"
                 }
             ]
         },
@@ -2689,8 +2534,8 @@
         "add gone meeting": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -2699,6 +2544,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "mia"
                 }
             ]
         },
@@ -3062,8 +2910,8 @@
         "details gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -3072,18 +2920,31 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "sam"
                 }
             ]
         },
         "details throws": {
-            "throws": "RuntimeException",
-            "message": "register down",
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
             "calls": [
                 {
                     "find": {
                         "id": "44444444-4444-4444-8444-444444444444",
                         "register": "decidiq",
                         "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
                     }
                 }
             ]
@@ -3164,8 +3025,8 @@
         "start gone": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
             },
             "calls": [
                 {
@@ -3174,6 +3035,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "sam"
                 }
             ]
         },
@@ -3246,8 +3110,8 @@
         "add gone meeting": {
             "returns": {
                 "isError": true,
-                "error": "not_found",
-                "message": "Meeting not found."
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
             },
             "calls": [
                 {
@@ -3256,6 +3120,9 @@
                         "register": "decidiq",
                         "schema": "meeting"
                     }
+                },
+                {
+                    "isAdmin": "sam"
                 }
             ]
         },

@@ -125,6 +125,11 @@ class McpMeetingTools {
 			return $invalid;
 		}
 
+		$signedOut = $this->gate->signedOutError();
+		if ($signedOut !== null) {
+			return $signedOut;
+		}
+
 		try {
 			return $this->collectRecentMeetings(limit: $limit, statusFilter: (string)$statusFilter);
 		} catch (Throwable $e) {
@@ -257,11 +262,7 @@ class McpMeetingTools {
 
 		$rawMeetings = $this->objectService->findAll(['filters' => $filters]);
 
-		$currentUserId = $this->gate->currentUserId();
-		$allowedUuids = null;
-		if ($currentUserId !== '') {
-			$allowedUuids = $this->gate->callerMeetingUuids(userId: $currentUserId);
-		}
+		$allowedUuids = $this->gate->callerMeetingUuids(userId: $this->gate->currentUserId());
 
 		$meetings = [];
 		$sources = [];
