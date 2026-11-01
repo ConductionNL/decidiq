@@ -8,7 +8,11 @@
  * @spec openspec/specs/motion-amendment/spec.md
  */
 import { describe, expect, it } from 'vitest'
-import { changeMagnitude, diffWords } from '../../src/utils/textDiff.js'
+import {
+	changeMagnitude,
+	diffWords,
+	suggestVotingOrder,
+} from '../../src/utils/textDiff.js'
 
 /**
  * A deterministic text of `count` words drawn from a small vocabulary.
@@ -77,4 +81,72 @@ describe('diffWords golden', () => {
 			}).toMatchSnapshot()
 		})
 	}
+})
+
+const MOTION = 'de raad besluit het college te vragen een plan te maken'
+
+const AMENDMENTS = [
+	{
+		id: 'b',
+		proposedText:
+			'de raad besluit het college te vragen een groot plan te maken',
+		submittedAt: '2026-10-02',
+	},
+	{
+		id: 'a',
+		proposedText:
+			'de raad besluit het college te vragen een groot plan te maken',
+		submittedAt: '2026-10-02',
+	},
+	{
+		id: 'c',
+		text: 'de raad besluit het college te vragen een groot plan te maken',
+		submittedAt: '2026-10-01',
+	},
+	{ id: 'd', proposedText: 'iets heel anders', submittedAt: '2026-10-03' },
+	{ id: 'e', proposedText: MOTION },
+	{ proposedText: MOTION },
+	{ id: 'f', text: 'de raad', proposedText: '', submittedAt: '' },
+	null,
+	{
+		id: 'g',
+		proposedText:
+			'de raad besluit het college te vragen een plan te maken en uit te voeren',
+		submittedAt: '2026-09-30',
+	},
+	{
+		id: 'h',
+		proposedText:
+			'de raad besluit het college te vragen een plan te maken en uit te voeren',
+		submittedAt: '2026-09-30',
+	},
+]
+
+describe('suggestVotingOrder golden', () => {
+	it('orders by magnitude, then submission, then id', () => {
+		expect(
+			suggestVotingOrder(AMENDMENTS, MOTION).map(
+				(amendment) => amendment?.id ?? null,
+			),
+		).toMatchSnapshot()
+	})
+	it('reverses to the same order', () => {
+		expect(
+			suggestVotingOrder([...AMENDMENTS].reverse(), MOTION).map(
+				(amendment) => amendment?.id ?? null,
+			),
+		).toMatchSnapshot()
+	})
+	it('treats a missing list and motion as empty', () => {
+		expect(suggestVotingOrder(undefined, undefined)).toMatchSnapshot()
+		expect(
+			suggestVotingOrder(
+				[
+					{ id: 'x', proposedText: 'a' },
+					{ id: 'y', proposedText: 'a b' },
+				],
+				null,
+			).map((a) => a.id),
+		).toMatchSnapshot()
+	})
 })

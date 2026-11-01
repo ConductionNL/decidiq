@@ -2229,3 +2229,42 @@ exports[`diffWords golden > word removed at the start 1`] = `
   ],
 }
 `;
+
+exports[`suggestVotingOrder golden > orders by magnitude, then submission, then id 1`] = `
+[
+  "d",
+  null,
+  "f",
+  "g",
+  "h",
+  "c",
+  "a",
+  "b",
+  null,
+  "e",
+]
+`;
+
+exports[`suggestVotingOrder golden > reverses to the same order 1`] = `
+[
+  "d",
+  null,
+  "f",
+  "g",
+  "h",
+  "c",
+  "a",
+  "b",
+  null,
+  "e",
+]
+`;
+
+exports[`suggestVotingOrder golden > treats a missing list and motion as empty 1`] = `[]`;
+
+exports[`suggestVotingOrder golden > treats a missing list and motion as empty 2`] = `
+[
+  "y",
+  "x",
+]
+`;
