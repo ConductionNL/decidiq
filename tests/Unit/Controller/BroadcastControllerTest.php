@@ -56,6 +56,7 @@ use Psr\Log\LoggerInterface;
  * @uses \OCA\Decidiq\Service\BroadcastWindows
  * @uses \OCA\Decidiq\Service\StreamingClient
  * @uses \OCA\Decidiq\Service\SigningAnswer
+ * @uses \OCA\Decidiq\Service\IntegriqConnection
  * @uses \OCA\Decidiq\Service\TranscriptionStaffGuard
  * @uses \OCA\Decidiq\Exception\BroadcastRefusedException
  * @uses \OCA\Decidiq\Support\FleetAppId
