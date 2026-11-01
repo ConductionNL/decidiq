@@ -139,6 +139,24 @@ class McpSourceFormatter {
 	}//end source()
 
 	/**
+	 * Build the source descriptor of a meeting, labelled by its title.
+	 *
+	 * @param string $meetingUuid The meeting UUID
+	 * @param array<string, mixed> $meeting The meeting data
+	 *
+	 * @return array{type: string, uuid: string, url: string, label: string} The source descriptor.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function meetingSource(string $meetingUuid, array $meeting): array {
+		return $this->source(
+			type: 'decidesk.meeting',
+			uuid: $meetingUuid,
+			label: (string)($meeting['title'] ?? 'Meeting'),
+		);
+	}//end meetingSource()
+
+	/**
 	 * Attach a (possibly capped) sources array to a successful tool payload.
 	 *
 	 * When the source list exceeds SOURCES_CAP the payload additionally carries
