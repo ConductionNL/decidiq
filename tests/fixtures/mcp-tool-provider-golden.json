@@ -158,12 +158,14 @@
                 "class": "OCA\\Decidiq\\Mcp\\McpMeetingGate",
                 "scopeResolver": {
                     "class": "OCA\\Decidiq\\Mcp\\McpMeetingScopeResolver",
+                    "formatter": "OCA\\Decidiq\\Mcp\\McpSourceFormatter",
                     "objectService": "objectService",
                     "groupManager": "groupManager",
                     "logger": "logger"
                 },
                 "userSession": "userSession",
                 "groupManager": "groupManager",
+                "logger": "logger",
                 "participantResolver": "participantResolver",
                 "formatter": {
                     "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
@@ -193,12 +195,14 @@
                 "class": "OCA\\Decidiq\\Mcp\\McpMeetingGate",
                 "scopeResolver": {
                     "class": "OCA\\Decidiq\\Mcp\\McpMeetingScopeResolver",
+                    "formatter": "OCA\\Decidiq\\Mcp\\McpSourceFormatter",
                     "objectService": "objectService",
                     "groupManager": "groupManager",
                     "logger": "logger"
                 },
                 "userSession": "userSession",
                 "groupManager": "groupManager",
+                "logger": "logger",
                 "participantResolver": "participantResolver",
                 "formatter": {
                     "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
