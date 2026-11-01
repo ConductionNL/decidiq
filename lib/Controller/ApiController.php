@@ -415,8 +415,6 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @no-admin-idor-exempt a CORS preflight answers an empty body and reads no object.
-	 *
 	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
@@ -424,7 +422,10 @@ class ApiController extends CorsJsonController {
 	public function preflight(string $resource): JSONResponse {
 		unset($resource);
 
-		return $this->preflightResponse();
+		$response = new JSONResponse([], Http::STATUS_OK);
+		$this->applyCorsHeaders(response: $response);
+
+		return $response;
 	}//end preflight()
 
 	/**
@@ -435,8 +436,6 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @no-admin-idor-exempt a CORS preflight answers an empty body and reads no object.
-	 *
 	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
@@ -444,6 +443,9 @@ class ApiController extends CorsJsonController {
 	public function preflightItem(string $resource, string $id): JSONResponse {
 		unset($resource, $id);
 
-		return $this->preflightResponse();
+		$response = new JSONResponse([], Http::STATUS_OK);
+		$this->applyCorsHeaders(response: $response);
+
+		return $response;
 	}//end preflightItem()
 }//end class
