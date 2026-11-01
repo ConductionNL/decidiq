@@ -2340,8 +2340,8 @@
                 {
                     "warning": "Decidiq: failed to fetch linked Meeting for document generation",
                     "context": {
-                        "meetingId": "m-throws",
-                        "error": "meeting down"
+                        "exception": "meeting down",
+                        "meetingId": "m-throws"
                     }
                 }
             ]

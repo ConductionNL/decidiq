@@ -50,6 +50,7 @@ use Throwable;
  * @covers \OCA\Decidiq\Service\MinutesGenerationService
  * @covers \OCA\Decidiq\Service\MinutesDocumentService
  * @uses   \OCA\Decidiq\Service\MeetingAttendanceReader
+ * @uses   \OCA\Decidiq\Service\MinutesRecordReader
  * @uses   \OCA\Decidiq\Exception\MissingObjectException
  * @uses   \OCA\Decidiq\Exception\MissingRelationException
  */
