@@ -350,11 +350,7 @@ class McpActionItemTools {
 			'actionItem' => $saved,
 			'sources' => [
 				$this->formatter->source(type: 'decidesk.actionItem', uuid: $itemUuid, label: $title),
-				$this->formatter->source(
-					type: 'decidesk.meeting',
-					uuid: $meetingUuid,
-					label: (string)($meeting['title'] ?? 'Meeting'),
-				),
+				$this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting),
 			],
 		];
 

@@ -193,12 +193,9 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function isChairOrAdmin(array $meeting, string $userId): bool {
-		if ($userId === '') {
-			return false;
-		}
-
-		if ($this->isAdmin(userId: $userId) === true) {
-			return true;
+		$verdict = $this->blankOrAdminVerdict(userId: $userId);
+		if ($verdict !== null) {
+			return $verdict;
 		}
 
 		$chairUserId = $meeting['chair'] ?? null;
@@ -227,12 +224,9 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function isParticipantOrAdmin(string $meetingUuid, string $userId): bool {
-		if ($userId === '') {
-			return false;
-		}
-
-		if ($this->isAdmin(userId: $userId) === true) {
-			return true;
+		$verdict = $this->blankOrAdminVerdict(userId: $userId);
+		if ($verdict !== null) {
+			return $verdict;
 		}
 
 		return $this->participantResolver->isParticipant(
@@ -241,6 +235,27 @@ class McpMeetingGate {
 		);
 
 	}//end isParticipantOrAdmin()
+
+	/**
+	 * The verdict that needs no meeting: false for an empty user id, true for a system admin, null otherwise.
+	 *
+	 * @param string $userId The calling user ID
+	 *
+	 * @return bool|null The verdict, or null when the meeting decides.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	private function blankOrAdminVerdict(string $userId): ?bool {
+		if ($userId === '') {
+			return false;
+		}
+
+		if ($this->isAdmin(userId: $userId) === true) {
+			return true;
+		}
+
+		return null;
+	}//end blankOrAdminVerdict()
 
 	/**
 	 * Check whether the user is a Nextcloud system administrator.
