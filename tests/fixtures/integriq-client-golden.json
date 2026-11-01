@@ -142,6 +142,36 @@
                     "returned": true
                 }
             },
+            "two linked": {
+                "calls": [
+                    {
+                        "findAll": {
+                            "config": {
+                                "filters": {
+                                    "register": "integriq",
+                                    "schema": "app_connection",
+                                    "app": "decidiq",
+                                    "key": "streaming"
+                                }
+                            },
+                            "_rbac": false,
+                            "_multitenancy": false
+                        }
+                    },
+                    {
+                        "find": {
+                            "id": "src-first",
+                            "register": "integriq",
+                            "schema": "source",
+                            "_rbac": false,
+                            "_multitenancy": false
+                        }
+                    }
+                ],
+                "result": {
+                    "returned": true
+                }
+            },
             "throws": {
                 "calls": [
                     {
@@ -298,6 +328,36 @@
                     {
                         "find": {
                             "id": "src-object",
+                            "register": "integriq",
+                            "schema": "source",
+                            "_rbac": false,
+                            "_multitenancy": false
+                        }
+                    }
+                ],
+                "result": {
+                    "returned": null
+                }
+            },
+            "two linked": {
+                "calls": [
+                    {
+                        "findAll": {
+                            "config": {
+                                "filters": {
+                                    "register": "integriq",
+                                    "schema": "app_connection",
+                                    "app": "decidiq",
+                                    "key": "streaming"
+                                }
+                            },
+                            "_rbac": false,
+                            "_multitenancy": false
+                        }
+                    },
+                    {
+                        "find": {
+                            "id": "src-first",
                             "register": "integriq",
                             "schema": "source",
                             "_rbac": false,
@@ -871,6 +931,54 @@
                     "previous": null
                 }
             }
+        },
+        "foreignKeyInBody": {
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "integriq",
+                                "schema": "app_connection",
+                                "app": "decidiq",
+                                "key": "streaming"
+                            }
+                        },
+                        "_rbac": false,
+                        "_multitenancy": false
+                    }
+                },
+                {
+                    "find": {
+                        "id": "src-first",
+                        "register": "integriq",
+                        "schema": "source",
+                        "_rbac": false,
+                        "_multitenancy": false
+                    }
+                },
+                {
+                    "call": {
+                        "source": "src-first",
+                        "endpoint": "/streaming/start",
+                        "method": "POST",
+                        "config": {
+                            "body": "{\"connection\":\"case-system\",\"key\":\"case-system\",\"meeting\":\"m1\"}",
+                            "headers": {
+                                "Content-Type": "application/json"
+                            }
+                        }
+                    }
+                }
+            ],
+            "result": {
+                "returned": {
+                    "url": "u1",
+                    "identification": "Z-1",
+                    "title": "T",
+                    "message": "m"
+                }
+            }
         }
     },
     "OCA\\Decidiq\\Service\\CaseSystemClient": {
@@ -1005,6 +1113,36 @@
                     {
                         "find": {
                             "id": "src-object",
+                            "register": "integriq",
+                            "schema": "source",
+                            "_rbac": false,
+                            "_multitenancy": false
+                        }
+                    }
+                ],
+                "result": {
+                    "returned": true
+                }
+            },
+            "two linked": {
+                "calls": [
+                    {
+                        "findAll": {
+                            "config": {
+                                "filters": {
+                                    "register": "integriq",
+                                    "schema": "app_connection",
+                                    "app": "decidiq",
+                                    "key": "case-system"
+                                }
+                            },
+                            "_rbac": false,
+                            "_multitenancy": false
+                        }
+                    },
+                    {
+                        "find": {
+                            "id": "src-first",
                             "register": "integriq",
                             "schema": "source",
                             "_rbac": false,
@@ -1578,6 +1716,54 @@
                     "message": "register down",
                     "status": null,
                     "previous": null
+                }
+            }
+        },
+        "foreignKeyInBody": {
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "integriq",
+                                "schema": "app_connection",
+                                "app": "decidiq",
+                                "key": "case-system"
+                            }
+                        },
+                        "_rbac": false,
+                        "_multitenancy": false
+                    }
+                },
+                {
+                    "find": {
+                        "id": "src-first",
+                        "register": "integriq",
+                        "schema": "source",
+                        "_rbac": false,
+                        "_multitenancy": false
+                    }
+                },
+                {
+                    "call": {
+                        "source": "src-first",
+                        "endpoint": "/case-system/read-case",
+                        "method": "POST",
+                        "config": {
+                            "body": "{\"connection\":\"streaming\",\"key\":\"streaming\",\"meeting\":\"m1\"}",
+                            "headers": {
+                                "Content-Type": "application/json"
+                            }
+                        }
+                    }
+                }
+            ],
+            "result": {
+                "returned": {
+                    "url": "u1",
+                    "identification": "Z-1",
+                    "title": "T",
+                    "message": "m"
                 }
             }
         }

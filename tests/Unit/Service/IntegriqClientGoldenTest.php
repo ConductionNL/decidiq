@@ -91,6 +91,7 @@ class IntegriqClientGoldenTest extends TestCase {
 			'blank then real' => ['results' => [['source' => ''], ['other' => 1], ['source' => 'src-second']]],
 			'entity row'      => ['results' => [$entity]],
 			'object row'      => ['results' => [(object) ['source' => 'src-object']]],
+			'two linked'      => ['results' => [['source' => 'src-first'], ['source' => 'src-last']]],
 			'throws'          => new RuntimeException('register down'),
 		];
 	}//end rowShapes()
@@ -339,6 +340,21 @@ class IntegriqClientGoldenTest extends TestCase {
 				$observed[$class]['unlinked'][$rowName] = $this->outcome(operation: $run);
 			}
 		}
+
+		$rows   = $this->rowShapes()['two linked'];
+		$answer = $this->answerShapes()['ok response'];
+		$foreignBody = static fn (string $key): array => ['connection' => $key, 'key' => $key, 'meeting' => 'm1'];
+
+		$streaming = new StreamingClient(objectService: $this->objects(rows: $rows), container: $this->container(answer: $answer), answers: new SigningAnswer());
+		$observed[StreamingClient::class]['foreignKeyInBody'] = $this->outcome(
+			operation: static fn () => $streaming->call(operation: 'start', body: $foreignBody(CaseSystemClient::CONNECTION_KEY))
+		);
+
+		$case     = new CaseSystemClient(objectService: $this->objects(rows: $rows), container: $this->container(answer: $answer), answers: new SigningAnswer());
+		$caseCall = new \ReflectionMethod($case, 'call');
+		$observed[CaseSystemClient::class]['foreignKeyInBody'] = $this->outcome(
+			operation: static fn () => $caseCall->invoke($case, 'read-case', $foreignBody(StreamingClient::CONNECTION_KEY))
+		);
 
 		return json_decode((string) json_encode($observed), true);
 	}//end observe()
