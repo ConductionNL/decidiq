@@ -53,6 +53,7 @@ use Throwable;
  *
  * @covers \OCA\Decidiq\Service\AgendaService
  * @uses   \OCA\Decidiq\Service\AgendaInvitation
+ * @uses   \OCA\Decidiq\Service\AgendaNotices
  * @uses   \OCA\Decidiq\Exception\NotFoundException
  */
 class AgendaNoticesGoldenTest extends TestCase {
