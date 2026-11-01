@@ -29,8 +29,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -54,7 +52,7 @@ use Throwable;
  * @spec openspec/changes/p4-integration/tasks.md#task-2
  * @spec openspec/changes/p4-integration/tasks.md#task-9
  */
-class ApiController extends Controller {
+class ApiController extends CorsJsonController {
 
 	/**
 	 * Map of public REST resource slug → register schema slug.
@@ -145,11 +143,11 @@ class ApiController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly IConfig $config,
+		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(request: $request, config: $config);
 
 	}//end __construct()
 
@@ -417,6 +415,8 @@ class ApiController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
+	 * @no-admin-idor-exempt a CORS preflight answers an empty body and reads no object.
+	 *
 	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
@@ -424,10 +424,7 @@ class ApiController extends Controller {
 	public function preflight(string $resource): JSONResponse {
 		unset($resource);
 
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end preflight()
 
 	/**
@@ -438,6 +435,8 @@ class ApiController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
+	 * @no-admin-idor-exempt a CORS preflight answers an empty body and reads no object.
+	 *
 	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
@@ -445,50 +444,6 @@ class ApiController extends Controller {
 	public function preflightItem(string $resource, string $id): JSONResponse {
 		unset($resource, $id);
 
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end preflightItem()
-
-	/**
-	 * Build a consistent JSON error envelope (REQ-API-003).
-	 *
-	 * @param string $message The user-facing message
-	 * @param int $status The HTTP status code
-	 *
-	 * @return JSONResponse The decorated error response
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.2
-	 */
-	private function errorResponse(string $message, int $status): JSONResponse {
-		$response = new JSONResponse(['message' => $message, 'code' => $status], $status);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
-	}//end errorResponse()
-
-	/**
-	 * Apply CORS headers using the configured proxy origin when available.
-	 *
-	 * @param JSONResponse $response The response to decorate
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-	 * @spec openspec/changes/p4-integration/tasks.md#task-10.4
-	 */
-	private function applyCorsHeaders(JSONResponse $response): void {
-		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-		$allowedOrigin = '*';
-		if ($origin !== '') {
-			$allowedOrigin = $origin;
-		}
-
-		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-	}//end applyCorsHeaders()
 }//end class

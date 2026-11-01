@@ -55,6 +55,7 @@ use RuntimeException;
  *
  * @covers \OCA\Decidiq\Controller\ApiController
  * @covers \OCA\Decidiq\Controller\OriController
+ * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Controller\HealthController
  * @uses   \OCA\Decidiq\Service\OriSerializer
  */

@@ -27,11 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\OriSerializer;
 use OCA\Decidiq\Service\OriPersonPublicationRule;
 use OCA\Decidiq\Service\OriVotePublicationRule;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -53,7 +51,7 @@ use Throwable;
  *
  * @spec openspec/changes/p4-integration/tasks.md#task-11
  */
-class OriController extends Controller {
+class OriController extends CorsJsonController {
 
 	/**
 	 * Map of ORI resource slug → register schema slug.
@@ -171,14 +169,14 @@ class OriController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IConfig $config,
+		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly OriSerializer $serializer,
 		private readonly OriVotePublicationRule $voteRule,
 		private readonly OriPersonPublicationRule $personRule,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(request: $request, config: $config);
 
 	}//end __construct()
 
@@ -229,14 +227,7 @@ class OriController extends Controller {
 		$type = self::ORI_TYPE_MAP[$resource];
 		$items = $this->serializer->serializeCollection(resource: $resource, type: $type, objects: ($objects ?? []));
 
-		return $this->jsonLdResponse(
-			payload: [
-				'@context' => self::ORI_CONTEXT,
-				'@type' => $type,
-				'count' => count($items),
-				'items' => $items,
-			]
-		);
+		return $this->collectionResponse(type: $type, items: $items);
 
 	}//end index()
 
@@ -498,14 +489,7 @@ class OriController extends Controller {
 			$items[] = $this->serializer->serializeAllowed(type: $type, fields: $row);
 		}
 
-		return $this->jsonLdResponse(
-			payload: [
-				'@context' => self::ORI_CONTEXT,
-				'@type' => $type,
-				'count' => count($items),
-				'items' => $items,
-			]
-		);
+		return $this->collectionResponse(type: $type, items: $items);
 	}//end ruledIndex()
 
 	/**
@@ -584,6 +568,27 @@ class OriController extends Controller {
 	}//end jsonLdResponse()
 
 	/**
+	 * Wrap serialized items in the JSON-LD collection envelope.
+	 *
+	 * @param string $type The ORI @type of the collection
+	 * @param array<int, array<string, mixed>> $items The serialized items
+	 *
+	 * @return JSONResponse The decorated response
+	 *
+	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 */
+	private function collectionResponse(string $type, array $items): JSONResponse {
+		return $this->jsonLdResponse(
+			payload: [
+				'@context' => self::ORI_CONTEXT,
+				'@type' => $type,
+				'count' => count($items),
+				'items' => $items,
+			]
+		);
+	}//end collectionResponse()
+
+	/**
 	 * CORS preflight handler for the list endpoint.
 	 *
 	 * @param string $resource The ORI resource slug
@@ -598,10 +603,7 @@ class OriController extends Controller {
 	public function preflight(string $resource): JSONResponse {
 		unset($resource);
 
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end preflight()
 
 	/**
@@ -624,50 +626,6 @@ class OriController extends Controller {
 	public function preflightItem(string $resource, string $id): JSONResponse {
 		unset($resource, $id);
 
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end preflightItem()
-
-	/**
-	 * Build a consistent JSON error envelope (REQ-API-003).
-	 *
-	 * @param string $message The user-facing message
-	 * @param int $status The HTTP status code
-	 *
-	 * @return JSONResponse The decorated error response
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.2
-	 */
-	private function errorResponse(string $message, int $status): JSONResponse {
-		$response = new JSONResponse(['message' => $message, 'code' => $status], $status);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
-	}//end errorResponse()
-
-	/**
-	 * Apply CORS headers using the configured proxy origin when available.
-	 *
-	 * @param JSONResponse $response The response to decorate
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-	 * @spec openspec/changes/p4-integration/tasks.md#task-10.4
-	 */
-	private function applyCorsHeaders(JSONResponse $response): void {
-		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-		$allowedOrigin = '*';
-		if ($origin !== '') {
-			$allowedOrigin = $origin;
-		}
-
-		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-	}//end applyCorsHeaders()
 }//end class
