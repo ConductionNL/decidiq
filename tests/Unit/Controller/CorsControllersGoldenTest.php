@@ -92,25 +92,36 @@ class CorsControllersGoldenTest extends TestCase {
 	private string $mode = 'ok';
 
 	/**
+	 * The Origin header the request carries in the current case.
+	 *
+	 * @var string
+	 */
+	private string $originHeader = '';
+
+	/**
 	 * Every endpoint answer matches the recording.
 	 *
 	 * @return void
 	 */
 	public function testEveryAnswerMatchesTheRecording(): void {
 		$actual = [];
+		$headers = ['' => '', ' (request Origin: https://evil.example)' => 'https://evil.example'];
 		foreach (['https://raad.example', '', '*'] as $origin) {
-			foreach ($this->cases() as $name => [$mode, $loggedIn, $params, $call]) {
-				$this->log      = [];
-				$this->mode     = $mode;
-				$this->loggedIn = $loggedIn;
-				$this->params   = $params;
-				$response       = $call(...$this->controllers(origin: $origin));
-				$actual[($origin === '' ? '(empty)' : $origin)][$name] = [
-					'status'  => $response->getStatus(),
-					'data'    => $response->getData(),
-					'headers' => $this->controllerHeaders(response: $response),
-					'calls'   => $this->log,
-				];
+			foreach ($headers as $suffix => $header) {
+				foreach ($this->cases() as $name => [$mode, $loggedIn, $params, $call]) {
+					$this->log          = [];
+					$this->mode         = $mode;
+					$this->loggedIn     = $loggedIn;
+					$this->params       = $params;
+					$this->originHeader = $header;
+					$response           = $call(...$this->controllers(origin: $origin));
+					$actual[($origin === '' ? '(empty)' : $origin)][$name . $suffix] = [
+						'status'  => $response->getStatus(),
+						'data'    => $response->getData(),
+						'headers' => $this->controllerHeaders(response: $response),
+						'calls'   => $this->log,
+					];
+				}
 			}
 		}
 
@@ -193,6 +204,7 @@ class CorsControllersGoldenTest extends TestCase {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(fn (string $key, $default = null) => ($this->params[$key] ?? $default));
 		$request->method('getParams')->willReturnCallback(fn () => $this->params);
+		$request->method('getHeader')->willReturnCallback(fn (string $name) => (strcasecmp($name, 'Origin') === 0 ? $this->originHeader : ''));
 
 		$config = $this->createMock(IConfig::class);
 		$config->method('getSystemValueString')->willReturnCallback(
