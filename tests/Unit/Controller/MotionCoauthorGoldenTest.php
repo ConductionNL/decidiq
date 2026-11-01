@@ -91,6 +91,8 @@ class MotionCoauthorGoldenTest extends TestCase {
 			'text'         => [['text' => "One\n\nTwo changed", 'summary' => 'Edit'], fn ($c, $id) => $c->updateText($id)],
 			'text missing' => [['summary' => 'Edit'], fn ($c, $id) => $c->updateText($id)],
 			'history'      => [[], fn ($c, $id) => $c->history($id)],
+			'add forged'   => [['personId' => 'p-new', 'userId' => 'alice', 'callerUid' => 'alice', 'owner' => 'alice', 'author' => 'alice'], fn ($c, $id) => $c->addCoauthor($id)],
+			'text forged'  => [['text' => 'New', 'userId' => 'alice', 'callerUid' => 'alice', 'author' => 'alice'], fn ($c, $id) => $c->updateText($id)],
 		];
 
 		$actual = [];
