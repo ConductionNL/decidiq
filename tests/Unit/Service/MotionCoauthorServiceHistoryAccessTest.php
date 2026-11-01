@@ -141,6 +141,20 @@ class MotionCoauthorServiceHistoryAccessTest extends TestCase {
 	}//end testHistoryIsRefusedToAStranger()
 
 	/**
+	 * A motion that records no owner is not open to a stranger.
+	 *
+	 * @return void
+	 */
+	public function testHistoryOfAnOwnerlessMotionIsRefusedToAStranger(): void {
+		$this->seedMotion(owner: '');
+
+		$this->expectException(InvalidArgumentException::class);
+
+		$this->service->getHistory(motionId: 'motion-1', callerUid: 'buitenstaander');
+
+	}//end testHistoryOfAnOwnerlessMotionIsRefusedToAStranger()
+
+	/**
 	 * The proposer reads their own motion's history.
 	 *
 	 * @return void

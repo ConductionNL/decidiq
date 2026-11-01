@@ -161,6 +161,7 @@ class MotionCoauthorGoldenTest extends TestCase {
 	private function controller(string $user): MotionCoauthorController {
 		$request = $this->createMock(IRequest::class);
 		$request->method('getParam')->willReturnCallback(fn (string $key, $default = null) => ($this->params[$key] ?? $default));
+		$request->method('getParams')->willReturnCallback(fn (): array => $this->params);
 
 		$session = $this->createMock(IUserSession::class);
 		$account = null;
