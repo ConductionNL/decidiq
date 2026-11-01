@@ -93,7 +93,7 @@ export function competenceGaps(competences, held, seatIds = null) {
 			name: competence.name,
 			holders: seats.size,
 			required,
-			gap: seats.size < required,
+			gap: required > seats.size,
 		}
 	})
 }
