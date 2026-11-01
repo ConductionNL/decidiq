@@ -1,0 +1,2231 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`diffWords golden > all different 1`] = `
+{
+  "magnitude": 6,
+  "segments": [
+    {
+      "text": "een twee drie",
+      "type": "removed",
+    },
+    {
+      "text": "vier vijf zes",
+      "type": "added",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > both empty 1`] = `
+{
+  "magnitude": 0,
+  "segments": [],
+}
+`;
+
+exports[`diffWords golden > both null 1`] = `
+{
+  "magnitude": 0,
+  "segments": [],
+}
+`;
+
+exports[`diffWords golden > generated equal limit 1`] = `
+{
+  "magnitude": 398,
+  "segments": [
+    {
+      "text": "start",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "plan",
+      "type": "added",
+    },
+    {
+      "text": "besluit vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een de besluit besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een een",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "een het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt de de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit besluit",
+      "type": "added",
+    },
+    {
+      "text": "een besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit de",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "een vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "het het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit het",
+      "type": "added",
+    },
+    {
+      "text": "een een de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt het het",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "een de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "besluit vraagt besluit",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "het vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt het vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "de besluit de besluit",
+      "type": "added",
+    },
+    {
+      "text": "het het een het de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een een",
+      "type": "equal",
+    },
+    {
+      "text": "een vraagt vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "het besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de vraagt de",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "de vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het besluit besluit besluit de de de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de besluit",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "besluit een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt een",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "besluit de",
+      "type": "equal",
+    },
+    {
+      "text": "de vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "plan een",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "vraagt de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "besluit het",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "de vraagt college",
+      "type": "removed",
+    },
+    {
+      "text": "besluit besluit besluit",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een vraagt het een vraagt vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit de",
+      "type": "equal",
+    },
+    {
+      "text": "een besluit",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "de een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "de besluit een de de besluit een besluit",
+      "type": "added",
+    },
+    {
+      "text": "het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "de het het",
+      "type": "equal",
+    },
+    {
+      "text": "besluit besluit vraagt een besluit",
+      "type": "added",
+    },
+    {
+      "text": "het besluit",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt de vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het het",
+      "type": "added",
+    },
+    {
+      "text": "besluit de de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "een de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het een besluit",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de besluit",
+      "type": "equal",
+    },
+    {
+      "text": "een de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "een vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "besluit een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "een het",
+      "type": "equal",
+    },
+    {
+      "text": "de de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit vraagt het",
+      "type": "added",
+    },
+    {
+      "text": "de een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het om",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het een besluit een het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "een een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "de de",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een een",
+      "type": "equal",
+    },
+    {
+      "text": "een een een",
+      "type": "removed",
+    },
+    {
+      "text": "besluit het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "besluit de",
+      "type": "equal",
+    },
+    {
+      "text": "een een",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "het het besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt het",
+      "type": "added",
+    },
+    {
+      "text": "de een de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "de een",
+      "type": "equal",
+    },
+    {
+      "text": "de het",
+      "type": "added",
+    },
+    {
+      "text": "besluit een de",
+      "type": "equal",
+    },
+    {
+      "text": "de vraagt de",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "besluit een",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "de een",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "de een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit de",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "een vraagt het",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt een",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "het een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt het vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "een een",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt besluit de",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "een het een",
+      "type": "equal",
+    },
+    {
+      "text": "de het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit besluit",
+      "type": "added",
+    },
+    {
+      "text": "het de het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "het het een besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt het vraagt het besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de de",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "een het het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "besluit een",
+      "type": "equal",
+    },
+    {
+      "text": "het het",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "de besluit een",
+      "type": "added",
+    },
+    {
+      "text": "het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "de de besluit vraagt vraagt de",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "het besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt besluit",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "een besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt de de",
+      "type": "added",
+    },
+    {
+      "text": "besluit een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "motie",
+      "type": "added",
+    },
+    {
+      "text": "het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit het",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit vraagt besluit",
+      "type": "added",
+    },
+    {
+      "text": "het de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "het een een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "het het",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "een de college een",
+      "type": "added",
+    },
+    {
+      "text": "vraagt een een de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "het vraagt het",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "een vraagt een een",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "het vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de vraagt vraagt een",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de het het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt het de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het het het een",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het het het het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "het het",
+      "type": "equal",
+    },
+    {
+      "text": "een een besluit een een het besluit een besluit",
+      "type": "added",
+    },
+    {
+      "text": "de besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "het vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een vraagt",
+      "type": "added",
+    },
+    {
+      "text": "de vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt het",
+      "type": "added",
+    },
+    {
+      "text": "besluit besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "added",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "vraagt het de",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "besluit het",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "het het",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt vraagt vraagt een",
+      "type": "equal",
+    },
+    {
+      "text": "een de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een een",
+      "type": "equal",
+    },
+    {
+      "text": "de de de",
+      "type": "removed",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het besluit",
+      "type": "added",
+    },
+    {
+      "text": "vraagt een",
+      "type": "equal",
+    },
+    {
+      "text": "vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "het vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een een de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "besluit besluit vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "added",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "de vraagt vraagt",
+      "type": "added",
+    },
+    {
+      "text": "end",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > generated over limit 1`] = `
+{
+  "magnitude": 1001,
+  "segments": [
+    {
+      "text": "start",
+      "type": "equal",
+    },
+    {
+      "text": "het een het de het het besluit het vraagt besluit vraagt vraagt het vraagt een de vraagt een vraagt een het de besluit een vraagt besluit besluit een een de de een vraagt het een een vraagt besluit de besluit een vraagt besluit de vraagt vraagt de het vraagt de besluit het een vraagt de besluit het het besluit de besluit een de het een besluit vraagt vraagt de vraagt de een vraagt de het de de een het het het het de het besluit vraagt de vraagt vraagt vraagt vraagt vraagt het een een een een een vraagt een het een een een vraagt het besluit vraagt de vraagt de besluit de vraagt vraagt de een de een een het een een een het het besluit het een het een vraagt het de de een een besluit vraagt de vraagt de vraagt de het college het besluit vraagt besluit het de besluit besluit besluit een de besluit besluit het de de de het de een de een vraagt de besluit het een vraagt besluit een de de de een vraagt de raad vraagt besluit vraagt een besluit besluit een een het besluit besluit een het vraagt de het besluit vraagt de een een een besluit de besluit vraagt een een het de de het besluit een een de vraagt besluit het vraagt het de de het de de besluit vraagt een vraagt besluit de besluit vraagt het het een een het vraagt besluit het besluit de vraagt het een een de besluit vraagt het de een vraagt vraagt vraagt besluit vraagt vraagt de vraagt het besluit vraagt het vraagt de een besluit de een de motie de de de vraagt een een de besluit het besluit een besluit vraagt een het besluit het besluit het het de de vraagt vraagt besluit besluit het de het besluit vraagt besluit het het vraagt vraagt vraagt een vraagt de het besluit vraagt besluit besluit de een een vraagt vraagt vraagt het de het vraagt besluit besluit de besluit besluit het het vraagt de het het besluit een besluit een het de een een het een besluit een besluit het vraagt de het de het een een de een het een vraagt de besluit een de vraagt vraagt de vraagt besluit besluit de het besluit besluit de vraagt het het het besluit een besluit het besluit het vraagt vraagt het besluit een een een besluit vraagt besluit de een vraagt vraagt een het een een een besluit het een het de de de het besluit besluit vraagt een het vraagt het de het besluit vraagt een plan vraagt de vraagt de vraagt het een het het de het vraagt besluit het een een het een plan besluit het de de vraagt het de het besluit het besluit het het een het besluit een het besluit de vraagt vraagt de de besluit het de besluit een besluit het een een het vraagt het een besluit het een vraagt de het de de de vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "raad vraagt het de een besluit een de de het de het de een het besluit vraagt een de vraagt een vraagt vraagt een het de de een vraagt de besluit vraagt vraagt de een de besluit het vraagt vraagt een een het besluit een de het het de het het een het besluit het een het het het een een besluit het vraagt besluit een het besluit de vraagt besluit een het een de vraagt vraagt vraagt een het een vraagt vraagt vraagt het het besluit het een besluit besluit het een de de de de het vraagt vraagt het raad het een vraagt vraagt een de het de besluit besluit vraagt het besluit het de een de het een het de een een besluit vraagt vraagt het het een een vraagt de besluit besluit besluit het besluit vraagt besluit het vraagt een de besluit besluit de een vraagt besluit het het besluit het besluit vraagt besluit besluit de de de een het besluit besluit besluit de de het de vraagt besluit een vraagt vraagt een een de besluit een een vraagt de de het vraagt een besluit vraagt het het een een besluit het besluit het besluit de vraagt het het besluit het vraagt besluit de het vraagt het een besluit een de het besluit besluit het vraagt een het besluit een vraagt vraagt de besluit de een het besluit vraagt een vraagt de besluit besluit de besluit besluit de besluit de een een het het de het besluit besluit de het de de vraagt het de vraagt het vraagt vraagt het de het vraagt besluit besluit een de vraagt besluit het vraagt de de een de een vraagt het vraagt een het vraagt de de vraagt een besluit de besluit een vraagt het vraagt vraagt het het een besluit vraagt besluit besluit het de het besluit een besluit een besluit een het een de de het het vraagt het het het besluit het de een een de de besluit een een een het de het de een een het een de vraagt vraagt het de de een een een de besluit het besluit een besluit besluit de om vraagt besluit een een vraagt het een besluit besluit de besluit een besluit de een vraagt besluit het het vraagt het het het een de vraagt een een vraagt het besluit besluit besluit een het een vraagt de vraagt besluit het het een vraagt vraagt vraagt een vraagt de vraagt het de vraagt een besluit het vraagt de een besluit vraagt besluit vraagt vraagt een besluit het het het besluit besluit een het het het vraagt een de besluit het vraagt de het de besluit besluit een het vraagt een het besluit een besluit het vraagt het besluit besluit de vraagt besluit vraagt besluit besluit de een een besluit een de de het besluit besluit besluit de de het vraagt een vraagt een het een vraagt besluit de besluit het vraagt de besluit een het het een besluit een een",
+      "type": "added",
+    },
+    {
+      "text": "end",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > generated small 1`] = `
+{
+  "magnitude": 39,
+  "segments": [
+    {
+      "text": "om besluit",
+      "type": "added",
+    },
+    {
+      "text": "de de",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "besluit besluit",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "besluit besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "het de de",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "het het",
+      "type": "added",
+    },
+    {
+      "text": "vraagt",
+      "type": "equal",
+    },
+    {
+      "text": "een",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt",
+      "type": "added",
+    },
+    {
+      "text": "het",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "removed",
+    },
+    {
+      "text": "besluit",
+      "type": "equal",
+    },
+    {
+      "text": "het",
+      "type": "removed",
+    },
+    {
+      "text": "een",
+      "type": "equal",
+    },
+    {
+      "text": "een het",
+      "type": "removed",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "het vraagt de",
+      "type": "equal",
+    },
+    {
+      "text": "besluit",
+      "type": "removed",
+    },
+    {
+      "text": "vraagt vraagt het",
+      "type": "added",
+    },
+    {
+      "text": "de een",
+      "type": "equal",
+    },
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "een besluit een",
+      "type": "equal",
+    },
+    {
+      "text": "een vraagt vraagt",
+      "type": "removed",
+    },
+    {
+      "text": "besluit het besluit het besluit besluit besluit het besluit het",
+      "type": "added",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > identical 1`] = `
+{
+  "magnitude": 0,
+  "segments": [
+    {
+      "text": "de raad besluit",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > interleaved 1`] = `
+{
+  "magnitude": 6,
+  "segments": [
+    {
+      "text": "a",
+      "type": "equal",
+    },
+    {
+      "text": "b",
+      "type": "removed",
+    },
+    {
+      "text": "x",
+      "type": "added",
+    },
+    {
+      "text": "c",
+      "type": "equal",
+    },
+    {
+      "text": "d",
+      "type": "removed",
+    },
+    {
+      "text": "y",
+      "type": "added",
+    },
+    {
+      "text": "e",
+      "type": "equal",
+    },
+    {
+      "text": "f",
+      "type": "removed",
+    },
+    {
+      "text": "z",
+      "type": "added",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > one word changed 1`] = `
+{
+  "magnitude": 2,
+  "segments": [
+    {
+      "text": "de raad besluit",
+      "type": "equal",
+    },
+    {
+      "text": "vandaag",
+      "type": "removed",
+    },
+    {
+      "text": "morgen",
+      "type": "added",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > original empty 1`] = `
+{
+  "magnitude": 3,
+  "segments": [
+    {
+      "text": "nieuwe tekst hier",
+      "type": "added",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > original is a suffix 1`] = `
+{
+  "magnitude": 1,
+  "segments": [
+    {
+      "text": "de",
+      "type": "added",
+    },
+    {
+      "text": "raad",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > prefix only shared 1`] = `
+{
+  "magnitude": 5,
+  "segments": [
+    {
+      "text": "de raad besluit",
+      "type": "equal",
+    },
+    {
+      "text": "a b c",
+      "type": "removed",
+    },
+    {
+      "text": "x y",
+      "type": "added",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > proposed empty 1`] = `
+{
+  "magnitude": 3,
+  "segments": [
+    {
+      "text": "oude tekst hier",
+      "type": "removed",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > proposed is a prefix 1`] = `
+{
+  "magnitude": 2,
+  "segments": [
+    {
+      "text": "de raad",
+      "type": "equal",
+    },
+    {
+      "text": "besluit vandaag",
+      "type": "removed",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > repeated words 1`] = `
+{
+  "magnitude": 2,
+  "segments": [
+    {
+      "text": "a",
+      "type": "equal",
+    },
+    {
+      "text": "a",
+      "type": "removed",
+    },
+    {
+      "text": "b a",
+      "type": "equal",
+    },
+    {
+      "text": "b",
+      "type": "added",
+    },
+    {
+      "text": "a",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > suffix only shared 1`] = `
+{
+  "magnitude": 5,
+  "segments": [
+    {
+      "text": "a b",
+      "type": "removed",
+    },
+    {
+      "text": "x y z",
+      "type": "added",
+    },
+    {
+      "text": "de raad",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > unicode words 1`] = `
+{
+  "magnitude": 2,
+  "segments": [
+    {
+      "text": "café",
+      "type": "equal",
+    },
+    {
+      "text": "één",
+      "type": "removed",
+    },
+    {
+      "text": "twee",
+      "type": "added",
+    },
+    {
+      "text": "naïef",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > whitespace only differs 1`] = `
+{
+  "magnitude": 0,
+  "segments": [
+    {
+      "text": "de raad besluit",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > word inserted in the middle 1`] = `
+{
+  "magnitude": 1,
+  "segments": [
+    {
+      "text": "de",
+      "type": "equal",
+    },
+    {
+      "text": "gehele",
+      "type": "added",
+    },
+    {
+      "text": "raad besluit",
+      "type": "equal",
+    },
+  ],
+}
+`;
+
+exports[`diffWords golden > word removed at the start 1`] = `
+{
+  "magnitude": 1,
+  "segments": [
+    {
+      "text": "niet",
+      "type": "removed",
+    },
+    {
+      "text": "de raad besluit",
+      "type": "equal",
+    },
+  ],
+}
+`;
