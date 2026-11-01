@@ -229,11 +229,7 @@ class McpMeetingTools {
 			'meetingUuid' => $meetingUuid,
 			'startedAt' => $this->formatter->nowIso(),
 			'sources' => [
-				$this->formatter->source(
-					type: 'decidesk.meeting',
-					uuid: $meetingUuid,
-					label: (string)($meeting['title'] ?? 'Meeting'),
-				),
+				$this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting),
 			],
 		];
 
@@ -279,11 +275,7 @@ class McpMeetingTools {
 			}
 
 			$meetings[] = $meeting;
-			$sources[] = $this->formatter->source(
-				type: 'decidesk.meeting',
-				uuid: $meetingUuid,
-				label: (string)($meeting['title'] ?? 'Meeting'),
-			);
+			$sources[] = $this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting);
 		}//end foreach
 
 		return $this->formatter->withSources(
@@ -333,11 +325,7 @@ class McpMeetingTools {
 
 		$sources = array_merge(
 			[
-				$this->formatter->source(
-					type: 'decidesk.meeting',
-					uuid: $meetingUuid,
-					label: (string)($meeting['title'] ?? 'Meeting'),
-				),
+				$this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting),
 			],
 			$agenda['sources'],
 			$decisions['sources'],

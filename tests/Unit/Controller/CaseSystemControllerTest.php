@@ -44,6 +44,7 @@ use Psr\Container\ContainerInterface;
  *
  * @uses \OCA\Decidiq\Service\CaseSystemClient
  * @uses \OCA\Decidiq\Service\SigningAnswer
+ * @uses \OCA\Decidiq\Service\IntegriqConnection
  * @uses \OCA\Decidiq\Exception\CaseSystemException
  */
 class CaseSystemControllerTest extends TestCase {

@@ -90,25 +90,16 @@ class MotionCoauthorController extends Controller {
 		}
 
 		$callerUid = $user->getUID();
-		$callerIsAdmin = $this->groupManager->isAdmin($callerUid);
-		// Admins bypass ownership check; null callerUid skips the access check in the service.
-		$accessUid = $callerUid;
-		if ($callerIsAdmin === true) {
-			$accessUid = null;
-		}
+		$accessUid = $this->accessUid(callerUid: $callerUid);
 
-		try {
-			$motion = $this->coauthorService->addCoauthor(
+		return $this->serviceAnswer(
+			call: fn (): array => $this->coauthorService->addCoauthor(
 				motionId: $id,
 				personId: $personId,
 				callerUid: $accessUid,
-			);
-			return new JSONResponse($motion);
-		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
-		} catch (\RuntimeException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-		}
+			),
+			runtimeStatus: Http::STATUS_NOT_FOUND,
+		);
 
 	}//end addCoauthor()
 
@@ -133,25 +124,16 @@ class MotionCoauthorController extends Controller {
 		}
 
 		$callerUid = $user->getUID();
-		$callerIsAdmin = $this->groupManager->isAdmin($callerUid);
-		// Admins bypass ownership check; null callerUid skips the access check in the service.
-		$accessUid = $callerUid;
-		if ($callerIsAdmin === true) {
-			$accessUid = null;
-		}
+		$accessUid = $this->accessUid(callerUid: $callerUid);
 
-		try {
-			$motion = $this->coauthorService->removeCoauthor(
+		return $this->serviceAnswer(
+			call: fn (): array => $this->coauthorService->removeCoauthor(
 				motionId: $id,
 				personId: $personId,
 				callerUid: $accessUid,
-			);
-			return new JSONResponse($motion);
-		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
-		} catch (\RuntimeException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
-		}
+			),
+			runtimeStatus: Http::STATUS_NOT_FOUND,
+		);
 
 	}//end removeCoauthor()
 
@@ -187,27 +169,18 @@ class MotionCoauthorController extends Controller {
 		}
 
 		$callerUid = $user->getUID();
-		$callerIsAdmin = $this->groupManager->isAdmin($callerUid);
-		// Admins bypass ownership check; null callerUid skips the access check in the service.
-		$accessUid = $callerUid;
-		if ($callerIsAdmin === true) {
-			$accessUid = null;
-		}
+		$accessUid = $this->accessUid(callerUid: $callerUid);
 
-		try {
-			$motion = $this->coauthorService->updateMotionText(
+		return $this->serviceAnswer(
+			call: fn (): array => $this->coauthorService->updateMotionText(
 				motionId: $id,
 				newText: $text,
 				author: $callerUid,
 				changeSummary: $summary,
 				callerUid: $accessUid,
-			);
-			return new JSONResponse($motion);
-		} catch (\InvalidArgumentException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
-		} catch (\RuntimeException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_CONFLICT);
-		}
+			),
+			runtimeStatus: Http::STATUS_CONFLICT,
+		);
 
 	}//end updateText()
 
@@ -236,24 +209,51 @@ class MotionCoauthorController extends Controller {
 		}
 
 		$callerUid = $user->getUID();
-		$callerIsAdmin = $this->groupManager->isAdmin($callerUid);
-		// Admins bypass ownership check; null callerUid skips the access check in the service.
-		$accessUid = $callerUid;
-		if ($callerIsAdmin === true) {
-			$accessUid = null;
-		}
+		$accessUid = $this->accessUid(callerUid: $callerUid);
 
-		try {
-			$history = $this->coauthorService->getHistory(
+		return $this->serviceAnswer(
+			call: fn (): array => ['history' => $this->coauthorService->getHistory(
 				motionId: $id,
 				callerUid: $accessUid,
-			);
-			return new JSONResponse(['history' => $history]);
+			)],
+			runtimeStatus: Http::STATUS_NOT_FOUND,
+		);
+
+	}//end history()
+	/**
+	 * The uid the service checks motion access for: null for an admin, who bypasses the ownership check.
+	 *
+	 * @param string $callerUid The session user's uid
+	 *
+	 * @return string|null The uid to check, or null to skip the check
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 */
+	private function accessUid(string $callerUid): ?string {
+		if ($this->groupManager->isAdmin($callerUid) === true) {
+			return null;
+		}
+
+		return $callerUid;
+	}//end accessUid()
+
+	/**
+	 * Run a service call and map its refusals: not authorised is 403, a runtime failure the given status.
+	 *
+	 * @param callable(): array<string, mixed> $call The service call
+	 * @param int $runtimeStatus The status for a RuntimeException
+	 *
+	 * @return JSONResponse The answer
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 */
+	private function serviceAnswer(callable $call, int $runtimeStatus): JSONResponse {
+		try {
+			return new JSONResponse($call());
 		} catch (\InvalidArgumentException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
 		} catch (\RuntimeException $e) {
-			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+			return new JSONResponse(['message' => $e->getMessage()], $runtimeStatus);
 		}
-
-	}//end history()
+	}//end serviceAnswer()
 }//end class
