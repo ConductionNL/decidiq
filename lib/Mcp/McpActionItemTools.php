@@ -124,6 +124,11 @@ class McpActionItemTools {
 			return $invalid;
 		}
 
+		$signedOut = $this->gate->signedOutError();
+		if ($signedOut !== null) {
+			return $signedOut;
+		}
+
 		try {
 			return $this->collectOpenActionItems(scope: (string)$scope, limit: $limit);
 		} catch (Throwable $e) {
@@ -207,14 +212,14 @@ class McpActionItemTools {
 			'_limit' => $limit,
 		];
 
-		if ($scope === 'mine' && $currentUserId !== '') {
+		if ($scope === 'mine') {
 			$filters['assignee'] = $currentUserId;
 		}
 
 		$rawItems = $this->objectService->findAll(['filters' => $filters]);
 
 		$allowedUuids = null;
-		if ($scope === 'all' && $currentUserId !== '') {
+		if ($scope === 'all') {
 			$allowedUuids = $this->gate->callerMeetingUuids(userId: $currentUserId);
 		}
 
