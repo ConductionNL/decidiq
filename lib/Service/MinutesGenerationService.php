@@ -23,7 +23,6 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -56,6 +55,13 @@ class MinutesGenerationService {
 	];
 
 	/**
+	 * Loads the minutes and their linked meeting under the caller's ACL.
+	 *
+	 * @var MinutesRecordReader
+	 */
+	private readonly MinutesRecordReader $reader;
+
+	/**
 	 * Constructor for MinutesGenerationService.
 	 *
 	 * @param LoggerInterface $logger The logger
@@ -69,6 +75,7 @@ class MinutesGenerationService {
 		private MinutesDraftRenderer $renderer,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		$this->reader = new MinutesRecordReader(objectService: $objectService, logger: $logger);
 	}//end __construct()
 
 	/**
@@ -90,23 +97,18 @@ class MinutesGenerationService {
 	public function generateDraft(string $minutesId): string {
 		$objectService = $this->getObjectService();
 
-		// Fetch the Minutes object.
-		// setRegister/setSchema are called first so that OpenRegister's session-based
-		// ACL is applied — any caller without read access gets null (same as MeetingService).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
+		// The reader applies OpenRegister's ACL: a caller without read access gets null.
+		$minutes = $this->reader->find(minutesId: $minutesId);
+		if ($minutes === null) {
 			throw new InvalidArgumentException(
 				sprintf('Minutes object with id "%s" not found.', $minutesId)
 			);
 		}
 
-		$minutes = $minutesEntity->getObject();
-
-		// Resolve the linked Meeting.
-		$meeting = $this->resolveMeeting(minutes: $minutes, objectService: $objectService);
+		$meeting = $this->reader->linkedMeeting(
+			minutes: $minutes,
+			failureLog: 'Decidiq: Failed to fetch linked Meeting for minutes draft generation'
+		);
 
 		if ($meeting === null) {
 			throw new MissingRelationException(
@@ -235,19 +237,8 @@ class MinutesGenerationService {
 	public function transition(string $minutesId, string $newLifecycle, string $displayName): array {
 		$objectService = $this->getObjectService();
 
-		// SetRegister/setSchema are called first so that OpenRegister's session-based
-		// ACL is applied — callers without access to this object get null (OWASP A01).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
-			throw new MissingObjectException(
-				message: sprintf('Minutes object "%s" not found.', $minutesId)
-			);
-		}
-
-		$minutes = $minutesEntity->getObject();
+		// Callers without read access to this object get MissingObjectException (OWASP A01).
+		$minutes = $this->reader->require(minutesId: $minutesId);
 
 		$currentLifecycle = $minutes['lifecycle'] ?? 'draft';
 
@@ -339,8 +330,7 @@ class MinutesGenerationService {
 	 * @param string $comment The mandatory rejection comment
 	 * @param string $userId Nextcloud UID of the rejecting user (from server session)
 	 *
-	 * @throws MissingObjectException When the Minutes object is not found
-	 * @throws InvalidArgumentException When the comment is empty or lifecycle is not review
+	 * @throws InvalidArgumentException When the Minutes object is not found (MissingObjectException), the comment is empty or lifecycle is not review
 	 * @throws RuntimeException When OpenRegister is not available
 	 *
 	 * @return array<string,mixed> The updated Minutes object data
@@ -354,18 +344,8 @@ class MinutesGenerationService {
 
 		$objectService = $this->getObjectService();
 
-		// SetRegister/setSchema first so OpenRegister's session-based ACL applies (OWASP A01).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
-			throw new MissingObjectException(
-				message: sprintf('Minutes object "%s" not found.', $minutesId)
-			);
-		}
-
-		$minutes = $minutesEntity->getObject();
+		// Callers without read access to this object get MissingObjectException (OWASP A01).
+		$minutes = $this->reader->require(minutesId: $minutesId);
 
 		if (($minutes['lifecycle'] ?? 'draft') !== 'review') {
 			throw new InvalidArgumentException(
@@ -398,72 +378,6 @@ class MinutesGenerationService {
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end reject()
-
-	/**
-	 * Resolve the linked Meeting from the Minutes object.
-	 *
-	 * @param array<string,mixed> $minutes The Minutes object data
-	 * @param object $objectService The OpenRegister ObjectService instance
-	 *
-	 * @return array<string,mixed>|null The Meeting data array or null if not found
-	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-	 */
-	private function resolveMeeting(array $minutes, object $objectService): ?array {
-		// Meeting may be embedded in relations or stored as a UUID reference.
-		$meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-
-		if ($meetingRelation === null) {
-			return null;
-		}
-
-		// If it's already a fully-hydrated array with an id, return it directly.
-		if (is_array($meetingRelation) === true) {
-			if (isset($meetingRelation['id']) === true && $meetingRelation['id'] !== '') {
-				// Already a hydrated meeting object — return it directly.
-				return $meetingRelation;
-			}
-
-			// Array without a usable id — cannot resolve.
-			return null;
-		}
-
-		// It's a UUID string reference — fetch the meeting.
-		$meetingId = (string)$meetingRelation;
-
-		if ($meetingId === '') {
-			return null;
-		}
-
-		try {
-			// Named arguments: the positional form ($id, null, 'decidesk', 'meeting')
-			// silently bound the register string to ObjectService::find()'s third
-			// parameter ($files) — a latent pre-existing defect fixed here.
-			$meetingEntity = $objectService->find(
-				id: $meetingId,
-				register: 'decidiq',
-				schema: 'meeting'
-			);
-			if ($meetingEntity === null) {
-				return null;
-			}
-
-			return $meetingEntity->getObject();
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: Failed to fetch linked Meeting for minutes draft generation',
-				['exception' => $e->getMessage(), 'meetingId' => $meetingId]
-			);
-			// Re-throw as RuntimeException (503) so the caller distinguishes a transient
-			// OpenRegister outage from a genuinely missing relation (null return above).
-			throw new RuntimeException(
-				'OpenRegister service is temporarily unavailable. Please try again later.',
-				503,
-				$e
-			);
-		}//end try
-
-	}//end resolveMeeting()
 
 	/**
 	 * Fetch ALL objects of a given type linked to a meeting using offset-based pagination.

@@ -42,6 +42,14 @@ use Throwable;
  * @spec openspec/specs/mcp-tools/spec.md
  */
 class McpMeetingScopeResolver {
+
+	/**
+	 * Normalises raw OpenRegister items.
+	 *
+	 * @var McpSourceFormatter
+	 */
+	private readonly McpSourceFormatter $formatter;
+
 	/**
 	 * Constructor for the McpMeetingScopeResolver.
 	 *
@@ -56,6 +64,7 @@ class McpMeetingScopeResolver {
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->formatter = new McpSourceFormatter();
 	}//end __construct()
 
 	/**
@@ -94,7 +103,7 @@ class McpMeetingScopeResolver {
 			// participant -> governance-body -> meeting (ParticipantResolver docblock).
 			$meetingUuids = [];
 			foreach ($participants as $raw) {
-				$bodyId = $this->governanceBodyId(participant: $this->toArray(item: $raw));
+				$bodyId = $this->governanceBodyId(participant: $this->formatter->toArray(item: $raw));
 				if ($bodyId === null) {
 					continue;
 				}
@@ -160,7 +169,7 @@ class McpMeetingScopeResolver {
 
 		$uuids = [];
 		foreach ($meetingEntities as $meetingRaw) {
-			$meeting = $this->toArray(item: $meetingRaw);
+			$meeting = $this->formatter->toArray(item: $meetingRaw);
 			$meetingId = ($meeting['id'] ?? ($meeting['uuid'] ?? null));
 			if ($meetingId !== null) {
 				$uuids[] = (string)$meetingId;
@@ -169,27 +178,4 @@ class McpMeetingScopeResolver {
 
 		return $uuids;
 	}//end meetingUuidsForBody()
-
-	/**
-	 * Normalise an OpenRegister result item to a plain array.
-	 *
-	 * @param mixed $item The raw item returned by findAll()
-	 *
-	 * @return array<string, mixed> The normalised array.
-	 */
-	private function toArray(mixed $item): array {
-		if (is_array(value: $item) === true) {
-			return $item;
-		}
-
-		if (is_object(value: $item) === true && method_exists($item, 'getObject') === true) {
-			return $item->getObject();
-		}
-
-		if (is_object(value: $item) === true && method_exists($item, 'jsonSerialize') === true) {
-			return $item->jsonSerialize();
-		}
-
-		return (array)$item;
-	}//end toArray()
 }//end class

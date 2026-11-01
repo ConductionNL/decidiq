@@ -1,0 +1,2356 @@
+{
+    "gone": {
+        "draft": {
+            "throws": "InvalidArgumentException",
+            "message": "Minutes object with id \"gone\" not found.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "gone"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingObjectException",
+            "message": "Minutes object \"gone\" not found.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "gone"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingObjectException",
+            "message": "Minutes object \"gone\" not found.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "gone"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingObjectException",
+            "message": "Minutes object \"gone\" not found.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "gone"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingObjectException",
+            "message": "Minutes object \"gone\" not found.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "gone"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "find-throws": {
+        "draft": {
+            "throws": "RuntimeException",
+            "message": "register down",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "find-throws"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "RuntimeException",
+            "message": "register down",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "find-throws"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "throws": "RuntimeException",
+            "message": "register down",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "find-throws"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "throws": "RuntimeException",
+            "message": "register down",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "find-throws"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "RuntimeException",
+            "message": "register down",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "find-throws"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "no-meeting": {
+        "draft": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"no-meeting\". Please link a Meeting before generating a draft.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "no-meeting"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "no-meeting"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "no-meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "no-meeting"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "no-meeting"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "no-meeting"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"no-meeting\". A meeting link is required to store the document.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "no-meeting"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "hydrated": {
+        "draft": {
+            "returns": "{\"minutes\":{\"title\":\"Raad\",\"version\":2,\"content\":\"Body\",\"lifecycle\":\"review\",\"relations\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Embedded\"}}},\"meeting\":{\"id\":\"m-1\",\"title\":\"Embedded\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}",
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated"
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "decisionType": "motion",
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "voting-round"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "voting-round",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting-attendance",
+                                "meeting": "m-1"
+                            },
+                            "limit": 1000
+                        }
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "relations": {
+                        "meeting": {
+                            "id": "m-1",
+                            "title": "Embedded"
+                        }
+                    },
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "relations": {
+                                "meeting": {
+                                    "id": "m-1",
+                                    "title": "Embedded"
+                                }
+                            },
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "hydrated"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "relations": {
+                        "meeting": {
+                            "id": "m-1",
+                            "title": "Embedded"
+                        }
+                    },
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "relations": {
+                                "meeting": {
+                                    "id": "m-1",
+                                    "title": "Embedded"
+                                }
+                            },
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "hydrated"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "returns": {
+                "path": "/Meetings/m-1/Minutes/doc.md",
+                "format": "markdown",
+                "docudesk": false
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated"
+                    }
+                },
+                {
+                    "writeMeetingFile": {
+                        "meeting": {
+                            "id": "m-1",
+                            "title": "Embedded"
+                        },
+                        "subfolder": "Minutes",
+                        "fileName": "Raad v2 <date>.md",
+                        "content": "Body"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "review",
+                            "relations": {
+                                "meeting": {
+                                    "id": "m-1",
+                                    "title": "Embedded"
+                                }
+                            },
+                            "generatedDocuments": [
+                                {
+                                    "path": "/Meetings/m-1/Minutes/doc.md",
+                                    "format": "markdown",
+                                    "generatedAt": "<date>",
+                                    "generatedBy": "Jan",
+                                    "docudesk": false
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "hydrated"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "hydrated-noid": {
+        "draft": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"hydrated-noid\". Please link a Meeting before generating a draft.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated-noid"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated-noid"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "meeting": {
+                        "title": "No id"
+                    },
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated-noid"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "meeting": {
+                                "title": "No id"
+                            },
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "hydrated-noid"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "meeting": {
+                        "title": "No id"
+                    },
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated-noid"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "meeting": {
+                                "title": "No id"
+                            },
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "hydrated-noid"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"hydrated-noid\". A meeting link is required to store the document.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "hydrated-noid"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "empty-ref": {
+        "draft": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"empty-ref\". Please link a Meeting before generating a draft.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "empty-ref"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "empty-ref"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "meeting": "",
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "empty-ref"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "meeting": "",
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "empty-ref"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "meeting": "",
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "empty-ref"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "meeting": "",
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "empty-ref"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"empty-ref\". A meeting link is required to store the document.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "empty-ref"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "ref": {
+        "draft": {
+            "returns": "{\"minutes\":{\"title\":\"Raad\",\"version\":2,\"content\":\"Body\",\"lifecycle\":\"review\",\"meeting\":\"m-1\"},\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}",
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-1",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "decisionType": "motion",
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "voting-round"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "voting-round",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting-attendance",
+                                "meeting": "m-1"
+                            },
+                            "limit": 1000
+                        }
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "meeting": "m-1",
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "meeting": "m-1",
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "meeting": "m-1",
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "meeting": "m-1",
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "returns": {
+                "path": "/Meetings/m-1/Minutes/doc.md",
+                "format": "markdown",
+                "docudesk": false
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-1",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "writeMeetingFile": {
+                        "meeting": {
+                            "id": "m-1",
+                            "title": "Fetched"
+                        },
+                        "subfolder": "Minutes",
+                        "fileName": "Raad v2 <date>.md",
+                        "content": "Body"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "review",
+                            "meeting": "m-1",
+                            "generatedDocuments": [
+                                {
+                                    "path": "/Meetings/m-1/Minutes/doc.md",
+                                    "format": "markdown",
+                                    "generatedAt": "<date>",
+                                    "generatedBy": "Jan",
+                                    "docudesk": false
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "ref-draft": {
+        "draft": {
+            "returns": "{\"minutes\":{\"title\":\"Raad\",\"lifecycle\":\"draft\",\"signedBy\":[\"Piet\"],\"meeting\":\"m-1\"},\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}",
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-draft"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-1",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "decisionType": "motion",
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "voting-round"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "voting-round",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting-attendance",
+                                "meeting": "m-1"
+                            },
+                            "limit": 1000
+                        }
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "lifecycle": "review",
+                    "signedBy": [
+                        "Piet"
+                    ],
+                    "meeting": "m-1"
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-draft"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "lifecycle": "review",
+                            "signedBy": [
+                                "Piet"
+                            ],
+                            "meeting": "m-1"
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref-draft"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"draft\" → \"approved\". Expected next state: \"review\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-draft"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "throws": "InvalidArgumentException",
+            "message": "Only minutes in the \"review\" state can be rejected.",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-draft"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "returns": {
+                "path": "/Meetings/m-1/Minutes/doc.md",
+                "format": "markdown",
+                "docudesk": false
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-draft"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-1",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-draft"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-1",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "agenda-item"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "decisionType": "motion",
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "voting-round"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "voting-round",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "decision"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "m-1"
+                            },
+                            "limit": 100,
+                            "offset": 0
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting-attendance",
+                                "meeting": "m-1"
+                            },
+                            "limit": 1000
+                        }
+                    }
+                },
+                {
+                    "writeMeetingFile": {
+                        "meeting": {
+                            "id": "m-1",
+                            "title": "Fetched"
+                        },
+                        "subfolder": "Minutes",
+                        "fileName": "Raad v1 <date>.md",
+                        "content": "{\"minutes\":{\"title\":\"Raad\",\"lifecycle\":\"draft\",\"signedBy\":[\"Piet\"],\"meeting\":\"m-1\"},\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "lifecycle": "draft",
+                            "signedBy": [
+                                "Piet"
+                            ],
+                            "meeting": "m-1",
+                            "generatedDocuments": [
+                                {
+                                    "path": "/Meetings/m-1/Minutes/doc.md",
+                                    "format": "markdown",
+                                    "generatedAt": "<date>",
+                                    "generatedBy": "Jan",
+                                    "docudesk": false
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref-draft"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "ref-none": {
+        "draft": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"ref-none\". Please link a Meeting before generating a draft.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-none"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-none",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-none"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "meeting": "m-none",
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-none"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "meeting": "m-none",
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref-none"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "meeting": "m-none",
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-none"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "meeting": "m-none",
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref-none"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "OCA\\Decidiq\\Exception\\MissingRelationException",
+            "message": "No linked Meeting found for Minutes \"ref-none\". A meeting link is required to store the document.",
+            "code": 0,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-none"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-none",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    },
+    "ref-throws": {
+        "draft": {
+            "throws": "RuntimeException",
+            "message": "OpenRegister service is temporarily unavailable. Please try again later.",
+            "code": 503,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-throws"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-throws",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "warning": "Decidiq: Failed to fetch linked Meeting for minutes draft generation",
+                    "context": {
+                        "exception": "meeting down",
+                        "meetingId": "m-throws"
+                    }
+                }
+            ]
+        },
+        "to review": {
+            "throws": "InvalidArgumentException",
+            "message": "Invalid lifecycle transition: \"review\" → \"review\". Expected next state: \"approved\".",
+            "code": 422,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-throws"
+                    }
+                }
+            ]
+        },
+        "to approved": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "approved",
+                    "meeting": "m-throws",
+                    "approvedAt": "<date>",
+                    "signedBy": [
+                        "Jan"
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-throws"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "approved",
+                            "meeting": "m-throws",
+                            "approvedAt": "<date>",
+                            "signedBy": [
+                                "Jan"
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref-throws"
+                    }
+                }
+            ]
+        },
+        "reject": {
+            "returns": {
+                "saved": {
+                    "title": "Raad",
+                    "version": 2,
+                    "content": "Body",
+                    "lifecycle": "draft",
+                    "meeting": "m-throws",
+                    "reviewComments": [
+                        {
+                            "action": "rejected",
+                            "comment": "Needs work",
+                            "author": "u1",
+                            "createdAt": "<date>"
+                        }
+                    ]
+                }
+            },
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-throws"
+                    }
+                },
+                {
+                    "saveObject": {
+                        "object": {
+                            "title": "Raad",
+                            "version": 2,
+                            "content": "Body",
+                            "lifecycle": "draft",
+                            "meeting": "m-throws",
+                            "reviewComments": [
+                                {
+                                    "action": "rejected",
+                                    "comment": "Needs work",
+                                    "author": "u1",
+                                    "createdAt": "<date>"
+                                }
+                            ]
+                        },
+                        "register": "decidiq",
+                        "schema": "minutes",
+                        "uuid": "ref-throws"
+                    }
+                }
+            ]
+        },
+        "reject blank": {
+            "throws": "InvalidArgumentException",
+            "message": "A rejection comment is required.",
+            "code": 422,
+            "calls": []
+        },
+        "document": {
+            "throws": "RuntimeException",
+            "message": "OpenRegister service is temporarily unavailable. Please try again later.",
+            "code": 503,
+            "calls": [
+                {
+                    "setRegister": {
+                        "register": "decidiq"
+                    }
+                },
+                {
+                    "setSchema": {
+                        "schema": "minutes"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "ref-throws"
+                    }
+                },
+                {
+                    "find": {
+                        "id": "m-throws",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "warning": "Decidiq: failed to fetch linked Meeting for document generation",
+                    "context": {
+                        "exception": "meeting down",
+                        "meetingId": "m-throws"
+                    }
+                }
+            ]
+        },
+        "document format": {
+            "throws": "InvalidArgumentException",
+            "message": "Unsupported format \"docx\". Supported: markdown, pdf.",
+            "code": 422,
+            "calls": []
+        }
+    }
+}

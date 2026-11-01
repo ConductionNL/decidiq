@@ -63,6 +63,7 @@ use RuntimeException;
  * @uses \OCA\Decidiq\Service\MeetingFileService
  * @uses \OCA\Decidiq\Service\CaseSystemExchangeService
  * @uses \OCA\Decidiq\Service\SigningAnswer
+ * @uses \OCA\Decidiq\Service\IntegriqConnection
  * @uses \OCA\Decidiq\Support\FilinqPdf
  * @uses \OCA\Decidiq\Support\FleetAppId
  * @uses \OCA\Decidiq\Exception\CaseSystemException
