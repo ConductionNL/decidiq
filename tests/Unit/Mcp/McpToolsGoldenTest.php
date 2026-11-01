@@ -102,6 +102,10 @@ class McpToolsGoldenTest extends TestCase {
 			}
 		}
 
+		foreach ($actual as $user => $rows) {
+			self::assertSame($rows['details scheduled'], $rows['details forged'], "A forged caller argument changed the answer for {$user}.");
+		}
+
 		$json = json_encode($actual, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n";
 		$json = preg_replace('/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?([+-]\d{2}:\d{2}|Z)/', '<date>', $json);
 		if (getenv('RECORD_MCP_TOOLS_GOLDEN') === '1') {
@@ -126,6 +130,7 @@ class McpToolsGoldenTest extends TestCase {
 			'meetings closed'    => ['decidesk.listRecentMeetings', ['statusFilter' => 'closed', 'limit' => 1]],
 			'meetings bad limit' => ['decidesk.listRecentMeetings', ['limit' => 99]],
 			'details scheduled'  => ['decidesk.getMeetingDetails', ['meetingUuid' => self::SCHEDULED]],
+			'details forged'     => ['decidesk.getMeetingDetails', ['meetingUuid' => self::SCHEDULED, 'userId' => 'admin', 'callerUid' => 'admin', 'owner' => 'admin']],
 			'details gone'       => ['decidesk.getMeetingDetails', ['meetingUuid' => self::GONE]],
 			'details throws'     => ['decidesk.getMeetingDetails', ['meetingUuid' => self::THROWS]],
 			'details bad uuid'   => ['decidesk.getMeetingDetails', ['meetingUuid' => 'not-a-uuid']],
