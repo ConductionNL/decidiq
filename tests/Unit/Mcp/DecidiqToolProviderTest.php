@@ -33,6 +33,7 @@ use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -266,7 +267,8 @@ class DecidiqToolProviderTest extends TestCase {
 	/**
 	 * Configure the INJECTED object-service double.
 	 *
-	 * When $meetingEntity is provided, `find()` returns it (or null for not-found).
+	 * When $meetingEntity is provided, `find()` returns it; otherwise `find()`
+	 * throws DoesNotExistException, as OpenRegister does for an unknown id.
 	 * findAll() returns an empty array by default.
 	 *
 	 * @param ObjectEntity&MockObject|null $meetingEntity Entity to return from find(), or null
@@ -278,7 +280,7 @@ class DecidiqToolProviderTest extends TestCase {
 		if ($meetingEntity !== null) {
 			$this->objectService->method('find')->willReturn($meetingEntity);
 		} else {
-			$this->objectService->method('find')->willReturn(null);
+			$this->objectService->method('find')->willThrowException(new DoesNotExistException('Object not found'));
 		}
 
 		if ($findAllCallback !== null) {
@@ -875,7 +877,7 @@ class DecidiqToolProviderTest extends TestCase {
 	// =========================================================================
 
 	/**
-	 * getMeetingDetails returns not_found to an admin when ObjectService::find returns null.
+	 * getMeetingDetails returns not_found to an admin when ObjectService::find throws DoesNotExistException.
 	 *
 	 * @return void
 	 *
@@ -896,7 +898,7 @@ class DecidiqToolProviderTest extends TestCase {
 	}//end testNotFound_getMeetingDetails_returnsNotFoundEnvelope()
 
 	/**
-	 * startMeeting returns not_found to an admin when ObjectService::find returns null.
+	 * startMeeting returns not_found to an admin when ObjectService::find throws DoesNotExistException.
 	 *
 	 * @return void
 	 *
@@ -917,7 +919,7 @@ class DecidiqToolProviderTest extends TestCase {
 	}//end testNotFound_startMeeting_returnsNotFoundEnvelope()
 
 	/**
-	 * addActionItem returns not_found to an admin when ObjectService::find returns null.
+	 * addActionItem returns not_found to an admin when ObjectService::find throws DoesNotExistException.
 	 *
 	 * @return void
 	 *
@@ -1004,7 +1006,7 @@ class DecidiqToolProviderTest extends TestCase {
 	 */
 	public function testNullUuidIsValidSyntax(): void {
 		$this->setAdminUser('admin');
-		// ObjectService returns null → not_found (not invalid_arguments).
+		// ObjectService throws DoesNotExistException → not_found (not invalid_arguments).
 		$this->mockObjectService(meetingEntity: null);
 
 		$result = $this->provider->invokeTool(
@@ -1163,10 +1165,11 @@ class DecidiqToolProviderTest extends TestCase {
 		$this->setCurrentUser('carol');
 		$hidden = $this->makeObjectEntityMock($this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']));
 		$this->objectService->method('find')->willReturnCallback(
-			fn (string $id) => ($id === $this->meetingUuid ? $hidden : null)
+			fn (string $id) => ($id === $this->meetingUuid ? $hidden : throw new DoesNotExistException('Object not found'))
 		);
 		$this->objectService->expects(self::never())->method('findAll');
 		$this->meetingService->expects(self::never())->method('transition');
+		$this->logger->expects(self::never())->method('error');
 
 		$hiddenResult = $this->provider->invokeTool($tool, ['meetingUuid' => $this->meetingUuid] + $args);
 		$unknownResult = $this->provider->invokeTool($tool, ['meetingUuid' => $this->nullUuid] + $args);

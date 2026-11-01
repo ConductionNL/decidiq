@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Mcp;
 
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
@@ -159,6 +160,9 @@ class McpMeetingGate {
 		$uuid = (string)$meetingUuid;
 		try {
 			$meeting = $this->loadMeeting(meetingUuid: $uuid);
+		} catch (DoesNotExistException) {
+			// OpenRegister's find() throws for an unknown id instead of returning null.
+			$meeting = null;
 		} catch (Throwable $e) {
 			$this->logger->error(
 				'Decidiq MCP: meeting lookup failed',
