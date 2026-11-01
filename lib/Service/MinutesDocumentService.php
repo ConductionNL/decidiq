@@ -68,6 +68,13 @@ class MinutesDocumentService {
 	];
 
 	/**
+	 * Loads the minutes and their linked meeting under the caller's ACL.
+	 *
+	 * @var MinutesRecordReader
+	 */
+	private readonly MinutesRecordReader $reader;
+
+	/**
 	 * Constructor for MinutesDocumentService.
 	 *
 	 * @param FilinqPdf $filinqPdf Renders a PDF through filinq when it is installed
@@ -83,6 +90,7 @@ class MinutesDocumentService {
 		private readonly MeetingFolderService $folderService,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		$this->reader = new MinutesRecordReader(objectService: $objectService, logger: $logger);
 	}//end __construct()
 
 	/**
@@ -120,19 +128,12 @@ class MinutesDocumentService {
 
 		$objectService = $this->getObjectService();
 
-		// ACL applies via session-scoped register/schema context (OWASP A01).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
-			throw new MissingObjectException(
-				message: sprintf('Minutes object "%s" not found.', $minutesId)
-			);
-		}
-
-		$minutes = $minutesEntity->getObject();
-		$meeting = $this->resolveMeeting(minutes: $minutes, objectService: $objectService);
+		// The reader applies OpenRegister's ACL via the register/schema context (OWASP A01).
+		$minutes = $this->reader->require(minutesId: $minutesId);
+		$meeting = $this->reader->linkedMeeting(
+			minutes: $minutes,
+			failureLog: 'Decidiq: failed to fetch linked Meeting for document generation'
+		);
 
 		if ($meeting === null) {
 			throw new MissingRelationException(
@@ -470,52 +471,6 @@ class MinutesDocumentService {
 		}
 
 	}//end appendGeneratedDocument()
-
-	/**
-	 * Resolve the linked Meeting payload from the Minutes object.
-	 *
-	 * @param array<string,mixed> $minutes The Minutes object data
-	 * @param object $objectService OpenRegister ObjectService
-	 *
-	 * @return array<string,mixed>|null The Meeting data array or null
-	 */
-	private function resolveMeeting(array $minutes, object $objectService): ?array {
-		// A null relation casts to '' further down and is rejected there.
-		$meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-
-		if (is_array($meetingRelation) === true) {
-			if (isset($meetingRelation['id']) === true && $meetingRelation['id'] !== '') {
-				return $meetingRelation;
-			}
-
-			return null;
-		}
-
-		$meetingId = (string)$meetingRelation;
-		if ($meetingId === '') {
-			return null;
-		}
-
-		try {
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-			if ($meetingEntity === null) {
-				return null;
-			}
-
-			return $meetingEntity->getObject();
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: failed to fetch linked Meeting for document generation',
-				['meetingId' => $meetingId, 'error' => $e->getMessage()]
-			);
-			throw new RuntimeException(
-				'OpenRegister service is temporarily unavailable. Please try again later.',
-				503,
-				$e
-			);
-		}//end try
-
-	}//end resolveMeeting()
 
 	/**
 	 * The OpenRegister ObjectService, injected since ADR-083.
