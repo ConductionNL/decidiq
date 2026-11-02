@@ -124,6 +124,27 @@ exports[`check-nav-ceiling main golden > no manifest 1`] = `
 }
 `;
 
+exports[`check-nav-ceiling main golden > relocations as text, removals defaulted 1`] = `
+{
+  "status": 1,
+  "stderr": "nav-ceiling gate FAILED — 2 violation(s) over 1 fragment(s), 1 fragment top-level menu entr(y/ies), 8 primary / 0 footer / 0 settings top-level entries in the merged menu:
+✗ [R1 nav-ceiling] primary top-level nav has 8 entries (ceiling: 6) — ADR-004 requires an ADR amendment before a 7th top-level item. Entries: a, b, c, d, e, f, h, 0
+✗ [R2 fragment-placement] src/manifest.d/zero.json declares top-level menu entry "0" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > settings section defaulted 1`] = `
+{
+  "status": 1,
+  "stderr": "nav-ceiling gate FAILED — 1 violation(s) over 1 fragment(s), 1 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 0 settings top-level entries in the merged menu:
+✗ [R2 fragment-placement] src/manifest.d/x.json declares top-level menu entry "a" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.
+",
+  "stdout": "",
+}
+`;
+
 exports[`check-nav-ceiling main golden > seven entries 1`] = `
 {
   "status": 1,

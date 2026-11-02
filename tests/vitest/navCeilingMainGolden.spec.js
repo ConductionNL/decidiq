@@ -99,6 +99,16 @@ const CASES = {
 		'src/manifest.d/x.json': { menu: [entry('g')] },
 		'src/menu-layout.json': { settingsSection: ['g'], removals: null },
 	},
+	'relocations as text, removals defaulted': {
+		'src/manifest.json': { menu: [...six, entry('h')] },
+		'src/manifest.d/zero.json': { menu: [entry('0')] },
+		'src/menu-layout.json': { relocations: 'ab', removals: 'h' },
+	},
+	'settings section defaulted': {
+		'src/manifest.json': { menu: six },
+		'src/manifest.d/x.json': { menu: [entry('a')] },
+		'src/menu-layout.json': { settingsSection: 'a' },
+	},
 	'empty menu-layout object': {
 		'src/manifest.json': { menu: six },
 		'src/menu-layout.json': {},
