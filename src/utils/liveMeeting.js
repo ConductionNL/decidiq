@@ -135,36 +135,78 @@ export function engagementBody(
  * Who spoke and who raised a question on one agenda item, read from the
  * meeting's engagement records (GET /api/engagement?meeting=).
  *
- * @param {Array<object>} records      Engagement records, one per participant.
- * @param {?string}       itemId       The agenda item.
- * @param {Array<object>} participants Participants, for their names.
+ * @param {?string} itemId The agenda item.
+ * @param {object} [sources] What was read.
+ * @param {Array<object>} [sources.records] Engagement records, one per participant.
+ * @param {Array<object>} [sources.participants] Participants, for their names.
  *
  * @return {Array<{participantId: string, name: string, kind: 'speech'|'question', duration: number}>} The contributions, speeches first per participant.
  *
  * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
  */
-export function contributionsOn(records, itemId, participants = []) {
+export function contributionsOn(itemId, sources = {}) {
 	if (!itemId) return []
-	const names = new Map(
-		(participants ?? []).map((p) => [p.id, p.displayName || p.name || p.id]),
-	)
+	const on = { itemId, names: participantNames(sources.participants) }
 	const result = []
-	for (const record of records ?? []) {
-		const participantId = record?.participant
-		const name = names.get(participantId) ?? participantId
-		for (const speech of record?.speeches ?? []) {
-			if (speech?.agendaItem !== itemId) continue
-			result.push({
-				participantId,
-				name,
-				kind: 'speech',
-				duration: Number(speech.duration) || 0,
-			})
-		}
-		for (const question of record?.questionsRaised ?? []) {
-			if (question?.agendaItem !== itemId) continue
-			result.push({ participantId, name, kind: 'question', duration: 0 })
-		}
+	for (const record of sources.records ?? []) {
+		result.push(...recordContributions(record, on))
 	}
 	return result
+}
+
+/**
+ * Participant id to the name shown: the display name, else the name, else
+ * the id.
+ *
+ * @param {?Array<object>} participants The participants.
+ *
+ * @return {Map<string, string>} The names.
+ *
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+ */
+function participantNames(participants) {
+	return new Map(
+		(participants ?? []).map((p) => [p.id, p.displayName || p.name || p.id]),
+	)
+}
+
+/**
+ * The speeches and then the questions of one record on one item.
+ *
+ * @param {?object} record The engagement record.
+ * @param {{itemId: string, names: Map<string, string>}} on The item and the participant names.
+ *
+ * @return {Array<object>} The record's contributions.
+ *
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+ */
+function recordContributions(record, on) {
+	const participantId = record?.participant
+	const who = { participantId, name: on.names.get(participantId) ?? participantId }
+	return [
+		...entriesOn(record?.speeches, on.itemId).map((speech) => ({
+			...who,
+			kind: 'speech',
+			duration: Number(speech.duration) || 0,
+		})),
+		...entriesOn(record?.questionsRaised, on.itemId).map(() => ({
+			...who,
+			kind: 'question',
+			duration: 0,
+		})),
+	]
+}
+
+/**
+ * The entries of a list made on one agenda item.
+ *
+ * @param {?Array<object>} entries Speeches or questions.
+ * @param {string} itemId The agenda item.
+ *
+ * @return {Array<object>} The entries on the item.
+ *
+ * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+ */
+function entriesOn(entries, itemId) {
+	return Array.from(entries ?? []).filter((entry) => entry?.agendaItem === itemId)
 }
