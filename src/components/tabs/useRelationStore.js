@@ -187,6 +187,14 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
 }
 
 /**
+ * Membership properties copied into a payload only when they are set, in
+ * payload order.
+ *
+ * @type {string[]}
+ */
+const OPTIONAL_MEMBERSHIP_FIELDS = ['party', 'startDate', 'faction', 'onBehalfOf']
+
+/**
  * Build a Membership creation/update payload, omitting empty optional
  * properties.
  *
@@ -208,25 +216,15 @@ export function buildMembershipPayload({
 	personId,
 	governanceBodyId,
 	role,
-	party = '',
-	votingWeight = null,
-	id = '',
-	startDate = '',
-	faction = '',
-	onBehalfOf = '',
+	votingWeight,
+	id,
+	...optional
 }) {
 	const payload = { person: personId, governanceBody: governanceBodyId, role }
-	if (party) {
-		payload.party = party
-	}
-	if (startDate) {
-		payload.startDate = startDate
-	}
-	if (faction) {
-		payload.faction = faction
-	}
-	if (onBehalfOf) {
-		payload.onBehalfOf = onBehalfOf
+	for (const key of OPTIONAL_MEMBERSHIP_FIELDS) {
+		if (optional[key]) {
+			payload[key] = optional[key]
+		}
 	}
 	if (votingWeight !== null && votingWeight !== undefined) {
 		payload.votingWeight = votingWeight
