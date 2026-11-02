@@ -143,7 +143,10 @@ describe('setTypeFieldValue', () => {
 
 	it('writes under the field key without touching the other values', () => {
 		const before = { question: 'Hoeveel?', legacy: 'kept' }
-		const after = setTypeFieldValue(before, inputs.answer, 'Veertig.')
+		const after = setTypeFieldValue(before, {
+			input: inputs.answer,
+			raw: 'Veertig.',
+		})
 		expect(after).toEqual({
 			question: 'Hoeveel?',
 			legacy: 'kept',
@@ -153,28 +156,47 @@ describe('setTypeFieldValue', () => {
 	})
 
 	it('stores a number field as a number', () => {
-		expect(setTypeFieldValue({}, inputs.pages, '12')).toEqual({ pages: 12 })
+		expect(setTypeFieldValue({}, { input: inputs.pages, raw: '12' })).toEqual({
+			pages: 12,
+		})
 	})
 
 	it('stores a yes/no field as a boolean', () => {
-		expect(setTypeFieldValue({}, inputs.public, true)).toEqual({ public: true })
-		expect(setTypeFieldValue({ public: true }, inputs.public, false)).toEqual({
+		expect(setTypeFieldValue({}, { input: inputs.public, raw: true })).toEqual({
+			public: true,
+		})
+		expect(
+			setTypeFieldValue(
+				{ public: true },
+				{ input: inputs.public, raw: false },
+			),
+		).toEqual({
 			public: false,
 		})
 	})
 
 	it('removes the value when the input is emptied', () => {
 		expect(
-			setTypeFieldValue({ answer: 'x', pages: 3 }, inputs.answer, ''),
+			setTypeFieldValue(
+				{ answer: 'x', pages: 3 },
+				{ input: inputs.answer, raw: '' },
+			),
 		).toEqual({ pages: 3 })
-		expect(setTypeFieldValue({ pages: 3 }, inputs.pages, '')).toEqual({})
 		expect(
-			setTypeFieldValue({ lifecycle: 'answered' }, inputs.lifecycle, null),
+			setTypeFieldValue({ pages: 3 }, { input: inputs.pages, raw: '' }),
+		).toEqual({})
+		expect(
+			setTypeFieldValue(
+				{ lifecycle: 'answered' },
+				{ input: inputs.lifecycle, raw: null },
+			),
 		).toEqual({})
 	})
 
 	it('starts from an empty object when there are no values yet', () => {
-		expect(setTypeFieldValue(null, inputs.answeredOn, '2026-09-27')).toEqual({
+		expect(
+			setTypeFieldValue(null, { input: inputs.answeredOn, raw: '2026-09-27' }),
+		).toEqual({
 			answeredOn: '2026-09-27',
 		})
 	})
