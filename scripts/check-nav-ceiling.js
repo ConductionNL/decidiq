@@ -142,47 +142,92 @@ function mergeMenuItems(target, incoming) {
 function applyMenuRelocations(menu, relocations) {
 	if (!relocations || typeof relocations !== 'object') return menu
 	for (let pass = 0; pass < 5; pass++) {
-		const moves = []
-		for (let i = menu.length - 1; i >= 0; i--) {
-			const node = menu[i]
-			const target = relocations[node.id]
-			if (target && target !== node.id) {
-				menu.splice(i, 1)
-				moves.push({ node, target })
-				continue
-			}
-			if (!Array.isArray(node.children)) continue
-			for (let j = node.children.length - 1; j >= 0; j--) {
-				const child = node.children[j]
-				const childTarget = relocations[child.id]
-				if (!childTarget) continue
-				if (childTarget === node.id && !Array.isArray(child.children))
-					continue
-				node.children.splice(j, 1)
-				moves.push({ node: child, target: childTarget })
-			}
-		}
+		const moves = detachMoves(menu, relocations)
 		if (moves.length === 0) break
-		moves.forEach(({ node, target }) => {
-			const group = menu.find((m) => m.id === target)
-			if (!group) {
-				menu.push(node)
-				return
-			}
-			if (!Array.isArray(group.children)) group.children = []
-			if (Array.isArray(node.children)) {
-				mergeMenuItems(group.children, node.children)
-			} else {
-				mergeMenuItems(group.children, [node])
-			}
-		})
+		moves.forEach((move) => placeMove(menu, move))
 	}
-	return menu.filter(
-		(m) =>
-			m.route
-			|| m.href
-			|| m.action
-			|| (Array.isArray(m.children) && m.children.length > 0),
+	return menu.filter(isRenderable)
+}
+
+/**
+ * Detach every relocated top-level entry and child from the menu, last
+ * first, and return the moves in that order.
+ *
+ * @param {Array<object>} menu The merged menu (mutated in place).
+ * @param {Record<string, string>} relocations Source-id → target-group-id map.
+ * @return {Array<{node: object, target: string}>} The detached entries and their targets.
+ */
+function detachMoves(menu, relocations) {
+	const moves = []
+	for (let i = menu.length - 1; i >= 0; i--) {
+		const node = menu[i]
+		const target = relocations[node.id]
+		if (target && target !== node.id) {
+			menu.splice(i, 1)
+			moves.push({ node, target })
+			continue
+		}
+		moves.push(...detachChildMoves(node, relocations))
+	}
+	return moves
+}
+
+/**
+ * Detach a top-level entry's relocated children, last first. A leaf child
+ * relocated onto its own parent stays where it is.
+ *
+ * @param {object} node The top-level entry (mutated in place).
+ * @param {Record<string, string>} relocations Source-id → target-group-id map.
+ * @return {Array<{node: object, target: string}>} The detached children and their targets.
+ */
+function detachChildMoves(node, relocations) {
+	if (!Array.isArray(node.children)) return []
+	const moves = []
+	for (let j = node.children.length - 1; j >= 0; j--) {
+		const child = node.children[j]
+		const target = relocations[child.id]
+		if (!target || (target === node.id && !Array.isArray(child.children)))
+			continue
+		node.children.splice(j, 1)
+		moves.push({ node: child, target })
+	}
+	return moves
+}
+
+/**
+ * Place one detached entry: into its target group (a group's children are
+ * merged in, a leaf is merged as itself), or back at the end of the menu
+ * when no such group exists.
+ *
+ * @param {Array<object>} menu The merged menu (mutated in place).
+ * @param {{node: object, target: string}} move The entry and its target group id.
+ * @return {void}
+ */
+function placeMove(menu, { node, target }) {
+	const group = menu.find((m) => m.id === target)
+	if (!group) {
+		menu.push(node)
+		return
+	}
+	if (!Array.isArray(group.children)) group.children = []
+	mergeMenuItems(
+		group.children,
+		Array.isArray(node.children) ? node.children : [node],
+	)
+}
+
+/**
+ * Whether a menu entry renders: it has a click target or children.
+ *
+ * @param {object} m The menu entry.
+ * @return {boolean} True when it renders.
+ */
+function isRenderable(m) {
+	return Boolean(
+		m.route
+		|| m.href
+		|| m.action
+		|| (Array.isArray(m.children) && m.children.length > 0),
 	)
 }
 
@@ -322,34 +367,65 @@ function evaluateCeiling(effectiveMenu, ceiling = CEILING) {
  * @return {{failures: string[], checked: number}}
  */
 function evaluateFragmentPlacement(fragments, menuLayout = {}) {
-	const relocated = new Set(Object.keys(menuLayout.relocations || {}))
-	const removed = new Set(menuLayout.removals || [])
-	const settingsIds = new Set(menuLayout.settingsSection || [])
+	const placements = placementSets(menuLayout)
 	const failures = []
 	let checked = 0
 	for (const frag of fragments) {
 		const label = frag && frag.file ? frag.file : '(fragment)'
-		for (const item of frag && Array.isArray(frag.menu) ? frag.menu : []) {
-			checked++
-			const selfScoped =
-				item.section === 'footer' || item.section === 'settings'
-			const placed =
-				selfScoped
-				|| relocated.has(item.id)
-				|| removed.has(item.id)
-				|| settingsIds.has(item.id)
-			if (!placed) {
-				failures.push(
-					`✗ [R2 fragment-placement] ${label} declares top-level menu entry `
-						+ `"${item.id}" with no placement in menu-layout.json (no relocation, `
-						+ `removal, or settingsSection entry) and no self-declared `
-						+ `section: "footer"/"settings" — it will surface as a new primary `
-						+ `nav item with no deliberate placement decision.`,
-				)
+		const items = frag && Array.isArray(frag.menu) ? frag.menu : []
+		checked += items.length
+		for (const item of items) {
+			if (!isPlaced(item, placements)) {
+				failures.push(placementFailure(label, item))
 			}
 		}
 	}
 	return { failures, checked }
+}
+
+/**
+ * The menu-layout id sets that place an entry: relocations, removals and
+ * the settings section.
+ *
+ * @param {{relocations?: object, removals?: string[], settingsSection?: string[]}} menuLayout The menu layout.
+ * @return {Array<Set<string>>} The three id sets.
+ */
+function placementSets(menuLayout) {
+	return [
+		new Set(Object.keys(menuLayout.relocations || {})),
+		new Set(menuLayout.removals || []),
+		new Set(menuLayout.settingsSection || []),
+	]
+}
+
+/**
+ * Whether a fragment's top-level entry is placed: self-scoped to the footer
+ * or settings, or named in one of the menu-layout id sets.
+ *
+ * @param {object} item The fragment's top-level menu entry.
+ * @param {Array<Set<string>>} placements The menu-layout id sets.
+ * @return {boolean} True when placed.
+ */
+function isPlaced(item, placements) {
+	const selfScoped = item.section === 'footer' || item.section === 'settings'
+	return selfScoped || placements.some((ids) => ids.has(item.id))
+}
+
+/**
+ * The R2 failure line for an unplaced fragment entry.
+ *
+ * @param {string} label The fragment file, or '(fragment)'.
+ * @param {object} item The unplaced menu entry.
+ * @return {string} The failure line.
+ */
+function placementFailure(label, item) {
+	return (
+		`✗ [R2 fragment-placement] ${label} declares top-level menu entry `
+		+ `"${item.id}" with no placement in menu-layout.json (no relocation, `
+		+ `removal, or settingsSection entry) and no self-declared `
+		+ `section: "footer"/"settings" — it will surface as a new primary `
+		+ `nav item with no deliberate placement decision.`
+	)
 }
 
 /**
