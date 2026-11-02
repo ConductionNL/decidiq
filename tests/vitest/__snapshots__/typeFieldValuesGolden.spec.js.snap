@@ -1,0 +1,136 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`agenda item type fields golden output > keeps the type lookup and the written answers over seeded cases 1`] = `
+{
+  "digest": "fb794f5ccaa158b5dfd7b42420c896afdc11d635e54452171459ba5835d21ac5",
+  "sample": [
+    {
+      "found": null,
+      "input": {
+        "input": "textarea",
+        "key": "f",
+      },
+      "raw": "abc",
+      "ref": "t2",
+      "sameObject": false,
+      "types": [
+        "by-id",
+        "by-slug",
+        "empty-self",
+      ],
+      "values": null,
+      "written": {
+        "f": "abc",
+      },
+    },
+    {
+      "found": "by-uuid",
+      "input": {
+        "input": "undefined",
+        "key": "h",
+      },
+      "raw": {},
+      "ref": "t2",
+      "sameObject": false,
+      "types": [
+        "by-id",
+        "by-uuid",
+        "by-self-slug",
+        "empty-self",
+        null,
+        "second-t1",
+      ],
+      "values": {
+        "f": "old",
+        "g": 1,
+      },
+      "written": {
+        "f": "old",
+        "g": 1,
+        "h": "[object Object]",
+      },
+    },
+    {
+      "found": null,
+      "input": {
+        "input": "constructor",
+        "key": "g",
+      },
+      "raw": {},
+      "ref": "undefined",
+      "sameObject": false,
+      "types": [
+        "by-id",
+        "by-uuid",
+        "by-self-slug",
+        null,
+      ],
+      "values": null,
+      "written": {
+        "g": "[object Object]",
+      },
+    },
+    {
+      "found": null,
+      "input": {
+        "input": "text",
+        "key": "f",
+      },
+      "raw": 0,
+      "ref": 0,
+      "sameObject": false,
+      "types": [
+        "by-slug",
+        "empty-self",
+        "second-t1",
+      ],
+      "values": {
+        "g": 2,
+      },
+      "written": {
+        "f": "0",
+        "g": 2,
+      },
+    },
+    {
+      "found": "by-slug",
+      "input": {
+        "input": "undefined",
+        "key": "h",
+      },
+      "raw": "abc",
+      "ref": {
+        "value": "motie",
+      },
+      "sameObject": false,
+      "types": [
+        "by-slug",
+        "empty-self",
+        null,
+      ],
+      "values": {},
+      "written": {
+        "h": "abc",
+      },
+    },
+    {
+      "found": null,
+      "input": {
+        "input": "user",
+        "key": "h",
+      },
+      "raw": 0,
+      "ref": "undefined",
+      "sameObject": false,
+      "types": "null",
+      "values": {
+        "g": 2,
+      },
+      "written": {
+        "g": 2,
+        "h": "0",
+      },
+    },
+  ],
+}
+`;
