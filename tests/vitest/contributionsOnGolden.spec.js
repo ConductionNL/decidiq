@@ -135,7 +135,7 @@ describe('contributionsOn golden output', () => {
 					records,
 					participants,
 					itemId,
-					out: contributionsOn(records, itemId, participants),
+					out: contributionsOn(itemId, { records, participants }),
 				}),
 			)
 		}
