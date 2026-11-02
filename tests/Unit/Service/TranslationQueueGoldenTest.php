@@ -50,6 +50,7 @@ use Stringable;
  * @covers \OCA\Decidiq\Service\MultilingualReconciliationService
  * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
  * @uses   \OCA\Decidiq\Service\TranslationQueueEntryProcessor
+ * @uses   \OCA\Decidiq\Support\FleetAppId
  */
 class TranslationQueueGoldenTest extends TestCase {
 
