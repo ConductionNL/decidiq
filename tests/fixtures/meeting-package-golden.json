@@ -1,0 +1,1241 @@
+{
+    "container-throws": {
+        "returns": {
+            "success": false,
+            "path": null,
+            "items": 0,
+            "files": 0,
+            "skipped": [],
+            "message": "Failed to load meeting."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingPackageService::assemble lookup failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "not available"
+                    }
+                ]
+            }
+        ]
+    },
+    "find-throws": {
+        "returns": {
+            "success": false,
+            "path": null,
+            "items": 0,
+            "files": 0,
+            "skipped": [],
+            "message": "Failed to load meeting."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingPackageService::assemble lookup failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "find down"
+                    }
+                ]
+            }
+        ]
+    },
+    "not-found": {
+        "returns": {
+            "success": false,
+            "path": null,
+            "items": 0,
+            "files": 0,
+            "skipped": [],
+            "message": "Meeting not found."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "gone",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "items-throw": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 0,
+            "files": 0,
+            "skipped": [],
+            "message": "Meeting package assembled: 0 agenda item(s), 0 document(s)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: package agenda-item lookup failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "query down"
+                    }
+                ]
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n_No agenda items._\n"
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "mt-1",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 0,
+                        "files": 0,
+                        "skipped": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "no-folder": {
+        "returns": {
+            "success": false,
+            "path": null,
+            "items": 4,
+            "files": 0,
+            "skipped": [],
+            "message": "Could not create the meeting folder (Files unavailable)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            }
+        ]
+    },
+    "files-unavailable": {
+        "returns": {
+            "success": false,
+            "path": "Decidesk/Raad/2026-10-08",
+            "items": 4,
+            "files": 0,
+            "skipped": [],
+            "message": "Package assembly failed. See server log for details."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: meeting package assembly failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "not available"
+                    }
+                ]
+            }
+        ]
+    },
+    "package-folder": {
+        "returns": {
+            "success": false,
+            "path": "Decidesk/Raad/2026-10-08",
+            "items": 4,
+            "files": 0,
+            "skipped": [],
+            "message": "Package assembly failed. See server log for details."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: meeting package assembly failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "cannot create Decidesk/Raad/2026-10-08/Meeting package"
+                    }
+                ]
+            }
+        ]
+    },
+    "item-folder": {
+        "returns": {
+            "success": false,
+            "path": "Decidesk/Raad/2026-10-08",
+            "items": 4,
+            "files": 0,
+            "skipped": [],
+            "message": "Package assembly failed. See server log for details."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Opening"
+            },
+            {
+                "getFiles": "i1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Agenda item"
+            },
+            {
+                "getFiles": "i2"
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: package file resolution skipped for agenda item",
+                    {
+                        "itemId": "i2",
+                        "error": "no files"
+                    }
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: meeting package assembly failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "cannot create Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+                    }
+                ]
+            }
+        ]
+    },
+    "late-item-folder": {
+        "returns": {
+            "success": false,
+            "path": "Decidesk/Raad/2026-10-08",
+            "items": 4,
+            "files": 3,
+            "skipped": [],
+            "message": "Package assembly failed. See server log for details."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Opening"
+            },
+            {
+                "getFiles": "i1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Agenda item"
+            },
+            {
+                "getFiles": "i2"
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: package file resolution skipped for agenda item",
+                    {
+                        "itemId": "i2",
+                        "error": "no files"
+                    }
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+            },
+            {
+                "getFiles": "i3"
+            },
+            {
+                "getContent": "stuk.pdf"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "stuk.pdf",
+                    "content of stuk.pdf"
+                ]
+            },
+            {
+                "getContent": "bijlage.docx"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx",
+                    "content of bijlage.docx"
+                ]
+            },
+            {
+                "getContent": "los.txt"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt",
+                    "content of los.txt"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/04 - Geen id"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: meeting package assembly failed",
+                    {
+                        "meetingId": "mt-1",
+                        "exception": "cannot create Decidesk/Raad/2026-10-08/Meeting package/04 - Geen id"
+                    }
+                ]
+            }
+        ]
+    },
+    "numeric-links": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 2,
+            "files": 0,
+            "skipped": [],
+            "message": "Meeting package assembled: 2 agenda item(s), 0 document(s)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "7",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "7"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "7"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Num\n02. Linked\n"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Num"
+            },
+            {
+                "getFiles": "n1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Linked"
+            },
+            {
+                "getFiles": "n3"
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "7",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 2,
+                        "files": 0,
+                        "skipped": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "full": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 4,
+            "files": 3,
+            "skipped": [],
+            "message": "Meeting package assembled: 4 agenda item(s), 3 document(s)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Opening"
+            },
+            {
+                "getFiles": "i1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Agenda item"
+            },
+            {
+                "getFiles": "i2"
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: package file resolution skipped for agenda item",
+                    {
+                        "itemId": "i2",
+                        "error": "no files"
+                    }
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+            },
+            {
+                "getFiles": "i3"
+            },
+            {
+                "getContent": "stuk.pdf"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "stuk.pdf",
+                    "content of stuk.pdf"
+                ]
+            },
+            {
+                "getContent": "bijlage.docx"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx",
+                    "content of bijlage.docx"
+                ]
+            },
+            {
+                "getContent": "los.txt"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt",
+                    "content of los.txt"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/04 - Geen id"
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "mt-1",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 4,
+                        "files": 3,
+                        "skipped": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "existing-files": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 4,
+            "files": 3,
+            "skipped": [],
+            "message": "Meeting package assembled: 4 agenda item(s), 3 document(s)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md"
+                ]
+            },
+            {
+                "putContent": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Opening"
+            },
+            {
+                "getFiles": "i1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Agenda item"
+            },
+            {
+                "getFiles": "i2"
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: package file resolution skipped for agenda item",
+                    {
+                        "itemId": "i2",
+                        "error": "no files"
+                    }
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+            },
+            {
+                "getFiles": "i3"
+            },
+            {
+                "getContent": "stuk.pdf"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "stuk.pdf",
+                    "content of stuk.pdf"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "stuk.pdf"
+                ]
+            },
+            {
+                "putContent": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept/stuk.pdf",
+                    "content of stuk.pdf"
+                ]
+            },
+            {
+                "getContent": "bijlage.docx"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx",
+                    "content of bijlage.docx"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx"
+                ]
+            },
+            {
+                "putContent": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept/bijlage.docx",
+                    "content of bijlage.docx"
+                ]
+            },
+            {
+                "getContent": "los.txt"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt",
+                    "content of los.txt"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt"
+                ]
+            },
+            {
+                "putContent": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept/los.txt",
+                    "content of los.txt"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/04 - Geen id"
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "mt-1",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 4,
+                        "files": 3,
+                        "skipped": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "unwritable": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 4,
+            "files": 0,
+            "skipped": [
+                "00 - Table of contents.md (locked)",
+                "stuk.pdf (locked)",
+                "bijlage.docx (locked)",
+                "los.txt (locked)"
+            ],
+            "message": "Meeting package assembled: 4 agenda item(s), 0 document(s), 4 skipped."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Opening"
+            },
+            {
+                "getFiles": "i1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Agenda item"
+            },
+            {
+                "getFiles": "i2"
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: package file resolution skipped for agenda item",
+                    {
+                        "itemId": "i2",
+                        "error": "no files"
+                    }
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+            },
+            {
+                "getFiles": "i3"
+            },
+            {
+                "getContent": "stuk.pdf"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "stuk.pdf",
+                    "content of stuk.pdf"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "stuk.pdf"
+                ]
+            },
+            {
+                "getContent": "bijlage.docx"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx",
+                    "content of bijlage.docx"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx"
+                ]
+            },
+            {
+                "getContent": "los.txt"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt",
+                    "content of los.txt"
+                ]
+            },
+            {
+                "get": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/04 - Geen id"
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "mt-1",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 4,
+                        "files": 0,
+                        "skipped": 4
+                    }
+                ]
+            }
+        ]
+    },
+    "unreadable": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 4,
+            "files": 2,
+            "skipped": [
+                "03 - Begroting- 2027 - -concept/stuk.pdf (unreadable)"
+            ],
+            "message": "Meeting package assembled: 4 agenda item(s), 2 document(s), 1 skipped."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Opening\n    (0 min)\n02.  ... \n03. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n04. Geen id\n"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/01 - Opening"
+            },
+            {
+                "getFiles": "i1"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/02 - Agenda item"
+            },
+            {
+                "getFiles": "i2"
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: package file resolution skipped for agenda item",
+                    {
+                        "itemId": "i2",
+                        "error": "no files"
+                    }
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept"
+            },
+            {
+                "getFiles": "i3"
+            },
+            {
+                "getContent": "stuk.pdf"
+            },
+            {
+                "getContent": "bijlage.docx"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "bijlage.docx",
+                    "content of bijlage.docx"
+                ]
+            },
+            {
+                "getContent": "los.txt"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package/03 - Begroting- 2027 - -concept",
+                    "los.txt",
+                    "content of los.txt"
+                ]
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package/04 - Geen id"
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "mt-1",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 4,
+                        "files": 2,
+                        "skipped": 1
+                    }
+                ]
+            }
+        ]
+    },
+    "no-items": {
+        "returns": {
+            "success": true,
+            "path": "Decidesk/Raad/2026-10-08/Meeting package",
+            "items": 0,
+            "files": 0,
+            "skipped": [],
+            "message": "Meeting package assembled: 0 agenda item(s), 0 document(s)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "mt-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "agenda-item",
+                    "filters": {
+                        "meeting": "mt-1"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "ensureMeetingFolders": {
+                    "title": "Raad",
+                    "scheduledDate": "2026-10-08T19:30:00+02:00",
+                    "id": "mt-1"
+                }
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "createFolder": "Decidesk/Raad/2026-10-08/Meeting package"
+            },
+            {
+                "newFile": [
+                    "Decidesk/Raad/2026-10-08/Meeting package",
+                    "00 - Table of contents.md",
+                    "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n_No agenda items._\n"
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting package assembled",
+                    {
+                        "meetingId": "mt-1",
+                        "userId": "anna",
+                        "path": "Decidesk/Raad/2026-10-08/Meeting package",
+                        "items": 0,
+                        "files": 0,
+                        "skipped": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "toc": {
+        "empty": "# Meeting\n\nMeeting package (vergaderstukken) — table of contents.\n\n_No agenda items._\n",
+        "full": "# Raad — 2026-10-08\n\nMeeting package (vergaderstukken) — table of contents.\n\n01. Begroting: 2027 / \"concept\"\n    (debate, 45 min)\n    - b.pdf\n    - plain.docx\n    - T\n    - y.txt\n02. Opening\n    (0 min)\n03. Elders\n04. Elders gekoppeld\n05.  ... \n06. Geen id\n"
+    }
+}
