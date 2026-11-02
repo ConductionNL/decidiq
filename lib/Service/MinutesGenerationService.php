@@ -145,12 +145,14 @@ class MinutesGenerationService {
 
 		return $this->renderer->render(
 			minutes: $minutes,
-			meeting: $meeting,
-			agendaItems: $agendaItems,
-			motions: $motions,
-			votingRounds: $votingRounds,
-			decisions: $decisions,
-			attendance: $this->attendance(objectService: $objectService, meetingId: $meetingId)
+			parts: [
+				'meeting' => $meeting,
+				'agendaItems' => $agendaItems,
+				'motions' => $motions,
+				'votingRounds' => $votingRounds,
+				'decisions' => $decisions,
+				'attendance' => $this->attendance(objectService: $objectService, meetingId: $meetingId),
+			]
 		);
 
 	}//end generateDraft()

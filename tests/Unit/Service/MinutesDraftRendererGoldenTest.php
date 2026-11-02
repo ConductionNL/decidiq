@@ -70,15 +70,7 @@ class MinutesDraftRendererGoldenTest extends TestCase {
 	 * @return string
 	 */
 	private function render(array $case): string {
-		return (new MinutesDraftRenderer())->render(
-			minutes: $case['minutes'],
-			meeting: $case['meeting'],
-			agendaItems: $case['agendaItems'],
-			motions: $case['motions'],
-			votingRounds: $case['votingRounds'],
-			decisions: $case['decisions'],
-			attendance: $case['attendance']
-		);
+		return (new MinutesDraftRenderer())->render(minutes: $case['minutes'], parts: $case);
 	}//end render()
 
 	/**
