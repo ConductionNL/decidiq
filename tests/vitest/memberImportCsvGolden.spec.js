@@ -56,7 +56,7 @@ const INPUTS = {
 	'cr inside quotes': '"a\rb"\r',
 }
 for (let n = 0; n < 60; n++) {
-	INPUTS['generated ' + n] = csvText(5 + (n * 7) % 40, n + 1)
+	INPUTS['generated ' + n] = csvText(5 + ((n * 7) % 40), n + 1)
 }
 
 describe('parseCsv golden', () => {
