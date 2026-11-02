@@ -33,7 +33,6 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
-use Throwable;
 
 /**
  * Service for managing agenda lifecycle operations.
@@ -83,24 +82,18 @@ class AgendaService {
 	private bool $suppressItemNotices = false;
 
 	/**
+	 * Sends the agenda notices to the members.
+	 *
+	 * @var AgendaNotices
+	 */
+	private readonly AgendaNotices $notices;
+
+	/**
 	 * A member gets at most one agenda change notice per meeting in this many seconds.
 	 *
 	 * @var int
 	 */
 	private const AGENDA_NOTICE_WINDOW_SECONDS = 300;
-
-	/**
-	 * Notice titles per agenda subject; `%s` is the meeting title. The same
-	 * sentences the notifier shows in the bell.
-	 *
-	 * @var array<string, string>
-	 */
-	private const AGENDA_SENTENCES = [
-		'agenda_published'        => 'The agenda of %s was published',
-		'agenda_revised'          => 'A revised agenda of %s was published',
-		'agenda_revision_started' => 'The agenda of %s is being revised',
-		'agenda_changed'          => 'The agenda of %s changed',
-	];
 
 	/**
 	 * Constructor for AgendaService.
@@ -120,13 +113,35 @@ class AgendaService {
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly CalendarEventService $calendarEventService,
-		private readonly NotificationPreferenceService $preferences,
+		NotificationPreferenceService $preferences,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
-		private readonly IFactory $l10nFactory,
+		IFactory $l10nFactory,
 		private readonly PublicationEventRecorder $eventRecorder,
 	) {
+		$this->notices = new AgendaNotices(preferences: $preferences, l10nFactory: $l10nFactory, logger: $logger);
 	}//end __construct()
+
+	/**
+	 * The agenda items of one meeting.
+	 *
+	 * @param string $meetingId The meeting UUID
+	 *
+	 * @return array The agenda items, as the object service returns them.
+	 *
+	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 */
+	private function meetingItems(string $meetingId): array {
+		return $this->objectService->findAll(
+			[
+				'filters' => [
+					'register' => 'decidiq',
+					'schema' => 'agenda-item',
+					'_relations.meeting' => $meetingId,
+				],
+			]
+		);
+	}//end meetingItems()
 
 	/**
 	 * Publish an agenda for a meeting.
@@ -146,15 +161,7 @@ class AgendaService {
 	 */
 	public function publishAgenda(string $meetingId): void {
 		// Validate at least one AgendaItem exists.
-		$items = $this->objectService->findAll(
-			[
-				'filters' => [
-					'register' => 'decidiq',
-					'schema' => 'agenda-item',
-					'_relations.meeting' => $meetingId,
-				],
-			]
-		);
+		$items = $this->meetingItems(meetingId: $meetingId);
 
 		if (empty($items) === true) {
 			throw new InvalidArgumentException('Cannot publish agenda: no agenda items exist for this meeting.');
@@ -194,7 +201,10 @@ class AgendaService {
 			changes: $changes
 		);
 
-		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: $subject, items: $items);
+		$this->notices->send(
+			notice: ['meetingId' => $meetingId, 'meeting' => $meetingData, 'subject' => $subject, 'items' => $items],
+			recipients: fn (): array => $this->activeRecipients(meetingId: $meetingId)
+		);
 		$this->eventRecorder->agendaPublished(meetingId: $meetingId, meeting: $meetingData, revised: ($subject === 'agenda_revised'));
 
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
@@ -298,15 +308,7 @@ class AgendaService {
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function processHamerstukken(string $meetingId): int {
-		$items = $this->objectService->findAll(
-			[
-				'filters' => [
-					'register' => 'decidiq',
-					'schema' => 'agenda-item',
-					'_relations.meeting' => $meetingId,
-				],
-			]
-		);
+		$items = $this->meetingItems(meetingId: $meetingId);
 
 		$adoptedAt = gmdate('Y-m-d\TH:i:s\Z');
 		$processedCount = 0;
@@ -415,7 +417,10 @@ class AgendaService {
 		$this->saveMeeting(meetingId: $meetingId, meetingData: $meetingData, changes: ['agendaUnderRevision' => true]);
 
 		if (($meetingData['agendaPublishedAt'] ?? null) !== null) {
-			$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: 'agenda_revision_started');
+			$this->notices->send(
+				notice: ['meetingId' => $meetingId, 'meeting' => $meetingData, 'subject' => 'agenda_revision_started'],
+				recipients: fn (): array => $this->activeRecipients(meetingId: $meetingId)
+			);
 		}
 
 		$this->logger->info('Agenda opened for revision for meeting {meetingId}', ['meetingId' => $meetingId]);
@@ -437,15 +442,7 @@ class AgendaService {
 	 */
 	public function reorderItems(string $meetingId, array $orderedIds): void {
 		// Build a set of valid UUIDs that belong to this meeting.
-		$meetingItems = $this->objectService->findAll(
-			[
-				'filters' => [
-					'register' => 'decidiq',
-					'schema' => 'agenda-item',
-					'_relations.meeting' => $meetingId,
-				],
-			]
-		);
+		$meetingItems = $this->meetingItems(meetingId: $meetingId);
 
 		$validIds = [];
 		foreach ($meetingItems as $item) {
@@ -519,15 +516,7 @@ class AgendaService {
 			return;
 		}
 
-		$items = $this->objectService->findAll(
-			[
-				'filters' => [
-					'register' => 'decidiq',
-					'schema' => 'agenda-item',
-					'_relations.meeting' => $meetingId,
-				],
-			]
-		);
+		$items = $this->meetingItems(meetingId: $meetingId);
 
 		// REQ-ACN-004: every change is a version, but a member hears about a
 		// burst of edits once. Who is due is decided before the save, so the
@@ -550,7 +539,10 @@ class AgendaService {
 			meetingData: $versioned,
 			changes: ['agendaNoticeSentAt' => $sentAt]
 		);
-		$this->notifyParticipants(meetingData: $meetingData, meetingId: $meetingId, subject: 'agenda_changed', recipients: $due);
+		$this->notices->send(
+			notice: ['meetingId' => $meetingId, 'meeting' => $meetingData, 'subject' => 'agenda_changed'],
+			recipients: fn (): array => $due
+		);
 
 		$this->eventRecorder->agendaChanged(meetingId: $meetingId, meeting: $meetingData, versions: $versioned['agendaVersions']);
 
@@ -671,69 +663,4 @@ class AgendaService {
 
 		return array_keys($uids);
 	}//end activeRecipients()
-
-	/**
-	 * Tell the meeting's members about its agenda, each through their own
-	 * notification preferences (event type `agendaChanged`): in the bell, by
-	 * email, both, or not at all.
-	 *
-	 * @param array<string, mixed>   $meetingData The meeting as read before the save
-	 * @param string                 $meetingId   The meeting UUID
-	 * @param string                 $subject     agenda_published, agenda_revised, agenda_revision_started or agenda_changed
-	 * @param array<int, string>|null $recipients The users to tell, or null for every active participant
-	 * @param iterable<mixed>|null    $items      The published agenda items, which turn the notice into an invitation
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
-	 */
-	private function notifyParticipants(array $meetingData, string $meetingId, string $subject, ?array $recipients=null, ?iterable $items=null): void {
-		$l10n = $this->l10nFactory->get('decidiq');
-		$meetingTitle = (string)($meetingData['title'] ?? '');
-		$named = $meetingTitle;
-		if ($named === '') {
-			$named = $l10n->t('this meeting');
-		}
-
-		$title = $l10n->t(self::AGENDA_SENTENCES[$subject] ?? self::AGENDA_SENTENCES['agenda_changed'], [$named]);
-		$message = $l10n->t('Open the meeting in Decidiq to see the agenda.');
-		$attachments = [];
-		if ($items !== null) {
-			// A published agenda is the invitation: when, where, the items, and
-			// the meeting as a calendar file (agenda-publish-and-invite-members).
-			$invitation = new AgendaInvitation();
-			$titles = $invitation->orderedTitles(items: $items);
-			$message = $invitation->message(l10n: $l10n, meeting: $meetingData, itemTitles: $titles);
-			$attachments[] = [
-				'data' => $invitation->calendarFile(meetingId: $meetingId, meeting: $meetingData, itemTitles: $titles),
-				'filename' => 'meeting.ics',
-				'contentType' => 'text/calendar',
-			];
-		}
-		$inApp = [
-			'subject'    => $subject,
-			'parameters' => ['meetingId' => $meetingId, 'meetingTitle' => $meetingTitle],
-			'objectType' => 'meeting',
-			'objectId'   => $meetingId,
-		];
-
-		foreach (($recipients ?? $this->activeRecipients(meetingId: $meetingId)) as $uid) {
-			try {
-				$this->preferences->dispatch(
-					personId: $uid,
-					eventType: 'agendaChanged',
-					title: $title,
-					message: $message,
-					deepLink: '/meetings/' . $meetingId,
-					inApp: $inApp,
-					attachments: $attachments
-				);
-			} catch (Throwable $e) {
-				$this->logger->warning(
-					'Failed to send agenda notification to user {userId}: {error}',
-					['userId' => $uid, 'error' => $e->getMessage()]
-				);
-			}
-		}
-		}//end notifyParticipants()
 }//end class

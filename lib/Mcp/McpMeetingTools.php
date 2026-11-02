@@ -125,6 +125,11 @@ class McpMeetingTools {
 			return $invalid;
 		}
 
+		$signedOut = $this->gate->signedOutError();
+		if ($signedOut !== null) {
+			return $signedOut;
+		}
+
 		try {
 			return $this->collectRecentMeetings(limit: $limit, statusFilter: (string)$statusFilter);
 		} catch (Throwable $e) {
@@ -224,11 +229,7 @@ class McpMeetingTools {
 			'meetingUuid' => $meetingUuid,
 			'startedAt' => $this->formatter->nowIso(),
 			'sources' => [
-				$this->formatter->source(
-					type: 'decidesk.meeting',
-					uuid: $meetingUuid,
-					label: (string)($meeting['title'] ?? 'Meeting'),
-				),
+				$this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting),
 			],
 		];
 
@@ -261,11 +262,7 @@ class McpMeetingTools {
 
 		$rawMeetings = $this->objectService->findAll(['filters' => $filters]);
 
-		$currentUserId = $this->gate->currentUserId();
-		$allowedUuids = null;
-		if ($currentUserId !== '') {
-			$allowedUuids = $this->gate->callerMeetingUuids(userId: $currentUserId);
-		}
+		$allowedUuids = $this->gate->callerMeetingUuids(userId: $this->gate->currentUserId());
 
 		$meetings = [];
 		$sources = [];
@@ -278,11 +275,7 @@ class McpMeetingTools {
 			}
 
 			$meetings[] = $meeting;
-			$sources[] = $this->formatter->source(
-				type: 'decidesk.meeting',
-				uuid: $meetingUuid,
-				label: (string)($meeting['title'] ?? 'Meeting'),
-			);
+			$sources[] = $this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting);
 		}//end foreach
 
 		return $this->formatter->withSources(
@@ -332,11 +325,7 @@ class McpMeetingTools {
 
 		$sources = array_merge(
 			[
-				$this->formatter->source(
-					type: 'decidesk.meeting',
-					uuid: $meetingUuid,
-					label: (string)($meeting['title'] ?? 'Meeting'),
-				),
+				$this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting),
 			],
 			$agenda['sources'],
 			$decisions['sources'],

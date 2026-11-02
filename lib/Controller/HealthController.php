@@ -41,7 +41,6 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -64,7 +63,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class HealthController extends Controller {
+class HealthController extends CorsJsonController {
 
 	/**
 	 * FQCN of the AppHost observability manifest loader.
@@ -98,11 +97,11 @@ class HealthController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IConfig $config,
+		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly IAppConfig $appConfig,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(request: $request, config: $config);
 
 	}//end __construct()
 
@@ -231,31 +230,6 @@ class HealthController extends Controller {
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function statusOptions(): JSONResponse {
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end statusOptions()
-
-	/**
-	 * Apply CORS headers using the configured proxy origin when available
-	 * (REQ-API-004 parity with the pre-adoption controller).
-	 *
-	 * @param JSONResponse $response The response to decorate.
-	 *
-	 * @return void
-	 */
-	private function applyCorsHeaders(JSONResponse $response): void {
-		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-		$allowedOrigin = '*';
-		if ($origin !== '') {
-			$allowedOrigin = $origin;
-		}
-
-		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-	}//end applyCorsHeaders()
 }//end class
