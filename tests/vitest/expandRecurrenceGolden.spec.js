@@ -71,6 +71,14 @@ CASES['exceptions as text, bad date'] = [
 	'nope',
 	{ frequency: 'daily', until: '2026-01-05', exceptions: 'x' },
 ]
+CASES['infinite interval'] = [
+	'2026-01-01',
+	{ frequency: 'monthly', interval: 'Infinity', until: '2026-03-01' },
+]
+CASES['infinite daily interval'] = [
+	'2026-01-01',
+	{ frequency: 'daily', interval: Infinity, until: '2026-03-01' },
+]
 CASES['monthly on the 30th'] = [
 	'2026-01-30',
 	{ frequency: 'monthly', interval: 1, until: '2026-12-31' },

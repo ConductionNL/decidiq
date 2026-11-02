@@ -8243,6 +8243,22 @@ exports[`expandRecurrence golden > exceptions as text, bad date 1`] = `
 }
 `;
 
+exports[`expandRecurrence golden > infinite daily interval 1`] = `
+{
+  "dates": [],
+  "error": "interval",
+  "truncated": false,
+}
+`;
+
+exports[`expandRecurrence golden > infinite interval 1`] = `
+{
+  "dates": [],
+  "error": "interval",
+  "truncated": false,
+}
+`;
+
 exports[`expandRecurrence golden > monthly on the 30th 1`] = `
 {
   "dates": [
