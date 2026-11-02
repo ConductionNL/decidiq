@@ -49,6 +49,7 @@ use Stringable;
  *
  * @covers \OCA\Decidiq\Service\MeetingPackageService
  * @uses   \OCA\Decidiq\Service\PaperRenditionFilter
+ * @uses   \OCA\Decidiq\Service\MeetingPackageWriter
  */
 class MeetingPackageGoldenTest extends TestCase {
 
