@@ -1,0 +1,892 @@
+{
+    "speech-new": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "duration": 90
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": 90,
+            "engagementScore": 8
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "duration": 90
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": 90,
+                        "engagementScore": 8
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-times": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "startTime": "2026-10-08T19:30:00+02:00",
+                    "endTime": "2026-10-08T19:34:10+02:00"
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": 250,
+            "engagementScore": 13
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "startTime": "2026-10-08T19:30:00+02:00",
+                                "endTime": "2026-10-08T19:34:10+02:00"
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": 250,
+                        "engagementScore": 13
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-reversed": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "startTime": "2026-10-08T19:30:00Z",
+                    "endTime": "2026-10-08T19:00:00Z"
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": 0,
+            "engagementScore": 5
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "startTime": "2026-10-08T19:30:00Z",
+                                "endTime": "2026-10-08T19:00:00Z"
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": 0,
+                        "engagementScore": 5
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-bad-times": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "startTime": "soon",
+                    "endTime": "later"
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": 0,
+            "engagementScore": 5
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "startTime": "soon",
+                                "endTime": "later"
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": 0,
+                        "engagementScore": 5
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-one-time": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "startTime": "2026-10-08T19:30:00Z"
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": 0,
+            "engagementScore": 5
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "startTime": "2026-10-08T19:30:00Z"
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": 0,
+                        "engagementScore": 5
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-zero": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "duration": "0",
+                    "startTime": "2026-10-08T19:30:00Z",
+                    "endTime": "2026-10-08T19:31:00Z"
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": 60,
+            "engagementScore": 7
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "duration": "0",
+                                "startTime": "2026-10-08T19:30:00Z",
+                                "endTime": "2026-10-08T19:31:00Z"
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": 60,
+                        "engagementScore": 7
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-negative": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "duration": -5,
+                    "startTime": "2026-10-08T19:30:00Z",
+                    "endTime": "2026-10-08T19:31:00Z"
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [],
+            "speakingDuration": -5,
+            "engagementScore": 4
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "duration": -5,
+                                "startTime": "2026-10-08T19:30:00Z",
+                                "endTime": "2026-10-08T19:31:00Z"
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [],
+                        "speakingDuration": -5,
+                        "engagementScore": 4
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "speech-existing": {
+        "returns": {
+            "id": "e-1",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "duration": 30
+                },
+                {
+                    "duration": 600
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [
+                []
+            ],
+            "speakingDuration": 630,
+            "engagementScore": 37
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "e-1",
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "duration": 30
+                            },
+                            {
+                                "duration": 600
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [
+                            []
+                        ],
+                        "speakingDuration": 630,
+                        "engagementScore": 37
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record",
+                    "uuid": "e-1"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "speech"
+                    }
+                ]
+            }
+        ]
+    },
+    "question-entity": {
+        "returns": {
+            "id": "e-9",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [],
+            "questionsRaised": [
+                {
+                    "text": "Eerder"
+                },
+                {
+                    "text": "Waarom?"
+                }
+            ],
+            "engagementScore": 8
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "e-9",
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [],
+                        "questionsRaised": [
+                            {
+                                "text": "Eerder"
+                            },
+                            {
+                                "text": "Waarom?"
+                            }
+                        ],
+                        "engagementScore": 8
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record",
+                    "uuid": "e-9"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "question"
+                    }
+                ]
+            }
+        ]
+    },
+    "topic-skips": {
+        "returns": {
+            "id": "e-1",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "duration": 30
+                }
+            ],
+            "questionsRaised": [],
+            "topicsSuggested": [
+                [],
+                {
+                    "topic": "Groen"
+                }
+            ],
+            "speakingDuration": "30",
+            "engagementScore": 18
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "e-1",
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "duration": 30
+                            }
+                        ],
+                        "questionsRaised": [],
+                        "topicsSuggested": [
+                            [],
+                            {
+                                "topic": "Groen"
+                            }
+                        ],
+                        "speakingDuration": "30",
+                        "engagementScore": 18
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record",
+                    "uuid": "e-1"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "topic"
+                    }
+                ]
+            }
+        ]
+    },
+    "unknown-type": {
+        "throws": "InvalidArgumentException",
+        "message": "Unknown engagement event type 'applause'",
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            }
+        ]
+    },
+    "lookup-throws": {
+        "returns": {
+            "id": "e-new",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [],
+            "questionsRaised": [
+                []
+            ],
+            "topicsSuggested": [],
+            "speakingDuration": 0,
+            "engagementScore": 4
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1",
+                        "participant": "p-anna"
+                    },
+                    "limit": 1,
+                    "offset": 0
+                }
+            },
+            {
+                "log": [
+                    "debug",
+                    "Decidiq: findEngagementForMeetingAndParticipant failed",
+                    {
+                        "error": "query down"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [],
+                        "questionsRaised": [
+                            []
+                        ],
+                        "topicsSuggested": [],
+                        "speakingDuration": 0,
+                        "engagementScore": 4
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "question"
+                    }
+                ]
+            }
+        ]
+    },
+    "meeting-rows": {
+        "returns": [
+            {
+                "id": "e-9",
+                "meeting": "m-1",
+                "participant": "p-anna",
+                "speeches": [],
+                "questionsRaised": [
+                    {
+                        "text": "Eerder"
+                    }
+                ]
+            },
+            {
+                "id": "e-1",
+                "meeting": "m-1",
+                "participant": "p-anna",
+                "speeches": [
+                    {
+                        "duration": 30
+                    }
+                ],
+                "questionsRaised": [],
+                "topicsSuggested": [
+                    []
+                ],
+                "speakingDuration": "30",
+                "engagementScore": 7
+            },
+            {
+                "id": "e-2"
+            }
+        ],
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1"
+                    },
+                    "limit": 500,
+                    "offset": 0
+                }
+            }
+        ]
+    },
+    "meeting-empty": {
+        "returns": [],
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1"
+                    },
+                    "limit": 500,
+                    "offset": 0
+                }
+            }
+        ]
+    },
+    "meeting-throws": {
+        "returns": [],
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "meeting": "m-1"
+                    },
+                    "limit": 500,
+                    "offset": 0
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: findEngagementForMeeting failed",
+                    {
+                        "meetingId": "m-1",
+                        "error": "query down"
+                    }
+                ]
+            }
+        ]
+    },
+    "score-empty": {
+        "returns": 0,
+        "calls": []
+    },
+    "score-capped": {
+        "returns": 100,
+        "calls": []
+    },
+    "score-mixed": {
+        "returns": 9,
+        "calls": []
+    },
+    "score-negative": {
+        "returns": 0,
+        "calls": []
+    }
+}
