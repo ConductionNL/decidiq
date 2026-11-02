@@ -219,7 +219,7 @@ trait ReadsLegacyRows {
 	 * instead of its full set, every format declaration vanished, and
 	 * coerceToTarget() silently coerced nothing.
 	 *
-	 * SettingsService::deepMergeConfig() is what the app actually imports with.
+	 * Settings\RegisterFragmentMerger::deepMerge() is what the app actually imports with.
 	 * This mirrors the part of it a schema definition needs: associative arrays
 	 * recurse, everything else overwrites.
 	 *

@@ -40,6 +40,7 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\Decidiq\Service\RoleGroupMapping
  * @covers \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  */
 class RoleGroupMappingTest extends TestCase {
 
