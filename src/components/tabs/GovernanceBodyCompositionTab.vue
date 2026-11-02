@@ -361,49 +361,14 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const bodyId = String(this.objectId)
-				const [body, memberships, competences] = await Promise.all([
-					ensureRelationType('governance-body').fetchObject(
-						'governance-body',
-						bodyId,
-					),
-					ensureRelationType('membership').fetchCollection('membership', {
-						governanceBody: bodyId,
-						_limit: 100,
-					}),
-					ensureRelationType('board-competence').fetchCollection(
-						'board-competence',
-						{ governanceBody: bodyId, _limit: 100 },
-					),
-				])
-				const seats = currentSeats(memberships || [])
-				const personIds = [
-					...new Set(seats.map((seat) => seat.person).filter(Boolean)),
-				]
-				const [people, held] = await Promise.all([
-					Promise.all(
-						personIds.map((id) =>
-							ensureRelationType('person').fetchObject('person', id),
-						),
-					),
-					Promise.all(
-						seats.map((seat) =>
-							ensureRelationType('member-competence').fetchCollection(
-								'member-competence',
-								{ membership: seat.id, _limit: 100 },
-							),
-						),
-					),
-				])
-				const persons = {}
-				personIds.forEach((id, i) => {
-					persons[id] = people[i] || {}
-				})
-				this.diversityTargets = body?.diversityTargets || []
+				const body = await this.loadBody(String(this.objectId))
+				const seats = currentSeats(body.memberships)
+				const { persons, held } = await this.loadSeats(seats)
+				this.diversityTargets = body.diversityTargets
 				this.memberships = seats
 				this.persons = persons
-				this.competences = competences || []
-				this.held = held.flat().filter(Boolean)
+				this.competences = body.competences
+				this.held = held
 			} catch (e) {
 				this.error =
 					e?.message
@@ -411,6 +376,68 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The body, its memberships and its competences, read side by side.
+		 *
+		 * @param {string} bodyId The governance body id
+		 * @return {Promise<{diversityTargets: Array, memberships: Array, competences: Array}>} The body's targets, memberships and competences, each a list.
+		 * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-003-the-skills-matrix-shows-where-the-body-falls-short
+		 */
+		async loadBody(bodyId) {
+			const [body, memberships, competences] = await Promise.all([
+				ensureRelationType('governance-body').fetchObject(
+					'governance-body',
+					bodyId,
+				),
+				ensureRelationType('membership').fetchCollection('membership', {
+					governanceBody: bodyId,
+					_limit: 100,
+				}),
+				ensureRelationType('board-competence').fetchCollection(
+					'board-competence',
+					{ governanceBody: bodyId, _limit: 100 },
+				),
+			])
+			return {
+				diversityTargets: body?.diversityTargets || [],
+				memberships: memberships || [],
+				competences: competences || [],
+			}
+		},
+
+		/**
+		 * The people holding the seats, by id, and the competences the seats hold.
+		 *
+		 * @param {Array<object>} seats The current memberships
+		 * @return {Promise<{persons: {[key: string]: object}, held: Array<object>}>} The people and competences.
+		 * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-003-the-skills-matrix-shows-where-the-body-falls-short
+		 */
+		async loadSeats(seats) {
+			const personIds = [
+				...new Set(seats.map((seat) => seat.person).filter(Boolean)),
+			]
+			const [people, held] = await Promise.all([
+				Promise.all(
+					personIds.map((id) =>
+						ensureRelationType('person').fetchObject('person', id),
+					),
+				),
+				Promise.all(
+					seats.map((seat) =>
+						ensureRelationType('member-competence').fetchCollection(
+							'member-competence',
+							{ membership: seat.id, _limit: 100 },
+						),
+					),
+				),
+			])
+			const persons = {}
+			personIds.forEach((id, i) => {
+				persons[id] = people[i] || {}
+			})
+			return { persons, held: held.flat().filter(Boolean) }
 		},
 
 		/**

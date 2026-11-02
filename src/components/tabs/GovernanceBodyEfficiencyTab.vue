@@ -270,6 +270,22 @@ import { formatEur } from '../../utils/meetingCost.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
+ * Whether an object belongs to one of the meetings, directly or through its
+ * `@self` relations.
+ *
+ * @param {Set<string>} meetingIds The meeting ids
+ * @param {object} object An agenda item or participant
+ * @return {boolean} True when it links to one of them.
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function inMeetings(meetingIds, object) {
+	return (
+		meetingIds.has(object?.meeting)
+		|| meetingIds.has(object?.['@self']?.relations?.meeting)
+	)
+}
+
+/**
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export default {
@@ -445,62 +461,100 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				// The body's own hourlyRate drives the per-item cost breakdown.
-				const bodyStore = ensureRelationType('governance-body')
-				try {
-					const body = await bodyStore.fetchObject(
-						'governance-body',
-						this.objectId,
-					)
-					const rate = Number(body?.hourlyRate)
-					this.hourlyRate = Number.isFinite(rate) && rate > 0 ? rate : 0
-				} catch (bodyError) {
-					this.hourlyRate = 0
-				}
-
-				const meetingStore = ensureRelationType('meeting')
-				const meetings = await meetingStore.fetchCollection('meeting', {
-					_limit: 200,
-				})
-				this.meetings = this.forThisBody(meetings)
-				const meetingIds = new Set(this.meetings.map((m) => m.id))
-
-				const itemStore = ensureRelationType('agenda-item')
-				const items = await itemStore.fetchCollection('agenda-item', {
-					_limit: 500,
-				})
-				this.agendaItems = (items || []).filter(
-					(i) =>
-						meetingIds.has(i?.meeting)
-						|| meetingIds.has(i?.['@self']?.relations?.meeting),
-				)
-
-				const participantStore = ensureRelationType('participant')
-				const participants = await participantStore.fetchCollection(
-					'participant',
-					{ _limit: 500 },
-				)
-				this.participants = (participants || []).filter(
-					(p) =>
-						p?.governanceBody === this.objectId
-						|| meetingIds.has(p?.meeting)
-						|| meetingIds.has(p?.['@self']?.relations?.meeting),
-				)
-
-				const engagementStore = ensureRelationType('engagement-record')
-				const records = await engagementStore.fetchCollection(
-					'engagement-record',
-					{ _limit: 1000 },
-				)
-				this.engagementRecords = (records || []).filter((r) =>
-					meetingIds.has(r?.meeting),
-				)
+				await this.loadHourlyRate()
+				const meetingIds = await this.loadMeetings()
+				await this.loadAgendaItems(meetingIds)
+				await this.loadParticipants(meetingIds)
+				await this.loadEngagementRecords(meetingIds)
 			} catch (e) {
 				this.error =
 					e?.message || this.t('decidiq', 'Failed to load analytics.')
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The body's own hourlyRate, which drives the per-item cost breakdown;
+		 * 0 when it is missing, not positive, or the body cannot be read.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		async loadHourlyRate() {
+			try {
+				const body = await ensureRelationType('governance-body').fetchObject(
+					'governance-body',
+					this.objectId,
+				)
+				const rate = Number(body?.hourlyRate)
+				this.hourlyRate = Number.isFinite(rate) && rate > 0 ? rate : 0
+			} catch (bodyError) {
+				this.hourlyRate = 0
+			}
+		},
+
+		/**
+		 * Load this body's meetings.
+		 *
+		 * @return {Promise<Set<string>>} Their ids.
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		async loadMeetings() {
+			const meetings = await ensureRelationType('meeting').fetchCollection(
+				'meeting',
+				{ _limit: 200 },
+			)
+			this.meetings = this.forThisBody(meetings)
+			return new Set(this.meetings.map((m) => m.id))
+		},
+
+		/**
+		 * Load the agenda items of the given meetings.
+		 *
+		 * @param {Set<string>} meetingIds The body's meeting ids
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		async loadAgendaItems(meetingIds) {
+			const items = await ensureRelationType('agenda-item').fetchCollection(
+				'agenda-item',
+				{ _limit: 500 },
+			)
+			this.agendaItems = (items || []).filter((i) => inMeetings(meetingIds, i))
+		},
+
+		/**
+		 * Load the participants of this body or of its meetings.
+		 *
+		 * @param {Set<string>} meetingIds The body's meeting ids
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		async loadParticipants(meetingIds) {
+			const participants = await ensureRelationType(
+				'participant',
+			).fetchCollection('participant', { _limit: 500 })
+			this.participants = (participants || []).filter(
+				(p) =>
+					p?.governanceBody === this.objectId || inMeetings(meetingIds, p),
+			)
+		},
+
+		/**
+		 * Load the engagement records of the given meetings.
+		 *
+		 * @param {Set<string>} meetingIds The body's meeting ids
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/meeting-efficiency/spec.md
+		 */
+		async loadEngagementRecords(meetingIds) {
+			const records = await ensureRelationType(
+				'engagement-record',
+			).fetchCollection('engagement-record', { _limit: 1000 })
+			this.engagementRecords = (records || []).filter((r) =>
+				meetingIds.has(r?.meeting),
+			)
 		},
 
 		/**
