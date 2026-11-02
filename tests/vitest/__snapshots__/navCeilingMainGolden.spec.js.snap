@@ -1,0 +1,154 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`check-nav-ceiling main golden > empty menu-layout object 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 0 fragment(s), 0 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 0 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > everything at once 1`] = `
+{
+  "status": 1,
+  "stderr": "✗ nav-ceiling: src/manifest.d/broken.json is not valid JSON (<parser message>)
+nav-ceiling gate FAILED — 3 violation(s) over 2 fragment(s), 1 fragment top-level menu entr(y/ies), 8 primary / 0 footer / 0 settings top-level entries in the merged menu:
+✗ [parse] src/manifest.d/broken.json
+✗ [R1 nav-ceiling] primary top-level nav has 8 entries (ceiling: 6) — ADR-004 requires an ADR amendment before a 7th top-level item. Entries: a, b, c, d, e, f, g, z
+✗ [R2 fragment-placement] src/manifest.d/extra.json declares top-level menu entry "z" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > footer and settings do not count 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 0 fragment(s), 0 fragment top-level menu entr(y/ies), 6 primary / 1 footer / 1 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > fragment entries placed every way 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 1 fragment(s), 4 fragment top-level menu entr(y/ies), 3 primary / 0 footer / 2 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > fragment not json 1`] = `
+{
+  "status": 1,
+  "stderr": "✗ nav-ceiling: src/manifest.d/broken.json is not valid JSON (<parser message>)
+nav-ceiling gate FAILED — 1 violation(s) over 2 fragment(s), 0 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 0 settings top-level entries in the merged menu:
+✗ [parse] src/manifest.d/broken.json
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > layout not json 1`] = `
+{
+  "status": 1,
+  "stderr": "✗ nav-ceiling: <root>/src/menu-layout.json is not valid JSON (<parser message>)
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > layout null relocations 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 0 fragment(s), 0 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 0 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > layout relocations as a list, valid removals 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 1 fragment(s), 1 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 0 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > layout settings section only 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 1 fragment(s), 1 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 1 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > layout with wrong types 1`] = `
+{
+  "status": 1,
+  "stderr": "nav-ceiling gate FAILED — 1 violation(s) over 0 fragment(s), 0 fragment top-level menu entr(y/ies), 7 primary / 0 footer / 0 settings top-level entries in the merged menu:
+✗ [R1 nav-ceiling] primary top-level nav has 7 entries (ceiling: 6) — ADR-004 requires an ADR amendment before a 7th top-level item. Entries: a, b, c, d, e, f, g
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > manifest not json 1`] = `
+{
+  "status": 1,
+  "stderr": "✗ nav-ceiling: <root>/src/manifest.json is not valid JSON (<parser message>)
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > manifest without menu 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 0 fragment(s), 0 fragment top-level menu entr(y/ies), 0 primary / 0 footer / 0 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > no manifest 1`] = `
+{
+  "status": 1,
+  "stderr": "✗ nav-ceiling: base manifest not found at <root>/src/manifest.json — nothing was checked. Refusing to report a pass.
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > seven entries 1`] = `
+{
+  "status": 1,
+  "stderr": "nav-ceiling gate FAILED — 1 violation(s) over 0 fragment(s), 0 fragment top-level menu entr(y/ies), 7 primary / 0 footer / 0 settings top-level entries in the merged menu:
+✗ [R1 nav-ceiling] primary top-level nav has 7 entries (ceiling: 6) — ADR-004 requires an ADR amendment before a 7th top-level item. Entries: a, b, c, d, e, f, g
+",
+  "stdout": "",
+}
+`;
+
+exports[`check-nav-ceiling main golden > six entries, no layout 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ nav-ceiling: 0 fragment(s), 0 fragment top-level menu entr(y/ies), 6 primary / 0 footer / 0 settings top-level entries in the merged menu — at or under the ADR-004 ceiling (6), every fragment entry placed.
+",
+}
+`;
+
+exports[`check-nav-ceiling main golden > unplaced fragment entry 1`] = `
+{
+  "status": 1,
+  "stderr": "nav-ceiling gate FAILED — 1 violation(s) over 2 fragment(s), 2 fragment top-level menu entr(y/ies), 3 primary / 1 footer / 0 settings top-level entries in the merged menu:
+✗ [R2 fragment-placement] src/manifest.d/b-extra.json declares top-level menu entry "x" with no placement in menu-layout.json (no relocation, removal, or settingsSection entry) and no self-declared section: "footer"/"settings" — it will surface as a new primary nav item with no deliberate placement decision.
+",
+  "stdout": "",
+}
+`;
