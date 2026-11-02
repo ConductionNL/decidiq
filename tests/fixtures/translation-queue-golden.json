@@ -1,0 +1,1761 @@
+{
+    "queue-no-id": {
+        "returns": {
+            "success": false,
+            "entries": [],
+            "message": "minutesId is required."
+        },
+        "calls": []
+    },
+    "queue-bad-source": {
+        "returns": {
+            "success": false,
+            "entries": [],
+            "message": "Unsupported source locale: xx"
+        },
+        "calls": []
+    },
+    "queue-upper-source": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "en",
+                    "status": "queued",
+                    "attempts": 0,
+                    "queuedAt": "<now>",
+                    "provider": null,
+                    "lastError": null
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "de",
+                    "status": "queued",
+                    "attempts": 0,
+                    "queuedAt": "<now>",
+                    "provider": null,
+                    "lastError": null
+                }
+            ],
+            "message": "Translation queue entries created."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "queued",
+                        "attempts": 0,
+                        "queuedAt": "<now>",
+                        "provider": null,
+                        "lastError": null
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "de",
+                        "status": "queued",
+                        "attempts": 0,
+                        "queuedAt": "<now>",
+                        "provider": null,
+                        "lastError": null
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue"
+                }
+            }
+        ]
+    },
+    "queue-no-targets": {
+        "returns": {
+            "success": false,
+            "entries": [],
+            "message": "No valid target locales supplied."
+        },
+        "calls": []
+    },
+    "queue-no-container": {
+        "returns": {
+            "success": false,
+            "entries": [],
+            "message": "OpenRegister is unavailable."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MultilingualReconciliationService unable to resolve ObjectService",
+                    {
+                        "exception": "not bound"
+                    }
+                ]
+            }
+        ]
+    },
+    "queue-save-throws": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "en",
+                    "status": "queued",
+                    "attempts": 0,
+                    "queuedAt": "<now>",
+                    "provider": null,
+                    "lastError": null
+                },
+                {
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "fr",
+                    "status": "queued",
+                    "attempts": 0,
+                    "queuedAt": "<now>",
+                    "provider": null,
+                    "lastError": null
+                }
+            ],
+            "message": "Translation queue entries created."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "queued",
+                        "attempts": 0,
+                        "queuedAt": "<now>",
+                        "provider": null,
+                        "lastError": null
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to persist queue entry",
+                    {
+                        "exception": "save down",
+                        "targetLocale": "en"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "queued",
+                        "attempts": 0,
+                        "queuedAt": "<now>",
+                        "provider": null,
+                        "lastError": null
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to persist queue entry",
+                    {
+                        "exception": "save down",
+                        "targetLocale": "fr"
+                    }
+                ]
+            }
+        ]
+    },
+    "queue-save-ok": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "fr",
+                    "targetLocale": "nl",
+                    "status": "queued",
+                    "attempts": 0,
+                    "queuedAt": "<now>",
+                    "provider": null,
+                    "lastError": null
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "fr",
+                    "targetLocale": "de",
+                    "status": "queued",
+                    "attempts": 0,
+                    "queuedAt": "<now>",
+                    "provider": null,
+                    "lastError": null
+                }
+            ],
+            "message": "Translation queue entries created."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "fr",
+                        "targetLocale": "nl",
+                        "status": "queued",
+                        "attempts": 0,
+                        "queuedAt": "<now>",
+                        "provider": null,
+                        "lastError": null
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "fr",
+                        "targetLocale": "de",
+                        "status": "queued",
+                        "attempts": 0,
+                        "queuedAt": "<now>",
+                        "provider": null,
+                        "lastError": null
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue"
+                }
+            }
+        ]
+    },
+    "status-zero-limit": {
+        "returns": {
+            "success": true,
+            "summary": {
+                "queued": 5,
+                "processing": 0,
+                "completed": 1,
+                "failed": 1
+            },
+            "entries": [
+                {
+                    "id": "q1",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "en",
+                    "status": "queued",
+                    "attempts": 0
+                },
+                {
+                    "id": "q2",
+                    "minutesKoppeling": "m-gone",
+                    "sourceLocale": "nl",
+                    "targetLocale": "de",
+                    "status": "queued"
+                },
+                {
+                    "id": "",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "fr",
+                    "status": "queued"
+                },
+                {
+                    "id": "q4",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "",
+                    "targetLocale": "fr",
+                    "status": "queued",
+                    "attempts": "2"
+                },
+                {
+                    "viaJson": true,
+                    "id": "q5",
+                    "minutesKoppeling": "m2",
+                    "sourceLocale": "nl",
+                    "targetLocale": "en",
+                    "status": "queued"
+                },
+                {
+                    "id": "q6",
+                    "minutesKoppeling": "m-throw",
+                    "sourceLocale": "en",
+                    "targetLocale": "nl",
+                    "status": "failed",
+                    "attempts": 3
+                },
+                {
+                    "id": "q7",
+                    "minutesKoppeling": "m2",
+                    "sourceLocale": "nl",
+                    "targetLocale": "fr",
+                    "status": "completed"
+                },
+                {
+                    "id": "q8",
+                    "status": "odd"
+                }
+            ],
+            "message": "Queue status loaded."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "limit": 50
+                }
+            }
+        ]
+    },
+    "status-limit": {
+        "returns": {
+            "success": true,
+            "summary": {
+                "queued": 5,
+                "processing": 0,
+                "completed": 1,
+                "failed": 1
+            },
+            "entries": [
+                {
+                    "id": "q1",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "en",
+                    "status": "queued",
+                    "attempts": 0
+                },
+                {
+                    "id": "q2",
+                    "minutesKoppeling": "m-gone",
+                    "sourceLocale": "nl",
+                    "targetLocale": "de",
+                    "status": "queued"
+                },
+                {
+                    "id": "",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "nl",
+                    "targetLocale": "fr",
+                    "status": "queued"
+                },
+                {
+                    "id": "q4",
+                    "minutesKoppeling": "m1",
+                    "sourceLocale": "",
+                    "targetLocale": "fr",
+                    "status": "queued",
+                    "attempts": "2"
+                },
+                {
+                    "viaJson": true,
+                    "id": "q5",
+                    "minutesKoppeling": "m2",
+                    "sourceLocale": "nl",
+                    "targetLocale": "en",
+                    "status": "queued"
+                },
+                {
+                    "id": "q6",
+                    "minutesKoppeling": "m-throw",
+                    "sourceLocale": "en",
+                    "targetLocale": "nl",
+                    "status": "failed",
+                    "attempts": 3
+                },
+                {
+                    "id": "q7",
+                    "minutesKoppeling": "m2",
+                    "sourceLocale": "nl",
+                    "targetLocale": "fr",
+                    "status": "completed"
+                },
+                {
+                    "id": "q8",
+                    "status": "odd"
+                }
+            ],
+            "message": "Queue status loaded."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "limit": 3
+                }
+            }
+        ]
+    },
+    "status-throws": {
+        "returns": {
+            "success": false,
+            "summary": [],
+            "entries": [],
+            "message": "Failed to query queue."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "limit": 5
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MultilingualReconciliationService::status failed",
+                    {
+                        "exception": "query down"
+                    }
+                ]
+            }
+        ]
+    },
+    "process-no-container": {
+        "returns": {
+            "success": false,
+            "processed": 0,
+            "completed": 0,
+            "failed": 0,
+            "message": "OpenRegister is unavailable."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MultilingualReconciliationService::processQueue unable to resolve ObjectService",
+                    {
+                        "exception": "not bound"
+                    }
+                ]
+            }
+        ]
+    },
+    "process-load-throws": {
+        "returns": {
+            "success": false,
+            "processed": 0,
+            "completed": 0,
+            "failed": 0,
+            "message": "Failed to load queue."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 10
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MultilingualReconciliationService::processQueue failed to load queue",
+                    {
+                        "exception": "query down"
+                    }
+                ]
+            }
+        ]
+    },
+    "process-empty": {
+        "returns": {
+            "success": true,
+            "processed": 0,
+            "completed": 0,
+            "failed": 0,
+            "message": "Processed 0 entries (0 completed, 0 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 4
+                }
+            }
+        ]
+    },
+    "process-zero-max": {
+        "returns": {
+            "success": true,
+            "processed": 0,
+            "completed": 0,
+            "failed": 0,
+            "message": "Processed 0 entries (0 completed, 0 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 10
+                }
+            }
+        ]
+    },
+    "process-all": {
+        "returns": {
+            "success": true,
+            "processed": 8,
+            "completed": 3,
+            "failed": 5,
+            "message": "Processed 8 entries (3 completed, 5 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 10
+                }
+            },
+            {
+                "find": {
+                    "id": "m1",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "translate": [
+                    "Notulen",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "mt-1",
+                        "language": "en",
+                        "version": "draft",
+                        "content": "[en] Notulen",
+                        "reconciliationNotes": "Translated from nl by reconciliation engine (source minutes m1).",
+                        "sourceMinutesKoppeling": "m1"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "saved-6",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-gone",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q2",
+                        "minutesKoppeling": "m-gone",
+                        "sourceLocale": "nl",
+                        "targetLocale": "de",
+                        "status": "failed",
+                        "attempts": 1,
+                        "lastError": "Source minutes not found.",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q2"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q4",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "",
+                        "targetLocale": "fr",
+                        "status": "failed",
+                        "attempts": 3,
+                        "lastError": "Malformed queue entry."
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q4"
+                }
+            },
+            {
+                "find": {
+                    "id": "m2",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "viaJson": true,
+                        "id": "q5",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q5"
+                }
+            },
+            {
+                "translate": [
+                    "Kort",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "",
+                        "language": "en",
+                        "version": "draft",
+                        "content": "[en] Kort",
+                        "reconciliationNotes": "Translated from unknown by reconciliation engine (source minutes m2).",
+                        "sourceMinutesKoppeling": "m2"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "viaJson": true,
+                        "id": "q5",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "saved-14",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q5"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-throw",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to load minutes",
+                    {
+                        "exception": "find down",
+                        "minutesId": "m-throw"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q6",
+                        "minutesKoppeling": "m-throw",
+                        "sourceLocale": "en",
+                        "targetLocale": "nl",
+                        "status": "failed",
+                        "attempts": 4,
+                        "lastError": "Source minutes not found.",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q6"
+                }
+            },
+            {
+                "find": {
+                    "id": "m2",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q7",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q7"
+                }
+            },
+            {
+                "translate": [
+                    "Kort",
+                    "nl",
+                    "fr"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "",
+                        "language": "fr",
+                        "version": "draft",
+                        "content": "[fr] Kort",
+                        "reconciliationNotes": "Translated from unknown by reconciliation engine (source minutes m2).",
+                        "sourceMinutesKoppeling": "m2"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q7",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "saved-22",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q7"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q8",
+                        "status": "failed",
+                        "attempts": 1,
+                        "lastError": "Malformed queue entry."
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q8"
+                }
+            }
+        ]
+    },
+    "process-translate-no": {
+        "returns": {
+            "success": true,
+            "processed": 8,
+            "completed": 0,
+            "failed": 8,
+            "message": "Processed 8 entries (0 completed, 8 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 10
+                }
+            },
+            {
+                "find": {
+                    "id": "m1",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "translate": [
+                    "Notulen",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "failed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": "no budget",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-gone",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q2",
+                        "minutesKoppeling": "m-gone",
+                        "sourceLocale": "nl",
+                        "targetLocale": "de",
+                        "status": "failed",
+                        "attempts": 1,
+                        "lastError": "Source minutes not found.",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q2"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q4",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "",
+                        "targetLocale": "fr",
+                        "status": "failed",
+                        "attempts": 3,
+                        "lastError": "Malformed queue entry."
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q4"
+                }
+            },
+            {
+                "find": {
+                    "id": "m2",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "viaJson": true,
+                        "id": "q5",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q5"
+                }
+            },
+            {
+                "translate": [
+                    "Kort",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "viaJson": true,
+                        "id": "q5",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "failed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": "no budget",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q5"
+                }
+            },
+            {
+                "find": {
+                    "id": "m-throw",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to load minutes",
+                    {
+                        "exception": "find down",
+                        "minutesId": "m-throw"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q6",
+                        "minutesKoppeling": "m-throw",
+                        "sourceLocale": "en",
+                        "targetLocale": "nl",
+                        "status": "failed",
+                        "attempts": 4,
+                        "lastError": "Source minutes not found.",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q6"
+                }
+            },
+            {
+                "find": {
+                    "id": "m2",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q7",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q7"
+                }
+            },
+            {
+                "translate": [
+                    "Kort",
+                    "nl",
+                    "fr"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q7",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "failed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": "no budget",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q7"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q8",
+                        "status": "failed",
+                        "attempts": 1,
+                        "lastError": "Malformed queue entry."
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q8"
+                }
+            }
+        ]
+    },
+    "process-saves-throw": {
+        "returns": {
+            "success": true,
+            "processed": 8,
+            "completed": 3,
+            "failed": 5,
+            "message": "Processed 8 entries (3 completed, 5 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 10
+                }
+            },
+            {
+                "find": {
+                    "id": "m1",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q1"
+                    }
+                ]
+            },
+            {
+                "translate": [
+                    "Notulen",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "mt-1",
+                        "language": "en",
+                        "version": "draft",
+                        "content": "[en] Notulen",
+                        "reconciliationNotes": "Translated from nl by reconciliation engine (source minutes m1).",
+                        "sourceMinutesKoppeling": "m1"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to persist translated minutes",
+                    {
+                        "exception": "save down"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q1"
+                    }
+                ]
+            },
+            {
+                "find": {
+                    "id": "m-gone",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q2",
+                        "minutesKoppeling": "m-gone",
+                        "sourceLocale": "nl",
+                        "targetLocale": "de",
+                        "status": "failed",
+                        "attempts": 1,
+                        "lastError": "Source minutes not found.",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q2"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q2"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q4",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "",
+                        "targetLocale": "fr",
+                        "status": "failed",
+                        "attempts": 3,
+                        "lastError": "Malformed queue entry."
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q4"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q4"
+                    }
+                ]
+            },
+            {
+                "find": {
+                    "id": "m2",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "viaJson": true,
+                        "id": "q5",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q5"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q5"
+                    }
+                ]
+            },
+            {
+                "translate": [
+                    "Kort",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "",
+                        "language": "en",
+                        "version": "draft",
+                        "content": "[en] Kort",
+                        "reconciliationNotes": "Translated from unknown by reconciliation engine (source minutes m2).",
+                        "sourceMinutesKoppeling": "m2"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to persist translated minutes",
+                    {
+                        "exception": "save down"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "viaJson": true,
+                        "id": "q5",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q5"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q5"
+                    }
+                ]
+            },
+            {
+                "find": {
+                    "id": "m-throw",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to load minutes",
+                    {
+                        "exception": "find down",
+                        "minutesId": "m-throw"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q6",
+                        "minutesKoppeling": "m-throw",
+                        "sourceLocale": "en",
+                        "targetLocale": "nl",
+                        "status": "failed",
+                        "attempts": 4,
+                        "lastError": "Source minutes not found.",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q6"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q6"
+                    }
+                ]
+            },
+            {
+                "find": {
+                    "id": "m2",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q7",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q7"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q7"
+                    }
+                ]
+            },
+            {
+                "translate": [
+                    "Kort",
+                    "nl",
+                    "fr"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "",
+                        "language": "fr",
+                        "version": "draft",
+                        "content": "[fr] Kort",
+                        "reconciliationNotes": "Translated from unknown by reconciliation engine (source minutes m2).",
+                        "sourceMinutesKoppeling": "m2"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to persist translated minutes",
+                    {
+                        "exception": "save down"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q7",
+                        "minutesKoppeling": "m2",
+                        "sourceLocale": "nl",
+                        "targetLocale": "fr",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q7"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q7"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q8",
+                        "status": "failed",
+                        "attempts": 1,
+                        "lastError": "Malformed queue entry."
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q8"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: MultilingualReconciliationService failed to update queue entry",
+                    {
+                        "exception": "save down",
+                        "entryId": "q8"
+                    }
+                ]
+            }
+        ]
+    },
+    "process-no-adapter": {
+        "returns": {
+            "success": true,
+            "processed": 1,
+            "completed": 1,
+            "failed": 0,
+            "message": "Processed 1 entries (1 completed, 0 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 1
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ITranslationAdapter"
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: ITranslationAdapter not bound; using LogTranslationAdapter",
+                    {
+                        "exception": "not bound"
+                    }
+                ]
+            },
+            {
+                "find": {
+                    "id": "m1",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "container": "OCA\\Integriq\\Service\\TranslationService"
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: LogTranslationAdapter — translation requested (dormant default)",
+                    {
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "length": 7
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "mt-1",
+                        "language": "en",
+                        "version": "draft",
+                        "content": "Notulen",
+                        "reconciliationNotes": "Translated from nl by reconciliation engine (source minutes m1).",
+                        "sourceMinutesKoppeling": "m1"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "log",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "saved-9",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            }
+        ]
+    },
+    "process-di-adapter": {
+        "returns": {
+            "success": true,
+            "processed": 1,
+            "completed": 1,
+            "failed": 0,
+            "message": "Processed 1 entries (1 completed, 0 failed)."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "findAll": {
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "filters": {
+                        "status": "queued"
+                    },
+                    "limit": 1
+                }
+            },
+            {
+                "container": "OCA\\Decidiq\\Service\\ITranslationAdapter"
+            },
+            {
+                "find": {
+                    "id": "m1",
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "processing",
+                        "attempts": 1,
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            },
+            {
+                "translate": [
+                    "Notulen",
+                    "nl",
+                    "en"
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meetingIntegration": "mt-1",
+                        "language": "en",
+                        "version": "draft",
+                        "content": "[en] Notulen",
+                        "reconciliationNotes": "Translated from nl by reconciliation engine (source minutes m1).",
+                        "sourceMinutesKoppeling": "m1"
+                    },
+                    "register": "decidiq",
+                    "schema": "minutes"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "q1",
+                        "minutesKoppeling": "m1",
+                        "sourceLocale": "nl",
+                        "targetLocale": "en",
+                        "status": "completed",
+                        "attempts": 1,
+                        "provider": "p",
+                        "lastError": null,
+                        "translatedMinutesKoppeling": "saved-7",
+                        "completedAt": "<now>",
+                        "updatedAt": "<now>"
+                    },
+                    "register": "decidiq",
+                    "schema": "translation-queue",
+                    "uuid": "q1"
+                }
+            }
+        ]
+    }
+}
