@@ -111,6 +111,8 @@ export async function isDeckAvailable() {
  * @param {string} schema The decision/meeting schema slug or id.
  * @return {Promise<{boardId: number, laneStacks: object, fallbackStackId: number}>}
  * @throws {Error} When no Deck board is available to project onto.
+ *
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-001-vtodo-is-authoritative-deck-leaf-is-the-board-projection
  */
 export async function resolveTarget(schema) {
 	const sticky = await stickyDefault(schema)
