@@ -41,6 +41,7 @@ use Psr\Log\LoggerInterface;
  * Tests for the agenda phase and order paths.
  *
  * @covers \OCA\Decidiq\Service\AgendaService
+ * @uses   \OCA\Decidiq\Service\AgendaRules
  * @uses   \OCA\Decidiq\Service\AgendaNotices
  */
 class AgendaServicePhaseAndOrderTest extends TestCase {
