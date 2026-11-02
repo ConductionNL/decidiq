@@ -379,55 +379,96 @@ function loadFragments(manifestDDir) {
 }
 
 /**
- * Run the gate against the real repo files and report.
+ * Print a gate error and stop with exit code 1.
  *
+ * @param {string} message The error line.
  * @return {void}
  */
-function main() {
-	const manifestPath = path.join(REPO_ROOT, 'src', 'manifest.json')
-	const manifestDDir = path.join(REPO_ROOT, 'src', 'manifest.d')
-	const menuLayoutPath = path.join(REPO_ROOT, 'src', 'menu-layout.json')
+function fail(message) {
+	console.error(message)
+	process.exit(1)
+}
 
+/**
+ * Parse a JSON file.
+ *
+ * @param {string} file Absolute path.
+ * @return {object|Array|string|number|boolean|null} The parsed document.
+ */
+function readJson(file) {
+	return JSON.parse(fs.readFileSync(file, 'utf8'))
+}
+
+/**
+ * Load the base manifest; a missing or unparsable one stops the gate,
+ * because nothing could be checked.
+ *
+ * @param {string} manifestPath Absolute path to `src/manifest.json`.
+ * @return {object} The base manifest.
+ */
+function loadBase(manifestPath) {
 	if (!fs.existsSync(manifestPath)) {
-		console.error(
+		fail(
 			`✗ nav-ceiling: base manifest not found at ${manifestPath} — nothing was checked. Refusing to report a pass.`,
 		)
-		process.exit(1)
 	}
-
-	let base
 	try {
-		base = JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+		return readJson(manifestPath)
 	} catch (e) {
-		console.error(
+		return fail(
 			`✗ nav-ceiling: ${manifestPath} is not valid JSON (${e.message})`,
 		)
-		process.exit(1)
 	}
+}
 
-	let menuLayout = {}
-	if (fs.existsSync(menuLayoutPath)) {
-		try {
-			const doc = JSON.parse(fs.readFileSync(menuLayoutPath, 'utf8'))
-			menuLayout = {
-				relocations:
-					doc.relocations && typeof doc.relocations === 'object'
-						? doc.relocations
-						: {},
-				removals: Array.isArray(doc.removals) ? doc.removals : [],
-				settingsSection: Array.isArray(doc.settingsSection)
-					? doc.settingsSection
-					: [],
-			}
-		} catch (e) {
-			console.error(
-				`✗ nav-ceiling: ${menuLayoutPath} is not valid JSON (${e.message})`,
-			)
-			process.exit(1)
-		}
+/**
+ * The menu-layout parts the gate reads, each defaulted when absent or of
+ * the wrong type.
+ *
+ * @param {object} doc The parsed `menu-layout.json`.
+ * @return {{relocations: object, removals: string[], settingsSection: string[]}}
+ */
+function menuLayoutOf(doc) {
+	return {
+		relocations:
+			doc.relocations && typeof doc.relocations === 'object'
+				? doc.relocations
+				: {},
+		removals: Array.isArray(doc.removals) ? doc.removals : [],
+		settingsSection: Array.isArray(doc.settingsSection)
+			? doc.settingsSection
+			: [],
 	}
+}
 
-	const fragments = loadFragments(manifestDDir)
+/**
+ * Load `menu-layout.json`, or an empty layout when there is none; an
+ * unreadable one stops the gate.
+ *
+ * @param {string} menuLayoutPath Absolute path to `src/menu-layout.json`.
+ * @return {object} The menu layout.
+ */
+function loadMenuLayout(menuLayoutPath) {
+	if (!fs.existsSync(menuLayoutPath)) {
+		return {}
+	}
+	try {
+		return menuLayoutOf(readJson(menuLayoutPath))
+	} catch (e) {
+		return fail(
+			`✗ nav-ceiling: ${menuLayoutPath} is not valid JSON (${e.message})`,
+		)
+	}
+}
+
+/**
+ * Run both rules over the loaded inputs.
+ *
+ * @param {{base: object, fragments: Array<object>, menuLayout: object}} inputs The loaded repo files.
+ * @return {{failures: string[], scope: string}} Every violation, and what was checked.
+ */
+function evaluateAll(inputs) {
+	const { base, fragments, menuLayout } = inputs
 	const parseErrors = fragments.filter((f) => f.parseError)
 	for (const f of parseErrors) {
 		console.error(`✗ nav-ceiling: ${f.file} is not valid JSON (${f.parseError})`)
@@ -446,7 +487,17 @@ function main() {
 		`${fragments.length} fragment(s), ${placementResult.checked} fragment top-level menu entr(y/ies), `
 		+ `${ceilingResult.primary.length} primary / ${ceilingResult.footer.length} footer / `
 		+ `${ceilingResult.settings.length} settings top-level entries in the merged menu`
+	return { failures, scope }
+}
 
+/**
+ * Print the verdict and exit: 0 when nothing failed, 1 otherwise.
+ *
+ * @param {{failures: string[], scope: string}} result The evaluation.
+ * @return {void}
+ */
+function report(result) {
+	const { failures, scope } = result
 	if (failures.length === 0) {
 		console.log(
 			`✓ nav-ceiling: ${scope} — at or under the ADR-004 ceiling (${CEILING}), every fragment entry placed.`,
@@ -461,6 +512,19 @@ function main() {
 		console.error(f)
 	}
 	process.exit(1)
+}
+
+/**
+ * Run the gate against the real repo files and report.
+ *
+ * @return {void}
+ */
+function main() {
+	const src = path.join(REPO_ROOT, 'src')
+	const base = loadBase(path.join(src, 'manifest.json'))
+	const menuLayout = loadMenuLayout(path.join(src, 'menu-layout.json'))
+	const fragments = loadFragments(path.join(src, 'manifest.d'))
+	report(evaluateAll({ base, fragments, menuLayout }))
 }
 
 if (require.main === module) {
