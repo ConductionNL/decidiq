@@ -44,6 +44,7 @@ use Psr\Log\LoggerInterface;
  * surface fails LOUDLY (error log + success=false), never silently.
  *
  * @covers \OCA\Decidiq\Service\AuditLogService
+ * @uses   \OCA\Decidiq\Service\AuditRowFormat
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
  */

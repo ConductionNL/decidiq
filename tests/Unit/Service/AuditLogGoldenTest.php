@@ -56,6 +56,7 @@ use RuntimeException;
  * Golden test for the audit log.
  *
  * @covers \OCA\Decidiq\Service\AuditLogService
+ * @uses   \OCA\Decidiq\Service\AuditRowFormat
  */
 class AuditLogGoldenTest extends TestCase {
 
