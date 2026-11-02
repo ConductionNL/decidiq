@@ -135,8 +135,10 @@ class RegisterFragmentMerger {
 	 * @param array<mixed> $overlay The fragment to merge in.
 	 *
 	 * @return array<mixed> The merged config.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
 	 */
-	private static function deepMerge(array $base, array $overlay): array {
+	public static function deepMerge(array $base, array $overlay): array {
 		foreach ($overlay as $key => $value) {
 			$base[$key] = self::mergeValue(current: ($base[$key] ?? null), value: $value);
 		}
