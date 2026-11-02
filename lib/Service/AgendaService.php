@@ -26,7 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTime;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -47,18 +46,6 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
  */
 class AgendaService {
-
-	/**
-	 * BOB phase transition map: current status → next status.
-	 *
-	 * @var array<string,string>
-	 */
-	private const BOB_PHASE_TRANSITIONS = [
-		'voorstel' => 'beeldvorming',
-		'beeldvorming' => 'oordeelsvorming',
-		'oordeelsvorming' => 'besluitvorming',
-		'besluitvorming' => 'completed',
-	];
 
 	/**
 	 * Tag identifying consent agenda items.
@@ -89,11 +76,11 @@ class AgendaService {
 	private readonly AgendaNotices $notices;
 
 	/**
-	 * A member gets at most one agenda change notice per meeting in this many seconds.
+	 * Reads agenda objects and applies the phase, publication and version rules.
 	 *
-	 * @var int
+	 * @var AgendaRules
 	 */
-	private const AGENDA_NOTICE_WINDOW_SECONDS = 300;
+	private readonly AgendaRules $rules;
 
 	/**
 	 * Constructor for AgendaService.
@@ -120,6 +107,7 @@ class AgendaService {
 		private readonly PublicationEventRecorder $eventRecorder,
 	) {
 		$this->notices = new AgendaNotices(preferences: $preferences, l10nFactory: $l10nFactory, logger: $logger);
+		$this->rules   = new AgendaRules();
 	}//end __construct()
 
 	/**
@@ -160,79 +148,85 @@ class AgendaService {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function publishAgenda(string $meetingId): void {
-		// Validate at least one AgendaItem exists.
-		$items = $this->meetingItems(meetingId: $meetingId);
-
-		if (empty($items) === true) {
-			throw new InvalidArgumentException('Cannot publish agenda: no agenda items exist for this meeting.');
-		}
-
-		// Update the meeting calendar entry to reflect the published agenda
-		// (method guard for forward-compatibility until CalendarEventService
-		// exposes updateMeetingEvent).
-		if (method_exists($this->calendarEventService, 'updateMeetingEvent') === true) {
-			$this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
-		}
+		$items = $this->publishableItems(meetingId: $meetingId);
+		$this->refreshCalendarEvent(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
-		$meetingData = $this->readMeeting(meetingId: $meetingId);
-
-		// A first publication is "published"; publishing again after a
-		// revision is "revised". Either way the meeting's lifecycle is left
-		// alone: publishing an agenda days ahead is not a meeting in session,
-		// and LiveDecisionService only records live decisions on an `opened`
-		// meeting (#1396). Publication has its own fields instead.
-		$subject = 'agenda_published';
-		if ((int)($meetingData['agendaVersion'] ?? 0) > 0) {
-			$subject = 'agenda_revised';
-		}
-
-		// The convocation goes out with the first publication; a republish
-		// keeps that date (publication eligibility reads it).
-		$changes = ['agendaUnderRevision' => false];
-		if (empty($meetingData['convocationSentAt']) === true) {
-			$changes['convocationSentAt'] = (new DateTime())->format(DATE_ATOM);
-		}
-
-		$this->saveMeeting(
-			meetingId: $meetingId,
-			meetingData: $this->withNewAgendaVersion(meetingData: $meetingData, items: $items),
-			changes: $changes
-		);
-
-		$this->notices->send(
-			notice: ['meetingId' => $meetingId, 'meeting' => $meetingData, 'subject' => $subject, 'items' => $items],
-			recipients: fn (): array => $this->activeRecipients(meetingId: $meetingId)
-		);
-		$this->eventRecorder->agendaPublished(meetingId: $meetingId, meeting: $meetingData, revised: ($subject === 'agenda_revised'));
-
+		$publication = ['meetingId' => $meetingId, 'meeting' => $this->readMeeting(meetingId: $meetingId), 'items' => $items];
+		$this->savePublication(publication: $publication);
+		$this->announcePublication(publication: $publication);
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
 
 	}//end publishAgenda()
 
 	/**
-	 * Normalise an OpenRegister object to a plain PHP array.
+	 * The agenda items of a meeting about to be published; at least one must exist.
 	 *
-	 * Handles both raw arrays and ObjectEntity instances returned by ObjectService.
+	 * @param string $meetingId UUID of the Meeting
 	 *
-	 * @param mixed $item The raw item from ObjectService
+	 * @return array The agenda items, as the object service returns them.
 	 *
-	 * @return array<string,mixed>
-	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @throws InvalidArgumentException When no agenda items exist for the meeting
 	 */
-	private function toArray(mixed $item): array {
-		if (is_array($item) === true) {
-			return $item;
+	private function publishableItems(string $meetingId): array {
+		$items = $this->meetingItems(meetingId: $meetingId);
+		if (empty($items) === true) {
+			throw new InvalidArgumentException('Cannot publish agenda: no agenda items exist for this meeting.');
 		}
 
-		if (method_exists($item, 'getObject') === true) {
-			return $item->getObject();
-		}
+		return $items;
+	}//end publishableItems()
 
-		return (array)$item;
-	}//end toArray()
+	/**
+	 * Update the meeting calendar entry to reflect the published agenda
+	 * (method guard for forward-compatibility until CalendarEventService
+	 * exposes updateMeetingEvent).
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 *
+	 * @return void
+	 */
+	private function refreshCalendarEvent(string $meetingId): void {
+		if (method_exists($this->calendarEventService, 'updateMeetingEvent') === true) {
+			$this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
+		}
+	}//end refreshCalendarEvent()
+
+	/**
+	 * Save the meeting with its next agenda version and the publication fields.
+	 *
+	 * @param array<string, mixed> $publication The meetingId, the full meeting and its agenda items
+	 *
+	 * @return void
+	 */
+	private function savePublication(array $publication): void {
+		$meetingData = $publication['meeting'];
+		$this->saveMeeting(
+			meetingId: $publication['meetingId'],
+			meeting: array_merge(
+				$this->rules->withNewAgendaVersion(meetingData: $meetingData, items: $publication['items']),
+				$this->rules->publicationChanges(meetingData: $meetingData)
+			)
+		);
+	}//end savePublication()
+
+	/**
+	 * Notify the active participants of a publication and record it for subscribers.
+	 *
+	 * @param array<string, mixed> $publication The meetingId, the full meeting and its agenda items
+	 *
+	 * @return void
+	 */
+	private function announcePublication(array $publication): void {
+		$meetingId = $publication['meetingId'];
+		$subject   = $this->rules->publicationSubject(meetingData: $publication['meeting']);
+		$this->notices->send(
+			notice: ['meetingId' => $meetingId, 'meeting' => $publication['meeting'], 'subject' => $subject, 'items' => $publication['items']],
+			recipients: fn (): array => $this->activeRecipients(meetingId: $meetingId)
+		);
+		$this->eventRecorder->agendaPublished(meetingId: $meetingId, meeting: $publication['meeting'], revised: ($subject === 'agenda_revised'));
+	}//end announcePublication()
 
 	/**
 	 * Advance the BOB phase of a single agenda item.
@@ -257,32 +251,12 @@ class AgendaService {
 			throw new NotFoundException(message: "AgendaItem {$agendaItemId} not found.");
 		}
 
-		$itemData = $this->toArray(item: $item);
-
-		// Guard: informational items have no BOB phase.
-		$itemType = $itemData['itemType'] ?? null;
-		if ($itemType === 'informational') {
-			throw new InvalidArgumentException('Informational agenda items do not have a BOB phase.');
-		}
-
-		$currentStatus = $itemData['status'] ?? 'beeldvorming';
-		$nextStatus = self::BOB_PHASE_TRANSITIONS[$currentStatus] ?? null;
-
-		if ($nextStatus === null) {
-			throw new InvalidArgumentException(
-				"AgendaItem is already at final phase '{$currentStatus}' and cannot be advanced."
-			);
-		}
+		[$currentStatus, $nextStatus] = $this->rules->bobTransition(itemData: $this->rules->toArray(item: $item));
 
 		// Uses patchObject, not saveObject: a uuid-bearing save is a FULL REPLACE
 		// that OpenRegister validates whole, so a status-only payload 400s on
 		// the required title, itemType and orderNumber it omits.
-		$this->objectService->patchObject(
-			objectId: $agendaItemId,
-			data: ['status' => $nextStatus],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->patchItem(itemId: $agendaItemId, data: ['status' => $nextStatus]);
 
 		$this->logger->info(
 			'BOB phase advanced for agenda item {id}: {from} to {to}',
@@ -290,6 +264,23 @@ class AgendaService {
 		);
 
 	}//end advanceBobPhase()
+
+	/**
+	 * Patch fields of one agenda item.
+	 *
+	 * @param string               $itemId UUID of the agenda item
+	 * @param array<string, mixed> $data   The fields to set
+	 *
+	 * @return void
+	 */
+	private function patchItem(string $itemId, array $data): void {
+		$this->objectService->patchObject(
+			objectId: $itemId,
+			data: $data,
+			register: 'decidiq',
+			schema: 'agenda-item',
+		);
+	}//end patchItem()
 
 	/**
 	 * Adopt the formalities (hamerstukken) of a meeting together.
@@ -308,28 +299,7 @@ class AgendaService {
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-afh-001-formalities-are-marked-and-adopted-together
 	 */
 	public function processHamerstukken(string $meetingId): int {
-		$items = $this->meetingItems(meetingId: $meetingId);
-
-		$adoptedAt = gmdate('Y-m-d\TH:i:s\Z');
-		$processedCount = 0;
-		foreach ($items as $item) {
-			$itemData = $this->toArray(item: $item);
-			$itemId = $itemData['id'] ?? ($itemData['@self']['id'] ?? ($itemData['uuid'] ?? null));
-			if ($itemId === null || $this->isPendingFormality(item: $itemData) === false) {
-				continue;
-			}
-
-			// Uses patchObject, not saveObject: see advanceBobPhase() — a partial
-			// payload under save's full-replace validation 400s per item.
-			$this->objectService->patchObject(
-				objectId: (string)$itemId,
-				data: ['formalityOutcome' => self::FORMALITY_ADOPTED, 'adoptedAt' => $adoptedAt],
-				register: 'decidiq',
-				schema: 'agenda-item',
-			);
-
-			$processedCount++;
-		}//end foreach
+		$processedCount = $this->adoptFormalities(items: $this->meetingItems(meetingId: $meetingId));
 
 		$this->logger->info(
 			'Adopted {count} formalities for meeting {meetingId}',
@@ -338,6 +308,32 @@ class AgendaService {
 
 		return $processedCount;
 	}//end processHamerstukken()
+
+	/**
+	 * Adopt every pending formality among the items.
+	 *
+	 * @param iterable<mixed> $items The meeting's agenda items
+	 *
+	 * @return integer The number of formalities adopted.
+	 */
+	private function adoptFormalities(iterable $items): int {
+		$adoptedAt = gmdate('Y-m-d\TH:i:s\Z');
+		$processedCount = 0;
+		foreach ($items as $item) {
+			$itemData = $this->rules->toArray(item: $item);
+			$itemId = $this->rules->itemIdOf(itemData: $itemData);
+			if ($itemId === null || $this->isPendingFormality(item: $itemData) === false) {
+				continue;
+			}
+
+			// Uses patchObject, not saveObject: see advanceBobPhase() — a partial
+			// payload under save's full-replace validation 400s per item.
+			$this->patchItem(itemId: (string)$itemId, data: ['formalityOutcome' => self::FORMALITY_ADOPTED, 'adoptedAt' => $adoptedAt]);
+			$processedCount++;
+		}
+
+		return $processedCount;
+	}//end adoptFormalities()
 
 	/**
 	 * Mark an agenda item of a meeting as a formality, or take the mark off.
@@ -356,7 +352,7 @@ class AgendaService {
 		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
 		$item = [];
 		if ($entity !== null) {
-			$item = $this->toArray(item: $entity);
+			$item = $this->rules->toArray(item: $entity);
 		}
 
 		if ((string)($item['meeting'] ?? '') !== $meetingId) {
@@ -367,12 +363,7 @@ class AgendaService {
 			throw new InvalidArgumentException('This formality was already adopted.');
 		}
 
-		$this->objectService->patchObject(
-			objectId: $itemId,
-			data: ['isFormality' => $isFormality],
-			register: 'decidiq',
-			schema: 'agenda-item',
-		);
+		$this->patchItem(itemId: $itemId, data: ['isFormality' => $isFormality]);
 	}//end setFormality()
 
 	/**
@@ -414,7 +405,7 @@ class AgendaService {
 
 		// The lifecycle is NOT touched: a meeting that is running stays
 		// running while its agenda is revised (#1396).
-		$this->saveMeeting(meetingId: $meetingId, meetingData: $meetingData, changes: ['agendaUnderRevision' => true]);
+		$this->saveMeeting(meetingId: $meetingId, meeting: array_merge($meetingData, ['agendaUnderRevision' => true]));
 
 		if (($meetingData['agendaPublishedAt'] ?? null) !== null) {
 			$this->notices->send(
@@ -441,44 +432,7 @@ class AgendaService {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function reorderItems(string $meetingId, array $orderedIds): void {
-		// Build a set of valid UUIDs that belong to this meeting.
-		$meetingItems = $this->meetingItems(meetingId: $meetingId);
-
-		$validIds = [];
-		foreach ($meetingItems as $item) {
-			$itemData = $this->toArray(item: $item);
-			$itemId = $itemData['id'] ?? ($itemData['@self']['id'] ?? ($itemData['uuid'] ?? null));
-			if ($itemId !== null) {
-				$validIds[(string)$itemId] = true;
-			}
-		}
-
-		$orderNumber = 1;
-		// One notice for the whole reorder, not one per patched item: the
-		// item listener checks isSuppressingItemNotices() (#1396).
-		$this->suppressItemNotices = true;
-		foreach ($orderedIds as $itemId) {
-			if (isset($validIds[(string)$itemId]) === false) {
-				$this->logger->warning(
-					'reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped',
-					['id' => $itemId, 'meetingId' => $meetingId]
-				);
-				continue;
-			}
-
-			// Uses patchObject, not saveObject: see advanceBobPhase() — a partial
-			// payload under save's full-replace validation 400s per item.
-			$this->objectService->patchObject(
-				objectId: (string)$itemId,
-				data: ['orderNumber' => $orderNumber],
-				register: 'decidiq',
-				schema: 'agenda-item',
-			);
-
-			$orderNumber++;
-		}//end foreach
-
-		$this->suppressItemNotices = false;
+		$this->writeOrder(meetingId: $meetingId, orderedIds: $orderedIds);
 		$this->notifyAgendaChanged(meetingId: $meetingId);
 
 		$this->logger->info(
@@ -487,6 +441,53 @@ class AgendaService {
 		);
 
 	}//end reorderItems()
+
+	/**
+	 * Give the meeting's items in the order asked orderNumber 1..n; ids that
+	 * are not on this meeting are skipped.
+	 *
+	 * @param string   $meetingId  UUID of the Meeting
+	 * @param string[] $orderedIds Ordered array of AgendaItem UUIDs
+	 *
+	 * @return void
+	 */
+	private function writeOrder(string $meetingId, array $orderedIds): void {
+		$validIds = $this->itemIdSet(items: $this->meetingItems(meetingId: $meetingId));
+		$orderNumber = 1;
+		// One notice for the whole reorder, not one per patched item: the
+		// item listener checks isSuppressingItemNotices() (#1396).
+		$this->suppressItemNotices = true;
+		foreach ($orderedIds as $itemId) {
+			if (isset($validIds[(string)$itemId]) === false) {
+				$this->logger->warning('reorderItems: UUID {id} does not belong to meeting {meetingId} — skipped', ['id' => $itemId, 'meetingId' => $meetingId]);
+				continue;
+			}
+
+			$this->patchItem(itemId: (string)$itemId, data: ['orderNumber' => $orderNumber]);
+			$orderNumber++;
+		}
+
+		$this->suppressItemNotices = false;
+	}//end writeOrder()
+
+	/**
+	 * The ids of the items, as a set.
+	 *
+	 * @param iterable<mixed> $items The meeting's agenda items
+	 *
+	 * @return array<string, true>
+	 */
+	private function itemIdSet(iterable $items): array {
+		$validIds = [];
+		foreach ($items as $item) {
+			$itemId = $this->rules->itemIdOf(itemData: $this->rules->toArray(item: $item));
+			if ($itemId !== null) {
+				$validIds[(string)$itemId] = true;
+			}
+		}
+
+		return $validIds;
+	}//end itemIdSet()
 
 	/**
 	 * Tell members that the agenda of a published meeting changed.
@@ -506,13 +507,8 @@ class AgendaService {
 	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
 	 */
 	public function notifyAgendaChanged(string $meetingId): void {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-		if ($meetingEntity === null) {
-			return;
-		}
-
-		$meetingData = $this->toArray(item: $meetingEntity);
-		if (($meetingData['agendaPublishedAt'] ?? null) === null || ($meetingData['agendaUnderRevision'] ?? false) === true) {
+		$meetingData = $this->liveAgendaMeeting(meetingId: $meetingId);
+		if ($meetingData === null) {
 			return;
 		}
 
@@ -521,24 +517,10 @@ class AgendaService {
 		// REQ-ACN-004: every change is a version, but a member hears about a
 		// burst of edits once. Who is due is decided before the save, so the
 		// new notice times go out with the version in one write.
-		$sentAt = (array)($meetingData['agendaNoticeSentAt'] ?? []);
-		$due = [];
-		foreach ($this->activeRecipients(meetingId: $meetingId) as $uid) {
-			$last = strtotime((string)($sentAt[$uid] ?? ''));
-			if ($last !== false && (time() - $last) < self::AGENDA_NOTICE_WINDOW_SECONDS) {
-				continue;
-			}
+		[$due, $sentAt] = $this->dueRecipients(meetingId: $meetingId, sentAt: (array)($meetingData['agendaNoticeSentAt'] ?? []));
 
-			$due[] = $uid;
-			$sentAt[$uid] = date(DATE_ATOM);
-		}
-
-		$versioned = $this->withNewAgendaVersion(meetingData: $meetingData, items: $items);
-		$this->saveMeeting(
-			meetingId: $meetingId,
-			meetingData: $versioned,
-			changes: ['agendaNoticeSentAt' => $sentAt]
-		);
+		$versioned = $this->rules->withNewAgendaVersion(meetingData: $meetingData, items: $items);
+		$this->saveMeeting(meetingId: $meetingId, meeting: array_merge($versioned, ['agendaNoticeSentAt' => $sentAt]));
 		$this->notices->send(
 			notice: ['meetingId' => $meetingId, 'meeting' => $meetingData, 'subject' => 'agenda_changed'],
 			recipients: fn (): array => $due
@@ -547,6 +529,50 @@ class AgendaService {
 		$this->eventRecorder->agendaChanged(meetingId: $meetingId, meeting: $meetingData, versions: $versioned['agendaVersions']);
 
 	}//end notifyAgendaChanged()
+
+	/**
+	 * The meeting, when its agenda is published and not under revision.
+	 *
+	 * @param string $meetingId UUID of the Meeting
+	 *
+	 * @return array<string, mixed>|null The meeting, or null when it is missing or its agenda is not live
+	 */
+	private function liveAgendaMeeting(string $meetingId): ?array {
+		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		if ($meetingEntity === null) {
+			return null;
+		}
+
+		$meetingData = $this->rules->toArray(item: $meetingEntity);
+		if (($meetingData['agendaPublishedAt'] ?? null) === null || ($meetingData['agendaUnderRevision'] ?? false) === true) {
+			return null;
+		}
+
+		return $meetingData;
+	}//end liveAgendaMeeting()
+
+	/**
+	 * The active recipients not noticed within the notice window, and the
+	 * notice times with theirs set to now.
+	 *
+	 * @param string                $meetingId UUID of the Meeting
+	 * @param array<string, string> $sentAt    When each user was last noticed
+	 *
+	 * @return array{0: list<string>, 1: array<string, string>} [due, sentAt]
+	 */
+	private function dueRecipients(string $meetingId, array $sentAt): array {
+		$due = [];
+		foreach ($this->activeRecipients(meetingId: $meetingId) as $uid) {
+			if ($this->rules->noticedRecently(sentAt: ($sentAt[$uid] ?? '')) === true) {
+				continue;
+			}
+
+			$due[] = $uid;
+			$sentAt[$uid] = date(DATE_ATOM);
+		}
+
+		return [$due, $sentAt];
+	}//end dueRecipients()
 
 	/**
 	 * Whether this service is writing several agenda items as one change.
@@ -574,65 +600,25 @@ class AgendaService {
 			throw new NotFoundException(message: "Meeting {$meetingId} not found");
 		}
 
-		return $this->toArray(item: $meetingEntity);
+		return $this->rules->toArray(item: $meetingEntity);
 	}//end readMeeting()
 
 	/**
 	 * Save a meeting as a full-object merge (#315).
 	 *
-	 * @param string               $meetingId   UUID of the Meeting
-	 * @param array<string, mixed> $meetingData The full meeting
-	 * @param array<string, mixed> $changes     Fields to set over it
+	 * @param string               $meetingId UUID of the Meeting
+	 * @param array<string, mixed> $meeting   The full meeting with its changes set over it
 	 *
 	 * @return void
 	 */
-	private function saveMeeting(string $meetingId, array $meetingData, array $changes): void {
+	private function saveMeeting(string $meetingId, array $meeting): void {
 		$this->objectService->saveObject(
-			object: array_merge($meetingData, $changes),
+			object: $meeting,
 			register: 'decidiq',
 			schema: 'meeting',
 			uuid: $meetingId,
 		);
 	}//end saveMeeting()
-
-	/**
-	 * The meeting with its next agenda version recorded.
-	 *
-	 * @param array<string, mixed> $meetingData The full meeting
-	 * @param iterable<mixed>      $items       The meeting's agenda items
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function withNewAgendaVersion(array $meetingData, iterable $items): array {
-		$now = (new DateTime())->format(DATE_ATOM);
-		$version = ((int)($meetingData['agendaVersion'] ?? 0) + 1);
-
-		$snapshot = [];
-		foreach ($items as $item) {
-			$itemData = $this->toArray(item: $item);
-			$snapshot[] = [
-				'id' => (string)($itemData['id'] ?? ($itemData['@self']['id'] ?? '')),
-				'title' => (string)($itemData['title'] ?? ''),
-				'orderNumber' => ($itemData['orderNumber'] ?? null),
-			];
-		}
-
-		$versions = $meetingData['agendaVersions'] ?? [];
-		if (is_array($versions) === false) {
-			$versions = [];
-		}
-
-		$versions[] = ['version' => $version, 'publishedAt' => $now, 'items' => $snapshot];
-
-		return array_merge(
-			$meetingData,
-			[
-				'agendaPublishedAt' => $now,
-				'agendaVersion' => $version,
-				'agendaVersions' => $versions,
-			]
-		);
-	}//end withNewAgendaVersion()
 
 	/**
 	 * The Nextcloud users of the meeting's active participants: the linked
@@ -650,7 +636,7 @@ class AgendaService {
 		// -> meeting; participants carry no direct meeting relation).
 		$uids = [];
 		foreach ($this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId) as $participant) {
-			$participantData = $this->toArray(item: $participant);
+			$participantData = $this->rules->toArray(item: $participant);
 			if (($participantData['leftAt'] ?? null) !== null) {
 				continue;
 			}
