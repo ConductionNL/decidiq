@@ -19,21 +19,187 @@
 
 import { agendaItemCost } from './meetingCost.js'
 
+const EMPTY_DATES = new Set([null, undefined, ''])
+
+/** Advice word per allocation verdict; an accurate verdict gets no advice. */
+const ALLOCATION_ADVICE = { over: 'increasing', under: 'reducing' }
+
 /**
  * Parse a value into epoch milliseconds, or null when unparseable.
  *
- * @param {*} value A date string / Date / number.
+ * @param {Date|string|number|null|undefined} value A date string / Date / number.
  *
  * @return {number|null} Epoch ms, or null.
  *
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 function toMs(value) {
-	if (value === null || value === undefined || value === '') {
+	if (EMPTY_DATES.has(value)) {
 		return null
 	}
 	const ms = value instanceof Date ? value.getTime() : Date.parse(value)
 	return Number.isFinite(ms) ? ms : null
+}
+
+/**
+ * The value when it is an array, else an empty list.
+ *
+ * @param {Array|null|undefined} value The value to read as a list.
+ *
+ * @return {Array} The list.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function asList(value) {
+	return Array.isArray(value) ? value : []
+}
+
+/**
+ * The sum of a list of numbers.
+ *
+ * @param {Array<number>} values The numbers.
+ *
+ * @return {number} The sum, 0 for an empty list.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function sum(values) {
+	return values.reduce((total, v) => total + v, 0)
+}
+
+/**
+ * The rounded average of a list of numbers.
+ *
+ * @param {Array<number>} values The numbers.
+ *
+ * @return {number} The average, 0 for an empty list.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function roundedAverage(values) {
+	return values.length > 0 ? Math.round(sum(values) / values.length) : 0
+}
+
+/**
+ * Chronological order of two points; a point without a date sorts as 0.
+ *
+ * @param {{date: number|null}} a One point.
+ * @param {{date: number|null}} b The other point.
+ *
+ * @return {number} The sort order.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function byDate(a, b) {
+	return (a.date ?? 0) - (b.date ?? 0)
+}
+
+/**
+ * The id and title of a meeting, as a point shows them.
+ *
+ * @param {object} meeting Meeting object.
+ *
+ * @return {{id: string|null, title: string}} The id and title.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function identityOf(meeting) {
+	return { id: meeting.id ?? meeting.uuid ?? null, title: meeting.title ?? '' }
+}
+
+/**
+ * Whole minutes from a start to an end, or null when either is missing or
+ * the end lies before the start.
+ *
+ * @param {number|null} startMs Start in epoch ms.
+ * @param {number|null} endMs End in epoch ms.
+ *
+ * @return {number|null} The minutes, or null.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function minutesBetween(startMs, endMs) {
+	if (startMs === null || endMs === null || endMs < startMs) {
+		return null
+	}
+	return Math.round((endMs - startMs) / 60000)
+}
+
+/**
+ * A positive duration rounded to whole minutes, or null.
+ *
+ * @param {number|string|null|undefined} value A duration in minutes.
+ *
+ * @return {number|null} The rounded minutes, or null.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function positiveMinutes(value) {
+	return Number.isFinite(value) && value > 0 ? Math.round(value) : null
+}
+
+/**
+ * Scheduled minutes of a meeting: from its start to its end, else its
+ * plannedDuration, else its duration.
+ *
+ * @param {object} meeting Meeting object.
+ * @param {number|null} startMs The meeting's scheduled start in epoch ms.
+ *
+ * @return {number|null} The scheduled minutes, or null.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function scheduledMinutesOf(meeting, startMs) {
+	const between = minutesBetween(startMs, toMs(meeting.endDate ?? meeting.endTime))
+	if (between !== null) {
+		return between
+	}
+	return (
+		positiveMinutes(meeting.plannedDuration) ?? positiveMinutes(meeting.duration)
+	)
+}
+
+/**
+ * Whether the actual minutes exceed the scheduled minutes.
+ *
+ * @param {number|null} actualMinutes Actual minutes.
+ * @param {number|null} scheduledMinutes Scheduled minutes.
+ *
+ * @return {boolean} True on an overrun.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function isOverrun(actualMinutes, scheduledMinutes) {
+	return (
+		actualMinutes !== null
+		&& scheduledMinutes !== null
+		&& actualMinutes > scheduledMinutes
+	)
+}
+
+/**
+ * The duration point of one meeting.
+ *
+ * @param {object} meeting Meeting object.
+ *
+ * @return {{id: string|null, title: string, date: number|null, actualMinutes: number|null, scheduledMinutes: number|null, overrun: boolean}} The point.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function durationPoint(meeting) {
+	const openedMs = toMs(meeting.openedAt)
+	const actualMinutes = minutesBetween(openedMs, toMs(meeting.closedAt))
+	const startMs = toMs(
+		meeting.scheduledDate ?? meeting.startDate ?? meeting.startTime,
+	)
+	const scheduledMinutes = scheduledMinutesOf(meeting, startMs)
+	return {
+		...identityOf(meeting),
+		date: openedMs ?? startMs,
+		actualMinutes,
+		scheduledMinutes,
+		overrun: isOverrun(actualMinutes, scheduledMinutes),
+	}
 }
 
 /**
@@ -77,49 +243,12 @@ export function isItemCompleted(item) {
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export function meetingDurationStats(meetings) {
-	const list = Array.isArray(meetings) ? meetings : []
-	const points = list
-		.map((m) => {
-			const openedMs = toMs(m.openedAt)
-			const closedMs = toMs(m.closedAt)
-			const actualMinutes =
-				openedMs !== null && closedMs !== null && closedMs >= openedMs
-					? Math.round((closedMs - openedMs) / 60000)
-					: null
-
-			let scheduledMinutes = null
-			const startMs = toMs(m.scheduledDate ?? m.startDate ?? m.startTime)
-			const endMs = toMs(m.endDate ?? m.endTime)
-			if (startMs !== null && endMs !== null && endMs >= startMs) {
-				scheduledMinutes = Math.round((endMs - startMs) / 60000)
-			} else if (Number.isFinite(m.plannedDuration) && m.plannedDuration > 0) {
-				scheduledMinutes = Math.round(m.plannedDuration)
-			} else if (Number.isFinite(m.duration) && m.duration > 0) {
-				scheduledMinutes = Math.round(m.duration)
-			}
-
-			const overrun =
-				actualMinutes !== null
-				&& scheduledMinutes !== null
-				&& actualMinutes > scheduledMinutes
-			return {
-				id: m.id ?? m.uuid ?? null,
-				title: m.title ?? '',
-				date: openedMs ?? startMs,
-				actualMinutes,
-				scheduledMinutes,
-				overrun,
-			}
-		})
-		.sort((a, b) => (a.date ?? 0) - (b.date ?? 0))
-
+	const list = asList(meetings)
+	const points = list.map((m) => durationPoint(m)).sort(byDate)
 	const actuals = points
 		.map((p) => p.actualMinutes)
 		.filter((v) => Number.isFinite(v))
-	const averageActualMinutes =
-		actuals.length > 0
-			? Math.round(actuals.reduce((sum, v) => sum + v, 0) / actuals.length)
-			: 0
+	const averageActualMinutes = roundedAverage(actuals)
 	const overrunCount = points.filter((p) => p.overrun).length
 
 	return { points, averageActualMinutes, overrunCount, count: list.length }
@@ -142,6 +271,55 @@ export function agendaCompletionRate(items) {
 }
 
 /**
+ * Recorded speaking seconds per participant; a record without a participant
+ * is skipped and a missing or negative duration counts as 0.
+ *
+ * @param {Array} records EngagementRecord objects.
+ *
+ * @return {Map<string, number>} Seconds per participant id, in first-seen order.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function secondsByParticipant(records) {
+	const totals = new Map()
+	for (const r of records) {
+		const id = participantOf(r)
+		if (id !== null) {
+			totals.set(id, (totals.get(id) ?? 0) + speakingSeconds(r))
+		}
+	}
+	return totals
+}
+
+/**
+ * The participant id of one record, or null.
+ *
+ * @param {object} record EngagementRecord object.
+ *
+ * @return {string|null} The participant id.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function participantOf(record) {
+	return record.participant ?? record.participantId ?? null
+}
+
+/**
+ * The speaking seconds of one record: its duration, at least 0.
+ *
+ * @param {object} record EngagementRecord object.
+ *
+ * @return {number} The seconds.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function speakingSeconds(record) {
+	return Number.isFinite(record.speakingDuration)
+		? Math.max(0, record.speakingDuration)
+		: 0
+}
+
+/**
  * Speaking-time distribution from EngagementRecords: each participant's share
  * of the total recorded speakingDuration, sorted descending.
  *
@@ -156,19 +334,8 @@ export function agendaCompletionRate(items) {
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export function speakingDistribution(records, nameMap = {}) {
-	const list = Array.isArray(records) ? records : []
-	const byParticipant = new Map()
-	for (const r of list) {
-		const id = r.participant ?? r.participantId ?? null
-		if (id === null) {
-			continue
-		}
-		const seconds = Number.isFinite(r.speakingDuration)
-			? Math.max(0, r.speakingDuration)
-			: 0
-		byParticipant.set(id, (byParticipant.get(id) ?? 0) + seconds)
-	}
-	const totalSeconds = [...byParticipant.values()].reduce((sum, v) => sum + v, 0)
+	const byParticipant = secondsByParticipant(asList(records))
+	const totalSeconds = sum([...byParticipant.values()])
 	const rows = [...byParticipant.entries()]
 		.map(([participantId, seconds]) => ({
 			participantId,
@@ -195,17 +362,15 @@ export function speakingDistribution(records, nameMap = {}) {
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export function costTrend(meetings) {
-	const list = Array.isArray(meetings) ? meetings : []
-	const points = list
+	const points = asList(meetings)
 		.filter((m) => Number.isFinite(m.meetingCost) && m.meetingCost > 0)
 		.map((m) => ({
-			id: m.id ?? m.uuid ?? null,
-			title: m.title ?? '',
+			...identityOf(m),
 			date: toMs(m.closedAt ?? m.openedAt ?? m.scheduledDate),
 			cost: m.meetingCost,
 		}))
-		.sort((a, b) => (a.date ?? 0) - (b.date ?? 0))
-	const total = points.reduce((sum, p) => sum + p.cost, 0)
+		.sort(byDate)
+	const total = sum(points.map((p) => p.cost))
 	const average = points.length > 0 ? total / points.length : 0
 	return { points, total, average }
 }
@@ -264,56 +429,140 @@ export function agendaItemCostBreakdown(items, attendeeCount, hourlyRate) {
  * @spec openspec/specs/meeting-efficiency/spec.md
  */
 export function timeAllocationAccuracy(items) {
-	const list = Array.isArray(items) ? items : []
+	return [...durationsByType(asList(items)).entries()].map((entry) =>
+		allocationRow(entry),
+	)
+}
+
+/**
+ * A finite number, or null.
+ *
+ * @param {number|string|null|undefined} value The value to read.
+ *
+ * @return {number|null} The number, or null.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function finiteOrNull(value) {
+	return Number.isFinite(value) ? value : null
+}
+
+/**
+ * Add a value to a list unless it is null.
+ *
+ * @param {Array<number>} list The list.
+ * @param {number|null} value The value.
+ *
+ * @return {void}
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function pushPresent(list, value) {
+	if (value !== null) {
+		list.push(value)
+	}
+}
+
+/**
+ * The duration bucket of one item type, created on first use.
+ *
+ * @param {Map<string, object>} byType Buckets per item type.
+ * @param {string} itemType The item type.
+ *
+ * @return {{estimated: Array<number>, actual: Array<number>}} The bucket.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function bucketOf(byType, itemType) {
+	if (!byType.has(itemType)) {
+		byType.set(itemType, { estimated: [], actual: [] })
+	}
+	return byType.get(itemType)
+}
+
+/**
+ * Estimated and actual durations per item type; an item with neither is
+ * skipped and an item without a type counts as 'unknown'.
+ *
+ * @param {Array} items Agenda-item objects.
+ *
+ * @return {Map<string, {estimated: Array<number>, actual: Array<number>}>} Buckets in first-seen order.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function durationsByType(items) {
 	const byType = new Map()
-	for (const item of list) {
-		const estimated = Number.isFinite(item.estimatedDuration)
-			? item.estimatedDuration
-			: null
-		const actual = Number.isFinite(item.actualDuration)
-			? item.actualDuration
-			: null
-		if (estimated === null && actual === null) {
-			continue
-		}
-		const type = item.itemType || 'unknown'
-		if (!byType.has(type)) {
-			byType.set(type, { estimated: [], actual: [] })
-		}
-		const bucket = byType.get(type)
-		if (estimated !== null) {
-			bucket.estimated.push(estimated)
-		}
-		if (actual !== null) {
-			bucket.actual.push(actual)
+	for (const item of items) {
+		const estimated = finiteOrNull(item.estimatedDuration)
+		const actual = finiteOrNull(item.actualDuration)
+		if (estimated !== null || actual !== null) {
+			const bucket = bucketOf(byType, item.itemType || 'unknown')
+			pushPresent(bucket.estimated, estimated)
+			pushPresent(bucket.actual, actual)
 		}
 	}
+	return byType
+}
 
-	const avg = (arr) =>
-		arr.length > 0 ? Math.round(arr.reduce((s, v) => s + v, 0) / arr.length) : 0
+/**
+ * Whether the actual time runs over (above 115%) or under (below 85%) the
+ * estimate, else accurate. Without an estimate the verdict is accurate.
+ *
+ * @param {number} avgEstimated Average estimated minutes.
+ * @param {number} avgActual Average actual minutes.
+ *
+ * @return {'over'|'under'|'accurate'} The verdict.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function allocationVerdict(avgEstimated, avgActual) {
+	if (avgEstimated > 0 && avgActual > avgEstimated * 1.15) {
+		return 'over'
+	}
+	if (avgEstimated > 0 && avgActual < avgEstimated * 0.85) {
+		return 'under'
+	}
+	return 'accurate'
+}
 
-	return [...byType.entries()].map(([itemType, bucket]) => {
-		const avgEstimated = avg(bucket.estimated)
-		const avgActual = avg(bucket.actual)
-		let verdict = 'accurate'
-		if (avgEstimated > 0 && avgActual > avgEstimated * 1.15) {
-			verdict = 'over'
-		} else if (avgEstimated > 0 && avgActual < avgEstimated * 0.85) {
-			verdict = 'under'
-		}
-		let recommendation = ''
-		if (verdict === 'over') {
-			recommendation = `${itemType} items average ${avgActual} min actual vs ${avgEstimated} min allocated — consider increasing default allocation`
-		} else if (verdict === 'under') {
-			recommendation = `${itemType} items average ${avgActual} min actual vs ${avgEstimated} min allocated — consider reducing default allocation`
-		}
-		return {
-			itemType,
-			sampleSize: Math.max(bucket.estimated.length, bucket.actual.length),
-			avgEstimated,
-			avgActual,
-			verdict,
-			recommendation,
-		}
-	})
+/**
+ * The recommendation for an allocation row, empty when it is accurate.
+ *
+ * @param {{itemType: string, avgEstimated: number, avgActual: number, verdict: string}} row The row.
+ *
+ * @return {string} The recommendation.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function allocationRecommendation(row) {
+	const advice = ALLOCATION_ADVICE[row.verdict]
+	if (advice === undefined) {
+		return ''
+	}
+	return `${row.itemType} items average ${row.avgActual} min actual vs ${row.avgEstimated} min allocated — consider ${advice} default allocation`
+}
+
+/**
+ * The allocation row of one item type.
+ *
+ * @param {Array} entry The item type and its bucket.
+ *
+ * @return {{itemType: string, sampleSize: number, avgEstimated: number, avgActual: number, verdict: string, recommendation: string}} The row.
+ *
+ * @spec openspec/specs/meeting-efficiency/spec.md
+ */
+function allocationRow(entry) {
+	const [itemType, bucket] = entry
+	const avgEstimated = roundedAverage(bucket.estimated)
+	const avgActual = roundedAverage(bucket.actual)
+	const row = {
+		itemType,
+		sampleSize: Math.max(bucket.estimated.length, bucket.actual.length),
+		avgEstimated,
+		avgActual,
+		verdict: allocationVerdict(avgEstimated, avgActual),
+		recommendation: '',
+	}
+	row.recommendation = allocationRecommendation(row)
+	return row
 }
