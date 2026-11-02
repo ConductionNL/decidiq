@@ -634,29 +634,53 @@ function getterValue(source, method) {
  * @return {object|null} The provider face.
  */
 function providerFace(source) {
-	const isProvider =
-		/extends\s+AbstractIntegrationProvider\b/.test(source.src)
-		|| /implements\s+[^{]*\bIntegrationProviderInterface\b/.test(source.src)
-	if (isProvider === false) {
+	const fields = isProviderSource(source.src) ? providerFields(source) : {}
+	if (typeof fields.id !== 'string') {
 		return null
 	}
-	const face = { kind: 'IntegrationProvider', file: source.rel, fields: {} }
-	for (const [method, field] of Object.entries(PROVIDER_GETTERS)) {
-		const value = getterValue(source, method)
-		if (value !== null) {
-			face.fields[field] = value
-		}
-	}
-	if (typeof face.fields.id !== 'string') {
-		return null
-	}
-	face.id = face.fields.id
 	// A provider is a data face, not a render surface: it is discoverable
 	// through the capability and therefore MUST have a JS registration,
 	// but it does not itself declare a render pair.
-	face.renderSurface = false
-	face.renderMode = stringField(face.fields, 'renderMode')
-	return face
+	return {
+		kind: 'IntegrationProvider',
+		file: source.rel,
+		fields,
+		id: fields.id,
+		renderSurface: false,
+		renderMode: stringField(fields, 'renderMode'),
+	}
+}
+
+/**
+ * Whether a PHP file declares an IntegrationProvider.
+ *
+ * @param {string} src PHP source text.
+ *
+ * @return {boolean} True for a provider.
+ */
+function isProviderSource(src) {
+	return (
+		/extends\s+AbstractIntegrationProvider\b/.test(src)
+		|| /implements\s+[^{]*\bIntegrationProviderInterface\b/.test(src)
+	)
+}
+
+/**
+ * The literal values of a provider's getters, by face field.
+ *
+ * @param {object} source The file: rel, src, locals and globalConsts.
+ *
+ * @return {object} Field to value, for each getter that returns a literal.
+ */
+function providerFields(source) {
+	const fields = {}
+	for (const [method, field] of Object.entries(PROVIDER_GETTERS)) {
+		const value = getterValue(source, method)
+		if (value !== null) {
+			fields[field] = value
+		}
+	}
+	return fields
 }
 
 /**
@@ -1045,32 +1069,81 @@ function collectOrSchemas() {
 	for (const file of collectFiles(path.join(REPO_ROOT, 'lib', 'Settings'), (n) =>
 		n.endsWith('.json'),
 	)) {
-		let doc
-		try {
-			doc = JSON.parse(fs.readFileSync(file, 'utf8'))
-		} catch {
-			continue
-		}
-		const declared = doc && doc.components && doc.components.schemas
-		if (
-			declared === undefined
-			|| declared === null
-			|| typeof declared !== 'object'
-		) {
-			continue
-		}
-		files++
-		for (const [key, schema] of Object.entries(declared)) {
-			const slug =
-				schema && typeof schema.slug === 'string' ? schema.slug : key
-			const props =
-				schema && schema.properties && typeof schema.properties === 'object'
-					? Object.keys(schema.properties)
-					: []
-			schemas[slug] = (schemas[slug] || []).concat(props)
+		const declared = declaredSchemas(file)
+		if (declared !== null) {
+			files++
+			addSchemaProperties(schemas, declared)
 		}
 	}
 	return { schemas, files }
+}
+
+/**
+ * One JSON file parsed, or null when it does not parse.
+ *
+ * @param {string} file Absolute path of the file.
+ *
+ * @return {object|Array|string|number|boolean|null} The parsed value, or null.
+ */
+function parsedJson(file) {
+	try {
+		return JSON.parse(fs.readFileSync(file, 'utf8'))
+	} catch {
+		return null
+	}
+}
+
+/**
+ * The `components.schemas` block of one declaration file, or null when the
+ * file does not parse or declares none.
+ *
+ * @param {string} file Absolute path of a `lib/Settings` JSON file.
+ *
+ * @return {object|null} The declared schemas, keyed as in the file.
+ */
+function declaredSchemas(file) {
+	const declared = parsedJson(file)?.components?.schemas
+	return declared !== null && typeof declared === 'object' ? declared : null
+}
+
+/**
+ * Add the property names of each declared schema under its slug.
+ *
+ * @param {Object<string, string[]>} schemas Slug to property names, extended in place.
+ * @param {object} declared One file's `components.schemas` block.
+ *
+ * @return {void}
+ */
+function addSchemaProperties(schemas, declared) {
+	for (const [key, schema] of Object.entries(declared)) {
+		const slug = schemaSlug(schema, key)
+		schemas[slug] = (schemas[slug] || []).concat(schemaPropertyNames(schema))
+	}
+}
+
+/**
+ * A declared schema's slug: its own `slug`, else its key.
+ *
+ * @param {object|null} schema The declared schema.
+ * @param {string} key Its key in the file.
+ *
+ * @return {string} The slug.
+ */
+function schemaSlug(schema, key) {
+	return schema && typeof schema.slug === 'string' ? schema.slug : key
+}
+
+/**
+ * A declared schema's property names, or none.
+ *
+ * @param {object|null} schema The declared schema.
+ *
+ * @return {string[]} The property names.
+ */
+function schemaPropertyNames(schema) {
+	return schema && schema.properties && typeof schema.properties === 'object'
+		? Object.keys(schema.properties)
+		: []
 }
 
 /**
@@ -1304,20 +1377,9 @@ function checkMetadata(ctx) {
 function checkSpreads(ctx, r) {
 	for (const symbol of r.spreads) {
 		ctx.counts.R5++
-		const source = r.spreadSources[symbol]
-		if (source === null) {
-			ctx.failures.push(
-				`✗ [R5 spread-source] registerIntegration in ${r.file} spreads \`...${symbol}\`, `
-					+ `which is not imported in that file — the spread of an undefined binding `
-					+ `registers a leaf with no id.`,
-			)
-		} else if (source !== '@conduction/nextcloud-vue') {
-			ctx.failures.push(
-				`✗ [R5 spread-source] registerIntegration in ${r.file} spreads \`...${symbol}\` `
-					+ `imported from "${source}", not from the leaf-owning package `
-					+ `@conduction/nextcloud-vue — an override must extend the descriptor it `
-					+ `overrides, or the id it registers under is not the one it thinks.`,
-			)
+		const failure = spreadFailure(r, symbol)
+		if (failure !== null) {
+			ctx.failures.push(failure)
 		}
 	}
 	if (r.id === null && r.spreads.length === 0) {
@@ -1326,6 +1388,60 @@ function checkSpreads(ctx, r) {
 				+ `nor a spread of a descriptor — it registers a leaf with no identity.`,
 		)
 	}
+}
+
+/**
+ * The R5 failure for one spread of a registration, or null when it comes from
+ * the leaf-owning package.
+ *
+ * @param {object} r The JS registration.
+ * @param {string} symbol The spread binding.
+ *
+ * @return {string|null} The failure line.
+ */
+function spreadFailure(r, symbol) {
+	const source = r.spreadSources[symbol]
+	if (source === null) {
+		return unimportedSpreadLine(r, symbol)
+	}
+	if (source !== '@conduction/nextcloud-vue') {
+		return foreignSpreadLine(r, symbol)
+	}
+	return null
+}
+
+/**
+ * The R5 failure line for a spread whose binding is not imported.
+ *
+ * @param {object} r The JS registration.
+ * @param {string} symbol The spread binding.
+ *
+ * @return {string} The failure line.
+ */
+function unimportedSpreadLine(r, symbol) {
+	return (
+		`✗ [R5 spread-source] registerIntegration in ${r.file} spreads \`...${symbol}\`, `
+		+ `which is not imported in that file — the spread of an undefined binding `
+		+ `registers a leaf with no id.`
+	)
+}
+
+/**
+ * The R5 failure line for a spread imported from another package than the
+ * leaf-owning one.
+ *
+ * @param {object} r The JS registration.
+ * @param {string} symbol The spread binding.
+ *
+ * @return {string} The failure line.
+ */
+function foreignSpreadLine(r, symbol) {
+	return (
+		`✗ [R5 spread-source] registerIntegration in ${r.file} spreads \`...${symbol}\` `
+		+ `imported from "${r.spreadSources[symbol]}", not from the leaf-owning package `
+		+ `@conduction/nextcloud-vue — an override must extend the descriptor it `
+		+ `overrides, or the id it registers under is not the one it thinks.`
+	)
 }
 
 /**
