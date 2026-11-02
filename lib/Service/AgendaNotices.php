@@ -48,19 +48,6 @@ use Throwable;
 final class AgendaNotices {
 
 	/**
-	 * Notice titles per agenda subject; `%s` is the meeting title. The same
-	 * sentences the notifier shows in the bell.
-	 *
-	 * @var array<string, string>
-	 */
-	private const AGENDA_SENTENCES = [
-		'agenda_published'        => 'The agenda of %s was published',
-		'agenda_revised'          => 'A revised agenda of %s was published',
-		'agenda_revision_started' => 'The agenda of %s is being revised',
-		'agenda_changed'          => 'The agenda of %s changed',
-	];
-
-	/**
 	 * Constructor for AgendaNotices.
 	 *
 	 * @param NotificationPreferenceService $preferences Each member's delivery choice (bell, email, both, off)
@@ -125,13 +112,9 @@ final class AgendaNotices {
 	private function content(array $notice): array {
 		$l10n = $this->l10nFactory->get('decidiq');
 		$meetingTitle = (string)($notice['meeting']['title'] ?? '');
-		$named = $meetingTitle;
-		if ($named === '') {
-			$named = $l10n->t('this meeting');
-		}
 
 		$content = [
-			'title' => $l10n->t(self::AGENDA_SENTENCES[$notice['subject']] ?? self::AGENDA_SENTENCES['agenda_changed'], [$named]),
+			'title' => $this->title(notice: $notice, l10n: $l10n),
 			'message' => $l10n->t('Open the meeting in Decidiq to see the agenda.'),
 			'attachments' => [],
 		];
@@ -148,6 +131,31 @@ final class AgendaNotices {
 
 		return $content;
 	}//end content()
+
+	/**
+	 * The notice title for the agenda subject, naming the meeting; the same
+	 * sentences the notifier shows in the bell.
+	 *
+	 * @param array $notice The notice
+	 * @param IL10N $l10n   The translations
+	 *
+	 * @psalm-param AgendaNotice $notice
+	 *
+	 * @return string
+	 */
+	private function title(array $notice, IL10N $l10n): string {
+		$named = (string)($notice['meeting']['title'] ?? '');
+		if ($named === '') {
+			$named = $l10n->t('this meeting');
+		}
+
+		return match ($notice['subject']) {
+			'agenda_published'        => $l10n->t('The agenda of %s was published', [$named]),
+			'agenda_revised'          => $l10n->t('A revised agenda of %s was published', [$named]),
+			'agenda_revision_started' => $l10n->t('The agenda of %s is being revised', [$named]),
+			default                   => $l10n->t('The agenda of %s changed', [$named]),
+		};
+	}//end title()
 
 	/**
 	 * A published agenda is the invitation: when, where, the items, and the

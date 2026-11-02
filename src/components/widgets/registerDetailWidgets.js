@@ -133,47 +133,91 @@ export function findChildren(all, parentField, currentId) {
  */
 export function buildConfidentialityStages(record, now = Date.now()) {
 	const r = record || {}
+	return [imposedStage(r), ratificationStage(r, now), dissolutionStage(r)]
+}
 
-	const imposed = {
+/**
+ * The confidentiality timeline's imposed stage.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {object} The stage descriptor.
+ */
+function imposedStage(r) {
+	return {
 		key: 'imposed',
 		populated: Boolean(r.imposedAt),
 		pending: !r.imposedAt,
 		overdue: false,
 		date: r.imposedAt || null,
 	}
+}
 
-	const ratificationPopulated = Boolean(
-		r.ratificationDate || r.ratificationDecision,
-	)
+/**
+ * Whether a ratification date or decision is recorded.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {boolean} True when ratified.
+ */
+function isRatified(r) {
+	return Boolean(r.ratificationDate || r.ratificationDecision)
+}
+
+/**
+ * Whether ratification is overdue: the record is still imposed, nothing is
+ * ratified and the deadline lies before `now`.
+ *
+ * @param {object} r The geheimhouding object.
+ * @param {number} now Epoch ms "now".
+ * @return {boolean} True when overdue.
+ */
+function isRatificationOverdue(r, now) {
 	const deadlineTime = toTime(r.ratificationDeadline)
-	const overdue =
+	return (
 		r.lifecycle === 'imposed'
-		&& !ratificationPopulated
+		&& !isRatified(r)
 		&& !Number.isNaN(deadlineTime)
 		&& deadlineTime < now
-	const ratification = {
+	)
+}
+
+/**
+ * The confidentiality timeline's ratification stage.
+ *
+ * @param {object} r The geheimhouding object.
+ * @param {number} now Epoch ms "now".
+ * @return {object} The stage descriptor.
+ */
+function ratificationStage(r, now) {
+	const populated = isRatified(r)
+	return {
 		key: 'ratification',
-		populated: ratificationPopulated,
-		pending: !ratificationPopulated,
-		overdue,
+		populated,
+		pending: !populated,
+		overdue: isRatificationOverdue(r, now),
 		date: r.ratificationDate || null,
 		deadline: r.ratificationDeadline || null,
 		decisionId: r.ratificationDecision || null,
 		agendaItemId: r.ratificationAgendaItem || null,
 	}
+}
 
-	const dissolutionPopulated = Boolean(r.liftingDate || r.dissolutionDecision)
-	const dissolution = {
+/**
+ * The confidentiality timeline's dissolution stage.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {object} The stage descriptor.
+ */
+function dissolutionStage(r) {
+	const populated = Boolean(r.liftingDate || r.dissolutionDecision)
+	return {
 		key: 'dissolution',
-		populated: dissolutionPopulated,
-		pending: !dissolutionPopulated,
+		populated,
+		pending: !populated,
 		overdue: false,
 		date: r.liftingDate || null,
 		decisionId: r.dissolutionDecision || null,
 		conditions: r.liftingConditions || null,
 	}
-
-	return [imposed, ratification, dissolution]
 }
 
 /**

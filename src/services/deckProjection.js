@@ -56,6 +56,18 @@ export function statusToLane(status) {
 }
 
 /**
+ * Words in a Deck stack title that place a card in a lane, in the order the
+ * lanes are tried.
+ *
+ * @type {Array<[string, string[]]>}
+ */
+const LANE_TITLE_WORDS = [
+	['done', ['done', 'complete', 'completed', 'klaar']],
+	['in-progress', ['progress', 'doing', 'bezig', 'mee bezig']],
+	['open', ['open', 'to do', 'todo', 'backlog', 'te doen']],
+]
+
+/**
  * Match a Deck stack title to a lane, so we can place a card without
  * needing to create stacks (the leaf cannot create stacks).
  *
@@ -64,29 +76,10 @@ export function statusToLane(status) {
  */
 function stackTitleToLane(title) {
 	const t = String(title || '').toLowerCase()
-	if (
-		t.includes('done')
-		|| t.includes('complete')
-		|| t.includes('completed')
-		|| t.includes('klaar')
+	const match = LANE_TITLE_WORDS.find(([, words]) =>
+		words.some((word) => t.includes(word)),
 	)
-		return 'done'
-	if (
-		t.includes('progress')
-		|| t.includes('doing')
-		|| t.includes('bezig')
-		|| t.includes('mee bezig')
-	)
-		return 'in-progress'
-	if (
-		t.includes('open')
-		|| t.includes('to do')
-		|| t.includes('todo')
-		|| t.includes('backlog')
-		|| t.includes('te doen')
-	)
-		return 'open'
-	return null
+	return match ? match[0] : null
 }
 
 /**
@@ -118,53 +111,92 @@ export async function isDeckAvailable() {
  * @param {string} schema The decision/meeting schema slug or id.
  * @return {Promise<{boardId: number, laneStacks: object, fallbackStackId: number}>}
  * @throws {Error} When no Deck board is available to project onto.
+ *
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-001-vtodo-is-authoritative-deck-leaf-is-the-board-projection
  */
 export async function resolveTarget(schema) {
-	let boardId = 0
-	let defaultStackId = 0
+	const sticky = await stickyDefault(schema)
+	const boardId = sticky.boardId || (await firstBoardId())
+	const stacks = await boardStacks(boardId)
+	const fallbackStackId = sticky.stackId || Number(stacks[0].id)
+	return { boardId, laneStacks: laneStacksOf(stacks), fallbackStackId }
+}
+
+/**
+ * The schema-level sticky default board and stack, zeros when there is none
+ * or the leaf cannot answer.
+ *
+ * @param {string} schema The decision/meeting schema slug or id.
+ * @return {Promise<{boardId: number, stackId: number}>}
+ */
+async function stickyDefault(schema) {
 	try {
 		const { data } = await axios.get(
 			generateUrl(
 				`${orBase}/integrations/deck/default/${encodeURIComponent(schema)}`,
 			),
 		)
-		boardId = Number(data?.boardId || 0)
-		defaultStackId = Number(data?.stackId || 0)
-	} catch (e) {
-		// No sticky default — fall through to first board.
-	}
-
-	if (!boardId) {
-		const { data } = await axios.get(
-			generateUrl(`${orBase}/integrations/deck/boards`),
-		)
-		const boards = data?.results || []
-		if (!boards.length) {
-			throw new Error(
-				'No Deck board available to project action items onto. Create a Deck board first.',
-			)
+		return {
+			boardId: Number(data?.boardId || 0),
+			stackId: Number(data?.stackId || 0),
 		}
-		boardId = Number(boards[0].id)
+	} catch (e) {
+		return { boardId: 0, stackId: 0 }
 	}
+}
 
-	const { data: stacksData } = await axios.get(
+/**
+ * The id of the first available Deck board.
+ *
+ * @return {Promise<number>}
+ * @throws {Error} When no Deck board is available to project onto.
+ */
+async function firstBoardId() {
+	const { data } = await axios.get(
+		generateUrl(`${orBase}/integrations/deck/boards`),
+	)
+	const boards = data?.results || []
+	if (!boards.length) {
+		throw new Error(
+			'No Deck board available to project action items onto. Create a Deck board first.',
+		)
+	}
+	return Number(boards[0].id)
+}
+
+/**
+ * The stacks on a Deck board.
+ *
+ * @param {number} boardId The board id.
+ * @return {Promise<object[]>} The stacks, never empty.
+ * @throws {Error} When the board has no stacks.
+ */
+async function boardStacks(boardId) {
+	const { data } = await axios.get(
 		generateUrl(`${orBase}/integrations/deck/boards/${boardId}/stacks`),
 	)
-	const stacks = stacksData?.results || []
+	const stacks = data?.results || []
 	if (!stacks.length) {
 		throw new Error(
 			'The target Deck board has no stacks. Add columns to the board first.',
 		)
 	}
+	return stacks
+}
 
+/**
+ * The first stack whose title matches each lane.
+ *
+ * @param {object[]} stacks The board's stacks.
+ * @return {object} Lane to stack id.
+ */
+function laneStacksOf(stacks) {
 	const laneStacks = {}
 	for (const stack of stacks) {
 		const lane = stackTitleToLane(stack.title)
 		if (lane && !laneStacks[lane]) laneStacks[lane] = Number(stack.id)
 	}
-
-	const fallbackStackId = defaultStackId || Number(stacks[0].id)
-	return { boardId, laneStacks, fallbackStackId }
+	return laneStacks
 }
 
 /**

@@ -256,11 +256,10 @@ export default {
 		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
 		 */
 		contributions() {
-			return contributionsOn(
-				this.records,
-				this.currentItemId,
-				this.participants,
-			)
+			return contributionsOn(this.currentItemId, {
+				records: this.records,
+				participants: this.participants,
+			})
 		},
 
 		/** @spec openspec/specs/meeting-efficiency/spec.md */

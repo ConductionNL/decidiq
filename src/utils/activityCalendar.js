@@ -74,39 +74,60 @@ export function typesFor(types, audience) {
 /**
  * The query parameters for one grid.
  *
- * @param {object} options The view.
- * @param {number} options.year The year.
- * @param {number} options.month The month, 0 based.
- * @param {string} [options.audience] An audience, NO_AUDIENCE, or empty for all.
- * @param {string} [options.body] A governance body id, or empty for all.
- * @param {Array<object>} [options.types] The meeting types.
+ * @param {object} view The view.
+ * @param {number} view.year The year.
+ * @param {number} view.month The month, 0 based.
+ * @param {string} [view.audience] An audience, NO_AUDIENCE, or empty for all.
+ * @param {string} [view.body] A governance body id, or empty for all.
+ * @param {Array<object>} [view.types] The meeting types.
  * @return {object|null} Params for fetchCollection, or null when the audience matches no type.
  * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
  */
-export function calendarParams({
-	year,
-	month,
-	audience = '',
-	body = '',
-	types = [],
-}) {
-	const { from, to } = gridRange(year, month)
-	const params = {
+export function calendarParams(view) {
+	const params = gridParams(view)
+	if (view.body) {
+		params.governanceBody = view.body
+	}
+	const ids = audienceTypeIds(view)
+	if (ids?.length === 0) {
+		return null
+	}
+	if (ids) {
+		params.type = ids
+	}
+	return params
+}
+
+/**
+ * The params every grid query has: its date range and the grid limit.
+ *
+ * @param {object} view The view, as calendarParams reads it.
+ * @return {object} The params.
+ * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+ */
+function gridParams(view) {
+	const { from, to } = gridRange(view.year, view.month)
+	return {
 		'scheduledDate[gte]': from,
 		'scheduledDate[lte]': to,
 		_limit: GRID_LIMIT,
 	}
-	if (body) {
-		params.governanceBody = body
+}
+
+/**
+ * The meeting types the view's audience selects, or null when the view does
+ * not filter by audience (none chosen, or NO_AUDIENCE, which is applied after
+ * fetching).
+ *
+ * @param {object} view The view, as calendarParams reads it.
+ * @return {Array<string>|null} Type ids, or null.
+ * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-002-the-calendar-filters-by-audience-and-by-body
+ */
+function audienceTypeIds(view) {
+	if (!view.audience || view.audience === NO_AUDIENCE) {
+		return null
 	}
-	if (audience && audience !== NO_AUDIENCE) {
-		const ids = typesFor(types, audience)
-		if (ids.length === 0) {
-			return null
-		}
-		params.type = ids
-	}
-	return params
+	return typesFor(view.types, view.audience)
 }
 
 /**

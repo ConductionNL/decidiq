@@ -93,11 +93,61 @@ export function resolveStructureProfile(raw) {
  */
 export function applyPageOverlay(page, overlay) {
 	const config = { ...(page.config || {}), ...(overlay.config || {}) }
+	patchLists(config, overlay)
+	appendLists(config, overlay)
+	orderLists(config, overlay)
+	if (Array.isArray(config.widgets)) {
+		config.widgets = inlineSectionWidgets(config.widgets)
+	}
+	return withOverlaySlots({ ...page, config }, overlay)
+}
+
+/**
+ * The page with the overlay's slots beside its own. A `custom` widget
+ * resolves through the page's own top-level `slots` map, so a page that
+ * gains one needs its slot beside it.
+ *
+ * @param {object} page The overlaid page.
+ * @param {object} overlay The page overlay.
+ * @return {object} The page, with slots when the overlay brings them.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function withOverlaySlots(page, overlay) {
+	if (!overlay.slots || typeof overlay.slots !== 'object') {
+		return page
+	}
+	return { ...page, slots: { ...(page.slots || {}), ...overlay.slots } }
+}
+
+/**
+ * The list a config holds under a key, or an empty list.
+ *
+ * @param {object} config The page config.
+ * @param {string} key The config key.
+ * @return {Array} The list.
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function listAt(config, key) {
+	return Array.isArray(config[key]) ? config[key] : []
+}
+
+/**
+ * Patch list items by name: a `null` change takes the item out, an object
+ * change is merged into an object item.
+ *
+ * @param {object} config The page config, changed in place.
+ * @param {object} overlay The page overlay; `configPatch` holds, per config key, the changes by item name.
+ * @return {void}
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function patchLists(config, overlay) {
 	const patch = overlay.configPatch || {}
 	for (const key of Object.keys(patch)) {
 		const byName = patch[key] || {}
-		const current = Array.isArray(config[key]) ? config[key] : []
-		config[key] = current
+		config[key] = listAt(config, key)
 			.filter((item) => byName[overlayItemName(item)] !== null)
 			.map((item) => {
 				const change = byName[overlayItemName(item)]
@@ -106,34 +156,45 @@ export function applyPageOverlay(page, overlay) {
 					: { ...item, ...change }
 			})
 	}
+}
+
+/**
+ * Append items to config lists.
+ *
+ * @param {object} config The page config, changed in place.
+ * @param {object} overlay The page overlay; `configAppend` holds, per config key, the items to add at the end.
+ * @return {void}
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function appendLists(config, overlay) {
 	const append = overlay.configAppend || {}
 	for (const key of Object.keys(append)) {
-		const current = Array.isArray(config[key]) ? config[key] : []
 		const extra = Array.isArray(append[key]) ? append[key] : []
-		config[key] = [...current, ...extra]
+		config[key] = [...listAt(config, key), ...extra]
 	}
+}
+
+/**
+ * Move named items to the front of config lists, in the order named; the
+ * rest keep their order behind them.
+ *
+ * @param {object} config The page config, changed in place.
+ * @param {object} overlay The page overlay; `configOrder` holds, per config key, the item names to lead with.
+ * @return {void}
+ *
+ * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-005-a-profile-may-change-a-page-and-never-add-or-remove-one
+ */
+function orderLists(config, overlay) {
 	const order = overlay.configOrder || {}
 	for (const key of Object.keys(order)) {
-		const current = Array.isArray(config[key]) ? config[key] : []
+		const current = listAt(config, key)
 		const first = Array.isArray(order[key]) ? order[key] : []
 		const lead = first
 			.map((name) => current.find((item) => overlayItemName(item) === name))
 			.filter((item) => item !== undefined)
 		config[key] = [...lead, ...current.filter((item) => !lead.includes(item))]
 	}
-	if (Array.isArray(config.widgets)) {
-		config.widgets = inlineSectionWidgets(config.widgets)
-	}
-	if (overlay.slots && typeof overlay.slots === 'object') {
-		// A `custom` widget resolves through the page's own top-level `slots`
-		// map, so a page that gains one needs its slot beside it.
-		return {
-			...page,
-			config,
-			slots: { ...(page.slots || {}), ...overlay.slots },
-		}
-	}
-	return { ...page, config }
 }
 
 /**
