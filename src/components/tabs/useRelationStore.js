@@ -82,8 +82,9 @@ export function ensureRelationType(type) {
 
 	const settingsKey = TYPE_TO_SETTINGS_KEY[type]
 	const schemaSlug = (settingsKey && settings[settingsKey]) || type
+	const registered = objectStore.objectTypeRegistry[type]
 
-	if (!objectStore.objectTypeRegistry[type]) {
+	if (!registered) {
 		objectStore.registerObjectType(type, schemaSlug, register)
 	}
 	return objectStore
