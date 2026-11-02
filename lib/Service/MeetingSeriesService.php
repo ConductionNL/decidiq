@@ -62,26 +62,6 @@ class MeetingSeriesService {
 	public const FREQUENCIES = ['daily', 'weekly', 'monthly'];
 
 	/**
-	 * Descriptive Meeting fields copied from the template onto every
-	 * generated instance (each instance stays independently editable —
-	 * REQ-MSR-002 is untouched because instances are plain OR objects).
-	 *
-	 * @var string[]
-	 */
-	private const COPIED_FIELDS = [
-		'title',
-		'meetingType',
-		'meetingMode',
-		'location',
-		'virtualLocation',
-		'eventAttendanceMode',
-		'governanceBody',
-		'quorumRequired',
-		'chair',
-		'isPublic',
-	];
-
-	/**
 	 * Constructor for MeetingSeriesService.
 	 *
 	 * @param ContainerInterface $container The DI container (lazy-loads OpenRegister's ObjectService)
@@ -370,94 +350,184 @@ class MeetingSeriesService {
 	 * @return array{success: bool, series: string|null, instances: array<int, array<string, mixed>>, truncated: bool, message: string}
 	 */
 	public function generateSeries(string $meetingId, array $pattern, string $actor): array {
+		$run = $this->loadTemplate(meetingId: $meetingId);
+		if (isset($run['failure']) === false) {
+			$run = $this->planSeries(run: $run, pattern: $pattern);
+		}
+
+		if (isset($run['failure']) === true) {
+			return $run['failure'];
+		}
+
+		$instances = $this->writeSeries(run: $run);
+		if ($instances === null) {
+			return $this->failure(message: 'Failed to generate series instances.', series: $run['series']);
+		}
+
+		$this->recordSeries(run: $run + ['actor' => $actor], instances: $instances);
+		return $this->success(run: $run, instances: $instances);
+
+	}//end generateSeries()
+
+	/**
+	 * Load the template meeting through ObjectService.
+	 *
+	 * @param string $meetingId UUID of the template meeting
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return array<string, mixed> The run so far (meetingId, objectService, template), or ['failure' => envelope]
+	 */
+	private function loadTemplate(string $meetingId): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
 		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: MeetingSeriesService::generateSeries lookup failed',
-				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
-			);
-			return $this->failure(message: 'Failed to load template meeting.');
+			$this->logger->error('Decidiq: MeetingSeriesService::generateSeries lookup failed', ['meetingId' => $meetingId, 'exception' => $e->getMessage()]);
+			return ['failure' => $this->failure(message: 'Failed to load template meeting.')];
 		}
 
 		if ($entity === null) {
-			return $this->failure(message: 'Meeting not found.');
+			return ['failure' => $this->failure(message: 'Meeting not found.')];
 		}
 
+		return ['meetingId' => $meetingId, 'objectService' => $objectService, 'template' => $this->templatePayload(entity: $entity)];
+
+	}//end loadTemplate()
+
+	/**
+	 * The template meeting's payload.
+	 *
+	 * @param object $entity The loaded meeting entity
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return array<string, mixed> The payload
+	 */
+	private function templatePayload(object $entity): array {
 		$template = (array)$entity->jsonSerialize();
 		if (method_exists($entity, 'getObject') === true) {
 			$template = $entity->getObject();
 		}
 
-		$scheduledDate = (string)($template['scheduledDate'] ?? '');
+		return $template;
+
+	}//end templatePayload()
+
+	/**
+	 * Expand the pattern from the template's date and settle the series slug.
+	 *
+	 * @param array<string, mixed> $run The run so far
+	 * @param array<string, mixed> $pattern Recurrence pattern
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return array<string, mixed> The run with pattern, scheduledDate, expansion and series, or ['failure' => envelope]
+	 */
+	private function planSeries(array $run, array $pattern): array {
+		$scheduledDate = (string)($run['template']['scheduledDate'] ?? '');
 		if ($scheduledDate === '') {
-			return $this->failure(message: 'Template meeting has no scheduledDate.');
+			return ['failure' => $this->failure(message: 'Template meeting has no scheduledDate.')];
 		}
 
 		try {
 			$expansion = $this->expandPattern(startDate: $scheduledDate, pattern: $pattern);
 		} catch (InvalidArgumentException $e) {
-			return $this->failure(message: $e->getMessage());
+			return ['failure' => $this->failure(message: $e->getMessage())];
 		}
 
+		$series = $this->seriesOf(template: $run['template'], scheduledDate: $scheduledDate);
+		return $run + ['pattern' => $pattern, 'scheduledDate' => $scheduledDate, 'expansion' => $expansion, 'series' => $series];
+
+	}//end planSeries()
+
+	/**
+	 * The template's series slug, or a slug derived from its title and year.
+	 *
+	 * @param array<string, mixed> $template Template meeting payload
+	 * @param string $scheduledDate Template start datetime
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return string The series slug
+	 */
+	private function seriesOf(array $template, string $scheduledDate): string {
 		$series = (string)($template['series'] ?? '');
 		if ($series === '') {
 			$series = $this->deriveSeriesSlug(template: $template, scheduledDate: $scheduledDate);
 		}
 
+		return $series;
+
+	}//end seriesOf()
+
+	/**
+	 * Stamp the series on the template, create the instances and copy the
+	 * template's agenda onto them.
+	 *
+	 * @param array<string, mixed> $run The planned run
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return array<int, array<string, mixed>>|null The created instances, or null when a write failed
+	 */
+	private function writeSeries(array $run): ?array {
 		try {
-			// Stamp series + pattern on the template (REQ-MSR-001: pattern
-			// is stored as JSON on the first/template meeting).
-			$objectService->saveObject(
-				object: array_merge($template, ['series' => $series, 'seriesPattern' => $pattern]),
-				register: 'decidiq',
-				schema: 'meeting',
-				uuid: $meetingId
-			);
-
-			$instances = $this->createInstances(
-				objectService: $objectService,
-				template: $template,
-				series: $series,
-				dates: $expansion['dates'],
-				templateDay: substr($scheduledDate, 0, 10)
-			);
-
-			$this->copyAgenda(objectService: $objectService, fromMeetingId: $meetingId, instances: $instances);
+			$writer = new MeetingSeriesWriter();
+			$writer->stampTemplate(run: $run);
+			$instances = $writer->createInstances(run: $run);
+			$writer->copyAgenda(run: $run, instances: $instances);
 		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: MeetingSeriesService::generateSeries failed',
-				['meetingId' => $meetingId, 'exception' => $e->getMessage()]
-			);
-			return $this->failure(message: 'Failed to generate series instances.', series: $series);
-		}//end try
+			$this->logger->error('Decidiq: MeetingSeriesService::generateSeries failed', ['meetingId' => $run['meetingId'], 'exception' => $e->getMessage()]);
+			return null;
+		}
 
+		return $instances;
+
+	}//end writeSeries()
+
+	/**
+	 * Write the audit entry and the log line for a generated series.
+	 *
+	 * @param array<string, mixed> $run The run, with the acting user under `actor`
+	 * @param array<int, array<string, mixed>> $instances The created instances
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return void
+	 */
+	private function recordSeries(array $run, array $instances): void {
 		$this->auditLogService->append(
-			actor: $actor,
+			actor: $run['actor'],
 			action: 'series-generated',
-			objectUids: [$meetingId],
-			payload: [
-				'series' => $series,
-				'instances' => count($instances),
-				'truncated' => $expansion['truncated'],
-			]
+			objectUids: [$run['meetingId']],
+			payload: ['series' => $run['series'], 'instances' => count($instances), 'truncated' => $run['expansion']['truncated']]
 		);
+		$context = ['meetingId' => $run['meetingId'], 'series' => $run['series'], 'instances' => count($instances)];
+		$this->logger->info('Decidiq: meeting series generated', $context);
 
-		$this->logger->info(
-			'Decidiq: meeting series generated',
-			['meetingId' => $meetingId, 'series' => $series, 'instances' => count($instances)]
-		);
+	}//end recordSeries()
 
+	/**
+	 * Build the successful generateSeries() envelope.
+	 *
+	 * @param array<string, mixed> $run The run
+	 * @param array<int, array<string, mixed>> $instances The created instances
+	 *
+	 * @spec openspec/specs/meeting-management/spec.md
+	 *
+	 * @return array{success: bool, series: string|null, instances: array<int, array<string, mixed>>, truncated: bool, message: string}
+	 */
+	private function success(array $run, array $instances): array {
 		return [
 			'success' => true,
-			'series' => $series,
+			'series' => $run['series'],
 			'instances' => $instances,
-			'truncated' => $expansion['truncated'],
-			'message' => sprintf('Generated %d meeting instance(s) in series %s.', count($instances), $series),
+			'truncated' => $run['expansion']['truncated'],
+			'message' => sprintf('Generated %d meeting instance(s) in series %s.', count($instances), $run['series']),
 		];
 
-	}//end generateSeries()
+	}//end success()
 
 	/**
 	 * Build the unsuccessful generateSeries() envelope.
@@ -479,98 +549,6 @@ class MeetingSeriesService {
 		];
 
 	}//end failure()
-
-	/**
-	 * Create one independently-editable Meeting per non-template date.
-	 *
-	 * @param object $objectService OpenRegister ObjectService instance
-	 * @param array<string, mixed> $template Template meeting payload
-	 * @param string $series Series slug shared by every instance
-	 * @param string[] $dates Expanded ISO-8601 datetimes
-	 * @param string $templateDay `Y-m-d` day the template itself covers
-	 *
-	 * @spec openspec/specs/meeting-management/spec.md
-	 *
-	 * @return array<int, array<string, mixed>> Created instance payloads
-	 */
-	private function createInstances(
-		object $objectService,
-		array $template,
-		string $series,
-		array $dates,
-		string $templateDay,
-	): array {
-		$instances = [];
-		foreach ($dates as $date) {
-			if (substr($date, 0, 10) === $templateDay) {
-				// The template itself covers its own date.
-				continue;
-			}
-
-			$instance = [
-				'scheduledDate' => $date,
-				'lifecycle' => 'scheduled',
-				'series' => $series,
-			];
-			foreach (self::COPIED_FIELDS as $field) {
-				if (array_key_exists($field, $template) === true && $template[$field] !== null) {
-					$instance[$field] = $template[$field];
-				}
-			}
-
-			$saved = $objectService->saveObject(
-				object: $instance,
-				register: 'decidiq',
-				schema: 'meeting'
-			);
-
-			$entry = $instance;
-			if (is_object($saved) === true) {
-				$entry = (array)$saved->jsonSerialize();
-			}
-
-			$instances[] = $entry;
-		}//end foreach
-
-		return $instances;
-	}//end createInstances()
-
-	/**
-	 * Give every generated meeting the template meeting's agenda
-	 * (agenda-templates-and-copy, pla-14).
-	 *
-	 * @param object                           $objectService OpenRegister ObjectService instance
-	 * @param string                           $fromMeetingId The template meeting
-	 * @param array<int, array<string, mixed>> $instances     The generated meetings
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/specs/agenda-builder/spec.md#requirement-req-atc-002-copy-items-or-a-whole-agenda-from-an-earlier-meeting
-	 */
-	private function copyAgenda(object $objectService, string $fromMeetingId, array $instances): void {
-		$items = $objectService->findAll(
-			[
-				'filters' => ['register' => 'decidiq', 'schema' => 'agenda-item', 'meeting' => $fromMeetingId],
-				'limit' => 500,
-			]
-		);
-		if ($items === []) {
-			return;
-		}
-
-		$copier = new AgendaItemCopier();
-		foreach ($instances as $instance) {
-			$toMeetingId = (string)($instance['id'] ?? $instance['@self']['id'] ?? '');
-			if ($toMeetingId === '') {
-				continue;
-			}
-
-			foreach ($copier->payloads(items: $items, fromMeetingId: $fromMeetingId, toMeetingId: $toMeetingId) as $payload) {
-				$objectService->saveObject(object: $payload, register: 'decidiq', schema: 'agenda-item');
-			}
-		}
-
-	}//end copyAgenda()
 
 	/**
 	 * Derive a stable series slug from the template title + start year.

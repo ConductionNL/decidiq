@@ -1,0 +1,3326 @@
+{
+    "container-throws": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Failed to load template meeting."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingSeriesService::generateSeries lookup failed",
+                    {
+                        "meetingId": "tpl",
+                        "exception": "no object service"
+                    }
+                ]
+            }
+        ]
+    },
+    "find-throws": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Failed to load template meeting."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingSeriesService::generateSeries lookup failed",
+                    {
+                        "meetingId": "tpl",
+                        "exception": "lookup down"
+                    }
+                ]
+            }
+        ]
+    },
+    "not-found": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Meeting not found."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "no-date": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Template meeting has no scheduledDate."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "empty-date": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Template meeting has no scheduledDate."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "bad-frequency": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "frequency must be one of: daily, weekly, monthly."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "bad-interval": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "interval must be >= 1."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "no-until": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "until is required."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "bad-until": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Invalid until date: soon"
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "bad-start": {
+        "returns": {
+            "success": false,
+            "series": null,
+            "instances": [],
+            "truncated": false,
+            "message": "Invalid start date: not a date"
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "weekly": {
+        "returns": {
+            "success": true,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "scheduledDate": "2026-05-21T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "scheduledDate": "2026-06-04T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-4",
+                    "scheduledDate": "2026-06-18T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": false,
+            "message": "Generated 3 meeting instance(s) in series gemeenteraad-delft-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "weekly",
+                            "interval": 2,
+                            "until": "2026-06-30",
+                            "exceptions": [
+                                "2026-05-07T00:00:00Z"
+                            ]
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-21T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-04T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-18T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 3,
+                        "truncated": false
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 3
+                    }
+                ]
+            }
+        ]
+    },
+    "monthly-series": {
+        "returns": {
+            "success": true,
+            "series": "raad-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "scheduledDate": "2026-05-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "raad-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "scheduledDate": "2026-06-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "raad-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-4",
+                    "scheduledDate": "2026-07-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "raad-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-5",
+                    "scheduledDate": "2026-08-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "raad-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": false,
+            "message": "Generated 4 meeting instance(s) in series raad-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "series": "raad-2026",
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "seriesPattern": {
+                            "frequency": "monthly",
+                            "interval": 1,
+                            "until": "2026-08-31"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "raad-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "raad-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-07-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "raad-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-08-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "raad-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-2",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-2",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-3",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-3",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-4",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-4",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-5",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-5",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "raad-2026",
+                        "instances": 4,
+                        "truncated": false
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "raad-2026",
+                        "instances": 4
+                    }
+                ]
+            }
+        ]
+    },
+    "title-symbols": {
+        "returns": {
+            "success": true,
+            "series": "meeting-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "scheduledDate": "2026-04-26T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "meeting-2026",
+                    "title": "!!!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "scheduledDate": "2026-04-29T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "meeting-2026",
+                    "title": "!!!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": false,
+            "message": "Generated 2 meeting instance(s) in series meeting-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "title": "!!!",
+                        "id": "tpl",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "meeting-2026",
+                        "seriesPattern": {
+                            "frequency": "daily",
+                            "interval": 3,
+                            "until": "2026-04-30"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-26T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "meeting-2026",
+                        "title": "!!!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-29T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "meeting-2026",
+                        "title": "!!!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "meeting-2026",
+                        "instances": 2,
+                        "truncated": false
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "meeting-2026",
+                        "instances": 2
+                    }
+                ]
+            }
+        ]
+    },
+    "no-title": {
+        "returns": {
+            "success": true,
+            "series": "meeting-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "scheduledDate": "2026-04-24T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "meeting-2026",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "scheduledDate": "2026-04-25T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "meeting-2026",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": false,
+            "message": "Generated 2 meeting instance(s) in series meeting-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "meeting-2026",
+                        "seriesPattern": {
+                            "frequency": "daily",
+                            "until": "2026-04-25"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-24T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "meeting-2026",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-25T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "meeting-2026",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "meeting-2026",
+                        "instances": 2,
+                        "truncated": false
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "meeting-2026",
+                        "instances": 2
+                    }
+                ]
+            }
+        ]
+    },
+    "monthly-items": {
+        "returns": {
+            "success": true,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "scheduledDate": "2026-05-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "scheduledDate": "2026-06-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-4",
+                    "scheduledDate": "2026-07-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-5",
+                    "scheduledDate": "2026-08-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": false,
+            "message": "Generated 4 meeting instance(s) in series gemeenteraad-delft-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "monthly",
+                            "interval": 1,
+                            "until": "2026-08-31"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-07-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-08-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-2",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-2",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-3",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-3",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-4",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-4",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-5",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "saved-5",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 4,
+                        "truncated": false
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 4
+                    }
+                ]
+            }
+        ]
+    },
+    "stamp-throws": {
+        "returns": {
+            "success": false,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [],
+            "truncated": false,
+            "message": "Failed to generate series instances."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "monthly",
+                            "interval": 1,
+                            "until": "2026-08-31"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingSeriesService::generateSeries failed",
+                    {
+                        "meetingId": "tpl",
+                        "exception": "save down"
+                    }
+                ]
+            }
+        ]
+    },
+    "instance-throws": {
+        "returns": {
+            "success": false,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [],
+            "truncated": false,
+            "message": "Failed to generate series instances."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "monthly",
+                            "interval": 1,
+                            "until": "2026-08-31"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingSeriesService::generateSeries failed",
+                    {
+                        "meetingId": "tpl",
+                        "exception": "save down"
+                    }
+                ]
+            }
+        ]
+    },
+    "items-uuid-ids": {
+        "returns": {
+            "success": true,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "@self": {
+                        "id": "self-2"
+                    },
+                    "scheduledDate": "2026-04-24T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "@self": {
+                        "id": "self-3"
+                    },
+                    "scheduledDate": "2026-04-25T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": false,
+            "message": "Generated 2 meeting instance(s) in series gemeenteraad-delft-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "daily",
+                            "until": "2026-04-25"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-24T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-25T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "self-2",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "self-2",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "self-3",
+                        "orderNumber": 1,
+                        "itemType": "informational",
+                        "title": "Opening"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "meeting": "self-3",
+                        "orderNumber": 2,
+                        "itemType": "informational",
+                        "title": "Begroting",
+                        "description": "Jaarlijks"
+                    },
+                    "register": "decidiq",
+                    "schema": "agenda-item"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 2,
+                        "truncated": false
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 2
+                    }
+                ]
+            }
+        ]
+    },
+    "agenda-throws": {
+        "returns": {
+            "success": false,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [],
+            "truncated": false,
+            "message": "Failed to generate series instances."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "daily",
+                            "until": "2026-04-24"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-24T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: MeetingSeriesService::generateSeries failed",
+                    {
+                        "meetingId": "tpl",
+                        "exception": "items down"
+                    }
+                ]
+            }
+        ]
+    },
+    "truncated": {
+        "returns": {
+            "success": true,
+            "series": "gemeenteraad-delft-2026",
+            "instances": [
+                {
+                    "viaJson": true,
+                    "id": "saved-2",
+                    "scheduledDate": "2026-04-24T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-3",
+                    "scheduledDate": "2026-04-25T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-4",
+                    "scheduledDate": "2026-04-26T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-5",
+                    "scheduledDate": "2026-04-27T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-6",
+                    "scheduledDate": "2026-04-28T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-7",
+                    "scheduledDate": "2026-04-29T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-8",
+                    "scheduledDate": "2026-04-30T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-9",
+                    "scheduledDate": "2026-05-01T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-10",
+                    "scheduledDate": "2026-05-02T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-11",
+                    "scheduledDate": "2026-05-03T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-12",
+                    "scheduledDate": "2026-05-04T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-13",
+                    "scheduledDate": "2026-05-05T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-14",
+                    "scheduledDate": "2026-05-06T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-15",
+                    "scheduledDate": "2026-05-07T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-16",
+                    "scheduledDate": "2026-05-08T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-17",
+                    "scheduledDate": "2026-05-09T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-18",
+                    "scheduledDate": "2026-05-10T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-19",
+                    "scheduledDate": "2026-05-11T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-20",
+                    "scheduledDate": "2026-05-12T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-21",
+                    "scheduledDate": "2026-05-13T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-22",
+                    "scheduledDate": "2026-05-14T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-23",
+                    "scheduledDate": "2026-05-15T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-24",
+                    "scheduledDate": "2026-05-16T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-25",
+                    "scheduledDate": "2026-05-17T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-26",
+                    "scheduledDate": "2026-05-18T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-27",
+                    "scheduledDate": "2026-05-19T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-28",
+                    "scheduledDate": "2026-05-20T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-29",
+                    "scheduledDate": "2026-05-21T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-30",
+                    "scheduledDate": "2026-05-22T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-31",
+                    "scheduledDate": "2026-05-23T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-32",
+                    "scheduledDate": "2026-05-24T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-33",
+                    "scheduledDate": "2026-05-25T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-34",
+                    "scheduledDate": "2026-05-26T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-35",
+                    "scheduledDate": "2026-05-27T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-36",
+                    "scheduledDate": "2026-05-28T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-37",
+                    "scheduledDate": "2026-05-29T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-38",
+                    "scheduledDate": "2026-05-30T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-39",
+                    "scheduledDate": "2026-05-31T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-40",
+                    "scheduledDate": "2026-06-01T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-41",
+                    "scheduledDate": "2026-06-02T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-42",
+                    "scheduledDate": "2026-06-03T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-43",
+                    "scheduledDate": "2026-06-04T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-44",
+                    "scheduledDate": "2026-06-05T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-45",
+                    "scheduledDate": "2026-06-06T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-46",
+                    "scheduledDate": "2026-06-07T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-47",
+                    "scheduledDate": "2026-06-08T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-48",
+                    "scheduledDate": "2026-06-09T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-49",
+                    "scheduledDate": "2026-06-10T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-50",
+                    "scheduledDate": "2026-06-11T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-51",
+                    "scheduledDate": "2026-06-12T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                },
+                {
+                    "viaJson": true,
+                    "id": "saved-52",
+                    "scheduledDate": "2026-06-13T19:30:00+02:00",
+                    "lifecycle": "scheduled",
+                    "series": "gemeenteraad-delft-2026",
+                    "title": "Gemeenteraad Delft!",
+                    "meetingType": "council",
+                    "location": "Raadzaal",
+                    "governanceBody": "body-1",
+                    "quorumRequired": 0,
+                    "isPublic": false
+                }
+            ],
+            "truncated": true,
+            "message": "Generated 51 meeting instance(s) in series gemeenteraad-delft-2026."
+        },
+        "calls": [
+            {
+                "container": "OCA\\OpenRegister\\Service\\ObjectService"
+            },
+            {
+                "find": {
+                    "id": "tpl",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq: series expansion truncated at 52 instances",
+                    {
+                        "startDate": "2026-04-23T19:30:00+02:00",
+                        "until": "2026-12-31"
+                    }
+                ]
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "tpl",
+                        "title": "Gemeenteraad Delft!",
+                        "scheduledDate": "2026-04-23T19:30:00+02:00",
+                        "meetingType": "council",
+                        "meetingMode": null,
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false,
+                        "notes": "not copied",
+                        "series": "gemeenteraad-delft-2026",
+                        "seriesPattern": {
+                            "frequency": "daily",
+                            "until": "2026-12-31"
+                        }
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting",
+                    "uuid": "tpl"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-24T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-25T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-26T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-27T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-28T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-29T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-04-30T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-01T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-02T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-03T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-04T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-05T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-06T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-07T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-08T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-09T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-10T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-11T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-12T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-13T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-14T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-15T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-16T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-17T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-18T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-19T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-20T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-21T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-22T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-23T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-24T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-25T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-26T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-27T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-28T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-29T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-30T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-05-31T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-01T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-02T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-03T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-04T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-05T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-06T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-07T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-08T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-09T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-10T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-11T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-12T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "scheduledDate": "2026-06-13T19:30:00+02:00",
+                        "lifecycle": "scheduled",
+                        "series": "gemeenteraad-delft-2026",
+                        "title": "Gemeenteraad Delft!",
+                        "meetingType": "council",
+                        "location": "Raadzaal",
+                        "governanceBody": "body-1",
+                        "quorumRequired": 0,
+                        "isPublic": false
+                    },
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "agenda-item",
+                        "meeting": "tpl"
+                    },
+                    "limit": 500
+                }
+            },
+            {
+                "audit": {
+                    "actor": "anna",
+                    "action": "series-generated",
+                    "objectUids": [
+                        "tpl"
+                    ],
+                    "payload": {
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 51,
+                        "truncated": true
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: meeting series generated",
+                    {
+                        "meetingId": "tpl",
+                        "series": "gemeenteraad-delft-2026",
+                        "instances": 51
+                    }
+                ]
+            }
+        ]
+    }
+}
