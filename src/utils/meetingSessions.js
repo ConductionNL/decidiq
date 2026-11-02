@@ -9,6 +9,12 @@
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
  */
 
+const EVENING_DATE =
+	/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/
+const ENTERED_TIME = /^\d{2}:\d{2}$/
+const INHERITED_FIELDS = ['governanceBody', 'meetingMode', 'isPublic']
+const ABSENT_VALUES = new Set([undefined, null, ''])
+
 /**
  * The id a reference holds: a uuid string or an expanded object.
  *
@@ -18,8 +24,87 @@
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
  */
 export function referenceId(value) {
-	const id = value && typeof value === 'object' ? (value.id ?? value.uuid) : value
+	const id = storedId(value)
 	return typeof id === 'string' && id !== '' ? id : null
+}
+
+/**
+ * What a reference stores as its id: the id (else uuid) of an expanded
+ * object, or the value itself.
+ *
+ * @param {string|object|null|undefined} value The stored reference.
+ * @return {string|number|boolean|null|undefined} The stored id, not yet checked.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
+ */
+function storedId(value) {
+	return value && typeof value === 'object' ? (value.id ?? value.uuid) : value
+}
+
+/**
+ * The value when it is an array, else an empty list.
+ *
+ * @param {Array<object>|null|undefined} value The value to read as a list.
+ * @return {Array<object>} The list.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function asList(value) {
+	return Array.isArray(value) ? value : []
+}
+
+/**
+ * A session's start in epoch ms, NaN when it has none.
+ *
+ * @param {object|null|undefined} session The session.
+ * @return {number} The start, or NaN.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function parsedStart(session) {
+	return Date.parse(textOf(session?.scheduledDate))
+}
+
+/**
+ * A session's title as text.
+ *
+ * @param {object|null|undefined} session The session.
+ * @return {string} The title, empty when it has none.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function titleOf(session) {
+	return textOf(session?.title)
+}
+
+/**
+ * A stored value as text, empty when it is null or undefined.
+ *
+ * @param {string|number|boolean|null|undefined} value The value.
+ * @return {string} The text.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function textOf(value) {
+	return String(value ?? '')
+}
+
+/**
+ * The time of a start as hours and minutes on a 24-hour clock.
+ *
+ * @param {number} start The start in epoch ms.
+ * @param {{locale?: string, timeZone?: string}} format Locale and time zone (each defaults to the browser's).
+ * @return {string} The time.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
+ */
+function clockTime(start, format) {
+	return new Intl.DateTimeFormat(format.locale, {
+		hour: '2-digit',
+		minute: '2-digit',
+		hour12: false,
+		timeZone: format.timeZone,
+	}).format(start)
 }
 
 /**
@@ -45,14 +130,23 @@ export function parentOf(meeting) {
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
  */
 export function bySessionStart(a, b) {
-	const at = Date.parse(a?.scheduledDate ?? '')
-	const bt = Date.parse(b?.scheduledDate ?? '')
-	const byStart =
-		(Number.isNaN(at) ? Infinity : at) - (Number.isNaN(bt) ? Infinity : bt)
+	const byStart = sortableStart(a) - sortableStart(b)
 	return (
-		(Number.isNaN(byStart) ? 0 : byStart)
-		|| String(a?.title ?? '').localeCompare(String(b?.title ?? ''))
+		(Number.isNaN(byStart) ? 0 : byStart) || titleOf(a).localeCompare(titleOf(b))
 	)
+}
+
+/**
+ * A session's start for sorting: a session without a start sorts last.
+ *
+ * @param {object|null|undefined} session The session.
+ * @return {number} The start in epoch ms, or Infinity.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function sortableStart(session) {
+	const start = parsedStart(session)
+	return Number.isNaN(start) ? Infinity : start
 }
 
 /**
@@ -66,21 +160,18 @@ export function bySessionStart(a, b) {
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
  */
 export function groupSessions(meetings) {
-	const list = Array.isArray(meetings) ? meetings : []
+	const list = asList(meetings)
 	const loaded = new Set(list.map((m) => m?.id).filter(Boolean))
 	const sessionsOf = {}
 	for (const meeting of list) {
-		const parent = parentOf(meeting)
-		if (parent !== null && parent !== meeting.id && loaded.has(parent)) {
+		const parent = loadedEvening(meeting, loaded)
+		if (parent !== null) {
 			;(sessionsOf[parent] = sessionsOf[parent] || []).push(meeting)
 		}
 	}
 
 	return list
-		.filter((meeting) => {
-			const parent = parentOf(meeting)
-			return parent === null || parent === meeting.id || !loaded.has(parent)
-		})
+		.filter((meeting) => loadedEvening(meeting, loaded) === null)
 		.map((meeting) => ({
 			...meeting,
 			sessions: [...(sessionsOf[meeting.id] || [])].sort(bySessionStart),
@@ -88,29 +179,40 @@ export function groupSessions(meetings) {
 }
 
 /**
+ * The loaded evening a meeting is a session of, or null when it is no
+ * session, points at itself or its evening is not loaded.
+ *
+ * @param {object} meeting The meeting.
+ * @param {Set<string>} loaded Ids of the loaded meetings.
+ * @return {string|null} The evening's id, or null.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
+ */
+function loadedEvening(meeting, loaded) {
+	const parent = parentOf(meeting)
+	return parent !== null && parent !== meeting.id && loaded.has(parent)
+		? parent
+		: null
+}
+
+/**
  * A session's line inside its evening: start time, title and room.
  *
  * @param {object} session The session.
- * @param {string} [locale] Locale for the time (defaults to the browser's).
- * @param {string} [timeZone] Time zone for the time (defaults to the browser's).
+ * @param {object} [format] How to show the time.
+ * @param {string} [format.locale] Locale for the time (defaults to the browser's).
+ * @param {string} [format.timeZone] Time zone for the time (defaults to the browser's).
  * @return {string} The label.
  *
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-003-the-calendar-and-the-meetings-list-group-sessions-under-their-evening
  */
-export function sessionLabel(session, locale = undefined, timeZone = undefined) {
+export function sessionLabel(session, format = {}) {
 	const parts = []
-	const start = Date.parse(session?.scheduledDate ?? '')
+	const start = parsedStart(session)
 	if (!Number.isNaN(start)) {
-		parts.push(
-			new Intl.DateTimeFormat(locale, {
-				hour: '2-digit',
-				minute: '2-digit',
-				hour12: false,
-				timeZone,
-			}).format(start),
-		)
+		parts.push(clockTime(start, format))
 	}
-	parts.push(String(session?.title ?? ''))
+	parts.push(titleOf(session))
 	if (session?.room) {
 		parts.push(`(${session.room})`)
 	}
@@ -131,7 +233,7 @@ export function siblingsOf(meeting, meetings) {
 	if (parent === null) {
 		return []
 	}
-	return (Array.isArray(meetings) ? meetings : [])
+	return asList(meetings)
 		.filter((m) => m?.id !== meeting.id && parentOf(m) === parent)
 		.sort(bySessionStart)
 }
@@ -151,42 +253,80 @@ export function siblingsOf(meeting, meetings) {
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
  */
 export function sessionColumns(sessions, related = {}) {
-	const {
-		agendaItems = {},
-		broadcasts = {},
-		chairs = {},
-		locale,
-		timeZone,
-	} = related
-	return [...(Array.isArray(sessions) ? sessions : [])]
+	const context = {
+		agendaItems: withDefault(related.agendaItems, {}),
+		broadcasts: withDefault(related.broadcasts, {}),
+		chairs: withDefault(related.chairs, {}),
+		locale: related.locale,
+		timeZone: related.timeZone,
+	}
+	return [...asList(sessions)]
 		.sort(bySessionStart)
-		.map((session) => {
-			const start = Date.parse(session.scheduledDate ?? '')
-			const chair = chairs[referenceId(session.chair)] ?? null
-			return {
-				id: session.id,
-				title: String(session.title ?? ''),
-				room: String(session.room ?? ''),
-				chair: String(chair?.displayName ?? chair?.name ?? ''),
-				time: Number.isNaN(start)
-					? ''
-					: new Intl.DateTimeFormat(locale, {
-							hour: '2-digit',
-							minute: '2-digit',
-							hour12: false,
-							timeZone,
-						}).format(start),
-				lifecycle: String(session.lifecycle ?? ''),
-				firstItems: [...(agendaItems[session.id] ?? [])]
-					.sort(
-						(a, b) =>
-							(Number(a.orderNumber) || 0)
-							- (Number(b.orderNumber) || 0),
-					)
-					.slice(0, 3),
-				live: broadcasts[session.id]?.lifecycle ?? null,
-			}
-		})
+		.map((session) => sessionColumn(session, context))
+}
+
+/**
+ * The value, or the fallback when it is undefined.
+ *
+ * @param {object|undefined} value The value.
+ * @param {object} fallback The fallback.
+ * @return {object} The value or the fallback.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function withDefault(value, fallback) {
+	return value === undefined ? fallback : value
+}
+
+/**
+ * The column of one session.
+ *
+ * @param {object} session The session.
+ * @param {object} context The related records with the locale and time zone, as sessionColumns reads them.
+ * @return {object} The column.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function sessionColumn(session, context) {
+	const start = parsedStart(session)
+	const chair = context.chairs[referenceId(session.chair)]
+	return {
+		id: session.id,
+		title: textOf(session.title),
+		room: textOf(session.room),
+		chair: chairName(chair),
+		time: Number.isNaN(start) ? '' : clockTime(start, context),
+		lifecycle: textOf(session.lifecycle),
+		firstItems: firstItems(context.agendaItems[session.id]),
+		live: context.broadcasts[session.id]?.lifecycle ?? null,
+	}
+}
+
+/**
+ * A chair's name as text.
+ *
+ * @param {object|null|undefined} chair The participant.
+ * @return {string} The display name, else the name, else empty.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function chairName(chair) {
+	return textOf(chair?.displayName ?? chair?.name)
+}
+
+/**
+ * The first three agenda items by order number; an item without a number
+ * counts as 0.
+ *
+ * @param {Array<object>|null|undefined} items The session's agenda items.
+ * @return {Array<object>} At most three items.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function firstItems(items) {
+	return [...(items ?? [])]
+		.sort((a, b) => (Number(a.orderNumber) || 0) - (Number(b.orderNumber) || 0))
+		.slice(0, 3)
 }
 
 /**
@@ -201,24 +341,78 @@ export function sessionColumns(sessions, related = {}) {
  * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
  */
 export function newSession(evening, entered) {
-	const session = { title: String(entered?.title ?? '').trim() }
+	const session = { title: textOf(entered?.title).trim() }
 	if (entered?.room) {
 		session.room = String(entered.room).trim()
 	}
 	session.parentMeeting = evening.id
-	const match =
-		/^(\d{4}-\d{2}-\d{2})T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/.exec(
-			String(evening.scheduledDate ?? ''),
-		)
-	if (match && /^\d{2}:\d{2}$/.test(String(entered?.time ?? ''))) {
-		session.scheduledDate = `${match[1]}T${entered.time}:00${match[2] ?? ''}`
+	const scheduledDate = sessionDate(evening, entered)
+	if (scheduledDate !== null) {
+		session.scheduledDate = scheduledDate
 	}
-	for (const field of ['governanceBody', 'meetingMode', 'isPublic']) {
-		const value =
-			field === 'governanceBody' ? referenceId(evening[field]) : evening[field]
-		if (value !== undefined && value !== null && value !== '') {
+	copyInherited(session, evening)
+	return session
+}
+
+/**
+ * Give a new session the body, mode and publicity its evening has.
+ *
+ * @param {object} session The new session, changed in place.
+ * @param {object} evening The evening.
+ * @return {void}
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function copyInherited(session, evening) {
+	for (const field of INHERITED_FIELDS) {
+		const value = inheritedValue(evening, field)
+		if (!ABSENT_VALUES.has(value)) {
 			session[field] = value
 		}
 	}
-	return session
+}
+
+/**
+ * A session's start: the evening's date at the time entered, in the
+ * evening's notation of the time zone; null when either is not usable.
+ *
+ * @param {object} evening The evening.
+ * @param {object|null|undefined} entered What the secretariat entered.
+ * @return {string|null} The start, or null.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function sessionDate(evening, entered) {
+	const match = EVENING_DATE.exec(textOf(evening.scheduledDate))
+	const time = enteredTime(entered)
+	if (match === null || time === null) {
+		return null
+	}
+	return `${match[1]}T${time}:00${match[2] ?? ''}`
+}
+
+/**
+ * The time entered as HH:MM, or null.
+ *
+ * @param {object|null|undefined} entered What the secretariat entered.
+ * @return {string|null} The time, or null.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function enteredTime(entered) {
+	return ENTERED_TIME.test(textOf(entered?.time)) ? entered.time : null
+}
+
+/**
+ * The value a new session takes over from its evening for one field; the
+ * body is stored as its id.
+ *
+ * @param {object} evening The evening.
+ * @param {string} field The field.
+ * @return {string|boolean|null|undefined} The value.
+ *
+ * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-002-the-evenings-page-shows-its-sessions-side-by-side
+ */
+function inheritedValue(evening, field) {
+	return field === 'governanceBody' ? referenceId(evening[field]) : evening[field]
 }

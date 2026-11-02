@@ -264,9 +264,7 @@ describe('meetingSessions golden output', () => {
 							? Math.sign(bySessionStart(meetings[0], meetings[1]))
 							: null,
 					grouped: run(groupSessions, [input]),
-					labels: meetings.map((m) =>
-						sessionLabel(m, FORMAT.locale, FORMAT.timeZone),
-					),
+					labels: meetings.map((m) => sessionLabel(m, FORMAT)),
 					siblings: run(siblingsOf, [one, input]),
 					columns:
 						rel === undefined
@@ -281,7 +279,7 @@ describe('meetingSessions golden output', () => {
 				parentOf(null),
 				parentOf(undefined),
 				bySessionStart(null, undefined),
-				sessionLabel(null, FORMAT.locale, FORMAT.timeZone),
+				sessionLabel(null, FORMAT),
 			]),
 		)
 		const digest = createHash('sha256').update(all.join('\n')).digest('hex')
