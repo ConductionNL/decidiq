@@ -23,12 +23,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -88,12 +92,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -154,12 +162,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -220,12 +232,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -285,12 +301,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -351,12 +371,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -419,12 +443,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -490,12 +518,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -537,6 +569,88 @@
             }
         ]
     },
+    "pair-first-wins": {
+        "returns": {
+            "id": "e-1",
+            "meeting": "m-1",
+            "participant": "p-anna",
+            "speeches": [
+                {
+                    "duration": 30
+                }
+            ],
+            "questionsRaised": [
+                {
+                    "text": "Tweede"
+                }
+            ],
+            "topicsSuggested": [
+                []
+            ],
+            "speakingDuration": "30",
+            "engagementScore": 16
+        },
+        "calls": [
+            {
+                "setRegister": "decidiq"
+            },
+            {
+                "setSchema": "engagement-record"
+            },
+            {
+                "findAll": {
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
+                    },
+                    "_rbac": true,
+                    "_multitenancy": true
+                }
+            },
+            {
+                "saveObject": {
+                    "object": {
+                        "id": "e-1",
+                        "meeting": "m-1",
+                        "participant": "p-anna",
+                        "speeches": [
+                            {
+                                "duration": 30
+                            }
+                        ],
+                        "questionsRaised": [
+                            {
+                                "text": "Tweede"
+                            }
+                        ],
+                        "topicsSuggested": [
+                            []
+                        ],
+                        "speakingDuration": "30",
+                        "engagementScore": 16
+                    },
+                    "register": "decidiq",
+                    "schema": "engagement-record",
+                    "uuid": "e-1"
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: Engagement captured",
+                    {
+                        "meetingId": "m-1",
+                        "participant": "p-anna",
+                        "eventType": "question"
+                    }
+                ]
+            }
+        ]
+    },
     "question-entity": {
         "returns": {
             "id": "e-9",
@@ -562,12 +676,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -634,12 +752,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -693,12 +815,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             }
         ]
@@ -725,12 +851,16 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1",
-                        "participant": "p-anna"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1",
+                            "participant": "p-anna"
+                        },
+                        "limit": 1,
+                        "offset": 0
                     },
-                    "limit": 1,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {
@@ -814,11 +944,15 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1"
+                        },
+                        "limit": 500,
+                        "offset": 0
                     },
-                    "limit": 500,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             }
         ]
@@ -834,11 +968,15 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1"
+                        },
+                        "limit": 500,
+                        "offset": 0
                     },
-                    "limit": 500,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             }
         ]
@@ -854,11 +992,15 @@
             },
             {
                 "findAll": {
-                    "filters": {
-                        "meeting": "m-1"
+                    "config": {
+                        "filters": {
+                            "meeting": "m-1"
+                        },
+                        "limit": 500,
+                        "offset": 0
                     },
-                    "limit": 500,
-                    "offset": 0
+                    "_rbac": true,
+                    "_multitenancy": true
                 }
             },
             {

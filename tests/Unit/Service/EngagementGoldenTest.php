@@ -106,6 +106,7 @@ class EngagementGoldenTest extends TestCase {
 			'speech-zero'         => ['call' => $capture('speech', ['duration' => '0', 'startTime' => '2026-10-08T19:30:00Z', 'endTime' => '2026-10-08T19:31:00Z'])],
 			'speech-negative'     => ['call' => $capture('speech', ['duration' => -5, 'startTime' => '2026-10-08T19:30:00Z', 'endTime' => '2026-10-08T19:31:00Z'])],
 			'speech-existing'     => ['call' => $capture('speech', ['duration' => 600]), 'rows' => [$existing]],
+			'pair-first-wins'     => ['call' => $capture('question', ['text' => 'Tweede']), 'rows' => [$existing, ['id' => 'e-2', 'meeting' => 'm-1', 'participant' => 'p-anna', 'questionsRaised' => [['text' => 'Ander']]]]],
 			'question-entity'     => ['call' => $capture('question', ['text' => 'Waarom?']), 'rows' => ['entity']],
 			'topic-skips'         => ['call' => $capture('topic', ['topic' => 'Groen']), 'rows' => ['not a row', $existing]],
 			'unknown-type'        => ['call' => $capture('applause', [])],
@@ -140,8 +141,8 @@ class EngagementGoldenTest extends TestCase {
 		}
 
 		$objects->method('findAll')->willReturnCallback(
-			function (array $config) use ($case, $entity): array {
-				$this->log[] = ['findAll' => $config];
+			function (mixed ...$arguments) use ($case, $entity): array {
+				$this->log[] = ['findAll' => $this->everyArgument(class: ObjectServiceInterface::class, method: 'findAll', arguments: $arguments)];
 				if (($case['findAll'] ?? '') === 'throw') {
 					throw new RuntimeException('query down');
 				}
@@ -158,6 +159,25 @@ class EngagementGoldenTest extends TestCase {
 		);
 		return $objects;
 	}//end objects()
+
+	/**
+	 * Every argument of a call by parameter name, defaults included, so a
+	 * caller that changes a default flag shows in the recording.
+	 *
+	 * @param string       $class     The mocked class
+	 * @param string       $method    The method
+	 * @param array<mixed> $arguments The arguments received
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function everyArgument(string $class, string $method, array $arguments): array {
+		$named = [];
+		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $parameter) {
+			$named[$parameter->getName()] = array_key_exists($i, $arguments) === true ? $arguments[$i] : $parameter->getDefaultValue();
+		}
+
+		return $named;
+	}//end everyArgument()
 
 	/**
 	 * Map positional mock arguments onto parameter names, leaving out the
