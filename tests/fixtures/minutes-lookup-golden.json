@@ -433,7 +433,7 @@
     },
     "hydrated": {
         "draft": {
-            "returns": "{\"minutes\":{\"title\":\"Raad\",\"version\":2,\"content\":\"Body\",\"lifecycle\":\"review\",\"relations\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Embedded\"}}},\"meeting\":{\"id\":\"m-1\",\"title\":\"Embedded\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}",
+            "returns": "{\"minutes\":{\"title\":\"Raad\",\"version\":2,\"content\":\"Body\",\"lifecycle\":\"review\",\"relations\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Embedded\"}}},\"parts\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Embedded\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[],\"attendance\":[]}}",
             "calls": [
                 {
                     "setRegister": {
@@ -1169,7 +1169,7 @@
     },
     "ref": {
         "draft": {
-            "returns": "{\"minutes\":{\"title\":\"Raad\",\"version\":2,\"content\":\"Body\",\"lifecycle\":\"review\",\"meeting\":\"m-1\"},\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}",
+            "returns": "{\"minutes\":{\"title\":\"Raad\",\"version\":2,\"content\":\"Body\",\"lifecycle\":\"review\",\"meeting\":\"m-1\"},\"parts\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[],\"attendance\":[]}}",
             "calls": [
                 {
                     "setRegister": {
@@ -1510,7 +1510,7 @@
     },
     "ref-draft": {
         "draft": {
-            "returns": "{\"minutes\":{\"title\":\"Raad\",\"lifecycle\":\"draft\",\"signedBy\":[\"Piet\"],\"meeting\":\"m-1\"},\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}",
+            "returns": "{\"minutes\":{\"title\":\"Raad\",\"lifecycle\":\"draft\",\"signedBy\":[\"Piet\"],\"meeting\":\"m-1\"},\"parts\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[],\"attendance\":[]}}",
             "calls": [
                 {
                     "setRegister": {
@@ -1899,7 +1899,7 @@
                         },
                         "subfolder": "Minutes",
                         "fileName": "Raad v1 <date>.md",
-                        "content": "{\"minutes\":{\"title\":\"Raad\",\"lifecycle\":\"draft\",\"signedBy\":[\"Piet\"],\"meeting\":\"m-1\"},\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[]}"
+                        "content": "{\"minutes\":{\"title\":\"Raad\",\"lifecycle\":\"draft\",\"signedBy\":[\"Piet\"],\"meeting\":\"m-1\"},\"parts\":{\"meeting\":{\"id\":\"m-1\",\"title\":\"Fetched\"},\"agendaItems\":[],\"motions\":[],\"votingRounds\":[],\"decisions\":[],\"attendance\":[]}}"
                     }
                 },
                 {

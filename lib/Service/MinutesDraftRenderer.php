@@ -42,332 +42,346 @@ use Throwable;
  */
 class MinutesDraftRenderer {
 	/**
-	 * Render the Dutch minutes template from the gathered data.
+	 * The Dutch labels of the attendance statuses, in the order they are listed.
+	 *
+	 * @var array<string, string>
+	 */
+	private const ATTENDANCE_LABELS = [
+		'present' => 'Aanwezig',
+		'excused' => 'Afgemeld',
+		'absent' => 'Afwezig',
+		'proxy' => 'Vertegenwoordigd met volmacht',
+	];
+
+	/**
+	 * Render the draft minutes as markdown.
 	 *
 	 * @param array<string,mixed> $minutes Minutes object data
-	 * @param array<string,mixed> $meeting Meeting object data
-	 * @param array<int,array<string,mixed>> $agendaItems Agenda items (sorted by orderNumber)
-	 * @param array<int,array<string,mixed>> $motions Motions from the meeting
-	 * @param array<int,array<string,mixed>> $votingRounds VotingRounds from the meeting
-	 * @param array<int,array<string,mixed>> $decisions Decisions from the meeting
-	 * @param array<int,array{name:string,status:string}> $attendance Who attended, with this meeting's status (min-01)
+	 * @param array<string,mixed> $parts The meeting data under `meeting`, and the meeting's agendaItems (sorted by
+	 *                                   orderNumber), motions, votingRounds, decisions and attendance (who attended,
+	 *                                   with this meeting's status; optional)
 	 *
-	 * @return string The rendered Dutch minutes text
+	 * @return string Markdown content for the draft minutes
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 	 */
-	public function render(
-		array $minutes,
-		array $meeting,
-		array $agendaItems,
-		array $motions,
-		array $votingRounds,
-		array $decisions,
-		array $attendance=[],
-	): string {
-		$lines = $this->headerLines(minutes: $minutes, meeting: $meeting);
+	public function render(array $minutes, array $parts): string {
+		$lines = $this->headerLines(minutes: $minutes, meeting: $parts['meeting']);
 
 		// Section 1 is always "Opening"; the optional sections below take the
 		// next numbers in the order they are emitted.
 		$sectionNumber = 1;
-
-		$sections = [
-			$this->attendanceSection(attendance: $attendance),
-			$this->agendaSection(agendaItems: $agendaItems),
-			$this->treatmentSection(agendaItems: $agendaItems),
-			$this->motionSection(motions: $motions),
-			$this->votingSection(votingRounds: $votingRounds),
-			$this->decisionSection(decisions: $decisions),
-		];
-
-		foreach ($sections as $section) {
-			if ($section === null) {
-				continue;
-			}
-
+		foreach ($this->sections(parts: $parts) as $section) {
 			$sectionNumber++;
-			$lines[] = '## ' . $sectionNumber . '. ' . $section['title'];
-			$lines[] = '';
-			$lines = array_merge($lines, $section['body']);
+			$lines = array_merge($lines, ['## ' . $sectionNumber . '. ' . $section['title'], ''], $section['body']);
 		}
 
-		$sectionNumber++;
-
-		return implode("\n", array_merge($lines, $this->closingLines(sectionNumber: $sectionNumber)));
+		return implode("\n", array_merge($lines, $this->closingLines(sectionNumber: ($sectionNumber + 1))));
 	}//end render()
 
 	/**
-	 * Build the document header up to and including the "Opening" section.
+	 * The optional sections that have content, in their order.
+	 *
+	 * @param array<string,mixed> $parts The meeting's parts, as render() reads them
+	 *
+	 * @return array<int, array{title: string, body: string[]}>
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function sections(array $parts): array {
+		$present = [];
+		foreach ($this->sectionBodies(parts: $parts) as $title => $body) {
+			if ($body !== []) {
+				$present[] = ['title' => $title, 'body' => $body];
+			}
+		}
+
+		return $present;
+
+	}//end sections()
+
+	/**
+	 * The body of every optional section by title, empty when it has no content.
+	 *
+	 * @param array<string,mixed> $parts The meeting's parts, as render() reads them
+	 *
+	 * @return array<string, string[]>
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function sectionBodies(array $parts): array {
+		return [
+			'Aanwezigheid' => $this->attendanceBody(attendance: ($parts['attendance'] ?? [])),
+			'Agenda' => $this->agendaBody(agendaItems: $parts['agendaItems']),
+			'Behandeling agendapunten' => $this->linesOf(rows: $parts['agendaItems'], lines: $this->treatmentLines(...)),
+			'Moties en voorstellen' => $this->linesOf(rows: $parts['motions'], lines: $this->motionLines(...)),
+			'Stemmingen' => $this->linesOf(rows: $parts['votingRounds'], lines: $this->votingLines(...)),
+			'Besluiten' => $this->linesOf(rows: $parts['decisions'], lines: $this->decisionLines(...)),
+		];
+
+	}//end sectionBodies()
+
+	/**
+	 * The lines of every row, joined.
+	 *
+	 * @param array<int|string, array<string,mixed>> $rows The rows
+	 * @param callable $lines Builds the lines of one row from the row and its key
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function linesOf(array $rows, callable $lines): array {
+		return array_merge([], ...array_map($lines, array_values($rows), array_keys($rows)));
+
+	}//end linesOf()
+
+	/**
+	 * The title block: minutes title, meeting, date, location and the opening section.
 	 *
 	 * @param array<string,mixed> $minutes Minutes object data
 	 * @param array<string,mixed> $meeting Meeting object data
 	 *
-	 * @return array<int,string> The header lines
+	 * @return string[]
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function headerLines(array $minutes, array $meeting): array {
-		$meetingTitle = $meeting['title'] ?? $meeting['name'] ?? 'Vergadering';
-		$scheduledDate = $meeting['scheduledDate'] ?? $meeting['date'] ?? '';
+		return array_merge(
+			['# ' . ($minutes['title'] ?? 'Concept Notulen'), ''],
+			$this->meetingLines(meeting: $meeting),
+			['', '---', '', '## 1. Opening', '', 'De vergadering wordt geopend door de voorzitter.', '']
+		);
+	}//end headerLines()
+
+	/**
+	 * The meeting's name, and its date and location when known.
+	 *
+	 * @param array<string,mixed> $meeting Meeting object data
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function meetingLines(array $meeting): array {
+		$lines = ['**Vergadering:** ' . ($meeting['title'] ?? $meeting['name'] ?? 'Vergadering')];
+		$date = $this->meetingDate(meeting: $meeting);
+		if ($date !== '') {
+			$lines[] = '**Datum:** ' . $date;
+		}
+
 		$location = $meeting['location'] ?? '';
-
-		$formattedDate = '';
-		if ($scheduledDate !== '') {
-			$formattedDate = $this->formatDate(isoDate: (string)$scheduledDate);
-		}
-
-		$lines = [];
-		$lines[] = '# ' . ($minutes['title'] ?? 'Concept Notulen');
-		$lines[] = '';
-		$lines[] = '**Vergadering:** ' . $meetingTitle;
-
-		if ($formattedDate !== '') {
-			$lines[] = '**Datum:** ' . $formattedDate;
-		}
-
 		if ($location !== '') {
 			$lines[] = '**Locatie:** ' . $location;
 		}
 
-		$lines[] = '';
-		$lines[] = '---';
-		$lines[] = '';
-		$lines[] = '## 1. Opening';
-		$lines[] = '';
-		$lines[] = 'De vergadering wordt geopend door de voorzitter.';
-		$lines[] = '';
-
 		return $lines;
-	}//end headerLines()
+	}//end meetingLines()
 
 	/**
-	 * Build the "Aanwezigheid" section: who was present, sent apologies,
-	 * was absent or was represented, each group with its count.
+	 * The meeting's date for display, or '' when it has none.
 	 *
-	 * @param array<int,array{name:string,status:string}> $attendance Who attended
+	 * @param array<string,mixed> $meeting Meeting object data
 	 *
-	 * @return array{title:string,body:array<int,string>}|null The section, or null when no attendance was recorded
+	 * @return string
 	 *
-	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function attendanceSection(array $attendance): ?array {
-		$labels = [
-			'present' => 'Aanwezig',
-			'excused' => 'Afgemeld',
-			'absent' => 'Afwezig',
-			'proxy' => 'Vertegenwoordigd met volmacht',
-		];
-
-		$groups = [];
-		foreach ($attendance as $row) {
-			$status = (string)($row['status'] ?? '');
-			if (isset($labels[$status]) === true) {
-				$groups[$status][] = (string)($row['name'] ?? '');
-			}
+	private function meetingDate(array $meeting): string {
+		$scheduledDate = $meeting['scheduledDate'] ?? $meeting['date'] ?? '';
+		if ($scheduledDate === '') {
+			return '';
 		}
 
-		if ($groups === []) {
-			return null;
-		}
+		return $this->formatDate(isoDate: (string)$scheduledDate);
+	}//end meetingDate()
 
+	/**
+	 * Who attended, grouped per status; none when no row has a known status.
+	 *
+	 * @param array<int,array<string,mixed>> $attendance Who attended, with this meeting's status
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function attendanceBody(array $attendance): array {
+		$groups = $this->attendanceGroups(attendance: $attendance);
 		$body = [];
-		foreach ($labels as $status => $label) {
+		foreach (self::ATTENDANCE_LABELS as $status => $label) {
 			if (isset($groups[$status]) === true) {
 				$body[] = sprintf('%s (%d): %s', $label, count($groups[$status]), implode(', ', $groups[$status]));
 				$body[] = '';
 			}
 		}
 
-		return [
-			'title' => 'Aanwezigheid',
-			'body' => $body,
-		];
+		return $body;
 
-	}//end attendanceSection()
+	}//end attendanceBody()
 
 	/**
-	 * Build the "Agenda" section listing the agenda items.
+	 * The attendees' names per known status.
+	 *
+	 * @param array<int,array<string,mixed>> $attendance Who attended, with this meeting's status
+	 *
+	 * @return array<string, string[]>
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function attendanceGroups(array $attendance): array {
+		$groups = [];
+		foreach ($attendance as $row) {
+			$status = (string)($row['status'] ?? '');
+			if (isset(self::ATTENDANCE_LABELS[$status]) === true) {
+				$groups[$status][] = (string)($row['name'] ?? '');
+			}
+		}
+
+		return $groups;
+
+	}//end attendanceGroups()
+
+	/**
+	 * The agenda list; none when there are no items.
 	 *
 	 * @param array<int,array<string,mixed>> $agendaItems Agenda items
 	 *
-	 * @return array{title:string,body:array<int,string>}|null The section, or null when there is nothing to emit
+	 * @return string[]
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function agendaSection(array $agendaItems): ?array {
+	private function agendaBody(array $agendaItems): array {
 		if (count($agendaItems) === 0) {
-			return null;
+			return [];
 		}
 
-		$body = [];
-		$body[] = 'De agenda wordt vastgesteld met de volgende punten:';
-		$body[] = '';
+		$lines = $this->linesOf(rows: $agendaItems, lines: $this->agendaLine(...));
+		return array_merge(['De agenda wordt vastgesteld met de volgende punten:', ''], $lines, ['']);
 
-		foreach ($agendaItems as $index => $item) {
-			$order = $item['orderNumber'] ?? ($index + 1);
-			$title = $item['title'] ?? $item['name'] ?? 'Agendapunt ' . $order;
-			$body[] = sprintf('%d. %s', $order, $title);
-		}
-
-		$body[] = '';
-
-		return [
-			'title' => 'Agenda',
-			'body' => $body,
-		];
-
-	}//end agendaSection()
+	}//end agendaBody()
 
 	/**
-	 * Build the "Behandeling agendapunten" section with a stub per agenda item.
+	 * The agenda line of one item.
 	 *
-	 * @param array<int,array<string,mixed>> $agendaItems Agenda items
+	 * @param array<string,mixed> $item Agenda item
+	 * @param int|string $index The item's key in the list
 	 *
-	 * @return array{title:string,body:array<int,string>}|null The section, or null when there is nothing to emit
+	 * @return string[]
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function treatmentSection(array $agendaItems): ?array {
-		if (count($agendaItems) === 0) {
-			return null;
-		}
+	private function agendaLine(array $item, int|string $index): array {
+		return [vsprintf('%d. %s', $this->itemHeading(item: $item, index: $index))];
 
-		$body = [];
-		foreach ($agendaItems as $index => $item) {
-			$order = $item['orderNumber'] ?? ($index + 1);
-			$title = $item['title'] ?? $item['name'] ?? 'Agendapunt ' . $order;
-			$description = $item['description'] ?? '';
-
-			$body[] = sprintf('### %d. %s', $order, $title);
-			$body[] = '';
-
-			if ($description !== '') {
-				$body[] = $description;
-				$body[] = '';
-			}
-
-			$body[] = '_[Hier de bespreking van dit agendapunt invullen.]_';
-			$body[] = '';
-		}//end foreach
-
-		return [
-			'title' => 'Behandeling agendapunten',
-			'body' => $body,
-		];
-
-	}//end treatmentSection()
+	}//end agendaLine()
 
 	/**
-	 * Build the "Moties en voorstellen" section.
+	 * An agenda item's number and title: its orderNumber (else its position)
+	 * and its title (else its name, else a numbered placeholder).
 	 *
-	 * @param array<int,array<string,mixed>> $motions Motions from the meeting
+	 * @param array<string,mixed> $item Agenda item
+	 * @param int|string $index The item's key in the list
 	 *
-	 * @return array{title:string,body:array<int,string>}|null The section, or null when there is nothing to emit
+	 * @return array{0: mixed, 1: mixed}
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function motionSection(array $motions): ?array {
-		if (count($motions) === 0) {
-			return null;
-		}
+	private function itemHeading(array $item, int|string $index): array {
+		$order = $item['orderNumber'] ?? ($index + 1);
+		return [$order, $item['title'] ?? $item['name'] ?? 'Agendapunt ' . $order];
 
-		$body = [];
-		foreach ($motions as $motion) {
-			$title = $motion['title'] ?? $motion['name'] ?? 'Motie';
-			$text = $motion['text'] ?? $motion['description'] ?? '';
-
-			$body[] = '**' . $title . '**';
-
-			if ($text !== '') {
-				$body[] = '';
-				$body[] = $text;
-			}
-
-			$body[] = '';
-		}
-
-		return [
-			'title' => 'Moties en voorstellen',
-			'body' => $body,
-		];
-
-	}//end motionSection()
+	}//end itemHeading()
 
 	/**
-	 * Build the "Stemmingen" section.
+	 * The treatment block of one agenda item.
 	 *
-	 * @param array<int,array<string,mixed>> $votingRounds VotingRounds from the meeting
+	 * @param array<string,mixed> $item Agenda item
+	 * @param int|string $index The item's key in the list
 	 *
-	 * @return array{title:string,body:array<int,string>}|null The section, or null when there is nothing to emit
+	 * @return string[]
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function votingSection(array $votingRounds): ?array {
-		if (count($votingRounds) === 0) {
-			return null;
+	private function treatmentLines(array $item, int|string $index): array {
+		$lines = [vsprintf('### %d. %s', $this->itemHeading(item: $item, index: $index)), ''];
+		$description = $item['description'] ?? '';
+		if ($description !== '') {
+			array_push($lines, $description, '');
 		}
 
-		$body = [];
-		foreach ($votingRounds as $round) {
-			$title = $round['title'] ?? $round['name'] ?? 'Stemming';
-			$result = $round['result'] ?? $round['outcome'] ?? '';
+		array_push($lines, '_[Hier de bespreking van dit agendapunt invullen.]_', '');
+		return $lines;
 
-			$body[] = '**' . $title . '**';
-
-			if ($result !== '') {
-				$body[] = 'Uitslag: ' . $result;
-			}
-
-			$body[] = '';
-		}
-
-		return [
-			'title' => 'Stemmingen',
-			'body' => $body,
-		];
-
-	}//end votingSection()
+	}//end treatmentLines()
 
 	/**
-	 * Build the "Besluiten" section.
+	 * The block of one motion: its title and its text.
 	 *
-	 * @param array<int,array<string,mixed>> $decisions Decisions from the meeting
+	 * @param array<string,mixed> $motion Motion
 	 *
-	 * @return array{title:string,body:array<int,string>}|null The section, or null when there is nothing to emit
+	 * @return string[]
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function decisionSection(array $decisions): ?array {
-		if (count($decisions) === 0) {
-			return null;
+	private function motionLines(array $motion): array {
+		$lines = ['**' . ($motion['title'] ?? $motion['name'] ?? 'Motie') . '**'];
+		$text = $motion['text'] ?? $motion['description'] ?? '';
+		if ($text !== '') {
+			array_push($lines, '', $text);
 		}
 
-		$body = [];
-		foreach ($decisions as $decision) {
-			$title = $decision['title'] ?? 'Besluit';
-			$text = $decision['text'] ?? $decision['description'] ?? '';
-			$outcome = $decision['outcome'] ?? '';
+		$lines[] = '';
+		return $lines;
 
-			$body[] = '**' . $title . '**';
+	}//end motionLines()
 
-			if ($outcome !== '') {
-				$body[] = 'Uitkomst: ' . $this->outcomeLabel(outcome: (string)$outcome);
-			}
+	/**
+	 * The block of one voting round: its title and its result.
+	 *
+	 * @param array<string,mixed> $round Voting round
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function votingLines(array $round): array {
+		$lines = ['**' . ($round['title'] ?? $round['name'] ?? 'Stemming') . '**'];
+		$result = $round['result'] ?? $round['outcome'] ?? '';
+		if ($result !== '') {
+			$lines[] = 'Uitslag: ' . $result;
+		}
 
-			if ($text !== '') {
-				$body[] = $text;
-			}
+		$lines[] = '';
+		return $lines;
 
-			$body[] = '';
-		}//end foreach
+	}//end votingLines()
 
-		return [
-			'title' => 'Besluiten',
-			'body' => $body,
-		];
+	/**
+	 * The block of one decision: its title, its outcome and its text.
+	 *
+	 * @param array<string,mixed> $decision Decision
+	 *
+	 * @return string[]
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function decisionLines(array $decision): array {
+		$lines = ['**' . ($decision['title'] ?? 'Besluit') . '**'];
+		$outcome = $decision['outcome'] ?? '';
+		if ($outcome !== '') {
+			$lines[] = 'Uitkomst: ' . $this->outcomeLabel(outcome: (string)$outcome);
+		}
 
-	}//end decisionSection()
+		$text = $decision['text'] ?? $decision['description'] ?? '';
+		if ($text !== '') {
+			$lines[] = $text;
+		}
+
+		$lines[] = '';
+		return $lines;
+
+	}//end decisionLines()
 
 	/**
 	 * Translate a decision outcome to its Dutch label.

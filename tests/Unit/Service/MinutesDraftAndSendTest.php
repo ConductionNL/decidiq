@@ -127,16 +127,18 @@ class MinutesDraftAndSendTest extends TestCase {
 	public function testTheDraftListsTheAttendance(): void {
 		$text = (new MinutesDraftRenderer())->render(
 			minutes: ['title' => 'Notulen'],
-			meeting: ['title' => 'Raad'],
-			agendaItems: [],
-			motions: [],
-			votingRounds: [],
-			decisions: [],
-			attendance: [
-				['name' => 'Anna de Vries', 'status' => 'present'],
-				['name' => 'Bert Bakker', 'status' => 'present'],
-				['name' => 'Cees Jansen', 'status' => 'excused'],
-				['name' => 'Dirk Visser', 'status' => 'proxy'],
+			parts: [
+				'meeting' => ['title' => 'Raad'],
+				'agendaItems' => [],
+				'motions' => [],
+				'votingRounds' => [],
+				'decisions' => [],
+				'attendance' => [
+					['name' => 'Anna de Vries', 'status' => 'present'],
+					['name' => 'Bert Bakker', 'status' => 'present'],
+					['name' => 'Cees Jansen', 'status' => 'excused'],
+					['name' => 'Dirk Visser', 'status' => 'proxy'],
+				],
 			]
 		);
 
