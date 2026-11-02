@@ -192,7 +192,7 @@ export default {
 		write(input, raw) {
 			this.$emit(
 				'update:modelValue',
-				setTypeFieldValue(this.modelValue, input, raw),
+				setTypeFieldValue(this.modelValue, { input, raw }),
 			)
 		},
 	},

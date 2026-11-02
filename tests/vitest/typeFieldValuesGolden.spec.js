@@ -139,7 +139,7 @@ describe('agenda item type fields golden output', () => {
 				input: pick(rnd, KINDS),
 			}
 			const raw = pick(rnd, RAWS)
-			const written = setTypeFieldValue(values, input, raw)
+			const written = setTypeFieldValue(values, { input, raw })
 			all.push(
 				text({
 					types: Array.isArray(types)

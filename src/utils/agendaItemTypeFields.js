@@ -11,7 +11,7 @@
  *   kind chosen by fieldType and the caption taken from label.
  * - findItemType(types, ref) → the type an item refers to, by uuid or by the
  *   slug a seeded item stores.
- * - setTypeFieldValue(values, input, raw) → a new typeFields object.
+ * - setTypeFieldValue(values, { input, raw }) → a new typeFields object.
  * - missingRequiredTypeFields(inputs, values) → labels still left empty.
  *
  * SPDX-License-Identifier: EUPL-1.2
@@ -71,19 +71,54 @@ export function typeFieldInputs(type) {
  * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
  */
 export function findItemType(types, ref) {
-	// A reference picker may hand over its option object instead of the id.
-	if (ref && typeof ref === 'object') ref = ref.id || ref.uuid || ref.value
-	if (!ref || !Array.isArray(types)) return null
+	const id = referenceOf(ref)
+	if (!id || !Array.isArray(types)) return null
+	return types.find((type) => isTypeReferenced(type, id)) || null
+}
+
+/**
+ * The id a type reference holds. A reference picker may hand over its option
+ * object instead of the id.
+ *
+ * @param {?(string|object)} ref The item's `type` value, or a picker option carrying it.
+ * @return {?string} The id, uuid or slug.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ */
+function referenceOf(ref) {
+	return ref && typeof ref === 'object' ? ref.id || ref.uuid || ref.value : ref
+}
+
+/**
+ * Whether a type is the one a reference names, by id, uuid or slug.
+ *
+ * @param {?object} type A configured AgendaItemType.
+ * @param {string} id The reference.
+ * @return {boolean} True when it matches.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ */
+function isTypeReferenced(type, id) {
 	return (
-		types.find(
-			(type) =>
-				type?.id === ref
-				|| type?.uuid === ref
-				|| type?.['@self']?.slug === ref
-				|| type?.slug === ref,
-		) || null
+		type?.id === id
+		|| type?.uuid === id
+		|| type?.['@self']?.slug === id
+		|| type?.slug === id
 	)
 }
+
+/** Marks an answer that removes its key. */
+const REMOVE = Symbol('remove')
+
+/** Raw values that clear an answer. */
+const EMPTY_RAW = new Set([null, undefined, ''])
+
+/**
+ * Reads the raw value of a non-empty control, by input kind. Any other kind
+ * stores text.
+ */
+const ANSWER_READERS = new Map([
+	['user', userAnswer],
+	['number', numberAnswer],
+])
 
 /**
  * Write one answer into a copy of the item's typeFields.
@@ -92,35 +127,56 @@ export function findItemType(types, ref) {
  * rather than as an empty string.
  *
  * @param {?object} values The item's current typeFields.
- * @param {{key: string, input: string}} input The input being written.
- * @param {unknown} raw The value the control produced.
+ * @param {{input: {key: string, input: string}, raw: unknown}} answer The input being written and the value the control produced.
  * @return {object} The new typeFields object.
  * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
  */
-export function setTypeFieldValue(values, input, raw) {
+export function setTypeFieldValue(values, answer) {
 	const next = { ...(values || {}) }
-	if (input.input === 'checkbox') {
-		next[input.key] = Boolean(raw)
-		return next
-	}
-	if (raw === null || raw === undefined || raw === '') {
-		delete next[input.key]
-		return next
-	}
-	if (input.input === 'user' && typeof raw === 'object') {
-		const id = raw.id || raw.value || ''
-		if (id === '') delete next[input.key]
-		else next[input.key] = String(id)
-		return next
-	}
-	if (input.input === 'number') {
-		const number = Number(raw)
-		if (Number.isNaN(number)) delete next[input.key]
-		else next[input.key] = number
-		return next
-	}
-	next[input.key] = String(raw)
+	const value = answerValue(answer.input, answer.raw)
+	if (value === REMOVE) delete next[answer.input.key]
+	else next[answer.input.key] = value
 	return next
+}
+
+/**
+ * The value to store for one answer, or REMOVE.
+ *
+ * @param {{key: string, input: string}} input The input being written.
+ * @param {unknown} raw The value the control produced.
+ * @return {unknown} The value, or REMOVE.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ */
+function answerValue(input, raw) {
+	if (input.input === 'checkbox') return Boolean(raw)
+	if (EMPTY_RAW.has(raw)) return REMOVE
+	const read = ANSWER_READERS.get(input.input) ?? String
+	return read(raw)
+}
+
+/**
+ * A person picker's answer: the id of the picked option, or text.
+ *
+ * @param {unknown} raw The value the control produced.
+ * @return {string|symbol} The id as text, or REMOVE for an option without one.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ */
+function userAnswer(raw) {
+	if (typeof raw !== 'object') return String(raw)
+	const id = raw.id || raw.value || ''
+	return id === '' ? REMOVE : String(id)
+}
+
+/**
+ * A number field's answer.
+ *
+ * @param {unknown} raw The value the control produced.
+ * @return {number|symbol} The number, or REMOVE when it is not one.
+ * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ */
+function numberAnswer(raw) {
+	const number = Number(raw)
+	return Number.isNaN(number) ? REMOVE : number
 }
 
 /**
