@@ -57,6 +57,7 @@ use ZipArchive;
  * Golden test for the export bundle writer.
  *
  * @covers \OCA\Decidiq\Service\ExportBundleWriter
+ * @uses   \OCA\Decidiq\Service\ExportPdfRun
  * @uses   \OCA\Decidiq\Exception\ExportBundleException
  */
 class ExportBundleWriterGoldenTest extends TestCase {
