@@ -35,6 +35,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\RoleGroupMapping;
+use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
@@ -52,6 +53,7 @@ use Stringable;
  *
  * @covers \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  * @uses   \OCA\Decidiq\Support\FleetAppId
  */
 class SettingsServiceGoldenTest extends TestCase {
@@ -277,8 +279,8 @@ class SettingsServiceGoldenTest extends TestCase {
 		}
 
 		try {
-			$method = new \ReflectionMethod(SettingsService::class, 'mergeFragmentDirectory');
-			[$merged, $signature] = $method->invoke(null, $this->base(), $dir, $callback);
+			$merger = new RegisterFragmentMerger(onMalformed: $callback);
+			[$merged, $signature] = $merger->mergeDirectory(configData: $this->base(), fragmentDir: $dir);
 			$returns = ['merged' => $merged, 'signature' => str_replace($dir, '<dir>', $signature)];
 		} catch (\Throwable $e) {
 			$returns = ['throws' => get_class($e)];
