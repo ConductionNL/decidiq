@@ -51,6 +51,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\PublicationService
  * @covers \OCA\Decidiq\Service\PublicationRepository
  * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  *
  * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
  */
