@@ -306,7 +306,7 @@ class GovernanceReportingServiceTest extends TestCase {
 
 		$lines = explode("\n", $svc->exportReport('rep-2', 'csv')['body']);
 
-		$this->assertSame('boardKoppeling,"b,1;=1+1"', $lines[1]);
+		$this->assertSame('boardKoppeling,"b,1;\'=1+1"', $lines[1]);
 		$this->assertSame('year,"\'=HYPERLINK(""https://evil.example"")"', $lines[2]);
 		$this->assertSame('meetingCount,4', $lines[3]);
 

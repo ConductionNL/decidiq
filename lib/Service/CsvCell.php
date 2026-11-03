@@ -23,8 +23,9 @@ namespace OCA\Decidiq\Service;
 
 /**
  * The one rule for a CSV cell that a spreadsheet opens: inert, so it is
- * never read as a formula, and quoted when a comma- or semicolon-separated
- * reader would split it (RFC 4180 plus the `;` list separator of nl-NL).
+ * never read as a formula, also where a reader that splits on the `;` list
+ * separator of nl-NL starts a cell, and quoted when a comma- or
+ * semicolon-separated reader would split it (RFC 4180).
  * It holds no state.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
@@ -75,16 +76,19 @@ final class CsvCell {
 	}//end wrap()
 
 	/**
-	 * The cell with a leading apostrophe when a spreadsheet would read it as
-	 * a formula: it starts with =, +, -, @, a tab or a carriage return, also
-	 * behind leading spaces or line feeds, which an import may trim.
+	 * The cell with an apostrophe wherever a spreadsheet would start reading
+	 * a formula: at the start, and after each `;` or line break, where a
+	 * reader that splits on `;` starts a new cell or row whatever the quoting.
+	 * A formula starts with =, +, -, @, a tab or a carriage return, also
+	 * behind spaces (and quotes after a break), which an import may trim.
 	 *
 	 * @param string $cell The cell text
 	 *
 	 * @return string
 	 */
 	private function inert(string $cell): string {
-		if (strpbrk(substr(ltrim($cell, " \n"), 0, 1), "=+-@\t\r") !== false) {
+		$cell = (string)preg_replace('/([;\r\n])(?=[ "]*[=+\-@\t\r])/', "$1'", $cell);
+		if (strpbrk(substr(ltrim($cell, ' '), 0, 1), "=+-@\t\r") !== false) {
 			return "'" . $cell;
 		}
 

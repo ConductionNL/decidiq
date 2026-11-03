@@ -395,7 +395,7 @@ class AuditLogServiceTest extends TestCase {
 
 		$lines = explode("\n", $service->export('2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z', 'csv')['body']);
 
-		self::assertStringContainsString(',"x;=1+1;",', $lines[1]);
+		self::assertStringContainsString(",\"x;'=1+1;\",", $lines[1]);
 		self::assertStringContainsString(",'  =2+2,", $lines[2]);
 
 	}//end testExportCsvQuotesSemicolonCells()

@@ -28,8 +28,8 @@ use OCA\Decidiq\Service\CsvCell;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The CSV cell rule: inert for spreadsheets, quoted when a comma- or
- * semicolon-separated reader would split it.
+ * The CSV cell rule: inert for spreadsheets, also where a semicolon-separated
+ * reader starts a cell, and quoted when a reader would split it.
  *
  * @covers \OCA\Decidiq\Service\CsvCell
  */
@@ -58,6 +58,7 @@ class CsvCellTest extends TestCase {
 		self::assertSame('"o-1|o-2"', (new CsvCell())->quote(cell: 'o-1|o-2'));
 		self::assertSame('""', (new CsvCell())->quote(cell: ''));
 		self::assertSame("\"'=1+1;x\"", (new CsvCell())->quote(cell: '=1+1;x'));
+		self::assertSame("\"o-1;'=2\"", (new CsvCell())->quote(cell: 'o-1;=2'));
 		self::assertSame('"say ""hi"""', (new CsvCell())->quote(cell: 'say "hi"'));
 	}//end testQuote()
 
@@ -74,7 +75,12 @@ class CsvCellTest extends TestCase {
 			'leading space'         => [' plain', ' plain'],
 			'comma'                 => ['a,b', '"a,b"'],
 			'semicolon'             => ['a;b', '"a;b"'],
-			'semicolon formula'     => ['x;=1+1;', '"x;=1+1;"'],
+			'semicolon formula'     => ['x;=1+1;', "\"x;'=1+1;\""],
+			'semicolon then space'  => ['x; -1', "\"x;' -1\""],
+			'semicolon then quote'  => ['x;"=1"', "\"x;'\"\"=1\"\"\""],
+			'two semicolons'        => ['a;@b;+c;d', "\"a;'@b;'+c;d\""],
+			'semicolon then text'   => ['a; b', '"a; b"'],
+			'leading and semicolon' => ['=a;=b', "\"'=a;'=b\""],
 			'quote'                 => ['say "hi"', '"say ""hi"""'],
 			'line feed'             => ["a\nb", "\"a\nb\""],
 			'lone carriage return'  => ["a\rb", "\"a\rb\""],
@@ -87,7 +93,11 @@ class CsvCellTest extends TestCase {
 			'carriage return'       => ["\rx", "\"'\rx\""],
 			'space then equals'     => [' =1+1', "' =1+1"],
 			'spaces then minus'     => ['  -1', "'  -1"],
-			'line feed then at'     => ["\n@x", "\"'\n@x\""],
+			'line feed then at'     => ["\n@x", "\"\n'@x\""],
+			'inner line feed'       => ["a\n=1", "\"a\n'=1\""],
+			'inner carriage return' => ["a\r+1", "\"a\r'+1\""],
+			'inner crlf'            => ["a\r\n-1", "\"a\r\n'-1\""],
+			'semicolon line feed'   => ["a;\n=1", "\"a;\n'=1\""],
 			'space then tab'        => [" \tx", "' \tx"],
 			'formula and separator' => ['=HYPERLINK("https://evil.example","open")', "\"'=HYPERLINK(\"\"https://evil.example\"\",\"\"open\"\")\""],
 			'trigger not leading'   => ['a=1', 'a=1'],
