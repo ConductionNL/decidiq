@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -249,62 +247,6 @@ class VotingRoundPreflight {
 		];
 
 	}//end splitPresetParticipants()
-
-	/**
-	 * Assemble the VotingRound payload that gets persisted.
-	 *
-	 * @param string $motionId The motion UUID (amendment UUID for amendment rounds)
-	 * @param string $subjectType 'motion' or 'amendment' — the subject relation schema
-	 * @param string $votingMethod The voting method
-	 * @param bool $isSecret Whether the ballot is secret
-	 * @param string|null $closedAt Optional pre-defined close time
-	 * @param bool $quorumWith Whether quorum was met when the round opened
-	 * @param array<string> $rules The effective voting rules
-	 * @param string|null $revoteOfRoundId UUID of the tied round this round revotes, or null
-	 * @param array<string> $participantIds Eligible preset participant UUIDs
-	 *
-	 * @return array<string,mixed> The voting-round payload
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 */
-	public function buildRoundPayload(
-		string $motionId,
-		string $subjectType,
-		string $votingMethod,
-		bool $isSecret,
-		?string $closedAt,
-		bool $quorumWith,
-		array $rules,
-		?string $revoteOfRoundId,
-		array $participantIds,
-	): array {
-		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
-		foreach ($participantIds as $uuid) {
-			$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $uuid];
-		}
-
-		$round = [
-			'votingMethod' => $votingMethod,
-			'isSecret' => $isSecret,
-			'openedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-			'closedAt' => $closedAt,
-			'quorumWith' => $quorumWith,
-			'result' => null,
-			'votesFor' => 0,
-			'votesAgainst' => 0,
-			'votesAbstain' => 0,
-			'voteThreshold' => $rules['voteThreshold'],
-			'abstentionHandling' => $rules['abstentionHandling'],
-			'tieBreakRule' => $rules['tieBreakRule'],
-			'relations' => $relations,
-		];
-
-		if ($revoteOfRoundId !== null) {
-			$round['revoteOfRound'] = $revoteOfRoundId;
-		}
-
-		return $round;
-	}//end buildRoundPayload()
 
 	/**
 	 * Transition the subject lifecycle to 'voting' via the guarded state machine.

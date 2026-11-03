@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\VoteBallotFactory;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteBreakdownService;
 use OCA\Decidiq\Service\VoterTokenSecret;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -72,15 +73,12 @@ class VoteBreakdownServiceTest extends TestCase {
 		$container->method('get')->willThrowException(new \RuntimeException('not in this test'));
 		$factory = new VoteBallotFactory($container, $this->createMock(LoggerInterface::class), new VoterTokenSecret($container));
 
-		$vote = $factory->buildVote(
-			votingRoundId: 'round-1',
-			participantId: $participantId,
-			value: $value,
-			isProxy: $delegatorId !== null,
-			delegatorId: $delegatorId,
-			isSecret: false,
-			existingVote: null
-		);
+		$cast = new VoteCast(votingRoundId: 'round-1', participantId: $participantId, value: $value);
+		if ($delegatorId !== null) {
+			$cast = $cast->asProxy(delegatorId: $delegatorId);
+		}
+
+		$vote = $factory->buildVote(cast: $cast, existingVote: null);
 		unset($vote['@self']);
 		return $vote;
 	}//end ballot()

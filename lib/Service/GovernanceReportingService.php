@@ -357,7 +357,7 @@ class GovernanceReportingService {
 	}//end exportFailure()
 
 	/**
-	 * A report as key,value CSV lines.
+	 * A report as key,value CSV lines, each value through CsvCell::escape().
 	 *
 	 * @param array<string, mixed> $report The report
 	 *
@@ -367,8 +367,9 @@ class GovernanceReportingService {
 	 */
 	private function reportCsv(array $report): string {
 		$rows = ['key,value'];
+		$csv  = new CsvCell();
 		foreach (self::CSV_FIELDS as [$label, $field, $missing]) {
-			$rows[] = $label . ',' . ((string)($report[$field] ?? $missing));
+			$rows[] = $label . ',' . $csv->escape(cell: (string)($report[$field] ?? $missing));
 		}
 
 		return implode("\n", $rows);
