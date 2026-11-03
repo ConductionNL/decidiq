@@ -1,0 +1,472 @@
+{
+    "open minimal": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "for-against-abstain",
+                    "isSecret": false,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        []
+                    ]
+                }
+            }
+        ]
+    },
+    "open missing ids": {
+        "status": 400,
+        "data": {
+            "message": "motionId and meetingId are required"
+        },
+        "calls": []
+    },
+    "open everything": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "show-of-hands",
+                    "isSecret": true,
+                    "closedAt": "2026-12-01T10:00:00+00:00",
+                    "presets": [
+                        "p-1",
+                        "p-2"
+                    ],
+                    "revoteOf": "r-0",
+                    "fresh": false,
+                    "rules": [
+                        "qualified-majority-two-thirds",
+                        "count",
+                        "revote",
+                        "amendment",
+                        "gb-1",
+                        []
+                    ]
+                }
+            }
+        ]
+    },
+    "open secret as text": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "for-against-abstain",
+                    "isSecret": true,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        []
+                    ]
+                }
+            }
+        ]
+    },
+    "open presets not a list": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "for-against-abstain",
+                    "isSecret": false,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        []
+                    ]
+                }
+            }
+        ]
+    },
+    "open revote not a string": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "for-against-abstain",
+                    "isSecret": false,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        []
+                    ]
+                }
+            }
+        ]
+    },
+    "open unknown rule": {
+        "status": 400,
+        "data": {
+            "message": "tieBreakRule must be one of: rejected, chair-decides, revote"
+        },
+        "calls": []
+    },
+    "open unknown subject": {
+        "status": 400,
+        "data": {
+            "message": "subjectType must be one of: motion, amendment"
+        },
+        "calls": []
+    },
+    "open opener refuses": {
+        "throws": "Quorum niet bereikt",
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-refused",
+                    "meetingId": "me-1",
+                    "votingMethod": "for-against-abstain",
+                    "isSecret": false,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        []
+                    ]
+                }
+            }
+        ]
+    },
+    "cast own vote": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast proxy vote": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "against",
+                    "ranking": null,
+                    "proxy": true,
+                    "delegator": "p-bert",
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast proxy without delegator": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "abstain",
+                    "ranking": null,
+                    "proxy": true,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast delegator without proxy": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast forged participant and caller": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-2",
+                    "participant": "p-anna",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast other member": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-bert",
+                    "value": "against",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "bert"
+                }
+            }
+        ]
+    },
+    "cast no participant profile": {
+        "status": 403,
+        "data": {
+            "message": "Geen deelnemersprofiel gevonden voor de ingelogde gebruiker"
+        },
+        "calls": []
+    },
+    "cast signed out": {
+        "status": 401,
+        "data": {
+            "message": "Unauthenticated"
+        },
+        "calls": []
+    },
+    "cast no value": {
+        "status": 400,
+        "data": {
+            "message": "value is required"
+        },
+        "calls": []
+    },
+    "cast unknown value": {
+        "status": 400,
+        "data": {
+            "message": "value must be for, against, or abstain"
+        },
+        "calls": []
+    },
+    "cast caster refuses": {
+        "status": 400,
+        "data": {
+            "message": "Voting round is not open"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-refused",
+                    "participant": "p-anna",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "mail for no-notify": {
+        "returns": {
+            "participantId": "p-mail",
+            "replyBody": "for",
+            "processed": true
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "round-mail",
+                    "participant": "p-mail",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": null
+                }
+            }
+        ]
+    },
+    "mail for uid-7": {
+        "returns": {
+            "participantId": "p-mail",
+            "replyBody": "for",
+            "processed": true
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "round-mail",
+                    "participant": "p-mail",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": null
+                }
+            }
+        ]
+    },
+    "mail against no-notify": {
+        "returns": {
+            "participantId": "p-mail",
+            "replyBody": "against",
+            "processed": true
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "round-mail",
+                    "participant": "p-mail",
+                    "value": "against",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": null
+                }
+            }
+        ]
+    },
+    "mail against uid-7": {
+        "returns": {
+            "participantId": "p-mail",
+            "replyBody": "against",
+            "processed": true
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "round-mail",
+                    "participant": "p-mail",
+                    "value": "against",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": null
+                }
+            }
+        ]
+    },
+    "mail abstain no-notify": {
+        "returns": {
+            "participantId": "p-mail",
+            "replyBody": "abstain",
+            "processed": true
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "round-mail",
+                    "participant": "p-mail",
+                    "value": "abstain",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": null
+                }
+            }
+        ]
+    },
+    "mail abstain uid-7": {
+        "returns": {
+            "participantId": "p-mail",
+            "replyBody": "abstain",
+            "processed": true
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "round-mail",
+                    "participant": "p-mail",
+                    "value": "abstain",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": null
+                }
+            }
+        ]
+    }
+}
