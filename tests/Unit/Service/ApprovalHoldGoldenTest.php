@@ -103,6 +103,7 @@ class ApprovalHoldGoldenTest extends TestCase {
 			$this->log  = [];
 			$this->rows = [
 				'decision'       => ['doc-1' => ['id' => 'doc-1', 'title' => 'Nota'], 'doc-2' => ['id' => 'doc-2']],
+				'document'       => ['file-1' => ['id' => 'file-1', 'title' => 'Bijlage']],
 				'decision-stage' => ['stage-old' => ['id' => 'stage-old', 'subject' => 'doc-2', 'sequence' => 1, 'stageType' => 'endorsement', 'status' => 'active', 'decisionMakerType' => 'person', 'label' => 'Bestaand']],
 			];
 			$service = $this->service();
@@ -174,6 +175,8 @@ class ApprovalHoldGoldenTest extends TestCase {
 			'steps-not-a-list'          => ['user' => 'alice', 'params' => ['route' => ['origin' => 'adhoc', 'steps' => 'j.jansen']] + $params],
 			'subject-out-of-reach'      => ['user' => 'alice', 'params' => ['subject' => 'doc-secret'] + $params],
 			'subject-already-has-stages' => ['user' => 'alice', 'params' => ['subject' => 'doc-2'] + $params],
+			'other-schema'              => ['user' => 'alice', 'params' => ['subject' => 'file-1', 'subjectSchema' => 'document'] + $params],
+			'event-other-schema'        => ['event' => ['subject' => 'file-1', 'subjectSchema' => 'document'] + $event],
 			'route-not-an-array'        => ['user' => 'alice', 'params' => ['route' => 'adhoc'] + $params],
 			'event-adhoc'               => ['event' => $event],
 			'event-other-acting-user'   => ['event' => ['actorId' => 'mallory'] + $event],

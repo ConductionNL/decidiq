@@ -2252,6 +2252,269 @@
             }
         ]
     },
+    "other-schema": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "stages": [
+                    {
+                        "sequence": 1,
+                        "stageType": "endorsement",
+                        "status": "active",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 1)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "j.jansen",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": "",
+                        "id": "decision-stage-4",
+                        "origin": "adhoc",
+                        "dueAt": "<working day before the deadline>"
+                    },
+                    {
+                        "sequence": 2,
+                        "stageType": "endorsement",
+                        "status": "pending",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 2)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "d.devries",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": "",
+                        "id": "decision-stage-5",
+                        "origin": "adhoc",
+                        "dueAt": "<working day before the deadline>"
+                    },
+                    {
+                        "sequence": 3,
+                        "stageType": "endorsement",
+                        "status": "pending",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 3)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "b.bakker",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": "",
+                        "id": "decision-stage-6",
+                        "origin": "adhoc",
+                        "dueAt": "the deadline"
+                    }
+                ]
+            }
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "file-1",
+                    "register": "decidiq",
+                    "schema": "document"
+                }
+            },
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision-stage",
+                        "decision": "file-1"
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "file-1",
+                    "register": "decidiq",
+                    "schema": "document"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "sequence": 1,
+                        "stageType": "endorsement",
+                        "status": "active",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 1)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "j.jansen",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": ""
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "sequence": 2,
+                        "stageType": "endorsement",
+                        "status": "pending",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 2)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "d.devries",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": ""
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "sequence": 3,
+                        "stageType": "endorsement",
+                        "status": "pending",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 3)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "b.bakker",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": ""
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage",
+                    "uuid": null
+                }
+            },
+            {
+                "patch": {
+                    "objectId": "decision-stage-4",
+                    "data": {
+                        "origin": "adhoc",
+                        "dueAt": "<working day before the deadline>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage"
+                }
+            },
+            {
+                "patch": {
+                    "objectId": "decision-stage-5",
+                    "data": {
+                        "origin": "adhoc",
+                        "dueAt": "<working day before the deadline>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage"
+                }
+            },
+            {
+                "patch": {
+                    "objectId": "decision-stage-6",
+                    "data": {
+                        "origin": "adhoc",
+                        "dueAt": "the deadline"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage"
+                }
+            }
+        ]
+    },
+    "event-other-schema": {
+        "returns": {
+            "created": true,
+            "handled": true,
+            "stageCount": 2,
+            "routeId": ""
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "filters": {
+                        "register": "decidiq",
+                        "schema": "decision-stage",
+                        "decision": "file-1"
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "file-1",
+                    "register": "decidiq",
+                    "schema": "document"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "sequence": 1,
+                        "stageType": "endorsement",
+                        "status": "active",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 1)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "p.pieters",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": ""
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "sequence": 2,
+                        "stageType": "endorsement",
+                        "status": "pending",
+                        "decisionMakerType": "person",
+                        "label": "Endorsement (step 2)",
+                        "mandatory": true,
+                        "decision": "file-1",
+                        "assignedPerson": "q.quist",
+                        "assignedBody": "",
+                        "note": "document",
+                        "route": ""
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage",
+                    "uuid": null
+                }
+            },
+            {
+                "patch": {
+                    "objectId": "decision-stage-3",
+                    "data": {
+                        "origin": "adhoc",
+                        "dueAt": "<working day before the deadline>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage"
+                }
+            },
+            {
+                "patch": {
+                    "objectId": "decision-stage-4",
+                    "data": {
+                        "origin": "adhoc",
+                        "dueAt": "the deadline"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision-stage"
+                }
+            }
+        ]
+    },
     "route-not-an-array": {
         "returns": {
             "status": 400,
