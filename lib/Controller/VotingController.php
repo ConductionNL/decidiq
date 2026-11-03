@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingOpenRequestHandler;
 use OCA\Decidiq\Service\VotingRoundGuard;
@@ -146,19 +147,13 @@ class VotingController extends Controller {
 		}
 
 		$params = $this->request->getParams();
-		$value = ($params['value'] ?? '');
+		$ballot = $this->ballotOf(params: $params);
+		$value = $ballot['value'];
+		$ranking = $ballot['ranking'];
 		$isProxy = (bool)($params['isProxy'] ?? false);
 		$delegatorId = null;
 		if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
 			$delegatorId = $params['delegatorId'];
-		}
-
-		// A ranked ballot sends its ordering instead of a value (REQ-PRF-002);
-		// the caster checks it against the round's options and stores `ranked`.
-		$ranking = null;
-		if (is_array($params['ranking'] ?? null) === true) {
-			$ranking = $params['ranking'];
-			$value = 'ranked';
 		}
 
 		if ($value === '') {
@@ -170,21 +165,40 @@ class VotingController extends Controller {
 		}
 
 		return $this->errors->badRequest(
-			fn (): JSONResponse => new JSONResponse(
-				$this->votingService->castVote(
-					votingRoundId: $id,
-					participantId: $participantId,
-					value: $value,
-					isProxy: $isProxy,
-					delegatorId: $delegatorId,
-					callerUid: $nextcloudUid,
-					ranking: $ranking
-				),
-				Http::STATUS_CREATED
-			)
+			function () use ($id, $participantId, $value, $ranking, $isProxy, $delegatorId, $nextcloudUid): JSONResponse {
+				$cast = new VoteCast(votingRoundId: $id, participantId: $participantId, value: $value, ranking: $ranking);
+				if ($isProxy === true) {
+					$cast = $cast->asProxy(delegatorId: $delegatorId);
+				}
+
+				return new JSONResponse(
+					$this->votingService->castVote(cast: $cast, callerUid: $nextcloudUid),
+					Http::STATUS_CREATED
+				);
+			}
 		);
 
 	}//end cast()
+
+	/**
+	 * The value and ranking a cast request carries.
+	 *
+	 * A ranked ballot sends its ordering instead of a value (REQ-PRF-002); the
+	 * caster checks it against the round's options and stores `ranked`.
+	 *
+	 * @param array<string,mixed> $params The request parameters
+	 *
+	 * @return array{value: mixed, ranking: array<int, mixed>|null} The value and ranking
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function ballotOf(array $params): array {
+		if (is_array($params['ranking'] ?? null) === true) {
+			return ['value' => 'ranked', 'ranking' => $params['ranking']];
+		}
+
+		return ['value' => ($params['value'] ?? ''), 'ranking' => null];
+	}//end ballotOf()
 
 	/**
 	 * Close a VotingRound, optionally anonymising votes.

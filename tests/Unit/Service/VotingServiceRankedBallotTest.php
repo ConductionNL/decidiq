@@ -56,6 +56,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md
  */
 class VotingServiceRankedBallotTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saveObject() payloads keyed by schema slug.
@@ -388,8 +390,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	public function testARankedRoundOpensWithItsOptions(): void {
 		$service = $this->buildService(self::store());
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'ranked-choice',
 			isSecret: false,
@@ -428,8 +429,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		foreach ($cases as $reason => [$method, $options, $tieBreak]) {
 			$service = $this->buildService(self::store());
 			try {
-				$service->openVotingRound(
-					motionId: 'motion-1',
+				$this->openRoundOn($service, motionId: 'motion-1',
 					meetingId: 'meeting-1',
 					votingMethod: $method,
 					isSecret: false,
@@ -455,8 +455,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 	public function testAFullRankingIsCast(): void {
 		$service = $this->buildService(self::store(['round-1' => self::rankedRound(['relations' => []])]));
 
-		$service->castVote(
-			votingRoundId: 'round-1',
+		$this->castVoteOn($service, votingRoundId: 'round-1',
 			participantId: 'part-1',
 			value: 'ranked',
 			isProxy: false,
@@ -492,8 +491,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		foreach ($cases as $case => [$round, $value, $ranking]) {
 			$service = $this->buildService(self::store(['round-1' => $round]));
 			try {
-				$service->castVote(
-					votingRoundId: 'round-1',
+				$this->castVoteOn($service, votingRoundId: 'round-1',
 					participantId: 'part-1',
 					value: $value,
 					isProxy: false,
@@ -600,8 +598,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		);
 		$service = $this->buildService(self::store(['round-1' => $tied]));
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'ranked-choice',
 			isSecret: false,
@@ -627,7 +624,7 @@ class VotingServiceRankedBallotTest extends TestCase {
 		unset($legacy['object']['options']);
 		$service = $this->buildService(self::store(['round-1' => $legacy]));
 
-		$service->castVote(votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
+		$this->castVoteOn($service, votingRoundId: 'round-1', participantId: 'part-1', value: 'for', isProxy: false, delegatorId: null);
 		self::assertSame('for', $this->lastSaved(schema: 'vote')['value'] ?? null);
 
 		$service->closeVotingRound(votingRoundId: 'round-1');

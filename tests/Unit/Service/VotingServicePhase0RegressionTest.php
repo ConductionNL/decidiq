@@ -58,6 +58,8 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
  */
 class VotingServicePhase0RegressionTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * @var ContainerInterface&MockObject
@@ -217,8 +219,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessage('Quorum niet bereikt');
 
-		$this->service->openVotingRound(
-			motionId: 'm1',
+		$this->openRoundOn($this->service, motionId: 'm1',
 			meetingId: 'mt1',
 			votingMethod: 'roll-call',
 			isSecret: false,
@@ -242,8 +243,7 @@ class VotingServicePhase0RegressionTest extends TestCase {
 		$savedRound = ['id' => 'vr1', 'votingMethod' => 'roll-call', 'votesFor' => 0];
 		$this->objectService->method('saveObject')->willReturn($this->entity($savedRound));
 
-		$result = $this->service->openVotingRound(
-			motionId: 'm1',
+		$result = $this->openRoundOn($this->service, motionId: 'm1',
 			meetingId: 'mt1',
 			votingMethod: 'roll-call',
 			isSecret: false,
