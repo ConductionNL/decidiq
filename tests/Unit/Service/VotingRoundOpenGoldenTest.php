@@ -69,6 +69,7 @@ use Throwable;
  * @covers \OCA\Decidiq\Service\VotingRoundPreflight
  * @uses   \OCA\Decidiq\Service\VotingOpenedNotifier
  * @uses   \OCA\Decidiq\Service\VotingRoundRules
+ * @uses   \OCA\Decidiq\Service\VotingRoundRequest
  * @uses   \OCA\Decidiq\Service\ParticipantResolver
  * @uses   \OCA\Decidiq\Service\MeetingRuleSource
  * @uses   \OCA\Decidiq\Service\MeetingAttendanceReader
