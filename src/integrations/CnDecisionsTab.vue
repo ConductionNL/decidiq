@@ -19,7 +19,10 @@
  publication stay in decidiq.
 -->
 <template>
-	<section class="cn-decisions-tab cn-case-widget-card" data-testid="decisions-leaf-tab" :aria-labelledby="headingId">
+	<section
+		class="cn-decisions-tab cn-case-widget-card"
+		data-testid="decisions-leaf-tab"
+		:aria-labelledby="headingId">
 		<div class="cn-decisions-tab__header">
 			<div class="cn-decisions-tab__heading">
 				<h3 :id="headingId" class="cn-decisions-tab__title">
@@ -59,10 +62,16 @@
 				class="cn-decisions-tab__decision"
 				data-testid="decisions-leaf-row">
 				<div class="cn-decisions-tab__row">
-					<span class="cn-decisions-tab__avatar" aria-hidden="true">{{ initials(decision) }}</span>
+					<span class="cn-decisions-tab__avatar" aria-hidden="true">{{
+						initials(decision)
+					}}</span>
 					<span class="cn-decisions-tab__text">
-						<strong class="cn-decisions-tab__name">{{ rowTitle(decision) }}</strong>
-						<span class="cn-decisions-tab__meta">{{ metaLine(decision) }}</span>
+						<strong class="cn-decisions-tab__name">{{
+							rowTitle(decision)
+						}}</strong>
+						<span class="cn-decisions-tab__meta">{{
+							metaLine(decision)
+						}}</span>
 					</span>
 					<span class="cn-decisions-tab__row-actions">
 						<CnStatusBadge
@@ -91,9 +100,15 @@
 						:key="step.key"
 						class="cn-decisions-tab__step"
 						:class="`cn-decisions-tab__step--${step.state}`">
-						<span class="cn-decisions-tab__step-bar" aria-hidden="true" />
-						<span class="cn-decisions-tab__step-label">{{ step.label }}</span>
-						<span v-if="step.line" class="cn-decisions-tab__step-line">{{ step.line }}</span>
+						<span
+							class="cn-decisions-tab__step-bar"
+							aria-hidden="true" />
+						<span class="cn-decisions-tab__step-label">{{
+							step.label
+						}}</span>
+						<span v-if="step.line" class="cn-decisions-tab__step-line">{{
+							step.line
+						}}</span>
 					</li>
 				</ol>
 
@@ -101,7 +116,9 @@
 					v-if="noticeOf(decision)"
 					class="cn-decisions-tab__notice"
 					data-testid="decisions-leaf-mandate">
-					<ShieldCheckOutline :size="18" class="cn-decisions-tab__notice-icon" />
+					<ShieldCheckOutline
+						:size="18"
+						class="cn-decisions-tab__notice-icon" />
 					<span>{{ noticeText(noticeOf(decision)) }}</span>
 				</p>
 			</li>
@@ -339,7 +356,10 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label.
 		 */
 		lifecycleLabel(decision) {
-			if (String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '') === 'draft') {
+			if (
+				String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '')
+				=== 'draft'
+			) {
 				return t('decidiq', 'Draft')
 			}
 			if (isProposal(decision)) {
@@ -367,7 +387,10 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant.
 		 */
 		lifecycleVariant(decision) {
-			if (String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '') === 'draft') {
+			if (
+				String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '')
+				=== 'draft'
+			) {
 				return 'default'
 			}
 			if (isProposal(decision)) {
@@ -432,7 +455,11 @@ export default {
 					drafter: this.drafterOf(decision),
 					date: created ? this.shortDate(created) : '',
 				},
-				(drafter, date) => t('decidiq', 'drafted by {drafter} on {date}', { drafter, date }),
+				(drafter, date) =>
+					t('decidiq', 'drafted by {drafter} on {date}', {
+						drafter,
+						date,
+					}),
 			)
 		},
 
@@ -443,7 +470,9 @@ export default {
 		 */
 		shortDate(iso) {
 			const d = new Date(iso)
-			return Number.isNaN(d.getTime()) ? '' : d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
+			return Number.isNaN(d.getTime())
+				? ''
+				: d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
 		},
 
 		/**
@@ -452,7 +481,12 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		stepsOf(decision) {
-			return stageSteps(this.stages[objId(decision)] || [], this.people, (iso) => this.shortDate(iso), t('decidiq', 'not yet'))
+			return stageSteps(
+				this.stages[objId(decision)] || [],
+				this.people,
+				(iso) => this.shortDate(iso),
+				t('decidiq', 'not yet'),
+			)
 		},
 
 		/**
@@ -461,7 +495,10 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
 		 */
 		noticeOf(decision) {
-			return mandateNotice(this.authority[objId(decision)] || null, this.drafterOf(decision))
+			return mandateNotice(
+				this.authority[objId(decision)] || null,
+				this.drafterOf(decision),
+			)
 		},
 
 		/**
@@ -471,8 +508,14 @@ export default {
 		 */
 		noticeText(notice) {
 			const head = notice.allocation
-				? t('decidiq', '{drafter} may take this decision: mandate {allocation}.', { drafter: notice.drafter, allocation: notice.allocation })
-				: t('decidiq', '{drafter} may take this decision.', { drafter: notice.drafter })
+				? t(
+						'decidiq',
+						'{drafter} may take this decision: mandate {allocation}.',
+						{ drafter: notice.drafter, allocation: notice.allocation },
+					)
+				: t('decidiq', '{drafter} may take this decision.', {
+						drafter: notice.drafter,
+					})
 			return notice.restrictions ? `${head} ${notice.restrictions}` : head
 		},
 
@@ -484,19 +527,32 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
 		async loadRoutes() {
-			const ids = this.decisions.map((decision) => objId(decision)).filter(Boolean)
+			const ids = this.decisions
+				.map((decision) => objId(decision))
+				.filter(Boolean)
 			const stages = {}
 			const authority = {}
-			await Promise.all(ids.map(async (id) => {
-				const [routeStages, answer] = await Promise.all([listDecisionStages(id), decisionAuthority(id)])
-				stages[id] = routeStages
-				authority[id] = answer
-			}))
+			await Promise.all(
+				ids.map(async (id) => {
+					const [routeStages, answer] = await Promise.all([
+						listDecisionStages(id),
+						decisionAuthority(id),
+					])
+					stages[id] = routeStages
+					authority[id] = answer
+				}),
+			)
 			this.stages = stages
 			this.authority = authority
-			const owners = this.decisions.filter((decision) => !decision?.proposer).map((decision) => decision?.['@self']?.owner)
+			const owners = this.decisions
+				.filter((decision) => !decision?.proposer)
+				.map((decision) => decision?.['@self']?.owner)
 			const [people, userNames] = await Promise.all([
-				personNames(Object.values(stages).flat().map((stage) => stage?.assignedPerson)),
+				personNames(
+					Object.values(stages)
+						.flat()
+						.map((stage) => stage?.assignedPerson),
+				),
 				userDisplayNames(owners),
 			])
 			this.people = people
@@ -553,12 +609,18 @@ export default {
 			this.creating = true
 			this.error = ''
 			try {
-				await createHostDecision(hostProposalPayload(formData, {
-					register: this.hostRegister,
-					schema: this.hostSchema,
-					objectId: this.hostObjectId,
-					label: this.objectLabel,
-				}, t('decidiq', 'Proposal')))
+				await createHostDecision(
+					hostProposalPayload(
+						formData,
+						{
+							register: this.hostRegister,
+							schema: this.hostSchema,
+							objectId: this.hostObjectId,
+							label: this.objectLabel,
+						},
+						t('decidiq', 'Proposal'),
+					),
+				)
 				this.createOpen = false
 				await this.refresh()
 			} catch (e) {

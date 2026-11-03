@@ -17,7 +17,9 @@
 		<CnSettingsSection
 			id="section-organisation-mode"
 			:name="t('decidiq', 'Organisation')"
-			:description="t('decidiq', 'Sets the words and defaults across the whole app.')"
+			:description="
+				t('decidiq', 'Sets the words and defaults across the whole app.')
+			"
 			data-testid="organisation-mode-settings">
 			<CnRadioCardsWidget
 				:content="organisationModeContent"
@@ -230,17 +232,25 @@
 			</form>
 		</CnSettingsSection>
 	</div>
-
 </template>
 
 <script>
-import { CnRadioCardsWidget, CnSettingsFormWidget, CnSettingsSection, CnSwitchRowsWidget } from '@conduction/nextcloud-vue'
+import {
+	CnRadioCardsWidget,
+	CnSettingsFormWidget,
+	CnSettingsSection,
+	CnSwitchRowsWidget,
+} from '@conduction/nextcloud-vue'
 import { NcButton, NcSelect } from '@nextcloud/vue'
 import ProcessTemplates from '../../components/processTemplates/ProcessTemplates.vue'
 import { useSettingsStore } from '../../store/modules/settings.js'
 
 /** Where the settings widgets save: the app config endpoint, with the changed fields only. */
-const SETTINGS_SAVE = { url: '/apps/decidiq/api/settings', method: 'POST', payload: '{changes}' }
+const SETTINGS_SAVE = {
+	url: '/apps/decidiq/api/settings',
+	method: 'POST',
+	payload: '{changes}',
+}
 
 export default {
 	name: 'Settings',
@@ -327,11 +337,50 @@ export default {
 				variant: 'list',
 				save: SETTINGS_SAVE,
 				options: [
-					{ value: 'gov', label: this.t('decidiq', 'Municipality'), description: this.t('decidiq', 'Council, executive, committees, clerk') },
-					{ value: 'assoc', label: this.t('decidiq', 'Association or owners\' association'), description: this.t('decidiq', 'Board, members, general meeting') },
-					{ value: 'corp', label: this.t('decidiq', 'Company'), description: this.t('decidiq', 'Executive board, supervisory board') },
-					{ value: 'ops', label: this.t('decidiq', 'Team'), description: this.t('decidiq', 'Meetings, decisions, action items') },
-					{ value: 'citizen', label: this.t('decidiq', 'Citizen portal'), description: this.t('decidiq', 'Residents follow decisions and take part') },
+					{
+						value: 'gov',
+						label: this.t('decidiq', 'Municipality'),
+						description: this.t(
+							'decidiq',
+							'Council, executive, committees, clerk',
+						),
+					},
+					{
+						value: 'assoc',
+						label: this.t(
+							'decidiq',
+							"Association or owners' association",
+						),
+
+						description: this.t(
+							'decidiq',
+							'Board, members, general meeting',
+						),
+					},
+					{
+						value: 'corp',
+						label: this.t('decidiq', 'Company'),
+						description: this.t(
+							'decidiq',
+							'Executive board, supervisory board',
+						),
+					},
+					{
+						value: 'ops',
+						label: this.t('decidiq', 'Team'),
+						description: this.t(
+							'decidiq',
+							'Meetings, decisions, action items',
+						),
+					},
+					{
+						value: 'citizen',
+						label: this.t('decidiq', 'Citizen portal'),
+						description: this.t(
+							'decidiq',
+							'Residents follow decisions and take part',
+						),
+					},
 				],
 			}
 		},
@@ -347,7 +396,11 @@ export default {
 			return {
 				save: SETTINGS_SAVE,
 				rows: [
-					{ key: 'email_voting_enabled', label: this.t('decidiq', 'Enable voting by email reply'), values: { on: '1', off: '0' } },
+					{
+						key: 'email_voting_enabled',
+						label: this.t('decidiq', 'Enable voting by email reply'),
+						values: { on: '1', off: '0' },
+					},
 				],
 			}
 		},
@@ -364,7 +417,16 @@ export default {
 				save: SETTINGS_SAVE,
 				saveLabel: this.t('decidiq', 'Save'),
 				fields: [
-					{ key: 'register', label: this.t('decidiq', 'Register'), type: 'text', placeholder: this.t('decidiq', 'OpenRegister register ID'), hint: this.t('decidiq', 'Reading it in again after an update is under Advanced.') },
+					{
+						key: 'register',
+						label: this.t('decidiq', 'Register'),
+						type: 'text',
+						placeholder: this.t('decidiq', 'OpenRegister register ID'),
+						hint: this.t(
+							'decidiq',
+							'Reading it in again after an update is under Advanced.',
+						),
+					},
 				],
 			}
 		},
