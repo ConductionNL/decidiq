@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\PersonParticipantLookup;
 use OCA\Decidiq\Service\VoteBallotFactory;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteContextReader;
 use OCA\Decidiq\Service\VoterTokenSecret;
 use OCA\Decidiq\Service\VotingRecordService;
@@ -48,6 +49,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Service\VoteContextReader
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\VoteBallotFactory
+ * @uses   \OCA\Decidiq\Service\VoteCast
  * @uses   \OCA\Decidiq\Service\VoterTokenSecret
  *
  * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
@@ -96,15 +98,12 @@ class VotingRecordServiceTest extends TestCase {
 		$container->method('get')->willThrowException(new \RuntimeException('not in this test'));
 		$factory = new VoteBallotFactory($container, $this->createMock(LoggerInterface::class), new VoterTokenSecret($container));
 
-		$vote = $factory->buildVote(
-			votingRoundId: $roundId,
-			participantId: $participantId,
-			value: $value,
-			isProxy: $delegatorId !== null,
-			delegatorId: $delegatorId,
-			isSecret: false,
-			existingVote: null
-		);
+		$cast = new VoteCast(votingRoundId: $roundId, participantId: $participantId, value: $value);
+		if ($delegatorId !== null) {
+			$cast = $cast->asProxy(delegatorId: $delegatorId);
+		}
+
+		$vote = $factory->buildVote(cast: $cast, existingVote: null);
 		unset($vote['@self']);
 		$vote['castAt'] = '2025-04-10T21:10:00+00:00';
 		return $vote;
