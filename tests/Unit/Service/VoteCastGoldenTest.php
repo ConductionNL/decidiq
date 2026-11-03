@@ -67,6 +67,7 @@ use Throwable;
  * @covers \OCA\Decidiq\Service\VoteBallotFactory
  * @covers \OCA\Decidiq\Service\PaperVoteRecorder
  * @uses   \OCA\Decidiq\Service\VoteCastGuard
+ * @uses   \OCA\Decidiq\Service\VoteCast
  * @uses   \OCA\Decidiq\Service\VoterTokenSecret
  * @uses   \OCA\Decidiq\Service\SeatHolderGuard
  * @uses   \OCA\Decidiq\Service\SubstitutionResolver
