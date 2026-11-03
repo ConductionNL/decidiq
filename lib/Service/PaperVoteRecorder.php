@@ -81,11 +81,7 @@ class PaperVoteRecorder {
 
 			try {
 				$this->caster->castVote(
-					votingRoundId: $votingRoundId,
-					participantId: $participant,
-					value: $value,
-					isProxy: false,
-					delegatorId: null,
+					cast: new VoteCast(votingRoundId: $votingRoundId, participantId: $participant, value: $value),
 					callerUid: $callerUid
 				);
 				$recorded++;

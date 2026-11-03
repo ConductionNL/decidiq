@@ -34,6 +34,7 @@ use OCA\Decidiq\Service\ProcessTemplateService;
 use OCA\Decidiq\Service\RecusalGuard;
 use OCA\Decidiq\Service\SeatHolderGuard;
 use OCA\Decidiq\Service\SubstitutionResolver;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteCastingService;
 use OCA\Decidiq\Service\VotingOpenedNotifier;
 use OCA\Decidiq\Service\VotingRoundOpener;
@@ -58,6 +59,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\BodyQuorum
  * @uses   \OCA\Decidiq\Service\MeetingAttendanceReader
  * @uses   \OCA\Decidiq\Service\VoteCastGuard
+ * @uses   \OCA\Decidiq\Service\VoteCast
  * @uses   \OCA\Decidiq\Service\VotingRoundPreflight
  * @uses   \OCA\Decidiq\Service\VotingRoundRequest
  * @uses   \OCA\Decidiq\Service\VotingRoundResolution
@@ -242,7 +244,7 @@ class SubstitutionResolverTest extends TestCase {
 
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('plaatsvervanger');
-		$caster->castVote(votingRoundId: 'r-1', participantId: 'p-bos', value: 'for', isProxy: false, delegatorId: null);
+		$caster->castVote(cast: new VoteCast(votingRoundId: 'r-1', participantId: 'p-bos', value: 'for'));
 	}//end testTheCastingPathRefusesTheMemberWhoLeft()
 
 	/**

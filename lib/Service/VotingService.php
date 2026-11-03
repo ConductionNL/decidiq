@@ -203,15 +203,12 @@ class VotingService {
 		?string $callerUid = null,
 		?array $ranking = null,
 	): array {
-		return $this->caster->castVote(
-			votingRoundId: $votingRoundId,
-			participantId: $participantId,
-			value: $value,
-			isProxy: $isProxy,
-			delegatorId: $delegatorId,
-			callerUid: $callerUid,
-			ranking: $ranking
-		);
+		$cast = new VoteCast(votingRoundId: $votingRoundId, participantId: $participantId, value: $value, ranking: $ranking);
+		if ($isProxy === true) {
+			$cast = $cast->asProxy(delegatorId: $delegatorId);
+		}
+
+		return $this->caster->castVote(cast: $cast, callerUid: $callerUid);
 
 	}//end castVote()
 
