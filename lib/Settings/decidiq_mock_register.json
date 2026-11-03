@@ -9008,6 +9008,48 @@
         "scheduledDate": "2026-05-10T19:30:00+01:00",
         "lifecycle": "planned",
         "liveCaptions": "off"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-1"
+        },
+        "name": "Stemgroep voorbeeld 1",
+        "description": "Voorbeeld van een vaste stemgroep 1",
+        "governanceBody": "00000000-0000-4000-8000-000000000001",
+        "members": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-2"
+        },
+        "name": "Stemgroep voorbeeld 2",
+        "description": "Voorbeeld van een vaste stemgroep 2",
+        "governanceBody": "00000000-0000-4000-8000-000000000002",
+        "members": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "active": true
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "VotingGroup",
+          "slug": "voting-group-voorbeeld-3"
+        },
+        "name": "Stemgroep voorbeeld 3",
+        "description": "Voorbeeld van een vaste stemgroep 3",
+        "governanceBody": "00000000-0000-4000-8000-000000000003",
+        "members": [
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "active": true
       }
     ]
   }
