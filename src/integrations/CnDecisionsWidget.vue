@@ -27,7 +27,9 @@
 <template>
 	<CnDetailCard
 		v-if="!summarised"
-		:title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+		:title="cardTitle"
+		:icon="cardIcon"
+		:collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-decisions-widget__error" role="alert">
@@ -54,7 +56,9 @@
 					<h3 class="cn-decisions-widget__empty-title">
 						{{ wording.emptyTitle }}
 					</h3>
-					<p v-if="wording.emptyText" class="cn-decisions-widget__empty-text">
+					<p
+						v-if="wording.emptyText"
+						class="cn-decisions-widget__empty-text">
 						{{ wording.emptyText }}
 					</p>
 					<div class="cn-decisions-widget__empty-actions">
@@ -112,7 +116,9 @@
 					</ul>
 				</div>
 
-				<div v-if="!(decisions.length === 0 && wording.emptyTitle)" class="cn-decisions-widget__actions">
+				<div
+					v-if="!(decisions.length === 0 && wording.emptyTitle)"
+					class="cn-decisions-widget__actions">
 					<NcButton
 						variant="primary"
 						:disabled="!objectId"
@@ -150,15 +156,14 @@ import Gavel from 'vue-material-design-icons/Gavel.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import {
-	createHostDecision,
 	decisionBucket,
-	hostProposalPayload,
 	isProposal,
 	listDecisionTypes,
 	listHostDecisions,
 	objId,
 	proposalFormSchema,
 } from './decisionLink.js'
+import { hostProposalMixin } from './hostProposalCreate.js'
 import { hostWording } from './hostWording.js'
 import { leafReportMixin } from './leafReport.js'
 
@@ -183,7 +188,7 @@ export default {
 		Plus,
 	},
 
-	mixins: [leafReportMixin],
+	mixins: [leafReportMixin, hostProposalMixin],
 
 	props: {
 		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
@@ -243,8 +248,18 @@ export default {
 				count: this.decisions.length,
 				emptyLabel: this.emptyLabel,
 				noun: t('decidiq', 'decisions'),
-				rows: this.decisions.map((decision) => ({ label: this.rowTitle(decision), href: this.decisionUrl(decision), icon: 'Gavel' })),
-				actions: [{ label: this.openInDecidiqLabel, run: () => window.location.assign(this.appUrl) }],
+				rows: this.decisions.map((decision) => ({
+					label: this.rowTitle(decision),
+					href: this.decisionUrl(decision),
+					icon: 'Gavel',
+				})),
+
+				actions: [
+					{
+						label: this.openInDecidiqLabel,
+						run: () => window.location.assign(this.appUrl),
+					},
+				],
 			}
 		},
 
@@ -296,8 +311,16 @@ export default {
 		 */
 		wording() {
 			return hostWording(
-				{ emptyTitle: this.emptyTitle, emptyText: this.emptyText, createLabel: this.createLabel },
-				{ emptyTitle: '', emptyText: '', createLabel: t('decidiq', 'Create proposal for this object') },
+				{
+					emptyTitle: this.emptyTitle,
+					emptyText: this.emptyText,
+					createLabel: this.createLabel,
+				},
+				{
+					emptyTitle: '',
+					emptyText: '',
+					createLabel: t('decidiq', 'Create proposal for this object'),
+				},
 			)
 		},
 
@@ -507,32 +530,6 @@ export default {
 					e?.message || t('decidiq', 'Could not load decision-making.')
 			} finally {
 				this.loading = false
-			}
-		},
-
-		/**
-		 * @param formData
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host.
-		 */
-		async onCreate(formData) {
-			if (!this.hostObjectId || this.creating) {
-				return
-			}
-			this.creating = true
-			this.error = ''
-			try {
-				await createHostDecision(hostProposalPayload(formData, {
-					register: this.hostRegister,
-					schema: this.hostSchema,
-					objectId: this.hostObjectId,
-					label: this.objectLabel,
-				}, t('decidiq', 'Proposal')))
-				this.createOpen = false
-				await this.refresh()
-			} catch (e) {
-				this.error = e?.message || t('decidiq', 'Could not create proposal.')
-			} finally {
-				this.creating = false
 			}
 		},
 	},

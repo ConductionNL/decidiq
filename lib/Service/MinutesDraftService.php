@@ -27,8 +27,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCP\TaskProcessing\Task;
@@ -139,33 +137,23 @@ class MinutesDraftService {
 			$decisions = $this->fetchRelated(meetingId: $meetingId, schema: 'decision');
 		}
 
-		$providerId = $this->preferredProviderId();
-		$generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-
+		$provenance = DraftProvenance::now(providerId: $this->preferredProviderId())->toArray();
 		$sections = $this->buildSections(
 			segments: $segments,
 			agendaItems: $agendaItems,
 			votingRounds: $votingRounds,
 			decisions: $decisions,
-			providerId: $providerId,
-			generatedAt: $generatedAt
+			providerId: $provenance['providerId'],
+			generatedAt: $provenance['generatedAt']
 		);
 
 		$draft = [
 			'sections' => $sections,
-			'provenance' => [
-				'aiGenerated' => true,
-				'providerId' => $providerId,
-				'generatedAt' => $generatedAt,
-			],
+			'provenance' => $provenance,
 		];
 
 		// Record provenance on the Transcript (never on a Minutes object — no lifecycle touch).
-		$transcript['draftGeneration'] = [
-			'aiGenerated' => true,
-			'providerId' => $providerId,
-			'generatedAt' => $generatedAt,
-		];
+		$transcript['draftGeneration'] = $provenance;
 		$this->saveTranscript(transcript: $transcript);
 
 		return $draft;
@@ -204,13 +192,13 @@ class MinutesDraftService {
 		});
 
 		return $this->getComposer()->buildSections(
-			segments: $segments,
 			agendaItems: $agendaItems,
-			votingRounds: $votingRounds,
-			decisions: $decisions,
-			providerId: $providerId,
-			generatedAt: $generatedAt,
-			run: $run
+			run: new MinutesDraftRun(
+				segments: $segments,
+				outcomes: new MinutesOutcomes(votingRounds: $votingRounds, decisions: $decisions),
+				provenance: new DraftProvenance(providerId: $providerId, generatedAt: $generatedAt),
+				runner: $run
+			)
 		);
 
 	}//end buildSections()

@@ -355,9 +355,7 @@ export default {
 		 * @return {Promise<void>}
 		 */
 		async load() {
-			const id = this.resolvedObjectId
-			const { versionSchema, versionRegister, parentRefField } = this.cfg
-			if (!id || !versionSchema || !parentRefField) {
+			if (!this.hasTarget()) {
 				this.versions = []
 				return
 			}
@@ -369,33 +367,8 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				if (
-					!store.objectTypeRegistry
-					|| !store.objectTypeRegistry[versionSchema]
-				) {
-					store.registerObjectType(
-						versionSchema,
-						versionSchema,
-						versionRegister,
-					)
-				}
-				this.versions = await store.fetchCollection(versionSchema, {
-					[parentRefField]: id,
-					_limit: 200,
-				})
-				// Seeded rows reference their parent by SLUG (see
-				// resolvedObjectSlug) — retry once on the slug before
-				// concluding this record simply has no versions.
-				if (
-					Array.isArray(this.versions)
-					&& this.versions.length === 0
-					&& this.resolvedObjectSlug
-				) {
-					this.versions = await store.fetchCollection(versionSchema, {
-						[parentRefField]: this.resolvedObjectSlug,
-						_limit: 200,
-					})
-				}
+				this.registerVersionType(store)
+				await this.fetchVersions(store)
 				await this.resolveDecisionLabels(store)
 			} catch (e) {
 				this.error =
@@ -404,6 +377,61 @@ export default {
 				this.versions = []
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Whether there is a record, a version schema and a parent field to load by.
+		 *
+		 * @spec exclude load guard, no behavioural requirement of its own
+		 * @return {boolean}
+		 */
+		hasTarget() {
+			const { versionSchema, parentRefField } = this.cfg
+			return Boolean(this.resolvedObjectId && versionSchema && parentRefField)
+		},
+
+		/**
+		 * @spec exclude store-registration plumbing, no behavioural requirement of its own
+		 * @param {object} store The object store.
+		 * @return {void}
+		 */
+		registerVersionType(store) {
+			const { versionSchema, versionRegister } = this.cfg
+			const registry = store.objectTypeRegistry || {}
+			if (!registry[versionSchema]) {
+				store.registerObjectType(
+					versionSchema,
+					versionSchema,
+					versionRegister,
+				)
+			}
+		},
+
+		/**
+		 * Fetch the versions by the parent id, and once more by its slug when
+		 * the id finds none: seeded rows reference their parent by SLUG (see
+		 * resolvedObjectSlug).
+		 *
+		 * @spec exclude version fetch plumbing, no behavioural requirement of its own
+		 * @param {object} store The object store.
+		 * @return {Promise<void>}
+		 */
+		async fetchVersions(store) {
+			const { versionSchema, parentRefField } = this.cfg
+			this.versions = await store.fetchCollection(versionSchema, {
+				[parentRefField]: this.resolvedObjectId,
+				_limit: 200,
+			})
+			if (
+				Array.isArray(this.versions)
+				&& this.versions.length === 0
+				&& this.resolvedObjectSlug
+			) {
+				this.versions = await store.fetchCollection(versionSchema, {
+					[parentRefField]: this.resolvedObjectSlug,
+					_limit: 200,
+				})
 			}
 		},
 

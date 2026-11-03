@@ -25,7 +25,9 @@
 <template>
 	<CnDetailCard
 		v-if="!summarised"
-		:title="cardTitle" :icon="cardIcon" :collapsible="collapsible">
+		:title="cardTitle"
+		:icon="cardIcon"
+		:collapsible="collapsible">
 		<NcLoadingIcon v-if="loading" :size="24" />
 
 		<div v-else-if="error" class="cn-approval-chain__error" role="alert">
