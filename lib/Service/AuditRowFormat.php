@@ -270,7 +270,9 @@ final class AuditRowFormat {
 	}//end csvBody()
 
 	/**
-	 * One row as a CSV line; the object uids are quoted and joined with `|`.
+	 * One row as a CSV line. The object uids are joined with `|` and always
+	 * quoted; every other cell is quoted when it holds a comma, quote or line
+	 * break (RFC 4180).
 	 *
 	 * @param array<string, mixed> $row The row
 	 *
@@ -280,16 +282,59 @@ final class AuditRowFormat {
 		return implode(
 			',',
 			[
-				(string)($row['id'] ?? ''),
-				(string)($row['timestamp'] ?? ''),
-				(string)($row['actorUuid'] ?? ''),
-				(string)($row['action'] ?? ''),
-				'"' . implode('|', (array)($row['objectUids'] ?? [])) . '"',
-				(string)($row['previousHash'] ?? ''),
-				(string)($row['currentHash'] ?? ''),
+				self::csvCell(cell: (string)($row['id'] ?? '')),
+				self::csvCell(cell: (string)($row['timestamp'] ?? '')),
+				self::csvCell(cell: (string)($row['actorUuid'] ?? '')),
+				self::csvCell(cell: (string)($row['action'] ?? '')),
+				self::quoted(cell: self::inert(cell: implode('|', (array)($row['objectUids'] ?? [])))),
+				self::csvCell(cell: (string)($row['previousHash'] ?? '')),
+				self::csvCell(cell: (string)($row['currentHash'] ?? '')),
 			]
 		);
 	}//end csvLine()
+
+	/**
+	 * One CSV cell: inert for spreadsheets, quoted only when it must be.
+	 *
+	 * @param string $cell The cell text
+	 *
+	 * @return string
+	 */
+	private static function csvCell(string $cell): string {
+		$cell = self::inert(cell: $cell);
+		if (strpbrk($cell, ",\"\r\n") === false) {
+			return $cell;
+		}
+
+		return self::quoted(cell: $cell);
+	}//end csvCell()
+
+	/**
+	 * The cell between double quotes, with its own quotes doubled.
+	 *
+	 * @param string $cell The cell text
+	 *
+	 * @return string
+	 */
+	private static function quoted(string $cell): string {
+		return '"' . str_replace('"', '""', $cell) . '"';
+	}//end quoted()
+
+	/**
+	 * The cell with a leading apostrophe when a spreadsheet would read it as
+	 * a formula (it starts with =, +, -, @, a tab or a carriage return).
+	 *
+	 * @param string $cell The cell text
+	 *
+	 * @return string
+	 */
+	private static function inert(string $cell): string {
+		if (strpbrk(substr($cell, 0, 1), "=+-@\t\r") !== false) {
+			return "'" . $cell;
+		}
+
+		return $cell;
+	}//end inert()
 
 	/**
 	 * The rows as a JSON document, `{}` when they cannot be encoded.
