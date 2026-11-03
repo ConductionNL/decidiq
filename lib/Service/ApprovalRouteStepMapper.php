@@ -264,4 +264,46 @@ class ApprovalRouteStepMapper {
 		return $fields;
 	}//end declaredStepFields()
 
+	/**
+	 * The people an ad-hoc route's steps name, in step order.
+	 *
+	 * @param array<string, mixed> $route The route as the caller sent it.
+	 *
+	 * @return array<int, string> The people.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function actorsOf(array $route): array {
+		$steps = ($route['steps'] ?? []);
+		if (is_array($steps) === false) {
+			return [];
+		}
+
+		usort(
+			$steps,
+			static function (mixed $first, mixed $second): int {
+				$orderOfFirst = 0;
+				if (is_array($first) === true) {
+					$orderOfFirst = (int)($first['order'] ?? 0);
+				}
+
+				$orderOfSecond = 0;
+				if (is_array($second) === true) {
+					$orderOfSecond = (int)($second['order'] ?? 0);
+				}
+
+				return ($orderOfFirst <=> $orderOfSecond);
+			}
+		);
+
+		$actors = [];
+		foreach ($steps as $step) {
+			if (is_array($step) === true && trim((string)($step['actor'] ?? '')) !== '') {
+				$actors[] = trim((string)$step['actor']);
+			}
+		}
+
+		return $actors;
+	}//end actorsOf()
+
 }//end class
