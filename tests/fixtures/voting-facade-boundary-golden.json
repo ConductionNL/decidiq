@@ -283,6 +283,89 @@
             }
         ]
     },
+    "cast ranked ballot": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "ranked",
+                    "ranking": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast ranked ballot with value": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "ranked",
+                    "ranking": [
+                        "o-1"
+                    ],
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast ranked proxy ballot": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "ranked",
+                    "ranking": [
+                        "o-1"
+                    ],
+                    "proxy": true,
+                    "delegator": "p-bert",
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
+    "cast ranking not a list": {
+        "status": 201,
+        "data": {
+            "id": "vote-1"
+        },
+        "calls": [
+            {
+                "cast": {
+                    "round": "r-1",
+                    "participant": "p-anna",
+                    "value": "for",
+                    "ranking": null,
+                    "proxy": false,
+                    "delegator": null,
+                    "callerUid": "anna"
+                }
+            }
+        ]
+    },
     "cast other member": {
         "status": 201,
         "data": {
