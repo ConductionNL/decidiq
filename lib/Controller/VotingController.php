@@ -112,6 +112,11 @@ class VotingController extends Controller {
 			return $guard;
 		}
 
+		$scope = $this->guard->requireSubjectInMeeting(params: $params);
+		if ($scope !== null) {
+			return $scope;
+		}
+
 		return $this->errors->badRequest(fn (): JSONResponse => $this->openHandler->handle(params: $params));
 	}//end open()
 
