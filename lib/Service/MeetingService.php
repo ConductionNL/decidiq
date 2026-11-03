@@ -126,44 +126,49 @@ class MeetingService {
 	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
 	 */
 	public function availableActionsFor(string $meetingId, string $userId): ?array {
+		$context = $this->stageContext(meetingId: $meetingId, userId: $userId);
+		if ($context === null) {
+			return null;
+		}
+
+		$actions = [];
+		foreach ($this->getAvailableActions(currentLifecycle: $context['lifecycle']) as $action) {
+			if ($this->ruleGateRefusal(action: $action, context: $context) === null) {
+				$actions[] = $action;
+			}
+		}
+
+		return ['lifecycle' => $context['lifecycle'], 'actions' => $actions];
+
+	}//end availableActionsFor()
+
+	/**
+	 * The gate context of a stage button: the meeting's stage and domain as
+	 * text, the meeting and the caller; null when the meeting does not exist
+	 * or the caller cannot read it.
+	 *
+	 * @param string $meetingId UUID of the meeting
+	 * @param string $userId    Nextcloud UID of the caller
+	 *
+	 * @return array{lifecycle: string, domain: string, meeting: array<string,mixed>, userId: string}|null
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	private function stageContext(string $meetingId, string $userId): ?array {
 		try {
 			$entity = $this->objectService->find(id: $meetingId);
 		} catch (DoesNotExistException) {
 			return null;
 		}
 
-		if ($entity === null) {
+		$meetingData = $entity?->getObject();
+		if ($meetingData === null) {
 			return null;
 		}
 
-		$meetingData = $entity->getObject();
 		$lifecycle = (string)($meetingData['lifecycle'] ?? 'draft');
-		$domain = (string)($meetingData['domain'] ?? 'operations');
-
-		$actions = [];
-		foreach ($this->getAvailableActions(currentLifecycle: $lifecycle) as $action) {
-			$toState = self::TRANSITIONS[$action]['to'];
-			if ($this->workflowService->isTransitionAllowed(domain: $domain, fromState: $lifecycle, toState: $toState) === false) {
-				continue;
-			}
-
-			if ($this->chairGateDenies(
-				domain: $domain,
-				fromState: $lifecycle,
-				toState: $toState,
-				meetingData: $meetingData,
-				currentUserId: $userId
-			) === true
-			) {
-				continue;
-			}
-
-			$actions[] = $action;
-		}
-
-		return ['lifecycle' => $lifecycle, 'actions' => $actions];
-
-	}//end availableActionsFor()
+		return ['lifecycle' => $lifecycle, 'domain' => (string)($meetingData['domain'] ?? 'operations'), 'meeting' => $meetingData, 'userId' => $userId];
+	}//end stageContext()
 
 	/**
 	 * Apply a lifecycle transition to a meeting object.
@@ -186,47 +191,31 @@ class MeetingService {
 	 */
 	public function transition(string $meetingId, string $action, ?string $currentUserId = null): array {
 		if (isset(self::TRANSITIONS[$action]) === false) {
-			return $this->refusal(
-				message: 'Unknown action. Valid actions: ' . implode(', ', array_keys(self::TRANSITIONS)) . '.'
-			);
+			return $this->refusal(message: 'Unknown action. Valid actions: ' . implode(', ', array_keys(self::TRANSITIONS)) . '.');
 		}
 
 		try {
-			return $this->applyTransition(
-				meetingId: $meetingId,
-				action: $action,
-				currentUserId: $currentUserId
-			);
+			return $this->applyTransition(meetingId: $meetingId, request: ['action' => $action, 'userId' => $currentUserId]);
 		} catch (DoesNotExistException) {
 			return $this->refusal(message: "Meeting '$meetingId' not found.");
 		} catch (Throwable $e) {
-			$this->logger->error(
-				'Decidiq: meeting lifecycle transition failed',
-				['id' => $meetingId, 'action' => $action, 'exception' => $e->getMessage()]
-			);
+			$this->logger->error('Decidiq: meeting lifecycle transition failed', ['id' => $meetingId, 'action' => $action, 'exception' => $e->getMessage()]);
 			return $this->refusal(message: 'Transition failed. See server log for details.');
-		}//end try
+		}
 
 	}//end transition()
 
 	/**
 	 * Load the meeting, run the transition gates, and patch it.
 	 *
-	 * @param string $meetingId UUID of the meeting to transition
-	 * @param string $action Transition action (already known to be valid)
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 * @param string                                  $meetingId UUID of the meeting to transition
+	 * @param array{action: string, userId: ?string} $request   The action (already known to be valid) and the requesting user
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}
 	 *
 	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
 	 */
-	private function applyTransition(string $meetingId, string $action, ?string $currentUserId): array {
-		$transition = self::TRANSITIONS[$action];
-
-		/*
-		 * @var \OCA\OpenRegister\Contract\ObjectServiceInterface $objectService
-		 */
-
+	private function applyTransition(string $meetingId, array $request): array {
 		// Object-level read ACL: OpenRegister's ObjectService::find() resolves the
 		// current Nextcloud session user and returns null when the caller lacks read
 		// access to the requested object (same behaviour as a missing object).
@@ -237,26 +226,30 @@ class MeetingService {
 		}
 
 		$meetingData = $entity->getObject();
+		$context     = [
+			'lifecycle' => ($meetingData['lifecycle'] ?? 'draft'),
+			'domain' => ($meetingData['domain'] ?? 'operations'),
+			'meeting' => $meetingData,
+			'userId' => $request['userId'],
+		];
 
-		$refusal = $this->transitionRefusal(
-			transition: $transition,
-			action: $action,
-			meetingData: $meetingData,
-			currentUserId: $currentUserId
-		);
-		if ($refusal !== null) {
-			return $refusal;
-		}
+		return ($this->transitionRefusal(action: $request['action'], context: $context)
+			?? $this->saveTransition(meetingId: $meetingId, change: ['action' => $request['action'], 'meeting' => $meetingData]));
 
-		// Meeting-efficiency timing/cost stamping (additive, server-side):
-		// - first 'open' stamps openedAt (idempotent across pause/resume/
-		// adjourn-resume so the cost window starts at the real start);
-		// - 'close' stamps closedAt and the fail-soft final meetingCost.
-		$efficiencyPatch = $this->buildEfficiencyPatch(
-			action: $action,
-			meetingId: $meetingId,
-			meetingData: $meetingData
-		);
+	}//end applyTransition()
+
+	/**
+	 * Save the meeting in its new state with the efficiency stamps, log it and publish it.
+	 *
+	 * @param string                                              $meetingId UUID of the meeting
+	 * @param array{action: string, meeting: array<string,mixed>} $change    The action and the current meeting object
+	 *
+	 * @return array{success: bool, meeting: array|null, message: string}
+	 *
+	 * @spec openspec/changes/p2-meeting-management/tasks.md#task-1.1
+	 */
+	private function saveTransition(string $meetingId, array $change): array {
+		$toState = self::TRANSITIONS[$change['action']]['to'];
 
 		// Object-level write ACL: ObjectService::saveObject() checks that the
 		// current Nextcloud session user has write access to this specific object
@@ -264,30 +257,18 @@ class MeetingService {
 		// is thrown and caught by the \Throwable handler in transition(), returning
 		// a generic error response without leaking object details.
 		$updated = $this->objectService->saveObject(
-			object: array_merge($meetingData, ['lifecycle' => $transition['to']], $efficiencyPatch),
+			object: array_merge($change['meeting'], ['lifecycle' => $toState], $this->buildEfficiencyPatch(meetingId: $meetingId, change: $change)),
 			register: 'decidiq',
 			schema: 'meeting',
 			uuid: $meetingId,
 		);
 
-		$this->logger->info(
-			'Decidiq: meeting lifecycle transitioned',
-			['id' => $meetingId, 'action' => $action, 'to' => $transition['to']]
-		);
+		$this->logger->info('Decidiq: meeting lifecycle transitioned', ['id' => $meetingId, 'action' => $change['action'], 'to' => $toState]);
+		$this->publishTransitionActivity(meetingId: $meetingId, change: $change);
 
-		$this->publishTransitionActivity(
-			meetingData: $meetingData,
-			meetingId: $meetingId,
-			newState: $transition['to']
-		);
+		return ['success' => true, 'meeting' => $updated->jsonSerialize(), 'message' => "Meeting transitioned to '{$toState}'."];
 
-		return [
-			'success' => true,
-			'meeting' => $updated->jsonSerialize(),
-			'message' => "Meeting transitioned to '{$transition['to']}'.",
-		];
-
-	}//end applyTransition()
+	}//end saveTransition()
 
 	/**
 	 * Run every gate a transition must pass, returning the first refusal.
@@ -295,65 +276,97 @@ class MeetingService {
 	 * Ordered cheapest-first: state machine, then domain rules, then the
 	 * chair-only gate, then quorum.
 	 *
-	 * @param array<string,mixed> $transition The transition descriptor
-	 * @param string $action The transition action
-	 * @param array<string,mixed> $meetingData Current meeting object
-	 * @param string|null $currentUserId Nextcloud UID of the requesting user
+	 * @param string $action  The transition action
+	 * @param array<string,mixed> $context lifecycle, domain, meeting and userId of the requesting user
 	 *
 	 * @return array{success: bool, meeting: array|null, message: string}|null The refusal, or null when permitted.
 	 *
 	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
 	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
 	 */
-	private function transitionRefusal(
-		array $transition,
-		string $action,
-		array $meetingData,
-		?string $currentUserId,
-	): ?array {
-		$currentLifecycle = ($meetingData['lifecycle'] ?? 'draft');
-		$domain = ($meetingData['domain'] ?? 'operations');
-
-		if (in_array(needle: $currentLifecycle, haystack: $transition['from'], strict: true) === false) {
+	private function transitionRefusal(string $action, array $context): ?array {
+		$from = self::TRANSITIONS[$action]['from'];
+		if (in_array(needle: $context['lifecycle'], haystack: $from, strict: true) === false) {
 			return $this->refusal(
-				message: "Cannot '$action' a meeting in '$currentLifecycle' state. "
-					. 'Allowed from: ' . implode(separator: ', ', array: $transition['from']) . '.'
+				message: "Cannot '$action' a meeting in '{$context['lifecycle']}' state. "
+					. 'Allowed from: ' . implode(separator: ', ', array: $from) . '.'
 			);
 		}
 
-		// Domain-level transition validation (OWASP A01:2021).
-		// Enforces domain-specific rules such as "no pause in corporate domain".
-		$allowed = $this->workflowService->isTransitionAllowed(
-			domain: $domain,
-			fromState: $currentLifecycle,
-			toState: $transition['to']
-		);
-		if ($allowed === false) {
-			return $this->refusal(message: "Transition '$action' is not permitted in '$domain' domain.");
-		}
-
-		if ($this->chairGateDenies(
-			domain: $domain,
-			fromState: $currentLifecycle,
-			toState: $transition['to'],
-			meetingData: $meetingData,
-			currentUserId: $currentUserId
-		) === true
-		) {
-			return $this->refusal(message: 'Only the meeting chair may perform this transition.');
-		}
-
-		// Quorum enforcement before opening a meeting (OWASP A01:2021).
-		// Reads quorumMet from the declarative Meeting field (chain spec 2 of 3).
-		if ($action === 'open'
-			&& $this->workflowService->isQuorumRequired(domain: $domain) === true
-			&& $this->transitionGuard->isOpenAllowed(meeting: $meetingData) === false
-		) {
-			return $this->refusal(message: 'Quorum is not met. Cannot open meeting.');
+		$message = ($this->ruleGateRefusal(action: $action, context: $context) ?? $this->quorumRefusal(action: $action, context: $context));
+		if ($message !== null) {
+			return $this->refusal(message: $message);
 		}
 
 		return null;
 	}//end transitionRefusal()
+
+	/**
+	 * The refusal of the domain rules (OWASP A01:2021), such as "no pause in
+	 * corporate domain", or of the chair-only gate; null when both permit the step.
+	 *
+	 * @param string $action  The transition action
+	 * @param array<string,mixed> $context lifecycle, domain, meeting and userId of the requesting user
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 */
+	private function ruleGateRefusal(string $action, array $context): ?string {
+		$toState = self::TRANSITIONS[$action]['to'];
+		if ($this->workflowService->isTransitionAllowed(domain: $context['domain'], fromState: $context['lifecycle'], toState: $toState) === false) {
+			return "Transition '$action' is not permitted in '{$context['domain']}' domain.";
+		}
+
+		return $this->chairRefusal(toState: $toState, context: $context);
+	}//end ruleGateRefusal()
+
+	/**
+	 * The chair-only gate's refusal; null when it permits the step.
+	 *
+	 * @param string $toState The target lifecycle state
+	 * @param array<string,mixed> $context lifecycle, domain, meeting and userId of the requesting user
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-3.3
+	 */
+	private function chairRefusal(string $toState, array $context): ?string {
+		if ($this->chairGateDenies(
+			domain: $context['domain'],
+			fromState: $context['lifecycle'],
+			toState: $toState,
+			meetingData: $context['meeting'],
+			currentUserId: $context['userId']
+		) === true
+		) {
+			return 'Only the meeting chair may perform this transition.';
+		}
+
+		return null;
+	}//end chairRefusal()
+
+	/**
+	 * The quorum refusal before opening a meeting (OWASP A01:2021); reads
+	 * quorumMet from the declarative Meeting field (chain spec 2 of 3).
+	 *
+	 * @param string $action  The transition action
+	 * @param array<string,mixed> $context lifecycle, domain, meeting and userId of the requesting user
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+	 */
+	private function quorumRefusal(string $action, array $context): ?string {
+		if ($action === 'open'
+			&& $this->workflowService->isQuorumRequired(domain: $context['domain']) === true
+			&& $this->transitionGuard->isOpenAllowed(meeting: $context['meeting']) === false
+		) {
+			return 'Quorum is not met. Cannot open meeting.';
+		}
+
+		return null;
+	}//end quorumRefusal()
 
 	/**
 	 * Whether the chair-only gate applies and the caller does not satisfy it.
@@ -403,20 +416,19 @@ class MeetingService {
 	/**
 	 * Publish the lifecycle transition to the Nextcloud activity feed (fail-soft).
 	 *
-	 * @param array<string,mixed> $meetingData Current meeting object
-	 * @param string $meetingId UUID of the transitioned meeting
-	 * @param string $newState The state it moved to
+	 * @param string                                              $meetingId UUID of the transitioned meeting
+	 * @param array{action: string, meeting: array<string,mixed>} $change    The action and the meeting object before it
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
-	private function publishTransitionActivity(array $meetingData, string $meetingId, string $newState): void {
+	private function publishTransitionActivity(string $meetingId, array $change): void {
 		try {
 			$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
 				subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_MEETING_TRANSITION,
-				title: (string)($meetingData['title'] ?? $meetingId),
-				status: $newState,
+				title: (string)($change['meeting']['title'] ?? $meetingId),
+				status: self::TRANSITIONS[$change['action']]['to'],
 				objectType: 'meeting',
 				objectUuid: $meetingId,
 				segment: 'meetings'
@@ -511,43 +523,49 @@ class MeetingService {
 	 * fail-soft, the final `meetingCost` resolved server-side from stored data
 	 * (a cost error never blocks closing a meeting).
 	 *
-	 * @param string $action Transition action
-	 * @param string $meetingId Meeting UUID
-	 * @param array<string, mixed> $meetingData Current meeting object
+	 * @param string                                              $meetingId Meeting UUID
+	 * @param array{action: string, meeting: array<string,mixed>} $change    The action and the current meeting object
 	 *
 	 * @return array<string, mixed> The fields to merge into the saved object (may be empty)
 	 *
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
-	private function buildEfficiencyPatch(string $action, string $meetingId, array $meetingData): array {
-		$patch = [];
-
-		if ($action === 'open' && empty($meetingData['openedAt']) === true) {
-			$patch['openedAt'] = (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM);
+	private function buildEfficiencyPatch(string $meetingId, array $change): array {
+		if ($change['action'] === 'open' && empty($change['meeting']['openedAt']) === true) {
+			return ['openedAt' => (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM)];
 		}
 
-		if ($action === 'close') {
-			$closedAt = (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM);
-			$patch['closedAt'] = $closedAt;
+		if ($change['action'] === 'close') {
+			return $this->closePatch(meetingId: $meetingId, meetingData: $change['meeting']);
+		}
 
-			try {
-				// Pass the closedAt forward so the elapsed window is closed.
-				$cost = $this->meetingCostService->calculateForMeeting(
-					meetingId: $meetingId,
-					meeting: array_merge($meetingData, ['closedAt' => $closedAt])
-				);
-				if ($cost !== null) {
-					$patch['meetingCost'] = $cost;
-				}
-			} catch (\Throwable $e) {
-				// Fail-soft: cost errors must never block closing a meeting.
-				$this->logger->debug(
-					'Decidiq: meetingCost computation skipped on close',
-					['meetingId' => $meetingId, 'error' => $e->getMessage()]
-				);
+		return [];
+	}//end buildEfficiencyPatch()
+
+	/**
+	 * The close stamps: closedAt and, fail-soft, the final meetingCost.
+	 *
+	 * @param string               $meetingId   Meeting UUID
+	 * @param array<string, mixed> $meetingData Current meeting object
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 */
+	private function closePatch(string $meetingId, array $meetingData): array {
+		$closedAt = (new DateTimeImmutable('now'))->format(DateTimeInterface::ATOM);
+		$patch    = ['closedAt' => $closedAt];
+		try {
+			// Pass the closedAt forward so the elapsed window is closed.
+			$cost = $this->meetingCostService->calculateForMeeting(meetingId: $meetingId, meeting: array_merge($meetingData, ['closedAt' => $closedAt]));
+			if ($cost !== null) {
+				$patch['meetingCost'] = $cost;
 			}
-		}//end if
+		} catch (\Throwable $e) {
+			// Fail-soft: cost errors must never block closing a meeting.
+			$this->logger->debug('Decidiq: meetingCost computation skipped on close', ['meetingId' => $meetingId, 'error' => $e->getMessage()]);
+		}
 
 		return $patch;
-	}//end buildEfficiencyPatch()
+	}//end closePatch()
 }//end class
