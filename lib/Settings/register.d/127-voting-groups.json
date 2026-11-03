@@ -49,14 +49,17 @@
         "properties": {
           "name": {
             "title": "Name",
+            "description": "The name of the voting group.",
             "type": "string"
           },
           "description": {
             "title": "Description",
+            "description": "What the voting group is for.",
             "type": "string"
           },
           "governanceBody": {
             "title": "Body",
+            "description": "The body whose members make up the group.",
             "type": "string",
             "format": "uuid",
             "$ref": "governance-body",
@@ -64,6 +67,7 @@
           },
           "members": {
             "title": "Members",
+            "description": "The people in the group.",
             "type": "array",
             "items": {
               "type": "string",
@@ -73,6 +77,7 @@
           },
           "active": {
             "title": "Active",
+            "description": "Whether the chair can pick this group when a voting round opens.",
             "type": "boolean",
             "default": true
           }

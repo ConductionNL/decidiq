@@ -3747,7 +3747,14 @@ OC.L10N.register(
         "Why. Read by the person who receives the withdrawal, so it is written for them.": "Waarom. De persoon die de intrekking ontvangt leest dit, dus schrijf het voor hem of haar.",
         "Widened with `lapsed`, the verb for a step that moved because its deadline passed rather than because somebody acted. Without it the row fails validation and the lapse leaves no trace (REQ-AR-017).": "Uitgebreid met `lapsed`: het werkwoord voor een stap die verder ging omdat de deadline verstreek, niet omdat iemand handelde. Zonder deze waarde faalt de validatie en laat het verlopen geen spoor na (REQ-AR-017).",
         "Widened with `system`. A lapse is recorded as an action by the system and never under the silent actor's name, because an action carrying their name reads exactly like one they took. Fragments union list values, so this ADDS to the enum rather than replacing it (REQ-AR-017).": "Uitgebreid met `system`. Een verloop wordt vastgelegd als handeling van het systeem en nooit op naam van de actor die stil bleef. Een handeling op hun naam leest namelijk precies alsof zij die verrichtten. Fragmenten voegen lijstwaarden samen, dus dit VOEGT een waarde toe aan de opsomming en vervangt die niet (REQ-AR-017).",
-        "Withdrawn reason": "Reden van intrekking"
+        "Withdrawn reason": "Reden van intrekking",
+        "The person a live stage waits on, empty when the stage is not active.": "De persoon op wie een lopende stap wacht, leeg als de stap niet actief is.",
+        "The executive member responsible for this decision.": "Het lid van het college of bestuur dat verantwoordelijk is voor dit besluit.",
+        "The name of the voting group.": "De naam van de stemgroep.",
+        "What the voting group is for.": "Waarvoor de stemgroep dient.",
+        "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
+        "The people in the group.": "De personen in de groep.",
+        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde."
     },
     "nplurals=2; plural=(n != 1);"
 )
