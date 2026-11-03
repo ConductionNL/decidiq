@@ -195,6 +195,7 @@ class MinutesDraftGenerateGoldenTest extends TestCase {
 				IManager::class => $manager,
 				MinutesDraftComposer::class => new MinutesDraftComposer(),
 				'OCA\OpenRegister\Service\ObjectService' => $store,
+				default => throw new RuntimeException('unexpected service ' . $id),
 			}
 		);
 
