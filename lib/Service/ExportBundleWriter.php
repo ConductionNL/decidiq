@@ -95,24 +95,7 @@ class ExportBundleWriter {
 	 * @return array{status:string,format:string,name:string,path:string,fileId:int|null}
 	 */
 	public function zip(Folder $folder, string $name, array $decisions): array {
-		$path = (string)$this->tempManager->getTemporaryFile('.zip');
-		$zip  = new ZipArchive();
-		if ($path === '' || $zip->open($path, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) !== true) {
-			throw new ExportBundleException(message: 'The export could not be written. Try again.', status: Http::STATUS_INTERNAL_SERVER_ERROR);
-		}
-
-		$used = [];
-		foreach ($decisions as $index => $decision) {
-			$dir = $this->unique(name: sprintf('%03d %s', ($index + 1), self::safeName(name: self::titleOf(decision: $decision))), used: $used);
-			$zip->addFromString($dir . '/decision.html', $this->html(decision: $decision));
-			$inDir = [];
-			foreach ($this->attachments(decision: $decision) as $file) {
-				$zip->addFromString($dir . '/' . $this->unique(name: self::safeName(name: (string)$file->getName()), used: $inDir), (string)$file->getContent());
-			}
-		}
-
-		$zip->close();
-
+		$path   = $this->writeArchive(decisions: $decisions);
 		$stream = fopen($path, 'r');
 		if ($stream === false) {
 			throw new ExportBundleException(message: 'The export could not be written. Try again.', status: Http::STATUS_INTERNAL_SERVER_ERROR);
@@ -122,8 +105,51 @@ class ExportBundleWriter {
 		$file = $folder->newFile($name, $stream);
 		fclose($stream);
 
-		return ['status' => 'done', 'format' => 'zip', 'name' => $name, 'path' => ExportBundleService::FOLDER . '/' . $name, 'fileId' => $file->getId()];
+		return self::exportResult(name: $name, outcome: ['done', 'zip', $file->getId()]);
 	}//end zip()
+
+	/**
+	 * Write the archive to a temporary file: one folder per decision.
+	 *
+	 * @param list<array<string,mixed>> $decisions The decisions.
+	 *
+	 * @throws ExportBundleException When the archive cannot be written.
+	 *
+	 * @return string The temporary file path.
+	 */
+	private function writeArchive(array $decisions): string {
+		$path = (string)$this->tempManager->getTemporaryFile('.zip');
+		$zip  = new ZipArchive();
+		if ($path === '' || $zip->open($path, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) !== true) {
+			throw new ExportBundleException(message: 'The export could not be written. Try again.', status: Http::STATUS_INTERNAL_SERVER_ERROR);
+		}
+
+		$used = [];
+		foreach ($decisions as $index => $decision) {
+			$dir = $this->unique(name: sprintf('%03d %s', ($index + 1), self::safeName(name: self::titleOf(decision: $decision))), used: $used);
+			$this->addDecision(zip: $zip, entry: ['dir' => $dir, 'decision' => $decision]);
+		}
+
+		$zip->close();
+		return $path;
+	}//end writeArchive()
+
+	/**
+	 * Add one decision's folder: its text and its attachments.
+	 *
+	 * @param ZipArchive                                          $zip   The archive.
+	 * @param array{dir:string,decision:array<string,mixed>}     $entry The folder name and the decision.
+	 *
+	 * @return void
+	 */
+	private function addDecision(ZipArchive $zip, array $entry): void {
+		$dir = $entry['dir'];
+		$zip->addFromString($dir . '/decision.html', $this->html(decision: $entry['decision']));
+		$inDir = [];
+		foreach ($this->attachments(decision: $entry['decision']) as $file) {
+			$zip->addFromString($dir . '/' . $this->unique(name: self::safeName(name: (string)$file->getName()), used: $inDir), (string)$file->getContent());
+		}
+	}//end addDecision()
 
 	/**
 	 * Hand the text pages and attachments to filinq, in list order.
@@ -141,55 +167,115 @@ class ExportBundleWriter {
 	 * @return array{status:string,format:string,name:string,path:string,fileId:int|null}
 	 */
 	public function mergedPdf(object $merger, Folder $folder, string $name, array $decisions, string $uid): array {
-		$work   = $this->workFolder(folder: $folder);
-		$inputs = [];
-		$pages  = [];
+		$run = new ExportPdfRun(work: $this->workFolder(folder: $folder), export: ['name' => $name, 'uid' => $uid]);
 		try {
-			foreach ($decisions as $index => $decision) {
-				$title = self::titleOf(decision: $decision);
-				$bytes = $this->pdf->fromHtml(html: $this->html(decision: $decision), title: $title, context: 'decision export');
-				if ($bytes === null) {
-					throw new ExportBundleException(
-						message: 'The text pages could not be made into PDF. Export a ZIP instead.',
-						status: Http::STATUS_SERVICE_UNAVAILABLE
-					);
-				}
-
-				$page    = $work->newFile($work->getNonExistingName(sprintf('%s-%03d.pdf', md5($name), ($index + 1))), $bytes);
-				$pages[] = (int)$page->getId();
-				$inputs[] = ['fileId' => (int)$page->getId(), 'label' => $title, 'size' => strlen($bytes)];
-				foreach ($this->attachments(decision: $decision) as $file) {
-					$inputs[] = ['fileId' => (int)$file->getId(), 'label' => (string)$file->getName(), 'size' => (int)$file->getSize()];
-				}
-			}
-
-			$options = ['bookmarks' => true, 'targetFolder' => ExportBundleService::FOLDER, 'name' => $name];
-			if ($merger->shouldQueue($inputs, self::QUEUE_PAGES) === true) {
-				$job = $merger->queue($inputs, $options, ['app' => 'decidiq', 'export' => $name]);
-				$this->jobList->add(
-					ExportBundleNoticeJob::class,
-					['mergeJob' => (string)($job['uuid'] ?? $job['id'] ?? ''), 'uid' => $uid, 'name' => $name, 'pages' => $pages, 'attempt' => 0]
-				);
-
-				return ['status' => 'queued', 'format' => 'pdf', 'name' => $name, 'path' => ExportBundleService::FOLDER . '/' . $name, 'fileId' => null];
-			}
-
-			$job = $merger->merge($inputs, $options, ['app' => 'decidiq', 'export' => $name]);
-		} catch (ExportBundleException $e) {
-			$this->removePages(uid: $uid, pages: $pages);
-			throw $e;
+			$this->collectPdfInputs(run: $run, decisions: $decisions);
+			$job = $this->startMerge(merger: $merger, run: $run);
 		} catch (Throwable $e) {
-			$this->removePages(uid: $uid, pages: $pages);
-			$status = Http::STATUS_BAD_GATEWAY;
-			if (method_exists($e, 'getStatus') === true) {
-				$status = (int)$e->getStatus();
+			$this->removePages(uid: $uid, pages: $run->pages());
+			throw self::exportFailure(error: $e);
+		}
+
+		if ($job === null) {
+			return self::exportResult(name: $name, outcome: ['queued', 'pdf', null]);
+		}
+
+		$this->removePages(uid: $uid, pages: $run->pages());
+		return self::mergedResult(job: $job, name: $name);
+	}//end mergedPdf()
+
+	/**
+	 * Render every decision's text page and add it, then its attachments, to the run.
+	 *
+	 * @param ExportPdfRun              $run       The export.
+	 * @param list<array<string,mixed>> $decisions The decisions.
+	 *
+	 * @throws ExportBundleException When a text page cannot be rendered.
+	 *
+	 * @return void
+	 */
+	private function collectPdfInputs(ExportPdfRun $run, array $decisions): void {
+		foreach ($decisions as $decision) {
+			$this->addTextPage(run: $run, decision: $decision);
+			foreach ($this->attachments(decision: $decision) as $file) {
+				$run->addAttachment(file: $file);
 			}
+		}
+	}//end collectPdfInputs()
 
-			// The refusal from filinq names the file; that sentence is the answer.
-			throw new ExportBundleException(message: $e->getMessage(), status: $status, previous: $e);
-		}//end try
+	/**
+	 * Render a decision's text page into PDF and add it to the run.
+	 *
+	 * @param ExportPdfRun        $run      The export.
+	 * @param array<string,mixed> $decision The decision.
+	 *
+	 * @throws ExportBundleException When the text page cannot be rendered.
+	 *
+	 * @return void
+	 */
+	private function addTextPage(ExportPdfRun $run, array $decision): void {
+		$title = self::titleOf(decision: $decision);
+		$bytes = $this->pdf->fromHtml(html: $this->html(decision: $decision), title: $title, context: 'decision export');
+		if ($bytes === null) {
+			throw new ExportBundleException(
+				message: 'The text pages could not be made into PDF. Export a ZIP instead.',
+				status: Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}
 
-		$this->removePages(uid: $uid, pages: $pages);
+		$run->addPage(bytes: $bytes, title: $title);
+	}//end addTextPage()
+
+	/**
+	 * Merge now, or queue a large merge and schedule its ready notice.
+	 *
+	 * @param object       $merger filinq's DocumentMergeService.
+	 * @param ExportPdfRun $run    The export.
+	 *
+	 * @return mixed What the merge answered, or null when it was queued.
+	 */
+	private function startMerge(object $merger, ExportPdfRun $run): mixed {
+		if ($merger->shouldQueue($run->inputs(), self::QUEUE_PAGES) === true) {
+			$job = $merger->queue($run->inputs(), $run->options(), $run->meta());
+			$this->jobList->add(ExportBundleNoticeJob::class, $run->notice(job: $job));
+			return null;
+		}
+
+		return $merger->merge($run->inputs(), $run->options(), $run->meta());
+	}//end startMerge()
+
+	/**
+	 * The exception a failed export answers: its own, or filinq's refusal with its status.
+	 *
+	 * @param Throwable $error What went wrong.
+	 *
+	 * @return ExportBundleException
+	 */
+	private static function exportFailure(Throwable $error): ExportBundleException {
+		if ($error instanceof ExportBundleException) {
+			return $error;
+		}
+
+		$status = Http::STATUS_BAD_GATEWAY;
+		if (method_exists($error, 'getStatus') === true) {
+			$status = (int)$error->getStatus();
+		}
+
+		// The refusal from filinq names the file; that sentence is the answer.
+		return new ExportBundleException(message: $error->getMessage(), status: $status, previous: $error);
+	}//end exportFailure()
+
+	/**
+	 * The result of a finished merge.
+	 *
+	 * @param mixed  $job  What the merge answered.
+	 * @param string $name The file name.
+	 *
+	 * @throws ExportBundleException When filinq did not finish the merge.
+	 *
+	 * @return array{status:string,format:string,name:string,path:string,fileId:int|null}
+	 */
+	private static function mergedResult(mixed $job, string $name): array {
 		if (($job['status'] ?? '') !== 'done') {
 			throw new ExportBundleException(
 				message: 'The PDF could not be made: ' . (string)($job['error'] ?? $job['reason'] ?? 'filinq did not finish the merge.'),
@@ -197,14 +283,26 @@ class ExportBundleWriter {
 			);
 		}
 
+		return self::exportResult(name: $name, outcome: ['done', 'pdf', (int)($job['resultFileId'] ?? 0)]);
+	}//end mergedResult()
+
+	/**
+	 * What an export answers.
+	 *
+	 * @param string                           $name    The file name.
+	 * @param array{0:string,1:string,2:mixed} $outcome The status, the format and the file id.
+	 *
+	 * @return array{status:string,format:string,name:string,path:string,fileId:int|null}
+	 */
+	private static function exportResult(string $name, array $outcome): array {
 		return [
-			'status' => 'done',
-			'format' => 'pdf',
+			'status' => $outcome[0],
+			'format' => $outcome[1],
 			'name' => $name,
 			'path' => ExportBundleService::FOLDER . '/' . $name,
-			'fileId' => (int)($job['resultFileId'] ?? 0),
+			'fileId' => $outcome[2],
 		];
-	}//end mergedPdf()
+	}//end exportResult()
 
 	/**
 	 * Remove the rendered text pages once the merge no longer needs them.
@@ -250,15 +348,7 @@ class ExportBundleWriter {
 			return [];
 		}
 
-		// An export without its attachments would look complete and not be,
-		// so a missing file store refuses the export instead.
-		if ($this->appManager->isInstalled('openregister') === false) {
-			throw new ExportBundleException(
-				message: 'The attachments could not be read: OpenRegister is not installed.',
-				status: Http::STATUS_SERVICE_UNAVAILABLE
-			);
-		}
-
+		$this->requireOpenRegister();
 		$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
 		$nodes       = $fileService->getFiles($id);
 
@@ -280,9 +370,60 @@ class ExportBundleWriter {
 	 * @return string HTML.
 	 */
 	private function html(array $decision): string {
-		$esc   = static fn (mixed $v): string => htmlspecialchars((string)$v, (ENT_QUOTES | ENT_HTML5), 'UTF-8');
-		$rows  = '';
-		$facts = [
+		$text  = (string)($decision['text'] ?? $decision['fullText'] ?? $decision['proposedText'] ?? '');
+		$title = self::esc(value: self::titleOf(decision: $decision));
+
+		return '<!doctype html><html><head><meta charset="utf-8"><title>' . $title . '</title></head><body>'
+			. '<h1>' . $title . '</h1>'
+			. '<table>' . self::factRows(decision: $decision) . '</table>'
+			. '<div>' . nl2br(self::esc(value: $text)) . '</div>'
+			. '</body></html>';
+	}//end html()
+
+	/**
+	 * Refuse when OpenRegister, which holds the attachments, is not installed:
+	 * an export without its attachments would look complete and not be.
+	 *
+	 * @throws ExportBundleException When OpenRegister is not installed.
+	 *
+	 * @return void
+	 */
+	private function requireOpenRegister(): void {
+		if ($this->appManager->isInstalled('openregister') === false) {
+			throw new ExportBundleException(
+				message: 'The attachments could not be read: OpenRegister is not installed.',
+				status: Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}
+	}//end requireOpenRegister()
+
+	/**
+	 * The table rows of the decision's facts that have a scalar, non-empty value.
+	 *
+	 * @param array<string,mixed> $decision The decision.
+	 *
+	 * @return string HTML.
+	 */
+	private static function factRows(array $decision): string {
+		$rows = '';
+		foreach (self::facts(decision: $decision) as $label => $value) {
+			if (is_scalar($value) === true && (string)$value !== '') {
+				$rows .= '<tr><th>' . self::esc(value: $label) . '</th><td>' . self::esc(value: $value) . '</td></tr>';
+			}
+		}
+
+		return $rows;
+	}//end factRows()
+
+	/**
+	 * The decision's facts by label.
+	 *
+	 * @param array<string,mixed> $decision The decision.
+	 *
+	 * @return array<string,mixed>
+	 */
+	private static function facts(array $decision): array {
+		return [
 			'Number' => ($decision['resolutionNumber'] ?? $decision['externalReference'] ?? ''),
 			'Type' => ($decision['motionType'] ?? $decision['decisionType'] ?? ''),
 			'Proposer' => ($decision['proposer'] ?? ''),
@@ -290,20 +431,18 @@ class ExportBundleWriter {
 			'Decision date' => ($decision['decisionDate'] ?? ''),
 			'Outcome' => ($decision['outcome'] ?? ''),
 		];
-		foreach ($facts as $label => $value) {
-			if (is_scalar($value) === true && (string)$value !== '') {
-				$rows .= '<tr><th>' . $esc($label) . '</th><td>' . $esc($value) . '</td></tr>';
-			}
-		}
+	}//end facts()
 
-		$text = (string)($decision['text'] ?? $decision['fullText'] ?? $decision['proposedText'] ?? '');
-
-		return '<!doctype html><html><head><meta charset="utf-8"><title>' . $esc(self::titleOf(decision: $decision)) . '</title></head><body>'
-			. '<h1>' . $esc(self::titleOf(decision: $decision)) . '</h1>'
-			. '<table>' . $rows . '</table>'
-			. '<div>' . nl2br($esc($text)) . '</div>'
-			. '</body></html>';
-	}//end html()
+	/**
+	 * A value escaped for HTML.
+	 *
+	 * @param mixed $value The value.
+	 *
+	 * @return string
+	 */
+	private static function esc(mixed $value): string {
+		return htmlspecialchars((string)$value, (ENT_QUOTES | ENT_HTML5), 'UTF-8');
+	}//end esc()
 
 	/**
 	 * The folder the text pages wait in.

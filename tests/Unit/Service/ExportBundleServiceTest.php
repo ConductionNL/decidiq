@@ -48,6 +48,7 @@ use ZipArchive;
 /**
  * @covers \OCA\Decidiq\Service\ExportBundleService
  * @covers \OCA\Decidiq\Service\ExportBundleWriter
+ * @uses   \OCA\Decidiq\Service\ExportPdfRun
  * @covers \OCA\Decidiq\Exception\ExportBundleException
  * @uses   \OCA\Decidiq\Support\FilinqPdf
  * @uses   \OCA\Decidiq\Support\FleetAppId
