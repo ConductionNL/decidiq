@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -155,9 +156,10 @@ class ConflictOfInterestController extends Controller {
 		}
 
 		$callerUid = $this->resolveCallerUid();
+		$declaration = new ConflictDeclaration(membershipId: $membershipId, agendaItemId: $agendaItemId, type: $type, description: $description);
 
 		return $this->respondFromAuthorizedResult(
-			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid, $initialAction),
+			result: $this->conflictService->declare($declaration->assessed(severity: $severity, initialAction: $initialAction), $callerUid),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);
