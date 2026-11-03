@@ -126,6 +126,8 @@ class AuditLogGoldenTest extends TestCase {
 			['id' => 5, 'uuid' => 'e-"5"', 'action' => 'decidiq.audit.notice-sent', 'changed' => ['actorUuid' => 'anna', 'objectUids' => 'o-9'], 'objectUuid' => 'o-5', 'created' => '2026-03-01 23:59:59'],
 			['id' => 6, 'uuid' => '=HYPERLINK("https://evil.example","open")', 'action' => 'decidiq.audit.vote', 'changed' => ['actorUuid' => "dora, \"the\"\r\nchair", 'objectUids' => ['+o-3', 'o-1,o-2', 'say "hi"'], 'payload' => ['choice' => 'against']], 'created' => '2026-03-02 08:00:00', 'hash' => '@h6', 'previousHash' => '-h5', 'user' => 'nc-dora'],
 			['id' => 7, 'uuid' => "\re-7", 'action' => 'decidiq.audit.signature', 'changed' => ['actorUuid' => "\tsum\nline", 'objectUids' => ["=1+1", "o-4\nnext"]], 'created' => '2026-03-03 09:15:00', 'hash' => 'h7', 'previousHash' => '@h6', 'user' => 'nc-erik'],
+			['id' => 8, 'uuid' => 'e-8;=2+2;', 'action' => '=HYPERLINK("https://evil.example");x', 'foreign' => true, 'changed' => ['actorUuid' => 'fay;=1+1;', 'objectUids' => ['o-1;=3+3']], 'created' => '2026-03-04 10:00:00', 'hash' => " =4+4", 'previousHash' => "\n@h7", 'user' => 'nc-fay'],
+			['id' => 9, 'uuid' => 'e-9', 'action' => '-other;x', 'foreign' => true, 'changed' => ['actorUuid' => '  +SUM(A1)', 'objectUids' => ['o-2']], 'created' => '2026-03-05 11:00:00', 'hash' => ' h9', 'previousHash' => 'h8; x', 'user' => 'nc-gus'],
 		];
 	}//end rows()
 
@@ -259,7 +261,7 @@ class AuditLogGoldenTest extends TestCase {
 		}
 
 		$actions = explode(',', (string)($filters['action'] ?? ''));
-		$rows    = array_values(array_filter($this->rows(), static fn (array $r): bool => in_array($r['action'], $actions, true) || $r['action'] === 'other.action'));
+		$rows    = array_values(array_filter($this->rows(), static fn (array $r): bool => in_array($r['action'], $actions, true) || $r['action'] === 'other.action' || ($r['foreign'] ?? false) === true));
 		if (($this->case['many'] ?? false) === true) {
 			$rows = [...$rows, ...$rows, ...$rows];
 		}

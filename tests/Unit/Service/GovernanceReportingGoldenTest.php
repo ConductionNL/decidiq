@@ -108,6 +108,7 @@ class GovernanceReportingGoldenTest extends TestCase {
 			'export-csv-sparse'  => ['call' => $export('r2', 'csv')],
 			'export-missing'     => ['call' => $export('nope', 'json')],
 			'export-csv-no-year' => ['call' => $export('r3', 'csv')],
+			'export-csv-hostile' => ['call' => $export('r4', 'csv')],
 			'export-find-throws' => ['call' => $export('r1', 'csv'), 'find' => 'throw'],
 			'flags-empty'        => ['call' => $flags([])],
 			'flags-edges'        => ['call' => $flags(['meetingCount' => 4, 'independenceRatio' => 0.5, 'attendanceRate' => 0.75, 'conflictCount' => 25])],
@@ -221,6 +222,7 @@ class GovernanceReportingGoldenTest extends TestCase {
 					'r1' => ['boardIntegration' => 'b1', 'year' => 2026, 'meetingCount' => 5, 'resolutionCount' => 3, 'memberCount' => 7, 'independenceRatio' => 0.5714, 'attendanceRate' => 0.8, 'conflictCount' => 2],
 					'r2' => ['year' => 2025],
 					'r3' => ['boardIntegration' => 'b9'],
+					'r4' => ['boardIntegration' => '=HYPERLINK("https://evil.example");b,1', 'year' => "2026\r", 'meetingCount' => 'x;=1+1;', 'resolutionCount' => " =2+2", 'memberCount' => "\n@SUM(A1)", 'independenceRatio' => 0.5, 'attendanceRate' => '-1', 'conflictCount' => "a\nb"],
 				];
 				return isset($reports[$arguments['id']]) === true ? $this->entity(row: $reports[$arguments['id']]) : null;
 			}
