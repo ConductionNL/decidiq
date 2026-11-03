@@ -156,15 +156,14 @@ import Gavel from 'vue-material-design-icons/Gavel.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import {
-	createHostDecision,
 	decisionBucket,
-	hostProposalPayload,
 	isProposal,
 	listDecisionTypes,
 	listHostDecisions,
 	objId,
 	proposalFormSchema,
 } from './decisionLink.js'
+import { hostProposalMixin } from './hostProposalCreate.js'
 import { hostWording } from './hostWording.js'
 import { leafReportMixin } from './leafReport.js'
 
@@ -189,7 +188,7 @@ export default {
 		Plus,
 	},
 
-	mixins: [leafReportMixin],
+	mixins: [leafReportMixin, hostProposalMixin],
 
 	props: {
 		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
@@ -531,38 +530,6 @@ export default {
 					e?.message || t('decidiq', 'Could not load decision-making.')
 			} finally {
 				this.loading = false
-			}
-		},
-
-		/**
-		 * @param formData
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host.
-		 */
-		async onCreate(formData) {
-			if (!this.hostObjectId || this.creating) {
-				return
-			}
-			this.creating = true
-			this.error = ''
-			try {
-				await createHostDecision(
-					hostProposalPayload(
-						formData,
-						{
-							register: this.hostRegister,
-							schema: this.hostSchema,
-							objectId: this.hostObjectId,
-							label: this.objectLabel,
-						},
-						t('decidiq', 'Proposal'),
-					),
-				)
-				this.createOpen = false
-				await this.refresh()
-			} catch (e) {
-				this.error = e?.message || t('decidiq', 'Could not create proposal.')
-			} finally {
-				this.creating = false
 			}
 		},
 	},
