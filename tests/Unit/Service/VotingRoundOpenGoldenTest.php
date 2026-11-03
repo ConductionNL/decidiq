@@ -82,6 +82,8 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\BordaCount
  */
 class VotingRoundOpenGoldenTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	private const GOLDEN = __DIR__ . '/../../fixtures/voting-round-open-golden.json';
 
@@ -102,7 +104,7 @@ class VotingRoundOpenGoldenTest extends TestCase {
 		foreach ($this->cases() as $name => $args) {
 			$this->log = [];
 			try {
-				$returns = ['returns' => $this->facade(store: new ArrayObject($this->store()))->openVotingRound(...$args)];
+				$returns = ['returns' => $this->openRoundOn($this->facade(store: new ArrayObject($this->store())), ...$args)];
 			} catch (Throwable $e) {
 				$returns = ['throws' => get_class($e), 'message' => $e->getMessage()];
 			}

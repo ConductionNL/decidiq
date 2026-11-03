@@ -101,6 +101,9 @@ class CsvCellTest extends TestCase {
 			'space then tab'        => [" \tx", "' \tx"],
 			'formula and separator' => ['=HYPERLINK("https://evil.example","open")', "\"'=HYPERLINK(\"\"https://evil.example\"\",\"\"open\"\")\""],
 			'trigger not leading'   => ['a=1', 'a=1'],
+			'negative number'       => ['-5', "'-5"],
+			'phone number'          => ['+31 6 12345678', "'+31 6 12345678"],
+			'list item after break' => ["a\n- b", "\"a\n'- b\""],
 		];
 	}//end cells()
 }//end class

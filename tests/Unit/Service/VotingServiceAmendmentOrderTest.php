@@ -62,6 +62,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/motion-amendment/spec.md
  */
 class VotingServiceAmendmentOrderTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saveObject() payloads keyed by schema slug.
@@ -368,8 +370,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessageMatches('/amendment\(s\) must be decided first/');
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -399,8 +400,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 			);
 
 			try {
-				$service->openVotingRound(
-					motionId: 'motion-1',
+				$this->openRoundOn($service, motionId: 'motion-1',
 					meetingId: 'meeting-1',
 					votingMethod: 'for-against-abstain',
 					isSecret: false,
@@ -438,8 +438,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				self::anything(),
 			);
 
-		$round = $service->openVotingRound(
-			motionId: 'motion-1',
+		$round = $this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -464,8 +463,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$this->expectException(\InvalidArgumentException::class);
 		$this->expectExceptionMessageMatches('/subjectType/');
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -505,8 +503,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				self::anything(),
 			);
 
-		$round = $service->openVotingRound(
-			motionId: 'amendment-1',
+		$round = $this->openRoundOn($service, motionId: 'amendment-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -542,8 +539,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessageMatches('/must be voted first/');
 
-		$service->openVotingRound(
-			motionId: 'amendment-2',
+		$this->openRoundOn($service, motionId: 'amendment-2',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -573,8 +569,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 			]
 		);
 
-		$round = $service->openVotingRound(
-			motionId: 'amendment-2',
+		$round = $this->openRoundOn($service, motionId: 'amendment-2',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -610,8 +605,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessageMatches('/must be voted first/');
 
-		$service->openVotingRound(
-			motionId: 'amendment-old',
+		$this->openRoundOn($service, motionId: 'amendment-old',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -640,8 +634,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		$this->expectException(\RuntimeException::class);
 		$this->expectExceptionMessageMatches('/already been decided/');
 
-		$service->openVotingRound(
-			motionId: 'amendment-1',
+		$this->openRoundOn($service, motionId: 'amendment-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -738,8 +731,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 		// An undecided amendment exists — but the revote guard must NOT consult it.
 		$this->motionService->expects(self::never())->method('getAmendmentsForMotion');
 
-		$round = $service->openVotingRound(
-			motionId: 'motion-1',
+		$round = $this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,

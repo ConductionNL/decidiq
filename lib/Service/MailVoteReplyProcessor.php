@@ -327,11 +327,7 @@ class MailVoteReplyProcessor {
 	): ?array {
 		try {
 			$this->votingService->castVote(
-				votingRoundId: $roundId,
-				participantId: $participantId,
-				value: $keyword,
-				isProxy: false,
-				delegatorId: null
+				cast: new VoteCast(votingRoundId: $roundId, participantId: $participantId, value: $keyword)
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: email vote cast failed', ['error' => $e->getMessage()]);

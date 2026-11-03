@@ -77,6 +77,8 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\BordaCount
  */
 class VoteCastGoldenTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	private const GOLDEN = __DIR__ . '/../../fixtures/vote-cast-golden.json';
 
@@ -102,7 +104,7 @@ class VoteCastGoldenTest extends TestCase {
 				if (isset($case['paper']) === true) {
 					$returns = ['returns' => (new PaperVoteRecorder(caster: $caster))->recordVotes(...$case['paper'])];
 				} else {
-					$returns = ['returns' => $this->facade(caster: $caster)->castVote(...$case['args'])];
+					$returns = ['returns' => $this->castVoteOn($this->facade(caster: $caster), ...$case['args'])];
 				}
 			} catch (Throwable $e) {
 				$returns = ['throws' => get_class($e), 'message' => $e->getMessage()];
