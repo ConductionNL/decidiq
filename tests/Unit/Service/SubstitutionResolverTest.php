@@ -60,6 +60,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\VoteCastGuard
  * @uses   \OCA\Decidiq\Service\VotingRoundPreflight
  * @uses   \OCA\Decidiq\Service\VotingRoundRequest
+ * @uses   \OCA\Decidiq\Service\VotingRoundResolution
  * @uses   \OCA\Decidiq\Service\AmendmentOrderService
  * @uses   \OCA\Decidiq\Service\RankedBallotRules
  * @uses   \OCA\Decidiq\Service\SavedObjectNormaliser
