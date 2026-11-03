@@ -260,6 +260,30 @@ class RegulatorExportServiceTest extends TestCase {
 	}//end testGenerateResolutionsCsv()
 
 	/**
+	 * generate keeps user-written CSV cells inert: a formula is prefixed, a
+	 * lone carriage return and a semicolon are quoted.
+	 *
+	 * @return void
+	 */
+	public function testGenerateCsvKeepsHostileCellsInert(): void {
+		$rows = [
+			'meeting' => [
+				['id' => 'm-1', 'boardIntegration' => 'b-1'],
+			],
+			'decision' => [
+				['id' => 'r-1', 'meetingIntegration' => 'm-1', 'title' => '=HYPERLINK("https://evil.example")', 'type' => "a\rb", 'status' => 'x;=1+1'],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
+
+		$lines = explode("\n", $svc->generate('b-1', 'resolutions', 'csv', 'alice')['body']);
+
+		$this->assertSame("r-1,m-1,,\"'=HYPERLINK(\"\"https://evil.example\"\")\",\"a\rb\",\"x;=1+1\",,", $lines[1]);
+
+	}//end testGenerateCsvKeepsHostileCellsInert()
+
+	/**
 	 * generate scopes audit-log to all entries.
 	 *
 	 * @return void

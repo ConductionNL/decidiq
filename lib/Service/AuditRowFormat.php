@@ -271,70 +271,27 @@ final class AuditRowFormat {
 
 	/**
 	 * One row as a CSV line. The object uids are joined with `|` and always
-	 * quoted; every other cell is quoted when it holds a comma, quote or line
-	 * break (RFC 4180).
+	 * quoted; every other cell follows CsvCell::escape().
 	 *
 	 * @param array<string, mixed> $row The row
 	 *
 	 * @return string
 	 */
 	private static function csvLine(array $row): string {
+		$csv = new CsvCell();
 		return implode(
 			',',
 			[
-				self::csvCell(cell: (string)($row['id'] ?? '')),
-				self::csvCell(cell: (string)($row['timestamp'] ?? '')),
-				self::csvCell(cell: (string)($row['actorUuid'] ?? '')),
-				self::csvCell(cell: (string)($row['action'] ?? '')),
-				self::quoted(cell: self::inert(cell: implode('|', (array)($row['objectUids'] ?? [])))),
-				self::csvCell(cell: (string)($row['previousHash'] ?? '')),
-				self::csvCell(cell: (string)($row['currentHash'] ?? '')),
+				$csv->escape(cell: (string)($row['id'] ?? '')),
+				$csv->escape(cell: (string)($row['timestamp'] ?? '')),
+				$csv->escape(cell: (string)($row['actorUuid'] ?? '')),
+				$csv->escape(cell: (string)($row['action'] ?? '')),
+				$csv->quote(cell: implode('|', (array)($row['objectUids'] ?? []))),
+				$csv->escape(cell: (string)($row['previousHash'] ?? '')),
+				$csv->escape(cell: (string)($row['currentHash'] ?? '')),
 			]
 		);
 	}//end csvLine()
-
-	/**
-	 * One CSV cell: inert for spreadsheets, quoted only when it must be.
-	 *
-	 * @param string $cell The cell text
-	 *
-	 * @return string
-	 */
-	private static function csvCell(string $cell): string {
-		$cell = self::inert(cell: $cell);
-		if (strpbrk($cell, ",\"\r\n") === false) {
-			return $cell;
-		}
-
-		return self::quoted(cell: $cell);
-	}//end csvCell()
-
-	/**
-	 * The cell between double quotes, with its own quotes doubled.
-	 *
-	 * @param string $cell The cell text
-	 *
-	 * @return string
-	 */
-	private static function quoted(string $cell): string {
-		return '"' . str_replace('"', '""', $cell) . '"';
-	}//end quoted()
-
-	/**
-	 * The cell with a leading apostrophe when a spreadsheet would read it as
-	 * a formula (it starts with =, +, -, @, a tab or a carriage return).
-	 *
-	 * @param string $cell The cell text
-	 *
-	 * @return string
-	 */
-	private static function inert(string $cell): string {
-		if (strpbrk(substr($cell, 0, 1), "=+-@\t\r") !== false) {
-			return "'" . $cell;
-		}
-
-		return $cell;
-	}//end inert()
 
 	/**
 	 * The rows as a JSON document, `{}` when they cannot be encoded.

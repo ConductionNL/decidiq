@@ -42,6 +42,7 @@ use Psr\Log\LoggerInterface;
  * Golden test for the regulator export CSV.
  *
  * @covers \OCA\Decidiq\Service\RegulatorExportRenderer
+ * @uses   \OCA\Decidiq\Service\CsvCell
  */
 class RegulatorExportRendererGoldenTest extends TestCase {
 

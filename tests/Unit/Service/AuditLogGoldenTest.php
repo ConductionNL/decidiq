@@ -11,7 +11,8 @@
  * bounds and an unknown format; queries by actor, action, date range, object
  * uuid, limit and offset; and audit rows in every shape (namespaced or not,
  * context missing or not an array, object uids from the context or the row,
- * no created date, no uuid, no hash). It records every mapper, verifier and
+ * no created date, no uuid, no hash, foreign actions and cells with
+ * semicolons or formulas behind leading whitespace). It records every mapper, verifier and
  * object-service call by parameter name, every log line, and what each call
  * returns, byte for byte. The expected values live in
  * tests/fixtures/audit-log-golden.json; run with RECORD_AUDIT_LOG_GOLDEN=1
@@ -57,6 +58,7 @@ use RuntimeException;
  *
  * @covers \OCA\Decidiq\Service\AuditLogService
  * @uses   \OCA\Decidiq\Service\AuditRowFormat
+ * @uses   \OCA\Decidiq\Service\CsvCell
  */
 class AuditLogGoldenTest extends TestCase {
 

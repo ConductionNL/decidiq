@@ -46,6 +46,7 @@ use Stringable;
  * Golden test for the annual governance report.
  *
  * @covers \OCA\Decidiq\Service\GovernanceReportingService
+ * @uses   \OCA\Decidiq\Service\CsvCell
  */
 class GovernanceReportingGoldenTest extends TestCase {
 
