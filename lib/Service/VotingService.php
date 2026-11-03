@@ -154,15 +154,15 @@ class VotingService {
 		?string $revoteOfRoundId = null,
 		?VotingRoundRules $roundRules = null,
 	): array {
+		$request = new VotingRoundRequest(motionId: $motionId, meetingId: $meetingId, votingMethod: $votingMethod, isSecret: $isSecret);
+
 		return $this->opener->openVotingRound(
-			motionId: $motionId,
-			meetingId: $meetingId,
-			votingMethod: $votingMethod,
-			isSecret: $isSecret,
-			closedAt: $closedAt,
-			presetParticipantIds: $presetParticipantIds,
-			revoteOfRoundId: $revoteOfRoundId,
-			roundRules: $roundRules
+			request: $request->opening(
+				closedAt: $closedAt,
+				presetParticipantIds: $presetParticipantIds,
+				revoteOfRoundId: $revoteOfRoundId,
+				rules: $roundRules
+			)
 		);
 
 	}//end openVotingRound()
