@@ -27,6 +27,7 @@ use OCA\Decidiq\Service\ProxyDelegationService;
 use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingOpenRequestHandler;
 use OCA\Decidiq\Service\VotingRoundGuard;
+use OCA\Decidiq\Service\VotingRoundRequest;
 use OCA\Decidiq\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
@@ -48,6 +49,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\VotingOpenRequestHandler
  * @uses   \OCA\Decidiq\Service\VotingOpenRequestParser
  * @uses   \OCA\Decidiq\Service\VotingRoundRules
+ * @uses   \OCA\Decidiq\Service\VotingRoundRequest
  * @uses   \OCA\Decidiq\Service\VotingErrorResponder
  * @uses   \OCA\Decidiq\Service\ProxyDelegationService
  */
@@ -222,8 +224,13 @@ class VotingOpenSubjectScopeTest extends TestCase {
 		$votingService = $this->createMock(VotingService::class);
 		$opened = [];
 		$votingService->method('openVotingRound')->willReturnCallback(
-			function (string $motionId, string $meetingId, ...$rest) use (&$opened): array {
-				$opened[] = [$motionId, $meetingId, ($rest[4] ?? null)];
+			function (mixed ...$args) use (&$opened): array {
+				if ($args[0] instanceof VotingRoundRequest) {
+					$opened[] = [$args[0]->motionId, $args[0]->meetingId];
+				} else {
+					$opened[] = [$args[0], $args[1]];
+				}
+
 				return ['id' => 'new-round'];
 			}
 		);
@@ -237,7 +244,7 @@ class VotingOpenSubjectScopeTest extends TestCase {
 		}
 
 		self::assertCount(1, $opened);
-		self::assertSame([$subject, $body['meetingId']], array_slice($opened[0], 0, 2));
+		self::assertSame([$subject, $body['meetingId']], $opened[0]);
 
 	}//end testOpenIsBoundToTheCheckedMeeting()
 
