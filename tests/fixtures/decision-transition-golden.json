@@ -942,6 +942,123 @@
             }
         ]
     },
+    "template-skips-quorum": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-template-voting",
+                "domain": "legislative",
+                "lifecycle": "voting",
+                "meeting": "meet-template-noquorum"
+            },
+            "message": "Decision transitioned to 'voting'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-template-voting",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-template-noquorum",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "policy": "body-t"
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-template-voting",
+                        "domain": "legislative",
+                        "lifecycle": "voting",
+                        "meeting": "meet-template-noquorum"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-template-voting"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "mallory",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-template-voting"
+                    ],
+                    "payload": {
+                        "transition": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-template-voting",
+                        "action": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting"
+                    }
+                ]
+            }
+        ]
+    },
+    "legislative-decide-unvoted": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Transition 'decide' is not permitted in the 'legislative' domain."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "association-decide-unvoted": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Transition 'decide' is not permitted in the 'association' domain."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-assoc-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
     "operations-propose": {
         "returns": {
             "success": true,
