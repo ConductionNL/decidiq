@@ -23,16 +23,10 @@
  *
  * @return {{actions: Array, note: string, count?: number, empty?: {name: string}}} The header.
  */
-export function leafHeader({
-	loading,
-	error,
-	count,
-	emptyLabel,
-	note = '',
-	actions = [],
-}) {
+export function leafHeader(state) {
+	const { count, emptyLabel, note = '', actions = [] } = state
 	const header = { actions, note }
-	if (loading === true || error !== '') {
+	if (!readSettled(state)) {
 		return header
 	}
 	header.count = count
@@ -58,18 +52,23 @@ export function leafHeader({
  *
  * @return {{count: number, noun: string, rows: Array, actions: Array}|null} The summary, or null.
  */
-export function leafSummary({
-	loading,
-	error,
-	count,
-	noun,
-	rows = [],
-	actions = [],
-}) {
-	if (loading === true || error !== '') {
+export function leafSummary(state) {
+	const { count, noun, rows = [], actions = [] } = state
+	if (!readSettled(state)) {
 		return null
 	}
 	return { count, noun, rows: count > 0 ? rows : [], actions }
+}
+
+/**
+ * Whether the leaf's read finished without an error.
+ *
+ * @param {{loading: boolean, error: string}} state The leaf's state.
+ *
+ * @return {boolean}
+ */
+function readSettled({ loading, error }) {
+	return loading !== true && error === ''
 }
 
 /**
