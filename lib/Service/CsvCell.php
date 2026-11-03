@@ -77,18 +77,18 @@ final class CsvCell {
 
 	/**
 	 * The cell with an apostrophe wherever a spreadsheet would start reading
-	 * a formula: at the start, and after each `;`, where a reader that splits
-	 * on `;` starts a new cell whatever the quoting. A formula starts with =,
-	 * +, -, @, a tab or a carriage return, also behind spaces or line feeds
-	 * (and, after a `;`, quotes), which an import may trim.
+	 * a formula: at the start, and after each `;` or line break, where a
+	 * reader that splits on `;` starts a new cell or row whatever the quoting.
+	 * A formula starts with =, +, -, @, a tab or a carriage return, also
+	 * behind spaces (and quotes after a break), which an import may trim.
 	 *
 	 * @param string $cell The cell text
 	 *
 	 * @return string
 	 */
 	private function inert(string $cell): string {
-		$cell = (string)preg_replace('/;(?=[ \n"]*[=+\-@\t\r])/', ";'", $cell);
-		if (strpbrk(substr(ltrim($cell, " \n"), 0, 1), "=+-@\t\r") !== false) {
+		$cell = (string)preg_replace('/([;\r\n])(?=[ "]*[=+\-@\t\r])/', "$1'", $cell);
+		if (strpbrk(substr(ltrim($cell, ' '), 0, 1), "=+-@\t\r") !== false) {
 			return "'" . $cell;
 		}
 
