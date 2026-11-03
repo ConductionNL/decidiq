@@ -42,6 +42,9 @@ use Psr\Log\LoggerInterface;
  *
  * @covers \OCA\Decidiq\Service\MinutesDraftService
  * @covers \OCA\Decidiq\Service\MinutesDraftComposer
+ * @uses   \OCA\Decidiq\Service\MinutesDraftRun
+ * @uses   \OCA\Decidiq\Service\MinutesOutcomes
+ * @uses   \OCA\Decidiq\Service\DraftProvenance
  */
 class MinutesDraftSectionsGoldenTest extends TestCase {
 
