@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -79,10 +80,9 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$this->service = new AgendaService(
 			objectService: $this->objects,
 			calendarEventService: $this->createMock(CalendarEventService::class),
-			preferences: $this->createMock(NotificationPreferenceService::class),
+			notices: new AgendaNotices(preferences: $this->createMock(NotificationPreferenceService::class), l10nFactory: $this->createMock(IFactory::class), logger: $this->logger),
 			logger: $this->logger,
 			participantResolver: $this->createMock(ParticipantResolver::class),
-			l10nFactory: $this->createMock(IFactory::class),
 			eventRecorder: $this->createMock(PublicationEventRecorder::class),
 		);
 	}//end setUp()

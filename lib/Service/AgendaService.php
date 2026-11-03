@@ -30,7 +30,6 @@ use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\CalendarEventService;
-use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -69,13 +68,6 @@ class AgendaService {
 	private bool $suppressItemNotices = false;
 
 	/**
-	 * Sends the agenda notices to the members.
-	 *
-	 * @var AgendaNotices
-	 */
-	private readonly AgendaNotices $notices;
-
-	/**
 	 * Reads agenda objects and applies the phase, publication and version rules.
 	 *
 	 * @var AgendaRules
@@ -87,10 +79,9 @@ class AgendaService {
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
 	 * @param CalendarEventService $calendarEventService OpenRegister calendar event service
-	 * @param NotificationPreferenceService $preferences Each member's delivery choice (bell, email, both, off)
+	 * @param AgendaNotices $notices Sends the agenda notices to the members
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
-	 * @param IFactory $l10nFactory Translations for the notice title and body
 	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
 	 *
 	 * @return void
@@ -100,13 +91,11 @@ class AgendaService {
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly CalendarEventService $calendarEventService,
-		NotificationPreferenceService $preferences,
+		private readonly AgendaNotices $notices,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
-		IFactory $l10nFactory,
 		private readonly PublicationEventRecorder $eventRecorder,
 	) {
-		$this->notices = new AgendaNotices(preferences: $preferences, l10nFactory: $l10nFactory, logger: $logger);
 		$this->rules   = new AgendaRules();
 	}//end __construct()
 

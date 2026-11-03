@@ -31,6 +31,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Mcp;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Mcp\McpActionItemTools;
+use OCA\Decidiq\Mcp\McpMeetingTools;
 use OCA\Decidiq\Service\ActionItemWriter;
 use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -220,7 +222,11 @@ class McpToolsGoldenTest extends TestCase {
 			$objects->method($method)->willReturnCallback(fn (...$a) => $this->call(method: $method, args: $a));
 		}
 
-		return new DecidiqToolProvider($meetings, $session, $groups, $container, $logger, $participants, $objects);
+		$shared = ['userSession' => $session, 'groupManager' => $groups, 'logger' => $logger, 'participantResolver' => $participants, 'objectService' => $objects];
+		return new DecidiqToolProvider(
+			actionItemTools: new McpActionItemTools(...$shared, container: $container),
+			meetingTools: new McpMeetingTools(...$shared, meetingService: $meetings),
+		);
 	}//end provider()
 
 	/**

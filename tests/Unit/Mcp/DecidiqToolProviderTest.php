@@ -29,6 +29,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Mcp;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Mcp\McpActionItemTools;
+use OCA\Decidiq\Mcp\McpMeetingTools;
 use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -147,14 +149,16 @@ class DecidiqToolProviderTest extends TestCase {
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
+		$shared = [
+			'userSession' => $this->userSession,
+			'groupManager' => $this->groupManager,
+			'logger' => $this->logger,
+			'participantResolver' => $this->participantResolver,
+			'objectService' => $this->objectService,
+		];
 		$this->provider = new DecidiqToolProvider(
-			meetingService: $this->meetingService,
-			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			container: $this->container,
-			logger: $this->logger,
-			participantResolver: $this->participantResolver,
-			objectService: $this->objectService,
+			actionItemTools: new McpActionItemTools(...$shared, container: $this->container),
+			meetingTools: new McpMeetingTools(...$shared, meetingService: $this->meetingService),
 		);
 
 	}//end setUp()
