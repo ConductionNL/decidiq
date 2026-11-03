@@ -35,6 +35,7 @@ use OCA\Decidiq\Service\MinutesDocumentService;
 use OCA\Decidiq\Service\ProofPackageService;
 use OCA\Decidiq\Service\SigningAnswer;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\Decidiq\Tests\Unit\Support\CaseSystemCallServiceFake;
 use OCA\Decidiq\Tests\Unit\Support\CaseSystemWorld;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -65,6 +66,7 @@ use RuntimeException;
  * @uses \OCA\Decidiq\Service\SigningAnswer
  * @uses \OCA\Decidiq\Service\IntegriqConnection
  * @uses \OCA\Decidiq\Support\FilinqPdf
+ * @uses \OCA\Decidiq\Support\OpenRegisterFiles
  * @uses \OCA\Decidiq\Support\FleetAppId
  * @uses \OCA\Decidiq\Exception\CaseSystemException
  */
@@ -98,6 +100,13 @@ class CaseSystemExchangeTest extends TestCase {
 	private array $written = [];
 
 	private bool $filinq = true;
+
+	/**
+	 * Whether the app manager reports OpenRegister installed.
+	 *
+	 * @var bool
+	 */
+	private bool $openRegisterInstalled = true;
 
 	private IJobList $jobList;
 
@@ -310,9 +319,8 @@ class CaseSystemExchangeTest extends TestCase {
 			proofPackage: $proof,
 			folders: $this->folders(),
 			pdf: new FilinqPdf(container: $this->container(), logger: new NullLogger()),
-			container: $this->container(),
+			files: new OpenRegisterFiles(appManager: $this->appManager(), container: $this->container()),
 			l10n: $this->l10n(),
-			appManager: $this->appManager()
 		);
 		return new CaseSystemExchangeService(client: $this->client(), meetingFile: $meetingFile, records: $this->records(), jobList: $this->jobList);
 	}//end exchange()
@@ -324,7 +332,7 @@ class CaseSystemExchangeTest extends TestCase {
 	 */
 	private function appManager(): IAppManager {
 		$apps = $this->createMock(IAppManager::class);
-		$apps->method('isInstalled')->willReturn(true);
+		$apps->method('isInstalled')->willReturnCallback(fn (string $app): bool => ($app !== 'openregister' || $this->openRegisterInstalled === true));
 		return $apps;
 	}//end appManager()
 
@@ -480,6 +488,27 @@ class CaseSystemExchangeTest extends TestCase {
 
 		$this->assertSame(['queued' => true], $this->exchange()->requestSend(meetingId: $this->meeting, userId: 'griffier'));
 	}//end testApprovedMinutesQueueTheSend()
+
+	/**
+	 * Without OpenRegister, which holds the papers, the meeting file is refused with 503 and nothing is sent.
+	 *
+	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
+	 *
+	 * @return void
+	 */
+	public function testWithoutOpenRegisterTheMeetingFileIsRefused(): void {
+		$this->councilMeeting();
+		$this->openRegisterInstalled = false;
+
+		try {
+			$this->exchange()->send(meetingId: $this->meeting, userId: 'griffier');
+			$this->fail('A meeting file without its papers was sent.');
+		} catch (CaseSystemException $e) {
+			$this->assertSame(503, $e->getStatus());
+		}
+
+		$this->assertSame([], $this->world->callsOf('add-document'));
+	}//end testWithoutOpenRegisterTheMeetingFileIsRefused()
 
 	/**
 	 * The item's decision reaches its case, one meeting case gets the whole file, every line sent.

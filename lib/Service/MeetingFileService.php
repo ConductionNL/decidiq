@@ -24,10 +24,9 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCP\App\IAppManager;
 use OCP\IL10N;
-use Psr\Container\ContainerInterface;
 use Throwable;
 
 /**
@@ -61,9 +60,8 @@ class MeetingFileService {
 	 * @param ProofPackageService    $proofPackage  The proof package.
 	 * @param MeetingFolderService   $folders       The meeting folder.
 	 * @param FilinqPdf              $pdf           PDF rendering through filinq.
-	 * @param ContainerInterface     $container     DI container (OpenRegister FileService, lazily).
+	 * @param OpenRegisterFiles      $files         OpenRegister, which holds the files, and its FileService.
 	 * @param IL10N                  $l10n          Translations.
-	 * @param IAppManager            $appManager    Tells whether OpenRegister is installed.
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
 	 */
@@ -74,9 +72,8 @@ class MeetingFileService {
 		private readonly ProofPackageService $proofPackage,
 		private readonly MeetingFolderService $folders,
 		private readonly FilinqPdf $pdf,
-		private readonly ContainerInterface $container,
+		private readonly OpenRegisterFiles $files,
 		private readonly IL10N $l10n,
-		private readonly IAppManager $appManager,
 	) {
 	}//end __construct()
 
@@ -154,12 +151,12 @@ class MeetingFileService {
 	 */
 	private function itemDocuments(array $items): array {
 		// A meeting file without its papers would look complete and not be.
-		if ($this->appManager->isInstalled('openregister') === false) {
+		if ($this->files->installed() === false) {
 			throw new CaseSystemException(message: 'The agenda item files could not be read: OpenRegister is not installed', status: 503);
 		}
 
 		$documents = [];
-		$files     = $this->container->get('OCA\OpenRegister\Service\FileService');
+		$files     = $this->files->fileService();
 		foreach (array_keys($items) as $itemId) {
 			foreach ((array)$files->getFiles($itemId) as $node) {
 				$fileId      = (int)$node->getId();

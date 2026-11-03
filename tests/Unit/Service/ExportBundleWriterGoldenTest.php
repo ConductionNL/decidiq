@@ -39,6 +39,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCP\App\IAppManager;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\File;
@@ -58,6 +59,7 @@ use ZipArchive;
  *
  * @covers \OCA\Decidiq\Service\ExportBundleWriter
  * @uses   \OCA\Decidiq\Service\ExportPdfRun
+ * @uses   \OCA\Decidiq\Support\OpenRegisterFiles
  * @uses   \OCA\Decidiq\Exception\ExportBundleException
  */
 class ExportBundleWriterGoldenTest extends TestCase {
@@ -296,13 +298,12 @@ class ExportBundleWriterGoldenTest extends TestCase {
 		);
 
 		return new ExportBundleWriter(
-			container: $container,
+			files: new OpenRegisterFiles(appManager: $apps, container: $container),
 			pdf: $pdf,
 			rootFolder: $this->root(),
 			tempManager: $temp,
 			jobList: $jobs,
 			logger: $logger,
-			appManager: $apps,
 		);
 	}//end writer()
 
