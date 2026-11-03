@@ -39,6 +39,7 @@ use OCA\Decidiq\Service\VoteCastingService;
 use OCA\Decidiq\Service\VotingOpenedNotifier;
 use OCA\Decidiq\Service\VotingRoundOpener;
 use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundRequest;
 use OCA\Decidiq\Service\VotingRoundRules;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -60,6 +61,8 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\VoteCastGuard
  * @uses   \OCA\Decidiq\Service\VoteCast
  * @uses   \OCA\Decidiq\Service\VotingRoundPreflight
+ * @uses   \OCA\Decidiq\Service\VotingRoundRequest
+ * @uses   \OCA\Decidiq\Service\VotingRoundResolution
  * @uses   \OCA\Decidiq\Service\AmendmentOrderService
  * @uses   \OCA\Decidiq\Service\RankedBallotRules
  * @uses   \OCA\Decidiq\Service\SavedObjectNormaliser
@@ -322,14 +325,9 @@ class SubstitutionResolverTest extends TestCase {
 			notifier: new VotingOpenedNotifier(logger: $logger, participantResolver: $participants, container: $container),
 			objectService: $objectService,
 		);
+		$request = new VotingRoundRequest(motionId: 'motion-1', meetingId: self::MEETING, votingMethod: 'for-against-abstain', isSecret: false);
 		$opener->openVotingRound(
-			motionId: 'motion-1',
-			meetingId: self::MEETING,
-			votingMethod: 'for-against-abstain',
-			isSecret: false,
-			closedAt: null,
-			presetParticipantIds: $presetIds,
-			roundRules: new VotingRoundRules()
+			request: $request->opening(closedAt: null, presetParticipantIds: $presetIds, revoteOfRoundId: null, rules: new VotingRoundRules())
 		);
 
 		$rounds = array_values(array_filter($saved, static fn (array $o): bool => isset($o['votingMethod']) === true));
