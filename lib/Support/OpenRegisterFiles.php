@@ -40,6 +40,8 @@ class OpenRegisterFiles {
 	 *
 	 * @param IAppManager        $appManager Whether OpenRegister is installed
 	 * @param ContainerInterface $container  Resolves OpenRegister's FileService
+	 *
+	 * @spec exclude infrastructure utility; exercised through its callers
 	 */
 	public function __construct(
 		private readonly IAppManager $appManager,
