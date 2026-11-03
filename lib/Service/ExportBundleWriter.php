@@ -25,13 +25,12 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\BackgroundJob\ExportBundleNoticeJob;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Support\FilinqPdf;
-use OCP\App\IAppManager;
+use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCP\AppFramework\Http;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\Folder;
 use OCP\Files\IRootFolder;
 use OCP\ITempManager;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
 use ZipArchive;
@@ -60,24 +59,22 @@ class ExportBundleWriter {
 	/**
 	 * Constructor.
 	 *
-	 * @param ContainerInterface $container   Resolves OpenRegister's FileService.
+	 * @param OpenRegisterFiles  $files       OpenRegister, which holds the attachments, and its FileService.
 	 * @param FilinqPdf          $pdf         Renders a decision's text page.
 	 * @param IRootFolder        $rootFolder  The requester's Files.
 	 * @param ITempManager       $tempManager Local scratch space for the ZIP.
 	 * @param IJobList           $jobList     Schedules the ready notice for a queued PDF.
 	 * @param LoggerInterface    $logger      Diagnostics.
-	 * @param IAppManager        $appManager  Whether OpenRegister, which holds the attachments, is installed.
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
 	 */
 	public function __construct(
-		private readonly ContainerInterface $container,
+		private readonly OpenRegisterFiles $files,
 		private readonly FilinqPdf $pdf,
 		private readonly IRootFolder $rootFolder,
 		private readonly ITempManager $tempManager,
 		private readonly IJobList $jobList,
 		private readonly LoggerInterface $logger,
-		private readonly IAppManager $appManager,
 	) {
 	}//end __construct()
 
@@ -349,7 +346,7 @@ class ExportBundleWriter {
 		}
 
 		$this->requireOpenRegister();
-		$fileService = $this->container->get('OCA\OpenRegister\Service\FileService');
+		$fileService = $this->files->fileService();
 		$nodes       = $fileService->getFiles($id);
 
 		return array_values(
@@ -389,7 +386,7 @@ class ExportBundleWriter {
 	 * @return void
 	 */
 	private function requireOpenRegister(): void {
-		if ($this->appManager->isInstalled('openregister') === false) {
+		if ($this->files->installed() === false) {
 			throw new ExportBundleException(
 				message: 'The attachments could not be read: OpenRegister is not installed.',
 				status: Http::STATUS_SERVICE_UNAVAILABLE
