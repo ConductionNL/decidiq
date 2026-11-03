@@ -161,16 +161,7 @@ class VoteCastingService {
 			);
 		}
 
-		$vote = $this->ballots->buildVote(
-			votingRoundId: $cast->votingRoundId,
-			participantId: $cast->participantId,
-			value: $cast->value(),
-			isProxy: $cast->isProxy(),
-			delegatorId: $cast->delegatorId(),
-			isSecret: $cast->isSecret(),
-			existingVote: $this->findExistingVote(cast: $cast),
-			ranking: $cast->ranking()
-		);
+		$vote = $this->ballots->buildVote(cast: $cast, existingVote: $this->findExistingVote(cast: $cast));
 
 		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
 
