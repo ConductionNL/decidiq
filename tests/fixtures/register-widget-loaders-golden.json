@@ -1,0 +1,898 @@
+{
+  "CONFIDENTIALITY full": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "grond",
+        "schema": "grond",
+        "register": "reg"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "grond",
+        "id": "g1"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "governance-body",
+        "schema": "governance-body",
+        "register": "reg",
+        "id": "b1",
+        "field": "name"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "reg",
+        "id": "d1",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "agenda-item",
+        "schema": "agenda-item",
+        "register": "reg",
+        "id": "a1",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "reg",
+        "id": "d2",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "digital-document",
+        "schema": "digital-document",
+        "register": "reg",
+        "id": "doc1",
+        "field": "name"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "groundObj": {
+        "id": "g1",
+        "name": "ground g1"
+      },
+      "targetLabel": "label of doc1",
+      "ratificationDecisionLabel": "label of d1",
+      "ratificationAgendaItemLabel": "label of a1",
+      "dissolutionDecisionLabel": "label of d2",
+      "imposedByBodyLabel": "label of b1"
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY registered-ground-target-item": {
+    "calls": [
+      {
+        "fn": "fetchObject",
+        "schema": "geheimhouding-grond",
+        "id": "g2"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "agenda-item",
+        "schema": "agenda-item",
+        "register": "decidiq",
+        "id": "a7",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "label of a7",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY no-registry-target-decision": {
+    "calls": [
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "prop-reg",
+        "id": "d4",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "prop-reg",
+        "id": "d3",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "label of d3",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "label of d4",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY nothing-linked": {
+    "calls": [],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY linked-then-cleared": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "geheimhouding-grond",
+        "schema": "geheimhouding-grond",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "geheimhouding-grond",
+        "id": "g9"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "governance-body",
+        "schema": "governance-body",
+        "register": "decidiq",
+        "id": "b9",
+        "field": "name"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "decidiq",
+        "id": "d9",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "agenda-item",
+        "schema": "agenda-item",
+        "register": "decidiq",
+        "id": "a9",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "decidiq",
+        "id": "d8",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "decidiq",
+        "id": "d7",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY no-id": {
+    "calls": [],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY no-record": {
+    "calls": [],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY no-store": {
+    "calls": [],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": null
+  },
+  "CONFIDENTIALITY label-fails": {
+    "calls": [
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "governance-body",
+        "schema": "governance-body",
+        "register": "decidiq",
+        "id": "boom",
+        "field": "name"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "decidiq",
+        "id": "d7",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "label of d7",
+      "ratificationAgendaItemLabel": "",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": "label lookup failed"
+  },
+  "CONFIDENTIALITY ground-fails": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "geheimhouding-grond",
+        "schema": "geheimhouding-grond",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "geheimhouding-grond",
+        "id": "g8"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "agenda-item",
+        "schema": "agenda-item",
+        "register": "decidiq",
+        "id": "a8",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "groundObj": null,
+      "targetLabel": "",
+      "ratificationDecisionLabel": "",
+      "ratificationAgendaItemLabel": "label of a8",
+      "dissolutionDecisionLabel": "",
+      "imposedByBodyLabel": ""
+    },
+    "thrown": "fetch failed"
+  },
+  "DELEGATION chain-children-parties": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "bevoegdheidstoedeling",
+        "schema": "bevoegdheidstoedeling",
+        "register": "reg"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "bevoegdheidstoedeling",
+        "id": "t2"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t3",
+          "_limit": 100
+        }
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "bevoegdheidstoedeling",
+        "id": "t1"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "governance-body",
+        "schema": "governance-body",
+        "register": "reg",
+        "id": "b1",
+        "field": "name"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "governance-body",
+        "schema": "governance-body",
+        "register": "reg",
+        "id": "b2",
+        "field": "name"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "reg",
+        "id": "d1",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "",
+      "ancestors": [
+        {
+          "id": "t1",
+          "label": "t1"
+        },
+        {
+          "id": "t2",
+          "label": "Second"
+        }
+      ],
+      "children": [
+        {
+          "id": "t4",
+          "label": "Fourth"
+        },
+        {
+          "id": "t5",
+          "label": "t5"
+        }
+      ],
+      "delegansLabel": "label of b1",
+      "delegatarisLabel": "label of b2",
+      "decisionLabel": "label of d1"
+    },
+    "thrown": null
+  },
+  "DELEGATION fetch-current-slug-retry-role": {
+    "calls": [
+      {
+        "fn": "fetchObject",
+        "schema": "bevoegdheidstoedeling",
+        "id": "t9"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "bevoegdheidstoedeling",
+        "id": "gone"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t9",
+          "_limit": 100
+        }
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "nine",
+          "_limit": 100
+        }
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "",
+      "ancestors": [
+        {
+          "id": "t9",
+          "label": "t9"
+        }
+      ],
+      "children": [
+        {
+          "id": "c1",
+          "label": "Child"
+        }
+      ],
+      "delegansLabel": "The council",
+      "delegatarisLabel": "Clerk",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION top-slug-person": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "bevoegdheidstoedeling",
+        "schema": "bevoegdheidstoedeling",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t8",
+          "_limit": 100
+        }
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "eight",
+          "_limit": 100
+        }
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "person",
+        "schema": "person",
+        "register": "decidiq",
+        "id": "p1",
+        "field": "name"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "",
+      "ancestors": [],
+      "children": [],
+      "delegansLabel": "",
+      "delegatarisLabel": "label of p1",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION no-parties-no-slug": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "bevoegdheidstoedeling",
+        "schema": "bevoegdheidstoedeling",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t7",
+          "_limit": 100
+        }
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "",
+      "ancestors": [],
+      "children": [],
+      "delegansLabel": "",
+      "delegatarisLabel": "",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION children-null": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "bevoegdheidstoedeling",
+        "schema": "bevoegdheidstoedeling",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t6",
+          "_limit": 100
+        }
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "governance-body",
+        "schema": "governance-body",
+        "register": "decidiq",
+        "id": "boom",
+        "field": "name"
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "label lookup failed",
+      "ancestors": [],
+      "children": [],
+      "delegansLabel": "",
+      "delegatarisLabel": "",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION current-missing": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "bevoegdheidstoedeling",
+        "schema": "bevoegdheidstoedeling",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "bevoegdheidstoedeling",
+        "id": "t0"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t0",
+          "_limit": 100
+        }
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "",
+      "ancestors": [],
+      "children": [
+        {
+          "id": "k1",
+          "label": "k1"
+        }
+      ],
+      "delegansLabel": "",
+      "delegatarisLabel": "",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION no-id": {
+    "calls": [],
+    "state": {
+      "loading": false,
+      "hasLoaded": false,
+      "error": "",
+      "ancestors": [],
+      "children": [],
+      "delegansLabel": "",
+      "delegatarisLabel": "",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION no-store": {
+    "calls": [],
+    "state": {
+      "loading": false,
+      "hasLoaded": false,
+      "error": "No object store available",
+      "ancestors": [],
+      "children": [],
+      "delegansLabel": "",
+      "delegatarisLabel": "",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "DELEGATION store-fails": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "bevoegdheidstoedeling",
+        "schema": "bevoegdheidstoedeling",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchObject",
+        "schema": "bevoegdheidstoedeling",
+        "id": "t4"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "bevoegdheidstoedeling",
+        "params": {
+          "parentAllocation": "t5",
+          "_limit": 100
+        }
+      }
+    ],
+    "state": {
+      "loading": false,
+      "hasLoaded": true,
+      "error": "Failed to load the ondermandaat chain.",
+      "ancestors": [],
+      "children": [],
+      "delegansLabel": "",
+      "delegatarisLabel": "",
+      "decisionLabel": ""
+    },
+    "thrown": null
+  },
+  "VERSIONS versions-with-decisions": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "reg-version",
+        "schema": "reg-version",
+        "register": "vr"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "r1",
+          "_limit": 200
+        }
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "vr",
+        "id": "d1",
+        "field": "title"
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "vr",
+        "id": "d2",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "versions": [
+        {
+          "id": "v1",
+          "decision": "d1"
+        },
+        {
+          "id": "v2",
+          "decision": "d1"
+        },
+        {
+          "id": "v3"
+        },
+        {
+          "id": "v4",
+          "decision": "d2"
+        }
+      ],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {
+        "d1": "label of d1",
+        "d2": "label of d2"
+      }
+    },
+    "thrown": null
+  },
+  "VERSIONS slug-retry": {
+    "calls": [
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "r2",
+          "_limit": 200
+        }
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "two",
+          "_limit": 200
+        }
+      }
+    ],
+    "state": {
+      "versions": [
+        {
+          "id": "v9"
+        }
+      ],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS empty-no-slug": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "reg-version",
+        "schema": "reg-version",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "r3",
+          "_limit": 200
+        }
+      }
+    ],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS slug-from-data": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "reg-version",
+        "schema": "reg-version",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "r6",
+          "_limit": 200
+        }
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "six",
+          "_limit": 200
+        }
+      }
+    ],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS no-schema": {
+    "calls": [],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS no-parent-field": {
+    "calls": [],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS no-id": {
+    "calls": [],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS no-store": {
+    "calls": [],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "No object store available",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS store-fails": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "reg-version",
+        "schema": "reg-version",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "r7",
+          "_limit": 200
+        }
+      }
+    ],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "collection failed",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  },
+  "VERSIONS label-fails": {
+    "calls": [
+      {
+        "fn": "registerObjectType",
+        "slug": "reg-version",
+        "schema": "reg-version",
+        "register": "decidiq"
+      },
+      {
+        "fn": "fetchCollection",
+        "schema": "reg-version",
+        "params": {
+          "regulation": "r8",
+          "_limit": 200
+        }
+      },
+      {
+        "fn": "resolveObjectLabel",
+        "slug": "decision",
+        "schema": "decision",
+        "register": "decidiq",
+        "id": "boom",
+        "field": "title"
+      }
+    ],
+    "state": {
+      "versions": [],
+      "loading": false,
+      "error": "label lookup failed",
+      "decisionLabels": {}
+    },
+    "thrown": null
+  }
+}

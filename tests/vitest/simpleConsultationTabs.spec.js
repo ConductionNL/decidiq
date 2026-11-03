@@ -20,13 +20,7 @@ const PAGE = 'ConsultationDetail'
 const SCHEMA = 'public-consultation'
 const STRIP = 'consult-panels'
 const VISIBLE = ['Overview', 'Reactions', 'Documents', 'Related', 'History']
-const VISIBLE_NL = [
-	'Overzicht',
-	'Reacties',
-	'Documenten',
-	'Gerelateerd',
-	'Historie',
-]
+const VISIBLE_NL = ['Overzicht', 'Reacties', 'Documenten', 'Gerelateerd', 'Historie']
 const OVERFLOW = []
 const SIDE = ['consult-side-facts']
 const FACTS_LEAD = 'status'

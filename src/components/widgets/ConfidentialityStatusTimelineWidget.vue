@@ -216,6 +216,34 @@ const IMPOSED_BY_LABELS = {
 	'executive-board': () => t('decidiq', 'Imposed by the executive board'),
 }
 
+/** Linked records the timeline labels, in lookup order. */
+const LABEL_LINKS = [
+	{
+		field: 'imposedByBody',
+		key: 'imposedByBodyLabel',
+		schema: 'governance-body',
+		labelField: 'name',
+	},
+	{
+		field: 'ratificationDecision',
+		key: 'ratificationDecisionLabel',
+		schema: 'decision',
+		labelField: 'title',
+	},
+	{
+		field: 'ratificationAgendaItem',
+		key: 'ratificationAgendaItemLabel',
+		schema: 'agenda-item',
+		labelField: 'title',
+	},
+	{
+		field: 'dissolutionDecision',
+		key: 'dissolutionDecisionLabel',
+		schema: 'decision',
+		labelField: 'title',
+	},
+]
+
 /** Target scope → { field, schema, labelField, route }. Document has no decidiq detail route (see design.md deviation note). */
 const TARGET_KINDS = {
 	document: {
@@ -444,127 +472,80 @@ export default {
 		 */
 		async resolveReferences() {
 			const store = this.getStore()
-			if (!store) return
 			const r = this.record
-			if (!r || !r.id) return
+			if (!store || !r || !r.id) return
 			this.loading = true
 			try {
-				const { register, groundSchema } = this.cfg
-				const tasks = []
-
-				if (r.ground) {
-					tasks.push(
-						(async () => {
-							if (
-								!store.objectTypeRegistry
-								|| !store.objectTypeRegistry[groundSchema]
-							) {
-								store.registerObjectType(
-									groundSchema,
-									groundSchema,
-									register,
-								)
-							}
-							this.groundObj = await store.fetchObject(
-								groundSchema,
-								r.ground,
-							)
-						})(),
-					)
-				} else {
-					this.groundObj = null
-				}
-
-				if (r.imposedByBody) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'governance-body',
-							'governance-body',
-							register,
-							r.imposedByBody,
-							'name',
-						).then((label) => {
-							this.imposedByBodyLabel = label
-						}),
-					)
-				} else {
-					this.imposedByBodyLabel = ''
-				}
-
-				if (r.ratificationDecision) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'decision',
-							'decision',
-							register,
-							r.ratificationDecision,
-							'title',
-						).then((label) => {
-							this.ratificationDecisionLabel = label
-						}),
-					)
-				} else {
-					this.ratificationDecisionLabel = ''
-				}
-
-				if (r.ratificationAgendaItem) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'agenda-item',
-							'agenda-item',
-							register,
-							r.ratificationAgendaItem,
-							'title',
-						).then((label) => {
-							this.ratificationAgendaItemLabel = label
-						}),
-					)
-				} else {
-					this.ratificationAgendaItemLabel = ''
-				}
-
-				if (r.dissolutionDecision) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'decision',
-							'decision',
-							register,
-							r.dissolutionDecision,
-							'title',
-						).then((label) => {
-							this.dissolutionDecisionLabel = label
-						}),
-					)
-				} else {
-					this.dissolutionDecisionLabel = ''
-				}
-
-				const kind = TARGET_KINDS[this.targetKind]
-				if (kind) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							kind.schema,
-							kind.schema,
-							register,
-							this.record[kind.field],
-							kind.labelField,
-						).then((label) => {
-							this.targetLabel = label
-						}),
-					)
-				} else {
-					this.targetLabel = ''
-				}
-
-				await Promise.all(tasks)
+				await Promise.all([
+					this.resolveGround(store),
+					...this.labelLinks().map((link) =>
+						this.resolveLink(store, link),
+					),
+				])
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * Fetch the ground object, registering its type first when needed.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+		 * @param {object} store The object store.
+		 * @return {Promise<void>}
+		 */
+		async resolveGround(store) {
+			const ground = this.record.ground
+			if (!ground) {
+				this.groundObj = null
+				return
+			}
+			const { register, groundSchema } = this.cfg
+			const registry = store.objectTypeRegistry || {}
+			if (!registry[groundSchema]) {
+				store.registerObjectType(groundSchema, groundSchema, register)
+			}
+			this.groundObj = await store.fetchObject(groundSchema, ground)
+		},
+
+		/**
+		 * The labelled links the timeline shows, the target last.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @return {Array<object>} Per link its field, label key, schema and label field.
+		 */
+		labelLinks() {
+			const kind = TARGET_KINDS[this.targetKind]
+			const target = kind
+				? { ...kind, key: 'targetLabel' }
+				: { field: '', key: 'targetLabel' }
+			return [...LABEL_LINKS, target]
+		},
+
+		/**
+		 * Resolve one link label, or clear it when the record does not link.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @param {object} store The object store.
+		 * @param {object} link The link: field, key, schema and label field.
+		 * @return {Promise<void>|null}
+		 */
+		resolveLink(store, link) {
+			const id = this.record[link.field]
+			if (!id) {
+				this[link.key] = ''
+				return null
+			}
+			return resolveObjectLabel(
+				store,
+				link.schema,
+				link.schema,
+				this.cfg.register,
+				id,
+				link.labelField,
+			).then((label) => {
+				this[link.key] = label
+			})
 		},
 
 		/**

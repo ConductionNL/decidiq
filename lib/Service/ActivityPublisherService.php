@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Activity\GovernanceSetting;
 use OCA\Decidiq\AppInfo\Application;
+use OCP\Activity\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -80,70 +81,111 @@ class ActivityPublisherService {
 		string $segment,
 		array $affectedUserIds = [],
 	): int {
+		return $this->publish(
+			entry: [
+				'subject' => $subject,
+				'parameters' => ['title' => $title, 'status' => $status, 'uuid' => $objectUuid, 'segment' => $segment],
+				'objectType' => $objectType,
+				'objectUuid' => $objectUuid,
+			],
+			affectedUserIds: $affectedUserIds
+		);
+
+	}//end publishGovernanceEvent()
+
+	/**
+	 * Publish one entry to its audience: the affected users plus the acting
+	 * session user, each once.
+	 *
+	 * @param array{subject: string, parameters: array<string, string>, objectType: string, objectUuid: string} $entry The entry
+	 * @param array<mixed> $affectedUserIds Nextcloud UIDs the entry is addressed to
+	 *
+	 * @return int The number of activity entries published
+	 */
+	private function publish(array $entry, array $affectedUserIds): int {
 		try {
-			$activityManager = $this->container->get(\OCP\Activity\IManager::class);
+			$activityManager = $this->container->get(IManager::class);
 
-			$author = $this->resolveSessionUserId();
-			$users = $affectedUserIds;
-			if ($author !== null) {
-				$users[] = $author;
-			}
-
-			$users = array_values(array_unique(array_filter($users, static fn ($uid) => is_string($uid) === true && $uid !== '')));
+			$entry['author'] = $this->resolveSessionUserId();
+			$users = self::audience(affectedUserIds: $affectedUserIds, author: $entry['author']);
 			if ($users === []) {
 				$this->logger->debug(
 					'Decidiq: activity event has no resolvable audience, skipped',
-					['subject' => $subject, 'objectUuid' => $objectUuid]
+					['subject' => $entry['subject'], 'objectUuid' => $entry['objectUuid']]
 				);
 				return 0;
 			}
 
 			$published = 0;
 			foreach ($users as $uid) {
-				try {
-					$event = $activityManager->generateEvent();
-					$event->setApp(Application::APP_ID)
-						->setType(GovernanceSetting::TYPE_GOVERNANCE)
-						->setAffectedUser($uid)
-						->setTimestamp(time())
-						->setSubject(
-							$subject,
-							[
-								'title' => $title,
-								'status' => $status,
-								'uuid' => $objectUuid,
-								'segment' => $segment,
-							]
-						)
-						// IEvent::setObject() requires an int id; OR uuids are
-						// strings, so the uuid travels in the subject parameters
-						// and crc32 provides a stable numeric grouping key.
-						->setObject($objectType, (int)sprintf('%u', crc32($objectUuid)));
-
-					if ($author !== null) {
-						$event->setAuthor($author);
-					}
-
-					$activityManager->publish($event);
-					$published++;
-				} catch (\Throwable $e) {
-					$this->logger->debug(
-						'Decidiq: failed to publish activity entry for user',
-						['uid' => $uid, 'subject' => $subject, 'error' => $e->getMessage()]
-					);
-				}//end try
-			}//end foreach
+				$published += $this->publishTo(manager: $activityManager, entry: $entry + ['uid' => $uid]);
+			}
 
 			return $published;
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: activity publication skipped',
-				['subject' => $subject, 'objectUuid' => $objectUuid, 'error' => $e->getMessage()]
+				['subject' => $entry['subject'], 'objectUuid' => $entry['objectUuid'], 'error' => $e->getMessage()]
 			);
 			return 0;
 		}//end try
 
-	}//end publishGovernanceEvent()
+	}//end publish()
+
+	/**
+	 * The distinct non-empty UIDs of the affected users and the author.
+	 *
+	 * @param array<mixed> $affectedUserIds The affected users
+	 * @param string|null  $author          The acting session user
+	 *
+	 * @return list<string>
+	 */
+	private static function audience(array $affectedUserIds, ?string $author): array {
+		$users = $affectedUserIds;
+		if ($author !== null) {
+			$users[] = $author;
+		}
+
+		return array_values(array_unique(array_filter($users, static fn ($uid) => is_string($uid) === true && $uid !== '')));
+
+	}//end audience()
+
+	/**
+	 * Publish the entry to one user; a failure is logged and counts as none.
+	 *
+	 * @param IManager $manager The Activity manager
+	 * @param array<string, mixed> $entry The entry, its author and its user
+	 *
+	 * @return int 1 when published, 0 when it failed
+	 */
+	private function publishTo(IManager $manager, array $entry): int {
+		try {
+			$event = $manager->generateEvent();
+			$event->setApp(Application::APP_ID)
+				->setType(GovernanceSetting::TYPE_GOVERNANCE)
+				->setAffectedUser($entry['uid'])
+				->setTimestamp(time())
+				->setSubject($entry['subject'], $entry['parameters'])
+				// IEvent::setObject() requires an int id; OR uuids are
+				// strings, so the uuid travels in the subject parameters
+				// and crc32 provides a stable numeric grouping key.
+				->setObject($entry['objectType'], (int)sprintf('%u', crc32($entry['objectUuid'])));
+
+			if ($entry['author'] !== null) {
+				$event->setAuthor($entry['author']);
+			}
+
+			$manager->publish($event);
+			return 1;
+		} catch (\Throwable $e) {
+			$this->logger->debug(
+				'Decidiq: failed to publish activity entry for user',
+				['uid' => $entry['uid'], 'subject' => $entry['subject'], 'error' => $e->getMessage()]
+			);
+			return 0;
+		}//end try
+
+	}//end publishTo()
 
 	/**
 	 * Resolve the Nextcloud UIDs of all members of the governing body that

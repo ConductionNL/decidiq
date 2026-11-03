@@ -109,7 +109,8 @@ test('Admin settings: organisation mode saves, reaches the SPA and relabels the 
 	// gov to assoc is invisible in the nav. `corp` maps Organisation to
 	// 'Board', so it still proves the round trip.
 	const saved = page.waitForResponse(
-		(response) => response.url().includes('/apps/decidiq/api/settings')
+		(response) =>
+			response.url().includes('/apps/decidiq/api/settings')
 			&& response.request().method() === 'POST',
 	)
 	await section.getByTestId('cn-radio-cards-option-corp').click()

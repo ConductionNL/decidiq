@@ -74,10 +74,15 @@ describe('createLazyMountPair', () => {
 		expect(vue.apps[0].mount).toHaveBeenCalledWith(el)
 	})
 
-	it('loads decidiq\'s translations before it mounts, so a host page reads the leaf in Dutch', async () => {
+	it("loads decidiq's translations before it mounts, so a host page reads the leaf in Dutch", async () => {
 		const vue = fakeVue()
 		const l10n = deferred()
-		const { mount } = createLazyMountPair(() => Promise.resolve({ name: 'Widget' }), 'test', () => Promise.resolve(vue), () => l10n.promise)
+		const { mount } = createLazyMountPair(
+			() => Promise.resolve({ name: 'Widget' }),
+			'test',
+			() => Promise.resolve(vue),
+			() => l10n.promise,
+		)
 		const done = mount({}, { surface: 'detail-page' })
 		await new Promise((resolve) => setTimeout(resolve, 0))
 		expect(vue.apps).toHaveLength(0)
@@ -88,7 +93,12 @@ describe('createLazyMountPair', () => {
 
 	it('mounts in English when the translations do not load', async () => {
 		const vue = fakeVue()
-		const { mount } = createLazyMountPair(() => Promise.resolve({ name: 'Widget' }), 'test', () => Promise.resolve(vue), () => Promise.reject(new Error('404')))
+		const { mount } = createLazyMountPair(
+			() => Promise.resolve({ name: 'Widget' }),
+			'test',
+			() => Promise.resolve(vue),
+			() => Promise.reject(new Error('404')),
+		)
 		await mount({}, { surface: 'detail-page' })
 		expect(vue.apps).toHaveLength(1)
 	})
@@ -225,13 +235,28 @@ describe('the init-script leaves stay free of static Vue imports', () => {
 })
 
 describe('loadTranslationScript', () => {
-	it('adds the app\'s l10n script for the user\'s language and settles when it ran', async () => {
+	it("adds the app's l10n script for the user's language and settles when it ran", async () => {
 		vi.resetModules()
-		vi.doMock('@nextcloud/l10n', () => ({ getLanguage: () => 'nl', translate: (_a, s) => s }))
-		vi.doMock('@nextcloud/router', () => ({ generateFilePath: (app, type, file) => `/custom_apps/${app}/${type}/${file}` }))
-		const { loadTranslationScript } = await import('../../src/integrations/createLazyMountPair.js')
+		vi.doMock('@nextcloud/l10n', () => ({
+			getLanguage: () => 'nl',
+			translate: (_a, s) => s,
+		}))
+		vi.doMock('@nextcloud/router', () => ({
+			generateFilePath: (app, type, file) =>
+				`/custom_apps/${app}/${type}/${file}`,
+		}))
+		const { loadTranslationScript } =
+			await import('../../src/integrations/createLazyMountPair.js')
 		const added = []
-		const doc = { createElement: () => ({}), head: { appendChild: (el) => { added.push(el); el.onload() } } }
+		const doc = {
+			createElement: () => ({}),
+			head: {
+				appendChild: (el) => {
+					added.push(el)
+					el.onload()
+				},
+			},
+		}
 		await loadTranslationScript('decidiq', doc)
 		expect(added).toHaveLength(1)
 		expect(added[0].src).toBe('/custom_apps/decidiq/l10n/nl.js')
@@ -241,11 +266,18 @@ describe('loadTranslationScript', () => {
 
 	it('adds nothing for English or when the app registered its translations already', async () => {
 		vi.resetModules()
-		vi.doMock('@nextcloud/l10n', () => ({ getLanguage: () => 'nl', translate: (_a, s) => s }))
-		const { loadTranslationScript } = await import('../../src/integrations/createLazyMountPair.js')
+		vi.doMock('@nextcloud/l10n', () => ({
+			getLanguage: () => 'nl',
+			translate: (_a, s) => s,
+		}))
+		const { loadTranslationScript } =
+			await import('../../src/integrations/createLazyMountPair.js')
 		globalThis._oc_l10n_registry_translations = { decidiq: {} }
 		const added = []
-		const doc = { createElement: () => ({}), head: { appendChild: (el) => added.push(el) } }
+		const doc = {
+			createElement: () => ({}),
+			head: { appendChild: (el) => added.push(el) },
+		}
 		await loadTranslationScript('decidiq', doc)
 		expect(added).toHaveLength(0)
 		delete globalThis._oc_l10n_registry_translations
