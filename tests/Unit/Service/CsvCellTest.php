@@ -28,8 +28,8 @@ use OCA\Decidiq\Service\CsvCell;
 use PHPUnit\Framework\TestCase;
 
 /**
- * The CSV cell rule: inert for spreadsheets, quoted when a comma- or
- * semicolon-separated reader would split it.
+ * The CSV cell rule: inert for spreadsheets, also where a semicolon-separated
+ * reader starts a cell, and quoted when a reader would split it.
  *
  * @covers \OCA\Decidiq\Service\CsvCell
  */
@@ -58,6 +58,7 @@ class CsvCellTest extends TestCase {
 		self::assertSame('"o-1|o-2"', (new CsvCell())->quote(cell: 'o-1|o-2'));
 		self::assertSame('""', (new CsvCell())->quote(cell: ''));
 		self::assertSame("\"'=1+1;x\"", (new CsvCell())->quote(cell: '=1+1;x'));
+		self::assertSame("\"o-1;'=2\"", (new CsvCell())->quote(cell: 'o-1;=2'));
 		self::assertSame('"say ""hi"""', (new CsvCell())->quote(cell: 'say "hi"'));
 	}//end testQuote()
 
@@ -74,7 +75,12 @@ class CsvCellTest extends TestCase {
 			'leading space'         => [' plain', ' plain'],
 			'comma'                 => ['a,b', '"a,b"'],
 			'semicolon'             => ['a;b', '"a;b"'],
-			'semicolon formula'     => ['x;=1+1;', '"x;=1+1;"'],
+			'semicolon formula'     => ['x;=1+1;', "\"x;'=1+1;\""],
+			'semicolon then space'  => ['x; -1', "\"x;' -1\""],
+			'semicolon then quote'  => ['x;"=1"', "\"x;'\"\"=1\"\"\""],
+			'two semicolons'        => ['a;@b;+c;d', "\"a;'@b;'+c;d\""],
+			'semicolon then text'   => ['a; b', '"a; b"'],
+			'leading and semicolon' => ['=a;=b', "\"'=a;'=b\""],
 			'quote'                 => ['say "hi"', '"say ""hi"""'],
 			'line feed'             => ["a\nb", "\"a\nb\""],
 			'lone carriage return'  => ["a\rb", "\"a\rb\""],

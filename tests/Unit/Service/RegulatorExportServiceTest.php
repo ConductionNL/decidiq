@@ -279,7 +279,7 @@ class RegulatorExportServiceTest extends TestCase {
 
 		$lines = explode("\n", $svc->generate('b-1', 'resolutions', 'csv', 'alice')['body']);
 
-		$this->assertSame("r-1,m-1,,\"'=HYPERLINK(\"\"https://evil.example\"\")\",\"a\rb\",\"x;=1+1\",,", $lines[1]);
+		$this->assertSame("r-1,m-1,,\"'=HYPERLINK(\"\"https://evil.example\"\")\",\"a\rb\",\"x;'=1+1\",,", $lines[1]);
 
 	}//end testGenerateCsvKeepsHostileCellsInert()
 

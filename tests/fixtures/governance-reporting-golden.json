@@ -696,7 +696,7 @@
     "export-csv-hostile": {
         "returns": {
             "success": true,
-            "body": "key,value\nboardKoppeling,\"'=HYPERLINK(\"\"https://evil.example\"\");b,1\"\nyear,\"2026\r\"\nmeetingCount,\"x;=1+1;\"\nresolutionCount,' =2+2\nmemberCount,\"'\n@SUM(A1)\"\nindependenceRatio,0.5\nattendanceRate,'-1\nconflictCount,\"a\nb\"",
+            "body": "key,value\nboardKoppeling,\"'=HYPERLINK(\"\"https://evil.example\"\");b,1\"\nyear,\"2026\r\"\nmeetingCount,\"x;'=1+1;\"\nresolutionCount,' =2+2\nmemberCount,\"'\n@SUM(A1)\"\nindependenceRatio,0.5\nattendanceRate,'-1\nconflictCount,\"a\nb\"",
             "contentType": "text/csv",
             "message": "Report exported."
         },
