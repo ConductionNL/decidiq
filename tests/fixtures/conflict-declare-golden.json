@@ -242,6 +242,139 @@
             }
         ]
     },
+    "chair-for-bert": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-bert",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "chair"
+            },
+            {
+                "authorize": [
+                    "M-bert",
+                    "ai-1",
+                    "chair"
+                ]
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-bert",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-bert",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-bert",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
+    "admin-for-bert": {
+        "returns": {
+            "status": 201,
+            "data": {
+                "id": "coi-1",
+                "boardMember": "M-bert",
+                "agendaItem": "ai-1",
+                "declarationType": "financial-interest",
+                "description": "Aandelen",
+                "severity": "material",
+                "actionTaken": "no-action-needed",
+                "declarationTimestamp": "<utc>"
+            }
+        },
+        "calls": [
+            {
+                "isAdmin": "admin"
+            },
+            {
+                "save": {
+                    "object": {
+                        "boardMember": "M-bert",
+                        "agendaItem": "ai-1",
+                        "declarationType": "financial-interest",
+                        "description": "Aandelen",
+                        "severity": "material",
+                        "actionTaken": "no-action-needed",
+                        "declarationTimestamp": "<utc>"
+                    },
+                    "register": "decidiq",
+                    "schema": "conflict-of-interest",
+                    "uuid": null,
+                    "_rbac": false
+                }
+            },
+            {
+                "audit": {
+                    "actor": "M-bert",
+                    "action": "conflict-declaration",
+                    "objectUids": [
+                        "coi-1",
+                        "ai-1"
+                    ],
+                    "payload": {
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: conflict-of-interest declared",
+                    {
+                        "membershipId": "M-bert",
+                        "agendaItemId": "ai-1",
+                        "type": "financial-interest",
+                        "severity": "material"
+                    }
+                ]
+            }
+        ]
+    },
     "signed-out": {
         "returns": {
             "status": 401,
