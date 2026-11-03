@@ -72,6 +72,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\MandateDirectory
  * @uses   \OCA\Decidiq\Service\RegisterObjectStore
  * @uses   \OCA\Decidiq\Service\StageLapsePolicy
+ * @uses   \OCA\Decidiq\Service\HeldRouteRequest
  * @uses   \OCA\Decidiq\Event\ApprovalRouteRequestedEvent
  */
 class ApprovalHoldGoldenTest extends TestCase {
