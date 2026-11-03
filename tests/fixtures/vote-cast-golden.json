@@ -1379,6 +1379,311 @@
             }
         ]
     },
+    "proxy-for-non-member": {
+        "returns": {
+            "@self": {
+                "slug": "vote-round-op-p-1-proxy-p-9"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": true,
+            "castAt": "<atom>",
+            "castAs": "remote",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "id": "round-open"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-1"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-9",
+                    "type": "delegator"
+                }
+            ],
+            "saved": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "round-open",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "find": {
+                    "id": "mot-1",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "participants": "meet-1"
+            },
+            {
+                "find": {
+                    "id": "mot-1",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "participants": "meet-1"
+            },
+            {
+                "recusal": [
+                    "round-open",
+                    "p-9"
+                ]
+            },
+            {
+                "findAll": {
+                    "schema": "vote",
+                    "config": {
+                        "filters": {
+                            "_relations.relations": "round-open",
+                            "isProxy": true
+                        }
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "vote",
+                    "config": {
+                        "filters": {
+                            "_relations.relations": "round-open"
+                        }
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "p-1",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "object": {
+                        "@self": {
+                            "slug": "vote-round-op-p-1-proxy-p-9"
+                        },
+                        "value": "for",
+                        "weight": 1,
+                        "isProxy": true,
+                        "castAt": "<atom>",
+                        "castAs": "remote",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "voting-round",
+                                "id": "round-open"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-1"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-9",
+                                "type": "delegator"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "proxy-for-non-voting-role": {
+        "returns": {
+            "@self": {
+                "slug": "vote-round-op-p-1-proxy-p-guest"
+            },
+            "value": "for",
+            "weight": 1,
+            "isProxy": true,
+            "castAt": "<atom>",
+            "castAs": "remote",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "id": "round-open"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-1"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-guest",
+                    "type": "delegator"
+                }
+            ],
+            "saved": true
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "round-open",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "find": {
+                    "id": "mot-1",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "participants": "meet-1"
+            },
+            {
+                "find": {
+                    "id": "mot-1",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "participants": "meet-1"
+            },
+            {
+                "recusal": [
+                    "round-open",
+                    "p-guest"
+                ]
+            },
+            {
+                "findAll": {
+                    "schema": "vote",
+                    "config": {
+                        "filters": {
+                            "_relations.relations": "round-open",
+                            "isProxy": true
+                        }
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "vote",
+                    "config": {
+                        "filters": {
+                            "_relations.relations": "round-open"
+                        }
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "p-1",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "vote",
+                    "object": {
+                        "@self": {
+                            "slug": "vote-round-op-p-1-proxy-p-guest"
+                        },
+                        "value": "for",
+                        "weight": 1,
+                        "isProxy": true,
+                        "castAt": "<atom>",
+                        "castAs": "remote",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "voting-round",
+                                "id": "round-open"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-1"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-guest",
+                                "type": "delegator"
+                            }
+                        ]
+                    }
+                }
+            }
+        ]
+    },
+    "proxy-by-non-member": {
+        "throws": "RuntimeException",
+        "message": "Deelnemer is geen lid van de vergadering",
+        "calls": [
+            {
+                "find": {
+                    "id": "round-open",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "find": {
+                    "id": "mot-1",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "participants": "meet-1"
+            }
+        ]
+    },
     "proxy-without-delegator": {
         "returns": {
             "@self": {

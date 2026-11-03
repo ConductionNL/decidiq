@@ -154,6 +154,9 @@ class VoteCastGoldenTest extends TestCase {
 			'proxy-absence-no-user'        => ['args' => ['delegatorId' => 'p-5', 'callerUid' => null] + $proxy],
 			'proxy-already-registered'     => ['args' => ['delegatorId' => 'p-4'] + $proxy],
 			'proxy-recused-delegator'      => ['args' => ['delegatorId' => 'p-recused'] + $proxy],
+			'proxy-for-non-member'         => ['args' => ['delegatorId' => 'p-9'] + $proxy],
+			'proxy-for-non-voting-role'    => ['args' => ['delegatorId' => 'p-guest'] + $proxy],
+			'proxy-by-non-member'          => ['args' => ['participantId' => 'p-9', 'delegatorId' => 'p-1'] + $proxy],
 			'proxy-without-delegator'      => ['args' => ['delegatorId' => null] + $proxy],
 			'delegator-without-proxy'      => ['args' => ['delegatorId' => 'p-2'] + $plain],
 			'secret-plain'                 => ['args' => ['votingRoundId' => 'round-secret'] + $plain],
@@ -202,6 +205,9 @@ class VoteCastGoldenTest extends TestCase {
 			['title' => 'Proxy', 'body' => json_encode(['fromParticipantId' => 'p-4', 'toParticipantId' => 'p-1'])],
 			['title' => 'Proxy', 'body' => json_encode(['fromParticipantId' => 'p-recused', 'toParticipantId' => 'p-1'])],
 			['title' => 'Note', 'body' => json_encode(['fromParticipantId' => 'p-5', 'toParticipantId' => 'p-1'])],
+			['title' => 'Proxy', 'body' => json_encode(['fromParticipantId' => 'p-9', 'toParticipantId' => 'p-1'])],
+			['title' => 'Proxy', 'body' => json_encode(['fromParticipantId' => 'p-guest', 'toParticipantId' => 'p-1'])],
+			['title' => 'Proxy', 'body' => json_encode(['fromParticipantId' => 'p-1', 'toParticipantId' => 'p-9'])],
 		];
 		$open = ['openedAt' => '2026-06-12T10:00:00+00:00', 'closedAt' => null, 'relations' => $motion, 'notes' => $grants];
 		$options = [['key' => 'a', 'label' => 'A'], ['key' => 'b', 'label' => 'B'], ['key' => 'c', 'label' => 'C']];
