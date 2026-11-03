@@ -61,6 +61,12 @@ describe('leafSummary', () => {
 		).toEqual({ count: 1, noun: 'things', rows, actions: [] })
 	})
 
+	it('reports no rows when the leaf gives a count but no rows', () => {
+		expect(
+			leafSummary({ loading: false, error: '', count: 2, noun: 'things' }),
+		).toEqual({ count: 2, noun: 'things', rows: [], actions: [] })
+	})
+
 	it('drops rows at zero and reports nothing while loading or after a failed read', () => {
 		expect(
 			leafSummary({
