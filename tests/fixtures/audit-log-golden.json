@@ -316,7 +316,7 @@
         "returns": {
             "success": true,
             "format": "json",
-            "body": "{\"entries\":[{\"id\":\"e-2\",\"actorUuid\":\"bob\",\"action\":\"signature\",\"objectUids\":[\"o-3\"],\"timestamp\":\"2026-01-15T11:30:00Z\",\"payload\":{\"link\":\"https://x/y\"},\"currentHash\":\"\",\"previousHash\":\"\"},{\"id\":\"3\",\"actorUuid\":\"\",\"action\":\"vote\",\"objectUids\":[],\"timestamp\":\"2026-01-31T23:00:00Z\",\"payload\":[],\"currentHash\":\"\",\"previousHash\":\"\"},{\"id\":\"e-5\",\"actorUuid\":\"anna\",\"action\":\"notice-sent\",\"objectUids\":[\"o-5\"],\"timestamp\":\"2026-03-01T22:59:59Z\",\"payload\":[],\"currentHash\":\"\",\"previousHash\":\"\"}]}",
+            "body": "{\"entries\":[{\"id\":\"e-2\",\"actorUuid\":\"bob, jr\",\"action\":\"signature\",\"objectUids\":[\"o-3\"],\"timestamp\":\"2026-01-15T11:30:00Z\",\"payload\":{\"link\":\"https://x/y\"},\"currentHash\":\"\",\"previousHash\":\"\"},{\"id\":\"3\",\"actorUuid\":\"\",\"action\":\"vote\",\"objectUids\":[],\"timestamp\":\"2026-01-31T23:00:00Z\",\"payload\":[],\"currentHash\":\"\",\"previousHash\":\"\"},{\"id\":\"e-\\\"5\\\"\",\"actorUuid\":\"anna\",\"action\":\"notice-sent\",\"objectUids\":[\"o-5\"],\"timestamp\":\"2026-03-01T22:59:59Z\",\"payload\":[],\"currentHash\":\"\",\"previousHash\":\"\"}]}",
             "count": 3
         },
         "calls": [
@@ -338,8 +338,30 @@
         "returns": {
             "success": true,
             "format": "csv",
-            "body": "id,timestamp,actor,action,objectUids,previousHash,currentHash\ne-2,2026-01-15T11:30:00Z,bob,signature,\"o-3\",,\n3,2026-01-31T23:00:00Z,,vote,\"\",,\ne-5,2026-03-01T22:59:59Z,anna,notice-sent,\"o-5\",,",
-            "count": 3
+            "body": "id,timestamp,actor,action,objectUids,previousHash,currentHash\ne-2,2026-01-15T11:30:00Z,bob, jr,signature,\"o-3\",,\n3,2026-01-31T23:00:00Z,,vote,\"\",,\ne-\"5\",2026-03-01T22:59:59Z,anna,notice-sent,\"o-5\",,\n=HYPERLINK(\"https://evil.example\",\"open\"),2026-03-02T07:00:00Z,dora, \"the\"\r\nchair,vote,\"+o-3|o-1,o-2|say \"hi\"\",-h5,@h6\n\re-7,2026-03-03T08:15:00Z,\tsum\nline,signature,\"=1+1|o-4\nnext\",@h6,h7",
+            "count": 5
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "export-csv-hashed": {
+        "returns": {
+            "success": true,
+            "format": "csv",
+            "body": "id,timestamp,actor,action,objectUids,previousHash,currentHash\ne-1,2025-12-31T23:00:00Z,anna,vote,\"o-2|o-1\",h0,h1\ne-2,2026-01-15T11:30:00Z,bob, jr,signature,\"o-3\",,\n3,2026-01-31T23:00:00Z,,vote,\"\",,\ne-\"5\",2026-03-01T22:59:59Z,anna,notice-sent,\"o-5\",,\n=HYPERLINK(\"https://evil.example\",\"open\"),2026-03-02T07:00:00Z,dora, \"the\"\r\nchair,vote,\"+o-3|o-1,o-2|say \"hi\"\",-h5,@h6\n\re-7,2026-03-03T08:15:00Z,\tsum\nline,signature,\"=1+1|o-4\nnext\",@h6,h7",
+            "count": 6
         },
         "calls": [
             {
@@ -437,7 +459,7 @@
                 },
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -475,7 +497,7 @@
                     "previousHash": ""
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -485,9 +507,38 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
                 }
             ],
-            "count": 5
+            "count": 7
         },
         "calls": [
             {
@@ -525,7 +576,7 @@
                     "previousHash": "h0"
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -583,9 +634,25 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
                 }
             ],
-            "count": 2
+            "count": 3
         },
         "calls": [
             {
@@ -629,7 +696,7 @@
             "entries": [
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -728,7 +795,7 @@
                 },
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -766,7 +833,7 @@
                     "previousHash": ""
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -776,6 +843,35 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
                 },
                 {
                     "id": "e-1",
@@ -795,7 +891,7 @@
                 },
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -833,7 +929,7 @@
                     "previousHash": ""
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -843,6 +939,35 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
                 },
                 {
                     "id": "e-1",
@@ -862,7 +987,7 @@
                 },
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -900,7 +1025,7 @@
                     "previousHash": ""
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -910,9 +1035,38 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
                 }
             ],
-            "count": 15
+            "count": 21
         },
         "calls": [
             {
@@ -988,7 +1142,7 @@
             "entries": [
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -1024,7 +1178,7 @@
             "entries": [
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -1047,7 +1201,7 @@
                     "previousHash": ""
                 }
             ],
-            "count": 5
+            "count": 7
         },
         "calls": [
             {
@@ -1084,7 +1238,7 @@
                     "previousHash": ""
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -1094,9 +1248,38 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
                 }
             ],
-            "count": 5
+            "count": 7
         },
         "calls": [
             {
@@ -1135,7 +1318,7 @@
                 },
                 {
                     "id": "e-2",
-                    "actorUuid": "bob",
+                    "actorUuid": "bob, jr",
                     "action": "signature",
                     "objectUids": [
                         "o-3"
@@ -1173,7 +1356,7 @@
                     "previousHash": ""
                 },
                 {
-                    "id": "e-5",
+                    "id": "e-\"5\"",
                     "actorUuid": "anna",
                     "action": "notice-sent",
                     "objectUids": [
@@ -1183,9 +1366,38 @@
                     "payload": [],
                     "currentHash": "",
                     "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
                 }
             ],
-            "count": 5
+            "count": 7
         },
         "calls": [
             {

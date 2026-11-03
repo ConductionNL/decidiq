@@ -120,10 +120,12 @@ class AuditLogGoldenTest extends TestCase {
 	private function rows(): array {
 		return [
 			['id' => 1, 'uuid' => 'e-1', 'action' => 'decidiq.audit.vote', 'changed' => ['actorUuid' => 'anna', 'objectUids' => ['o-2', 'o-1'], 'payload' => ['choice' => 'for', 'url' => 'https://x/y']], 'created' => '2026-01-01 00:00:00', 'hash' => 'h1', 'previousHash' => 'h0', 'user' => 'nc-anna'],
-			['id' => 2, 'uuid' => 'e-2', 'action' => 'decidiq.audit.signature', 'changed' => ['objectUids' => [], 'payload' => ['link' => 'https://x/y']], 'objectUuid' => 'o-3', 'created' => '2026-01-15 12:30:00', 'user' => 'bob'],
+			['id' => 2, 'uuid' => 'e-2', 'action' => 'decidiq.audit.signature', 'changed' => ['objectUids' => [], 'payload' => ['link' => 'https://x/y']], 'objectUuid' => 'o-3', 'created' => '2026-01-15 12:30:00', 'user' => 'bob, jr'],
 			['id' => 3, 'uuid' => null, 'action' => 'decidiq.audit.vote', 'changed' => null, 'objectUuid' => null, 'created' => '2026-02-01 00:00:00', 'hash' => null],
 			['id' => 4, 'uuid' => 'e-4', 'action' => 'other.action', 'changed' => ['actorUuid' => 'carl', 'objectUids' => [7, 'o-1'], 'payload' => 'not a list'], 'created' => null],
-			['id' => 5, 'uuid' => 'e-5', 'action' => 'decidiq.audit.notice-sent', 'changed' => ['actorUuid' => 'anna', 'objectUids' => 'o-9'], 'objectUuid' => 'o-5', 'created' => '2026-03-01 23:59:59'],
+			['id' => 5, 'uuid' => 'e-"5"', 'action' => 'decidiq.audit.notice-sent', 'changed' => ['actorUuid' => 'anna', 'objectUids' => 'o-9'], 'objectUuid' => 'o-5', 'created' => '2026-03-01 23:59:59'],
+			['id' => 6, 'uuid' => '=HYPERLINK("https://evil.example","open")', 'action' => 'decidiq.audit.vote', 'changed' => ['actorUuid' => "dora, \"the\"\r\nchair", 'objectUids' => ['+o-3', 'o-1,o-2', 'say "hi"'], 'payload' => ['choice' => 'against']], 'created' => '2026-03-02 08:00:00', 'hash' => '@h6', 'previousHash' => '-h5', 'user' => 'nc-dora'],
+			['id' => 7, 'uuid' => "\re-7", 'action' => 'decidiq.audit.signature', 'changed' => ['actorUuid' => "\tsum\nline", 'objectUids' => ["=1+1", "o-4\nnext"]], 'created' => '2026-03-03 09:15:00', 'hash' => 'h7', 'previousHash' => '@h6', 'user' => 'nc-erik'],
 		];
 	}//end rows()
 
@@ -148,6 +150,7 @@ class AuditLogGoldenTest extends TestCase {
 			'verify-throws'           => ['call' => ['verify'], 'verifyChain' => 'throw'],
 			'export-json'             => ['call' => ['export', '2026-01-15T11:30:00Z', '2026-03-01T22:59:59Z']],
 			'export-csv-upper'        => ['call' => ['export', '2026-01-01T00:00:01Z', '2026-12-31T00:00:00Z', 'CSV']],
+			'export-csv-hashed'       => ['call' => ['export', '2025-12-31T23:00:00Z', '2026-12-31T00:00:00Z', 'csv']],
 			'export-unknown-format'   => ['call' => ['export', '2026-01-01T00:00:00Z', '2026-12-31T00:00:00Z', 'xml']],
 			'export-load-throws'      => ['call' => ['export', '2026-01-01T00:00:00Z', '2026-12-31T00:00:00Z', 'csv'], 'findAll' => 'throw'],
 			'export-none'             => ['call' => ['export', '2027-01-01T00:00:00Z', '2027-12-31T00:00:00Z']],
