@@ -60,6 +60,7 @@ use Stringable;
  *
  * @covers \OCA\Decidiq\Service\DecisionLifecycleService
  * @uses   \OCA\Decidiq\Service\DecisionContextResolver
+ * @uses   \OCA\Decidiq\Service\DecisionTransitionRun
  * @uses   \OCA\Decidiq\Lifecycle\DecisionTransitionGuard
  * @uses   \OCA\Decidiq\Event\DecisionConcludedEvent
  */
