@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Vaihe {step}/{total}",
         "Still to do: stage {seq} ({maker})": "Vielä tekemättä: vaihe {seq} ({maker})",
         "Stop": "Pysäytä",
-        "Store": "Tallenna",
         "Subject description": "Aiheen kuvaus",
         "Submission phase": "Toimitusvaihe",
         "Submission window (hours)": "Toimitusikkuna (tuntia)",

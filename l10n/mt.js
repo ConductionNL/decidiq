@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Pass {step} minn {total}",
         "Still to do: stage {seq} ({maker})": "Għad irid isir: stadju {seq} ({maker})",
         "Stop": "Waqqaf",
-        "Store": "Aħżen",
         "Subject description": "Deskrizzjoni tas-suġġett",
         "Submission phase": "Fażi tas-sottomissjoni",
         "Submission window (hours)": "Perjodu tas-sottomissjoni (sigħat)",

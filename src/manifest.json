@@ -171,7 +171,7 @@
 		},
 		{
 			"id": "StoreMenu",
-			"label": "Store",
+			"label": "Marketplace",
 			"icon": "StoreOutline",
 			"route": "Store",
 			"section": "footer",
@@ -2432,10 +2432,10 @@
 			"id": "Store",
 			"route": "/store",
 			"type": "store",
-			"title": "Store",
+			"title": "Marketplace",
 			"config": {
 				"app": "decidiq",
-				"title": "Store",
+				"title": "Marketplace",
 				"description": "Install governance configuration that other organisations have published: a council with its committees and factions, an association with its members' meeting, or the flows that move a decision through them."
 			}
 		},

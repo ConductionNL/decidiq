@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Hapi {step} nga {total}",
         "Still to do: stage {seq} ({maker})": "Ende për t'u bërë: faza {seq} ({maker})",
         "Stop": "Ndalo",
-        "Store": "Ruaj",
         "Subject description": "Përshkrimi i subjektit",
         "Submission phase": "Faza e dorëzimit",
         "Submission window (hours)": "Dritarja e dorëzimit (orë)",

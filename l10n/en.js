@@ -2105,7 +2105,7 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Still to do: stage {seq} ({maker})",
         "Stop": "Stop",
         "Stop {name}": "Stop {name}",
-        "Store": "Store",
+        "Marketplace": "Marketplace",
         "Sub-item title": "Sub-item title",
         "Sub-item: {title}": "Sub-item: {title}",
         "Sub-items of {title}": "Sub-items of {title}",

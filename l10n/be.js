@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Яшчэ трэба: этап {seq} ({maker})",
         "Stop": "Спыніць",
         "Stop {name}": "Спыніць {name}",
-        "Store": "Захаваць",
         "Sub-item title": "Назва падпункта",
         "Sub-item: {title}": "Падпункт: {title}",
         "Sub-items of {title}": "Падпункты {title}",

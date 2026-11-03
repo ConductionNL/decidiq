@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Zbývá: fáze {seq} ({maker})",
         "Stop": "Zastavit",
         "Stop {name}": "Zastavit {name}",
-        "Store": "Uložit",
         "Sub-item title": "Název podbodu",
         "Sub-item: {title}": "Podbod: {title}",
         "Sub-items of {title}": "Podbody {title}",
