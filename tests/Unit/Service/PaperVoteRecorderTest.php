@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\PaperVoteRecorder;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteCastingService;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -55,21 +56,14 @@ class PaperVoteRecorderTest extends TestCase {
 		$cast = [];
 		$caster = $this->createMock(originalClassName: VoteCastingService::class);
 		$caster->method('castVote')->willReturnCallback(
-			function (
-				string $votingRoundId,
-				string $participantId,
-				string $value,
-				bool $isProxy,
-				?string $delegatorId,
-				?string $callerUid=null
-			) use (&$cast): array {
-				if ($participantId === 'p-recused') {
+			function (VoteCast $ballot, ?string $callerUid=null) use (&$cast): array {
+				if ($ballot->participantId === 'p-recused') {
 					throw new RuntimeException('Recused on this matter');
 				}
 
-				$cast[] = [$votingRoundId, $participantId, $value, $isProxy, $delegatorId, $callerUid];
+				$cast[] = [$ballot->votingRoundId, $ballot->participantId, $ballot->value(), $ballot->isProxy(), $ballot->delegatorId(), $callerUid];
 
-				return ['id' => 'v-' . $participantId];
+				return ['id' => 'v-' . $ballot->participantId];
 			}
 		);
 

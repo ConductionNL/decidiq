@@ -111,6 +111,27 @@ class ApprovalRouteService {
 	}//end __construct()
 
 	/**
+	 * The held-route request for an ad-hoc route as a caller sent it: the
+	 * people its steps name, in step order, under the route's name.
+	 *
+	 * @param array<string, mixed> $route         The route as the caller sent it.
+	 * @param string               $subject       The subject's uuid.
+	 * @param string               $subjectSchema The subject's schema slug.
+	 *
+	 * @return HeldRouteRequest The request, without deadline or substitute terms.
+	 *
+	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
+	 */
+	public function heldRouteFrom(array $route, string $subject, string $subjectSchema): HeldRouteRequest {
+		return new HeldRouteRequest(
+			subject: $subject,
+			subjectSchema: $subjectSchema,
+			actors: $this->mapper->actorsOf(route: $route),
+			name: (string)($route['name'] ?? 'Review')
+		);
+	}//end heldRouteFrom()
+
+	/**
 	 * Hold a route on a subject from a list of named people, with no stored
 	 * template.
 	 *
@@ -123,16 +144,10 @@ class ApprovalRouteService {
 	 * works on a route works on this one: the guard, the return verbs, the
 	 * parallel groups, the conclusion announcement.
 	 *
-	 * @param string $subject The subject's uuid.
-	 * @param array<int, string> $actors The people to ask, in order.
-	 * @param string $subjectSchema The subject's schema slug.
-	 * @param string $deadline The deadline for the whole route, as an ISO-8601
-	 *        instant. Empty means no due dates at all.
-	 * @param string $kind The stage type every step carries.
-	 * @param string $name What to call the route on a surface.
-	 * @param float|null $askSubstituteAfter When to ask each approver's
-	 *        substitute too, as a fraction of the step's term (0 to 1). Null
-	 *        asks no substitute (REQ-AR-016, #1397).
+	 * Every step is an endorsement by one person.
+	 *
+	 * @param HeldRouteRequest $request The subject, the people in order, the
+	 *        route's name, and its deadline and substitute fraction (REQ-AR-016, #1397).
 	 *
 	 * @return array<int, array<string, mixed>> The stages.
 	 *
@@ -141,17 +156,9 @@ class ApprovalRouteService {
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008, REQ-AR-009)
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
-	public function holdFor(
-		string $subject,
-		array $actors,
-		string $subjectSchema,
-		string $deadline = '',
-		string $kind = 'endorsement',
-		string $name = 'Review',
-		?float $askSubstituteAfter = null,
-	): array {
+	public function holdFor(HeldRouteRequest $request): array {
 		$named = [];
-		foreach ($actors as $actor) {
+		foreach ($request->actors as $actor) {
 			$actor = trim((string)$actor);
 			if ($actor !== '' && in_array($actor, $named, true) === false) {
 				// A person named twice would be asked twice on the same
@@ -169,31 +176,31 @@ class ApprovalRouteService {
 		foreach ($named as $index => $actor) {
 			$steps[] = [
 				'order' => ($index + 1),
-				'stageType' => $kind,
+				'stageType' => 'endorsement',
 				'actorType' => 'person',
 				'actor' => $actor,
 				'mandatory' => true,
 			];
-			if ($askSubstituteAfter !== null) {
-				$steps[$index]['askSubstituteAfter'] = $askSubstituteAfter;
+			if ($request->askSubstituteAfter() !== null) {
+				$steps[$index]['askSubstituteAfter'] = $request->askSubstituteAfter();
 			}
 		}
 
 		$stages = $this->instantiate(
 			route: [
 				'id' => '',
-				'name' => $name,
+				'name' => $request->name,
 				// `adhoc` and not a route id: this route has no template, and a
 				// surface that went looking for one would find nothing and have
 				// no way to tell that from a template that was deleted.
 				'origin' => 'adhoc',
 				'steps' => $steps,
 			],
-			subject: $subject,
-			subjectSchema: $subjectSchema,
+			subject: $request->subject,
+			subjectSchema: $request->subjectSchema,
 		);
 
-		return $this->stampHeldRoute(stages: $stages, deadline: $deadline);
+		return $this->stampHeldRoute(stages: $stages, deadline: $request->deadline());
 	}//end holdFor()
 
 	/**
