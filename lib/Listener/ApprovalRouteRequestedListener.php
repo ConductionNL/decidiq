@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Listener;
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Service\ApprovalRouteCommandService;
 use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Service\HeldRouteRequest;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -142,13 +143,13 @@ class ApprovalRouteRequestedListener implements IEventListener {
 			$routeName = 'Review';
 		}
 
-		$stages = $this->engine->holdFor(
+		$held = new HeldRouteRequest(
 			subject: $event->getSubject(),
-			actors: $event->getActors(),
 			subjectSchema: $event->getSubjectSchema(),
-			deadline: $event->getDeadline(),
-			name: $routeName,
+			actors: $event->getActors(),
+			name: $routeName
 		);
+		$stages = $this->engine->holdFor(request: $held->due(deadline: $event->getDeadline(), askSubstituteAfter: null));
 
 		// No route id, because there is no route row. Carrying the producer's
 		// own reference back would read as an id this app can be asked about,
