@@ -239,10 +239,11 @@ class RegulatorExportRenderer {
 	private function renderCsv(string $scope, array $rows): string {
 		$columns = $this->csvColumns(scope: $scope);
 		$lines = [implode(',', $columns)];
+		$csv   = new CsvCell();
 		foreach ($rows as $row) {
 			$cells = [];
 			foreach ($columns as $column) {
-				$cells[] = $this->csvEscape(value: (string)($row[$column] ?? ''));
+				$cells[] = $csv->escape(cell: (string)($row[$column] ?? ''));
 			}
 
 			$lines[] = implode(',', $cells);
@@ -263,23 +264,6 @@ class RegulatorExportRenderer {
 	private function csvColumns(string $scope): array {
 		return (self::CSV_COLUMNS[$scope] ?? self::CSV_COLUMNS['audit-log']);
 	}//end csvColumns()
-
-	/**
-	 * Safely escape a CSV cell (wraps in quotes when needed).
-	 *
-	 * @param string $value Raw value
-	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
-	 *
-	 * @return string
-	 */
-	private function csvEscape(string $value): string {
-		if (preg_match('/[",\n]/', $value) === 1) {
-			return '"' . str_replace('"', '""', $value) . '"';
-		}
-
-		return $value;
-	}//end csvEscape()
 
 	/**
 	 * Summarise one row for the PDF text body.

@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -247,13 +248,13 @@ class AgendaNoticesGoldenTest extends TestCase {
 			}
 		);
 
+		$logger = $this->logger();
 		return new AgendaService(
 			objectService: $objects,
 			calendarEventService: $this->createMock(CalendarEventService::class),
-			preferences: $preferences,
-			logger: $this->logger(),
+			notices: new AgendaNotices(preferences: $preferences, l10nFactory: $factory, logger: $logger),
+			logger: $logger,
 			participantResolver: $resolver,
-			l10nFactory: $factory,
 			eventRecorder: $recorder,
 		);
 	}//end service()

@@ -30,6 +30,7 @@ use OCA\Decidiq\Service\ProcessTemplateService;
 use OCA\Decidiq\Service\VotingOpenedNotifier;
 use OCA\Decidiq\Service\VotingRoundOpener;
 use OCA\Decidiq\Service\VotingRoundPreflight;
+use OCA\Decidiq\Service\VotingRoundRequest;
 use OCA\Decidiq\Service\VotingRoundRules;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -169,13 +170,10 @@ class VotingBodyRulesTest extends TestCase {
 	 * @return array<string, mixed>
 	 */
 	private function open(VotingRoundOpener $opener): array {
+		$request = new VotingRoundRequest(motionId: self::MOTION, meetingId: self::MEETING, votingMethod: 'for-against-abstain', isSecret: false);
+
 		return $opener->openVotingRound(
-			motionId: self::MOTION,
-			meetingId: self::MEETING,
-			votingMethod: 'for-against-abstain',
-			isSecret: false,
-			closedAt: null,
-			roundRules: new VotingRoundRules()
+			request: $request->opening(closedAt: null, presetParticipantIds: [], revoteOfRoundId: null, rules: new VotingRoundRules())
 		);
 
 	}//end open()

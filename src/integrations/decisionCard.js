@@ -17,7 +17,10 @@ import { generateOcsUrl, generateUrl } from '@nextcloud/router'
  * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
  */
 export function initialsOf(name) {
-	const parts = String(name || '').trim().split(/\s+/).filter(Boolean)
+	const parts = String(name || '')
+		.trim()
+		.split(/\s+/)
+		.filter(Boolean)
 	if (parts.length === 0) {
 		return ''
 	}
@@ -52,7 +55,10 @@ export function drafterName(decision, names) {
  * @return {string} The line.
  * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
  */
-export function decisionMetaLine(parts, drafted = (drafter, date) => `drafted by ${drafter} on ${date}`) {
+export function decisionMetaLine(
+	parts,
+	drafted = (drafter, date) => `drafted by ${drafter} on ${date}`,
+) {
 	const line = [parts.state]
 	if (parts.outcome) {
 		line.push(parts.outcome)
@@ -89,7 +95,12 @@ export function stageSteps(stages, people, formatDate, notYet) {
 			let line = typeof stage.note === 'string' ? stage.note : ''
 			if (status === 'decided' || status === 'skipped') {
 				state = 'done'
-				line = [stage.decidedAt ? formatDate(String(stage.decidedAt)) : '', person].filter(Boolean).join(', ')
+				line = [
+					stage.decidedAt ? formatDate(String(stage.decidedAt)) : '',
+					person,
+				]
+					.filter(Boolean)
+					.join(', ')
 			} else if (status === 'active') {
 				state = 'current'
 				line = [person, notYet].filter(Boolean).join(', ')
@@ -116,7 +127,12 @@ export function mandateNotice(answer, drafter) {
 	if (!answer || answer.authorised !== true) {
 		return null
 	}
-	return { tone: 'success', drafter, allocation: String(answer.subject ?? ''), restrictions: String(answer.restrictions ?? '') }
+	return {
+		tone: 'success',
+		drafter,
+		allocation: String(answer.subject ?? ''),
+		restrictions: String(answer.restrictions ?? ''),
+	}
 }
 
 /**
@@ -130,11 +146,18 @@ export async function listDecisionStages(decisionId) {
 		return []
 	}
 	try {
-		const res = await axios.get(generateUrl('/apps/openregister/api/objects/decidiq/decision-stage'), {
-			params: { decision: decisionId, _limit: 50 },
-		})
+		const res = await axios.get(
+			generateUrl('/apps/openregister/api/objects/decidiq/decision-stage'),
+			{
+				params: { decision: decisionId, _limit: 50 },
+			},
+		)
 		const data = res && res.data
-		return Array.isArray(data?.results) ? data.results : (Array.isArray(data) ? data : [])
+		return Array.isArray(data?.results)
+			? data.results
+			: Array.isArray(data)
+				? data
+				: []
 	} catch {
 		return []
 	}
@@ -148,15 +171,21 @@ export async function listDecisionStages(decisionId) {
  */
 export async function personNames(ids) {
 	const unique = [...new Set((ids || []).filter(Boolean).map(String))]
-	const entries = await Promise.all(unique.map(async (id) => {
-		try {
-			const res = await axios.get(generateUrl(`/apps/openregister/api/objects/decidiq/person/${encodeURIComponent(id)}`))
-			const name = res?.data?.name
-			return typeof name === 'string' && name !== '' ? [id, name] : null
-		} catch {
-			return null
-		}
-	}))
+	const entries = await Promise.all(
+		unique.map(async (id) => {
+			try {
+				const res = await axios.get(
+					generateUrl(
+						`/apps/openregister/api/objects/decidiq/person/${encodeURIComponent(id)}`,
+					),
+				)
+				const name = res?.data?.name
+				return typeof name === 'string' && name !== '' ? [id, name] : null
+			} catch {
+				return null
+			}
+		}),
+	)
 	return Object.fromEntries(entries.filter(Boolean))
 }
 
@@ -171,7 +200,11 @@ export async function decisionAuthority(decisionId) {
 		return null
 	}
 	try {
-		const res = await axios.get(generateUrl(`/apps/decidiq/api/decisions/${encodeURIComponent(decisionId)}/authority`))
+		const res = await axios.get(
+			generateUrl(
+				`/apps/decidiq/api/decisions/${encodeURIComponent(decisionId)}/authority`,
+			),
+		)
 		return res?.data && typeof res.data === 'object' ? res.data : null
 	} catch {
 		return null
@@ -188,17 +221,22 @@ export async function decisionAuthority(decisionId) {
  */
 export async function userDisplayNames(uids) {
 	const unique = [...new Set((uids || []).filter(Boolean).map(String))]
-	const entries = await Promise.all(unique.map(async (uid) => {
-		try {
-			const res = await axios.get(generateOcsUrl('cloud/users/{userId}', { userId: uid }), {
-				headers: { 'OCS-APIRequest': 'true' },
-				params: { format: 'json' },
-			})
-			const name = res?.data?.ocs?.data?.displayname
-			return typeof name === 'string' && name !== '' ? [uid, name] : null
-		} catch {
-			return null
-		}
-	}))
+	const entries = await Promise.all(
+		unique.map(async (uid) => {
+			try {
+				const res = await axios.get(
+					generateOcsUrl('cloud/users/{userId}', { userId: uid }),
+					{
+						headers: { 'OCS-APIRequest': 'true' },
+						params: { format: 'json' },
+					},
+				)
+				const name = res?.data?.ocs?.data?.displayname
+				return typeof name === 'string' && name !== '' ? [uid, name] : null
+			} catch {
+				return null
+			}
+		}),
+	)
 	return Object.fromEntries(entries.filter(Boolean))
 }

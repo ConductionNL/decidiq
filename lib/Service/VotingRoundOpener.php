@@ -30,7 +30,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -137,21 +136,14 @@ class VotingRoundOpener {
 	 *   sibling amendment earlier in the configured order (votingOrder ascending,
 	 *   unordered last by submittedAt) is still undecided.
 	 *
-	 * @param string $motionId The motion UUID (the amendment UUID when subjectType is 'amendment')
-	 * @param string $meetingId The meeting UUID
-	 * @param string $votingMethod The voting method (for-against-abstain, show-of-hands, etc.)
-	 * @param bool $isSecret Whether the ballot is secret
-	 * @param string|null $closedAt Optional pre-defined close time
-	 * @param array<string> $presetParticipantIds Optional array of participant UUIDs for a voting group preset
-	 * @param string|null $revoteOfRoundId UUID of a tied round this round is the single permitted revote of
-	 * @param VotingRoundRules|null $roundRules The configurable decision rules (threshold / abstention /
-	 *                                          tie-break / subject type / opening body); null = all defaults
+	 * @param VotingRoundRequest $request The subject, meeting, method, secrecy and optional parts
 	 *
 	 * @return array<string,mixed> The created voting round object with excludedPresetUuids key if any UUIDs were excluded
 	 *
 	 * @throws RuntimeException When quorum is not met, the revote guard fails, the amendment ordering rule is
-	 *                          violated, or the lifecycle transition fails
-	 * @throws InvalidArgumentException When a rule or subjectType value is not in its enum (fail closed)
+	 *                          violated, or the lifecycle transition fails. A rule or subjectType value
+	 *                          outside its enum is refused with an InvalidArgumentException from the
+	 *                          preflight (fail closed).
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
@@ -159,18 +151,12 @@ class VotingRoundOpener {
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
-	public function openVotingRound(
-		string $motionId,
-		string $meetingId,
-		string $votingMethod,
-		bool $isSecret,
-		?string $closedAt,
-		array $presetParticipantIds = [],
-		?string $revoteOfRoundId = null,
-		?VotingRoundRules $roundRules = null,
-	): array {
-		$roundRules = ($roundRules ?? new VotingRoundRules());
+	public function openVotingRound(VotingRoundRequest $request): array {
+		$roundRules = $request->rules();
 		$subjectType = $roundRules->subjectType;
+		$meetingId = $request->meetingId;
+		$motionId = $request->motionId;
+		$revoteOfRoundId = $request->revoteOfRoundId();
 
 		// Resolution order per rule: the chair's pick (non-null), then the meeting
 		// type's threshold, then the template of the body (named, else the
@@ -195,43 +181,28 @@ class VotingRoundOpener {
 		}
 
 		// Checked before anything is written, so a refusal leaves no round.
-		$options = $this->roundOptions(
-			votingMethod: $votingMethod,
-			requested: $roundRules->options,
-			revoteOfRoundId: $revoteOfRoundId,
-			tieBreakRule: (string)$rules['tieBreakRule']
-		);
+		$options = $this->roundOptions(request: $request, tieBreakRule: (string)$rules['tieBreakRule']);
 
 		// Parliamentary ordering (motion-amendment spec) and the lifecycle
 		// transition below apply to fresh rounds only: a revote re-opens a
 		// question that was already in order and never left 'voting'.
-		$isFreshRound = ($revoteOfRoundId === null);
-		if ($isFreshRound === true) {
+		if ($request->isFreshRound() === true) {
 			$this->amendmentOrder->assertOrdering(subjectId: $motionId, subjectType: $subjectType);
 		}
 
 		// Preset UUIDs are validated against active memberships; the eligible
 		// ones become participant relations, a substituted seat as its substitute (REQ-MSW-002).
-		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $presetParticipantIds);
+		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $request->presetParticipantIds());
 		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetIds);
-		$votingRound = $this->preflight->buildRoundPayload(
-			motionId: $motionId,
-			subjectType: $subjectType,
-			votingMethod: $votingMethod,
-			isSecret: $isSecret,
-			closedAt: $closedAt,
-			quorumWith: $quorumWith,
-			rules: $rules,
-			revoteOfRoundId: $revoteOfRoundId,
-			participantIds: $presets['eligible']
-		);
+		$resolution = new VotingRoundResolution(rules: $rules, quorumWith: $quorumWith, participantIds: $presets['eligible']);
+		$votingRound = $resolution->roundPayload(request: $request);
 		if ($options !== []) {
 			$votingRound['options'] = $options;
 		}
 
 		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
 
-		if ($isFreshRound === true) {
+		if ($request->isFreshRound() === true) {
 			$this->preflight->transitionSubjectToVoting(subjectId: $motionId, subjectType: $subjectType);
 		}
 
@@ -250,7 +221,7 @@ class VotingRoundOpener {
 			round: $result,
 			motionId: $motionId,
 			meetingId: $meetingId,
-			closedAt: $closedAt,
+			closedAt: $request->closedAt(),
 			subjectType: $subjectType
 		);
 
@@ -260,26 +231,25 @@ class VotingRoundOpener {
 	/**
 	 * The options a round opens with: the requested ones for a ranked-choice
 	 * round (REQ-PRF-001), or the tied options of the round a ranked revote
-	 * repeats (REQ-RPB-001); none for any other method.
+	 * repeats (REQ-RPB-001); none for any other method. Options that do not
+	 * fit the method are refused with an InvalidArgumentException from
+	 * RankedBallotRules.
 	 *
-	 * @param string $votingMethod The round's voting method.
-	 * @param array<int, mixed> $requested The options as requested.
-	 * @param string|null $revoteOfRoundId The tied round this round revotes, or null.
-	 * @param string $tieBreakRule The round's resolved tie-break rule.
+	 * @param VotingRoundRequest $request      The request: method, requested options and revote reference.
+	 * @param string             $tieBreakRule The round's resolved tie-break rule.
 	 *
 	 * @return array<int, array<string, string>> The checked options.
 	 *
-	 * @throws \InvalidArgumentException When the options do not fit the method.
-	 *
 	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
 	 */
-	private function roundOptions(string $votingMethod, array $requested, ?string $revoteOfRoundId, string $tieBreakRule): array {
-		if ($revoteOfRoundId !== null && $votingMethod === RankedBallotRules::METHOD) {
-			$requested = ($this->preflight->tiedOptionsOf(revoteOfRoundId: $revoteOfRoundId) ?? $requested);
+	private function roundOptions(VotingRoundRequest $request, string $tieBreakRule): array {
+		$requested = $request->rules()->options;
+		if ($request->isFreshRound() === false && $request->votingMethod === RankedBallotRules::METHOD) {
+			$requested = ($this->preflight->tiedOptionsOf(revoteOfRoundId: (string)$request->revoteOfRoundId()) ?? $requested);
 		}
 
 		return $this->rankedRules->openingOptions(
-			votingMethod: $votingMethod,
+			votingMethod: $request->votingMethod,
 			options: $requested,
 			tieBreakRule: $tieBreakRule
 		);

@@ -12,6 +12,7 @@
           "waitingOn": {
             "type": "string",
             "title": "Waiting on",
+            "description": "The person a live stage waits on, empty when the stage is not active.",
             "nullable": true,
             "facetable": true
           }

@@ -1,0 +1,294 @@
+{
+  "CnDecisionsTab.vue success": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "Budget",
+          "text": "Raise it",
+          "decisionType": "proposal",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "Case 1"
+        },
+        "dated": true
+      },
+      {
+        "fn": "refresh"
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": false,
+      "error": ""
+    }
+  },
+  "CnDecisionsTab.vue success-defaults": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "Proposal",
+          "text": "",
+          "decisionType": "motion",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "host-1"
+        },
+        "dated": true
+      },
+      {
+        "fn": "refresh"
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "",
+      "creating": false,
+      "createOpen": false,
+      "error": ""
+    }
+  },
+  "CnDecisionsTab.vue no-host": {
+    "calls": [],
+    "state": {
+      "hostObjectId": "",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": true,
+      "error": "old error"
+    }
+  },
+  "CnDecisionsTab.vue already-creating": {
+    "calls": [],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": true,
+      "createOpen": true,
+      "error": "old error"
+    }
+  },
+  "CnDecisionsTab.vue fails-with-message": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "x",
+          "text": "",
+          "decisionType": "motion",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "Case 1"
+        },
+        "dated": true
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": true,
+      "error": "server said no"
+    }
+  },
+  "CnDecisionsTab.vue fails-without-message": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "x",
+          "text": "",
+          "decisionType": "motion",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "Case 1"
+        },
+        "dated": true
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": true,
+      "error": "Could not create proposal."
+    }
+  },
+  "CnDecisionsWidget.vue success": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "Budget",
+          "text": "Raise it",
+          "decisionType": "proposal",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "Case 1"
+        },
+        "dated": true
+      },
+      {
+        "fn": "refresh"
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": false,
+      "error": ""
+    }
+  },
+  "CnDecisionsWidget.vue success-defaults": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "Proposal",
+          "text": "",
+          "decisionType": "motion",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "host-1"
+        },
+        "dated": true
+      },
+      {
+        "fn": "refresh"
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "",
+      "creating": false,
+      "createOpen": false,
+      "error": ""
+    }
+  },
+  "CnDecisionsWidget.vue no-host": {
+    "calls": [],
+    "state": {
+      "hostObjectId": "",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": true,
+      "error": "old error"
+    }
+  },
+  "CnDecisionsWidget.vue already-creating": {
+    "calls": [],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": true,
+      "createOpen": true,
+      "error": "old error"
+    }
+  },
+  "CnDecisionsWidget.vue fails-with-message": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "x",
+          "text": "",
+          "decisionType": "motion",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "Case 1"
+        },
+        "dated": true
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": true,
+      "error": "server said no"
+    }
+  },
+  "CnDecisionsWidget.vue fails-without-message": {
+    "calls": [
+      {
+        "fn": "post",
+        "url": "/apps/openregister/api/objects/{register}/{schema}",
+        "payload": {
+          "title": "x",
+          "text": "",
+          "decisionType": "motion",
+          "lifecycle": "proposed",
+          "sourceApp": "case",
+          "subjectRegister": "reg",
+          "subjectSchema": "case",
+          "subjectId": "host-1",
+          "subjectLabel": "Case 1"
+        },
+        "dated": true
+      }
+    ],
+    "state": {
+      "hostObjectId": "host-1",
+      "hostRegister": "reg",
+      "hostSchema": "case",
+      "objectLabel": "Case 1",
+      "creating": false,
+      "createOpen": true,
+      "error": "Could not create proposal."
+    }
+  }
+}
