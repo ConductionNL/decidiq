@@ -85,21 +85,25 @@ class VotingOpenRequestHandler {
 
 		$round = $request['payload'];
 
-		$opened = $this->votingService->openVotingRound(
+		$opening = new VotingRoundRequest(
 			motionId: $round['motionId'],
 			meetingId: $round['meetingId'],
 			votingMethod: $round['votingMethod'],
-			isSecret: $round['isSecret'],
-			closedAt: $round['closedAt'],
-			presetParticipantIds: $round['presetIds'],
-			revoteOfRoundId: $round['revoteOfRoundId'],
-			roundRules: new VotingRoundRules(
-				voteThreshold: $round['voteThreshold'],
-				abstentionHandling: $round['abstentionHandling'],
-				tieBreakRule: $round['tieBreakRule'],
-				subjectType: $round['subjectType'],
-				governanceBodyId: $round['governanceBodyId'],
-				options: $round['options']
+			isSecret: $round['isSecret']
+		);
+		$opened = $this->votingService->openVotingRound(
+			request: $opening->opening(
+				closedAt: $round['closedAt'],
+				presetParticipantIds: $round['presetIds'],
+				revoteOfRoundId: $round['revoteOfRoundId'],
+				rules: new VotingRoundRules(
+					voteThreshold: $round['voteThreshold'],
+					abstentionHandling: $round['abstentionHandling'],
+					tieBreakRule: $round['tieBreakRule'],
+					subjectType: $round['subjectType'],
+					governanceBodyId: $round['governanceBodyId'],
+					options: $round['options']
+				)
 			)
 		);
 

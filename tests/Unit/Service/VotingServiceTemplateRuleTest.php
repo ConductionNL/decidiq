@@ -52,6 +52,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/specs/process-configuration/spec.md
  */
 class VotingServiceTemplateRuleTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saved voting-round objects.
@@ -185,8 +187,7 @@ class VotingServiceTemplateRuleTest extends TestCase {
 			]
 		);
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -215,8 +216,7 @@ class VotingServiceTemplateRuleTest extends TestCase {
 	public function testExplicitCallerValueWinsOverTemplate(): void {
 		$service = $this->buildService(['voteThreshold' => 'qualified-majority-two-thirds']);
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
@@ -236,8 +236,7 @@ class VotingServiceTemplateRuleTest extends TestCase {
 	public function testNoTemplateFallsBackToBuiltInDefaults(): void {
 		$service = $this->buildService(null);
 
-		$service->openVotingRound(
-			motionId: 'motion-1',
+		$this->openRoundOn($service, motionId: 'motion-1',
 			meetingId: 'meeting-1',
 			votingMethod: 'for-against-abstain',
 			isSecret: false,
