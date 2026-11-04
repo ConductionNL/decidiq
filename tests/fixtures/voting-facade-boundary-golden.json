@@ -188,6 +188,76 @@
             }
         ]
     },
+    "open ranked with options": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "ranked-choice",
+                    "isSecret": false,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        [
+                            {
+                                "key": "a",
+                                "label": "A"
+                            },
+                            {
+                                "key": "b",
+                                "label": "B"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ]
+    },
+    "open options on a show of hands": {
+        "status": 201,
+        "data": {
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "open": {
+                    "motionId": "mo-1",
+                    "meetingId": "me-1",
+                    "votingMethod": "show-of-hands",
+                    "isSecret": false,
+                    "closedAt": null,
+                    "presets": [],
+                    "revoteOf": null,
+                    "fresh": true,
+                    "rules": [
+                        null,
+                        null,
+                        null,
+                        "motion",
+                        null,
+                        [
+                            {
+                                "key": "a",
+                                "label": "A"
+                            }
+                        ]
+                    ]
+                }
+            }
+        ]
+    },
     "cast own vote": {
         "status": 201,
         "data": {

@@ -101,7 +101,8 @@ class VotingOpenRequestHandler {
 					abstentionHandling: $round['abstentionHandling'],
 					tieBreakRule: $round['tieBreakRule'],
 					subjectType: $round['subjectType'],
-					governanceBodyId: $round['governanceBodyId']
+					governanceBodyId: $round['governanceBodyId'],
+					options: $round['options']
 				)
 			)
 		);

@@ -166,6 +166,11 @@ class VotingFacadeBoundaryGoldenTest extends TestCase {
 			'unknown rule' => $base + ['tieBreakRule' => 'coin'],
 			'unknown subject' => $base + ['subjectType' => 'resolution'],
 			'opener refuses' => ['motionId' => 'mo-refused', 'meetingId' => 'me-1'],
+			'ranked with options' => $base + [
+				'votingMethod' => 'ranked-choice',
+				'options' => [['key' => 'a', 'label' => 'A'], ['key' => 'b', 'label' => 'B']],
+			],
+			'options on a show of hands' => $base + ['votingMethod' => 'show-of-hands', 'options' => [['key' => 'a', 'label' => 'A']]],
 		];
 	}//end openCases()
 
