@@ -94,12 +94,14 @@ class VotingOpenedNotifier {
 	private function publishActivity(array $round): void {
 		try {
 			$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-				subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_VOTE_INITIATED,
-				title: (string)($round['votingMethod'] ?? 'voting round'),
-				status: 'open',
-				objectType: 'voting-round',
-				objectUuid: (string)($round['id'] ?? ($round['uuid'] ?? '')),
-				segment: 'voting-rounds'
+				activity: [
+					'subject' => \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_VOTE_INITIATED,
+					'title' => (string)($round['votingMethod'] ?? 'voting round'),
+					'status' => 'open',
+					'objectType' => 'voting-round',
+					'objectUuid' => (string)($round['id'] ?? ($round['uuid'] ?? '')),
+					'segment' => 'voting-rounds',
+				]
 			);
 		} catch (\Throwable $activityError) {
 			$this->logger->debug('Decidiq: activity publish skipped', ['error' => $activityError->getMessage()]);

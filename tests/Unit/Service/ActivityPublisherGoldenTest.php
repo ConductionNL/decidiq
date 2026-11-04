@@ -67,7 +67,10 @@ class ActivityPublisherGoldenTest extends TestCase {
 		foreach ($this->cases() as $name => $case) {
 			$this->log = [];
 			$before    = time();
-			$count     = $this->service(case: $case)->publishGovernanceEvent(...$case['call']);
+			$count     = $this->service(case: $case)->publishGovernanceEvent(
+				activity: array_diff_key($case['call'], ['affectedUserIds' => true]),
+				affectedUserIds: ($case['call']['affectedUserIds'] ?? [])
+			);
 			$after     = time();
 			foreach ($this->log as $i => $entry) {
 				if (($entry['call'] ?? '') === 'setTimestamp') {

@@ -32,6 +32,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\MinutesDraftComposer;
+use OCA\Decidiq\Service\MinutesDraftRun;
+use OCA\Decidiq\Service\MinutesOutcomes;
+use OCA\Decidiq\Service\DraftProvenance;
 use OCA\Decidiq\Service\MinutesDraftService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -65,13 +68,13 @@ class MinutesDraftSectionsGoldenTest extends TestCase {
 			};
 
 			$sections = $this->service()->buildSections(
-				segments: $case['segments'],
 				agendaItems: $case['agendaItems'],
-				votingRounds: $case['votingRounds'],
-				decisions: $case['decisions'],
-				providerId: 'provider-' . $name,
-				generatedAt: '2026-03-0' . (count($actual) % 9 + 1) . 'T10:00:00+00:00',
-				runner: $runner
+				run: new MinutesDraftRun(
+					segments: $case['segments'],
+					outcomes: new MinutesOutcomes(votingRounds: $case['votingRounds'], decisions: $case['decisions']),
+					provenance: new DraftProvenance(providerId: 'provider-' . $name, generatedAt: '2026-03-0' . (count($actual) % 9 + 1) . 'T10:00:00+00:00'),
+					runner: $runner
+				)
 			);
 			$actual[$name] = ['sections' => $sections, 'prompts' => $prompts];
 		}
