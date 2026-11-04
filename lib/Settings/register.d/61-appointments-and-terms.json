@@ -92,7 +92,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -224,7 +225,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]

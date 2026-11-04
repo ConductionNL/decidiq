@@ -950,9 +950,9 @@ class RegisterAuthorizationTest extends TestCase {
 		$this->assertContains('authenticated', $read, 'Signed-in readers keep reading every decision.');
 		$this->assertNotContains('public', $read, 'A bare public grant would publish every draft decision.');
 		$this->assertContains(
-			['group' => 'public', 'match' => ['isPublished' => 'public']],
+			['group' => 'public', 'match' => ['isPublished' => 'public'], 'crossOrganisation' => true],
 			$read,
-			'Anonymous read must be conditional on isPublished = public.'
+			'Anonymous read must be conditional on isPublished = public, in every organisation.'
 		);
 	}//end testAnonymousReadOfADecisionNeedsItToBePublished()
 
