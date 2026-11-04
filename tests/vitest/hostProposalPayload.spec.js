@@ -16,11 +16,20 @@ import { hostProposalPayload } from '../../src/integrations/decisionLink.js'
 vi.mock('@nextcloud/axios', () => ({ default: { get: vi.fn(), post: vi.fn() } }))
 vi.mock('@nextcloud/l10n', () => ({ translate: (app, text) => text }))
 
-const host = { register: 'pipelinq', schema: 'ticket', objectId: 't-1', label: 'Fietspad' }
+const host = {
+	register: 'pipelinq',
+	schema: 'ticket',
+	objectId: 't-1',
+	label: 'Fietspad',
+}
 
 describe('hostProposalPayload', () => {
 	it('writes no outcome: a proposal has no voting result yet', () => {
-		const payload = hostProposalPayload({ title: 'Motie', text: 'Toelichting' }, host, 'Proposal')
+		const payload = hostProposalPayload(
+			{ title: 'Motie', text: 'Toelichting' },
+			host,
+			'Proposal',
+		)
 		expect(payload).not.toHaveProperty('outcome')
 		expect(payload.lifecycle).toBe('proposed')
 	})
@@ -37,7 +46,11 @@ describe('hostProposalPayload', () => {
 	})
 
 	it('falls back to the given title, motion and the host id as label', () => {
-		const payload = hostProposalPayload({}, { register: 'r', schema: 's', objectId: 'o-9' }, 'Proposal')
+		const payload = hostProposalPayload(
+			{},
+			{ register: 'r', schema: 's', objectId: 'o-9' },
+			'Proposal',
+		)
 		expect(payload.title).toBe('Proposal')
 		expect(payload.decisionType).toBe('motion')
 		expect(payload.text).toBe('')

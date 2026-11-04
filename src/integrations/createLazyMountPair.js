@@ -39,7 +39,8 @@ export function loadTranslationScript(appId, doc = globalThis.document) {
 		script.src = generateFilePath(appId, 'l10n', `${language}.js`)
 		script.async = true
 		script.onload = () => resolve()
-		script.onerror = () => reject(new Error(`${appId} translations did not load`))
+		script.onerror = () =>
+			reject(new Error(`${appId} translations did not load`))
 		doc.head.appendChild(script)
 	})
 }
@@ -91,8 +92,14 @@ export function createLazyMountPair(loadComponent, leafName, loadVue, loadL10n) 
 		const entry = { app: null }
 		mounted.set(el, entry)
 
-		const translations = Promise.resolve().then(l10nLoader).catch(() => null)
-		return Promise.all([vueLoader(), loadComponent(props && props.surface), translations])
+		const translations = Promise.resolve()
+			.then(l10nLoader)
+			.catch(() => null)
+		return Promise.all([
+			vueLoader(),
+			loadComponent(props && props.surface),
+			translations,
+		])
 			.then(([vue, component]) => {
 				// Unmounted (or unmounted and mounted again) while loading.
 				if (mounted.get(el) !== entry) {

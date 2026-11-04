@@ -29,14 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidiq\Service\MeetingService;
-use OCA\Decidiq\Service\ParticipantResolver;
-use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Mcp\IMcpToolProvider;
-use OCP\IGroupManager;
-use OCP\IUserSession;
-use Psr\Container\ContainerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Decidiq MCP Tool Provider.
@@ -205,56 +198,17 @@ class DecidiqToolProvider implements IMcpToolProvider {
 	];
 
 	/**
-	 * Implements the two action-item tools.
-	 *
-	 * @var McpActionItemTools
-	 */
-	private readonly McpActionItemTools $actionItemTools;
-
-	/**
-	 * Implements the three meeting tools.
-	 *
-	 * @var McpMeetingTools
-	 */
-	private readonly McpMeetingTools $meetingTools;
-
-	/**
 	 * Constructor for DecidiqToolProvider.
 	 *
-	 * The two tool collaborators are built in the constructor body rather than
-	 * injected, so the DI signature other apps copy stays the six framework
-	 * services below.
-	 *
-	 * @param MeetingService $meetingService The meeting service
-	 * @param IUserSession $userSession The current user session
-	 * @param IGroupManager $groupManager The group manager (for admin checks)
-	 * @param ContainerInterface $container The DI container (McpActionItemTools resolves ActionItemWriter through it)
-	 * @param LoggerInterface $logger The PSR-3 logger
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
-	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
+	 * @param McpActionItemTools $actionItemTools Implements the two action-item tools
+	 * @param McpMeetingTools    $meetingTools    Implements the three meeting tools
 	 *
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function __construct(
-		MeetingService $meetingService,
-		IUserSession $userSession,
-		IGroupManager $groupManager,
-		ContainerInterface $container,
-		LoggerInterface $logger,
-		ParticipantResolver $participantResolver,
-		ObjectServiceInterface $objectService,
+		private readonly McpActionItemTools $actionItemTools,
+		private readonly McpMeetingTools $meetingTools,
 	) {
-		$shared = [
-			'userSession' => $userSession,
-			'groupManager' => $groupManager,
-			'logger' => $logger,
-			'participantResolver' => $participantResolver,
-			'objectService' => $objectService,
-		];
-
-		$this->actionItemTools = new McpActionItemTools(...$shared, container: $container);
-		$this->meetingTools    = new McpMeetingTools(...$shared, meetingService: $meetingService);
-
 	}//end __construct()
 
 	/**

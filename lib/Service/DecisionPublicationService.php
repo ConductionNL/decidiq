@@ -360,12 +360,14 @@ class DecisionPublicationService {
 	private function publishActivity(string $title, string $decisionId): void {
 		try {
 			$this->container->get(ActivityPublisherService::class)->publishGovernanceEvent(
-				subject: DecidiqProvider::SUBJECT_DECISION_PUBLISHED,
-				title: $title,
-				status: 'public',
-				objectType: 'decision',
-				objectUuid: $decisionId,
-				segment: 'decisions'
+				activity: [
+					'subject' => DecidiqProvider::SUBJECT_DECISION_PUBLISHED,
+					'title' => $title,
+					'status' => 'public',
+					'objectType' => 'decision',
+					'objectUuid' => $decisionId,
+					'segment' => 'decisions',
+				]
 			);
 		} catch (\Throwable $activityError) {
 			$this->logger->debug(

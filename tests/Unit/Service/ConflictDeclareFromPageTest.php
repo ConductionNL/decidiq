@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
@@ -137,7 +138,7 @@ class ConflictDeclareFromPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testAMemberCanRecuseHerselfWhenDeclaring(): void {
-		$result = $this->service()->declare('M-anna', 'M-12', 'financial-interest', 'Owns land in the plan area', 'material', 'anna', 'recused-from-vote');
+		$result = $this->service()->declare((new ConflictDeclaration(membershipId: 'M-anna', agendaItemId: 'M-12', type: 'financial-interest', description: 'Owns land in the plan area'))->assessed(severity: 'material', initialAction: 'recused-from-vote'), 'anna');
 
 		$this->assertTrue($result['success']);
 		$this->assertSame('recused-from-vote', $this->saved[0]['actionTaken']);
@@ -150,7 +151,7 @@ class ConflictDeclareFromPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testWithoutRecusalTheActionStaysOpen(): void {
-		$this->service()->declare('M-anna', 'M-12', 'financial-interest', 'Owns land', 'material', 'anna');
+		$this->service()->declare(new ConflictDeclaration(membershipId: 'M-anna', agendaItemId: 'M-12', type: 'financial-interest', description: 'Owns land'), 'anna');
 
 		$this->assertSame('no-action-needed', $this->saved[0]['actionTaken']);
 	}//end testWithoutRecusalTheActionStaysOpen()
@@ -161,7 +162,7 @@ class ConflictDeclareFromPageTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheChairMayDeclareOnAMotionOfHerMeeting(): void {
-		$result = $this->service()->declare('M-anna', 'M-12', 'financial-interest', 'Owns land', 'material', 'carla');
+		$result = $this->service()->declare(new ConflictDeclaration(membershipId: 'M-anna', agendaItemId: 'M-12', type: 'financial-interest', description: 'Owns land'), 'carla');
 
 		$this->assertTrue($result['success'], $result['message']);
 	}//end testTheChairMayDeclareOnAMotionOfHerMeeting()

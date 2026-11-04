@@ -1,0 +1,2431 @@
+{
+    "chair-opens-voting": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-leg-delib",
+                "domain": "legislative",
+                "lifecycle": "voting",
+                "meeting": "meet-leg",
+                "title": "Motie"
+            },
+            "message": "Decision transitioned to 'voting'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-leg-delib",
+                        "domain": "legislative",
+                        "lifecycle": "voting",
+                        "meeting": "meet-leg",
+                        "title": "Motie"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-leg-delib"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-leg-delib"
+                    ],
+                    "payload": {
+                        "transition": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-leg-delib",
+                        "action": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting"
+                    }
+                ]
+            }
+        ]
+    },
+    "other-user-opens-voting": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "case-variant-opens-voting": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "empty-user-opens-voting": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "no-user-opens-voting": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "default-user-and-comment": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "chair-participant-id-as-user": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "chair-without-uid-owner": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-owner-chair",
+                "domain": "legislative",
+                "lifecycle": "voting",
+                "meeting": "meet-owner"
+            },
+            "message": "Decision transitioned to 'voting'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-owner-chair",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-owner",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "owner-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-owner-chair",
+                        "domain": "legislative",
+                        "lifecycle": "voting",
+                        "meeting": "meet-owner"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-owner-chair"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "owner-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-owner-chair"
+                    ],
+                    "payload": {
+                        "transition": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-owner-chair",
+                        "action": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting"
+                    }
+                ]
+            }
+        ]
+    },
+    "chair-without-uid-or-owner": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-blank-chair",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-blank",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "blank-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "chair-participant-missing": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-ghost-chair",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-ghost",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "ghost-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "log": [
+                    "warning",
+                    "Decidiq DecisionLifecycleService: chair participant not found",
+                    {
+                        "chairParticipantId": "ghost-p"
+                    }
+                ]
+            }
+        ]
+    },
+    "chair-participant-throws": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-gone-chair",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-gone",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "gone-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "meeting-without-chair": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-no-chair",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-nochair",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "no-meeting-legislative": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-nomeeting",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "quorum-not-met": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Quorum is not met for the linked meeting. Cannot open voting."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-noquorum",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-noquorum",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "chair-decides": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-leg-voting",
+                "domain": "legislative",
+                "lifecycle": "decided",
+                "meeting": {
+                    "id": "meet-leg"
+                },
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12"
+            },
+            "message": "Decision transitioned to 'decided'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-voting",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-leg-voting",
+                        "domain": "legislative",
+                        "lifecycle": "decided",
+                        "meeting": {
+                            "id": "meet-leg"
+                        },
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-leg-voting"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-leg-voting"
+                    ],
+                    "payload": {
+                        "transition": "decide",
+                        "from": "voting",
+                        "to": "decided",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-leg-voting",
+                        "action": "decide",
+                        "from": "voting",
+                        "to": "decided"
+                    }
+                ]
+            }
+        ]
+    },
+    "other-decides": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-voting",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "decide-without-result": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "A decision cannot enter 'decided' without a recorded result. Missing or invalid: outcome, decisionDate."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-voting-bare",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "association-decide-anyone": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-assoc-voting",
+                "domain": "association",
+                "lifecycle": "decided",
+                "meeting": "meet-leg",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12"
+            },
+            "message": "Decision transitioned to 'decided'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-assoc-voting",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-assoc-voting",
+                        "domain": "association",
+                        "lifecycle": "decided",
+                        "meeting": "meet-leg",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-assoc-voting"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "mallory",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-assoc-voting"
+                    ],
+                    "payload": {
+                        "transition": "decide",
+                        "from": "voting",
+                        "to": "decided",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-assoc-voting",
+                        "action": "decide",
+                        "from": "voting",
+                        "to": "decided"
+                    }
+                ]
+            }
+        ]
+    },
+    "association-open-other": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-assoc-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "meeting-domain": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-meeting-domain",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-corporate",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "unknown-domain": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-odd-domain",
+                "domain": "pirate",
+                "lifecycle": "proposed"
+            },
+            "message": "Decision transitioned to 'proposed'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-odd-domain",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-odd-domain",
+                        "domain": "pirate",
+                        "lifecycle": "proposed"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-odd-domain"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-odd-domain"
+                    ],
+                    "payload": {
+                        "transition": "propose",
+                        "from": "draft",
+                        "to": "proposed",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-odd-domain",
+                        "action": "propose",
+                        "from": "draft",
+                        "to": "proposed"
+                    }
+                ]
+            }
+        ]
+    },
+    "template-chair-only": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only the meeting chair may perform this transition."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-template",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-template",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "policy": "body-t"
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            }
+        ]
+    },
+    "template-chair": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-template",
+                "lifecycle": "deliberating",
+                "meeting": "meet-template"
+            },
+            "message": "Decision transitioned to 'deliberating'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-template",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-template",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "policy": "body-t"
+            },
+            {
+                "find": {
+                    "id": "chair-p",
+                    "register": "decidiq",
+                    "schema": "participant"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-template",
+                        "lifecycle": "deliberating",
+                        "meeting": "meet-template"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-template"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-template"
+                    ],
+                    "payload": {
+                        "transition": "deliberate",
+                        "from": "proposed",
+                        "to": "deliberating",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-template",
+                        "action": "deliberate",
+                        "from": "proposed",
+                        "to": "deliberating"
+                    }
+                ]
+            }
+        ]
+    },
+    "template-skips-quorum": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-template-voting",
+                "domain": "legislative",
+                "lifecycle": "voting",
+                "meeting": "meet-template-noquorum"
+            },
+            "message": "Decision transitioned to 'voting'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-template-voting",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-template-noquorum",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "policy": "body-t"
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-template-voting",
+                        "domain": "legislative",
+                        "lifecycle": "voting",
+                        "meeting": "meet-template-noquorum"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-template-voting"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "mallory",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-template-voting"
+                    ],
+                    "payload": {
+                        "transition": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-template-voting",
+                        "action": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting"
+                    }
+                ]
+            }
+        ]
+    },
+    "legislative-decide-unvoted": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Transition 'decide' is not permitted in the 'legislative' domain."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-leg-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "association-decide-unvoted": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Transition 'decide' is not permitted in the 'association' domain."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-assoc-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "operations-propose": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-ops-draft",
+                "title": "Operationeel",
+                "lifecycle": "proposed"
+            },
+            "message": "Decision transitioned to 'proposed'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-ops-draft",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-ops-draft",
+                        "title": "Operationeel",
+                        "lifecycle": "proposed"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-ops-draft"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "system",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-ops-draft"
+                    ],
+                    "payload": {
+                        "transition": "propose",
+                        "from": "draft",
+                        "to": "proposed",
+                        "comment": ""
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-ops-draft",
+                        "action": "propose",
+                        "from": "draft",
+                        "to": "proposed"
+                    }
+                ]
+            }
+        ]
+    },
+    "wrong-state": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Cannot 'enact' a decision in 'draft' state. Allowed transitions from this state: propose."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-ops-draft",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "unknown-action": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Unknown action. Valid actions: propose, deliberate, openVoting, decide, enact, archive."
+        },
+        "calls": []
+    },
+    "missing-decision": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Decision 'd-none' not found."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-none",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "decision-does-not-exist": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Decision 'd-dne' not found."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-dne",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "decision-read-fails": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Transition failed. See server log for details."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-boom",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: decision lifecycle transition failed",
+                    {
+                        "id": "d-boom",
+                        "action": "openVoting",
+                        "exception": "database down"
+                    }
+                ]
+            }
+        ]
+    },
+    "write-refused": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Transition failed. See server log for details."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-readonly",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-readonly",
+                        "lifecycle": "proposed"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-readonly"
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: decision lifecycle transition failed",
+                    {
+                        "id": "d-readonly",
+                        "action": "propose",
+                        "exception": "no write access"
+                    }
+                ]
+            }
+        ]
+    },
+    "audit-append-fails": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-ops-draft",
+                "title": "Operationeel",
+                "lifecycle": "proposed"
+            },
+            "message": "Decision transitioned to 'proposed'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-ops-draft",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-ops-draft",
+                        "title": "Operationeel",
+                        "lifecycle": "proposed"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-ops-draft"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-ops-draft"
+                    ],
+                    "payload": {
+                        "transition": "propose",
+                        "from": "draft",
+                        "to": "proposed",
+                        "comment": "audit-fails"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: decision transition persisted but audit chain append failed",
+                    {
+                        "id": "d-ops-draft",
+                        "action": "propose",
+                        "message": "chain broken"
+                    }
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-ops-draft",
+                        "action": "propose",
+                        "from": "draft",
+                        "to": "proposed"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-adopted": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-decided",
+                "lifecycle": "enacted",
+                "title": "Besluit",
+                "text": "Tekst",
+                "legalBasis": "Art. 1",
+                "meeting": "meet-leg",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12",
+                "enactedAt": "<atom>"
+            },
+            "message": "Decision transitioned to 'enacted'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-decided",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-leg",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-decided",
+                        "lifecycle": "enacted",
+                        "title": "Besluit",
+                        "text": "Tekst",
+                        "legalBasis": "Art. 1",
+                        "meeting": "meet-leg",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-decided"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "title": "Besluit",
+                        "fullText": "Tekst",
+                        "legalBasis": "Art. 1",
+                        "status": "adopted",
+                        "adoptionDate": "2026-06-12",
+                        "effectiveDate": "<atom>",
+                        "background": "Generated from enacted decision d-decided.",
+                        "meeting": "meet-leg"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": null
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-decided"
+                    ],
+                    "payload": {
+                        "transition": "enact",
+                        "from": "decided",
+                        "to": "enacted",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-decided",
+                        "action": "enact",
+                        "from": "decided",
+                        "to": "enacted"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-rejected": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only decisions with outcome 'adopted' may be enacted."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-decided-rejected",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "enact-resolution-fails": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-decided-nosave",
+                "lifecycle": "enacted",
+                "title": "nosave",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12",
+                "enactedAt": "<atom>"
+            },
+            "message": "Decision transitioned to 'enacted'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-decided-nosave",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-decided-nosave",
+                        "lifecycle": "enacted",
+                        "title": "nosave",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-decided-nosave"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "title": "nosave",
+                        "fullText": "",
+                        "legalBasis": "",
+                        "status": "adopted",
+                        "adoptionDate": "2026-06-12",
+                        "effectiveDate": "<atom>",
+                        "background": "Generated from enacted decision d-decided-nosave."
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": null
+                }
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: decision enacted but resolution record generation failed",
+                    {
+                        "id": "d-decided-nosave",
+                        "exception": "resolution refused"
+                    }
+                ]
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-decided-nosave"
+                    ],
+                    "payload": {
+                        "transition": "enact",
+                        "from": "decided",
+                        "to": "enacted",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-decided-nosave",
+                        "action": "enact",
+                        "from": "decided",
+                        "to": "enacted"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-appointment": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-appoint",
+                "lifecycle": "enacted",
+                "decisionType": "appointment",
+                "candidates": [
+                    {
+                        "person": "person-1"
+                    },
+                    {
+                        "person": {
+                            "id": "person-2"
+                        }
+                    },
+                    {
+                        "externalName": "Extern Lid"
+                    }
+                ],
+                "targetPosts": [
+                    "post-1",
+                    {
+                        "id": "post-2"
+                    },
+                    "post-3"
+                ],
+                "targetRole": "member",
+                "targetBody": {
+                    "id": "body-1"
+                },
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12",
+                "enactedAt": "<atom>"
+            },
+            "message": "Decision transitioned to 'enacted'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-appoint",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-appoint",
+                        "lifecycle": "enacted",
+                        "decisionType": "appointment",
+                        "candidates": [
+                            {
+                                "person": "person-1"
+                            },
+                            {
+                                "person": {
+                                    "id": "person-2"
+                                }
+                            },
+                            {
+                                "externalName": "Extern Lid"
+                            }
+                        ],
+                        "targetPosts": [
+                            "post-1",
+                            {
+                                "id": "post-2"
+                            },
+                            "post-3"
+                        ],
+                        "targetRole": "member",
+                        "targetBody": {
+                            "id": "body-1"
+                        },
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-appoint"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "title": "",
+                        "fullText": "",
+                        "legalBasis": "",
+                        "status": "adopted",
+                        "adoptionDate": "2026-06-12",
+                        "effectiveDate": "<atom>",
+                        "background": "Generated from enacted decision d-appoint."
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "role": "member",
+                        "startDate": "<atom>",
+                        "governanceBody": "body-1",
+                        "post": "post-1",
+                        "person": "person-1"
+                    },
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "role": "member",
+                        "startDate": "<atom>",
+                        "governanceBody": "body-1",
+                        "post": "post-2",
+                        "person": "person-2"
+                    },
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "role": "member",
+                        "startDate": "<atom>",
+                        "governanceBody": "body-1",
+                        "post": "post-3",
+                        "label": "Extern Lid"
+                    },
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-appoint",
+                        "lifecycle": "enacted",
+                        "decisionType": "appointment",
+                        "candidates": [
+                            {
+                                "person": "person-1"
+                            },
+                            {
+                                "person": {
+                                    "id": "person-2"
+                                }
+                            },
+                            {
+                                "externalName": "Extern Lid"
+                            }
+                        ],
+                        "targetPosts": [
+                            "post-1",
+                            {
+                                "id": "post-2"
+                            },
+                            "post-3"
+                        ],
+                        "targetRole": "member",
+                        "targetBody": {
+                            "id": "body-1"
+                        },
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>",
+                        "appointedMemberships": [
+                            "new-4",
+                            "new-5",
+                            "new-6"
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-appoint"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-appoint"
+                    ],
+                    "payload": {
+                        "transition": "enact",
+                        "from": "decided",
+                        "to": "enacted",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-appoint",
+                        "action": "enact",
+                        "from": "decided",
+                        "to": "enacted"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-appointment-one-post": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-appoint-one",
+                "lifecycle": "enacted",
+                "decisionType": "appointment",
+                "candidates": [
+                    {
+                        "person": "person-1"
+                    },
+                    {
+                        "person": {
+                            "id": "person-2"
+                        }
+                    },
+                    {
+                        "externalName": "Extern Lid"
+                    }
+                ],
+                "targetPosts": [
+                    "post-1"
+                ],
+                "targetRole": "chair",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12",
+                "enactedAt": "<atom>"
+            },
+            "message": "Decision transitioned to 'enacted'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-appoint-one",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-appoint-one",
+                        "lifecycle": "enacted",
+                        "decisionType": "appointment",
+                        "candidates": [
+                            {
+                                "person": "person-1"
+                            },
+                            {
+                                "person": {
+                                    "id": "person-2"
+                                }
+                            },
+                            {
+                                "externalName": "Extern Lid"
+                            }
+                        ],
+                        "targetPosts": [
+                            "post-1"
+                        ],
+                        "targetRole": "chair",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-appoint-one"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "title": "",
+                        "fullText": "",
+                        "legalBasis": "",
+                        "status": "adopted",
+                        "adoptionDate": "2026-06-12",
+                        "effectiveDate": "<atom>",
+                        "background": "Generated from enacted decision d-appoint-one."
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "role": "chair",
+                        "startDate": "<atom>",
+                        "post": "post-1",
+                        "person": "person-1"
+                    },
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "role": "chair",
+                        "startDate": "<atom>",
+                        "post": "post-1",
+                        "person": "person-2"
+                    },
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "role": "chair",
+                        "startDate": "<atom>",
+                        "post": "post-1",
+                        "label": "Extern Lid"
+                    },
+                    "register": "decidiq",
+                    "schema": "membership",
+                    "uuid": null
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-appoint-one",
+                        "lifecycle": "enacted",
+                        "decisionType": "appointment",
+                        "candidates": [
+                            {
+                                "person": "person-1"
+                            },
+                            {
+                                "person": {
+                                    "id": "person-2"
+                                }
+                            },
+                            {
+                                "externalName": "Extern Lid"
+                            }
+                        ],
+                        "targetPosts": [
+                            "post-1"
+                        ],
+                        "targetRole": "chair",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>",
+                        "appointedMemberships": [
+                            "new-4",
+                            "new-5",
+                            "new-6"
+                        ]
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-appoint-one"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-appoint-one"
+                    ],
+                    "payload": {
+                        "transition": "enact",
+                        "from": "decided",
+                        "to": "enacted",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-appoint-one",
+                        "action": "enact",
+                        "from": "decided",
+                        "to": "enacted"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-appointment-mismatch": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Cannot enact: 'targetPosts' has 2 entries but 'candidates' has 3 — provide zero, one, or exactly one target post per candidate."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-appoint-bad",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "enact-appointment-done": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-appoint-done",
+                "lifecycle": "enacted",
+                "decisionType": "appointment",
+                "candidates": [
+                    {
+                        "person": "person-1"
+                    },
+                    {
+                        "person": {
+                            "id": "person-2"
+                        }
+                    },
+                    {
+                        "externalName": "Extern Lid"
+                    }
+                ],
+                "appointedMemberships": [
+                    "m-1"
+                ],
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12",
+                "enactedAt": "<atom>"
+            },
+            "message": "Decision transitioned to 'enacted'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-appoint-done",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-appoint-done",
+                        "lifecycle": "enacted",
+                        "decisionType": "appointment",
+                        "candidates": [
+                            {
+                                "person": "person-1"
+                            },
+                            {
+                                "person": {
+                                    "id": "person-2"
+                                }
+                            },
+                            {
+                                "externalName": "Extern Lid"
+                            }
+                        ],
+                        "appointedMemberships": [
+                            "m-1"
+                        ],
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-appoint-done"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "title": "",
+                        "fullText": "",
+                        "legalBasis": "",
+                        "status": "adopted",
+                        "adoptionDate": "2026-06-12",
+                        "effectiveDate": "<atom>",
+                        "background": "Generated from enacted decision d-appoint-done."
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": null
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-appoint-done"
+                    ],
+                    "payload": {
+                        "transition": "enact",
+                        "from": "decided",
+                        "to": "enacted",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-appoint-done",
+                        "action": "enact",
+                        "from": "decided",
+                        "to": "enacted"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-appointment-rejected": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "Only decisions with outcome 'adopted' may be enacted."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-appoint-rejected",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
+    "archive-enacted": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-enacted",
+                "lifecycle": "archived",
+                "enactedAt": "2026-06-13T10:00:00+00:00",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12"
+            },
+            "message": "Decision transitioned to 'archived'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-enacted",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-enacted",
+                        "lifecycle": "archived",
+                        "enactedAt": "2026-06-13T10:00:00+00:00",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-enacted"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-enacted"
+                    ],
+                    "payload": {
+                        "transition": "archive",
+                        "from": "enacted",
+                        "to": "archived",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-enacted",
+                        "action": "archive",
+                        "from": "enacted",
+                        "to": "archived"
+                    }
+                ]
+            }
+        ]
+    },
+    "delegated-decided": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-delegated",
+                "lifecycle": "decided",
+                "sourceApp": "dossiq",
+                "externalReference": "zaak-7",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12"
+            },
+            "message": "Decision transitioned to 'decided'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-delegated",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-delegated",
+                        "lifecycle": "decided",
+                        "sourceApp": "dossiq",
+                        "externalReference": "zaak-7",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-delegated"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "mallory",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-delegated"
+                    ],
+                    "payload": {
+                        "transition": "decide",
+                        "from": "voting",
+                        "to": "decided",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-delegated",
+                        "action": "decide",
+                        "from": "voting",
+                        "to": "decided"
+                    }
+                ]
+            },
+            {
+                "envelope": "d-delegated"
+            },
+            {
+                "event": [
+                    "OCA\\Decidiq\\Event\\DecisionConcludedEvent",
+                    {
+                        "decisionId": "d-delegated",
+                        "decisionType": "motion",
+                        "status": "decided",
+                        "outcome": "adopted",
+                        "signed": true,
+                        "signingReference": "sig-1",
+                        "signers": [
+                            "chair-uid"
+                        ],
+                        "decidedAt": "2026-06-12",
+                        "sourceApp": "dossiq",
+                        "subjectRegister": "dossiq",
+                        "subjectSchema": "zaak",
+                        "subjectId": "z-7",
+                        "externalReference": "ext-7",
+                        "correlationId": "zaak-7"
+                    }
+                ]
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: dispatched DecisionConcludedEvent",
+                    {
+                        "id": "d-delegated",
+                        "sourceApp": "dossiq",
+                        "state": "decided"
+                    }
+                ]
+            }
+        ]
+    },
+    "delegated-no-envelope": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-delegated-none",
+                "lifecycle": "decided",
+                "sourceApp": "dossiq",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12"
+            },
+            "message": "Decision transitioned to 'decided'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-delegated-none",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-delegated-none",
+                        "lifecycle": "decided",
+                        "sourceApp": "dossiq",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-delegated-none"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-delegated-none"
+                    ],
+                    "payload": {
+                        "transition": "decide",
+                        "from": "voting",
+                        "to": "decided",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-delegated-none",
+                        "action": "decide",
+                        "from": "voting",
+                        "to": "decided"
+                    }
+                ]
+            },
+            {
+                "envelope": "d-delegated-none"
+            }
+        ]
+    },
+    "delegated-envelope-throws": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-delegated-boom",
+                "lifecycle": "decided",
+                "sourceApp": "dossiq",
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12"
+            },
+            "message": "Decision transitioned to 'decided'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-delegated-boom",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-delegated-boom",
+                        "lifecycle": "decided",
+                        "sourceApp": "dossiq",
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-delegated-boom"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-delegated-boom"
+                    ],
+                    "payload": {
+                        "transition": "decide",
+                        "from": "voting",
+                        "to": "decided",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-delegated-boom",
+                        "action": "decide",
+                        "from": "voting",
+                        "to": "decided"
+                    }
+                ]
+            },
+            {
+                "envelope": "d-delegated-boom"
+            },
+            {
+                "log": [
+                    "error",
+                    "Decidiq: decision concluded but DecisionConcludedEvent dispatch failed",
+                    {
+                        "id": "d-delegated-boom",
+                        "exception": "integration down"
+                    }
+                ]
+            }
+        ]
+    },
+    "delegated-not-terminal": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-delegated-delib",
+                "lifecycle": "voting",
+                "sourceApp": "dossiq"
+            },
+            "message": "Decision transitioned to 'voting'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-delegated-delib",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-delegated-delib",
+                        "lifecycle": "voting",
+                        "sourceApp": "dossiq"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-delegated-delib"
+                }
+            },
+            {
+                "audit": {
+                    "actor": "x",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-delegated-delib"
+                    ],
+                    "payload": {
+                        "transition": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-delegated-delib",
+                        "action": "openVoting",
+                        "from": "deliberating",
+                        "to": "voting"
+                    }
+                ]
+            }
+        ]
+    }
+}

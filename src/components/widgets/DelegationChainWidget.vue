@@ -140,6 +140,18 @@ import {
 import { NcButton } from '@nextcloud/vue'
 import { resolveObjectLabel } from './registerDetailWidgets.js'
 
+/**
+ * The slug of a record: its own, or the one under its self block.
+ *
+ * @param {object|null} record The record.
+ * @return {string} The slug, or an empty string.
+ */
+function slugOf(record) {
+	if (!record) return ''
+	const self = record['@self'] || {}
+	return self.slug || record.slug || ''
+}
+
 export default {
 	name: 'DelegationChainWidget',
 
@@ -336,60 +348,9 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				this.ensureRegistered(store)
-				const { schema, parentRefField, decisionRefField, register } =
-					this.cfg
-				let current = this.safeObjectData
-				if (!current || !current.id) {
-					current = await store.fetchObject(schema, id)
-				}
-				const parentSlug =
-					(current && current['@self'] && current['@self'].slug)
-					|| (current && current.slug)
-					|| ''
-				const [ancestorObjs, childObjsById] = await Promise.all([
-					this.walkAncestorsAsync(store, schema, current),
-					store.fetchCollection(schema, {
-						[parentRefField]: id,
-						_limit: 100,
-					}),
-				])
-				// OpenRegister's seed importer stores `$ref` values as raw
-				// SLUG strings rather than resolved UUIDs, so a seeded
-				// ondermandaat points at its parent's slug, not its id.
-				// Live-verified 2026-08-19 on the sibling version-timeline
-				// widget: filtering on the id alone returned nothing and the
-				// widget rendered an empty shell. Retry once on the slug.
-				let childObjs = childObjsById
-				if (
-					Array.isArray(childObjs)
-					&& childObjs.length === 0
-					&& parentSlug
-				) {
-					childObjs = await store.fetchCollection(schema, {
-						[parentRefField]: parentSlug,
-						_limit: 100,
-					})
-				}
-				this.ancestors = ancestorObjs.map((obj) => ({
-					id: obj.id,
-					label: this.rowLabel(obj),
-				}))
-				this.children = (childObjs || [])
-					.filter((c) => String(c.id) !== String(id))
-					.map((obj) => ({ id: obj.id, label: this.rowLabel(obj) }))
-
-				await this.resolveParties(store, current, register)
-				if (decisionRefField && current && current[decisionRefField]) {
-					this.decisionLabel = await resolveObjectLabel(
-						store,
-						'decision',
-						'decision',
-						register,
-						current[decisionRefField],
-						'title',
-					)
-				}
+				const current = await this.loadChain(store, id)
+				await this.resolveParties(store, current)
+				await this.resolveDecision(store, current)
 			} catch (e) {
 				this.error =
 					e?.message
@@ -401,6 +362,88 @@ export default {
 		},
 
 		/**
+		 * Load the current toedeling, its ancestors and its children, and
+		 * return the current record.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @param {object} store The object store.
+		 * @param {string} id The current toedeling id.
+		 * @return {Promise<object>} The current toedeling record.
+		 */
+		async loadChain(store, id) {
+			this.ensureRegistered(store)
+			const { schema, parentRefField } = this.cfg
+			const current = await this.currentRecord(store, id)
+			const [ancestorObjs, childObjsById] = await Promise.all([
+				this.walkAncestorsAsync(store, schema, current),
+				store.fetchCollection(schema, {
+					[parentRefField]: id,
+					_limit: 100,
+				}),
+			])
+			// OpenRegister's seed importer stores `$ref` values as raw
+			// SLUG strings rather than resolved UUIDs, so a seeded
+			// ondermandaat points at its parent's slug, not its id.
+			// Live-verified 2026-08-19 on the sibling version-timeline
+			// widget: filtering on the id alone returned nothing and the
+			// widget rendered an empty shell. Retry once on the slug.
+			let childObjs = childObjsById
+			const parentSlug = slugOf(current)
+			if (Array.isArray(childObjs) && childObjs.length === 0 && parentSlug) {
+				childObjs = await store.fetchCollection(schema, {
+					[parentRefField]: parentSlug,
+					_limit: 100,
+				})
+			}
+			this.ancestors = ancestorObjs.map((obj) => ({
+				id: obj.id,
+				label: this.rowLabel(obj),
+			}))
+			this.children = (childObjs || [])
+				.filter((c) => String(c.id) !== String(id))
+				.map((obj) => ({ id: obj.id, label: this.rowLabel(obj) }))
+			return current
+		},
+
+		/**
+		 * The current toedeling: the loaded object data, else fetched by id.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @param {object} store The object store.
+		 * @param {string} id The current toedeling id.
+		 * @return {Promise<object>} The current toedeling record.
+		 */
+		async currentRecord(store, id) {
+			const current = this.safeObjectData
+			if (current && current.id) {
+				return current
+			}
+			return store.fetchObject(this.cfg.schema, id)
+		},
+
+		/**
+		 * Resolve the label of the decision the toedeling rests on.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @param {object} store The object store.
+		 * @param {object} current The current toedeling record.
+		 * @return {Promise<void>}
+		 */
+		async resolveDecision(store, current) {
+			const { decisionRefField, register } = this.cfg
+			if (decisionRefField && current && current[decisionRefField]) {
+				this.decisionLabel = await resolveObjectLabel(
+					store,
+					'decision',
+					'decision',
+					register,
+					current[decisionRefField],
+					'title',
+				)
+			}
+		},
+
+		/**
 		 * Resolve the delegans / delegataris display: a referenced
 		 * GovernanceBody/Person label where set, else the plain-text
 		 * description/function field (bevoegdheidstoedeling's own anyOf).
@@ -408,28 +451,53 @@ export default {
 		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {object} current The current toedeling record.
-		 * @param {string} register The register slug.
 		 * @return {Promise<void>}
 		 */
-		async resolveParties(store, current, register) {
+		async resolveParties(store, current) {
 			if (!current) {
 				this.delegansLabel = ''
 				this.delegatarisLabel = ''
 				return
 			}
-			this.delegansLabel = current.delegans
-				? await resolveObjectLabel(
-						store,
-						'governance-body',
-						'governance-body',
-						register,
-						current.delegans,
-						'name',
-					)
-				: current.delegansDescription || ''
+			this.delegansLabel = await this.delegansOf(store, current)
+			this.delegatarisLabel = await this.delegatarisOf(store, current)
+		},
 
+		/**
+		 * The delegans: the referenced body, else its description.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @param {object} store The object store.
+		 * @param {object} current The current toedeling record.
+		 * @return {Promise<string>}
+		 */
+		async delegansOf(store, current) {
+			if (!current.delegans) {
+				return current.delegansDescription || ''
+			}
+			return resolveObjectLabel(
+				store,
+				'governance-body',
+				'governance-body',
+				this.cfg.register,
+				current.delegans,
+				'name',
+			)
+		},
+
+		/**
+		 * The delegataris: the referenced body, the role, the referenced
+		 * person, or nothing, in that order.
+		 *
+		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @param {object} store The object store.
+		 * @param {object} current The current toedeling record.
+		 * @return {Promise<string>}
+		 */
+		async delegatarisOf(store, current) {
+			const { register } = this.cfg
 			if (current.delegatarisBody) {
-				this.delegatarisLabel = await resolveObjectLabel(
+				return resolveObjectLabel(
 					store,
 					'governance-body',
 					'governance-body',
@@ -437,10 +505,12 @@ export default {
 					current.delegatarisBody,
 					'name',
 				)
-			} else if (current.delegateRole) {
-				this.delegatarisLabel = current.delegateRole
-			} else if (current.delegatePerson) {
-				this.delegatarisLabel = await resolveObjectLabel(
+			}
+			if (current.delegateRole) {
+				return current.delegateRole
+			}
+			if (current.delegatePerson) {
+				return resolveObjectLabel(
 					store,
 					'person',
 					'person',
@@ -448,9 +518,8 @@ export default {
 					current.delegatePerson,
 					'name',
 				)
-			} else {
-				this.delegatarisLabel = ''
 			}
+			return ''
 		},
 
 		/**

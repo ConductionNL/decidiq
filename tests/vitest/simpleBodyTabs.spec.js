@@ -20,13 +20,7 @@ const PAGE = 'GovernanceBodyDetail'
 const SCHEMA = 'governance-body'
 const STRIP = 'body-panels'
 const VISIBLE = ['Overview', 'Members', 'Meetings', 'Documents', 'History']
-const VISIBLE_NL = [
-	'Overzicht',
-	'Leden',
-	'Vergaderingen',
-	'Documenten',
-	'Historie',
-]
+const VISIBLE_NL = ['Overzicht', 'Leden', 'Vergaderingen', 'Documenten', 'Historie']
 const OVERFLOW = [
 	'Process template',
 	'Efficiency',

@@ -198,7 +198,7 @@ class PublicationServiceTest extends TestCase {
 		$payloadId = $result['record']['payloadObject'];
 		$this->assertArrayHasKey('publicationDate', $this->store[$payloadId]);
 		$this->assertTrue($this->isPubliclyReadable($this->store[$payloadId]));
-		$this->assertNull($this->store[$payloadId]['depublicationDate']);
+		$this->assertArrayNotHasKey('depublicationDate', $this->store[$payloadId]);
 
 	}//end testPublishEnactedDecisionCreatesRecord()
 

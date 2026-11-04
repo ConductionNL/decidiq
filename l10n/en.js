@@ -3329,7 +3329,14 @@ OC.L10N.register(
         "Extraordinary meeting": "Extraordinary meeting",
         "Committee meeting": "Committee meeting",
         "Public hearing": "Public hearing",
-        "General assembly": "General assembly"
+        "General assembly": "General assembly",
+        "The person a live stage waits on, empty when the stage is not active.": "The person a live stage waits on, empty when the stage is not active.",
+        "The executive member responsible for this decision.": "The executive member responsible for this decision.",
+        "The name of the voting group.": "The name of the voting group.",
+        "What the voting group is for.": "What the voting group is for.",
+        "The body whose members make up the group.": "The body whose members make up the group.",
+        "The people in the group.": "The people in the group.",
+        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens."
     },
     "nplurals=2; plural=(n != 1);"
 )

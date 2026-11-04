@@ -108,12 +108,14 @@ class LiveDecisionService {
 			// Activity feed (fail-soft): a decision was recorded.
 			try {
 				$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-					subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_DECISION_RECORDED,
-					title: (string)($decision['title'] ?? $decisionSlug),
-					status: (string)($decision['outcome'] ?? ''),
-					objectType: 'decision',
-					objectUuid: (string)($decision['id'] ?? ($decision['@self']['id'] ?? $decisionSlug)),
-					segment: 'decisions'
+					activity: [
+						'subject' => \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_DECISION_RECORDED,
+						'title' => (string)($decision['title'] ?? $decisionSlug),
+						'status' => (string)($decision['outcome'] ?? ''),
+						'objectType' => 'decision',
+						'objectUuid' => (string)($decision['id'] ?? ($decision['@self']['id'] ?? $decisionSlug)),
+						'segment' => 'decisions',
+					]
 				);
 			} catch (\Throwable $activityError) {
 				$this->logger->debug('Decidiq: activity publish skipped', ['error' => $activityError->getMessage()]);

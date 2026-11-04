@@ -30,6 +30,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Mcp;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Mcp\McpActionItemTools;
+use OCA\Decidiq\Mcp\McpMeetingTools;
 use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -81,7 +83,11 @@ class DecidiqToolProviderGoldenTest extends TestCase {
 			$this->names[spl_object_id($mock)] = $name;
 		}
 
-		$provider = new DecidiqToolProvider(...$mocks);
+		$shared   = array_diff_key($mocks, ['meetingService' => true, 'container' => true]);
+		$provider = new DecidiqToolProvider(
+			actionItemTools: new McpActionItemTools(...$shared, container: $mocks['container']),
+			meetingTools: new McpMeetingTools(...$shared, meetingService: $mocks['meetingService']),
+		);
 
 		$actual = [
 			'appId'   => $provider->getAppId(),
