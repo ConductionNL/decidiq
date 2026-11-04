@@ -139,12 +139,13 @@ class MinutesDraftService {
 
 		$provenance = DraftProvenance::now(providerId: $this->preferredProviderId())->toArray();
 		$sections = $this->buildSections(
-			segments: $segments,
 			agendaItems: $agendaItems,
-			votingRounds: $votingRounds,
-			decisions: $decisions,
-			providerId: $provenance['providerId'],
-			generatedAt: $provenance['generatedAt']
+			run: new MinutesDraftRun(
+				segments: $segments,
+				outcomes: new MinutesOutcomes(votingRounds: $votingRounds, decisions: $decisions),
+				provenance: new DraftProvenance(providerId: $provenance['providerId'], generatedAt: $provenance['generatedAt']),
+				runner: fn (string $prompt): string => $this->runPrompt(prompt: $prompt)
+			)
 		);
 
 		$draft = [
@@ -163,43 +164,18 @@ class MinutesDraftService {
 	 * Build the per-section draft (or a flat whole-meeting section).
 	 *
 	 * Exposed (public) so the section-assembly + cross-check logic can be
-	 * unit-tested without OR/TaskProcessing by injecting a runner. The default
-	 * runner uses the real TaskProcessing provider.
+	 * unit-tested without OR/TaskProcessing: the run carries the prompt runner,
+	 * which generate() points at the real TaskProcessing provider.
 	 *
-	 * @param array<int,array<string,mixed>> $segments Aligned transcript segments.
 	 * @param array<int,array<string,mixed>> $agendaItems Agenda items.
-	 * @param array<int,array<string,mixed>> $votingRounds Recorded voting rounds.
-	 * @param array<int,array<string,mixed>> $decisions Recorded decisions.
-	 * @param string $providerId AI provider id (provenance).
-	 * @param string $generatedAt Generation timestamp (provenance).
-	 * @param callable|null $runner Optional prompt runner (test seam).
+	 * @param MinutesDraftRun $run Segments, recorded outcomes, provenance and prompt runner.
 	 *
 	 * @return array<int,array<string,mixed>> The draft sections.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
-	public function buildSections(
-		array $segments,
-		array $agendaItems,
-		array $votingRounds,
-		array $decisions,
-		string $providerId,
-		string $generatedAt,
-		?callable $runner = null,
-	): array {
-		$run = ($runner ?? function (string $prompt): string {
-			return $this->runPrompt(prompt: $prompt);
-		});
-
-		return $this->getComposer()->buildSections(
-			agendaItems: $agendaItems,
-			run: new MinutesDraftRun(
-				segments: $segments,
-				outcomes: new MinutesOutcomes(votingRounds: $votingRounds, decisions: $decisions),
-				provenance: new DraftProvenance(providerId: $providerId, generatedAt: $generatedAt),
-				runner: $run
-			)
-		);
+	public function buildSections(array $agendaItems, MinutesDraftRun $run): array {
+		return $this->getComposer()->buildSections(agendaItems: $agendaItems, run: $run);
 
 	}//end buildSections()
 

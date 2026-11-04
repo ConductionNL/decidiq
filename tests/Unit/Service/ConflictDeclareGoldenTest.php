@@ -4,7 +4,8 @@
  * Golden test for declaring a conflict of interest.
  *
  * Declares through ConflictOfInterestController::declare() as the declaring
- * member, another member, the chair, an admin and nobody; with a forged
+ * member, another member, the chair and an admin (for that member and for
+ * another one) and nobody; with a forged
  * `callerUid`, `userId` or `actor` parameter; with the member's Membership
  * omitted (declared from a page) for a user who is and who is not a member;
  * with every severity, an unknown type and severity, the recusal flag in its
@@ -112,6 +113,8 @@ class ConflictDeclareGoldenTest extends TestCase {
 			'other-member-for-anna'     => ['user' => 'bert', 'params' => $own],
 			'chair-for-anna'            => ['user' => 'chair', 'params' => $own],
 			'admin-for-anna'            => ['user' => 'admin', 'params' => $own],
+			'chair-for-bert'            => ['user' => 'chair', 'params' => ['membershipId' => 'M-bert'] + $own],
+			'admin-for-bert'            => ['user' => 'admin', 'params' => ['membershipId' => 'M-bert'] + $own],
 			'signed-out'                => ['user' => null, 'params' => $own],
 			'forged-caller-params'      => ['user' => 'bert', 'params' => $own + ['callerUid' => 'anna', 'userId' => 'anna', 'actor' => 'chair']],
 			'non-material'              => ['user' => 'anna', 'params' => ['severity' => 'non-material'] + $own],
