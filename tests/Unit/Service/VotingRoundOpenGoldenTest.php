@@ -269,8 +269,8 @@ class VotingRoundOpenGoldenTest extends TestCase {
 		);
 		$activity = $this->createMock(ActivityPublisherService::class);
 		$activity->method('publishGovernanceEvent')->willReturnCallback(
-			function (string $subject, string $title, string $status, string $objectType, string $objectUuid, string $segment, array $affectedUserIds = []): int {
-				$this->log[] = ['activity' => [$subject, $title, $status, $objectType, $objectUuid, $segment, $affectedUserIds]];
+			function (array $activity, array $affectedUserIds = []): int {
+				$this->log[] = ['activity' => [...array_values($activity), $affectedUserIds]];
 				return 1;
 			}
 		);

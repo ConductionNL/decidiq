@@ -112,12 +112,14 @@ class ActivityPublisherServiceTest extends TestCase {
 		$service = $this->makeService(activityManager: $manager, sessionUid: 'chair');
 
 		$count = $service->publishGovernanceEvent(
-			subject: 'decision_recorded',
-			title: 'Budget',
-			status: 'adopted',
-			objectType: 'decision',
-			objectUuid: 'uuid-1',
-			segment: 'decisions',
+			activity: [
+				'subject' => 'decision_recorded',
+				'title' => 'Budget',
+				'status' => 'adopted',
+				'objectType' => 'decision',
+				'objectUuid' => 'uuid-1',
+				'segment' => 'decisions',
+			],
 			affectedUserIds: ['alice', 'bob', 'alice', '', 'chair']
 		);
 
@@ -142,12 +144,14 @@ class ActivityPublisherServiceTest extends TestCase {
 		self::assertSame(
 			expected: 0,
 			actual: $service->publishGovernanceEvent(
-				subject: 'decision_recorded',
-				title: 'Budget',
-				status: '',
-				objectType: 'decision',
-				objectUuid: 'uuid-1',
-				segment: 'decisions'
+				activity: [
+					'subject' => 'decision_recorded',
+					'title' => 'Budget',
+					'status' => '',
+					'objectType' => 'decision',
+					'objectUuid' => 'uuid-1',
+					'segment' => 'decisions',
+				]
 			)
 		);
 
@@ -166,12 +170,14 @@ class ActivityPublisherServiceTest extends TestCase {
 		self::assertSame(
 			expected: 0,
 			actual: $service->publishGovernanceEvent(
-				subject: 'decision_recorded',
-				title: 'Budget',
-				status: '',
-				objectType: 'decision',
-				objectUuid: 'uuid-1',
-				segment: 'decisions',
+				activity: [
+					'subject' => 'decision_recorded',
+					'title' => 'Budget',
+					'status' => '',
+					'objectType' => 'decision',
+					'objectUuid' => 'uuid-1',
+					'segment' => 'decisions',
+				],
 				affectedUserIds: ['alice']
 			)
 		);
