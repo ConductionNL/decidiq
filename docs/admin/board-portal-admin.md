@@ -129,6 +129,25 @@ appconfig `decidesk:export_format_provider=docudesk`.
 Every export is mirrored to the hash-chained audit log
 (`AuditLogService::append(actor:..., action: 'regulator-export', ...)`).
 
+### Formulas in CSV cells
+
+Every CSV export (regulator export, audit log, governance report) writes
+its cells so a spreadsheet never runs them as a formula:
+
+- A cell that starts with `=`, `+`, `-`, `@`, a tab or a carriage return
+  gets a leading apostrophe. Spaces before that character do not matter.
+- The same apostrophe goes after a `;` or a line break inside a cell when
+  such a character follows. A reader that splits on `;` (Excel in Dutch)
+  starts a new cell there.
+- A cell with a comma, semicolon, quote or line break is quoted.
+
+Ordinary values can get the apostrophe too. Examples: `-5`, `+31 6 12345678`,
+and a list such as `a` followed by a new line with `- b`. The apostrophe
+is part of the text. Some readers show it, and a script reads it as a
+character. Need the exact values? Use the JSON export where it exists
+(`GET /api/audit-log/export?format=json`), or remove the apostrophe that
+precedes these characters.
+
 ## 7. Audit log verification
 
 The audit log is **append-only + hash-chained**. To verify integrity:

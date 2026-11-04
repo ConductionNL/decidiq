@@ -1941,7 +1941,8 @@
               "group": "public",
               "match": {
                 "isPublished": "public"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -3908,7 +3909,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4185,7 +4187,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4532,7 +4535,8 @@
                   "$lte": "$now"
                 },
                 "moderationStatus": "approved"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -5290,7 +5294,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -5622,7 +5627,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],

@@ -54,7 +54,8 @@
               "group": "public",
               "match": {
                 "status": "in-effect"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -339,7 +340,8 @@
               "group": "public",
               "match": {
                 "status": "in-effect"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
