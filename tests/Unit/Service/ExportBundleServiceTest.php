@@ -26,6 +26,7 @@ use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Service\ExportBundleService;
 use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\Decidiq\Support\FilinqPdf;
+use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
@@ -48,6 +49,8 @@ use ZipArchive;
 /**
  * @covers \OCA\Decidiq\Service\ExportBundleService
  * @covers \OCA\Decidiq\Service\ExportBundleWriter
+ * @uses   \OCA\Decidiq\Service\ExportPdfRun
+ * @uses   \OCA\Decidiq\Support\OpenRegisterFiles
  * @covers \OCA\Decidiq\Exception\ExportBundleException
  * @uses   \OCA\Decidiq\Support\FilinqPdf
  * @uses   \OCA\Decidiq\Support\FleetAppId
@@ -286,13 +289,12 @@ class ExportBundleServiceTest extends TestCase {
 		$apps->method('isInstalled')->willReturn(true);
 
 		$writer = new ExportBundleWriter(
-			container: $container,
+			files: new OpenRegisterFiles(appManager: $apps, container: $container),
 			pdf: new FilinqPdf($container, $logger),
 			rootFolder: $root,
 			tempManager: $temp,
 			jobList: $jobList,
 			logger: $logger,
-			appManager: $apps,
 		);
 
 		return new ExportBundleService(

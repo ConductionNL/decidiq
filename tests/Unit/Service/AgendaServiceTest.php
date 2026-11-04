@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -123,10 +124,9 @@ class AgendaServiceTest extends TestCase {
 		$this->service = new AgendaService(
 			objectService: $this->objectService,
 			calendarEventService: $this->calendarEventService,
-			preferences: $this->preferences,
+			notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 			logger: $this->logger,
 			participantResolver: $this->participantResolver,
-			l10nFactory: $this->l10nFactory,
 			eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 		);
 
@@ -266,10 +266,9 @@ class AgendaServiceTest extends TestCase {
 			$freshService = new AgendaService(
 				objectService: $objectService,
 				calendarEventService: $this->calendarEventService,
-				preferences: $this->preferences,
+				notices: new AgendaNotices(preferences: $this->preferences, l10nFactory: $this->l10nFactory, logger: $this->logger),
 				logger: $this->logger,
 				participantResolver: $this->participantResolver,
-				l10nFactory: $this->l10nFactory,
 				eventRecorder: $this->createMock(\OCA\Decidiq\Service\PublicationEventRecorder::class),
 			);
 

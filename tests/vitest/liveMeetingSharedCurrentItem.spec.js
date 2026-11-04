@@ -205,7 +205,7 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 			{ id: 'P-anna', displayName: 'Anna' },
 			{ id: 'P-pieter', name: 'Pieter' },
 		]
-		expect(contributionsOn(records, ITEM5, participants)).toEqual([
+		expect(contributionsOn(ITEM5, { records, participants })).toEqual([
 			{ participantId: 'P-anna', name: 'Anna', kind: 'speech', duration: 90 },
 			{
 				participantId: 'P-pieter',
@@ -214,7 +214,7 @@ describe('speeches and questions are logged per item (REQ-LSC-004)', () => {
 				duration: 0,
 			},
 		])
-		expect(contributionsOn(records, null, participants)).toEqual([])
+		expect(contributionsOn(null, { records, participants })).toEqual([])
 	})
 
 	it('the speaker queue shows the contributions on the current item', () => {

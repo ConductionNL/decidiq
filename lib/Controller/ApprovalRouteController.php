@@ -135,13 +135,13 @@ class ApprovalRouteController extends Controller {
 	 */
 	private function stagesFor(array $route, string $subject, string $subjectSchema): array {
 		if ((string)($route['origin'] ?? '') === 'adhoc') {
+			$held = $this->service->heldRouteFrom(route: $route, subject: $subject, subjectSchema: $subjectSchema);
+
 			return $this->service->holdFor(
-				subject: $subject,
-				actors: $this->actorsOf(route: $route),
-				subjectSchema: $subjectSchema,
-				deadline: (string)$this->request->getParam('deadline', ''),
-				name: (string)($route['name'] ?? 'Review'),
-				askSubstituteAfter: $this->askSubstituteAfter(),
+				request: $held->due(
+					deadline: (string)$this->request->getParam('deadline', ''),
+					askSubstituteAfter: $this->askSubstituteAfter()
+				)
 			);
 		}
 
@@ -199,48 +199,6 @@ class ApprovalRouteController extends Controller {
 
 		return ApprovalPrincipal::Ordinary;
 	}//end callerPrincipal()
-
-	/**
-	 * The people an ad-hoc route's steps name, in step order.
-	 *
-	 * @param array<string, mixed> $route The route as the caller sent it.
-	 *
-	 * @return array<int, string> The people.
-	 *
-	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-008)
-	 */
-	private function actorsOf(array $route): array {
-		$steps = ($route['steps'] ?? []);
-		if (is_array($steps) === false) {
-			return [];
-		}
-
-		usort(
-			$steps,
-			static function (mixed $first, mixed $second): int {
-				$orderOfFirst = 0;
-				if (is_array($first) === true) {
-					$orderOfFirst = (int)($first['order'] ?? 0);
-				}
-
-				$orderOfSecond = 0;
-				if (is_array($second) === true) {
-					$orderOfSecond = (int)($second['order'] ?? 0);
-				}
-
-				return ($orderOfFirst <=> $orderOfSecond);
-			}
-		);
-
-		$actors = [];
-		foreach ($steps as $step) {
-			if (is_array($step) === true && trim((string)($step['actor'] ?? '')) !== '') {
-				$actors[] = trim((string)$step['actor']);
-			}
-		}
-
-		return $actors;
-	}//end actorsOf()
 
 	/**
 	 * Record an action on a subject's active stage.

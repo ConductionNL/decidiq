@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -52,6 +53,7 @@ use Throwable;
  * Golden test for the agenda notices of AgendaService.
  *
  * @covers \OCA\Decidiq\Service\AgendaService
+ * @uses   \OCA\Decidiq\Service\AgendaRules
  * @uses   \OCA\Decidiq\Service\AgendaInvitation
  * @uses   \OCA\Decidiq\Service\AgendaNotices
  * @uses   \OCA\Decidiq\Exception\NotFoundException
@@ -246,13 +248,13 @@ class AgendaNoticesGoldenTest extends TestCase {
 			}
 		);
 
+		$logger = $this->logger();
 		return new AgendaService(
 			objectService: $objects,
 			calendarEventService: $this->createMock(CalendarEventService::class),
-			preferences: $preferences,
-			logger: $this->logger(),
+			notices: new AgendaNotices(preferences: $preferences, l10nFactory: $factory, logger: $logger),
+			logger: $logger,
 			participantResolver: $resolver,
-			l10nFactory: $factory,
 			eventRecorder: $recorder,
 		);
 	}//end service()
