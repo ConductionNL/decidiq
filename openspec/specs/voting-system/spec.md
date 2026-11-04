@@ -142,6 +142,16 @@ abstentions, T = F+A+B):
 - THEN the chair MUST be able to select the vote threshold (simple majority, two-thirds, three-quarters, unanimous), the abstention handling (exclude or count), and the tie-break rule (motion fails, chair decides, revote)
 - AND the defaults MUST be simple majority, abstentions excluded, and motion fails on a tie
 
+#### Scenario: A round opens only on a motion of the meeting whose chair opens it
+
+@e2e exclude needs two meetings with different chairs and a forged request body, which the UI cannot send; covered by PHPUnit (VotingOpenSubjectScopeTest)
+
+- GIVEN a user who is chair or secretary of meeting A and holds no role in meeting B
+- WHEN that user opens a round with `meetingId` A on a motion of meeting B, on an amendment of a motion of meeting B, or on a motion without a meeting
+- THEN the system MUST refuse it with 403 and open no round
+- AND a round with `revoteOfRound` MUST be refused with 403 when the referenced round votes on another motion or amendment than the new round
+- AND the motion's meeting MUST be read from the stored motion (for an amendment, from its parent motion), never from the request
+
 #### Scenario: Abstentions counted toward the base
 
 @e2e exclude tally math is server-side; covered by the PHPUnit tally matrix (count-mode rows)
