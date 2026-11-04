@@ -60,33 +60,31 @@ class ActivityPublisherService {
 	 * session user is always included so an event is never published to
 	 * nobody). Failures are logged at debug level and swallowed.
 	 *
-	 * @param string $subject Subject id (one of the DecidiqProvider::SUBJECT_* constants)
-	 * @param string $title The object title rendered in the subject
-	 * @param string $status Optional status/lifecycle rendered in the subject
-	 * @param string $objectType Activity object type (e.g. 'decision', 'meeting', 'voting-round', 'resolution')
-	 * @param string $objectUuid The OpenRegister object uuid
-	 * @param string $segment Frontend route segment for the deep link (e.g. 'decisions')
+	 * The activity holds the subject id (one of the DecidiqProvider::SUBJECT_*
+	 * constants), the object title and optional status rendered in the subject,
+	 * the activity object type (e.g. 'decision', 'meeting'), the OpenRegister
+	 * object uuid and the frontend route segment for the deep link (e.g.
+	 * 'decisions').
+	 *
+	 * @param array{subject: string, title: string, status: string, objectType: string, objectUuid: string, segment: string} $activity The activity
 	 * @param array<string> $affectedUserIds Nextcloud UIDs the entry is addressed to (acting user auto-added)
 	 *
 	 * @return int The number of activity entries published
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
-	public function publishGovernanceEvent(
-		string $subject,
-		string $title,
-		string $status,
-		string $objectType,
-		string $objectUuid,
-		string $segment,
-		array $affectedUserIds = [],
-	): int {
+	public function publishGovernanceEvent(array $activity, array $affectedUserIds = []): int {
 		return $this->publish(
 			entry: [
-				'subject' => $subject,
-				'parameters' => ['title' => $title, 'status' => $status, 'uuid' => $objectUuid, 'segment' => $segment],
-				'objectType' => $objectType,
-				'objectUuid' => $objectUuid,
+				'subject' => $activity['subject'],
+				'parameters' => [
+					'title' => $activity['title'],
+					'status' => $activity['status'],
+					'uuid' => $activity['objectUuid'],
+					'segment' => $activity['segment'],
+				],
+				'objectType' => $activity['objectType'],
+				'objectUuid' => $activity['objectUuid'],
 			],
 			affectedUserIds: $affectedUserIds
 		);

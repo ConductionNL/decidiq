@@ -319,8 +319,8 @@ class MeetingTransitionGoldenTest extends TestCase {
 		$case      = $this->case;
 		$publisher = $this->createMock(ActivityPublisherService::class);
 		$publisher->method('publishGovernanceEvent')->willReturnCallback(
-			function (string $subject, string $title, string $status, string $objectType, string $objectUuid, string $segment) use ($case): int {
-				$this->log[] = ['publishGovernanceEvent' => [$subject, $title, $status, $objectType, $objectUuid, $segment]];
+			function (array $activity) use ($case): int {
+				$this->log[] = ['publishGovernanceEvent' => array_values($activity)];
 				if (($case['activity'] ?? null) === 'throw') {
 					throw new RuntimeException('activity down');
 				}

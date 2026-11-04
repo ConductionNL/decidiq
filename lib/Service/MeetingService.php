@@ -426,12 +426,14 @@ class MeetingService {
 	private function publishTransitionActivity(string $meetingId, array $change): void {
 		try {
 			$this->container->get(\OCA\Decidiq\Service\ActivityPublisherService::class)->publishGovernanceEvent(
-				subject: \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_MEETING_TRANSITION,
-				title: (string)($change['meeting']['title'] ?? $meetingId),
-				status: self::TRANSITIONS[$change['action']]['to'],
-				objectType: 'meeting',
-				objectUuid: $meetingId,
-				segment: 'meetings'
+				activity: [
+					'subject' => \OCA\Decidiq\Activity\DecidiqProvider::SUBJECT_MEETING_TRANSITION,
+					'title' => (string)($change['meeting']['title'] ?? $meetingId),
+					'status' => self::TRANSITIONS[$change['action']]['to'],
+					'objectType' => 'meeting',
+					'objectUuid' => $meetingId,
+					'segment' => 'meetings',
+				]
 			);
 		} catch (Throwable $activityError) {
 			$this->logger->debug('Decidiq: activity publish skipped', ['error' => $activityError->getMessage()]);
