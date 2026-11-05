@@ -8,7 +8,7 @@
 		{ "id": "reports", "pageId": "Reports", "type": "reports", "path": "/reports", "owner": "decidiq" },
 		{ "id": "store", "pageId": "Store", "type": "store", "path": "/store", "owner": "decidiq" },
 		{ "id": "roadmap", "pageId": "FeaturesRoadmap", "type": "roadmap", "path": "/features-roadmap", "owner": "decidiq" },
-		{ "id": "flow", "pageId": "FlowDetail", "type": "flow-detail", "from": "/flows", "owner": "decidiq" },
+		{ "id": "flow", "pageId": "FlowDetail", "type": "flow", "from": "/flows", "owner": "decidiq" },
 		{ "id": "live-meeting", "pageId": "LiveMeeting", "type": "custom", "from": "/meetings", "suffix": "/live", "owner": "decidiq" },
 		{ "id": "search", "pageId": "Search", "type": "search", "path": "/search", "owner": "decidiq" }
 	],
