@@ -35,11 +35,11 @@ use OCA\Decidiq\Service\PaperSummaryAccess;
 use OCA\Decidiq\Service\PaperSummaryService;
 use OCA\Decidiq\Service\PaperText;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Db\Chunk;
-use OCA\OpenRegister\Db\ChunkMapper;
+use OCA\OpenRegister\Files\Db\Chunk;
+use OCA\OpenRegister\Files\Db\ChunkMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\FileService;
-use OCA\OpenRegister\Service\TextExtractionService;
+use OCA\OpenRegister\Files\Service\TextExtractionService;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\Files\File;
 use OCP\IGroupManager;
@@ -191,8 +191,8 @@ class PaperSummaryServiceTest extends TestCase {
 		$chunkMapper->method('findBySource')->willReturn($chunks);
 		$services = [
 			'OCA\OpenRegister\Service\FileService' => $fileService,
-			'OCA\OpenRegister\Service\TextExtractionService' => $this->createMock(TextExtractionService::class),
-			'OCA\OpenRegister\Db\ChunkMapper' => $chunkMapper,
+			'OCA\OpenRegister\Files\Service\TextExtractionService' => $this->createMock(TextExtractionService::class),
+			'OCA\OpenRegister\Files\Db\ChunkMapper' => $chunkMapper,
 		];
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(static fn (string $id): object => $services[$id]);

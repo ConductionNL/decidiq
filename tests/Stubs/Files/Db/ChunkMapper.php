@@ -4,7 +4,7 @@
 // Copyright (C) 2026 Conduction B.V.
 
 /**
- * Test stub for OCA\OpenRegister\Db\ChunkMapper.
+ * Test stub for OCA\OpenRegister\Files\Db\ChunkMapper.
  *
  * Same signature parity contract as tests/Stubs/Service/FileService.php: its
  * one method is copied verbatim from
@@ -15,7 +15,7 @@
  * @package OCA\Decidiq\Tests\Stubs
  */
 
-namespace OCA\OpenRegister\Db;
+namespace OCA\OpenRegister\Files\Db;
 
 /**
  * Minimal stand-in for OpenRegister's ChunkMapper.

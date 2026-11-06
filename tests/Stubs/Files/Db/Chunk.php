@@ -4,7 +4,7 @@
 // Copyright (C) 2026 Conduction B.V.
 
 /**
- * Test stub for OCA\OpenRegister\Db\Chunk.
+ * Test stub for OCA\OpenRegister\Files\Db\Chunk.
  *
  * Like the real entity (ConductionNL/openregister@origin/development
  * lib/Db/Chunk.php) it extends OCP's Entity, so getTextContent() and
@@ -14,7 +14,7 @@
  * @package OCA\Decidiq\Tests\Stubs
  */
 
-namespace OCA\OpenRegister\Db;
+namespace OCA\OpenRegister\Files\Db;
 
 use OCP\AppFramework\Db\Entity;
 
