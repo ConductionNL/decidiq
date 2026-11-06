@@ -5,7 +5,8 @@
  *
  * Manages process templates (the state machine, default voting rule, and quorum
  * policy a governance body follows) as OpenRegister objects, validates their
- * transition graph server-side (fail closed), and resolves a body's assigned
+ * transition graph server-side through OpenRegister's LifecycleTransitionsValidator
+ * (fail closed), and resolves a body's assigned
  * template into the policy/voting-rule shapes the lifecycle guards and voting
  * round-open path consume.
  *
@@ -33,6 +34,9 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -49,14 +53,19 @@ class ProcessTemplateService {
 	 *
 	 * @var string[]
 	 */
-	public const KNOWN_GUARDS = StateMachineValidator::KNOWN_GUARDS;
+	public const KNOWN_GUARDS = [
+		'quorum_met',
+		'chair_only',
+		'all_amendments_resolved',
+		'legal_review_complete',
+	];
 
 	/**
 	 * Constructor for ProcessTemplateService.
 	 *
 	 * @param LoggerInterface $logger The logger
 	 * @param ProcessTemplatePolicyResolver $resolver Pure template -> guard policy translator
-	 * @param StateMachineValidator $validator Pure transition-graph validator
+	 * @param ContainerInterface $container DI container (OpenRegister's LifecycleTransitionsValidator)
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/process-configuration/spec.md
@@ -64,7 +73,7 @@ class ProcessTemplateService {
 	public function __construct(
 		private readonly LoggerInterface $logger,
 		private readonly ProcessTemplatePolicyResolver $resolver,
-		private readonly StateMachineValidator $validator,
+		private readonly ContainerInterface $container,
 		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
@@ -273,10 +282,14 @@ class ProcessTemplateService {
 	/**
 	 * Validate a template's state-machine transition graph (fail closed).
 	 *
-	 * Rejects: empty states; a transition whose from/to references a state not
-	 * declared in states[] (dangling); a state with no inbound and no outbound
-	 * transition that is not the declared initialState (unreachable); an
-	 * unrecognised guard token.
+	 * The graph rules are OpenRegister's (LifecycleTransitionsValidator, the entry
+	 * point for a lifecycle kept as data): empty states, a missing or undeclared
+	 * initial state, malformed or dangling transitions, a declared state no
+	 * transition touches (unreachable) and a guard token outside KNOWN_GUARDS.
+	 * Two template-shape rules stay here: stateMachine must be an object, and a
+	 * transition names ONE from-state, because ProcessTemplatePolicyResolver reads
+	 * a single from-state per edge and would skip a list (and its chair_only).
+	 * Without OpenRegister's validator the template is refused, never accepted.
 	 *
 	 * @param array<string, mixed> $template The template payload
 	 *
@@ -285,8 +298,63 @@ class ProcessTemplateService {
 	 * @return array{valid: bool, errors: string[]} Validation result with human-readable errors
 	 */
 	public function validateStateMachine(array $template): array {
-		return $this->validator->validate(template: $template);
+		$stateMachine = ($template['stateMachine'] ?? null);
+		if (is_array($stateMachine) === false) {
+			return ['valid' => false, 'errors' => ['stateMachine is required and must be an object.']];
+		}
+
+		try {
+			$validator = $this->container->get(LifecycleTransitionsValidator::class);
+		} catch (ContainerExceptionInterface $e) {
+			$this->logger->error(
+				'Decidiq: OpenRegister\'s LifecycleTransitionsValidator is unavailable; process template refused.',
+				['exception' => $e]
+			);
+			return [
+				'valid'  => false,
+				'errors' => ['The state machine cannot be validated: OpenRegister\'s lifecycle validator is not available. Update OpenRegister.'],
+			];
+		}
+
+		$transitions = (array)($stateMachine['transitions'] ?? []);
+		$initialState = ($template['initialState'] ?? null);
+		if (is_string($initialState) === false) {
+			$initialState = null;
+		}
+
+		$errors = $this->listFromErrors(transitions: $transitions);
+		$found = $validator->validate(
+			states: array_values(array_filter((array)($stateMachine['states'] ?? []), 'is_array')),
+			initial: $initialState,
+			transitions: $transitions,
+			knownGuards: self::KNOWN_GUARDS
+		);
+		foreach ($found as $error) {
+			$errors[] = $error['message'];
+		}
+
+		return ['valid' => ($errors === []), 'errors' => $errors];
 	}//end validateStateMachine()
+
+	/**
+	 * Refuse transitions whose from is a list of states.
+	 *
+	 * @param array<int|string, mixed> $transitions The raw transitions[] entries
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return string[] One error per list-from transition
+	 */
+	private function listFromErrors(array $transitions): array {
+		$errors = [];
+		foreach ($transitions as $transition) {
+			if (is_array($transition) === true && is_array($transition['from'] ?? null) === true) {
+				$errors[] = 'Each transition must declare a single from state, not a list.';
+			}
+		}
+
+		return $errors;
+	}//end listFromErrors()
 
 	/**
 	 * Assert the template's state machine is valid, throwing on failure.

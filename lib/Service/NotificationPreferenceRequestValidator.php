@@ -55,6 +55,7 @@ class NotificationPreferenceRequestValidator {
 		'taskAssigned',
 		'commentMention',
 		'meetingReminder',
+		'agendaChanged',
 	];
 
 	/**

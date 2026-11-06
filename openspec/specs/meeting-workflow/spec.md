@@ -113,3 +113,21 @@ The system SHALL record every lifecycle transition in the audit trail with: user
 - **GIVEN** a meeting transitions from "scheduled" to "opened"
 - **WHEN** the audit trail is queried
 - **THEN** it contains an entry with action "lifecycle_transition", from "scheduled", to "opened", domain "legislative", and quorum result `{ required: 20, present: 25, met: true }`
+
+### Requirement: REQ-MSB-001 The chair moves a meeting through its stages
+
+The meeting page SHALL show the stage transitions the caller may take and SHALL apply them through the guarded lifecycle; the create form SHALL NOT set the stage directly.
+
+#### Scenario: The chair opens the meeting
+- GIVEN a scheduled council meeting
+- WHEN its chair presses Open meeting on the meeting page
+- THEN the page shows the stage opened and a member sees no stage buttons
+
+### Requirement: REQ-MSB-002 Closing a meeting records its cost
+
+Closing a meeting through the stage buttons SHALL record the meeting's cost in attendee time, shown on the meeting and in the body's efficiency widget.
+
+#### Scenario: The cost appears after closing
+- GIVEN an opened meeting with 10 attendees ran 2 hours and the body has an hourly rate
+- WHEN the chair closes the meeting
+- THEN the Outcome widget shows the meeting cost

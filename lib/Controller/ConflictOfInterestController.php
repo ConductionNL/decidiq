@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -114,6 +115,7 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 *
 	 * @return JSONResponse
 	 */
@@ -129,6 +131,22 @@ class ConflictOfInterestController extends Controller {
 		$type = (string)$this->request->getParam('declarationType', 'none');
 		$description = (string)$this->request->getParam('description', '');
 		$severity = (string)$this->request->getParam('severity', 'material');
+		$initialAction = 'no-action-needed';
+		if (filter_var($this->request->getParam('recuseFromVote', false), FILTER_VALIDATE_BOOLEAN) === true) {
+			$initialAction = 'recused-from-vote';
+		}
+
+		// A member declaring from a page does not know her Membership id: an
+		// omitted one means "me" (bod-10).
+		if ($membershipId === '' && $agendaItemId !== '') {
+			$membershipId = (string)$this->conflictService->membershipForUser((string)$this->userSession->getUser()?->getUID());
+			if ($membershipId === '') {
+				return new JSONResponse(
+					['message' => 'You are not a member of a governance body, so there is no declaration to record.'],
+					Http::STATUS_UNPROCESSABLE_ENTITY
+				);
+			}
+		}
 
 		if ($membershipId === '' || $agendaItemId === '') {
 			return new JSONResponse(
@@ -138,9 +156,10 @@ class ConflictOfInterestController extends Controller {
 		}
 
 		$callerUid = $this->resolveCallerUid();
+		$declaration = new ConflictDeclaration(membershipId: $membershipId, agendaItemId: $agendaItemId, type: $type, description: $description);
 
 		return $this->respondFromAuthorizedResult(
-			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid),
+			result: $this->conflictService->declare($declaration->assessed(severity: $severity, initialAction: $initialAction), $callerUid),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);
@@ -180,7 +199,12 @@ class ConflictOfInterestController extends Controller {
 			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
-		$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
+		try {
+			$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
+		} catch (\RuntimeException $e) {
+			return new JSONResponse(['message' => 'The declarations could not be read. Try again in a moment.'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
 		return new JSONResponse(['conflict' => $conflict]);
 	}//end forMember()
 

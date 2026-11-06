@@ -12,7 +12,11 @@
  mirroring the crosswalk resolver's own match-or-create step
  (design.md Decision 1).
 
+ A shared body also asks on behalf of which participating organisation
+ the member sits (bodies-shared-body-participations, bod-13).
+
  @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 -->
 <template>
 	<NcDialog
@@ -48,6 +52,26 @@
 					label="label"
 					:clearable="false"
 					data-testid="member-add-role" />
+				<NcDateTimePickerNative
+					id="member-add-start"
+					v-model="startDate"
+					type="date"
+					data-testid="member-add-start"
+					:label="t('decidiq', 'Member from')" />
+				<NcSelect
+					v-if="factionOptions.length"
+					v-model="selectedFaction"
+					:inputLabel="t('decidiq', 'Faction')"
+					:options="factionOptions"
+					label="label"
+					data-testid="member-add-faction" />
+				<NcSelect
+					v-if="onBehalfOfOptions.length"
+					v-model="selectedOnBehalfOf"
+					:inputLabel="t('decidiq', 'On behalf of')"
+					:options="onBehalfOfOptions"
+					label="label"
+					data-testid="member-add-on-behalf-of" />
 				<NcTextField
 					v-model="party"
 					data-testid="member-add-party"
@@ -77,17 +101,32 @@
 </template>
 
 <script>
-import { NcButton, NcDialog, NcSelect, NcTextField } from '@nextcloud/vue'
+import {
+	NcButton,
+	NcDateTimePickerNative,
+	NcDialog,
+	NcSelect,
+	NcTextField,
+} from '@nextcloud/vue'
 import {
 	buildMembershipPayload,
 	ensureRelationType,
 	resolveOrCreatePerson,
 } from '../components/tabs/useRelationStore.js'
+import { factionsOf, startOfDay } from '../utils/bodyMembership.js'
+import { isSharedBody, onBehalfOfOptions } from '../utils/bodyParticipations.js'
 import { DEFAULT_ROLE, MEMBER_ROLES } from '../utils/memberImport.js'
 
 export default {
 	name: 'MemberAddDialog',
-	components: { NcButton, NcDialog, NcSelect, NcTextField },
+	components: {
+		NcButton,
+		NcDateTimePickerNative,
+		NcDialog,
+		NcSelect,
+		NcTextField,
+	},
+
 	props: {
 		/** OR object id of the governance body the new member is linked to. */
 		bodyId: { type: [String, Number], required: true },
@@ -100,6 +139,12 @@ export default {
 			email: '',
 			party: '',
 			selectedRole: null,
+			// Member from: today unless the clerk picks another day.
+			startDate: new Date(),
+			factionOptions: [],
+			selectedFaction: null,
+			onBehalfOfOptions: [],
+			selectedOnBehalfOf: null,
 			linking: false,
 			error: '',
 		}
@@ -124,13 +169,73 @@ export default {
 		},
 	},
 
-	/** @spec exclude lifecycle hook; only seeds the role select's default */
-	created() {
+	/** @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-003-members-belong-to-a-faction-with-its-own-workspace */
+	async created() {
 		this.selectedRole =
 			this.roleOptions.find((o) => o.id === DEFAULT_ROLE) || null
+		try {
+			const bodies = await ensureRelationType(
+				'governance-body',
+			).fetchCollection('governance-body', {
+				parentBody: this.bodyId,
+				bodyType: 'faction',
+				_limit: 100,
+			})
+			this.factionOptions = factionsOf(bodies, this.bodyId)
+		} catch {
+			this.factionOptions = []
+		}
+		await this.loadOnBehalfOf()
 	},
 
 	methods: {
+		/**
+		 * On a shared body, load the participating organisations the new
+		 * member can sit on behalf of. Other bodies get no options, so the
+		 * field stays hidden.
+		 *
+		 * @return {Promise<void>}
+		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 */
+		async loadOnBehalfOf() {
+			try {
+				const bodyStore = ensureRelationType('governance-body')
+				const body = await bodyStore.fetchObject(
+					'governance-body',
+					String(this.bodyId),
+				)
+				if (!isSharedBody(body)) {
+					this.onBehalfOfOptions = []
+					return
+				}
+				const participations = await ensureRelationType(
+					'body-participation',
+				).fetchCollection('body-participation', {
+					sharedBody: String(this.bodyId),
+					_limit: 200,
+				})
+				const ids = [
+					...new Set((participations || []).map((p) => p.participant)),
+				].filter(Boolean)
+				const bodies = await Promise.all(
+					ids.map((id) =>
+						bodyStore
+							.fetchObject('governance-body', id)
+							.catch(() => null),
+					),
+				)
+				const bodiesById = Object.fromEntries(
+					bodies.filter(Boolean).map((b) => [b.id, b]),
+				)
+				this.onBehalfOfOptions = onBehalfOfOptions(
+					participations || [],
+					bodiesById,
+				)
+			} catch {
+				this.onBehalfOfOptions = []
+			}
+		},
+
 		/**
 		 * Resolve (match by email, else create) a Person for the entered
 		 * identity fields, then create a Membership linking it to this body
@@ -138,6 +243,7 @@ export default {
 		 *
 		 * @return {Promise<void>}
 		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async link() {
 			const trimmedName = this.name.trim()
@@ -166,6 +272,9 @@ export default {
 						governanceBodyId: this.bodyId,
 						role: this.selectedRole?.id || DEFAULT_ROLE,
 						party: this.party.trim(),
+						startDate: startOfDay(this.startDate),
+						faction: this.selectedFaction?.id || '',
+						onBehalfOf: this.selectedOnBehalfOf?.id || '',
 					}),
 				)
 				this.$emit('linked')

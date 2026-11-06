@@ -175,6 +175,45 @@ class MotionCoauthorService {
 	}//end checkMotionAccess()
 
 	/**
+	 * Find a motion and assert the caller may act on it.
+	 *
+	 * @param string $motionId Motion UUID
+	 * @param string|null $callerUid NC UID of the requester (null = skip access check)
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @throws RuntimeException When the motion cannot be found
+	 * @throws \InvalidArgumentException When the caller is not authorised
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function accessibleMotion(string $motionId, ?string $callerUid): array {
+		$motion = $this->findMotion(motionId: $motionId);
+		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+
+		return $motion;
+	}//end accessibleMotion()
+
+	/**
+	 * Store a motion in the decision schema.
+	 *
+	 * @param array<string, mixed> $motion The motion data
+	 * @param string $motionId Motion UUID
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function saveMotion(array $motion, string $motionId): void {
+		$this->getObjectService()->saveObject(
+			object: $motion,
+			register: 'decidiq',
+			schema: 'decision',
+			uuid: $motionId,
+		);
+	}//end saveMotion()
+
+	/**
 	 * Add a co-author to a motion.
 	 *
 	 * Only the motion proposer (owner), an existing co-author, or an admin may
@@ -196,8 +235,7 @@ class MotionCoauthorService {
 		string $personId,
 		?string $callerUid = null,
 	): array {
-		$motion = $this->findMotion(motionId: $motionId);
-		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+		$motion = $this->accessibleMotion(motionId: $motionId, callerUid: $callerUid);
 
 		$coauthors = ($motion['coAuthors'] ?? []);
 
@@ -205,13 +243,7 @@ class MotionCoauthorService {
 			$coauthors[] = $personId;
 			$motion['coAuthors'] = $coauthors;
 
-			$objectService = $this->getObjectService();
-			$objectService->saveObject(
-				object: $motion,
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $motionId,
-			);
+			$this->saveMotion(motion: $motion, motionId: $motionId);
 
 			$this->logger->info(
 				'Decidiq: Motion coauthor added',
@@ -244,8 +276,7 @@ class MotionCoauthorService {
 		string $personId,
 		?string $callerUid = null,
 	): array {
-		$motion = $this->findMotion(motionId: $motionId);
-		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+		$motion = $this->accessibleMotion(motionId: $motionId, callerUid: $callerUid);
 		$coauthors = ($motion['coAuthors'] ?? []);
 		$motion['coAuthors'] = array_values(
 			array_filter(
@@ -254,13 +285,7 @@ class MotionCoauthorService {
 			)
 		);
 
-		$objectService = $this->getObjectService();
-		$objectService->saveObject(
-			object: $motion,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
-		);
+		$this->saveMotion(motion: $motion, motionId: $motionId);
 
 		return $motion;
 	}//end removeCoauthor()
@@ -296,8 +321,7 @@ class MotionCoauthorService {
 		string $changeSummary,
 		?string $callerUid = null,
 	): array {
-		$motion = $this->findMotion(motionId: $motionId);
-		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+		$motion = $this->accessibleMotion(motionId: $motionId, callerUid: $callerUid);
 		$previousText = (string)($motion['text'] ?? '');
 		$previousHistory = ($motion['versionHistory'] ?? []);
 
@@ -328,13 +352,7 @@ class MotionCoauthorService {
 		$motion['text'] = $newText;
 		$motion['versionHistory'] = $previousHistory;
 
-		$objectService = $this->getObjectService();
-		$objectService->saveObject(
-			object: $motion,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
-		);
+		$this->saveMotion(motion: $motion, motionId: $motionId);
 
 		$this->logger->info(
 			'Decidiq: Motion text updated',
@@ -483,13 +501,7 @@ class MotionCoauthorService {
 
 		$motion['versionHistory'] = $history;
 
-		$objectService = $this->getObjectService();
-		$objectService->saveObject(
-			object: $motion,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
-		);
+		$this->saveMotion(motion: $motion, motionId: $motionId);
 
 		return $motion;
 	}//end captureVersion()
@@ -515,8 +527,7 @@ class MotionCoauthorService {
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
 	public function getHistory(string $motionId, ?string $callerUid = null): array {
-		$motion = $this->findMotion(motionId: $motionId);
-		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
+		$motion = $this->accessibleMotion(motionId: $motionId, callerUid: $callerUid);
 		return ($motion['versionHistory'] ?? []);
 	}//end getHistory()
 }//end class

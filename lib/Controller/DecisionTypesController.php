@@ -31,8 +31,10 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\DecisionTypeRegistry;
+use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -91,4 +93,31 @@ class DecisionTypesController extends Controller {
 
 		return new JSONResponse(['types' => $this->registry->getTypes()]);
 	}//end index()
+
+	/**
+	 * Save the decision type vocabulary from the admin settings page.
+	 *
+	 * Admin only: the list decides which decision types every installed app
+	 * may create. A refused list answers 400 with the reason and stores nothing.
+	 *
+	 * @return JSONResponse The stored types, or the reason the list was refused
+	 *
+	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function update(): JSONResponse {
+		$types = $this->request->getParam('types');
+		if (is_array($types) === false) {
+			return new JSONResponse(['message' => 'Send the decision types as a list.'], Http::STATUS_BAD_REQUEST);
+		}
+
+		try {
+			$stored = $this->registry->setTypes(types: $types);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		}
+
+		return new JSONResponse(['types' => $stored]);
+
+	}//end update()
 }//end class

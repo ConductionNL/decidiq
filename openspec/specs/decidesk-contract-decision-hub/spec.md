@@ -6,7 +6,9 @@ status: done
 
 ## Purpose
 Turns decidiq into a decision hub that any fleet app can call to raise a governance decision (such as a contract approval or report adoption) about an object it owns. It adds subject-reference and provenance fields to the Decision schema, an idempotent create-decision API endpoint, a queryable outcome envelope and callback subscriptions, and delegation of document signing to docudesk — while owning only the decision itself and leaving downstream side effects to the consuming app.
+
 ## Requirements
+
 ### Requirement: REQ-DCDH-001 — Subject reference and provenance on a Decision
 
 The system SHALL extend the existing `Decision` schema with additive, nullable properties that link a
@@ -276,3 +278,43 @@ without either compiler noticing (ADR-066 decisions 4 and 7).
 - THEN every one of them is equal across the two layers
 - AND every declared surface is a member of OpenRegister's `VALID_SURFACES` vocabulary
 
+### Requirement: The decisions leaf draws each decision with its route
+
+The `decidesk-decisions` leaf SHALL draw the host's decisions as a card with a title, a line under it and a "Prepare
+decision" action. Each decision SHALL show its drafter's initials, its title, a line with its state, its outcome when
+it has one and who drafted it when, a status pill and "Open in decidiq". Its `decision-stage` records SHALL show as a
+step bar in route order: a decided or skipped stage done (with when and by whom), the active one current (with whom it
+waits on), the rest to come (with their note).
+
+#### Scenario: DqZaakBesluiten
+
+- **GIVEN** a draft Woo decision whose route has Drafted done, Team lead initials active and two stages to come
+- **WHEN** the case's Decisions tab opens
+- **THEN** the row reads "Concept · ... · opgesteld door Pieter Jansen op 7 okt" and the step bar marks the first step
+  done and the second current
+
+### Requirement: The decisions leaf says whether the drafter may take the decision
+
+`GET /api/decisions/{decisionId}/authority` SHALL read the decision under RBAC first and answer 404 when the caller may
+not read it. It SHALL then ask `DelegatedAuthorityCheck` whether the decision's owner holds an authority for its
+`decisionType`, and return `{ authorised, reason, actor, act, subject, restrictions }`, the covering allocation's
+subject and restrictions only when it covers the owner. The leaf SHALL show a notice naming the drafter and the
+mandate only when the answer is authorised.
+
+#### Scenario: A mandated drafter
+
+- **GIVEN** an effective allocation that gives pieter the act `woo-decision`, subject "Woo-besluiten"
+- **WHEN** the leaf shows a Woo decision pieter drafted
+- **THEN** it says "Pieter Jansen mag dit besluit nemen: mandaat Woo-besluiten."
+
+### Requirement: The decisions leaf names the drafter by display name
+
+The decisions leaf SHALL name a decision's drafter by its `proposer` when it has one, else by the display name of its
+owner's account, read once per account from Nextcloud's user directory, else by the account id when the name cannot be
+read. The row's initials SHALL follow that name.
+
+#### Scenario: DqZaakBesluiten
+
+- **GIVEN** a decision without a proposer, owned by `pieter`, whose display name is Pieter Jansen
+- **WHEN** the card shows it
+- **THEN** the row reads "opgesteld door Pieter Jansen" with the initials PJ

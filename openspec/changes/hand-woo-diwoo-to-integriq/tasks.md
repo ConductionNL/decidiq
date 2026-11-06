@@ -10,7 +10,7 @@
 ## 2. Hand over
 
 - [x] 2.1 Write what integriq needs to take this on, in the proposal.
-- [ ] 2.2 Raise it with integriq's owners. NOT done here: this repository cannot open that work.
+- [ ] 2.2 Raise it with integriq's owners. NOT done here: this repository cannot open that work. (not run: another repo; written to for-ruben/decidiq-sibling-asks.md)
 
 ## 3. Prove it
 

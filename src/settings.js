@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: EUPL-1.2
 // Copyright (C) 2026 Conduction B.V.
 
+import { registerTranslations } from '@conduction/nextcloud-vue'
 import {
 	loadTranslations,
 	translatePlural as n,
@@ -9,6 +10,10 @@ import {
 import { createApp } from 'vue'
 import AdminRoot from './views/settings/AdminRoot.vue'
 import pinia from './pinia.js'
+
+// The library's own catalogue (version card, shell chrome). main.js registers
+// it for the app pages; this entry is a separate bundle.
+registerTranslations()
 
 loadTranslations('decidiq', () => {
 	const app = createApp(AdminRoot)

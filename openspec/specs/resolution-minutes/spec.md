@@ -20,6 +20,7 @@ Resolutions and minutes are the formal output of the decision-making process. A 
 ## Data Model
 
 See [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) for the full Resolution and Minutes entity definitions including property tables and standards mappings.
+
 ## Requirements
 
 ---
@@ -177,6 +178,27 @@ retargeted onto these unified entities, keeping their auth guards.
 - THEN no `board-vote` / `board-minutes` / `board-material` / `board-audit-log-entry` schema exists
 - AND the retained governance services query `vote` / `minutes` / `decision` / `audit-trail` instead
 
+### Requirement: REQ-RM-CSV-001 CSV export cells are never read as a formula
+The regulator, audit-log and governance-report CSV exports MUST write every
+cell through one rule. A cell that starts with `=`, `+`, `-`, `@`, a tab or
+a carriage return (also behind leading spaces) MUST get a leading
+apostrophe. The same apostrophe MUST follow each `;`, CR or LF inside a
+cell that such a character follows (spaces and quotes skipped), because a
+`;`-separated reader starts a new cell or row there. A cell holding a
+comma, semicolon, quote or line break MUST be quoted, with its quotes
+doubled. Legitimate values are not exempt: `-5`, `+31 6 ...` and a
+line-break list item `- b` carry the apostrophe as part of their text. The
+admin documentation MUST say so and point to the JSON export for exact
+values.
+
+#### Scenario: A negative number and a list item keep their text behind an apostrophe
+@e2e exclude CSV byte output of a server-side export; covered by PHPUnit (CsvCellTest and the audit, governance and regulator CSV goldens)
+- GIVEN a governance report value `-5` and a value `a` with a second line `- b`
+- WHEN the report is exported as CSV
+- THEN the first cell reads `'-5`
+- AND the second cell is quoted and its second line reads `'- b`
+- AND no comma- or semicolon-separated reading of the file yields a cell that starts with a formula character
+
 ### Requirement: Minutes signing resolves a signature-method stage
 
 When a `DecisionStage` has `method=signature`, the eIDAS signing of its `signedDocument` SHALL reuse the existing minutes signing flow — signatories are read from `Minutes.signedBy` and the QES workflow is driven by `EIDASSignatureService`. On signing completion, the service SHALL resolve the related signature stage (link `signedDocument`, set `outcome=adopted` + `decidedAt`). No separate Signature schema SHALL be introduced; the signed artefact remains a `DigitalDocument` and the signatories remain `Minutes.signedBy`, consistent with ADR-006's retirement of parallel board-* entities.
@@ -215,6 +237,20 @@ The minute-taking editor SHALL support initialization from an AI-generated draft
 @e2e exclude metadata-retention contract — covered by PHPUnit on the minutes record
 - **WHEN** AI-initialized minutes reach `approved`
 - **THEN** the minutes record still carries the generation provenance (provider id, generated-at, sections accepted as generated vs. rewritten)
+
+### Requirement: REQ-AMP-005 The minutes page carries the per-item minutes editor
+
+The minutes page SHALL show a widget with one note field per regular agenda item of the minutes' meeting, backed by the same `MinutesPanel` component and the same `itemNotes` property the live screen uses. The fields SHALL be editable while the minutes are in draft and read-only once the minutes are submitted, approved or signed.
+
+#### Scenario: The secretary writes the minutes after the meeting
+- GIVEN draft minutes of a meeting with the items Opening, Budget and Any other business
+- WHEN the secretary opens the minutes page and types "Adopted without a vote" under Budget
+- THEN the note is saved to the minutes and still shows after a reload
+
+#### Scenario: Approved minutes cannot be changed here
+- GIVEN minutes that the council approved on 1 November
+- WHEN the secretary opens the minutes page
+- THEN the per-item notes show as text and no field can be edited
 
 ## User Stories
 

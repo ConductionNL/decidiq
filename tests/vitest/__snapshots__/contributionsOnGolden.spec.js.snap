@@ -1,0 +1,187 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`contributionsOn golden output > keeps the contributions over seeded records 1`] = `
+{
+  "digest": "c53dc499b71a8f2417d0a6875ee71fd509989c78f6aad34d199606face2aebaa",
+  "sample": [
+    {
+      "itemId": null,
+      "out": [],
+      "participants": "undefined",
+      "records": [
+        {
+          "participant": "undefined",
+          "questionsRaised": [
+            {
+              "agendaItem": null,
+            },
+            null,
+            {
+              "agendaItem": "undefined",
+            },
+          ],
+          "speeches": [],
+        },
+      ],
+    },
+    {
+      "itemId": "i1",
+      "out": [],
+      "participants": [
+        {
+          "displayName": "",
+          "id": "p2",
+          "name": "undefined",
+        },
+      ],
+      "records": [
+        {
+          "participant": "p3",
+          "questionsRaised": [
+            {
+              "agendaItem": "i2",
+            },
+          ],
+          "speeches": null,
+        },
+      ],
+    },
+    {
+      "itemId": "i2",
+      "out": [],
+      "participants": "undefined",
+      "records": [
+        {
+          "participant": "p1",
+          "questionsRaised": [
+            {
+              "agendaItem": "undefined",
+            },
+            {
+              "agendaItem": "i1",
+            },
+            {
+              "agendaItem": "undefined",
+            },
+          ],
+          "speeches": null,
+        },
+      ],
+    },
+    {
+      "itemId": "i2",
+      "out": [
+        {
+          "duration": 45,
+          "kind": "speech",
+          "name": "undefined",
+          "participantId": "undefined",
+        },
+        {
+          "duration": 0,
+          "kind": "question",
+          "name": "Anna",
+          "participantId": null,
+        },
+      ],
+      "participants": [
+        {
+          "displayName": "",
+          "id": "p2",
+          "name": "",
+        },
+        {
+          "displayName": "Anna",
+          "id": "p1",
+          "name": "anna",
+        },
+        {
+          "displayName": "Anna",
+          "id": null,
+          "name": "undefined",
+        },
+      ],
+      "records": [
+        {
+          "participant": "p2",
+          "questionsRaised": [
+            {
+              "agendaItem": "i1",
+            },
+            {
+              "agendaItem": "",
+            },
+          ],
+          "speeches": [],
+        },
+        {
+          "participant": "undefined",
+          "questionsRaised": [],
+          "speeches": [
+            {
+              "agendaItem": "i2",
+              "duration": 45,
+            },
+            null,
+          ],
+        },
+        {
+          "participant": null,
+          "questionsRaised": [
+            {
+              "agendaItem": "i2",
+            },
+            {
+              "agendaItem": null,
+            },
+          ],
+          "speeches": [],
+        },
+      ],
+    },
+    {
+      "itemId": "i1",
+      "out": [],
+      "participants": "undefined",
+      "records": [
+        {
+          "participant": "p1",
+          "questionsRaised": [
+            {
+              "agendaItem": "i2",
+            },
+          ],
+          "speeches": [
+            {
+              "agendaItem": "",
+              "duration": null,
+            },
+            null,
+            {
+              "agendaItem": "i2",
+              "duration": 12.5,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      "itemId": "undefined",
+      "out": [],
+      "participants": [
+        {
+          "displayName": "undefined",
+          "id": "undefined",
+          "name": "undefined",
+        },
+        {
+          "displayName": "undefined",
+          "id": "p2",
+          "name": "anna",
+        },
+      ],
+      "records": [],
+    },
+  ],
+}
+`;

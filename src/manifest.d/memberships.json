@@ -1,0 +1,68 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "The membership page (board DcLidmaatschap): one person's seat on one body as a page. Tabs Overview, Onboarding and Offboarding (the member-onboarding and member-offboarding records whose `membership` is this one) and History. The person page links each membership here. Not built: the board's Substitutions tab and 'Put in a substitute' button: a mandate substitution names participants of one meeting, not a membership, so there is no list to filter.",
+	"pages": [
+		{
+			"id": "MembershipDetail",
+			"route": "/memberships/:id",
+			"type": "detail",
+			"title": "Membership",
+			"config": {
+				"register": "decidiq",
+				"schema": "membership",
+				"widgets": [
+					{ "id": "membership-data", "type": "data", "title": "Membership", "icon": "AccountGroup", "content": { "columns": 2, "include": ["person", "governanceBody", "role", "label", "party", "faction", "startDate", "endDate", "votingWeight", "portfolio"] } },
+					{
+						"id": "membership-onboarding",
+						"type": "object-list",
+						"title": "Onboarding",
+						"icon": "AccountPlusOutline",
+						"content": {
+							"register": "decidiq",
+							"schema": "member-onboarding",
+							"filter": { "membership": "@objectId" },
+							"columns": [{ "key": "targetRole", "label": "Role", "widget": "badge" }, { "key": "trigger", "label": "Trigger", "widget": "badge" }, { "key": "installedOn", "label": "Start date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }],
+							"limit": 10,
+							"rowRoute": "MemberOnboardingDetail"
+						}
+					},
+					{
+						"id": "membership-offboarding",
+						"type": "object-list",
+						"title": "Offboarding",
+						"icon": "AccountGroup",
+						"content": {
+							"register": "decidiq",
+							"schema": "member-offboarding",
+							"filter": { "membership": "@objectId" },
+							"columns": [{ "key": "endReason", "label": "Reason", "widget": "badge" }, { "key": "endDate", "label": "End date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }],
+							"limit": 10,
+							"rowRoute": "MemberOffboardingDetail"
+						}
+					},
+					{ "id": "membership-history", "type": "audit-trail", "title": "History", "icon": "History" },
+					{
+						"id": "membership-panels",
+						"type": "tabs",
+						"title": "Membership",
+						"icon": "AccountGroup",
+						"content": {
+							"ariaLabel": "Membership",
+							"moreLabel": "More",
+							"tabs": [
+								{ "widgetId": "membership-data", "label": "Overview" },
+								{ "widgetId": "membership-onboarding", "label": "Onboarding", "countFrom": "widget" },
+								{ "widgetId": "membership-offboarding", "label": "Offboarding", "countFrom": "widget" },
+								{ "widgetId": "membership-history", "label": "History" }
+							]
+						}
+					}
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "membership-panels", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 12, "showTitle": false }
+				],
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

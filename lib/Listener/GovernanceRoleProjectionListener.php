@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Service\GovernanceRoleScopeProjector;
+use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -51,16 +52,31 @@ class GovernanceRoleProjectionListener implements IEventListener {
 	 *
 	 * @var string[]
 	 */
-	private const ROSTER_SCHEMAS = ['participant', 'membership'];
+	public const ROSTER_SCHEMAS = ['participant', 'membership'];
+
+	/**
+	 * Schema slug of a governance body, whose deletion ends its scopes.
+	 */
+	public const SCHEMA_BODY = 'governance-body';
+
+	/**
+	 * Schema slugs whose deletion the listener handles: the roster, and a
+	 * body, whose scope groups go with it.
+	 *
+	 * @var string[]
+	 */
+	public const DELETE_SCHEMAS = ['participant', 'membership', self::SCHEMA_BODY];
 
 	/**
 	 * Constructor.
 	 *
-	 * @param GovernanceRoleScopeProjector $projector Scope projector
-	 * @param LoggerInterface $logger Diagnostic logger
+	 * @param GovernanceRoleScopeProjector $projector      Scope projector
+	 * @param ListenerSchemaResolver       $schemaResolver Turns the entity's schema id into its slug
+	 * @param LoggerInterface              $logger         Diagnostic logger
 	 */
 	public function __construct(
 		private readonly GovernanceRoleScopeProjector $projector,
+		private readonly ListenerSchemaResolver $schemaResolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -73,6 +89,7 @@ class GovernanceRoleProjectionListener implements IEventListener {
 	 * @return void
 	 *
 	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof ObjectCreatedEvent) === false
@@ -89,7 +106,12 @@ class GovernanceRoleProjectionListener implements IEventListener {
 			}
 
 			$row = $this->extractRow(entity: $entity);
-			$slug = $this->resolveSchemaSlug(entity: $entity, row: $row);
+			$slug = $this->schemaResolver->schemaSlug(entity: $entity, row: $row);
+			if ($slug === self::SCHEMA_BODY && $event instanceof ObjectDeletedEvent) {
+				$this->projector->removeBody(bodyId: $this->schemaResolver->readValue(entity: $entity, getter: 'getUuid'));
+				return;
+			}
+
 			if (in_array($slug, self::ROSTER_SCHEMAS, true) === false) {
 				return;
 			}
@@ -129,33 +151,5 @@ class GovernanceRoleProjectionListener implements IEventListener {
 		return $row;
 	}//end extractRow()
 
-	/**
-	 * Resolve the schema slug from the OR entity surface.
-	 *
-	 * @param object $entity OR object entity
-	 * @param array<string, mixed> $row Serialised payload
-	 *
-	 * @return string Schema slug (lower-cased), or '' when unresolvable
-	 */
-	private function resolveSchemaSlug(object $entity, array $row): string {
-		$candidates = [
-			($row['_schemaSlug'] ?? null),
-			($row['_schema'] ?? null),
-			($row['schema'] ?? null),
-		];
-		foreach ($candidates as $candidate) {
-			if (is_string($candidate) === true && $candidate !== '') {
-				return strtolower($candidate);
-			}
-		}
 
-		if (method_exists($entity, 'getSchemaSlug') === true) {
-			$slug = $entity->getSchemaSlug();
-			if (is_string($slug) === true && $slug !== '') {
-				return strtolower($slug);
-			}
-		}
-
-		return '';
-	}//end resolveSchemaSlug()
 }//end class

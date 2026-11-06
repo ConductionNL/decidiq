@@ -84,7 +84,7 @@ class EIDASSignatureController extends Controller {
 		// signatory scope (chair/chairman/vice-chairman/secretary) may initiate
 		// a QES signing request. Enforcement consumes the OpenRegister-owned
 		// scope (consume-or-rbac-authorization); fail-closed.
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->canInitiateSigning(userId: $userId, minutesId: $minutesId) === false) {
 			return new JSONResponse(
 				['message' => 'You are not authorised to initiate a signing request for these minutes.'],
@@ -131,7 +131,7 @@ class EIDASSignatureController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-102-only-a-body-signatory-may-verify-a-signature-on-a-minutes-record
 	 *
 	 * @return JSONResponse
 	 */
@@ -142,7 +142,7 @@ class EIDASSignatureController extends Controller {
 			return $auth;
 		}
 
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId) === false) {
 			return new JSONResponse(
 				['message' => 'You are not authorised to verify signatures on these minutes.'],
@@ -179,9 +179,8 @@ class EIDASSignatureController extends Controller {
 	 * Authorization: the caller must be in the OR-projected signatory scope of
 	 * the GovernanceBody that owns these minutes, or be a Nextcloud admin. This
 	 * is the highest-stakes endpoint of the flow — `finalizeMinutes()` writes
-	 * `pdfArchiveReference`, `hashSha256`, `signingCompletionDate`,
-	 * `eidasSignatureLevel = QES`, `version = signed` and `signedBy` onto the
-	 * Minutes row, resolves the `method=signature` DecisionStage to
+	 * `signingStatus = signed`, `signedCopy` (the archive reference),
+	 * `signedCopyHash`, `signedAt` and `signedBy` onto the Minutes row, resolves the `method=signature` DecisionStage to
 	 * `outcome=adopted`, and appends a `signature` audit entry. Starting the
 	 * flow already required this authority (`initiate()`); completing it must
 	 * require no less. The guard runs BEFORE the service is reached, so a
@@ -192,7 +191,7 @@ class EIDASSignatureController extends Controller {
 	 * @NoAdminRequired
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-101-only-a-body-signatory-may-finalize-signed-minutes
 	 *
 	 * @return JSONResponse
 	 */
@@ -203,7 +202,7 @@ class EIDASSignatureController extends Controller {
 			return $auth;
 		}
 
-		$userId = (string)$this->userSession->getUser()->getUID();
+		$userId = $this->userSession->getUser()->getUID();
 		if ($this->scopeGuard->isSignatoryForMinutes(userId: $userId, minutesId: $minutesId) === false) {
 			return new JSONResponse(
 				['message' => 'You are not authorised to finalise the signing of these minutes.'],
@@ -256,7 +255,7 @@ class EIDASSignatureController extends Controller {
 	 *   Trusted List, so no Decidiq object is reachable and nothing app-owned is disclosed.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-sig-103-certificate-trust-status-lookup-is-a-deliberately-app-wide-authenticated-read
 	 *
 	 * @return JSONResponse
 	 */

@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -181,6 +179,43 @@ class VotingRoundPreflight {
 	}//end assertRevoteAllowed()
 
 	/**
+	 * The options a revote of a tied ranked round offers: the tied ones only
+	 * (REQ-RPB-001). Null when the tied round is not a ranked round, so the
+	 * caller keeps the options it was given.
+	 *
+	 * @param string $revoteOfRoundId The tied round's UUID.
+	 *
+	 * @return array<int, array<string, mixed>>|null The tied options, or null.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
+	 */
+	public function tiedOptionsOf(string $revoteOfRoundId): ?array {
+		$entity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
+		$original = [];
+		if ($entity !== null) {
+			$original = $entity->jsonSerialize();
+		}
+
+		if (($original['votingMethod'] ?? '') !== RankedBallotRules::METHOD) {
+			return null;
+		}
+
+		$tiedKeys = [];
+		foreach ((array)($original['rankingResult'] ?? []) as $row) {
+			if (is_array($row) === true && (int)($row['rank'] ?? 0) === 1) {
+				$tiedKeys[] = (string)($row['key'] ?? '');
+			}
+		}
+
+		return array_values(
+			array_filter(
+				(array)($original['options'] ?? []),
+				static fn (mixed $option): bool => is_array($option) === true && in_array((string)($option['key'] ?? ''), $tiedKeys, true) === true
+			)
+		);
+	}//end tiedOptionsOf()
+
+	/**
 	 * Split preset participant UUIDs into the eligible ones (active members of
 	 * the meeting) and the excluded ones.
 	 *
@@ -212,62 +247,6 @@ class VotingRoundPreflight {
 		];
 
 	}//end splitPresetParticipants()
-
-	/**
-	 * Assemble the VotingRound payload that gets persisted.
-	 *
-	 * @param string $motionId The motion UUID (amendment UUID for amendment rounds)
-	 * @param string $subjectType 'motion' or 'amendment' — the subject relation schema
-	 * @param string $votingMethod The voting method
-	 * @param bool $isSecret Whether the ballot is secret
-	 * @param string|null $closedAt Optional pre-defined close time
-	 * @param bool $quorumWith Whether quorum was met when the round opened
-	 * @param array<string> $rules The effective voting rules
-	 * @param string|null $revoteOfRoundId UUID of the tied round this round revotes, or null
-	 * @param array<string> $participantIds Eligible preset participant UUIDs
-	 *
-	 * @return array<string,mixed> The voting-round payload
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 */
-	public function buildRoundPayload(
-		string $motionId,
-		string $subjectType,
-		string $votingMethod,
-		bool $isSecret,
-		?string $closedAt,
-		bool $quorumWith,
-		array $rules,
-		?string $revoteOfRoundId,
-		array $participantIds,
-	): array {
-		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
-		foreach ($participantIds as $uuid) {
-			$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $uuid];
-		}
-
-		$round = [
-			'votingMethod' => $votingMethod,
-			'isSecret' => $isSecret,
-			'openedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-			'closedAt' => $closedAt,
-			'quorumWith' => $quorumWith,
-			'result' => null,
-			'votesFor' => 0,
-			'votesAgainst' => 0,
-			'votesAbstain' => 0,
-			'voteThreshold' => $rules['voteThreshold'],
-			'abstentionHandling' => $rules['abstentionHandling'],
-			'tieBreakRule' => $rules['tieBreakRule'],
-			'relations' => $relations,
-		];
-
-		if ($revoteOfRoundId !== null) {
-			$round['revoteOfRound'] = $revoteOfRoundId;
-		}
-
-		return $round;
-	}//end buildRoundPayload()
 
 	/**
 	 * Transition the subject lifecycle to 'voting' via the guarded state machine.

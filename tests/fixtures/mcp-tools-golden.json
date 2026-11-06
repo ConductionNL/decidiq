@@ -1,0 +1,3659 @@
+{
+    "anonymous": {
+        "items default": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
+            },
+            "calls": []
+        },
+        "items all": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
+            },
+            "calls": []
+        },
+        "items bad scope": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid scope 'bogus'. Allowed values: mine, all."
+            },
+            "calls": []
+        },
+        "items bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 0. Must be between 1 and 50."
+            },
+            "calls": []
+        },
+        "meetings default": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
+            },
+            "calls": []
+        },
+        "meetings closed": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Sign in to use this tool."
+            },
+            "calls": []
+        },
+        "meetings bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 99. Must be between 1 and 20."
+            },
+            "calls": []
+        },
+        "details scheduled": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "details forged": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "details gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "details throws": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "44444444-4444-4444-8444-444444444444",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
+                    }
+                }
+            ]
+        },
+        "details bad uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid UUID format for meetingUuid: 'not-a-uuid'."
+            },
+            "calls": []
+        },
+        "details no uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Required argument meetingUuid is missing."
+            },
+            "calls": []
+        },
+        "start scheduled": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "start opened": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "22222222-2222-4222-8222-222222222222",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "start stuck": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "start gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "add item": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "add short title": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Title must be between 3 and 200 characters (got 2)."
+            },
+            "calls": []
+        },
+        "add bad date": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid dueDate '31-01-2030'. Expected ISO 8601 date (YYYY-MM-DD)."
+            },
+            "calls": []
+        },
+        "add write fails": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "add gone meeting": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                }
+            ]
+        },
+        "unknown tool": {
+            "returns": {
+                "isError": true,
+                "error": "unknown_tool",
+                "message": "Unknown tool id 'decidesk.nope'. Available tools: decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem."
+            },
+            "calls": []
+        }
+    },
+    "admin": {
+        "items default": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 20,
+                                "assignee": "admin"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items all": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 5
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "items bad scope": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid scope 'bogus'. Allowed values: mine, all."
+            },
+            "calls": []
+        },
+        "items bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 0. Must be between 1 and 50."
+            },
+            "calls": []
+        },
+        "meetings default": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 10,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "meetings closed": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 1,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                },
+                                "lifecycle": "closed"
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "meetings bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 99. Must be between 1 and 20."
+            },
+            "calls": []
+        },
+        "details scheduled": {
+            "returns": {
+                "success": true,
+                "meeting": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "title": "Raad",
+                    "chair": "carla",
+                    "lifecycle": "scheduled"
+                },
+                "agendaItems": [
+                    {
+                        "id": "x-1",
+                        "title": "Item agenda-item",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "decisions": [
+                    {
+                        "id": "x-1",
+                        "title": "Item decision",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "actionItems": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/agenda-items/x-1",
+                        "label": "Item agenda-item"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/agenda-items/x-0",
+                        "label": "Agenda item"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/decisions/x-1",
+                        "label": "Item decision"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/decisions/x-0",
+                        "label": "Decision"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "details forged": {
+            "returns": {
+                "success": true,
+                "meeting": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "title": "Raad",
+                    "chair": "carla",
+                    "lifecycle": "scheduled"
+                },
+                "agendaItems": [
+                    {
+                        "id": "x-1",
+                        "title": "Item agenda-item",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "decisions": [
+                    {
+                        "id": "x-1",
+                        "title": "Item decision",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "actionItems": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/agenda-items/x-1",
+                        "label": "Item agenda-item"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/agenda-items/x-0",
+                        "label": "Agenda item"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/decisions/x-1",
+                        "label": "Item decision"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/decisions/x-0",
+                        "label": "Decision"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "details gone": {
+            "returns": {
+                "isError": true,
+                "error": "not_found",
+                "message": "Meeting not found."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "details throws": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "44444444-4444-4444-8444-444444444444",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
+                    }
+                }
+            ]
+        },
+        "details bad uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid UUID format for meetingUuid: 'not-a-uuid'."
+            },
+            "calls": []
+        },
+        "details no uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Required argument meetingUuid is missing."
+            },
+            "calls": []
+        },
+        "start scheduled": {
+            "returns": {
+                "success": true,
+                "started": true,
+                "meetingUuid": "11111111-1111-4111-8111-111111111111",
+                "startedAt": "<date>",
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                },
+                {
+                    "transition": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "action": "open",
+                        "currentUserId": "admin"
+                    }
+                }
+            ]
+        },
+        "start opened": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_state",
+                "message": "Meeting is already in progress."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "22222222-2222-4222-8222-222222222222",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "start stuck": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Transition refused"
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                },
+                {
+                    "transition": {
+                        "meetingId": "55555555-5555-4555-8555-555555555555",
+                        "action": "open",
+                        "currentUserId": "admin"
+                    }
+                }
+            ]
+        },
+        "start gone": {
+            "returns": {
+                "isError": true,
+                "error": "not_found",
+                "message": "Meeting not found."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "add item": {
+            "returns": {
+                "success": true,
+                "created": true,
+                "actionItem": {
+                    "uid": "ai-new",
+                    "title": "Follow up",
+                    "taskStatus": "open",
+                    "relations": {
+                        "Meeting": [
+                            "11111111-1111-4111-8111-111111111111"
+                        ]
+                    },
+                    "assignee": "mia",
+                    "dueDate": "2030-01-31"
+                },
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-new",
+                        "url": "/apps/decidiq/action-items/ai-new",
+                        "label": "Follow up"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                },
+                {
+                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                },
+                {
+                    "create": {
+                        "title": "Follow up",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        },
+                        "assignee": "mia",
+                        "dueDate": "2030-01-31"
+                    }
+                }
+            ]
+        },
+        "add short title": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Title must be between 3 and 200 characters (got 2)."
+            },
+            "calls": []
+        },
+        "add bad date": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid dueDate '31-01-2030'. Expected ISO 8601 date (YYYY-MM-DD)."
+            },
+            "calls": []
+        },
+        "add write fails": {
+            "returns": {
+                "isError": true,
+                "error": "create_failed",
+                "message": "Could not create the action item."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                },
+                {
+                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                },
+                {
+                    "create": {
+                        "title": "fail me",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "add gone meeting": {
+            "returns": {
+                "isError": true,
+                "error": "not_found",
+                "message": "Meeting not found."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "admin"
+                }
+            ]
+        },
+        "unknown tool": {
+            "returns": {
+                "isError": true,
+                "error": "unknown_tool",
+                "message": "Unknown tool id 'decidesk.nope'. Available tools: decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem."
+            },
+            "calls": []
+        }
+    },
+    "carla": {
+        "items default": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 20,
+                                "assignee": "carla"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items all": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 5
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "carla"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items bad scope": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid scope 'bogus'. Allowed values: mine, all."
+            },
+            "calls": []
+        },
+        "items bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 0. Must be between 1 and 50."
+            },
+            "calls": []
+        },
+        "meetings default": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 10,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "carla"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "meetings closed": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 1,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                },
+                                "lifecycle": "closed"
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "carla"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "meetings bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 99. Must be between 1 and 20."
+            },
+            "calls": []
+        },
+        "details scheduled": {
+            "returns": {
+                "success": true,
+                "meeting": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "title": "Raad",
+                    "chair": "carla",
+                    "lifecycle": "scheduled"
+                },
+                "agendaItems": [
+                    {
+                        "id": "x-1",
+                        "title": "Item agenda-item",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "decisions": [
+                    {
+                        "id": "x-1",
+                        "title": "Item decision",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "actionItems": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/agenda-items/x-1",
+                        "label": "Item agenda-item"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/agenda-items/x-0",
+                        "label": "Agenda item"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/decisions/x-1",
+                        "label": "Item decision"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/decisions/x-0",
+                        "label": "Decision"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "carla"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "details forged": {
+            "returns": {
+                "success": true,
+                "meeting": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "title": "Raad",
+                    "chair": "carla",
+                    "lifecycle": "scheduled"
+                },
+                "agendaItems": [
+                    {
+                        "id": "x-1",
+                        "title": "Item agenda-item",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "decisions": [
+                    {
+                        "id": "x-1",
+                        "title": "Item decision",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "actionItems": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/agenda-items/x-1",
+                        "label": "Item agenda-item"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/agenda-items/x-0",
+                        "label": "Agenda item"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/decisions/x-1",
+                        "label": "Item decision"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/decisions/x-0",
+                        "label": "Decision"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "carla"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "details gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                }
+            ]
+        },
+        "details throws": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "44444444-4444-4444-8444-444444444444",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
+                    }
+                }
+            ]
+        },
+        "details bad uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid UUID format for meetingUuid: 'not-a-uuid'."
+            },
+            "calls": []
+        },
+        "details no uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Required argument meetingUuid is missing."
+            },
+            "calls": []
+        },
+        "start scheduled": {
+            "returns": {
+                "success": true,
+                "started": true,
+                "meetingUuid": "11111111-1111-4111-8111-111111111111",
+                "startedAt": "<date>",
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "transition": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "action": "open",
+                        "currentUserId": "carla"
+                    }
+                }
+            ]
+        },
+        "start opened": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_state",
+                "message": "Meeting is already in progress."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "22222222-2222-4222-8222-222222222222",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                }
+            ]
+        },
+        "start stuck": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Transition refused"
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "transition": {
+                        "meetingId": "55555555-5555-4555-8555-555555555555",
+                        "action": "open",
+                        "currentUserId": "carla"
+                    }
+                }
+            ]
+        },
+        "start gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                }
+            ]
+        },
+        "add item": {
+            "returns": {
+                "success": true,
+                "created": true,
+                "actionItem": {
+                    "uid": "ai-new",
+                    "title": "Follow up",
+                    "taskStatus": "open",
+                    "relations": {
+                        "Meeting": [
+                            "11111111-1111-4111-8111-111111111111"
+                        ]
+                    },
+                    "assignee": "mia",
+                    "dueDate": "2030-01-31"
+                },
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-new",
+                        "url": "/apps/decidiq/action-items/ai-new",
+                        "label": "Follow up"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "carla"
+                    }
+                },
+                {
+                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                },
+                {
+                    "create": {
+                        "title": "Follow up",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        },
+                        "assignee": "mia",
+                        "dueDate": "2030-01-31"
+                    }
+                }
+            ]
+        },
+        "add short title": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Title must be between 3 and 200 characters (got 2)."
+            },
+            "calls": []
+        },
+        "add bad date": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid dueDate '31-01-2030'. Expected ISO 8601 date (YYYY-MM-DD)."
+            },
+            "calls": []
+        },
+        "add write fails": {
+            "returns": {
+                "isError": true,
+                "error": "create_failed",
+                "message": "Could not create the action item."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "carla"
+                    }
+                },
+                {
+                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                },
+                {
+                    "create": {
+                        "title": "fail me",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "add gone meeting": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "carla"
+                }
+            ]
+        },
+        "unknown tool": {
+            "returns": {
+                "isError": true,
+                "error": "unknown_tool",
+                "message": "Unknown tool id 'decidesk.nope'. Available tools: decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem."
+            },
+            "calls": []
+        }
+    },
+    "mia": {
+        "items default": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 20,
+                                "assignee": "mia"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items all": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 5
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "mia"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items bad scope": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid scope 'bogus'. Allowed values: mine, all."
+            },
+            "calls": []
+        },
+        "items bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 0. Must be between 1 and 50."
+            },
+            "calls": []
+        },
+        "meetings default": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 10,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "mia"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "meetings closed": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 1,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                },
+                                "lifecycle": "closed"
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "mia"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "meetings bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 99. Must be between 1 and 20."
+            },
+            "calls": []
+        },
+        "details scheduled": {
+            "returns": {
+                "success": true,
+                "meeting": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "title": "Raad",
+                    "chair": "carla",
+                    "lifecycle": "scheduled"
+                },
+                "agendaItems": [
+                    {
+                        "id": "x-1",
+                        "title": "Item agenda-item",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "decisions": [
+                    {
+                        "id": "x-1",
+                        "title": "Item decision",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "actionItems": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/agenda-items/x-1",
+                        "label": "Item agenda-item"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/agenda-items/x-0",
+                        "label": "Agenda item"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/decisions/x-1",
+                        "label": "Item decision"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/decisions/x-0",
+                        "label": "Decision"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "mia"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "details forged": {
+            "returns": {
+                "success": true,
+                "meeting": {
+                    "id": "11111111-1111-4111-8111-111111111111",
+                    "title": "Raad",
+                    "chair": "carla",
+                    "lifecycle": "scheduled"
+                },
+                "agendaItems": [
+                    {
+                        "id": "x-1",
+                        "title": "Item agenda-item",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "decisions": [
+                    {
+                        "id": "x-1",
+                        "title": "Item decision",
+                        "orderNumber": 2
+                    },
+                    {
+                        "id": "x-0",
+                        "name": "First",
+                        "orderNumber": 1
+                    }
+                ],
+                "actionItems": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/agenda-items/x-1",
+                        "label": "Item agenda-item"
+                    },
+                    {
+                        "type": "decidesk.agendaItem",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/agenda-items/x-0",
+                        "label": "Agenda item"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-1",
+                        "url": "/apps/decidiq/decisions/x-1",
+                        "label": "Item decision"
+                    },
+                    {
+                        "type": "decidesk.decision",
+                        "uuid": "x-0",
+                        "url": "/apps/decidiq/decisions/x-0",
+                        "label": "Decision"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "mia"
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "agenda-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "decision",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "_relations.meeting": "11111111-1111-4111-8111-111111111111"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "details gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                }
+            ]
+        },
+        "details throws": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "44444444-4444-4444-8444-444444444444",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
+                    }
+                }
+            ]
+        },
+        "details bad uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid UUID format for meetingUuid: 'not-a-uuid'."
+            },
+            "calls": []
+        },
+        "details no uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Required argument meetingUuid is missing."
+            },
+            "calls": []
+        },
+        "start scheduled": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                }
+            ]
+        },
+        "start opened": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "22222222-2222-4222-8222-222222222222",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                }
+            ]
+        },
+        "start stuck": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                }
+            ]
+        },
+        "start gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                }
+            ]
+        },
+        "add item": {
+            "returns": {
+                "success": true,
+                "created": true,
+                "actionItem": {
+                    "uid": "ai-new",
+                    "title": "Follow up",
+                    "taskStatus": "open",
+                    "relations": {
+                        "Meeting": [
+                            "11111111-1111-4111-8111-111111111111"
+                        ]
+                    },
+                    "assignee": "mia",
+                    "dueDate": "2030-01-31"
+                },
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-new",
+                        "url": "/apps/decidiq/action-items/ai-new",
+                        "label": "Follow up"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "mia"
+                    }
+                },
+                {
+                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                },
+                {
+                    "create": {
+                        "title": "Follow up",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        },
+                        "assignee": "mia",
+                        "dueDate": "2030-01-31"
+                    }
+                }
+            ]
+        },
+        "add short title": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Title must be between 3 and 200 characters (got 2)."
+            },
+            "calls": []
+        },
+        "add bad date": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid dueDate '31-01-2030'. Expected ISO 8601 date (YYYY-MM-DD)."
+            },
+            "calls": []
+        },
+        "add write fails": {
+            "returns": {
+                "isError": true,
+                "error": "create_failed",
+                "message": "Could not create the action item."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "mia"
+                    }
+                },
+                {
+                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                },
+                {
+                    "create": {
+                        "title": "fail me",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "add gone meeting": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "mia"
+                }
+            ]
+        },
+        "unknown tool": {
+            "returns": {
+                "isError": true,
+                "error": "unknown_tool",
+                "message": "Unknown tool id 'decidesk.nope'. Available tools: decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem."
+            },
+            "calls": []
+        }
+    },
+    "sam": {
+        "items default": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-1",
+                        "title": "Mine",
+                        "assignee": "mia",
+                        "taskStatus": "open",
+                        "relations": {
+                            "Meeting": [
+                                "11111111-1111-4111-8111-111111111111"
+                            ]
+                        }
+                    },
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    },
+                    {
+                        "id": "ai-3",
+                        "title": "Done",
+                        "assignee": "mia",
+                        "taskStatus": "completed"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-1",
+                        "url": "/apps/decidiq/action-items/ai-1",
+                        "label": "Mine"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    },
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-3",
+                        "url": "/apps/decidiq/action-items/ai-3",
+                        "label": "Done"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 20,
+                                "assignee": "sam"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items all": {
+            "returns": {
+                "success": true,
+                "items": [
+                    {
+                        "id": "ai-2",
+                        "name": "Theirs",
+                        "assignee": "sam",
+                        "taskStatus": "open",
+                        "meeting": "22222222-2222-4222-8222-222222222222"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.actionItem",
+                        "uuid": "ai-2",
+                        "url": "/apps/decidiq/action-items/ai-2",
+                        "label": "Theirs"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "action-item",
+                                "completed": false,
+                                "_limit": 5
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "sam"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "items bad scope": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid scope 'bogus'. Allowed values: mine, all."
+            },
+            "calls": []
+        },
+        "items bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 0. Must be between 1 and 50."
+            },
+            "calls": []
+        },
+        "meetings default": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 10,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "sam"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "meetings closed": {
+            "returns": {
+                "success": true,
+                "meetings": [
+                    {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "title": "Raad",
+                        "date": "2030-02-01",
+                        "lifecycle": "scheduled"
+                    },
+                    {
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "title": "Commissie",
+                        "date": "2030-03-01",
+                        "lifecycle": "opened"
+                    },
+                    {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "name": "Vastgelopen",
+                        "date": "2029-12-01"
+                    }
+                ],
+                "sources": [
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "11111111-1111-4111-8111-111111111111",
+                        "url": "/apps/decidiq/meetings/11111111-1111-4111-8111-111111111111",
+                        "label": "Raad"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "22222222-2222-4222-8222-222222222222",
+                        "url": "/apps/decidiq/meetings/22222222-2222-4222-8222-222222222222",
+                        "label": "Commissie"
+                    },
+                    {
+                        "type": "decidesk.meeting",
+                        "uuid": "55555555-5555-4555-8555-555555555555",
+                        "url": "/apps/decidiq/meetings/55555555-5555-4555-8555-555555555555",
+                        "label": "Meeting"
+                    }
+                ]
+            },
+            "calls": [
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_limit": 1,
+                                "_order": {
+                                    "scheduledDate": "DESC"
+                                },
+                                "lifecycle": "closed"
+                            }
+                        }
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "nextcloudUserId": "sam"
+                            }
+                        }
+                    }
+                },
+                {
+                    "findAll": {
+                        "config": {
+                            "filters": {
+                                "register": "decidiq",
+                                "schema": "meeting",
+                                "_relations.governance-body": "gb-1"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "meetings bad limit": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid limit 99. Must be between 1 and 20."
+            },
+            "calls": []
+        },
+        "details scheduled": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "sam"
+                    }
+                }
+            ]
+        },
+        "details forged": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "sam"
+                    }
+                }
+            ]
+        },
+        "details gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                }
+            ]
+        },
+        "details throws": {
+            "returns": {
+                "isError": true,
+                "error": "internal_error",
+                "message": "Failed to load the meeting. See server log for details."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "44444444-4444-4444-8444-444444444444",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "error": "Decidiq MCP: meeting lookup failed",
+                    "context": {
+                        "meetingUuid": "44444444-4444-4444-8444-444444444444",
+                        "exception": "register down"
+                    }
+                }
+            ]
+        },
+        "details bad uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid UUID format for meetingUuid: 'not-a-uuid'."
+            },
+            "calls": []
+        },
+        "details no uuid": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Required argument meetingUuid is missing."
+            },
+            "calls": []
+        },
+        "start scheduled": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                }
+            ]
+        },
+        "start opened": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "22222222-2222-4222-8222-222222222222",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                }
+            ]
+        },
+        "start stuck": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "55555555-5555-4555-8555-555555555555",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                }
+            ]
+        },
+        "start gone": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "Only the chair or an admin can start this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                }
+            ]
+        },
+        "add item": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "sam"
+                    }
+                }
+            ]
+        },
+        "add short title": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Title must be between 3 and 200 characters (got 2)."
+            },
+            "calls": []
+        },
+        "add bad date": {
+            "returns": {
+                "isError": true,
+                "error": "invalid_arguments",
+                "message": "Invalid dueDate '31-01-2030'. Expected ISO 8601 date (YYYY-MM-DD)."
+            },
+            "calls": []
+        },
+        "add write fails": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "11111111-1111-4111-8111-111111111111",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                },
+                {
+                    "isParticipant": {
+                        "meetingId": "11111111-1111-4111-8111-111111111111",
+                        "nextcloudUid": "sam"
+                    }
+                }
+            ]
+        },
+        "add gone meeting": {
+            "returns": {
+                "isError": true,
+                "error": "forbidden",
+                "message": "You are not a participant of this meeting."
+            },
+            "calls": [
+                {
+                    "find": {
+                        "id": "33333333-3333-4333-8333-333333333333",
+                        "register": "decidiq",
+                        "schema": "meeting"
+                    }
+                },
+                {
+                    "isAdmin": "sam"
+                }
+            ]
+        },
+        "unknown tool": {
+            "returns": {
+                "isError": true,
+                "error": "unknown_tool",
+                "message": "Unknown tool id 'decidesk.nope'. Available tools: decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem."
+            },
+            "calls": []
+        }
+    }
+}

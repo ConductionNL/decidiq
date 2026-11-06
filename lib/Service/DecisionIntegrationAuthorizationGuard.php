@@ -34,7 +34,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+ * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  */
 
 declare(strict_types=1);
@@ -48,7 +48,7 @@ use Psr\Log\LoggerInterface;
  * Per-object authorization guard for the contract-decision hub's outcome-read
  * and outcome-subscribe endpoints. Fail-closed.
  *
- * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+ * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  */
 class DecisionIntegrationAuthorizationGuard {
 
@@ -127,7 +127,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return bool True when the caller may read the envelope
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	public function isAuthorizedToReadOutcome(string $decisionId, string $callerUid): bool {
 		return ($this->resolveOutcomeReadAccess(
@@ -247,7 +247,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return bool True when the caller may attach an outcome callback
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	public function isAuthorizedToSubscribe(string $decisionId, string $callerUid): bool {
 		if ($decisionId === '' || $callerUid === '') {
@@ -293,7 +293,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *                                         `null` when the Decision does not
 	 *                                         exist (caller lets the 404 stand)
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function loadDecisionForGuard(string $decisionId, string $callerUid, string $guard): array|false|null {
 		try {
@@ -329,7 +329,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return bool True when the caller owns the Decision
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function isDecisionOwner(array $decision, string $callerUid): bool {
 		$self = $decision['@self'] ?? [];

@@ -1,0 +1,68 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change motions-stages-and-themes (REQ-MST-001 and REQ-MST-002, matrix rows mot-08 and mot-15). MotionTheme (slug motion-theme, because opencatalogi owns the slug theme) is the configurable list of policy themes (beleidsvelden) a motion can be tagged with; Decision.themes stores the theme names, so the motions list can filter on readable values. lifecycle, outcome and themes become facetable, which gives the Motions list its stage, result and theme filters.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "motion-theme"
+        ]
+      }
+    },
+    "schemas": {
+      "MotionTheme": {
+        "slug": "motion-theme",
+        "icon": "TagOutline",
+        "version": "1.0.0",
+        "title": "Theme",
+        "description": "A policy theme motions can be tagged with, such as housing or climate.",
+        "type": "object",
+        "x-openregister": {
+          "schemaType": "schema:DefinedTerm",
+          "active": true,
+          "hardDelete": false,
+          "searchable": true
+        },
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string",
+            "description": "The theme as members see it on a motion and in the filter."
+          },
+          "description": {
+            "title": "Description",
+            "type": "string",
+            "description": "What belongs under this theme."
+          }
+        }
+      },
+      "Decision": {
+        "slug": "decision",
+        "version": "1.6.0",
+        "properties": {
+          "themes": {
+            "title": "Themes",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "facetable": true,
+            "description": "The policy themes this motion is about, by name, picked from the configured themes.",
+            "x-notes": "Names, not ids: the motions list filters on this facet and shows its values as they are stored. DecisionFormDialog offers the configured theme names."
+          },
+          "lifecycle": {
+            "facetable": true
+          },
+          "outcome": {
+            "facetable": true
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,1345 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`GovernanceBodyCompositionTab refresh() > does nothing without a body 1`] = `
+{
+  "calls": [],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [],
+    "diversityTargets": [],
+    "error": "",
+    "held": [],
+    "loading": false,
+    "memberships": [],
+    "notice": "",
+    "persons": {},
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyCompositionTab refresh() > loads the body, current seats, people and held competences 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "7",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "board-competence",
+      "type": "board-competence",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p1",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p2",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s1",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s2",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s3",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s4",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+  ],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [
+      {
+        "id": "c1",
+      },
+    ],
+    "diversityTargets": [
+      {
+        "dimension": "gender",
+        "value": "f",
+      },
+    ],
+    "error": "",
+    "held": [
+      {
+        "id": "h1",
+      },
+      {
+        "id": "h2",
+      },
+    ],
+    "loading": false,
+    "memberships": [
+      {
+        "id": "s1",
+        "person": "p1",
+      },
+      {
+        "id": "s2",
+        "person": "p2",
+      },
+      {
+        "id": "s3",
+        "person": "p1",
+      },
+      {
+        "id": "s4",
+      },
+    ],
+    "notice": "",
+    "persons": {
+      "p1": {
+        "name": "Ann",
+      },
+      "p2": {},
+    },
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyCompositionTab refresh() > reports a failing store and assigns nothing > governance-body 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "7",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "board-competence",
+      "type": "board-competence",
+    },
+  ],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [],
+    "diversityTargets": [],
+    "error": "store down",
+    "held": [],
+    "loading": false,
+    "memberships": [],
+    "notice": "",
+    "persons": {},
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyCompositionTab refresh() > reports a failing store and assigns nothing > member-competence 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "7",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "board-competence",
+      "type": "board-competence",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p1",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p2",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s1",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s2",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s3",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s4",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+  ],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [],
+    "diversityTargets": [],
+    "error": "store down",
+    "held": [],
+    "loading": false,
+    "memberships": [],
+    "notice": "",
+    "persons": {},
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyCompositionTab refresh() > reports a failing store and assigns nothing > person 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "7",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "board-competence",
+      "type": "board-competence",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p1",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p2",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s1",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s2",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s3",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s4",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+  ],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [],
+    "diversityTargets": [],
+    "error": "store down",
+    "held": [],
+    "loading": false,
+    "memberships": [],
+    "notice": "",
+    "persons": {},
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyCompositionTab refresh() > tolerates a body and collections that come back empty 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "7",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "board-competence",
+      "type": "board-competence",
+    },
+  ],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [
+      {
+        "id": "c1",
+      },
+    ],
+    "diversityTargets": [
+      {
+        "dimension": "gender",
+        "value": "f",
+      },
+    ],
+    "error": "",
+    "held": [],
+    "loading": false,
+    "memberships": [],
+    "notice": "",
+    "persons": {},
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyCompositionTab refresh() > tolerates a body and collections that come back empty 2`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "7",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "governanceBody": "7",
+      },
+      "schema": "board-competence",
+      "type": "board-competence",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p1",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "p2",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s1",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s2",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s3",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "membership": "s4",
+      },
+      "schema": "member-competence",
+      "type": "member-competence",
+    },
+  ],
+  "state": {
+    "busy": false,
+    "competenceOpen": false,
+    "competences": [],
+    "diversityTargets": [],
+    "error": "",
+    "held": [
+      {
+        "id": "h1",
+      },
+      {
+        "id": "h2",
+      },
+    ],
+    "loading": false,
+    "memberships": [
+      {
+        "id": "s1",
+        "person": "p1",
+      },
+      {
+        "id": "s2",
+        "person": "p2",
+      },
+      {
+        "id": "s3",
+        "person": "p1",
+      },
+      {
+        "id": "s4",
+      },
+    ],
+    "notice": "",
+    "persons": {
+      "p1": {
+        "name": "Ann",
+      },
+      "p2": {},
+    },
+    "recordOpen": false,
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > does nothing without a body 1`] = `
+{
+  "calls": [],
+  "state": {
+    "agendaItems": [],
+    "engagementRecords": [],
+    "error": "",
+    "hourlyRate": 0,
+    "loading": false,
+    "meetings": [],
+    "participants": [],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > falls back to a zero hourly rate 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "participant",
+      "type": "participant",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 1000,
+      },
+      "schema": "engagement-record",
+      "type": "engagement-record",
+    },
+  ],
+  "state": {
+    "agendaItems": [
+      {
+        "id": "i1",
+        "meeting": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m2",
+          },
+        },
+        "id": "i2",
+      },
+    ],
+    "engagementRecords": [
+      {
+        "id": "e1",
+        "meeting": "m1",
+      },
+    ],
+    "error": "",
+    "hourlyRate": 0,
+    "loading": false,
+    "meetings": [
+      {
+        "governanceBody": "b1",
+        "id": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "governanceBody": "b1",
+          },
+        },
+        "id": "m2",
+      },
+    ],
+    "participants": [
+      {
+        "governanceBody": "b1",
+        "id": "p1",
+      },
+      {
+        "id": "p2",
+        "meeting": "m2",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m1",
+          },
+        },
+        "id": "p3",
+      },
+    ],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > loads the body and filters every collection to its meetings 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "participant",
+      "type": "participant",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 1000,
+      },
+      "schema": "engagement-record",
+      "type": "engagement-record",
+    },
+  ],
+  "state": {
+    "agendaItems": [
+      {
+        "id": "i1",
+        "meeting": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m2",
+          },
+        },
+        "id": "i2",
+      },
+    ],
+    "engagementRecords": [
+      {
+        "id": "e1",
+        "meeting": "m1",
+      },
+    ],
+    "error": "",
+    "hourlyRate": 42.5,
+    "loading": false,
+    "meetings": [
+      {
+        "governanceBody": "b1",
+        "id": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "governanceBody": "b1",
+          },
+        },
+        "id": "m2",
+      },
+    ],
+    "participants": [
+      {
+        "governanceBody": "b1",
+        "id": "p1",
+      },
+      {
+        "id": "p2",
+        "meeting": "m2",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m1",
+          },
+        },
+        "id": "p3",
+      },
+    ],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > stops at the first failing collection > agenda-item 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+  ],
+  "state": {
+    "agendaItems": [],
+    "engagementRecords": [],
+    "error": "store down",
+    "hourlyRate": 42.5,
+    "loading": false,
+    "meetings": [
+      {
+        "governanceBody": "b1",
+        "id": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "governanceBody": "b1",
+          },
+        },
+        "id": "m2",
+      },
+    ],
+    "participants": [],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > stops at the first failing collection > engagement-record 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "participant",
+      "type": "participant",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 1000,
+      },
+      "schema": "engagement-record",
+      "type": "engagement-record",
+    },
+  ],
+  "state": {
+    "agendaItems": [
+      {
+        "id": "i1",
+        "meeting": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m2",
+          },
+        },
+        "id": "i2",
+      },
+    ],
+    "engagementRecords": [],
+    "error": "store down",
+    "hourlyRate": 42.5,
+    "loading": false,
+    "meetings": [
+      {
+        "governanceBody": "b1",
+        "id": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "governanceBody": "b1",
+          },
+        },
+        "id": "m2",
+      },
+    ],
+    "participants": [
+      {
+        "governanceBody": "b1",
+        "id": "p1",
+      },
+      {
+        "id": "p2",
+        "meeting": "m2",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m1",
+          },
+        },
+        "id": "p3",
+      },
+    ],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > stops at the first failing collection > meeting 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+  ],
+  "state": {
+    "agendaItems": [],
+    "engagementRecords": [],
+    "error": "store down",
+    "hourlyRate": 42.5,
+    "loading": false,
+    "meetings": [],
+    "participants": [],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > stops at the first failing collection > participant 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "participant",
+      "type": "participant",
+    },
+  ],
+  "state": {
+    "agendaItems": [
+      {
+        "id": "i1",
+        "meeting": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "meeting": "m2",
+          },
+        },
+        "id": "i2",
+      },
+    ],
+    "engagementRecords": [],
+    "error": "store down",
+    "hourlyRate": 42.5,
+    "loading": false,
+    "meetings": [
+      {
+        "governanceBody": "b1",
+        "id": "m1",
+      },
+      {
+        "@self": {
+          "relations": {
+            "governanceBody": "b1",
+          },
+        },
+        "id": "m2",
+      },
+    ],
+    "participants": [],
+  },
+}
+`;
+
+exports[`GovernanceBodyEfficiencyTab refresh() > tolerates empty collections 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "b1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "meeting",
+      "type": "meeting",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 500,
+      },
+      "schema": "participant",
+      "type": "participant",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 1000,
+      },
+      "schema": "engagement-record",
+      "type": "engagement-record",
+    },
+  ],
+  "state": {
+    "agendaItems": [],
+    "engagementRecords": [],
+    "error": "",
+    "hourlyRate": 0,
+    "loading": false,
+    "meetings": [],
+    "participants": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > clears the rounds when the meeting has no agenda items 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+        "meeting": "m1",
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rounds": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > clears the rounds when the meeting has no agenda items 2`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+        "meeting": "m1",
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rounds": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > does nothing without a meeting 1`] = `
+{
+  "calls": [],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rounds": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > fails on a null round 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+        "meeting": "m1",
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "a1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 50,
+        "motion": "mo1",
+      },
+      "schema": "voting-round",
+      "type": "voting-round",
+    },
+  ],
+  "state": {
+    "error": "Cannot read properties of null (reading 'id')",
+    "loading": false,
+    "rounds": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > reports a failing store and keeps the rounds it had 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+        "meeting": "m1",
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "a1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 50,
+        "motion": "mo1",
+      },
+      "schema": "voting-round",
+      "type": "voting-round",
+    },
+  ],
+  "state": {
+    "error": "store down",
+    "loading": false,
+    "rounds": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > reports a failing store and keeps the rounds it had 2`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+        "meeting": "m1",
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "a1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "error": "Failed to load voting overview.",
+    "loading": false,
+    "rounds": [],
+  },
+}
+`;
+
+exports[`MeetingVotesTab refresh() > walks agenda items, motions and rounds 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+        "meeting": "m1",
+      },
+      "schema": "agenda-item",
+      "type": "agenda-item",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "a1",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 50,
+        "motion": "mo1",
+      },
+      "schema": "voting-round",
+      "type": "voting-round",
+    },
+    {
+      "fn": "factionSummary",
+      "roundId": "r1",
+    },
+    {
+      "fn": "factionSummary",
+      "roundId": "r2",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 50,
+        "motion": "mo2",
+      },
+      "schema": "voting-round",
+      "type": "voting-round",
+    },
+    {
+      "fn": "factionSummary",
+      "roundId": "r3",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "agendaItem": "a2",
+        "decisionType": "motion",
+      },
+      "schema": "motion",
+      "type": "motion",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "rounds": [
+      {
+        "factions": "factions of r1",
+        "id": "r1",
+        "motionId": "mo1",
+        "motionTitle": "Budget",
+        "motionType": "amendment",
+        "result": "adopted",
+        "timestamp": "2026-01-02",
+        "votesAbstain": 1,
+        "votesAgainst": 2,
+        "votesFor": 5,
+      },
+      {
+        "factions": "factions of r2",
+        "id": "r2",
+        "motionId": "mo1",
+        "motionTitle": "Budget",
+        "motionType": "amendment",
+        "result": "",
+        "timestamp": "2026-01-01",
+        "votesAbstain": 0,
+        "votesAgainst": 0,
+        "votesFor": 0,
+      },
+      {
+        "factions": "factions of r3",
+        "id": "r3",
+        "motionId": "mo2",
+        "motionTitle": "Motion",
+        "motionType": "",
+        "result": "",
+        "timestamp": "",
+        "votesAbstain": 0,
+        "votesAgainst": 0,
+        "votesFor": 0,
+      },
+    ],
+  },
+}
+`;

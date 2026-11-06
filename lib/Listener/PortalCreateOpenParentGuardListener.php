@@ -42,6 +42,14 @@
  * deliberately stricter, defence-in-depth posture (design.md "Open
  * questions", apply-time resolution of Open Q1).
  *
+ * A third create is guarded the same way (issue #1418, REQ-CAV-002): a
+ * resident's `citizen-vote` on a motion (signature `voterId` + `voteValue` +
+ * `motionId`) is refused unless the motion's `citizenVotingStatus` is `open`,
+ * and then also when its value is not voor, tegen or onthoud or the same voter
+ * already advised on that motion. A citizen vote without a `motionId` is an
+ * advisory vote on a budget proposal, which AdvisoryVoteService guards, and
+ * passes untouched.
+ *
  * The open-parent constraint itself is read from
  * `PortalContributionProvider`'s own manifest (`parentConstraint` on each
  * `type: create` action) rather than duplicated here, so the manifest stays
@@ -58,6 +66,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/specs/portal-citizen-create-actions/spec.md
+ * @spec openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation/spec.md#requirement-req-cav-002-a-verified-resident-gives-one-advisory-vote-while-it-is-open
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -75,8 +84,9 @@ use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Rejects a citizen `createReaction` / `createBudgetProposal` write whose
- * parent is not open, before the row is ever persisted.
+ * Rejects a citizen `createReaction` / `createBudgetProposal` /
+ * `castMotionAdvice` write whose parent is not open, before the row is ever
+ * persisted.
  *
  * @implements IEventListener<Event>
  *
@@ -106,11 +116,38 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	private const SCHEMA_BUDGET_PROPOSAL = 'budget-proposal';
 
 	/**
+	 * The schema slug this listener recognises as a resident's advisory vote.
+	 *
+	 * @var string
+	 */
+	private const SCHEMA_CITIZEN_VOTE = 'citizen-vote';
+
+	/**
+	 * The required, jointly distinctive fields that identify each guarded
+	 * schema on a raw row (tier 2, see the class docblock).
+	 *
+	 * @var array<string, array<int, string>>
+	 */
+	private const SIGNATURES = [
+		self::SCHEMA_CONSULTATION_REACTION => ['moderationStatus', 'submitterId', 'body'],
+		self::SCHEMA_BUDGET_PROPOSAL => ['submitter', 'requestedAmount', 'status'],
+		self::SCHEMA_CITIZEN_VOTE => ['voterId', 'voteValue', 'motionId'],
+	];
+
+	/**
 	 * OpenRegister's object service FQCN (lazily resolved from the container).
 	 *
 	 * @var string
 	 */
 	private const OBJECT_SERVICE = 'OCA\\OpenRegister\\Service\\ObjectService';
+
+	/**
+	 * The rules a resident's advice on a motion answers to beyond its open
+	 * parent: value, voter and one vote per resident.
+	 *
+	 * @var MotionAdviceGuard
+	 */
+	private MotionAdviceGuard $motionAdvice;
 
 	/**
 	 * Constructor.
@@ -122,6 +159,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
+		$this->motionAdvice = new MotionAdviceGuard();
 	}//end __construct()
 
 	/**
@@ -180,15 +218,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 			$row = (array)$entity->getObject();
 		}
 
-		$schema = $this->schemaSlugFromRow(row: $row);
-		if ($schema === '') {
-			$schema = $this->schemaSlugFromEntity(entity: $entity);
-		}
-
-		if (in_array($schema, [self::SCHEMA_CONSULTATION_REACTION, self::SCHEMA_BUDGET_PROPOSAL], true) === false) {
-			$schema = $this->detectSchemaBySignature(row: $row);
-		}
-
+		$schema = $this->identifySchema(entity: $entity, row: $row);
 		if ($schema === '') {
 			return;
 		}
@@ -202,9 +232,50 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 		$satisfied = ($parentId !== '' && $this->parentSatisfiesConstraint(parentId: $parentId, constraint: $constraint) === true);
 		if ($satisfied === false) {
 			$this->reject(event: $event, schema: $schema, constraint: $constraint);
+			return;
+		}
+
+		if ($schema !== self::SCHEMA_CITIZEN_VOTE) {
+			return;
+		}
+
+		$refusal = $this->motionAdvice->refusal(row: $row, objectService: $this->container->get(self::OBJECT_SERVICE));
+		if ($refusal !== null) {
+			$event->setErrors(['message' => $refusal]);
+			$event->stopPropagation();
 		}
 
 	}//end evaluate()
+
+	/**
+	 * Which guarded schema a row belongs to, or '' when none: the row's own
+	 * schema hint, then the entity's, then the field signature. A citizen
+	 * vote without a motion is an advisory vote on a budget proposal, which
+	 * AdvisoryVoteService guards itself, so it is not one of ours.
+	 *
+	 * @param object $entity The OR object entity.
+	 * @param array<string, mixed> $row The raw object data.
+	 *
+	 * @return string The schema slug, or ''.
+	 *
+	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
+	 */
+	private function identifySchema(object $entity, array $row): string {
+		$schema = $this->schemaSlugFromRow(row: $row);
+		if ($schema === '') {
+			$schema = $this->schemaSlugFromEntity(entity: $entity);
+		}
+
+		if (array_key_exists($schema, self::SIGNATURES) === false) {
+			$schema = $this->detectSchemaBySignature(row: $row);
+		}
+
+		if ($schema === self::SCHEMA_CITIZEN_VOTE && $this->motionAdvice->appliesTo(row: $row) === false) {
+			return '';
+		}
+
+		return $schema;
+	}//end identifySchema()
 
 	/**
 	 * Reject the create: set a descriptive error and stop propagation so
@@ -298,30 +369,22 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 	}//end schemaSlugFromEntity()
 
 	/**
-	 * Tier 2: identify whether a row is a `consultation-reaction` or
-	 * `budget-proposal` create by its required, jointly-distinctive field
-	 * signature (see class docblock for why schema slugs are usually
-	 * unavailable at this lifecycle point).
+	 * Tier 2: identify whether a row is a `consultation-reaction`,
+	 * `budget-proposal` or `citizen-vote` create by its required,
+	 * jointly-distinctive field signature (see class docblock for why schema
+	 * slugs are usually unavailable at this lifecycle point).
 	 *
 	 * @param array<string, mixed> $row The raw (pre-render) object data.
 	 *
-	 * @return string The recognised schema slug, or '' when neither matches.
+	 * @return string The recognised schema slug, or '' when none matches.
 	 *
 	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
 	 */
 	private function detectSchemaBySignature(array $row): string {
-		if (array_key_exists('moderationStatus', $row) === true
-			&& array_key_exists('submitterId', $row) === true
-			&& array_key_exists('body', $row) === true
-		) {
-			return self::SCHEMA_CONSULTATION_REACTION;
-		}
-
-		if (array_key_exists('submitter', $row) === true
-			&& array_key_exists('requestedAmount', $row) === true
-			&& array_key_exists('status', $row) === true
-		) {
-			return self::SCHEMA_BUDGET_PROPOSAL;
+		foreach (self::SIGNATURES as $schema => $fields) {
+			if (array_diff_key(array_flip($fields), $row) === []) {
+				return $schema;
+			}
 		}
 
 		return '';

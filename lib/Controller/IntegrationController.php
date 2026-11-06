@@ -99,8 +99,8 @@ class IntegrationController extends Controller {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function resolveCallerUid(): ?string {
 		$user = $this->userSession->getUser();
@@ -229,7 +229,7 @@ class IntegrationController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-	 * @spec            openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec            openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -314,7 +314,7 @@ class IntegrationController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-	 * @spec            openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec            openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]

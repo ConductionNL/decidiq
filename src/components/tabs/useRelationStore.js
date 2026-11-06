@@ -82,8 +82,9 @@ export function ensureRelationType(type) {
 
 	const settingsKey = TYPE_TO_SETTINGS_KEY[type]
 	const schemaSlug = (settingsKey && settings[settingsKey]) || type
+	const registered = objectStore.objectTypeRegistry[type]
 
-	if (!objectStore.objectTypeRegistry[type]) {
+	if (!registered) {
 		objectStore.registerObjectType(type, schemaSlug, register)
 	}
 	return objectStore
@@ -136,7 +137,9 @@ export function buildMemberRow(membership, person) {
 		role: membership.role || '',
 		party: membership.party || '',
 		votingWeight: membership.votingWeight,
+		startDate: membership.startDate || null,
 		endDate: membership.endDate || null,
+		faction: membership.faction || '',
 		displayName: person?.name || membership.person || '',
 		email: person?.email || '',
 		nextcloudUserId: person?.nextcloudUserId || '',
@@ -185,6 +188,14 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
 }
 
 /**
+ * Membership properties copied into a payload only when they are set, in
+ * payload order.
+ *
+ * @type {string[]}
+ */
+const OPTIONAL_MEMBERSHIP_FIELDS = ['party', 'startDate', 'faction', 'onBehalfOf']
+
+/**
  * Build a Membership creation/update payload, omitting empty optional
  * properties.
  *
@@ -195,20 +206,26 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
  * @param {string} [fields.party] Membership.party
  * @param {number} [fields.votingWeight] Membership.votingWeight
  * @param {string} [fields.id] Existing Membership id — include to update rather than create
+ * @param {string} [fields.startDate] Membership.startDate (ISO)
+ * @param {string} [fields.faction] Membership.faction (faction body UUID)
+ * @param {string} [fields.onBehalfOf] Membership.onBehalfOf (participating body UUID, shared bodies only)
  * @return {object} Membership creation/update payload
  * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function buildMembershipPayload({
 	personId,
 	governanceBodyId,
 	role,
-	party = '',
-	votingWeight = null,
-	id = '',
+	votingWeight,
+	id,
+	...optional
 }) {
 	const payload = { person: personId, governanceBody: governanceBodyId, role }
-	if (party) {
-		payload.party = party
+	for (const key of OPTIONAL_MEMBERSHIP_FIELDS) {
+		if (optional[key]) {
+			payload[key] = optional[key]
+		}
 	}
 	if (votingWeight !== null && votingWeight !== undefined) {
 		payload.votingWeight = votingWeight

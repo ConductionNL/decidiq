@@ -1,0 +1,221 @@
+{
+    "appId": "decidesk",
+    "tools": [
+        {
+            "id": "decidesk.listOpenActionItems",
+            "subject": "actionItem",
+            "action": "list",
+            "name": "List open action items",
+            "description": "List incomplete action items assigned to you (scope=mine) or all visible (scope=all).",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "scope": {
+                        "type": "string",
+                        "enum": [
+                            "mine",
+                            "all"
+                        ],
+                        "default": "mine"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 50,
+                        "default": 20
+                    }
+                },
+                "required": []
+            }
+        },
+        {
+            "id": "decidesk.listRecentMeetings",
+            "subject": "meeting",
+            "action": "list",
+            "name": "List recent meetings",
+            "description": "List the caller's recent meetings, ordered by date descending.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "limit": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 20,
+                        "default": 10
+                    },
+                    "statusFilter": {
+                        "type": "string",
+                        "enum": [
+                            "any",
+                            "scheduled",
+                            "in-progress",
+                            "closed"
+                        ],
+                        "default": "any"
+                    }
+                },
+                "required": []
+            }
+        },
+        {
+            "id": "decidesk.getMeetingDetails",
+            "subject": "meeting",
+            "action": "get",
+            "name": "Get meeting details",
+            "description": "Fetch a meeting with agenda items, decisions, and action items inlined.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "meetingUuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "meetingUuid"
+                ]
+            }
+        },
+        {
+            "id": "decidesk.startMeeting",
+            "subject": "meeting",
+            "action": "start",
+            "name": "Start meeting",
+            "description": "Transition a scheduled meeting to in-progress. Chair or admin only.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "meetingUuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    }
+                },
+                "required": [
+                    "meetingUuid"
+                ]
+            }
+        },
+        {
+            "id": "decidesk.addActionItem",
+            "subject": "actionItem",
+            "action": "create",
+            "name": "Add action item",
+            "description": "Create an action item attached to a meeting. Participant or admin only.",
+            "inputSchema": {
+                "type": "object",
+                "properties": {
+                    "meetingUuid": {
+                        "type": "string",
+                        "format": "uuid"
+                    },
+                    "title": {
+                        "type": "string",
+                        "minLength": 3,
+                        "maxLength": 200
+                    },
+                    "assigneeUserId": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "default": null
+                    },
+                    "dueDate": {
+                        "type": [
+                            "string",
+                            "null"
+                        ],
+                        "format": "date",
+                        "default": null
+                    }
+                },
+                "required": [
+                    "meetingUuid",
+                    "title"
+                ]
+            }
+        }
+    ],
+    "unknown": {
+        "isError": true,
+        "error": "unknown_tool",
+        "message": "Unknown tool id 'decidesk.nope'. Available tools: decidesk.listOpenActionItems, decidesk.listRecentMeetings, decidesk.getMeetingDetails, decidesk.startMeeting, decidesk.addActionItem."
+    },
+    "wiring": {
+        "class": "OCA\\Decidiq\\Mcp\\DecidiqToolProvider",
+        "actionItemTools": {
+            "class": "OCA\\Decidiq\\Mcp\\McpActionItemTools",
+            "formatter": {
+                "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+            },
+            "validator": {
+                "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
+                "formatter": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                }
+            },
+            "gate": {
+                "class": "OCA\\Decidiq\\Mcp\\McpMeetingGate",
+                "scopeResolver": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpMeetingScopeResolver",
+                    "formatter": "OCA\\Decidiq\\Mcp\\McpSourceFormatter",
+                    "objectService": "objectService",
+                    "groupManager": "groupManager",
+                    "logger": "logger"
+                },
+                "userSession": "userSession",
+                "groupManager": "groupManager",
+                "logger": "logger",
+                "participantResolver": "participantResolver",
+                "formatter": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                },
+                "validator": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
+                    "formatter": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                },
+                "objectService": "objectService"
+            },
+            "container": "container",
+            "logger": "logger",
+            "objectService": "objectService"
+        },
+        "meetingTools": {
+            "class": "OCA\\Decidiq\\Mcp\\McpMeetingTools",
+            "formatter": {
+                "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+            },
+            "validator": {
+                "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
+                "formatter": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                }
+            },
+            "gate": {
+                "class": "OCA\\Decidiq\\Mcp\\McpMeetingGate",
+                "scopeResolver": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpMeetingScopeResolver",
+                    "formatter": "OCA\\Decidiq\\Mcp\\McpSourceFormatter",
+                    "objectService": "objectService",
+                    "groupManager": "groupManager",
+                    "logger": "logger"
+                },
+                "userSession": "userSession",
+                "groupManager": "groupManager",
+                "logger": "logger",
+                "participantResolver": "participantResolver",
+                "formatter": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                },
+                "validator": {
+                    "class": "OCA\\Decidiq\\Mcp\\McpArgumentValidator",
+                    "formatter": "OCA\\Decidiq\\Mcp\\McpSourceFormatter"
+                },
+                "objectService": "objectService"
+            },
+            "meetingService": "meetingService",
+            "logger": "logger",
+            "objectService": "objectService"
+        }
+    }
+}

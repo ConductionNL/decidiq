@@ -1,0 +1,90 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`calendarParams golden output > keeps the query over seeded views 1`] = `
+{
+  "digest": "dfed074f8e70a2073c261d2977fc798414a7b4d066635e53ff1b2a79626a1f3c",
+  "sample": [
+    {
+      "kept": {
+        "_limit": 1000,
+      },
+      "keys": [
+        "scheduledDate[gte]",
+        "scheduledDate[lte]",
+        "_limit",
+      ],
+      "rangeMatches": true,
+      "view": {
+        "audience": null,
+        "month": 0,
+        "types": "undefined",
+        "year": 2025,
+      },
+    },
+    {
+      "kept": {
+        "_limit": 1000,
+      },
+      "keys": [
+        "scheduledDate[gte]",
+        "scheduledDate[lte]",
+        "_limit",
+      ],
+      "rangeMatches": true,
+      "view": {
+        "month": 5,
+        "types": "undefined",
+        "year": 2026,
+      },
+    },
+    {
+      "kept": null,
+      "keys": null,
+      "rangeMatches": true,
+      "view": {
+        "audience": "council",
+        "body": 0,
+        "month": 11,
+        "types": "undefined",
+        "year": 2026,
+      },
+    },
+    {
+      "kept": null,
+      "keys": null,
+      "rangeMatches": true,
+      "view": {
+        "audience": "executive",
+        "body": "",
+        "month": 0,
+        "types": "null",
+        "year": 2026,
+      },
+    },
+    {
+      "kept": null,
+      "keys": null,
+      "rangeMatches": true,
+      "view": {
+        "audience": "staff",
+        "body": "",
+        "month": 11,
+        "types": 0,
+        "year": 2025,
+      },
+    },
+    {
+      "kept": null,
+      "keys": null,
+      "rangeMatches": true,
+      "view": {
+        "audience": "staff",
+        "body": null,
+        "month": 5,
+        "types": "undefined",
+        "year": 2026,
+      },
+    },
+  ],
+}
+`;

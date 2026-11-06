@@ -1,0 +1,1882 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`validateStateMachineGraph golden > dangling both ends 1`] = `
+{
+  "errors": [
+    "Transition references dangling from-state 'x'.",
+    "Transition references dangling to-state 'y'.",
+    "Unknown guard token 'nope'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > duplicate state names 1`] = `
+{
+  "errors": [],
+  "valid": true,
+}
+`;
+
+exports[`validateStateMachineGraph golden > empty from and to 1`] = `
+{
+  "errors": [
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > empty state machine 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 0 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 1 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 2 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 3 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 4 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 5 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'done'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 6 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 7 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'done'.",
+    "Transition references dangling to-state 'review'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 8 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 9 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'gone'.",
+    "Unknown guard token 'mystery'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 10 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 11 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 12 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 13 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 14 1`] = `
+{
+  "errors": [
+    "initialState 'gone' is not declared in states[].",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 15 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 16 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'done'.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'done'.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 17 1`] = `
+{
+  "errors": [
+    "initialState 'done' is not declared in states[].",
+    "Transition references dangling from-state 'done'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 18 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 19 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 20 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 21 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 22 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 23 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 24 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'done'.",
+    "Unknown guard token 'mystery'.",
+    "Unknown guard token 'mystery'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 25 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 26 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 27 1`] = `
+{
+  "errors": [
+    "initialState 'gone' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 28 1`] = `
+{
+  "errors": [
+    "initialState 'draft' is not declared in states[].",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 29 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'draft'.",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 30 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'draft'.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 31 1`] = `
+{
+  "errors": [
+    "initialState 'review' is not declared in states[].",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'gone'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 32 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 33 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 34 1`] = `
+{
+  "errors": [
+    "initialState 'gone' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'review' is unreachable: no transitions reference it.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 35 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 36 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 37 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 38 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 39 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 40 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 41 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 42 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'gone'.",
+    "Unknown guard token 'mystery'.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'done'.",
+    "Unknown guard token ''.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 43 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'gone'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 44 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 45 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 46 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 47 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 48 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 49 1`] = `
+{
+  "errors": [
+    "initialState 'done' is not declared in states[].",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 50 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 51 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 52 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'review'.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'review'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 53 1`] = `
+{
+  "errors": [
+    "initialState 'done' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'done'.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 54 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'draft'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 55 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'draft' is unreachable: no transitions reference it.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 56 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 57 1`] = `
+{
+  "errors": [
+    "initialState 'review' is not declared in states[].",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 58 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 59 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'review'.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'done'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 60 1`] = `
+{
+  "errors": [
+    "initialState 'gone' is not declared in states[].",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 61 1`] = `
+{
+  "errors": [
+    "initialState 'gone' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'review'.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 62 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 63 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 64 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 65 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 66 1`] = `
+{
+  "errors": [
+    "initialState 'review' is not declared in states[].",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 67 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'review' is unreachable: no transitions reference it.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 68 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'gone' is unreachable: no transitions reference it.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 69 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 70 1`] = `
+{
+  "errors": [
+    "initialState 'gone' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling to-state 'done'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 71 1`] = `
+{
+  "errors": [
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'gone'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 72 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 73 1`] = `
+{
+  "errors": [
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 74 1`] = `
+{
+  "errors": [
+    "initialState 'draft' is not declared in states[].",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 75 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 76 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'gone'.",
+    "Unknown guard token ''.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 77 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 78 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 79 1`] = `
+{
+  "errors": [
+    "initialState 'review' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 80 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 81 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Transition references dangling from-state 'draft'.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Unknown guard token ''.",
+    "Unknown guard token 'mystery'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 82 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 83 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 84 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 85 1`] = `
+{
+  "errors": [],
+  "valid": true,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 86 1`] = `
+{
+  "errors": [],
+  "valid": true,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 87 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'gone'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 88 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'draft'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 89 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 90 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 91 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 92 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 93 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 94 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 95 1`] = `
+{
+  "errors": [
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 96 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'gone'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 97 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'draft'.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 98 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 99 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 100 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 101 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'review'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 102 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'done'.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 103 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'review'.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'review'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 104 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 105 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'done'.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 106 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 107 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 108 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'gone'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 109 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Transition references dangling from-state 'gone'.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 110 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 111 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 112 1`] = `
+{
+  "errors": [
+    "initialState 'draft' is not declared in states[].",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'draft'.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 113 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'draft'.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 114 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 115 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'draft'.",
+    "Unknown guard token ''.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 116 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'draft'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 117 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 118 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 119 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 120 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 121 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 122 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'review'.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'review'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 123 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'draft'.",
+    "Transition references dangling to-state 'done'.",
+    "Unknown guard token 'mystery'.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'gone' is unreachable: no transitions reference it.",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 124 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 125 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 126 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'draft'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 127 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 128 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'review' is unreachable: no transitions reference it.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 129 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'draft'.",
+    "Unknown guard token 'mystery'.",
+    "Unknown guard token 'mystery'.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'done'.",
+    "Transition references dangling to-state 'done'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 130 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 131 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 132 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 133 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 134 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'done'.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 135 1`] = `
+{
+  "errors": [
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'gone' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 136 1`] = `
+{
+  "errors": [
+    "initialState 'review' is not declared in states[].",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'done'.",
+    "Each transition must declare non-empty from and to states.",
+    "State 'draft' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 137 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 138 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 139 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'draft'.",
+    "Transition references dangling from-state 'gone'.",
+    "Transition references dangling to-state 'done'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 140 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 141 1`] = `
+{
+  "errors": [
+    "initialState is required.",
+    "State 'gone' is unreachable: no transitions reference it.",
+    "State 'review' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 142 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 143 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 144 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 145 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 146 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'done'.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'review'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 147 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+    "Transition references dangling from-state 'review'.",
+    "Transition references dangling to-state 'draft'.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 148 1`] = `
+{
+  "errors": [
+    "initialState 'review' is not declared in states[].",
+    "State 'done' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > generated 149 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+    "initialState is required.",
+    "Each transition must declare non-empty from and to states.",
+    "Each transition must declare non-empty from and to states.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > initial state undeclared 1`] = `
+{
+  "errors": [
+    "initialState 'z' is not declared in states[].",
+    "State 'a' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > initial state without states 1`] = `
+{
+  "errors": [
+    "states[] must declare at least one named state.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > no state machine 1`] = `
+{
+  "errors": [
+    "stateMachine is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > null 1`] = `
+{
+  "errors": [
+    "stateMachine is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > state machine is null 1`] = `
+{
+  "errors": [
+    "stateMachine is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > state machine is text 1`] = `
+{
+  "errors": [
+    "stateMachine is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > undefined 1`] = `
+{
+  "errors": [
+    "stateMachine is required.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > unreachable state 1`] = `
+{
+  "errors": [
+    "State 'c' is unreachable: no transitions reference it.",
+  ],
+  "valid": false,
+}
+`;
+
+exports[`validateStateMachineGraph golden > valid chain 1`] = `
+{
+  "errors": [],
+  "valid": true,
+}
+`;
+
+exports[`validateStateMachineGraph golden > valid minimal 1`] = `
+{
+  "errors": [],
+  "valid": true,
+}
+`;

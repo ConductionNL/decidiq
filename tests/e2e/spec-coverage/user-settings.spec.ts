@@ -4,9 +4,9 @@
  *
  * Gate-19 e2e coverage — User settings (user-settings-v1).
  *
- * Drives the Nextcloud personal settings panel (/settings/user/decidiq,
- * the spec's required ISettings surface) and the in-app /user-settings SPA
- * page through the four preference sections: notification preferences
+ * Drives the in-app user settings dialog (opened by the `#user-settings`
+ * deep link; decidiq has no Nextcloud personal settings panel and no
+ * /user-settings page since 11 Oct 2026) through the preference sections: notification preferences
  * (per-event toggles + delivery channels + reminder timing), display
  * preferences (default view + date format), absence delegation (delegate +
  * period + the no-voting-rights notice) and communication preferences
@@ -15,7 +15,7 @@
  * here.
  *
  * Defensive skips: when the deployed instance does not serve this branch's
- * personal settings panel yet (deploy mismatch), the specs skip instead of
+ * user settings dialog yet (deploy mismatch), the specs skip instead of
  * failing — same convention as the other spec-coverage suites.
  *
  * @e2e openspec/specs/user-settings/spec.md#configure-vote-notification-preferences
@@ -32,12 +32,16 @@ import { expect, test } from '@playwright/test'
 import { BASE_URL as BASE } from '../base-url.ts'
 
 /**
- * Open the Decidiq personal settings panel; skip the test when this branch
- * is not deployed (panel absent).
+ * Open the Decidiq user settings dialog; skip the test when this branch is
+ * not deployed (dialog sections absent). The deep link sits on a list route,
+ * not the app root, because the app root may redirect to the reader's default
+ * view and drop the hash on the way.
  */
 async function openPersonalSettings(page: Page): Promise<boolean> {
-	await page.goto(`${BASE}/settings/user/decidiq`)
-	const panel = page.locator('[data-testid="decidiq-personal-settings"]')
+	await page.goto(`${BASE}/apps/decidiq/decisions#user-settings`)
+	const panel = page
+		.getByRole('dialog')
+		.locator('[data-testid="notification-preferences-section"]')
 	try {
 		await panel.waitFor({ state: 'visible', timeout: 15_000 })
 		return true
@@ -94,7 +98,7 @@ test('Notification preferences: enable Pending vote with both Nextcloud notifica
 	// Persistence proof: a reload shows the same enabled state.
 	await page.reload()
 	await page
-		.locator('[data-testid="decidiq-personal-settings"]')
+		.locator('[role="dialog"] [data-testid="notification-preferences-section"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="notification-toggle-votingOpened"]').first(),
@@ -142,7 +146,7 @@ test('Meeting reminders: the toggle can be disabled and persists', async ({
 
 	await page.reload()
 	await page
-		.locator('[data-testid="decidiq-personal-settings"]')
+		.locator('[role="dialog"] [data-testid="notification-preferences-section"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="notification-toggle-meetingReminder"]').first(),
@@ -178,7 +182,7 @@ test('Reminder timing: defaults to 24h + 1h and accepts 48h + 1h', async ({
 
 	await page.reload()
 	await page
-		.locator('[data-testid="decidiq-personal-settings"]')
+		.locator('[role="dialog"] [data-testid="notification-preferences-section"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="reminder-time-48h"]').first(),
@@ -389,7 +393,7 @@ test('Communication: governance email overrides the account default and saves', 
 
 	await page.reload()
 	await page
-		.locator('[data-testid="decidiq-personal-settings"]')
+		.locator('[role="dialog"] [data-testid="notification-preferences-section"]')
 		.waitFor({ state: 'visible', timeout: 15_000 })
 	await expect(
 		page.locator('[data-testid="communication-email"]').first(),
@@ -403,19 +407,12 @@ test('Communication: governance email overrides the account default and saves', 
 
 // @e2e openspec/specs/user-settings/spec.md#set-default-landing-page
 //
-// This test is the browser coverage for the `UserSettings` page component
-// (`src/views/settings/UserSettings.vue`, manifest page id `UserSettings`,
-// route `/user-settings`): it navigates to the route the manifest declares and
-// asserts the component's own `user-settings-page` body block mounts.
-//
-// The component name is written out here because it was NOT written anywhere in
-// this file before, and gate-26 matches a page component to its coverage on the
-// literal token `\bUserSettings\b` (file stem / manifest page id). Every mention
-// was the kebab-case route `/user-settings`, so the gate reported this screen as
-// having no e2e test while this test had been driving it all along. Recording an
-// existing truth, not waiving a gap — delete this note only together with the
-// test below.
-test('SPA mount: /apps/decidiq/user-settings renders the four sections without decidiq errors', async ({
+// This test is the browser coverage for the `UserSettings` dialog component
+// (`src/views/settings/UserSettings.vue`), the one place the per-user sections
+// mount since the /user-settings page and the Nextcloud personal panel went
+// (11 Oct 2026). gate-26 matches a component to its coverage on the literal
+// token `\bUserSettings\b`, so the name is written out here.
+test('dialog mount: #user-settings opens the dialog with every section and no decidiq errors', async ({
 	page,
 }) => {
 	const appErrors: string[] = []
@@ -434,27 +431,22 @@ test('SPA mount: /apps/decidiq/user-settings renders the four sections without d
 			appErrors.push(`HTTP ${r.status()} ${r.url()}`)
 	})
 
-	await page.goto(`${BASE}/apps/decidiq/user-settings`)
-	const spaPage = page.locator('[data-testid="user-settings-page"]')
-	try {
-		await spaPage.waitFor({ state: 'visible', timeout: 15_000 })
-	} catch {
-		test.skip(
-			true,
-			'decidiq user-settings SPA page not deployed on this instance',
-		)
+	if (!(await openPersonalSettings(page))) {
+		test.skip(true, 'decidiq user settings dialog not deployed on this instance')
 	}
 
-	await expect(
-		page.locator('[data-testid="notification-preferences-section"]'),
-	).toBeVisible()
-	await expect(
-		page.locator('[data-testid="display-preferences-section"]'),
-	).toBeVisible()
-	await expect(page.locator('[data-testid="delegation-section"]')).toBeVisible()
-	await expect(page.locator('[data-testid="communication-section"]')).toBeVisible()
+	const dialog = page.getByRole('dialog')
+	for (const testId of [
+		'notification-preferences-section',
+		'display-preferences-section',
+		'delegation-section',
+		'communication-section',
+		'subscriptions-section',
+	]) {
+		await expect(dialog.locator(`[data-testid="${testId}"]`)).toBeAttached()
+	}
 	expect(
 		appErrors,
-		`decidiq errors on user-settings:\n${appErrors.join('\n')}`,
+		`decidiq errors on the user settings dialog:\n${appErrors.join('\n')}`,
 	).toHaveLength(0)
 })

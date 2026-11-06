@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the planning and control cycle into plain words.
  *
- * @spec openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md
+ * @spec openspec/specs/planning-cycle-in-plain-words/spec.md
  */
 class MigratePlanningCycles implements IRepairStep {
 	use ReadsLegacyRows;
@@ -132,7 +132,7 @@ class MigratePlanningCycles implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
+	 * @spec openspec/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -166,7 +166,7 @@ class MigratePlanningCycles implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
+	 * @spec openspec/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,

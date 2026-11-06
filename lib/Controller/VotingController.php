@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VotingErrorResponder;
 use OCA\Decidiq\Service\VotingOpenRequestHandler;
 use OCA\Decidiq\Service\VotingRoundGuard;
@@ -112,6 +113,11 @@ class VotingController extends Controller {
 			return $guard;
 		}
 
+		$scope = $this->guard->requireSubjectInMeeting(params: $params);
+		if ($scope !== null) {
+			return $scope;
+		}
+
 		return $this->errors->badRequest(fn (): JSONResponse => $this->openHandler->handle(params: $params));
 	}//end open()
 
@@ -125,6 +131,7 @@ class VotingController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 *
@@ -145,7 +152,9 @@ class VotingController extends Controller {
 		}
 
 		$params = $this->request->getParams();
-		$value = ($params['value'] ?? '');
+		$ballot = $this->ballotOf(params: $params);
+		$value = $ballot['value'];
+		$ranking = $ballot['ranking'];
 		$isProxy = (bool)($params['isProxy'] ?? false);
 		$delegatorId = null;
 		if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
@@ -156,25 +165,45 @@ class VotingController extends Controller {
 			return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
 		}
 
-		if (in_array($value, ['for', 'against', 'abstain'], true) === false) {
+		if ($ranking === null && in_array($value, ['for', 'against', 'abstain'], true) === false) {
 			return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
 		}
 
 		return $this->errors->badRequest(
-			fn (): JSONResponse => new JSONResponse(
-				$this->votingService->castVote(
-					votingRoundId: $id,
-					participantId: $participantId,
-					value: $value,
-					isProxy: $isProxy,
-					delegatorId: $delegatorId,
-					callerUid: $nextcloudUid
-				),
-				Http::STATUS_CREATED
-			)
+			function () use ($id, $participantId, $value, $ranking, $isProxy, $delegatorId, $nextcloudUid): JSONResponse {
+				$cast = new VoteCast(votingRoundId: $id, participantId: $participantId, value: $value, ranking: $ranking);
+				if ($isProxy === true) {
+					$cast = $cast->asProxy(delegatorId: $delegatorId);
+				}
+
+				return new JSONResponse(
+					$this->votingService->castVote(cast: $cast, callerUid: $nextcloudUid),
+					Http::STATUS_CREATED
+				);
+			}
 		);
 
 	}//end cast()
+
+	/**
+	 * The value and ranking a cast request carries.
+	 *
+	 * A ranked ballot sends its ordering instead of a value (REQ-PRF-002); the
+	 * caster checks it against the round's options and stores `ranked`.
+	 *
+	 * @param array<string,mixed> $params The request parameters
+	 *
+	 * @return array{value: mixed, ranking: array<int, mixed>|null} The value and ranking
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function ballotOf(array $params): array {
+		if (is_array($params['ranking'] ?? null) === true) {
+			return ['value' => 'ranked', 'ranking' => $params['ranking']];
+		}
+
+		return ['value' => ($params['value'] ?? ''), 'ranking' => null];
+	}//end ballotOf()
 
 	/**
 	 * Close a VotingRound, optionally anonymising votes.
@@ -244,7 +273,10 @@ class VotingController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function publish(string $id): JSONResponse {
-		$guard = $this->guard->requireChairOrSecretary();
+		// Per-meeting check, as close() does (REQ-VCR-003); the global
+		// fallback still applies when the round has no resolvable meeting.
+		$meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
+		$guard = $this->guard->requireChairOrSecretary(meetingId: $meetingId);
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -325,7 +357,10 @@ class VotingController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function tally(string $id): JSONResponse {
-		$guard = $this->guard->requireChairOrSecretary();
+		// Per-meeting check, as close() does (REQ-VCR-003); the global
+		// fallback still applies when the round has no resolvable meeting.
+		$meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
+		$guard = $this->guard->requireChairOrSecretary(meetingId: $meetingId);
 		if ($guard !== null) {
 			return $guard;
 		}
@@ -425,4 +460,71 @@ class VotingController extends Controller {
 
 		return $this->oriService->getPublicationStatus(votingRoundId: $votingRoundId);
 	}//end publishRound()
+
+	/**
+	 * Say which voting controls the caller may use in a meeting.
+	 *
+	 * GET /api/meetings/{meetingId}/voting-permissions
+	 *
+	 * Every value is the answer of the VotingRoundGuard check the matching
+	 * endpoint enforces (open, close and tally: chair or secretary; the casting
+	 * vote: chair), so a control the page shows is never refused for lack of a
+	 * role. An unknown meeting has no participants, so the answer is four false
+	 * values with a 200. Anonymous callers get 401.
+	 *
+	 * @param string $meetingId UUID of the meeting
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 */
+	#[NoAdminRequired]
+	public function permissions(string $meetingId): JSONResponse {
+		return $this->permissionsFor(meetingId: $meetingId);
+	}//end permissions()
+
+	/**
+	 * Say which voting controls the caller may use on a round without a meeting.
+	 *
+	 * GET /api/voting-permissions
+	 *
+	 * The guard's global fallback answers (the chair_group app setting, else
+	 * Nextcloud admins), exactly as it does for a round whose meeting cannot be
+	 * resolved.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls
+	 */
+	#[NoAdminRequired]
+	public function globalPermissions(): JSONResponse {
+		return $this->permissionsFor(meetingId: null);
+	}//end globalPermissions()
+
+	/**
+	 * Build the permissions answer from the guard.
+	 *
+	 * @param string|null $meetingId Meeting UUID, or null for the global fallback
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-002-the-server-says-which-voting-controls-a-user-may-use-in-a-meeting
+	 */
+	private function permissionsFor(?string $meetingId): JSONResponse {
+		if ($this->userSession->getUser() === null) {
+			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$presides = ($this->guard->requireChairOrSecretary(meetingId: $meetingId) === null);
+		$chairs = ($this->guard->requireChair(meetingId: $meetingId) === null);
+
+		return new JSONResponse(
+			[
+				'canOpen'          => $presides,
+				'canClose'         => $presides,
+				'canEnterTally'    => $presides,
+				'canCastChairVote' => $chairs,
+			]
+		);
+	}//end permissionsFor()
 }//end class

@@ -189,7 +189,7 @@ class PublicationStaffGuard {
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function resolveMeetingId(string $sourceType, string $sourceId): ?string {
-		if ($sourceType === 'agenda') {
+		if ($sourceType === 'agenda' || $sourceType === 'activity') {
 			return $sourceId;
 		}
 

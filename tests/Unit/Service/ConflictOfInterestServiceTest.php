@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
@@ -206,13 +207,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$audited = [];
 		$service = $this->makeService($rows, $audited);
 
-		$result = $service->declare(
-			membershipId: 'member-1',
-			agendaItemId: 'agenda-1',
-			type: 'financial-interest',
-			description: 'Holds shares in proposed counterparty.',
-			severity: 'material'
-		);
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'member-1', agendaItemId: 'agenda-1', type: 'financial-interest', description: 'Holds shares in proposed counterparty.'));
 
 		$this->assertTrue($result['success']);
 		$this->assertCount(1, $audited);
@@ -231,13 +226,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$audited = [];
 		$service = $this->makeService($rows, $audited);
 
-		$result = $service->declare(
-			membershipId: 'member-2',
-			agendaItemId: 'agenda-2',
-			type: 'personal-relationship',
-			description: 'Distant family member tangentially involved.',
-			severity: 'non-material'
-		);
+		$result = $service->declare((new ConflictDeclaration(membershipId: 'member-2', agendaItemId: 'agenda-2', type: 'personal-relationship', description: 'Distant family member tangentially involved.'))->assessed(severity: 'non-material', initialAction: 'no-action-needed'));
 
 		$this->assertTrue($result['success']);
 		$this->assertSame([], $audited);
@@ -254,7 +243,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$audited = [];
 		$service = $this->makeService($rows, $audited);
 
-		$result = $service->declare('m', 'a', 'astrology', 'because');
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'm', agendaItemId: 'a', type: 'astrology', description: 'because'));
 
 		$this->assertFalse($result['success']);
 		$this->assertSame([], $rows);
@@ -327,7 +316,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$audited = [];
 		$service = $this->makeService($rows, $audited);
 
-		$result = $service->declare('m', 'a', 'financial-interest', 'because', 'extremely-material');
+		$result = $service->declare((new ConflictDeclaration(membershipId: 'm', agendaItemId: 'a', type: 'financial-interest', description: 'because'))->assessed(severity: 'extremely-material', initialAction: 'no-action-needed'));
 
 		$this->assertFalse($result['success']);
 		$this->assertSame('Unknown severity: extremely-material', $result['message']);
@@ -356,13 +345,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 			authorizationGuard: $this->createMock(ConflictOfInterestAuthorizationGuard::class),
 		);
 
-		$result = $service->declare(
-			membershipId: 'member-9',
-			agendaItemId: 'agenda-9',
-			type: 'financial-interest',
-			description: 'Boom.',
-			severity: 'material'
-		);
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'member-9', agendaItemId: 'agenda-9', type: 'financial-interest', description: 'Boom.'));
 
 		$this->assertFalse($result['success']);
 		$this->assertNull($result['declaration']);
@@ -403,13 +386,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 			authorizationGuard: $this->createMock(ConflictOfInterestAuthorizationGuard::class),
 		);
 
-		$service->declare(
-			membershipId: 'member-3',
-			agendaItemId: 'agenda-3',
-			type: 'financial-interest',
-			description: 'No id key on the persisted row.',
-			severity: 'material'
-		);
+		$service->declare(new ConflictDeclaration(membershipId: 'member-3', agendaItemId: 'agenda-3', type: 'financial-interest', description: 'No id key on the persisted row.'));
 
 		$this->assertSame('u-99', $audited[0][0]);
 
@@ -559,12 +536,13 @@ class ConflictOfInterestServiceTest extends TestCase {
 	}//end testFindDeclarationsConvertsJsonSerializableRowObjects()
 
 	/**
-	 * A thrown exception from findAll() is caught inside findDeclarations():
-	 * getActiveConflicts() degrades to null instead of propagating.
+	 * A thrown exception from findAll() fails closed: getActiveConflicts()
+	 * throws instead of answering null, which would read as "no declaration"
+	 * and let a recused member vote.
 	 *
 	 * @return void
 	 */
-	public function testGetActiveConflictsReturnsNullWhenFindAllThrows(): void {
+	public function testGetActiveConflictsThrowsWhenFindAllThrows(): void {
 		$logger = $this->createMock(LoggerInterface::class);
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('findAll')->willThrowException(new \RuntimeException('OpenRegister unavailable'));
@@ -578,9 +556,11 @@ class ConflictOfInterestServiceTest extends TestCase {
 			authorizationGuard: $this->createMock(ConflictOfInterestAuthorizationGuard::class),
 		);
 
-		$this->assertNull($service->getActiveConflicts('m1', 'a1'));
+		$this->expectException(\RuntimeException::class);
+		$this->expectExceptionMessage('could not be read');
+		$service->getActiveConflicts('m1', 'a1');
 
-	}//end testGetActiveConflictsReturnsNullWhenFindAllThrows()
+	}//end testGetActiveConflictsThrowsWhenFindAllThrows()
 
 	/**
 	 * declare() allows the caller to record a declaration about themselves —
@@ -602,7 +582,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 			agendaItems: [['id' => 'agenda-1', 'meeting' => 'meet-1']],
 		);
 
-		$result = $service->declare('membership-alice', 'agenda-1', 'financial-interest', 'shares', 'material', callerUid: 'alice');
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'membership-alice', agendaItemId: 'agenda-1', type: 'financial-interest', description: 'shares'), callerUid: 'alice');
 
 		$this->assertTrue($result['success']);
 
@@ -626,7 +606,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 			agendaItems: [['id' => 'agenda-1', 'meeting' => 'meet-1']],
 		);
 
-		$result = $service->declare('membership-alice', 'agenda-1', 'financial-interest', 'shares', 'material', callerUid: 'chair-carol');
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'membership-alice', agendaItemId: 'agenda-1', type: 'financial-interest', description: 'shares'), callerUid: 'chair-carol');
 
 		$this->assertTrue($result['success']);
 
@@ -655,7 +635,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 			agendaItems: [['id' => 'agenda-1', 'meeting' => 'meet-1']],
 		);
 
-		$result = $service->declare('membership-alice', 'agenda-1', 'financial-interest', 'shares', 'material', callerUid: 'dave');
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'membership-alice', agendaItemId: 'agenda-1', type: 'financial-interest', description: 'shares'), callerUid: 'dave');
 
 		$this->assertFalse($result['success']);
 		$this->assertStringStartsWith('Forbidden:', $result['message']);
@@ -673,7 +653,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 		$audited = [];
 		$service = $this->makeService($rows, $audited);
 
-		$result = $service->declare('membership-alice', 'agenda-1', 'financial-interest', 'shares', 'material', callerUid: null);
+		$result = $service->declare(new ConflictDeclaration(membershipId: 'membership-alice', agendaItemId: 'agenda-1', type: 'financial-interest', description: 'shares'), callerUid: null);
 
 		$this->assertTrue($result['success']);
 

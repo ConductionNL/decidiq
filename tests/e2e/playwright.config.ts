@@ -176,7 +176,11 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'chromium',
-			testIgnore: ['**/docs-screenshots.spec.ts', '**/visual/**'],
+			testIgnore: [
+				'**/docs-screenshots.spec.ts',
+				'**/visual/**',
+				'**/a11y/**',
+			],
 			use: { ...devices['Desktop Chrome'] },
 		},
 	],

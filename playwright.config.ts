@@ -110,7 +110,11 @@ export default defineConfig({
 		// PR pipelines don't reshoot screenshots on every push.
 		{
 			name: 'chromium',
-			testIgnore: ['**/docs-screenshots.spec.ts', '**/visual/**'],
+			testIgnore: [
+				'**/docs-screenshots.spec.ts',
+				'**/visual/**',
+				'**/a11y/**',
+			],
 			use: { ...devices['Desktop Chrome'] },
 		},
 		// Documentation capture project (ADR-030 / journeydoc). Opt-in:

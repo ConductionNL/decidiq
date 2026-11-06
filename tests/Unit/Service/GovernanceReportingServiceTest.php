@@ -285,6 +285,34 @@ class GovernanceReportingServiceTest extends TestCase {
 	}//end testExportReportReturnsCsv()
 
 	/**
+	 * exportReport quotes CSV values that hold a separator and keeps
+	 * formula-leading values inert.
+	 *
+	 * @return void
+	 */
+	public function testExportReportCsvValuesAreQuotedAndInert(): void {
+		$rows = [
+			GovernanceReportingService::SCHEMA => [
+				[
+					'id' => 'rep-2',
+					'boardIntegration' => 'b,1;=1+1',
+					'year' => '=HYPERLINK("https://evil.example")',
+					'meetingCount' => 4,
+				],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
+
+		$lines = explode("\n", $svc->exportReport('rep-2', 'csv')['body']);
+
+		$this->assertSame('boardKoppeling,"b,1;\'=1+1"', $lines[1]);
+		$this->assertSame('year,"\'=HYPERLINK(""https://evil.example"")"', $lines[2]);
+		$this->assertSame('meetingCount,4', $lines[3]);
+
+	}//end testExportReportCsvValuesAreQuotedAndInert()
+
+	/**
 	 * listReports returns reports filtered by board.
 	 *
 	 * @return void

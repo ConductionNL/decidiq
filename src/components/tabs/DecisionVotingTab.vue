@@ -80,8 +80,14 @@
 			rowKey="id"
 			:emptyText="t('decidiq', 'No votes recorded for this decision yet.')"
 			:loadingText="t('decidiq', 'Loading voting results…')">
-			<template #column-value="{ value }">
-				<CnStatusBadge v-if="value" :label="value" :colorMap="voteColors" />
+			<template #column-value="{ row, value }">
+				<span v-if="row.rankingText" data-testid="vote-ranking">{{
+					row.rankingText
+				}}</span>
+				<CnStatusBadge
+					v-else-if="value"
+					:label="value"
+					:colorMap="voteColors" />
 			</template>
 		</CnDataTable>
 	</div>
@@ -89,6 +95,7 @@
 
 <script>
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import { withRankingText } from '../../utils/rankedBallot.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -181,7 +188,8 @@ export default {
 						votingRound: round.id,
 						_limit: 200,
 					})
-					if (Array.isArray(list)) all.push(...list)
+					if (Array.isArray(list))
+						all.push(...withRankingText(list, round))
 				}
 				this.votes = all
 			} catch (e) {

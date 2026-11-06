@@ -22,6 +22,8 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\OriController;
 use OCA\Decidiq\Service\OriSerializer;
+use OCA\Decidiq\Service\OriPersonPublicationRule;
+use OCA\Decidiq\Service\OriVotePublicationRule;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Http;
@@ -112,6 +114,8 @@ class OriControllerTest extends TestCase {
 			$this->container,
 			$this->logger,
 			new OriSerializer(),
+			$this->createMock(OriVotePublicationRule::class),
+			$this->createMock(OriPersonPublicationRule::class),
 		);
 
 	}//end setUp()
@@ -475,4 +479,238 @@ class OriControllerTest extends TestCase {
 
 	}//end testPreflightItemReturnsCorsHeaders()
 
+	/**
+	 * Drive show() with one stored object and report the HTTP status.
+	 *
+	 * @param string              $resource The ORI resource slug.
+	 * @param array<string,mixed> $object   The stored object as OR would return it.
+	 *
+	 * @return int The response status.
+	 */
+	private function showStatus(string $resource, array $object): int {
+		$this->objectService->method('find')->willReturn($this->makeEntity(data: $object));
+
+		return $this->controller->show(resource: $resource, id: 'uuid-under-test')->getStatus();
+
+	}//end showStatus()
+
+	/**
+	 * A `vote` carries no lifecycle field, and index() filters `lifecycle=published`,
+	 * so the collection never returns one. The item endpoint is `#[PublicPage]`, so
+	 * before the visibility gate an anonymous caller holding a UUID could read an
+	 * individual ballot that the collection refused to list.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowWithholdsAnObjectWithNoLifecycleField(): void {
+		self::assertSame(
+			expected: Http::STATUS_NOT_FOUND,
+			actual: $this->showStatus(resource: 'votes', object: ['uuid' => 'vote-1', 'choice' => 'for', 'voter' => 'alice'])
+		);
+
+	}//end testShowWithholdsAnObjectWithNoLifecycleField()
+
+	/**
+	 * The same fail-closed rule covers the other lifecycle-less schemas reachable
+	 * through show(): voting-round, agenda-item and governance-body.
+	 *
+	 * @param string $resource The ORI resource slug.
+	 *
+	 * @return void
+	 *
+	 * @dataProvider lifecyclelessResourceProvider
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowWithholdsEveryLifecyclelessResource(string $resource): void {
+		self::assertSame(
+			expected: Http::STATUS_NOT_FOUND,
+			actual: $this->showStatus(resource: $resource, object: ['uuid' => 'obj-1', 'title' => 'Not listable'])
+		);
+
+	}//end testShowWithholdsEveryLifecyclelessResource()
+
+	/**
+	 * Resources whose schema declares no lifecycle/status property.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function lifecyclelessResourceProvider(): array {
+		return [
+			'voting round'    => ['voteevents'],
+			'agenda item'     => ['agendaitems'],
+			'governance body' => ['organizations'],
+		];
+
+	}//end lifecyclelessResourceProvider()
+
+	/**
+	 * A decision is gated on `isPublished`, not on `lifecycle` — an `internal` or
+	 * `confidential` motion is withheld even when its lifecycle is terminal.
+	 *
+	 * @param string $isPublished The publication state under test.
+	 *
+	 * @return void
+	 *
+	 * @dataProvider nonPublicDecisionProvider
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowWithholdsANonPublicDecision(string $isPublished): void {
+		self::assertSame(
+			expected: Http::STATUS_NOT_FOUND,
+			actual: $this->showStatus(
+				resource: 'motions',
+				object: [
+					'uuid'         => 'dec-1',
+					'decisionType' => 'motion',
+					'lifecycle'    => 'enacted',
+					'isPublished'  => $isPublished,
+					'title'        => 'Confidential land purchase',
+				]
+			)
+		);
+
+	}//end testShowWithholdsANonPublicDecision()
+
+	/**
+	 * The two non-public values of the Decision `isPublished` enum.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function nonPublicDecisionProvider(): array {
+		return [
+			'internal (the schema default)' => ['internal'],
+			'confidential'                  => ['confidential'],
+		];
+
+	}//end nonPublicDecisionProvider()
+
+	/**
+	 * Positive control for the gate: a public motion IS served. Without this the
+	 * suite would pass just as well if show() denied everything — which is exactly
+	 * what the replaced isLifecycleBlocked() did to motions, since `published` is
+	 * not a member of the Decision lifecycle enum.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowServesAPublicMotion(): void {
+		self::assertSame(
+			expected: Http::STATUS_OK,
+			actual: $this->showStatus(
+				resource: 'motions',
+				object: [
+					'uuid'         => 'dec-2',
+					'decisionType' => 'motion',
+					'lifecycle'    => 'enacted',
+					'isPublished'  => 'public',
+					'title'        => 'Motie vreemd aan de orde van de dag',
+				]
+			)
+		);
+
+	}//end testShowServesAPublicMotion()
+
+	/**
+	 * Second positive control: `memberships` is deliberately ungated public reference
+	 * data (NO_LIFECYCLE_GATE), and must keep passing through.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowStillServesUngatedReferenceData(): void {
+		self::assertSame(
+			expected: Http::STATUS_OK,
+			actual: $this->showStatus(resource: 'memberships', object: ['uuid' => 'm-1', 'role' => 'member'])
+		);
+
+	}//end testShowStillServesUngatedReferenceData()
+
+	/**
+	 * Third positive control: minutes DO declare `published` in their lifecycle
+	 * enum, so a published report is served while a draft one is withheld.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowServesPublishedMinutesAndWithholdsDrafts(): void {
+		self::assertSame(
+			expected: Http::STATUS_OK,
+			actual: $this->showStatus(resource: 'reports', object: ['uuid' => 'm-1', 'lifecycle' => 'published', 'title' => 'Verslag'])
+		);
+
+	}//end testShowServesPublishedMinutesAndWithholdsDrafts()
+
+	/**
+	 * Draft minutes remain withheld — the behaviour isLifecycleBlocked() already
+	 * had for this resource must not regress.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/public-publication/spec.md
+	 */
+	public function testShowWithholdsDraftMinutes(): void {
+		self::assertSame(
+			expected: Http::STATUS_NOT_FOUND,
+			actual: $this->showStatus(resource: 'reports', object: ['uuid' => 'm-2', 'lifecycle' => 'draft', 'title' => 'Concept'])
+		);
+
+	}//end testShowWithholdsDraftMinutes()
+
+	/**
+	 * A controller whose vote rule throws, to prove the ruled resources fail closed.
+	 *
+	 * @param \Throwable $error What the rule throws
+	 *
+	 * @return OriController
+	 */
+	private function controllerWithFailingVoteRule(\Throwable $error): OriController {
+		$rule = $this->createMock(OriVotePublicationRule::class);
+		$rule->method('votes')->willThrowException($error);
+		$rule->method('vote')->willThrowException($error);
+		$rule->method('voteEvents')->willThrowException($error);
+		$rule->method('voteEvent')->willThrowException($error);
+
+		return new OriController(
+			$this->request,
+			$this->config,
+			$this->container,
+			$this->logger,
+			new OriSerializer(),
+			$rule,
+			$this->createMock(OriPersonPublicationRule::class),
+		);
+	}//end controllerWithFailingVoteRule()
+
+	/**
+	 * A vote rule that cannot read answers 500 on the list and by id, never a partial list.
+	 *
+	 * @return void
+	 */
+	public function testAFailingVoteRuleAnswers500(): void {
+		$controller = $this->controllerWithFailingVoteRule(error: new \RuntimeException('store down'));
+		$this->logger->expects($this->exactly(4))->method('error');
+
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->index(resource: 'votes')->getStatus());
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->index(resource: 'voteevents')->getStatus());
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->show(resource: 'votes', id: 'v-1')->getStatus());
+		$this->assertSame(Http::STATUS_INTERNAL_SERVER_ERROR, $controller->show(resource: 'voteevents', id: 'r-1')->getStatus());
+	}//end testAFailingVoteRuleAnswers500()
+
+	/**
+	 * A vote the store reports as gone is not found by id.
+	 *
+	 * @return void
+	 */
+	public function testAVoteTheStoreCannotFindIsNotFound(): void {
+		$controller = $this->controllerWithFailingVoteRule(error: new \OCP\AppFramework\Db\DoesNotExistException('gone'));
+
+		$this->assertSame(Http::STATUS_NOT_FOUND, $controller->show(resource: 'votes', id: 'v-1')->getStatus());
+	}//end testAVoteTheStoreCannotFindIsNotFound()
 }//end class

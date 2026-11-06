@@ -328,7 +328,7 @@ class DecisionIntegrationService {
 	 * @return array<string, mixed>|null Outcome envelope, or null when the Decision does not exist
 	 *
 	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	public function getOutcomeEnvelope(string $decisionId): ?array {
 		try {
@@ -441,7 +441,7 @@ class DecisionIntegrationService {
 	 * @return array{success: bool, subscriptionId?: string, decisionId?: string, callbackUrl?: string, code?: string, message?: string}
 	 *
 	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array {
 		// Anti-SSRF: validate the callbackUrl against the ADR-019 registry.

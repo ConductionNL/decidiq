@@ -65,7 +65,37 @@
 
 <script>
 import { CnDataTable, CnNoteCard, CnStatusBadge } from '@conduction/nextcloud-vue'
+import { generateUrl } from '@nextcloud/router'
+import { breakdownUrl, factionRows } from '../../utils/voteBreakdown.js'
 import { ensureRelationType } from './useRelationStore.js'
+
+/**
+ * The vote counts, result and time of a round, a missing count read as 0.
+ *
+ * @param {object} round The voting round
+ * @return {{votesFor: number, votesAgainst: number, votesAbstain: number, result: string, timestamp: string}} The tally.
+ * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+ */
+function roundTally(round) {
+	return {
+		votesFor: round.votesFor ?? 0,
+		votesAgainst: round.votesAgainst ?? 0,
+		votesAbstain: round.votesAbstain ?? 0,
+		result: round.result || '',
+		timestamp: round.closedAt || round.openedAt || '',
+	}
+}
+
+/**
+ * The id of an object, or its uuid when it has no id.
+ *
+ * @param {object|null} object An agenda item or motion
+ * @return {string|undefined} The id.
+ * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+ */
+function idOf(object) {
+	return object?.id || object?.uuid
+}
 
 export default {
 	name: 'MeetingVotesTab',
@@ -93,6 +123,7 @@ export default {
 				{ key: 'votesFor', label: this.t('decidiq', 'For') },
 				{ key: 'votesAgainst', label: this.t('decidiq', 'Against') },
 				{ key: 'votesAbstain', label: this.t('decidiq', 'Abstain') },
+				{ key: 'factions', label: this.t('decidiq', 'Per faction') },
 				{ key: 'result', label: this.t('decidiq', 'Result') },
 				{ key: 'timestamp', label: this.t('decidiq', 'When') },
 			]
@@ -125,63 +156,140 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const agendaStore = ensureRelationType('agenda-item')
-				const agendaItems = await agendaStore.fetchCollection(
-					'agenda-item',
-					{
-						meeting: this.objectId,
-						_limit: 200,
-					},
-				)
-				if (!Array.isArray(agendaItems) || !agendaItems.length) {
-					this.rounds = []
-					return
-				}
-
-				const motionStore = ensureRelationType('motion')
-				const roundStore = ensureRelationType('voting-round')
-				const collected = []
-				for (const item of agendaItems) {
-					const itemId = item?.id || item?.uuid
-					if (!itemId) continue
-					const motions = await motionStore.fetchCollection('motion', {
-						decisionType: 'motion',
-						agendaItem: itemId,
-						_limit: 100,
-					})
-					for (const motion of motions || []) {
-						const motionId = motion?.id || motion?.uuid
-						if (!motionId) continue
-						const rounds = await roundStore.fetchCollection(
-							'voting-round',
-							{
-								motion: motionId,
-								_limit: 50,
-							},
-						)
-						for (const round of rounds || []) {
-							collected.push({
-								id: round.id || round.uuid,
-								motionId,
-								motionTitle:
-									motion.title || this.t('decidiq', 'Motion'),
-								motionType: motion.motionType || '',
-								votesFor: round.votesFor ?? 0,
-								votesAgainst: round.votesAgainst ?? 0,
-								votesAbstain: round.votesAbstain ?? 0,
-								result: round.result || '',
-								timestamp: round.closedAt || round.openedAt || '',
-							})
-						}
-					}
-				}
-				this.rounds = collected
+				this.rounds = await this.meetingRounds()
 			} catch (e) {
 				this.error =
 					e?.message
 					|| this.t('decidiq', 'Failed to load voting overview.')
 			} finally {
 				this.loading = false
+			}
+		},
+
+		/**
+		 * Every voting round of the meeting, one row per round.
+		 *
+		 * @return {Promise<Array<object>>} The rows.
+		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 */
+		async meetingRounds() {
+			const agendaItems = await ensureRelationType(
+				'agenda-item',
+			).fetchCollection('agenda-item', {
+				meeting: this.objectId,
+				_limit: 200,
+			})
+			if (!Array.isArray(agendaItems) || !agendaItems.length) {
+				return []
+			}
+			const collected = []
+			for (const item of agendaItems) {
+				const itemId = idOf(item)
+				if (itemId) collected.push(...(await this.agendaItemRounds(itemId)))
+			}
+			return collected
+		},
+
+		/**
+		 * The rows of every motion on one agenda item.
+		 *
+		 * @param {string} itemId The agenda item id
+		 * @return {Promise<Array<object>>} The rows.
+		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 */
+		async agendaItemRounds(itemId) {
+			const motions = await ensureRelationType('motion').fetchCollection(
+				'motion',
+				{
+					decisionType: 'motion',
+					agendaItem: itemId,
+					_limit: 100,
+				},
+			)
+			const collected = []
+			for (const motion of motions || []) {
+				if (idOf(motion)) {
+					collected.push(...(await this.motionRounds(motion)))
+				}
+			}
+			return collected
+		},
+
+		/**
+		 * The rows of one motion's voting rounds.
+		 *
+		 * @param {object} motion The motion
+		 * @return {Promise<Array<object>>} The rows.
+		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 */
+		async motionRounds(motion) {
+			const rounds = await ensureRelationType('voting-round').fetchCollection(
+				'voting-round',
+				{
+					motion: idOf(motion),
+					_limit: 50,
+				},
+			)
+			const rows = []
+			for (const round of rounds || []) {
+				rows.push(await this.roundRow(motion, round))
+			}
+			return rows
+		},
+
+		/**
+		 * One table row for a round of a motion.
+		 *
+		 * @param {object} motion The motion
+		 * @param {object} round The voting round
+		 * @return {Promise<object>} The row.
+		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 */
+		async roundRow(motion, round) {
+			const roundId = round.id || round.uuid
+			const { timestamp, ...tally } = roundTally(round)
+			return {
+				id: roundId,
+				motionId: idOf(motion),
+				motionTitle: motion.title || this.t('decidiq', 'Motion'),
+				motionType: motion.motionType || '',
+				...tally,
+				factions: await this.factionSummary(roundId),
+				timestamp,
+			}
+		},
+
+		/**
+		 * One line per faction for a round, or a note for a secret round.
+		 *
+		 * @param {string} roundId The voting round id
+		 * @return {Promise<string>}
+		 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+		 */
+		async factionSummary(roundId) {
+			try {
+				const response = await fetch(generateUrl(breakdownUrl(roundId)), {
+					headers: { requesttoken: window.OC?.requestToken },
+				})
+				if (!response.ok) return ''
+				const breakdown = await response.json()
+				if (breakdown.secret) return this.t('decidiq', 'Secret vote')
+				return factionRows(breakdown)
+					.map((row) =>
+						this.t(
+							'decidiq',
+							'{faction}: {for} for, {against} against, {abstain} abstain',
+							{
+								faction: row.faction,
+								for: row.for,
+								against: row.against,
+								abstain: row.abstain,
+							},
+						),
+					)
+					.join('; ')
+			} catch {
+				return ''
 			}
 		},
 

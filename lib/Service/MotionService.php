@@ -295,7 +295,7 @@ class MotionService {
 			return null;
 		}
 
-		return (string)$users[0]->getUID();
+		return $users[0]->getUID();
 	}//end coSignerUid()
 
 	/**

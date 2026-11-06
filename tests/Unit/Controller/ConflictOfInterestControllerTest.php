@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\ConflictOfInterestController;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCP\AppFramework\Http;
 use OCP\IGroupManager;
@@ -104,7 +105,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
 		$service->expects($this->once())
 			->method('declare')
-			->with('m1', 'a1', 'financial-interest', 'shares', 'material', 'alice')
+			->with((new ConflictDeclaration(membershipId: 'm1', agendaItemId: 'a1', type: 'financial-interest', description: 'shares'))->assessed(severity: 'material', initialAction: 'no-action-needed'), 'alice')
 			->willReturn(
 				[
 					'success' => true,
@@ -129,12 +130,15 @@ class ConflictOfInterestControllerTest extends TestCase {
 	}//end testDeclareSucceedsReturns201()
 
 	/**
-	 * declare rejects a payload with agendaItemId but no membershipId.
+	 * declare without membershipId from a caller with no membership: 422, nothing stored.
+	 *
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 *
 	 * @return void
 	 */
 	public function testDeclareRequiresMembershipIdWhenAgendaGiven(): void {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('membershipForUser')->willReturn(null);
 		$service->expects($this->never())->method('declare');
 		$controller = $this->makeController(service: $service, requestParams: ['agendaItemId' => 'a1']);
 
@@ -142,11 +146,40 @@ class ConflictOfInterestControllerTest extends TestCase {
 
 		$this->assertSame(expected: Http::STATUS_UNPROCESSABLE_ENTITY, actual: $response->getStatus());
 		$this->assertSame(
-			expected: "Missing required parameter 'membershipId' or 'agendaItemId'.",
+			expected: 'You are not a member of a governance body, so there is no declaration to record.',
 			actual: $response->getData()['message']
 		);
 
 	}//end testDeclareRequiresMembershipIdWhenAgendaGiven()
+
+	/**
+	 * declare from a page: no membershipId means the caller's own, and the recusal tick is passed on.
+	 *
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+	 *
+	 * @return void
+	 */
+	public function testDeclareFromThePageUsesTheCallersOwnMembership(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('membershipForUser')->with('alice')->willReturn('M-alice');
+		$service->expects($this->once())
+			->method('declare')
+			->with((new ConflictDeclaration(membershipId: 'M-alice', agendaItemId: 'M-12', type: 'financial-interest', description: 'Owns land'))->assessed(severity: 'material', initialAction: 'recused-from-vote'), 'alice')
+			->willReturn(['success' => true, 'declaration' => ['id' => 'd1'], 'message' => 'ok']);
+
+		$controller = $this->makeController(
+			service: $service,
+			requestParams: [
+				'agendaItemId' => 'M-12',
+				'declarationType' => 'financial-interest',
+				'description' => 'Owns land',
+				'recuseFromVote' => true,
+			]
+		);
+
+		$this->assertSame(expected: Http::STATUS_CREATED, actual: $controller->declare()->getStatus());
+
+	}//end testDeclareFromThePageUsesTheCallersOwnMembership()
 
 	/**
 	 * declare surfaces a service-level failure as 422 with the service message.
@@ -199,6 +232,25 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$this->assertSame(expected: 'recused-from-vote', actual: $response->getData()['conflict']['actionTaken']);
 
 	}//end testForMemberReturnsConflict()
+
+	/**
+	 * forMember answers 503 when the declarations cannot be read, instead of
+	 * reporting "no conflict" (fail closed).
+	 *
+	 * @return void
+	 */
+	public function testForMemberAnswers503WhenTheDeclarationsCannotBeRead(): void {
+		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
+		$service->method('isAuthorizedForMember')->willReturn(true);
+		$service->method('getActiveConflicts')->willThrowException(new \RuntimeException('Conflict-of-interest declarations could not be read.'));
+
+		$controller = $this->makeController(service: $service, requestParams: ['agendaItemId' => 'a1']);
+		$response = $controller->forMember('m1');
+
+		$this->assertSame(expected: Http::STATUS_SERVICE_UNAVAILABLE, actual: $response->getStatus());
+		$this->assertArrayNotHasKey('conflict', $response->getData());
+
+	}//end testForMemberAnswers503WhenTheDeclarationsCannotBeRead()
 
 	/**
 	 * forMember rejects a request missing agendaItemId.
@@ -350,7 +402,7 @@ class ConflictOfInterestControllerTest extends TestCase {
 		$service = $this->createMock(originalClassName: ConflictOfInterestService::class);
 		$service->expects($this->once())
 			->method('declare')
-			->with('m1', 'a1', 'financial-interest', 'shares', 'material', null)
+			->with((new ConflictDeclaration(membershipId: 'm1', agendaItemId: 'a1', type: 'financial-interest', description: 'shares'))->assessed(severity: 'material', initialAction: 'no-action-needed'), null)
 			->willReturn(['success' => true, 'declaration' => ['id' => 'd1'], 'message' => 'ok']);
 
 		$controller = $this->makeController(

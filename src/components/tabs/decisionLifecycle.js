@@ -21,6 +21,25 @@ export const STATES = [
 ]
 
 /**
+ * English source label of each lifecycle state. The Lifecycle block, the step
+ * bar and the status pill of the simple decision page all name a state with
+ * these words, so one decision never reads two ways on one page.
+ *
+ * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+ */
+export const STATE_LABELS = {
+	draft: 'Draft',
+	proposed: 'Proposed',
+	deliberating: 'Deliberating',
+	voting: 'Voting',
+	// Not 'Decided': that key is a column heading and reads 'Besloten op'.
+	decided: 'Decision taken',
+	enacted: 'Enacted',
+	archived: 'Archived',
+	withdrawn: 'Withdrawn',
+}
+
+/**
  * CnStatusBadge color map for lifecycle states.
  *
  * @spec openspec/specs/decision-management/spec.md

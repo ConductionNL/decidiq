@@ -20,5 +20,5 @@
 
 ## 4. Prove it
 
-- [ ] 4.1 Unit tests for the migration.
-- [ ] 4.2 E2E: the position-holder surface resolves and reads its schema.
+- [x] 4.1 Unit tests for the migration. (tests/Unit/Migration/MigrateTermRulesToPositionTypesTest.php)
+- [ ] 4.2 E2E: the position-holder surface resolves and reads its schema. (not run: needs the live instance)

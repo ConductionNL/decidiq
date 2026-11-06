@@ -24,6 +24,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Service\Settings\MenuStructure;
+use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
+use OCA\Decidiq\Support\FleetAppId;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
@@ -58,6 +61,9 @@ class SettingsService {
 		'ori_endpoint',
 		'ori_bearer_secret',
 		'email_voting_enabled',
+		// @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
+		// 'true' sends the meeting file to the case system when minutes are approved.
+		'case_system_send_on_approval',
 		'minutesSchema',
 		'decisionSchema',
 		'actionItemSchema',
@@ -80,6 +86,16 @@ class SettingsService {
 		'participation_default_moderation_policy',
 		'participation_catalog',
 		'participation_anon_rate_limit',
+		// @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-004-an-administrator-can-switch-automatic-conversion-off
+		// Office papers are converted to PDF on arrival unless this reads false.
+		'convert_office_papers',
+		// 'true' makes a motion forwarded to another body wait for that body's
+		// chair (MotionForwardingService).
+		'motion_forwarding_requires_approval',
+		// Which structure the app shows (simple-structure-profile). A key that
+		// is not on this list is dropped by updateSettings() while the write
+		// still answers success.
+		MenuStructure::KEY,
 	];
 
 	/**
@@ -98,6 +114,26 @@ class SettingsService {
 	];
 
 	/**
+	 * What getSettings() answers for a key that holds no value.
+	 *
+	 * The schema slugs match the slugs defined in decidesk_register.json;
+	 * organisatie_modus defaults to 'gov' (government/municipal mode).
+	 *
+	 * @var array<string,string>
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
+	 */
+	private const DEFAULTS = [
+		'minutesSchema' => 'minutes',
+		'decisionSchema' => 'decision',
+		'actionItemSchema' => 'action-item',
+		'organisatie_modus' => 'gov',
+		'convert_office_papers' => 'true',
+		'motion_forwarding_requires_approval' => 'false',
+	];
+
+	/**
 	 * Constructor for the SettingsService.
 	 *
 	 * @param IAppConfig $appConfig The app config interface
@@ -106,6 +142,7 @@ class SettingsService {
 	 * @param IGroupManager $groupManager The group manager
 	 * @param IUserSession $userSession The user session
 	 * @param LoggerInterface $logger The logger
+	 * @param RoleGroupMapping $roleMapping The role to group mapping written into the rules on import
 	 *
 	 * @return void
 	 */
@@ -116,6 +153,7 @@ class SettingsService {
 		private IGroupManager $groupManager,
 		private IUserSession $userSession,
 		private LoggerInterface $logger,
+		private RoleGroupMapping $roleMapping=new RoleGroupMapping(),
 	) {
 	}//end __construct()
 
@@ -148,31 +186,7 @@ class SettingsService {
 	 * @return array<string,mixed>
 	 */
 	public function getSettings(): array {
-		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.
-		// @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
-		// Default schema slugs match the slugs defined in decidesk_register.json.
-		// organisatie_modus defaults to 'gov' (government/municipal mode).
-		$defaults = [
-			'minutesSchema' => 'minutes',
-			'decisionSchema' => 'decision',
-			'actionItemSchema' => 'action-item',
-			'organisatie_modus' => 'gov',
-		];
-
-		$settings = [];
-		foreach (self::CONFIG_KEYS as $key) {
-			if (in_array($key, self::SECRET_KEYS, true) === true) {
-				// Write-only: never echo secrets to the (any-user) index route.
-				continue;
-			}
-
-			$value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
-			$settings[$key] = ($defaults[$key] ?? '');
-			if ($value !== '') {
-				$settings[$key] = $value;
-			}
-		}
-
+		$settings = $this->storedSettings();
 		$user = $this->userSession->getUser();
 		$isAdmin = ($user !== null && $this->groupManager->isAdmin($user->getUID()));
 
@@ -180,6 +194,8 @@ class SettingsService {
 			$settings,
 			[
 				'openregisters' => $this->isOpenRegisterAvailable(),
+				// Office papers are converted by filinq; the admin page says so when it is absent.
+				'filinq' => FleetAppId::isInstalled(appManager: $this->appManager, canonical: 'filinq'),
 				// UI-HINT ONLY: isAdmin is used exclusively to control frontend rendering
 				// (e.g. showing/hiding admin-only settings panels). It MUST NOT be used
 				// for server-side access control decisions. All admin-gated backend routes
@@ -188,6 +204,31 @@ class SettingsService {
 			]
 		);
 	}//end getSettings()
+
+	/**
+	 * The stored value of every readable key, or its default when none is stored.
+	 *
+	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+	 *
+	 * @return array<string,string>
+	 */
+	private function storedSettings(): array {
+		$settings = [];
+		foreach (self::CONFIG_KEYS as $key) {
+			if (in_array($key, self::SECRET_KEYS, true) === true) {
+				// Write-only: never echo secrets to the (any-user) index route.
+				continue;
+			}
+
+			$value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+			$settings[$key] = (self::DEFAULTS[$key] ?? '');
+			if ($value !== '') {
+				$settings[$key] = $value;
+			}
+		}
+
+		return $settings;
+	}//end storedSettings()
 
 	/**
 	 * Update settings with the provided data.
@@ -255,36 +296,73 @@ class SettingsService {
 	private function importConfiguration(bool $force): array {
 		if ($this->isOpenRegisterAvailable() === false) {
 			$this->logger->warning('Decidiq: OpenRegister not available, skipping register initialization');
-			return [
-				'success' => false,
-				'message' => 'OpenRegister is not installed or enabled.',
-			];
+			return self::failure(message: 'OpenRegister is not installed or enabled.');
 		}
 
 		try {
-			[$configData, $failure] = $this->readBaseRegisterConfig();
-			if ($failure !== null) {
-				return $failure;
-			}
-
-			[$configData, $fragmentSig] = $this->mergeRegisterFragments(configData: $configData);
-
-			return $this->importRegisterConfig(
-				configData: $configData,
-				fragmentSig: $fragmentSig,
-				force: $force
-			);
+			return $this->importMergedConfig(force: $force);
 		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: configuration import failed',
-				['exception' => $e->getMessage()]
-			);
-			return [
-				'success' => false,
-				'message' => 'Configuration import failed. See server log for details.',
-			];
+			$this->logger->error('Decidiq: configuration import failed', ['exception' => $e->getMessage()]);
+			return self::failure(message: 'Configuration import failed. See server log for details.');
 		}//end try
 	}//end importConfiguration()
+
+	/**
+	 * Read the base register, merge the fragments and the role mapping, and
+	 * hand the result to OpenRegister.
+	 *
+	 * @param bool $force Force re-import even if already configured.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 *
+	 * @return array<string,mixed> Result with success flag, message, and version.
+	 */
+	private function importMergedConfig(bool $force): array {
+		[$configData, $failure] = $this->readBaseRegisterConfig();
+		if ($failure !== null) {
+			return $failure;
+		}
+
+		[$configData, $fragmentSig] = $this->mergeRegisterFragments(configData: $configData);
+		$configData = $this->roleMapping->rewrite(config: $configData, mapping: $this->roleGroupMapping());
+		$version    = $this->configVersion(configData: $configData, fragmentSig: $fragmentSig);
+
+		$configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
+		return $this->importResult(
+			result: $configurationService->importFromApp(appId: Application::APP_ID, data: $configData, version: $version, force: $force)
+		);
+	}//end importMergedConfig()
+
+	/**
+	 * The groups an administrator added to each decidiq role.
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
+	 *
+	 * @return array<string, list<string>> Role => group ids, every role present.
+	 */
+	public function roleGroupMapping(): array {
+		return $this->roleMapping->decode(
+			json: $this->appConfig->getValueString(Application::APP_ID, RoleGroupMapping::CONFIG_KEY, '')
+		);
+	}//end roleGroupMapping()
+
+	/**
+	 * The register as the import sends it: base, fragments and the role
+	 * mapping applied. Empty when the base file cannot be read.
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
+	 *
+	 * @return array<string,mixed>
+	 */
+	public function mergedRegisterConfig(): array {
+		[$configData, $failure] = $this->readBaseRegisterConfig();
+		if ($failure !== null) {
+			return [];
+		}
+
+		[$configData] = $this->mergeRegisterFragments(configData: $configData);
+		return $this->roleMapping->rewrite(config: $configData, mapping: $this->roleGroupMapping());
+	}//end mergedRegisterConfig()
 
 	/**
 	 * Read and decode the monolithic decidesk_register.json.
@@ -295,44 +373,53 @@ class SettingsService {
 	 * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
 	 */
 	private function readBaseRegisterConfig(): array {
-		$configPath = __DIR__ . '/../Settings/decidesk_register.json';
+		$configPath = self::baseDescriptorPath();
 		if (file_exists($configPath) === false) {
 			$this->logger->error('Decidiq: decidesk_register.json not found at ' . $configPath);
-			return [
-				[],
-				[
-					'success' => false,
-					'message' => 'Configuration file decidesk_register.json not found.',
-				],
-			];
+			return [[], self::failure(message: 'Configuration file decidesk_register.json not found.')];
 		}
 
 		$configContent = file_get_contents($configPath);
 		if ($configContent === false) {
 			$this->logger->error('Decidiq: failed to read decidesk_register.json');
-			return [
-				[],
-				[
-					'success' => false,
-					'message' => 'Failed to read configuration file.',
-				],
-			];
+			return [[], self::failure(message: 'Failed to read configuration file.')];
 		}
 
+		return $this->decodeBaseRegisterConfig(configContent: $configContent);
+	}//end readBaseRegisterConfig()
+
+	/**
+	 * Decode the content of decidesk_register.json.
+	 *
+	 * @param string $configContent The file content.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 *
+	 * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
+	 */
+	private function decodeBaseRegisterConfig(string $configContent): array {
 		$configData = json_decode($configContent, true);
 		if (json_last_error() !== JSON_ERROR_NONE) {
 			$this->logger->error('Decidiq: failed to parse decidesk_register.json: ' . json_last_error_msg());
-			return [
-				[],
-				[
-					'success' => false,
-					'message' => 'Failed to parse configuration file: ' . json_last_error_msg(),
-				],
-			];
+			return [[], self::failure(message: 'Failed to parse configuration file: ' . json_last_error_msg())];
 		}
 
 		return [$configData, null];
-	}//end readBaseRegisterConfig()
+	}//end decodeBaseRegisterConfig()
+
+	/**
+	 * A failed result, as loadConfiguration() answers it.
+	 *
+	 * @param string $message The failure message.
+	 *
+	 * @return array{success: false, message: string}
+	 */
+	private static function failure(string $message): array {
+		return [
+			'success' => false,
+			'message' => $message,
+		];
+	}//end failure()
 
 	/**
 	 * Merge modular register fragments from Settings/register.d/*.json (ADR-037).
@@ -349,70 +436,112 @@ class SettingsService {
 	 * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
 	 */
 	private function mergeRegisterFragments(array $configData): array {
-		$fragmentDir = __DIR__ . '/../Settings/register.d';
-		$fragmentSig = '';
-		if (is_dir($fragmentDir) === false) {
-			return [$configData, $fragmentSig];
-		}
-
-		$fragmentFiles = glob($fragmentDir . '/*.json');
-		sort($fragmentFiles);
-		foreach ($fragmentFiles as $fragmentFile) {
-			$fragmentContent = file_get_contents($fragmentFile);
-			if ($fragmentContent === false) {
-				continue;
+		$logger = $this->logger;
+		$merger = new RegisterFragmentMerger(
+			onMalformed: static function (string $fragment, string $reason) use ($logger): void {
+				$logger->warning('Decidiq: skipping malformed register fragment ' . $fragment . ': ' . $reason);
 			}
+		);
 
-			$fragmentData = json_decode($fragmentContent, true);
-			if (json_last_error() !== JSON_ERROR_NONE) {
-				$this->logger->warning(
-					'Decidiq: skipping malformed register fragment ' . basename($fragmentFile)
-					. ': ' . json_last_error_msg()
-				);
-				continue;
-			}
-
-			$configData = self::deepMergeConfig(base: $configData, overlay: $fragmentData);
-			$fragmentSig .= basename($fragmentFile) . ':' . md5($fragmentContent) . ';';
-		}//end foreach
-
-		return [$configData, $fragmentSig];
+		return $merger->mergeDirectory(configData: $configData, fragmentDir: self::fragmentDirectory());
 	}//end mergeRegisterFragments()
 
 	/**
-	 * Hand the merged configuration to OpenRegister's version-gated importer.
+	 * Where the base descriptor lives.
 	 *
-	 * The fragment signature is folded into the version so importFromApp
-	 * re-imports whenever any fragment changes.
+	 * Named rather than inlined so a caller that wants to read what this app
+	 * SHIPS cannot drift from what this service IMPORTS.
 	 *
-	 * @param array<string,mixed> $configData The merged configuration.
-	 * @param string $fragmentSig Signature of the merged fragments.
-	 * @param bool $force Force re-import even if already configured.
+	 * @return string Absolute path to decidesk_register.json.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	public static function baseDescriptorPath(): string {
+		return __DIR__ . '/../Settings/decidesk_register.json';
+	}//end baseDescriptorPath()
+
+	/**
+	 * Where the ADR-037 fragments live.
+	 *
+	 * @return string Absolute path to lib/Settings/register.d.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	public static function fragmentDirectory(): string {
+		return __DIR__ . '/../Settings/register.d';
+	}//end fragmentDirectory()
+
+	/**
+	 * The descriptor this app ships, base plus every fragment, merged.
+	 *
+	 * 🔴 ONE MERGE, NOT TWO. A guard that re-implements the merge is answering
+	 * about something adjacent: it can read a register the importer never sees
+	 * and pass while the instance is wrong. This is the same code path
+	 * importConfiguration() hands to OpenRegister, so a test built on it is
+	 * asking the authority.
+	 *
+	 * Static and dependency-free on purpose: reading the shipped JSON needs no
+	 * container, no logger and no OpenRegister, so a unit test can call it.
+	 *
+	 * @return array<string,mixed> The merged configuration.
+	 *
+	 * @throws \JsonException When the base descriptor does not parse.
+	 *
+	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 */
+	public static function shippedRegisterDescriptor(): array {
+		$base = json_decode(
+			(string)file_get_contents(self::baseDescriptorPath()),
+			true,
+			512,
+			JSON_THROW_ON_ERROR
+		);
+
+		[$merged] = (new RegisterFragmentMerger())->mergeDirectory(configData: $base, fragmentDir: self::fragmentDirectory());
+
+		return $merged;
+	}//end shippedRegisterDescriptor()
+
+	/**
+	 * The version handed to OpenRegister's version-gated importer.
+	 *
+	 * The fragment signature and the role mapping signature are folded into
+	 * the version so importFromApp re-imports whenever either changes.
+	 *
+	 * @param array<string,mixed> $configData  The merged configuration.
+	 * @param string              $fragmentSig Signature of the merged fragments.
 	 *
 	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
 	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
 	 *
-	 * @return array<string,mixed> Result with success flag, message, and version.
+	 * @return string
 	 */
-	private function importRegisterConfig(array $configData, string $fragmentSig, bool $force): array {
+	private function configVersion(array $configData, string $fragmentSig): string {
 		$configVersion = ($configData['info']['version'] ?? '0.0.0');
 		if ($fragmentSig !== '') {
 			$configVersion .= '+frag.' . substr(md5($fragmentSig), 0, 8);
 		}
 
-		$configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
-		$result = $configurationService->importFromApp(
-			appId: Application::APP_ID,
-			data: $configData,
-			version: $configVersion,
-			force: $force
-		);
+		$roleSig = $this->roleMapping->signature(mapping: $this->roleGroupMapping());
+		if ($roleSig !== '') {
+			$configVersion .= '+roles.' . $roleSig;
+		}
 
+		return $configVersion;
+	}//end configVersion()
+
+	/**
+	 * The result of an import, as loadConfiguration() answers it.
+	 *
+	 * @param mixed $result What importFromApp returned.
+	 *
+	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+	 *
+	 * @return array<string,mixed> Result with success flag, message, and version.
+	 */
+	private function importResult(mixed $result): array {
 		if (empty($result) === true) {
-			return [
-				'success' => false,
-				'message' => 'Import returned an empty result.',
-			];
+			return self::failure(message: 'Import returned an empty result.');
 		}
 
 		$this->logger->info('Decidiq: register configuration imported successfully');
@@ -422,44 +551,5 @@ class SettingsService {
 			'message' => 'Configuration imported successfully.',
 			'version' => ($result['version'] ?? 'unknown'),
 		];
-	}//end importRegisterConfig()
-
-	/**
-	 * Deep-merge a register fragment onto the base config (ADR-037).
-	 *
-	 * Associative arrays (OpenAPI objects like `components.schemas`, `paths`) are
-	 * merged by key union (recursing on shared keys); list arrays are concatenated;
-	 * scalars in the fragment overwrite the base. Disjoint fragments never collide.
-	 *
-	 * @param array<mixed> $base The accumulated config.
-	 * @param array<mixed> $overlay The fragment to merge in.
-	 *
-	 * @return array<mixed> The merged config.
-	 */
-	private static function deepMergeConfig(array $base, array $overlay): array {
-		foreach ($overlay as $key => $value) {
-			// A scalar overlay, or a key the base does not hold as an array,
-			// overwrites the base outright.
-			if (is_array($value) === false
-				|| isset($base[$key]) === false
-				|| is_array($base[$key]) === false
-			) {
-				$base[$key] = $value;
-				continue;
-			}
-
-			$baseIsList = ($base[$key] === [] || array_keys($base[$key]) === range(0, (count($base[$key]) - 1)));
-			$overlayIsList = ($value === [] || array_keys($value) === range(0, (count($value) - 1)));
-
-			// Two list arrays concatenate; anything else recurses by key union.
-			if ($baseIsList === true && $overlayIsList === true) {
-				$base[$key] = array_merge($base[$key], $value);
-				continue;
-			}
-
-			$base[$key] = self::deepMergeConfig(base: $base[$key], overlay: $value);
-		}//end foreach
-
-		return $base;
-	}//end deepMergeConfig()
+	}//end importResult()
 }//end class
