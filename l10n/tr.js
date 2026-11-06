@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Adım {step} / {total}",
         "Still to do: stage {seq} ({maker})": "Yapılacak: aşama {seq} ({maker})",
         "Stop": "Durdur",
-        "Store": "Sakla",
         "Subject description": "Konu açıklaması",
         "Submission phase": "Gönderim aşaması",
         "Submission window (hours)": "Gönderim penceresi (saat)",

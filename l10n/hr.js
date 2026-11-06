@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Korak {step} od {total}",
         "Still to do: stage {seq} ({maker})": "Još treba napraviti: faza {seq} ({maker})",
         "Stop": "Zaustavi",
-        "Store": "Pohrani",
         "Subject description": "Opis predmeta",
         "Submission phase": "Faza predaje",
         "Submission window (hours)": "Rok za predaju (sati)",

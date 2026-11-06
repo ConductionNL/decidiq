@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Skref {step} af {total}",
         "Still to do: stage {seq} ({maker})": "Enn eftir: áfangi {seq} ({maker})",
         "Stop": "Stöðva",
-        "Store": "Geyma",
         "Subject description": "Lýsing viðfangs",
         "Submission phase": "Innsendingaráfangi",
         "Submission window (hours)": "Innsendingargluggi (klukkustundir)",

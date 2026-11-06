@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Passo {step} de {total}",
         "Still to do: stage {seq} ({maker})": "Ainda por fazer: fase {seq} ({maker})",
         "Stop": "Parar",
-        "Store": "Guardar",
         "Subject description": "Descrição do assunto",
         "Submission phase": "Fase de submissão",
         "Submission window (hours)": "Janela de submissão (horas)",

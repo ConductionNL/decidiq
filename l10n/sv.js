@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Återstår: fas {seq} ({maker})",
         "Stop": "Stoppa",
         "Stop {name}": "Stoppa {name}",
-        "Store": "Lagra",
         "Sub-item title": "Underpunktens titel",
         "Sub-item: {title}": "Underpunkt: {title}",
         "Sub-items of {title}": "Underpunkter till {title}",

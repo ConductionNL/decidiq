@@ -2600,7 +2600,7 @@ OC.L10N.register(
         "Step {step} of {total}": "{step}. lépés / {total}",
         "Still to do: stage {seq} ({maker})": "Még hátravan: {seq}. szakasz ({maker})",
         "Stop": "Leállítás",
-        "Store": "Áruház",
+        "Marketplace": "Áruház",
         "Subject description": "Tárgy leírása",
         "Submission phase": "Beküldési szakasz",
         "Submission window (hours)": "Beküldési időablak (óra)",

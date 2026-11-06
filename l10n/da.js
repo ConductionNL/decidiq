@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Trin {step} af {total}",
         "Still to do: stage {seq} ({maker})": "Mangler stadig: fase {seq} ({maker})",
         "Stop": "Stop",
-        "Store": "Gem",
         "Subject description": "Beskrivelse af emne",
         "Submission phase": "Indsendelsesfase",
         "Submission window (hours)": "Indsendelsesvindue (timer)",

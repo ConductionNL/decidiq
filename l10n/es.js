@@ -2704,7 +2704,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Paso {step} de {total}",
         "Still to do: stage {seq} ({maker})": "Pendiente: etapa {seq} ({maker})",
         "Stop": "Detener",
-        "Store": "Guardar",
         "Subject description": "Descripción del asunto",
         "Submission phase": "Fase de presentación",
         "Submission window (hours)": "Plazo de presentación (horas)",

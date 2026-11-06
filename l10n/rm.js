@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Anc da far: fasa {seq} ({maker})",
         "Stop": "Fermar",
         "Stop {name}": "Fermar {name}",
-        "Store": "Memorisar",
         "Sub-item title": "Titel dal sutpunct",
         "Sub-item: {title}": "Sutpunct: {title}",
         "Sub-items of {title}": "Sutpuncts da {title}",

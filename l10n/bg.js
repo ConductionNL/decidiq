@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Стъпка {step} от {total}",
         "Still to do: stage {seq} ({maker})": "Предстои: етап {seq} ({maker})",
         "Stop": "Спиране",
-        "Store": "Съхраняване",
         "Subject description": "Описание на предмета",
         "Submission phase": "Фаза на подаване",
         "Submission window (hours)": "Срок за подаване (часове)",

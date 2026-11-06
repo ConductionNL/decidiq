@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Pasul {step} din {total}",
         "Still to do: stage {seq} ({maker})": "Încă de făcut: etapa {seq} ({maker})",
         "Stop": "Oprește",
-        "Store": "Stochează",
         "Subject description": "Descrierea subiectului",
         "Submission phase": "Faza de depunere",
         "Submission window (hours)": "Fereastra de depunere (ore)",
