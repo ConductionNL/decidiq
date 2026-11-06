@@ -4,7 +4,7 @@
 // Copyright (C) 2026 Conduction B.V.
 
 /**
- * Test stub for OCA\OpenRegister\Service\TextExtractionService.
+ * Test stub for OCA\OpenRegister\Files\Service\TextExtractionService.
  *
  * Same signature parity contract as tests/Stubs/Service/FileService.php: this
  * stands in for the real service only when the OpenRegister app is not
@@ -16,7 +16,7 @@
  * @package OCA\Decidiq\Tests\Stubs
  */
 
-namespace OCA\OpenRegister\Service;
+namespace OCA\OpenRegister\Files\Service;
 
 /**
  * Minimal stand-in for OpenRegister's TextExtractionService.

@@ -141,8 +141,8 @@ class PaperText {
 	 */
 	private function chunkTexts(int $fileId): array {
 		try {
-			$this->container->get('OCA\OpenRegister\Service\TextExtractionService')->extractFile($fileId);
-			$chunks = (array)$this->container->get('OCA\OpenRegister\Db\ChunkMapper')->findBySource('file', $fileId);
+			$this->container->get('OCA\OpenRegister\Files\Service\TextExtractionService')->extractFile($fileId);
+			$chunks = (array)$this->container->get('OCA\OpenRegister\Files\Db\ChunkMapper')->findBySource('file', $fileId);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: the text of a paper could not be read', ['fileId' => $fileId, 'error' => $e->getMessage()]);
 			return [];
