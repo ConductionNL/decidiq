@@ -108,3 +108,59 @@ export async function deleteRelationRow(vm) {
 		})
 	}
 }
+
+/**
+ * The relation tab behaviour as a mixin: reload when the parent changes, and
+ * the list, open, save and delete methods over the tab's `relationListing()`.
+ * A tab that saves or deletes another way declares its own `onConfirm` or
+ * `confirmDelete`, which takes precedence.
+ *
+ * @spec openspec/specs/relation-tab-ui/spec.md
+ */
+export const relationCrudTab = {
+	watch: {
+		objectId: {
+			immediate: true,
+			/** @spec openspec/specs/relation-tab-ui/spec.md */
+			handler() {
+				this.refresh()
+			},
+		},
+	},
+
+	methods: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		async refresh() {
+			await loadRelationRows(this)
+		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		async openCreate() {
+			await openRelationForm(this, null)
+		},
+
+		/**
+		 * @param {object} row The row to edit.
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		async openEdit(row) {
+			await openRelationForm(this, row)
+		},
+
+		/**
+		 * The discriminator in the listing's filter is written on save, not
+		 * picked on the form, so a new row stays inside the tab's own filter.
+		 *
+		 * @param {object} formData The submitted form values.
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		async onConfirm(formData) {
+			await saveRelationRow(this, formData)
+		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		async confirmDelete() {
+			await deleteRelationRow(this)
+		},
+	},
+}
