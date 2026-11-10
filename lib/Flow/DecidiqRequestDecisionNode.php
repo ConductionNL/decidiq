@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Flow;
 
 use DateTime;
 use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\OpenRegister\Service\Flow\FlowNodeCall;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
 use OCA\OpenRegister\Service\Flow\FlowSuspension;
@@ -210,9 +211,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	/**
 	 * Raise the decision on the first pass; on every later pass, read it back.
 	 *
-	 * @param array $items The input items
-	 * @param array $config The step configuration
-	 * @param array $context Run-level metadata
+	 * @param FlowNodeCall $call The input items, the step configuration and the run-level metadata
 	 *
 	 * @return array The items, each carrying the outcome
 	 *
@@ -223,7 +222,10 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
 	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
-	public function execute(array $items, array $config, array $context): array {
+	public function execute(FlowNodeCall $call): array {
+		$items   = $call->items;
+		$config  = $call->config;
+		$context = $call->context;
 		$this->validateConfig(config: $config);
 
 		$resume = ($context[FlowNodeResumeState::CONTEXT_KEY] ?? null);

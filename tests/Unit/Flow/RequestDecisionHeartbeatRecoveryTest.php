@@ -42,6 +42,7 @@ use OCA\Decidiq\Listener\FlowDecisionConcludedListener;
 use OCA\Decidiq\Service\FlowDecisionService;
 use OCA\OpenRegister\Db\FlowRun;
 use OCA\OpenRegister\Db\FlowRunMapper;
+use OCA\OpenRegister\Service\Flow\FlowNodeCall;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
@@ -125,7 +126,7 @@ class RequestDecisionHeartbeatRecoveryTest extends TestCase {
 		$items = [['json' => ['id' => 'lead-1', 'title' => 'Dakkapel', '@self' => ['id' => 'lead-1', 'register' => 'pipelinq', 'schema' => 'lead']]]];
 
 		try {
-			return $this->node->execute($items, $config, $context);
+			return $this->node->execute(new FlowNodeCall(items: $items, config: $config, context: $context));
 		} catch (FlowSuspension $e) {
 			return null;
 		} finally {

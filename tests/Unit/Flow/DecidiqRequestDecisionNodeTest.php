@@ -33,6 +33,7 @@ namespace OCA\Decidiq\Tests\Unit\Flow;
 
 use OCA\Decidiq\Flow\DecidiqRequestDecisionNode;
 use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\OpenRegister\Service\Flow\FlowNodeCall;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
@@ -209,7 +210,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$resume = self::resumeSlot('decide-register-b');
 
 		try {
-			$this->node()->execute($this->items(), $this->config() + ['advisor' => 'bob'], self::context($resume));
+			$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config() + ['advisor' => 'bob'], context: self::context($resume)));
 			self::fail('The node must suspend while the decision is outstanding.');
 		} catch (FlowSuspension $suspension) {
 			self::assertStringContainsString('Toets aan register B', $suspension->getMessage());
@@ -235,7 +236,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$items = [['json' => ['uuid' => 'x-1', '@self' => ['register' => ['id' => 4, 'slug' => 'dossiq'], 'schema' => ['id' => 9, 'slug' => 'case']]]]];
 
 		try {
-			$this->node()->execute($items, ['question' => 'Q', 'decisionType' => 'report-adoption'], self::context(self::resumeSlot('n')));
+			$this->node()->execute(new FlowNodeCall(items: $items, config: ['question' => 'Q', 'decisionType' => 'report-adoption'], context: self::context(self::resumeSlot('n'))));
 		} catch (FlowSuspension $e) {
 			// expected
 		}
@@ -251,7 +252,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		unset($context['runUuid']);
 
 		try {
-			$this->node()->execute($this->items(), $this->config(), $context);
+			$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: $context));
 		} catch (FlowSuspension $e) {
 			// expected
 		}
@@ -261,7 +262,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 
 	public function testAnItemWithNoObjectFailsWithoutRaising(): void {
 		try {
-			$this->node()->execute([['json' => ['title' => 'no id']]], $this->config(), self::context(self::resumeSlot('n')));
+			$this->node()->execute(new FlowNodeCall(items: [['json' => ['title' => 'no id']]], config: $this->config(), context: self::context(self::resumeSlot('n'))));
 			self::fail('An item with no object must fail the step.');
 		} catch (FlowSuspension $e) {
 			self::fail('A missing object must NOT read as waiting.');
@@ -277,13 +278,13 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$node = $this->node();
 
 		try {
-			$node->execute($this->items(), $this->config(), self::context($resume, runAs: 'alice'));
+			$node->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume, runAs: 'alice')));
 		} catch (FlowSuspension $e) {
 			// first pass
 		}
 
 		try {
-			$node->execute($this->items(), $this->config(), self::context($resume, runAs: 'bob'));
+			$node->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume, runAs: 'bob')));
 		} catch (FlowSuspension $e) {
 			// still open
 		}
@@ -295,7 +296,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$resume = self::resumeSlot('decide-register-b', ['decisionRef' => 'decision-1', 'askedAt' => 'then']);
 		$this->decidiqReports(FlowDecisionService::STATE_DECIDED, 'approved');
 
-		$out = $this->node()->execute($this->items(), $this->config(), self::context($resume, runAs: 'carol'));
+		$out = $this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume, runAs: 'carol')));
 
 		self::assertSame(['carol'], $this->readAs);
 		self::assertSame('approved', $out[0]['json']['decisionOutcome']['decision']);
@@ -308,7 +309,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$this->expectException(FlowSuspension::class);
 
 		try {
-			$this->node()->execute($this->items(), $this->config(), self::context($resume, runAs: ''));
+			$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume, runAs: '')));
 		} finally {
 			self::assertSame([], $this->readAs, 'A read naming nobody must not be attempted.');
 		}
@@ -320,7 +321,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 
 		foreach ([1, 2, 3] as $ignored) {
 			try {
-				$node->execute($this->items(), $this->config(), self::context($resume));
+				$node->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume)));
 			} catch (FlowSuspension $e) {
 				// expected while unanswered
 			}
@@ -334,7 +335,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$this->decidiqReports(FlowDecisionService::STATE_OPEN, 'pending');
 
 		try {
-			$this->node()->execute($this->items(), $this->config(), self::context($resume));
+			$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume)));
 			self::fail('An open decision must suspend.');
 		} catch (FlowSuspension $e) {
 			self::assertStringContainsString('Toets aan register B', $e->getMessage());
@@ -348,7 +349,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$resume = self::resumeSlot('decide-register-b');
 
 		try {
-			$this->node(ref: null)->execute($this->items(), $this->config(), self::context($resume));
+			$this->node(ref: null)->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume)));
 			self::fail('The step must fail when the decision cannot be raised.');
 		} catch (FlowSuspension $e) {
 			self::fail('A failure to raise must NOT read as waiting.');
@@ -364,11 +365,11 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$this->decidiqReports(FlowDecisionService::STATE_DECIDED, 'approved');
 
 		$items = array_merge($this->items(), [['json' => ['id' => 'lead-2']]]);
-		$out = $this->node()->execute(
-			$items,
-			array_merge($this->config(), ['signalKey' => 'toets']),
-			self::context($resume, [FlowRunService::SIGNAL_CONTEXT_KEY => ['decision' => 'approved', 'subjectId' => 'lead-1']])
-		);
+		$out = $this->node()->execute(new FlowNodeCall(
+			items: $items,
+			config: array_merge($this->config(), ['signalKey' => 'toets']),
+			context: self::context($resume, [FlowRunService::SIGNAL_CONTEXT_KEY => ['decision' => 'approved', 'subjectId' => 'lead-1']])
+		));
 
 		self::assertSame(
 			[
@@ -392,17 +393,17 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$this->decidiqReports(FlowDecisionService::STATE_DECIDED, 'rejected');
 
 		$resume = self::resumeSlot('decide-register-b', ['decisionRef' => 'decision-1', 'raisedBy' => 'alice']);
-		$out = $this->node()->execute(
-			$this->items(),
-			$this->config(),
-			self::context($resume, [FlowRunService::SIGNAL_CONTEXT_KEY => ['decision' => 'approved', 'decisionRef' => 'other']])
-		);
+		$out = $this->node()->execute(new FlowNodeCall(
+			items: $this->items(),
+			config: $this->config(),
+			context: self::context($resume, [FlowRunService::SIGNAL_CONTEXT_KEY => ['decision' => 'approved', 'decisionRef' => 'other']])
+		));
 
 		self::assertSame('rejected', $out[0]['json']['decisionOutcome']['decision'], 'decidiq decides, not the wake.');
 		self::assertSame('decision-1', $out[0]['json']['decisionOutcome']['decisionRef']);
 
 		$resume = self::resumeSlot('decide-register-b', ['decisionRef' => 'decision-1', 'raisedBy' => 'alice']);
-		$out = $this->node()->execute($this->items(), $this->config(), self::context($resume));
+		$out = $this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume)));
 
 		self::assertSame('rejected', $out[0]['json']['decisionOutcome']['decision']);
 		self::assertTrue($out[0]['json']['decisionOutcome']['recovered'], 'A recovered outcome says so.');
@@ -414,11 +415,11 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 
 		$this->expectException(FlowSuspension::class);
 
-		$this->node()->execute(
-			$this->items(),
-			$this->config(),
-			self::context($resume, [FlowRunService::SIGNAL_CONTEXT_KEY => ['decision' => 'approved']])
-		);
+		$this->node()->execute(new FlowNodeCall(
+			items: $this->items(),
+			config: $this->config(),
+			context: self::context($resume, [FlowRunService::SIGNAL_CONTEXT_KEY => ['decision' => 'approved']])
+		));
 	}//end testASignalCannotAnswerForAnOpenDecision()
 
 	/**
@@ -438,7 +439,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 		$this->decidiqReports($state);
 
 		try {
-			$this->node()->execute($this->items(), $this->config(), self::context($resume));
+			$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume)));
 			self::fail('A ' . $state . ' decision must fail the step.');
 		} catch (FlowSuspension $e) {
 			self::fail('A ' . $state . ' decision must NOT read as waiting.');
@@ -454,14 +455,14 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 
 		$this->expectException(FlowSuspension::class);
 
-		$this->node()->execute($this->items(), $this->config(), self::context($resume));
+		$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: self::context($resume)));
 	}//end testAnUnreadableDecisionSuspendsRatherThanFailing()
 
 	public function testTheHeartbeatHasAFloor(): void {
 		$resume = self::resumeSlot('n', ['decisionRef' => 'decision-1', 'raisedBy' => 'alice']);
 
 		try {
-			$this->node()->execute($this->items(), $this->config() + ['heartbeatMinutes' => 1], self::context($resume));
+			$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config() + ['heartbeatMinutes' => 1], context: self::context($resume)));
 			self::fail('An open decision must suspend.');
 		} catch (FlowSuspension $e) {
 			$minutes = (int)round(($e->getResumeAt()->getTimestamp() - time()) / 60);
@@ -479,7 +480,7 @@ class DecidiqRequestDecisionNodeTest extends TestCase {
 	public function testWithoutAResumeSlotItRefuses(): void {
 		$this->expectException(RuntimeException::class);
 
-		$this->node()->execute($this->items(), $this->config(), []);
+		$this->node()->execute(new FlowNodeCall(items: $this->items(), config: $this->config(), context: []));
 	}//end testWithoutAResumeSlotItRefuses()
 
 	public function testItAnnouncesTheContract(): void {
