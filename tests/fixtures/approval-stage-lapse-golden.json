@@ -334,5 +334,125 @@
                 ]
             }
         }
+    ],
+    "substitute asked halfway": [
+        {
+            "findAll": "decision-stage",
+            "filters": {
+                "status": "active"
+            }
+        },
+        {
+            "substituteOf": "j.jansen"
+        },
+        {
+            "patch": "decision-stage",
+            "uuid": "stage-1",
+            "data": {
+                "substituteActor": "p.peters",
+                "substituteAskedAt": "2026-09-18T03:00:00+00:00"
+            }
+        },
+        {
+            "tell": "p.peters",
+            "event": "approval-stage-lapse",
+            "title": "A sign-off is waiting, on behalf of a colleague",
+            "message": "You have been asked to stand in on a sign-off that is part-way through its term. Whoever acts first closes it.",
+            "link": ""
+        },
+        {
+            "tell": "j.jansen",
+            "event": "approval-stage-lapse",
+            "title": "Your stand-in has been asked as well",
+            "message": "This sign-off is part-way through its term, so your substitute has been asked too. You can still sign it yourself.",
+            "link": ""
+        },
+        {
+            "result": {
+                "lapsed": 0,
+                "substitutesAsked": 1
+            },
+            "rows": {
+                "decision-stage": [
+                    {
+                        "id": "stage-1",
+                        "sequence": 1,
+                        "status": "active",
+                        "decision": "subject-1",
+                        "note": "decision",
+                        "assignedPerson": "j.jansen",
+                        "activatedAt": "2026-09-13T03:00:00+00:00",
+                        "dueAt": "2026-09-23T03:00:00+00:00",
+                        "substituteActor": "p.peters",
+                        "askSubstituteAfter": 0.5,
+                        "substituteAskedAt": "2026-09-18T03:00:00+00:00"
+                    },
+                    {
+                        "id": "stage-2",
+                        "sequence": 2,
+                        "status": "pending",
+                        "decision": "subject-1",
+                        "note": "decision",
+                        "assignedPerson": "d.devries"
+                    }
+                ]
+            }
+        }
+    ],
+    "no substitute found halfway": [
+        {
+            "findAll": "decision-stage",
+            "filters": {
+                "status": "active"
+            }
+        },
+        {
+            "substituteOf": "j.jansen"
+        },
+        {
+            "patch": "decision-stage",
+            "uuid": "stage-1",
+            "data": {
+                "substituteSearchedAt": "2026-09-18T03:00:00+00:00"
+            }
+        },
+        {
+            "tell": "j.jansen",
+            "event": "approval-stage-lapse",
+            "title": "No stand-in was found for your sign-off",
+            "message": "Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.",
+            "link": ""
+        },
+        {
+            "result": {
+                "lapsed": 0,
+                "substitutesAsked": 0
+            },
+            "rows": {
+                "decision-stage": [
+                    {
+                        "id": "stage-1",
+                        "sequence": 1,
+                        "status": "active",
+                        "decision": "subject-1",
+                        "note": "decision",
+                        "assignedPerson": "j.jansen",
+                        "activatedAt": "2026-09-13T03:00:00+00:00",
+                        "dueAt": "2026-09-23T03:00:00+00:00",
+                        "substituteActor": "",
+                        "askSubstituteAfter": 0.5,
+                        "substituteSearchedAt": "2026-09-18T03:00:00+00:00"
+                    },
+                    {
+                        "id": "stage-2",
+                        "sequence": 2,
+                        "status": "pending",
+                        "decision": "subject-1",
+                        "note": "decision",
+                        "assignedPerson": "d.devries"
+                    }
+                ]
+            }
+        }
     ]
 }

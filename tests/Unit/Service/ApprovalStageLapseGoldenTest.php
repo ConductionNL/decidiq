@@ -56,15 +56,23 @@ final class ApprovalStageLapseGoldenTest extends TestCase {
 	/**
 	 * The cases: the live stage's overrides and the manager the activator knows.
 	 *
-	 * @return array<string, array{0: array<string, mixed>, 1: string|null}>
+	 * @return array<string, array{0: array<string, mixed>, 1: string|null, 2?: string|null}>
 	 */
 	public static function cases(): array {
+		$halfway = [
+			'activatedAt' => '2026-09-13T03:00:00+00:00',
+			'dueAt' => '2026-09-23T03:00:00+00:00',
+			'askSubstituteAfter' => 0.5,
+			'substituteActor' => '',
+		];
 		return [
 			'nothing declared' => [[], 'b.bakker'],
 			'silence approves' => [['onSilence' => StageLapsePolicy::ON_SILENCE_APPROVE], null],
 			'silence refuses' => [['onSilence' => StageLapsePolicy::ON_SILENCE_REFUSE], null],
 			'silence escalates' => [['onSilence' => StageLapsePolicy::ON_SILENCE_ESCALATE], 'b.bakker'],
 			'escalation without a manager' => [['onSilence' => StageLapsePolicy::ON_SILENCE_ESCALATE], null],
+			'substitute asked halfway' => [$halfway, null, 'p.peters'],
+			'no substitute found halfway' => [$halfway, null, null],
 		];
 	}//end cases()
 
@@ -72,14 +80,15 @@ final class ApprovalStageLapseGoldenTest extends TestCase {
 	 * The trace of one sweep equals the stored golden.
 	 *
 	 * @param array<string, mixed> $overrides The live stage's overrides.
-	 * @param string|null          $manager   The actor's manager.
+	 * @param string|null          $manager    The actor's manager.
+	 * @param string|null          $substitute The actor's substitute.
 	 *
 	 * @return void
 	 */
 	#[DataProvider('cases')]
-	public function testTheSweepTraceIsUnchanged(array $overrides, ?string $manager): void {
+	public function testTheSweepTraceIsUnchanged(array $overrides, ?string $manager, ?string $substitute = null): void {
 		$this->givenARoute($overrides);
-		$result = $this->service($manager)->sweep(new DateTimeImmutable('2026-09-18T03:00:00+00:00'));
+		$result = $this->service([$manager, $substitute])->sweep(new DateTimeImmutable('2026-09-18T03:00:00+00:00'));
 		$this->trace[] = ['result' => $result, 'rows' => $this->rows];
 
 		$name = (string)$this->dataName();
@@ -99,11 +108,12 @@ final class ApprovalStageLapseGoldenTest extends TestCase {
 	/**
 	 * The service over recording doubles.
 	 *
-	 * @param string|null $manager The manager the activator answers.
+	 * @param array{0: string|null, 1: string|null} $people The manager and the substitute the activator answers.
 	 *
 	 * @return ApprovalStageLapseService The service.
 	 */
-	private function service(?string $manager): ApprovalStageLapseService {
+	private function service(array $people): ApprovalStageLapseService {
+		[$manager, $substitute] = $people;
 		$store = $this->getMockBuilder(RegisterObjectStore::class)
 			->disableOriginalConstructor()
 			->onlyMethods(['save', 'patch', 'find', 'findAll'])
@@ -152,7 +162,12 @@ final class ApprovalStageLapseGoldenTest extends TestCase {
 			->onlyMethods(['activationPatch', 'substituteOf', 'managerOf'])
 			->getMock();
 		$activator->method('activationPatch')->willReturn(['status' => 'active']);
-		$activator->method('substituteOf')->willReturn(null);
+		$activator->method('substituteOf')->willReturnCallback(
+			function (string $actor) use ($substitute): ?string {
+				$this->trace[] = ['substituteOf' => $actor];
+				return $substitute;
+			}
+		);
 		$activator->method('managerOf')->willReturnCallback(
 			function (string $actor) use ($manager): ?string {
 				$this->trace[] = ['managerOf' => $actor];
