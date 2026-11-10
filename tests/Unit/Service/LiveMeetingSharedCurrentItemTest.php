@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCA\Decidiq\Service\EngagementService;
 use OCA\Decidiq\Service\LiveDecisionService;
@@ -239,12 +240,12 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$patches = [];
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($this->entity(['id' => 'item-5', 'meeting' => 'm-14']));
-		$objectService->method('patchObject')->willReturnCallback(
+		$objectService->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (string $objectId, array $data, string|int|null $register=null, string|int|null $schema=null) use (&$patches): ObjectEntity {
 				$patches[] = [$objectId, $schema, $data];
 				return $this->entity($data);
 			}
-		);
+		));
 
 		(new CurrentAgendaItemService(objectService: $objectService))->setCurrentItem(meetingId: 'm-14', itemId: 'item-5');
 

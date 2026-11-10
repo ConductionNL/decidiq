@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectPatch;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
@@ -72,10 +74,11 @@ class CurrentAgendaItemService {
 		}
 
 		$this->objectService->patchObject(
-			objectId: $meetingId,
-			data: ['currentAgendaItem' => $itemId],
-			register: 'decidiq',
-			schema: 'meeting',
+			patch: new ObjectPatch(
+				objectId: $meetingId,
+				data: ['currentAgendaItem' => $itemId],
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting')
+			)
 		);
 	}//end setCurrentItem()
 }//end class

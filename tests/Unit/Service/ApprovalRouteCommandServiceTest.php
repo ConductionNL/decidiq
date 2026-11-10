@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Service\ApprovalRouteCommandService;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
@@ -222,7 +223,7 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 				return $entity;
 			}
 		);
-		$facade->method('patchObject')->willReturnCallback(
+		$facade->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (
 				string $objectId,
 				array $data,
@@ -236,7 +237,7 @@ class ApprovalRouteCommandServiceTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 		$facade->method('findAll')->willReturnCallback(
 			static fn (array $config = []): array => $state->findAll($config)
 		);

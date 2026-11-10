@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Controller\ApprovalRouteController;
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
@@ -248,13 +249,13 @@ class ApprovalHoldGoldenTest extends TestCase {
 				return $this->entity(row: $this->rows[(string)$schema][$uuid]);
 			}
 		);
-		$facade->method('patchObject')->willReturnCallback(
+		$facade->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (string $objectId, array $data, string|int|null $register = null, string|int|null $schema = null): ObjectEntityInterface {
 				$this->log[] = ['patch' => ['objectId' => $objectId, 'data' => $data, 'register' => $register, 'schema' => $schema]];
 				$this->rows[(string)$schema][$objectId] = (array_merge(($this->rows[(string)$schema][$objectId] ?? []), $data) + ['id' => $objectId]);
 				return $this->entity(row: $this->rows[(string)$schema][$objectId]);
 			}
-		);
+		));
 		$facade->method('findAll')->willReturnCallback(
 			function (array $config = []): array {
 				$this->log[] = ['findAll' => $config];

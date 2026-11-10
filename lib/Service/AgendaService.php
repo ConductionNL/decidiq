@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectPatch;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -264,10 +266,7 @@ class AgendaService {
 	 */
 	private function patchItem(string $itemId, array $data): void {
 		$this->objectService->patchObject(
-			objectId: $itemId,
-			data: $data,
-			register: 'decidiq',
-			schema: 'agenda-item',
+			patch: new ObjectPatch(objectId: $itemId, data: $data, target: new ObjectFindTarget(register: 'decidiq', schema: 'agenda-item'))
 		);
 	}//end patchItem()
 

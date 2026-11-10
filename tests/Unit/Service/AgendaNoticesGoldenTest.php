@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -190,7 +191,7 @@ class AgendaNoticesGoldenTest extends TestCase {
 		);
 		$objects->method('patchObject')->willReturnCallback(
 			function (mixed ...$arguments): ObjectEntity {
-				$arguments = $this->named(ObjectServiceInterface::class, 'patchObject', $arguments);
+				$arguments = PatchCallShape::legacyNamed(named: $this->named(ObjectServiceInterface::class, 'patchObject', $arguments));
 				$this->log[] = ['patchObject' => $arguments];
 				return $this->entity($arguments['data']);
 			}

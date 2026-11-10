@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -98,10 +99,7 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$item->method('getObject')->willReturn(['title' => 'No status']);
 		$this->objects->method('find')->willReturn($item);
 		$this->objects->expects($this->once())->method('patchObject')->with(
-			objectId: 'ai-1',
-			data: ['status' => 'oordeelsvorming'],
-			register: 'decidiq',
-			schema: 'agenda-item',
+			...PatchCallShape::patchArgs('ai-1', ['status' => 'oordeelsvorming'], 'decidiq', 'agenda-item')
 		);
 		$this->logger->expects($this->once())->method('info')->with(
 			'BOB phase advanced for agenda item {id}: {from} to {to}',
@@ -119,12 +117,12 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 	public function testReorderSuppressesItemNoticesWhileItWrites(): void {
 		$this->objects->method('findAll')->willReturn([['id' => 'ai-1'], ['id' => 'ai-2']]);
 		$seen = [];
-		$this->objects->method('patchObject')->willReturnCallback(
+		$this->objects->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function () use (&$seen): ObjectEntity {
 				$seen[] = $this->service->isSuppressingItemNotices();
 				return $this->createMock(ObjectEntity::class);
 			}
-		);
+		));
 
 		$this->service->reorderItems('m-1', ['ai-2', 'ai-1']);
 

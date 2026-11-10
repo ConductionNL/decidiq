@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Controller\CitizenAdviceController;
 use OCA\Decidiq\Service\CitizenAdviceService;
 use OCA\Decidiq\Service\MotionService;
@@ -90,7 +91,7 @@ class CitizenAdviceControllerTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($entity);
 		$objectService->method('findAll')->willReturn([]);
-		$objectService->method('patchObject')->willReturnCallback(
+		$objectService->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (string $objectId, array $data) use ($motion): ObjectEntityInterface {
 				$this->writes++;
 				$stored = $this->createMock(ObjectEntityInterface::class);
@@ -98,7 +99,7 @@ class CitizenAdviceControllerTest extends TestCase {
 
 				return $stored;
 			}
-		);
+		));
 
 		return new CitizenAdviceController(
 			request: $this->createMock(IRequest::class),
