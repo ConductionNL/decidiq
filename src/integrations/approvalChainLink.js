@@ -310,16 +310,57 @@ export async function recordAction({
  */
 export function usableMandates(rows, uid, today = new Date()) {
 	const day = today.toISOString().slice(0, 10)
-	return (rows || []).filter((row) => {
-		if (String(row.status || '') !== 'effective') return false
-		const delegate = String(row.delegatePerson || '')
-		if (delegate !== '' && delegate !== String(uid || '')) return false
-		const from = String(row.validFrom || '').slice(0, 10)
-		const to = String(row.validTo || '').slice(0, 10)
-		if (from !== '' && from > day) return false
-		if (to !== '' && to < day) return false
-		return true
-	})
+	return (rows || []).filter(
+		(row) =>
+			isEffective(row) && isDelegatedTo(row, uid) && isInForceOn(row, day),
+	)
+}
+
+/**
+ * Whether a mandate names this person as its delegate, or names nobody.
+ *
+ * @param {object} row The mandate row.
+ * @param {string} uid The acting user.
+ * @return {boolean} True when the person may use it.
+ */
+function isDelegatedTo(row, uid) {
+	const delegate = String(row.delegatePerson || '')
+	return delegate === '' || delegate === String(uid || '')
+}
+
+/**
+ * Whether the day falls inside a mandate's validity window; a blank edge is
+ * open.
+ *
+ * @param {object} row The mandate row.
+ * @param {string} day The day as YYYY-MM-DD.
+ * @return {boolean} True when the mandate is in force that day.
+ */
+function isInForceOn(row, day) {
+	const from = windowEdge(row, 'validFrom')
+	const to = windowEdge(row, 'validTo')
+	return (from === '' || from <= day) && (to === '' || to >= day)
+}
+
+/**
+ * Whether a mandate has status `effective`.
+ *
+ * @param {object} row The mandate row.
+ * @return {boolean} True when it is effective.
+ */
+function isEffective(row) {
+	return String(row.status || '') === 'effective'
+}
+
+/**
+ * One edge of a mandate's validity window as YYYY-MM-DD, or '' when blank.
+ *
+ * @param {object} row The mandate row.
+ * @param {string} field validFrom or validTo.
+ * @return {string} The day.
+ */
+function windowEdge(row, field) {
+	return String(row[field] || '').slice(0, 10)
 }
 
 /**
