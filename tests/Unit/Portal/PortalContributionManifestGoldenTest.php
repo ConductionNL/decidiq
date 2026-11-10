@@ -55,7 +55,7 @@ final class PortalContributionManifestGoldenTest extends TestCase {
 			file_put_contents(filename: self::GOLDEN, data: $json);
 		}
 
-		self::assertSame(expected: file_get_contents(filename: self::GOLDEN), actual: $json);
+		self::assertSame(file_get_contents(filename: self::GOLDEN), $json);
 
 	}//end testCitizenManifestIsUnchanged()
 
@@ -67,10 +67,10 @@ final class PortalContributionManifestGoldenTest extends TestCase {
 	public function testOtherAudiencesGetNoManifest(): void {
 		$provider = new PortalContributionProvider();
 		foreach (['staff', 'business', '', 'Citizen'] as $audience) {
-			self::assertNull(actual: $provider->getContribution(subject: ['audience' => $audience]));
+			self::assertNull($provider->getContribution(subject: ['audience' => $audience]));
 		}
 
-		self::assertNull(actual: $provider->getContribution(subject: []));
+		self::assertNull($provider->getContribution(subject: []));
 
 	}//end testOtherAudiencesGetNoManifest()
 }//end class
