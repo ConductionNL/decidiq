@@ -140,13 +140,7 @@ final class ApprovalActorResolver {
 		$this->assertStepIsResolvable(step: $resolution->step);
 		$rule = self::ruleToResolve(resolution: $resolution);
 		$reading = $this->readingFor(resolution: $resolution, rule: $rule);
-		$resolved = $this->soleCandidate(people: $resolution->people, reading: $reading);
-
-		if ($resolution->hasAccount !== null && ($resolution->hasAccount)($resolved) === false) {
-			throw new RuntimeException(
-				sprintf('The rule "%s" resolved to %s, who has no account on this instance and cannot sign anything.', $rule, $resolved)
-			);
-		}
+		$resolved = $this->signableCandidate(resolution: $resolution, reading: $reading);
 
 		return [
 			'actor' => $resolved,
@@ -154,6 +148,28 @@ final class ApprovalActorResolver {
 			'actorResolvedAt' => self::instantOr(resolvedAt: $resolution->resolvedAt),
 		];
 	}//end resolve()
+
+	/**
+	 * The one person a rule resolves to, once they are known to have an account.
+	 *
+	 * @param ActorResolution  $resolution The resolution, carrying the people and the account check.
+	 * @param ActorRuleReading $reading    The reading.
+	 *
+	 * @return string The resolved person.
+	 *
+	 * @throws RuntimeException When the rule resolves to nobody, to more than one, or to somebody with no account.
+	 */
+	private function signableCandidate(ActorResolution $resolution, ActorRuleReading $reading): string {
+		$resolved = $this->soleCandidate(people: $resolution->people, reading: $reading);
+
+		if ($resolution->hasAccount !== null && ($resolution->hasAccount)($resolved) === false) {
+			throw new RuntimeException(
+				sprintf('The rule "%s" resolved to %s, who has no account on this instance and cannot sign anything.', $reading->rule, $resolved)
+			);
+		}
+
+		return $resolved;
+	}//end signableCandidate()
 
 	/**
 	 * The rule a step names, trimmed; empty when it names none.
@@ -310,18 +326,30 @@ final class ApprovalActorResolver {
 		if (count($candidates) > 1) {
 			// Picking the first of two is picking at random, and the random
 			// choice is then recorded as a deliberate one.
-			throw new RuntimeException(
-				sprintf(
-					'The rule "%s" resolved to more than one person for %s: %s. The organisation record has to say which.',
-					$reading->rule,
-					$reading->person,
-					implode(' and ', $candidates)
-				)
-			);
+			throw self::ambiguity(reading: $reading, candidates: $candidates);
 		}
 
 		return $candidates[0];
 	}//end soleCandidate()
+
+	/**
+	 * The refusal for a rule that resolves to more than one person.
+	 *
+	 * @param ActorRuleReading   $reading    The reading.
+	 * @param array<int, string> $candidates Everybody it resolved to.
+	 *
+	 * @return RuntimeException The refusal, naming them all.
+	 */
+	private static function ambiguity(ActorRuleReading $reading, array $candidates): RuntimeException {
+		return new RuntimeException(
+			sprintf(
+				'The rule "%s" resolved to more than one person for %s: %s. The organisation record has to say which.',
+				$reading->rule,
+				$reading->person,
+				implode(' and ', $candidates)
+			)
+		);
+	}//end ambiguity()
 
 	/**
 	 * Resolve the substitute of a person, returning null rather than throwing.
@@ -367,15 +395,32 @@ final class ApprovalActorResolver {
 				continue;
 			}
 
-			foreach ($this->referencesOf(record: $record, property: $reading->property) as $reference) {
-				if (in_array($reference, $candidates, true) === false) {
-					$candidates[] = $reference;
-				}
-			}
+			$candidates = self::withoutDuplicates(
+				candidates: $candidates,
+				references: $this->referencesOf(record: $record, property: $reading->property)
+			);
 		}
 
 		return $candidates;
 	}//end candidatesFor()
+
+	/**
+	 * The candidates so far, followed by the references not yet among them.
+	 *
+	 * @param array<int, string> $candidates The candidates so far.
+	 * @param array<int, string> $references One record's references, in order.
+	 *
+	 * @return array<int, string> The candidates, first occurrence kept.
+	 */
+	private static function withoutDuplicates(array $candidates, array $references): array {
+		foreach ($references as $reference) {
+			if (in_array($reference, $candidates, true) === false) {
+				$candidates[] = $reference;
+			}
+		}
+
+		return $candidates;
+	}//end withoutDuplicates()
 
 	/**
 	 * Whether a person record is the person being read.
