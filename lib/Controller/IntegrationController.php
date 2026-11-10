@@ -103,7 +103,7 @@ class IntegrationController extends Controller {
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function resolveCallerUid(): ?string {
-		return GuardCaller::uidFor(userSession: $this->userSession, groupManager: $this->groupManager);
+		return (new GuardCaller(userSession: $this->userSession, groupManager: $this->groupManager))->uid();
 	}//end resolveCallerUid()
 
 	/**

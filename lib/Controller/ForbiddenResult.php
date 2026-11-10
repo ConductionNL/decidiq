@@ -35,22 +35,30 @@ use OCP\AppFramework\Http\JSONResponse;
  */
 final class ForbiddenResult {
 	/**
-	 * The 403 for a failed result whose message starts with `Forbidden:` (in
-	 * any case), with a static message; null for any other result.
+	 * Constructor.
 	 *
 	 * @param array<string, mixed> $result The service result
+	 */
+	public function __construct(
+		private readonly array $result,
+	) {
+	}//end __construct()
+
+	/**
+	 * The 403 for a failed result whose message starts with `Forbidden:` (in
+	 * any case), with a static message; null for any other result.
 	 *
 	 * @return JSONResponse|null
 	 *
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
-	public static function responseFor(array $result): ?JSONResponse {
-		if (($result['success'] ?? false) === false
-			&& stripos((string)($result['message'] ?? ''), 'Forbidden:') === 0
+	public function response(): ?JSONResponse {
+		if (($this->result['success'] ?? false) === false
+			&& stripos((string)($this->result['message'] ?? ''), 'Forbidden:') === 0
 		) {
 			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
 		return null;
-	}//end responseFor()
+	}//end response()
 }//end class

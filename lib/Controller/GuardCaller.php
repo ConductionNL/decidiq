@@ -35,27 +35,36 @@ use OCP\IUserSession;
  */
 final class GuardCaller {
 	/**
-	 * The caller's uid for the guard: null when nobody is signed in or the
-	 * caller is a Nextcloud administrator (admin bypass), the uid otherwise.
+	 * Constructor.
 	 *
 	 * @param IUserSession  $userSession  The user session
 	 * @param IGroupManager $groupManager Tells who is an administrator
+	 */
+	public function __construct(
+		private readonly IUserSession $userSession,
+		private readonly IGroupManager $groupManager,
+	) {
+	}//end __construct()
+
+	/**
+	 * The caller's uid for the guard: null when nobody is signed in or the
+	 * caller is a Nextcloud administrator (admin bypass), the uid otherwise.
 	 *
 	 * @return string|null
 	 *
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
-	public static function uidFor(IUserSession $userSession, IGroupManager $groupManager): ?string {
-		$user = $userSession->getUser();
+	public function uid(): ?string {
+		$user = $this->userSession->getUser();
 		if ($user === null) {
 			return null;
 		}
 
 		$uid = $user->getUID();
-		if ($groupManager->isAdmin($uid) === true) {
+		if ($this->groupManager->isAdmin($uid) === true) {
 			return null;
 		}
 
 		return $uid;
-	}//end uidFor()
+	}//end uid()
 }//end class

@@ -70,7 +70,7 @@ class ConflictOfInterestController extends Controller {
 	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function resolveCallerUid(): ?string {
-		return GuardCaller::uidFor(userSession: $this->userSession, groupManager: $this->groupManager);
+		return (new GuardCaller(userSession: $this->userSession, groupManager: $this->groupManager))->uid();
 	}//end resolveCallerUid()
 
 	/**
@@ -89,7 +89,7 @@ class ConflictOfInterestController extends Controller {
 	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
-		return ForbiddenResult::responseFor(result: $result)
+		return (new ForbiddenResult(result: $result))->response()
 			?? $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
 	}//end respondFromAuthorizedResult()
 
