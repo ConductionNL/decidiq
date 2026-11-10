@@ -1,0 +1,95 @@
+{
+    "full": {
+        "error": null,
+        "payload": {
+            "motionId": "m-1",
+            "meetingId": "mt-1",
+            "votingMethod": "ranked-choice",
+            "isSecret": true,
+            "closedAt": "2026-01-01T00:00:00Z",
+            "presetIds": [
+                "p1",
+                "p2"
+            ],
+            "voteThreshold": "qualified-majority-two-thirds",
+            "abstentionHandling": "count",
+            "tieBreakRule": "revote",
+            "revoteOfRoundId": "r-0",
+            "subjectType": "amendment",
+            "governanceBodyId": "b-1",
+            "options": [
+                {
+                    "label": "A"
+                }
+            ]
+        }
+    },
+    "defaults": {
+        "error": null,
+        "payload": {
+            "motionId": "m-1",
+            "meetingId": "mt-1",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "closedAt": null,
+            "presetIds": [],
+            "voteThreshold": null,
+            "abstentionHandling": null,
+            "tieBreakRule": null,
+            "revoteOfRoundId": null,
+            "subjectType": "motion",
+            "governanceBodyId": null,
+            "options": []
+        }
+    },
+    "empty values": {
+        "error": null,
+        "payload": {
+            "motionId": "m-1",
+            "meetingId": "mt-1",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "closedAt": null,
+            "presetIds": [],
+            "voteThreshold": null,
+            "abstentionHandling": null,
+            "tieBreakRule": null,
+            "revoteOfRoundId": null,
+            "subjectType": "motion",
+            "governanceBodyId": null,
+            "options": []
+        }
+    },
+    "numeric rule": {
+        "error": "voteThreshold must be one of: simple-majority, qualified-majority-two-thirds, qualified-majority-three-quarters, unanimous",
+        "payload": []
+    },
+    "no motion": {
+        "error": "motionId and meetingId are required",
+        "payload": []
+    },
+    "no meeting": {
+        "error": "motionId and meetingId are required",
+        "payload": []
+    },
+    "bad threshold and tie rule": {
+        "error": "voteThreshold must be one of: simple-majority, qualified-majority-two-thirds, qualified-majority-three-quarters, unanimous",
+        "payload": []
+    },
+    "bad abstention": {
+        "error": "abstentionHandling must be one of: exclude, count",
+        "payload": []
+    },
+    "bad tie rule": {
+        "error": "tieBreakRule must be one of: rejected, chair-decides, revote",
+        "payload": []
+    },
+    "bad subject": {
+        "error": "subjectType must be one of: motion, amendment",
+        "payload": []
+    },
+    "bad rule beats bad subject": {
+        "error": "abstentionHandling must be one of: exclude, count",
+        "payload": []
+    }
+}
