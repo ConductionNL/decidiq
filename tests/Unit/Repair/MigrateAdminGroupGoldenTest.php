@@ -108,22 +108,37 @@ final class MigrateAdminGroupGoldenTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheReportNamesBothGroupsAndTheCount(): void {
+		// The step swallows every Throwable, PHPUnit's own expectation
+		// failures included, so the calls are recorded and asserted after it.
+		$added = [];
+		$reported = [];
 		$old = $this->createMock(originalClassName: IGroup::class);
 		$new = $this->createMock(originalClassName: IGroup::class);
 		$alice = $this->createMock(originalClassName: IUser::class);
 		$bob = $this->createMock(originalClassName: IUser::class);
 		$old->method('getUsers')->willReturn([$alice, $bob]);
 		$new->method('inGroup')->willReturnCallback(static fn (IUser $user): bool => $user === $alice);
-		$new->expects($this->once())->method('addUser')->with($bob);
+		$new->method('addUser')->willReturnCallback(
+			static function (IUser $user) use (&$added): void {
+				$added[] = $user;
+			}
+		);
 
 		$groupManager = $this->createMock(originalClassName: IGroupManager::class);
-		$groupManager->method('groupExists')->willReturnCallback(static fn (string $gid): bool => $gid === 'decidesk-administrators' || $gid === 'decidiq-administrators');
+		$groupManager->method('groupExists')->willReturn(true);
 		$groupManager->method('get')->willReturnCallback(static fn (string $gid): IGroup => $gid === 'decidesk-administrators' ? $old : $new);
 		$groupManager->expects($this->never())->method('createGroup');
 
 		$output = $this->createMock(originalClassName: IOutput::class);
-		$output->expects($this->once())->method('info')->with('Decidiq administrators group: copied 1 member(s) from decidesk-administrators to decidiq-administrators');
+		$output->method('info')->willReturnCallback(
+			static function (string $message) use (&$reported): void {
+				$reported[] = $message;
+			}
+		);
 
 		(new MigrateAdminGroup(groupManager: $groupManager, logger: $this->createMock(originalClassName: LoggerInterface::class)))->run(output: $output);
+
+		self::assertSame([$bob], $added);
+		self::assertSame(['Decidiq administrators group: copied 1 member(s) from decidesk-administrators to decidiq-administrators'], $reported);
 	}//end testTheReportNamesBothGroupsAndTheCount()
 }//end class
