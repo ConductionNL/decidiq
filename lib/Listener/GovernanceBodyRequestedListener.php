@@ -74,8 +74,31 @@ class GovernanceBodyRequestedListener implements IEventListener {
 			return;
 		}
 
+		$result = $this->upsertBody(event: $event);
+		if ($result === null) {
+			return;
+		}
+
+		$this->answer(event: $event, result: $result);
+		$this->announce(event: $event, result: $result);
+
+	}//end handle()
+
+	/**
+	 * Create or match the requested body, or log why not.
+	 *
+	 * The producer sees isHandled() === false and decides what to do. Nothing
+	 * is rethrown: an exception out of handle() aborts the whole dispatch, so
+	 * an unrelated listener on the same event would stop running because this
+	 * one failed.
+	 *
+	 * @param GovernanceBodyRequestedEvent $event The command
+	 *
+	 * @return array{id: string, created: bool}|null The result, null on failure.
+	 */
+	private function upsertBody(GovernanceBodyRequestedEvent $event): ?array {
 		try {
-			$result = $this->commandService->upsert(
+			return $this->commandService->upsert(
 				sourceApp: $event->getSourceApp(),
 				externalReference: $event->getExternalReference(),
 				body: ($event->getAttributes() + [
@@ -87,10 +110,6 @@ class GovernanceBodyRequestedListener implements IEventListener {
 				members: $event->getMembers(),
 			);
 		} catch (Throwable $e) {
-			// The producer sees isHandled() === false and decides what to do.
-			// Nothing is rethrown: an exception out of handle() aborts the whole
-			// dispatch, so an unrelated listener on the same event would stop
-			// running because this one failed.
 			$this->logger->error(
 				'Decidiq: GovernanceBodyRequestedEvent not handled',
 				[
@@ -99,9 +118,19 @@ class GovernanceBodyRequestedListener implements IEventListener {
 					'exception' => $e,
 				]
 			);
-			return;
+			return null;
 		}//end try
+	}//end upsertBody()
 
+	/**
+	 * Write the result slots on the command and log that it was handled.
+	 *
+	 * @param GovernanceBodyRequestedEvent      $event  The command
+	 * @param array{id: string, created: bool} $result The upsert result
+	 *
+	 * @return void
+	 */
+	private function answer(GovernanceBodyRequestedEvent $event, array $result): void {
 		$event->setGovernanceBodyId($result['id']);
 		$event->setCreated($result['created']);
 		$event->setHandled(true);
@@ -115,7 +144,17 @@ class GovernanceBodyRequestedListener implements IEventListener {
 				'created' => $result['created'],
 			]
 		);
+	}//end answer()
 
+	/**
+	 * Announce the created or matched body to every listener.
+	 *
+	 * @param GovernanceBodyRequestedEvent      $event  The command
+	 * @param array{id: string, created: bool} $result The upsert result
+	 *
+	 * @return void
+	 */
+	private function announce(GovernanceBodyRequestedEvent $event, array $result): void {
 		$this->dispatcher->dispatchTyped(
 			new GovernanceBodyCreatedEvent(
 				governanceBodyId: $result['id'],
@@ -125,7 +164,6 @@ class GovernanceBodyRequestedListener implements IEventListener {
 				correlationId: $event->getCorrelationId(),
 			)
 		);
-
-	}//end handle()
+	}//end announce()
 
 }//end class
