@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use DateTime;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportRequest;
 use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -148,7 +149,7 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 	 */
 	private function refusal(ExportBundleService $service, string $format = 'zip'): array {
 		try {
-			$service->export(format: $format, list: 'Motions', ids: [], filter: [], search: '');
+			$service->export(request: new ExportRequest(format: $format, list: 'Motions', ids: [], filter: [], search: ''));
 		} catch (ExportBundleException $e) {
 			return [$e->getStatus(), $e->getMessage()];
 		}
@@ -187,13 +188,13 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 	 * @return void
 	 */
 	public function testAFilteredSearchBecomesADecisionsZip(): void {
-		$result = $this->service([['id' => 'b'], ['id' => 'a']], 'griffier', false)->export(
+		$result = $this->service([['id' => 'b'], ['id' => 'a']], 'griffier', false)->export(request: new ExportRequest(
 			format: 'zip',
 			list: 'Everything',
 			ids: ['', ''],
 			filter: ['decisionType' => 'motion', '' => 'x', '_page' => 2, 'register' => 'evil', 'schema' => 'evil', 'action' => 'go', 3 => 'three'],
 			search: '  budget  ',
-		);
+		));
 
 		$this->assertSame(['status' => 'done'], $result);
 		$this->assertSame(
@@ -213,7 +214,7 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 	 */
 	public function testASelectionBecomesOnePdfInItsOwnOrder(): void {
 		$rows = [['id' => 'x'], ['@self' => ['id' => 'c']], ['uuid' => 'a'], ['id' => 'b']];
-		$result = $this->service($rows)->export(format: 'pdf', list: 'Motions', ids: ['a', 7, '', 'b', 'c'], filter: ['decisionType' => 'motion'], search: 'ignored');
+		$result = $this->service($rows)->export(request: new ExportRequest(format: 'pdf', list: 'Motions', ids: ['a', 7, '', 'b', 'c'], filter: ['decisionType' => 'motion'], search: 'ignored'));
 
 		$this->assertSame(['status' => 'queued'], $result);
 		$this->assertSame(

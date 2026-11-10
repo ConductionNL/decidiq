@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\ExportBundleController;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportRequest;
 use OCP\IRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -73,7 +74,7 @@ class ExportBundleControllerTest extends TestCase {
 	public function testCreateAnswersCreatedOrAccepted(): void {
 		$exports = $this->createMock(ExportBundleService::class);
 		$exports->expects(self::exactly(2))->method('export')
-			->with('zip', 'Motions', ['m-1', 'm-2'], [], '')
+			->with(self::equalTo(new ExportRequest(format: 'zip', list: 'Motions', ids: ['m-1', 'm-2'], filter: [], search: '')))
 			->willReturnOnConsecutiveCalls(
 				['status' => 'done', 'format' => 'zip', 'name' => 'Motions 2026-10-20.zip', 'path' => 'Decidiq exports/Motions 2026-10-20.zip', 'fileId' => 5],
 				['status' => 'queued', 'format' => 'zip', 'name' => 'Motions 2026-10-20.zip', 'path' => 'Decidiq exports/Motions 2026-10-20.zip', 'fileId' => null],

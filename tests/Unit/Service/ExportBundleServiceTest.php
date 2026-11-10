@@ -24,6 +24,7 @@ use DateTime;
 use OCA\Decidiq\BackgroundJob\ExportBundleNoticeJob;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportRequest;
 use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\Decidiq\Support\OpenRegisterFiles;
@@ -423,7 +424,7 @@ class ExportBundleServiceTest extends TestCase {
 	public function testThreeSelectedMotionsExportAsAZipOfFolders(): void {
 		$service = $this->service([self::motion(1), self::motion(2), self::motion(3), self::motion(4)]);
 
-		$result = $service->export(format: 'zip', list: 'Motions', ids: ['motion-3', 'motion-1', 'motion-2'], filter: [], search: '');
+		$result = $service->export(request: new ExportRequest(format: 'zip', list: 'Motions', ids: ['motion-3', 'motion-1', 'motion-2'], filter: [], search: ''));
 
 		self::assertSame('done', $result['status']);
 		self::assertSame('Decidiq exports/Motions 2026-10-20.zip', $result['path']);
@@ -448,7 +449,7 @@ class ExportBundleServiceTest extends TestCase {
 		$new = [(self::motion(2) + ['submittedAt' => '2026-02-01']), (self::motion(3) + ['submittedAt' => '2026-05-01'])];
 		$service = $this->service([$old, ...$new]);
 
-		$service->export(format: 'zip', list: 'Motions', ids: [], filter: ['decisionType' => 'motion', 'submittedAt' => '>2026-01-01', '_order' => '[]', 'action' => 'create'], search: '');
+		$service->export(request: new ExportRequest(format: 'zip', list: 'Motions', ids: [], filter: ['decisionType' => 'motion', 'submittedAt' => '>2026-01-01', '_order' => '[]', 'action' => 'create'], search: ''));
 
 		$filters = $this->reads[0]['filters'];
 		self::assertSame('motion', $filters['decisionType']);
@@ -475,7 +476,7 @@ class ExportBundleServiceTest extends TestCase {
 		$service = $this->service($many);
 
 		try {
-			$service->export(format: 'zip', list: 'Motions', ids: [], filter: [], search: '');
+			$service->export(request: new ExportRequest(format: 'zip', list: 'Motions', ids: [], filter: [], search: ''));
 			self::fail('An export of 501 decisions was built.');
 		} catch (ExportBundleException $e) {
 			self::assertSame(422, $e->getStatus());
@@ -494,7 +495,7 @@ class ExportBundleServiceTest extends TestCase {
 	public function testOnePdfHandsFilinqTheTextPagesAndAttachmentsInOrder(): void {
 		$service = $this->service([self::motion(1, 1), self::motion(2, 2)], $this->merger());
 
-		$result = $service->export(format: 'pdf', list: 'Motions', ids: ['motion-1', 'motion-2'], filter: [], search: '');
+		$result = $service->export(request: new ExportRequest(format: 'pdf', list: 'Motions', ids: ['motion-1', 'motion-2'], filter: [], search: ''));
 
 		self::assertSame('done', $result['status']);
 		self::assertSame(777, $result['fileId']);
@@ -525,7 +526,7 @@ class ExportBundleServiceTest extends TestCase {
 		$service = $this->service([self::motion(1, 1), self::motion(2, 1)], $this->merger(false, $refusal));
 
 		try {
-			$service->export(format: 'pdf', list: 'Motions', ids: ['motion-1', 'motion-2'], filter: [], search: '');
+			$service->export(request: new ExportRequest(format: 'pdf', list: 'Motions', ids: ['motion-1', 'motion-2'], filter: [], search: ''));
 			self::fail('The PDF was made although an attachment was refused.');
 		} catch (ExportBundleException $e) {
 			self::assertSame(403, $e->getStatus());
@@ -544,13 +545,13 @@ class ExportBundleServiceTest extends TestCase {
 		$service = $this->service([self::motion(1)]);
 
 		try {
-			$service->export(format: 'pdf', list: 'Motions', ids: ['motion-1'], filter: [], search: '');
+			$service->export(request: new ExportRequest(format: 'pdf', list: 'Motions', ids: ['motion-1'], filter: [], search: ''));
 			self::fail('A PDF was attempted without filinq.');
 		} catch (ExportBundleException $e) {
 			self::assertSame(503, $e->getStatus());
 		}
 
-		$result = $service->export(format: 'zip', list: 'Motions', ids: ['motion-1'], filter: [], search: '');
+		$result = $service->export(request: new ExportRequest(format: 'zip', list: 'Motions', ids: ['motion-1'], filter: [], search: ''));
 		self::assertSame('done', $result['status']);
 	}//end testWithoutFilinqThePdfIsUnavailableButTheZipWorks()
 
@@ -562,7 +563,7 @@ class ExportBundleServiceTest extends TestCase {
 	public function testALargePdfIsQueuedAndANoticeFollows(): void {
 		$service = $this->service([self::motion(1), self::motion(2)], $this->merger(true));
 
-		$result = $service->export(format: 'pdf', list: 'Motions', ids: ['motion-1', 'motion-2'], filter: [], search: '');
+		$result = $service->export(request: new ExportRequest(format: 'pdf', list: 'Motions', ids: ['motion-1', 'motion-2'], filter: [], search: ''));
 
 		self::assertSame('queued', $result['status']);
 		self::assertSame('queue', $this->merges[0][0]);

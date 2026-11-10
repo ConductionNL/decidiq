@@ -95,11 +95,7 @@ class ExportBundleService {
 	/**
 	 * Build an export.
 	 *
-	 * @param string              $format `pdf` or `zip`.
-	 * @param string              $list   `Motions` or `Decisions`, the file's name.
-	 * @param list<string>        $ids    The selected decisions; empty means "all matching the filter".
-	 * @param array<string,mixed> $filter The list's filter.
-	 * @param string              $search The list's search text.
+	 * @param ExportRequest $request The format, the list's name and which of its rows.
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
 	 *
@@ -107,32 +103,114 @@ class ExportBundleService {
 	 *
 	 * @return array{status:string,format:string,name:string,path:string,fileId:int|null}
 	 */
-	public function export(string $format, string $list, array $ids, array $filter, string $search): array {
+	public function export(ExportRequest $request): array {
+		self::assertFormat(format: $request->format);
+		$uid = $this->requester();
+		$merger = $this->mergerFor(format: $request->format);
+		$decisions = $this->exportableDecisions(request: $request);
+
+		$folder = $this->exportsFolder(uid: $uid);
+		$name   = self::listName(list: $request->list) . ' ' . $this->time->getDateTime()->format('Y-m-d');
+
+		if ($merger === null) {
+			return $this->writer->zip(folder: $folder, name: $name . '.zip', decisions: $decisions);
+		}
+
+		return $this->writer->mergedPdf(merger: $merger, folder: $folder, name: $name . '.pdf', decisions: $decisions, uid: $uid);
+	}//end export()
+
+	/**
+	 * Refuse a format other than one PDF or a ZIP.
+	 *
+	 * @param string $format The requested format.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
+	 *
+	 * @throws ExportBundleException 400 for any other format.
+	 *
+	 * @return void
+	 */
+	private static function assertFormat(string $format): void {
 		if (in_array($format, ['pdf', 'zip'], true) === false) {
 			throw new ExportBundleException(message: 'Choose one PDF or a ZIP.', status: Http::STATUS_BAD_REQUEST);
 		}
+	}//end assertFormat()
 
+	/**
+	 * The signed-in requester.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @throws ExportBundleException 401 when nobody is signed in.
+	 *
+	 * @return string The requester's uid.
+	 */
+	private function requester(): string {
 		$uid = $this->userSession->getUser()?->getUID() ?? '';
 		if ($uid === '') {
 			throw new ExportBundleException(message: 'Sign in to export.', status: Http::STATUS_UNAUTHORIZED);
 		}
 
+		return $uid;
+	}//end requester()
+
+	/**
+	 * The file's name for a list: the list itself when known, Decisions otherwise.
+	 *
+	 * @param string $list The requested list.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @return string The list's name.
+	 */
+	private static function listName(string $list): string {
 		if (in_array($list, self::LISTS, true) === false) {
-			$list = 'Decisions';
+			return 'Decisions';
 		}
 
-		$merger = null;
-		if ($format === 'pdf') {
-			$merger = FleetAppId::getService($this->container, 'filinq', 'Service\DocumentMergeService');
-			if ($merger === null) {
-				throw new ExportBundleException(
-					message: 'One PDF needs the filinq app, which is not installed. Export a ZIP instead.',
-					status: Http::STATUS_SERVICE_UNAVAILABLE
-				);
-			}
+		return $list;
+	}//end listName()
+
+	/**
+	 * Filinq's merge service for one PDF, or null for a ZIP.
+	 *
+	 * @param string $format `pdf` or `zip`.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
+	 *
+	 * @throws ExportBundleException 503 when one PDF is asked for and filinq is not installed.
+	 *
+	 * @return object|null The merge service.
+	 */
+	private function mergerFor(string $format): ?object {
+		if ($format !== 'pdf') {
+			return null;
 		}
 
-		$decisions = $this->decisions(ids: $ids, filter: $filter, search: $search);
+		$merger = FleetAppId::getService($this->container, 'filinq', 'Service\DocumentMergeService');
+		if ($merger === null) {
+			throw new ExportBundleException(
+				message: 'One PDF needs the filinq app, which is not installed. Export a ZIP instead.',
+				status: Http::STATUS_SERVICE_UNAVAILABLE
+			);
+		}
+
+		return $merger;
+	}//end mergerFor()
+
+	/**
+	 * The decisions to export, refused when there are none or too many.
+	 *
+	 * @param ExportRequest $request The request.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @throws ExportBundleException 422 when nothing or more than the limit matches.
+	 *
+	 * @return list<array<string,mixed>>
+	 */
+	private function exportableDecisions(ExportRequest $request): array {
+		$decisions = $this->decisions(request: $request);
 		if ($decisions === []) {
 			throw new ExportBundleException(message: 'Nothing to export: select rows or widen the filter.', status: Http::STATUS_UNPROCESSABLE_ENTITY);
 		}
@@ -144,15 +222,8 @@ class ExportBundleService {
 			);
 		}
 
-		$folder = $this->exportsFolder(uid: $uid);
-		$name   = $list . ' ' . $this->time->getDateTime()->format('Y-m-d');
-
-		if ($merger === null) {
-			return $this->writer->zip(folder: $folder, name: $name . '.zip', decisions: $decisions);
-		}
-
-		return $this->writer->mergedPdf(merger: $merger, folder: $folder, name: $name . '.pdf', decisions: $decisions, uid: $uid);
-	}//end export()
+		return $decisions;
+	}//end exportableDecisions()
 
 	/**
 	 * The decisions to export, in list order, read as the caller.
@@ -160,29 +231,70 @@ class ExportBundleService {
 	 * Asks for one more than the limit, so "too many" is known without
 	 * reading the whole register.
 	 *
-	 * @param list<string>        $ids    The selection, or empty.
-	 * @param array<string,mixed> $filter The list's filter.
-	 * @param string              $search The list's search text.
+	 * @param ExportRequest $request The selection, the list's filter and its search text.
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
 	 *
 	 * @return list<array<string,mixed>>
 	 */
-	private function decisions(array $ids, array $filter, string $search): array {
-		$filters = self::listFilters(filter: $filter);
+	private function decisions(ExportRequest $request): array {
+		$ids  = self::selectedIds(ids: $request->ids);
+		$rows = $this->objectService->findAll(config: self::readConfig(request: $request, ids: $ids));
 
-		$config = ['filters' => $filters, 'limit' => (self::MAX_DECISIONS + 1)];
-		$ids    = array_values(array_filter(array_map('strval', $ids), static fn (string $id): bool => $id !== ''));
-		if ($ids !== []) {
-			$config = ['filters' => ['register' => 'decidiq', 'schema' => 'decision'], 'ids' => $ids, 'limit' => (self::MAX_DECISIONS + 1)];
-		} else if (trim($search) !== '') {
-			$config['search'] = trim($search);
+		$decisions = self::rowsAsArrays(rows: ($rows['results'] ?? $rows));
+		if ($ids === []) {
+			return $decisions;
 		}
 
-		$rows = $this->objectService->findAll(config: $config);
+		return self::inSelectionOrder(decisions: $decisions, ids: $ids);
+	}//end decisions()
 
+	/**
+	 * The selection's ids as strings, empty ones dropped.
+	 *
+	 * @param list<mixed> $ids The selection.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @return list<string>
+	 */
+	private static function selectedIds(array $ids): array {
+		return array_values(array_filter(array_map('strval', $ids), static fn (string $id): bool => $id !== ''));
+	}//end selectedIds()
+
+	/**
+	 * The read: the selection by id, or the list's filter plus its search text.
+	 *
+	 * @param ExportRequest $request The request, carrying the filter and search text.
+	 * @param list<string>  $ids     The selection, or empty.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @return array<string,mixed> The findAll config.
+	 */
+	private static function readConfig(ExportRequest $request, array $ids): array {
+		$config = ['filters' => self::listFilters(filter: $request->filter), 'limit' => (self::MAX_DECISIONS + 1)];
+		if ($ids !== []) {
+			$config = ['filters' => ['register' => 'decidiq', 'schema' => 'decision'], 'ids' => $ids, 'limit' => (self::MAX_DECISIONS + 1)];
+		} else if (trim($request->search) !== '') {
+			$config['search'] = trim($request->search);
+		}
+
+		return $config;
+	}//end readConfig()
+
+	/**
+	 * The rows that are, or serialise to, arrays.
+	 *
+	 * @param iterable<mixed> $rows The rows read.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @return list<array<string,mixed>>
+	 */
+	private static function rowsAsArrays(iterable $rows): array {
 		$decisions = [];
-		foreach (($rows['results'] ?? $rows) as $row) {
+		foreach ($rows as $row) {
 			$data = $row;
 			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
 				$data = $row->jsonSerialize();
@@ -193,10 +305,20 @@ class ExportBundleService {
 			}
 		}
 
-		if ($ids === []) {
-			return $decisions;
-		}
+		return $decisions;
+	}//end rowsAsArrays()
 
+	/**
+	 * The decisions in the order the clerk selected them; unselected ones last.
+	 *
+	 * @param list<array<string,mixed>> $decisions The decisions read.
+	 * @param list<string>              $ids       The selection.
+	 *
+	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
+	 *
+	 * @return list<array<string,mixed>>
+	 */
+	private static function inSelectionOrder(array $decisions, array $ids): array {
 		// A selection keeps the order the clerk saw.
 		$position = array_flip($ids);
 		usort(
@@ -206,7 +328,7 @@ class ExportBundleService {
 		);
 
 		return $decisions;
-	}//end decisions()
+	}//end inSelectionOrder()
 
 	/**
 	 * A decision's id.
