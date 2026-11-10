@@ -27,11 +27,21 @@ const EARLIER = [
 
 describe('itemsFromMeeting', () => {
 	it('copies every item of the earlier meeting by order number, after the given start', () => {
-		expect(itemsFromMeeting(EARLIER, 'old', 'new', 7, null)).toMatchSnapshot()
+		expect(
+			itemsFromMeeting(EARLIER, {
+				fromMeetingId: 'old',
+				meetingId: 'new',
+				startAt: 7,
+				pickedIds: null,
+			}),
+		).toMatchSnapshot()
 	})
 
 	it('starts at 1 and copies everything by default', () => {
-		const items = itemsFromMeeting(EARLIER, 'old', 'new')
+		const items = itemsFromMeeting(EARLIER, {
+			fromMeetingId: 'old',
+			meetingId: 'new',
+		})
 		expect(items.map((i) => [i.title, i.orderNumber])).toEqual([
 			['Unnumbered', 1],
 			['First', 2],
@@ -40,7 +50,12 @@ describe('itemsFromMeeting', () => {
 	})
 
 	it('copies only the picked items, by object or plain id', () => {
-		const items = itemsFromMeeting(EARLIER, 'old', 'new', 4, ['b', 'other'])
+		const items = itemsFromMeeting(EARLIER, {
+			fromMeetingId: 'old',
+			meetingId: 'new',
+			startAt: 4,
+			pickedIds: ['b', 'other'],
+		})
 		expect(items).toEqual([
 			{
 				itemType: 'informational',
@@ -50,7 +65,14 @@ describe('itemsFromMeeting', () => {
 				orderNumber: 4,
 			},
 		])
-		expect(itemsFromMeeting(null, 'old', 'new', 1, ['b'])).toEqual([])
+		expect(
+			itemsFromMeeting(null, {
+				fromMeetingId: 'old',
+				meetingId: 'new',
+				startAt: 1,
+				pickedIds: ['b'],
+			}),
+		).toEqual([])
 	})
 })
 
