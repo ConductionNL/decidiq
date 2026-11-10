@@ -70,55 +70,102 @@ class VotingOpenRequestParser {
 	 * @return array<string,mixed> Keys: `error` (message or null) and `payload` (the arguments).
 	 */
 	public function parse(array $params): array {
-		$motionId = ($params['motionId'] ?? '');
-		$meetingId = ($params['meetingId'] ?? '');
-		if ($motionId === '' || $meetingId === '') {
-			return ['error' => 'motionId and meetingId are required', 'payload' => []];
+		$error = $this->requestError(params: $params);
+		if ($error !== null) {
+			return ['error' => $error, 'payload' => []];
 		}
 
-		$rules = [];
-		foreach (self::RULE_ENUMS as $rule => $allowed) {
-			$value = $this->looseString(params: $params, key: $rule);
-			if ($value !== null && in_array($value, $allowed, true) === false) {
-				return [
-					'error' => $rule . ' must be one of: ' . implode(', ', $allowed),
-					'payload' => [],
-				];
-			}
+		return ['error' => null, 'payload' => $this->payload(params: $params)];
 
-			$rules[$rule] = $value;
+	}//end parse()
+
+	/**
+	 * Why the request cannot open a round, in the order it is checked: the
+	 * ids, each voting rule, the subject type; null when it can.
+	 *
+	 * @param array<string,mixed> $params The raw request parameters
+	 *
+	 * @return string|null The message, or null.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function requestError(array $params): ?string {
+		if (($params['motionId'] ?? '') === '' || ($params['meetingId'] ?? '') === '') {
+			return 'motionId and meetingId are required';
+		}
+
+		$ruleError = $this->ruleError(params: $params);
+		if ($ruleError !== null) {
+			return $ruleError;
 		}
 
 		// Subject type (motion-amendment spec): validate up front so a bad
 		// value is a clean 400, never a 500.
-		$subjectType = (string)($params['subjectType'] ?? 'motion');
-		if (in_array($subjectType, self::SUBJECT_TYPES, true) === false) {
-			return [
-				'error' => 'subjectType must be one of: ' . implode(', ', self::SUBJECT_TYPES),
-				'payload' => [],
-			];
+		if (in_array($this->subjectType(params: $params), self::SUBJECT_TYPES, true) === false) {
+			return 'subjectType must be one of: ' . implode(', ', self::SUBJECT_TYPES);
 		}
 
-		return [
-			'error' => null,
-			'payload' => [
-				'motionId' => $motionId,
-				'meetingId' => $meetingId,
-				'votingMethod' => ($params['votingMethod'] ?? 'for-against-abstain'),
-				'isSecret' => (bool)($params['isSecret'] ?? false),
-				'closedAt' => $this->presentValue(params: $params, key: 'closedAt'),
-				'presetIds' => $this->listValue(params: $params, key: 'presetParticipantIds'),
-				'voteThreshold' => $rules['voteThreshold'],
-				'abstentionHandling' => $rules['abstentionHandling'],
-				'tieBreakRule' => $rules['tieBreakRule'],
-				'revoteOfRoundId' => $this->strictString(params: $params, key: 'revoteOfRound'),
-				'subjectType' => $subjectType,
-				'governanceBodyId' => $this->strictString(params: $params, key: 'governanceBody'),
-				'options' => $this->listValue(params: $params, key: 'options'),
-			],
-		];
+		return null;
+	}//end requestError()
 
-	}//end parse()
+	/**
+	 * The refusal of the first voting rule set to a value it does not accept.
+	 *
+	 * @param array<string,mixed> $params The raw request parameters
+	 *
+	 * @return string|null The message, or null when every rule is acceptable.
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 */
+	private function ruleError(array $params): ?string {
+		foreach (self::RULE_ENUMS as $rule => $allowed) {
+			$value = $this->looseString(params: $params, key: $rule);
+			if ($value !== null && in_array($value, $allowed, true) === false) {
+				return $rule . ' must be one of: ' . implode(', ', $allowed);
+			}
+		}
+
+		return null;
+	}//end ruleError()
+
+	/**
+	 * The subject type the request names; a motion when it names none.
+	 *
+	 * @param array<string,mixed> $params The raw request parameters
+	 *
+	 * @return string The subject type.
+	 */
+	private function subjectType(array $params): string {
+		return (string)($params['subjectType'] ?? 'motion');
+	}//end subjectType()
+
+	/**
+	 * The arguments of a valid open-round request.
+	 *
+	 * @param array<string,mixed> $params The raw request parameters
+	 *
+	 * @return array<string,mixed> The payload.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-001-chair-can-open-a-votinground-with-method-ranked-choice
+	 */
+	private function payload(array $params): array {
+		return [
+			'motionId' => $params['motionId'],
+			'meetingId' => $params['meetingId'],
+			'votingMethod' => ($params['votingMethod'] ?? 'for-against-abstain'),
+			'isSecret' => (bool)($params['isSecret'] ?? false),
+			'closedAt' => $this->presentValue(params: $params, key: 'closedAt'),
+			'presetIds' => $this->listValue(params: $params, key: 'presetParticipantIds'),
+			'voteThreshold' => $this->looseString(params: $params, key: 'voteThreshold'),
+			'abstentionHandling' => $this->looseString(params: $params, key: 'abstentionHandling'),
+			'tieBreakRule' => $this->looseString(params: $params, key: 'tieBreakRule'),
+			'revoteOfRoundId' => $this->strictString(params: $params, key: 'revoteOfRound'),
+			'subjectType' => $this->subjectType(params: $params),
+			'governanceBodyId' => $this->strictString(params: $params, key: 'governanceBody'),
+			'options' => $this->listValue(params: $params, key: 'options'),
+		];
+	}//end payload()
 
 	/**
 	 * A present, non-empty parameter value, unconverted.
