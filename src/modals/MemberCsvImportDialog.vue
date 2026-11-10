@@ -128,19 +128,16 @@ import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcDialog } from '@nextcloud/vue'
 import {
-	buildMembershipPayload,
-	ensureRelationType,
-	resolveOrCreatePerson,
-} from '../components/tabs/useRelationStore.js'
-import {
 	MAX_IMPORT_ROWS,
 	parseMemberCsv,
 	validateMemberRows,
 } from '../utils/memberImport.js'
+import { memberImportRunMixin } from './memberImportRun.js'
 
 export default {
 	name: 'MemberCsvImportDialog',
 	components: { NcButton, NcDialog },
+	mixins: [memberImportRunMixin],
 	props: {
 		/** OR object id of the governance body to import into. */
 		bodyId: { type: [String, Number], required: true },
@@ -277,72 +274,42 @@ export default {
 		},
 
 		/**
-		 * Import the previewed CSV rows: each becomes a Person (matched by
-		 * email, else created) + Membership pair.
+		 * The previewed rows that pass validation, as people to import.
 		 *
-		 * @return {Promise<void>}
+		 * @return {Array<{name: string, email: string, nextcloudUserId: string, role: string}>} The people.
 		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
 		 */
-		async runImport() {
-			this.importing = true
-			this.error = ''
-			try {
-				const personStore = ensureRelationType('person')
-				const membershipStore = ensureRelationType('membership')
-				const rows = this.preview.filter((row) => row.status === 'ok')
-				for (const row of rows) {
-					// Sequential on purpose: predictable ordering + no API hammering.
-					const person = await resolveOrCreatePerson(personStore, {
-						name: row.name,
-						email: row.email,
-						nextcloudUserId: row.matchedUid || '',
-					})
-					if (!person?.id) {
-						continue
-					}
-					await membershipStore.saveObject(
-						'membership',
-						buildMembershipPayload({
-							personId: person.id,
-							governanceBodyId: this.bodyId,
-							role: row.role,
-						}),
-					)
-				}
-				this.doneMessage = this.t('decidiq', '{count} members imported.', {
-					count: rows.length,
-				})
-				this.$emit('imported')
-				// Mark imported rows so a second click cannot double-import.
-				this.preview = this.preview.map((row) =>
-					row.status === 'ok'
-						? { ...row, status: 'duplicate', reason: 'already-member' }
-						: row,
-				)
-			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'Import failed.')
-			} finally {
-				this.importing = false
-			}
+		importablePeople() {
+			return this.preview
+				.filter((row) => row.status === 'ok')
+				.map((row) => ({
+					name: row.name,
+					email: row.email,
+					nextcloudUserId: row.matchedUid || '',
+					role: row.role,
+				}))
+		},
+
+		/**
+		 * The preview once imported: imported rows read as already a member.
+		 *
+		 * @return {Array<object>} The rows.
+		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 */
+		previewAfterImport() {
+			return this.preview.map((row) =>
+				row.status === 'ok'
+					? { ...row, status: 'duplicate', reason: 'already-member' }
+					: row,
+			)
 		},
 	},
 }
 </script>
 
+<style scoped src="./memberImport.css"></style>
+
 <style scoped>
-.csv-import__table {
-	width: 100%;
-	margin-top: 12px;
-	border-collapse: collapse;
-}
-
-.csv-import__table th,
-.csv-import__table td {
-	text-align: start;
-	padding: 4px 8px;
-	border-bottom: 1px solid var(--color-border);
-}
-
 .csv-import__status--duplicate,
 .csv-import__unmatched {
 	color: var(--color-text-maxcontrast);
@@ -350,15 +317,5 @@ export default {
 
 .csv-import__status--invalid {
 	color: var(--color-error);
-}
-
-.csv-import__error {
-	color: var(--color-error);
-	margin: 8px 0 0;
-}
-
-.csv-import__done {
-	color: var(--color-success);
-	margin: 8px 0 0;
 }
 </style>

@@ -12,36 +12,41 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { loadSfcScript } from './helpers/sfcScript.js'
 
 const GOLDEN = path.resolve(__dirname, '../fixtures/member-import-run-golden.json')
 const MODALS = path.resolve(__dirname, '../../src/modals')
 
-const calls = []
-const fail = { at: null }
+const { calls, fail, relationStore } = vi.hoisted(() => {
+	const calls = []
+	const fail = { at: null }
+	const relationStore = {
+		ensureRelationType: (type) => {
+			calls.push(['ensureRelationType', type])
+			return {
+				saveObject: async (schema, payload) => {
+					calls.push(['saveObject', type, schema, payload])
+					if (fail.at === 'membership') {
+						throw new Error('membership refused')
+					}
+				},
+			}
+		},
+		resolveOrCreatePerson: async (store, person) => {
+			calls.push(['resolveOrCreatePerson', person])
+			if (fail.at === 'person') {
+				throw {}
+			}
+			return person.name === 'Nobody' ? {} : { id: 'person-' + person.email }
+		},
+		buildMembershipPayload: (fields) => ({ built: fields }),
+	}
+	return { calls, fail, relationStore }
+})
 
-const relationStore = {
-	ensureRelationType: (type) => {
-		calls.push(['ensureRelationType', type])
-		return {
-			saveObject: async (schema, payload) => {
-				calls.push(['saveObject', type, schema, payload])
-				if (fail.at === 'membership') {
-					throw new Error('membership refused')
-				}
-			},
-		}
-	},
-	resolveOrCreatePerson: async (store, person) => {
-		calls.push(['resolveOrCreatePerson', person])
-		if (fail.at === 'person') {
-			throw {}
-		}
-		return person.name === 'Nobody' ? {} : { id: 'person-' + person.email }
-	},
-	buildMembershipPayload: (fields) => ({ built: fields }),
-}
+// A sibling module that imports the relation store gets the same double.
+vi.mock('../../src/components/tabs/useRelationStore.js', () => relationStore)
 
 /**
  * A dialog's methods with its mixins merged, its imports answered by doubles
