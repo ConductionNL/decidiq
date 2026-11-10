@@ -589,6 +589,25 @@ import {
 } from '../utils/votingRules.js'
 import { ensureRelationType } from './tabs/useRelationStore.js'
 
+/**
+ * The fetch options of a JSON write to the voting round API.
+ *
+ * @param {string} method POST or DELETE.
+ * @param {object} [body] The request body; none when left out.
+ * @return {object} The fetch options.
+ */
+function jsonRequest(method, body) {
+	const init = {
+		method,
+		headers: {
+			'Content-Type': 'application/json',
+			requesttoken: OC.requestToken,
+		},
+	}
+	if (body !== undefined) init.body = JSON.stringify(body)
+	return init
+}
+
 export default {
 	name: 'VotingRoundPanel',
 	components: {
@@ -960,6 +979,19 @@ export default {
 		},
 
 		/**
+		 * The URL of one action on the current round.
+		 *
+		 * @param {string} action cast, close, tally, proxy or publish.
+		 * @return {string} The URL.
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3
+		 */
+		roundEndpoint(action) {
+			return OC.generateUrl(
+				`/apps/decidiq/api/voting-rounds/${this.roundId}/${action}`,
+			)
+		},
+
+		/**
 		 * @param value
 		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1
 		 */
@@ -967,34 +999,36 @@ export default {
 			this.castVoteError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/cast`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							participantId: OC.currentUser,
-							value,
-							isProxy: false,
-							delegatorId: null,
-						}),
-					},
+					this.roundEndpoint('cast'),
+					jsonRequest('POST', {
+						participantId: OC.currentUser,
+						value,
+						isProxy: false,
+						delegatorId: null,
+					}),
 				)
-				if (resp.ok) {
-					this.voteCast = true
-					await this.fetchCurrentRound()
-				} else {
-					const data = await resp.json()
-					this.castVoteError =
-						data.message || this.t('decidiq', 'Failed to cast vote')
-				}
+				await this.afterCast(resp)
 			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			}
+		},
+
+		/**
+		 * Settle a cast: on success mark the vote cast and reload the round,
+		 * else show the server's reason.
+		 *
+		 * @param {Response} resp The cast response.
+		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3
+		 */
+		async afterCast(resp) {
+			if (resp.ok) {
+				this.voteCast = true
+				await this.fetchCurrentRound()
+				return
+			}
+			const data = await resp.json()
+			this.castVoteError =
+				data.message || this.t('decidiq', 'Failed to cast vote')
 		},
 
 		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
@@ -1004,26 +1038,19 @@ export default {
 			try {
 				const resp = await fetch(
 					OC.generateUrl('/apps/decidiq/api/voting-rounds'),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							...votingRoundBody({
-								subjectId: this.motionId,
-								subjectType: this.subjectType,
-								meetingId: this.meetingId,
-							}),
-							votingMethod: this.newRound.votingMethod,
-							isSecret: this.newRound.isSecret,
-							closedAt: this.newRound.closedAt || null,
-							...chosenRules(this.newRound),
-							revoteOfRound: this.revoteOfRoundId || null,
-							options: this.rankedOptions(),
+					jsonRequest('POST', {
+						...votingRoundBody({
+							subjectId: this.motionId,
+							subjectType: this.subjectType,
+							meetingId: this.meetingId,
 						}),
-					},
+						votingMethod: this.newRound.votingMethod,
+						isSecret: this.newRound.isSecret,
+						closedAt: this.newRound.closedAt || null,
+						...chosenRules(this.newRound),
+						revoteOfRound: this.revoteOfRoundId || null,
+						options: this.rankedOptions(),
+					}),
 				)
 				if (resp.ok) {
 					this.showOpenRoundDialog = false
@@ -1127,23 +1154,9 @@ export default {
 					generateUrl(
 						`/apps/decidiq/api/voting-rounds/${this.roundId}/cast`,
 					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ ranking, isProxy: false }),
-					},
+					jsonRequest('POST', { ranking, isProxy: false }),
 				)
-				if (resp.ok) {
-					this.voteCast = true
-					await this.fetchCurrentRound()
-				} else {
-					const data = await resp.json()
-					this.castVoteError =
-						data.message || this.t('decidiq', 'Failed to cast vote')
-				}
+				await this.afterCast(resp)
 			} catch {
 				this.castVoteError = this.t('decidiq', 'Failed to cast vote')
 			} finally {
@@ -1156,16 +1169,8 @@ export default {
 			this.confirmCloseRound = false
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/close`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-					},
+					this.roundEndpoint('close'),
+					jsonRequest('POST'),
 				)
 				if (resp.ok) {
 					await this.fetchCurrentRound()
@@ -1186,17 +1191,8 @@ export default {
 			this.chairCastingError = null
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/close`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ chairCasting: value }),
-					},
+					this.roundEndpoint('close'),
+					jsonRequest('POST', { chairCasting: value }),
 				)
 				if (resp.ok) {
 					await this.fetchCurrentRound()
@@ -1247,21 +1243,12 @@ export default {
 		async saveShowOfHands() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/tally`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							votesFor: this.showOfHands.for,
-							votesAgainst: this.showOfHands.against,
-							votesAbstain: this.showOfHands.abstain,
-						}),
-					},
+					this.roundEndpoint('tally'),
+					jsonRequest('POST', {
+						votesFor: this.showOfHands.for,
+						votesAgainst: this.showOfHands.against,
+						votesAbstain: this.showOfHands.abstain,
+					}),
 				)
 				if (resp.ok) {
 					await this.fetchCurrentRound()
@@ -1275,20 +1262,11 @@ export default {
 		async grantProxy() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/proxy`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({
-							fromParticipantId: OC.currentUser,
-							toParticipantId: this.proxyToId,
-						}),
-					},
+					this.roundEndpoint('proxy'),
+					jsonRequest('POST', {
+						fromParticipantId: OC.currentUser,
+						toParticipantId: this.proxyToId,
+					}),
 				)
 				if (resp.ok) {
 					this.activeProxy = this.proxyToId
@@ -1303,17 +1281,8 @@ export default {
 		async revokeProxy() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/proxy`,
-					),
-					{
-						method: 'DELETE',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ fromParticipantId: OC.currentUser }),
-					},
+					this.roundEndpoint('proxy'),
+					jsonRequest('DELETE', { fromParticipantId: OC.currentUser }),
 				)
 				if (resp.ok) {
 					this.activeProxy = null
@@ -1327,16 +1296,8 @@ export default {
 		async publishToOri() {
 			try {
 				const resp = await fetch(
-					OC.generateUrl(
-						`/apps/decidiq/api/voting-rounds/${this.roundId}/publish`,
-					),
-					{
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json',
-							requesttoken: OC.requestToken,
-						},
-					},
+					this.roundEndpoint('publish'),
+					jsonRequest('POST'),
 				)
 				if (resp.ok) {
 					const data = await resp.json()
