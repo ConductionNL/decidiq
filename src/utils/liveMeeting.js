@@ -109,23 +109,19 @@ export function liveDecisionBody(form, itemId) {
  * The body posted to POST /api/engagement: a speech or a question on the
  * current item.
  *
- * @param {string} meetingId   The meeting.
- * @param {string} participant The participant.
- * @param {'speech'|'question'} eventType What happened.
- * @param {?string} itemId     The current agenda item.
- * @param {object} extra       Event details, such as duration.
+ * @param {object} engagement What happened.
+ * @param {string} engagement.meetingId The meeting.
+ * @param {string} engagement.participant The participant.
+ * @param {'speech'|'question'} engagement.eventType What happened.
+ * @param {?string} engagement.itemId The current agenda item.
+ * @param {object} [engagement.extra] Event details, such as duration.
  *
  * @return {object} The request body.
  *
  * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
  */
-export function engagementBody(
-	meetingId,
-	participant,
-	eventType,
-	itemId,
-	extra = {},
-) {
+export function engagementBody(engagement) {
+	const { meetingId, participant, eventType, itemId, extra = {} } = engagement
 	const eventData = { ...extra }
 	if (itemId) eventData.agendaItem = itemId
 	return { meeting: meetingId, participant, eventType, eventData }

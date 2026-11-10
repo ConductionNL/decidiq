@@ -369,6 +369,30 @@ export default {
 		},
 
 		/**
+		 * Post one engagement on the current item of this meeting.
+		 *
+		 * @param {{participant: string, eventType: string, extra?: object}} event What happened.
+		 * @return {Promise<Response>} The response.
+		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-004-speeches-and-questions-are-logged-per-item
+		 */
+		postEngagement(event) {
+			return fetch(OC.generateUrl('/apps/decidiq/api/engagement'), {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					requesttoken: OC.requestToken,
+				},
+				body: JSON.stringify(
+					engagementBody({
+						...event,
+						meetingId: this.meetingId,
+						itemId: this.currentItemId,
+					}),
+				),
+			})
+		},
+
+		/**
 		 * Persist a completed speech to the EngagementRecord aggregate via the
 		 * existing engagement endpoint (server-side chair/secretary/admin guard).
 		 *
@@ -380,21 +404,10 @@ export default {
 		async recordSpeech(stopped) {
 			if (!stopped || stopped.durationSeconds <= 0) return
 			try {
-				await fetch(OC.generateUrl('/apps/decidiq/api/engagement'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
-					},
-					body: JSON.stringify(
-						engagementBody(
-							this.meetingId,
-							stopped.participantId,
-							'speech',
-							this.currentItemId,
-							{ duration: stopped.durationSeconds },
-						),
-					),
+				await this.postEngagement({
+					participant: stopped.participantId,
+					eventType: 'speech',
+					extra: { duration: stopped.durationSeconds },
 				})
 				this.$emit('speech-recorded', stopped)
 				await this.loadRecords()
@@ -413,20 +426,9 @@ export default {
 		 */
 		async recordQuestion(entry) {
 			try {
-				await fetch(OC.generateUrl('/apps/decidiq/api/engagement'), {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						requesttoken: OC.requestToken,
-					},
-					body: JSON.stringify(
-						engagementBody(
-							this.meetingId,
-							entry.participantId,
-							'question',
-							this.currentItemId,
-						),
-					),
+				await this.postEngagement({
+					participant: entry.participantId,
+					eventType: 'question',
 				})
 				await this.loadRecords()
 			} catch (e) {
