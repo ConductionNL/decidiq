@@ -65,8 +65,14 @@ describe('MotionAmendmentOrderTab sortByVotingOrder()', () => {
 	it('puts equal ids in a stable but non-zero order', () => {
 		const a = { id: 'same', votingOrder: 1, submittedAt: 's', tag: 1 }
 		const b = { id: 'same', votingOrder: 1, submittedAt: 's', tag: 2 }
-		expect(vm().sortByVotingOrder([a, b]).map((r) => r.tag)).toEqual(
-			vm().sortByVotingOrder([a, b]).map((r) => r.tag),
+		expect(
+			vm()
+				.sortByVotingOrder([a, b])
+				.map((r) => r.tag),
+		).toEqual(
+			vm()
+				.sortByVotingOrder([a, b])
+				.map((r) => r.tag),
 		)
 		expect(vm().sortByVotingOrder([]).length).toBe(0)
 	})

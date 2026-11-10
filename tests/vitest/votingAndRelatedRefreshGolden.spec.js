@@ -39,40 +39,40 @@ async function runRefresh(tab, answer) {
 	return { calls: stores.calls, state }
 }
 
-function VOTING (objectId) {
-  return {
-	file: 'DecisionVotingTab.vue',
-	props: { objectId },
-	modules: {
-		'@conduction/nextcloud-vue': {
-			CnDataTable: {},
-			CnNoteCard: {},
-			CnStatusBadge: {},
+function VOTING(objectId) {
+	return {
+		file: 'DecisionVotingTab.vue',
+		props: { objectId },
+		modules: {
+			'@conduction/nextcloud-vue': {
+				CnDataTable: {},
+				CnNoteCard: {},
+				CnStatusBadge: {},
+			},
+			'../../utils/rankedBallot.js': {
+				withRankingText: (list, round) =>
+					list.map((vote) => ({ ...vote, round: round.id })),
+			},
 		},
-		'../../utils/rankedBallot.js': {
-			withRankingText: (list, round) =>
-				list.map((vote) => ({ ...vote, round: round.id })),
-		},
-	},
-}
+	}
 }
 
-function RELATED (objectId) {
-  return {
-	file: 'RelatedDecisionsTab.vue',
-	props: { objectId },
-	modules: {
-		'@conduction/nextcloud-vue': {
-			CnDeleteDialog: {},
-			CnNoteCard: {},
-			CnStatusBadge: {},
+function RELATED(objectId) {
+	return {
+		file: 'RelatedDecisionsTab.vue',
+		props: { objectId },
+		modules: {
+			'@conduction/nextcloud-vue': {
+				CnDeleteDialog: {},
+				CnNoteCard: {},
+				CnStatusBadge: {},
+			},
+			'@nextcloud/vue': { NcButton: {} },
+			'vue-material-design-icons/Plus.vue': { default: {} },
+			'vue-material-design-icons/TrashCanOutline.vue': { default: {} },
+			'../../modals/RelatedDecisionAddModal.vue': { default: {} },
 		},
-		'@nextcloud/vue': { NcButton: {} },
-		'vue-material-design-icons/Plus.vue': { default: {} },
-		'vue-material-design-icons/TrashCanOutline.vue': { default: {} },
-		'../../modals/RelatedDecisionAddModal.vue': { default: {} },
-	},
-}
+	}
 }
 
 describe('DecisionVotingTab refresh()', () => {
@@ -152,7 +152,11 @@ describe('RelatedDecisionsTab refresh()', () => {
 
 	it('resolves outgoing relations and finds incoming ones', async () => {
 		const all = [
-			{ id: 'd1', supersedes: ['d2', { id: 'd3' }, 'gone'], amends: 'not-a-list' },
+			{
+				id: 'd1',
+				supersedes: ['d2', { id: 'd3' }, 'gone'],
+				amends: 'not-a-list',
+			},
 			{ id: 'd2', repeals: [{ uuid: 'd1' }] },
 			{ uuid: 'd3', refersTo: ['d1', 'd2'], implements: [null, 'd1'] },
 			{ id: 'd4', amends: [{ id: 'other' }] },
