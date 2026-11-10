@@ -88,12 +88,8 @@ class ProxyVoteController extends Controller {
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
-		$forbidden = ForbiddenResult::responseFor(result: $result);
-		if ($forbidden !== null) {
-			return $forbidden;
-		}
-
-		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
+		return ForbiddenResult::responseFor(result: $result)
+			?? $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
 	}//end respondFromAuthorizedResult()
 
 	/**

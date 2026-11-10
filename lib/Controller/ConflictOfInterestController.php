@@ -89,12 +89,8 @@ class ConflictOfInterestController extends Controller {
 	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
-		$forbidden = ForbiddenResult::responseFor(result: $result);
-		if ($forbidden !== null) {
-			return $forbidden;
-		}
-
-		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
+		return ForbiddenResult::responseFor(result: $result)
+			?? $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
 	}//end respondFromAuthorizedResult()
 
 	/**
