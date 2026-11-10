@@ -75,85 +75,129 @@ class ActionItemAnalyticsService {
 	 */
 	public function getMyItems(string $nextcloudUid): array {
 		try {
-			$today = new DateTime();
-			$weekAhead = new DateTime('+7 days');
-
-			// Resolve the Participant UUID for this Nextcloud user so we can filter
-			// action items by the participant UUID stored in the assignee field.
-			// This is the canonical pattern used by VotingController/VotingBehaviourController.
-			$this->objectService->setRegister('decidiq');
-			$this->objectService->setSchema('participant');
-			$participantEntities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
-
-			$participantId = null;
-			foreach ($participantEntities as $pEntity) {
-				$pData = $pEntity->jsonSerialize();
-				$participantId = $pData['uuid'] ?? ($pData['id'] ?? null);
-				break;
-			}
-
-			if ($participantId === null) {
-				// No participant record found — return empty result.
-				$this->logger->info(
-					'ActionItemAnalyticsService::getMyItems: no participant found',
-					['nextcloudUid' => $nextcloudUid]
-				);
-				return [
-					'overdue' => [],
-					'thisWeek' => [],
-					'later' => [],
-				];
-			}
-
-			// Query action items assigned to this participant UUID.
-			$params = [
-				'assignee' => $participantId,
-				'taskStatus' => ['open', 'in-progress'],
-				// Exclude completed.
-				'_limit' => 999,
-				'_offset' => 0,
-			];
-			$this->objectService->setRegister('decidiq');
-			$this->objectService->setSchema('action-item');
-			$itemEntities = $this->objectService->findAll(['filters' => $params]);
-
-			$grouped = [
-				'overdue' => [],
-				'thisWeek' => [],
-				'later' => [],
-			];
-
-			foreach ($itemEntities as $itemEntity) {
-				$item = $itemEntity->jsonSerialize();
-				if (empty($item['dueDate']) === true) {
-					$grouped['later'][] = $item;
-					continue;
-				}
-
-				$dueDate = new DateTime($item['dueDate']);
-
-				if ($dueDate < $today) {
-					$grouped['overdue'][] = $item;
-					continue;
-				}
-
-				if ($dueDate <= $weekAhead) {
-					$grouped['thisWeek'][] = $item;
-					continue;
-				}
-
-				$grouped['later'][] = $item;
-			}//end foreach
-
-			return $grouped;
+			return $this->groupedItemsOf(nextcloudUid: $nextcloudUid);
 		} catch (\Exception $e) {
 			$this->logger->error('ActionItemAnalyticsService::getMyItems failed: ' . $e->getMessage());
 
-			return [
-				'overdue' => [],
-				'thisWeek' => [],
-				'later' => [],
-			];
+			return self::emptyGroups();
 		}//end try
 	}//end getMyItems()
+
+	/**
+	 * The open action items of the caller's participant, grouped by urgency.
+	 *
+	 * @param string $nextcloudUid The caller's Nextcloud user UID
+	 *
+	 * @return array<string, array<array>> Grouped array with keys 'overdue', 'thisWeek', 'later'
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 */
+	private function groupedItemsOf(string $nextcloudUid): array {
+		$today = new DateTime();
+		$participantId = $this->participantIdOf(nextcloudUid: $nextcloudUid);
+		if ($participantId === null) {
+			// No participant record found — return empty result.
+			$this->logger->info(
+				'ActionItemAnalyticsService::getMyItems: no participant found',
+				['nextcloudUid' => $nextcloudUid]
+			);
+			return self::emptyGroups();
+		}
+
+		$grouped = self::emptyGroups();
+		foreach ($this->openItemsOf(participantId: $participantId) as $itemEntity) {
+			$item = $itemEntity->jsonSerialize();
+			$grouped[$this->urgencyOf(item: $item, today: $today)][] = $item;
+		}
+
+		return $grouped;
+	}//end groupedItemsOf()
+
+	/**
+	 * The Participant UUID of a Nextcloud user, the canonical pattern used by
+	 * VotingController/VotingBehaviourController.
+	 *
+	 * @param string $nextcloudUid The caller's Nextcloud user UID
+	 *
+	 * @return string|null The participant's uuid (or id), null when there is none.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 */
+	private function participantIdOf(string $nextcloudUid): ?string {
+		$this->objectService->setRegister('decidiq');
+		$this->objectService->setSchema('participant');
+		$participantEntities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
+
+		foreach ($participantEntities as $pEntity) {
+			$pData = $pEntity->jsonSerialize();
+			return $pData['uuid'] ?? ($pData['id'] ?? null);
+		}
+
+		return null;
+	}//end participantIdOf()
+
+	/**
+	 * The action items assigned to a participant that are not completed.
+	 *
+	 * @param string $participantId The participant's uuid
+	 *
+	 * @return array<int, mixed> The item entities.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 */
+	private function openItemsOf(string $participantId): array {
+		$params = [
+			'assignee' => $participantId,
+			'taskStatus' => ['open', 'in-progress'],
+			// Exclude completed.
+			'_limit' => 999,
+			'_offset' => 0,
+		];
+		$this->objectService->setRegister('decidiq');
+		$this->objectService->setSchema('action-item');
+		return $this->objectService->findAll(['filters' => $params]);
+	}//end openItemsOf()
+
+	/**
+	 * The group an item falls in: overdue before today, thisWeek within seven
+	 * days from now, later after that or without a due date.
+	 *
+	 * @param array<string, mixed> $item  The action item
+	 * @param DateTime             $today Now
+	 *
+	 * @return string overdue|thisWeek|later
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 */
+	private function urgencyOf(array $item, DateTime $today): string {
+		if (empty($item['dueDate']) === true) {
+			return 'later';
+		}
+
+		$dueDate = new DateTime($item['dueDate']);
+		if ($dueDate < $today) {
+			return 'overdue';
+		}
+
+		if ($dueDate <= (clone $today)->modify('+7 days')) {
+			return 'thisWeek';
+		}
+
+		return 'later';
+	}//end urgencyOf()
+
+	/**
+	 * The three empty urgency groups.
+	 *
+	 * @return array<string, array<array>> The groups.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 */
+	private static function emptyGroups(): array {
+		return [
+			'overdue' => [],
+			'thisWeek' => [],
+			'later' => [],
+		];
+	}//end emptyGroups()
 }//end class
