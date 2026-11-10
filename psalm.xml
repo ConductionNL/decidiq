@@ -36,7 +36,8 @@
             shape without putting the class back into the runtime autoloader,
             which is what caused the original defect.
         -->
-        <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectServiceInterface.php" />
+        <!-- The openregister PR this branch follows changes ObjectServiceInterface; until hydra-gates ships it, psalm reads the verbatim copy. -->
+        <file name="tests/Stubs/Contract/ObjectServiceInterface.php" />
         <file name="vendor/conduction/hydra-gates/hydra-gates/contracts/ObjectEntityInterface.php" />
 
         <!--
@@ -110,6 +111,9 @@
         <file name="tests/Stubs/Exception/FlowSignalRefused.php" preloadClasses="true" />
         <!-- OpenRegister's validator for a lifecycle kept as data (#4291); ProcessTemplateService resolves it from the container. -->
         <file name="tests/Stubs/Service/Lifecycle/LifecycleTransitionsValidator.php" preloadClasses="true" />
+        <!-- Value objects of the openregister surface this branch follows (verbatim copies). -->
+        <file name="tests/Stubs/Service/Object/ObjectFindTarget.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Object/ObjectPatch.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--
