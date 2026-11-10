@@ -45,6 +45,25 @@ use Throwable;
  */
 class ALVMinutesService {
 	/**
+	 * The placeholders of the ALV template, in the order their values are built.
+	 *
+	 * @var list<string>
+	 */
+	private const ALV_PLACEHOLDERS = [
+		'{title}',
+		'{date}',
+		'{location}',
+		'{presentCount}',
+		'{totalCount}',
+		'{quorumStatus}',
+		'{agendaItems}',
+		'{resolutions}',
+		'{secretary}',
+		'{chair}',
+		'{aob}',
+	];
+
+	/**
 	 * ALV Dutch minutes template.
 	 *
 	 * @var string
@@ -134,22 +153,18 @@ TEMPLATE;
 			$meeting = $this->context->requireMeeting(meetingId: $meetingId);
 			$this->assertAlvMeeting(meeting: $meeting);
 
-			$memberCount = count($this->currentMembers(meetingId: $meetingId));
-			$presentCount = $this->presentCount(memberCount: $memberCount, meeting: $meeting);
+			$run = new AlvDraftRun(minutes: $minutes, meeting: $meeting);
+			$run->memberCount = count($this->currentMembers(meetingId: $meetingId));
+			$run->presentCount = $this->presentCount(memberCount: $run->memberCount, meeting: $meeting);
+			$run->agendaItems = $this->context->agendaItems(meetingId: $meetingId);
 
-			$content = $this->renderAlvTemplate(
-				minutes: $minutes,
-				meeting: $meeting,
-				agendaItems: $this->context->agendaItems(meetingId: $meetingId),
-				presentCount: $presentCount,
-				memberCount: $memberCount
-			);
+			$content = $this->renderAlvTemplate(run: $run);
 
 			$this->logger->info("ALV draft generated for minutes $minutesId");
 
 			return [
 				'content' => $content,
-				'recipientCount' => $memberCount,
+				'recipientCount' => $run->memberCount,
 			];
 		} catch (Exception $e) {
 			$this->logger->error('ALVMinutesService::generateALVDraft failed: ' . $e->getMessage());
@@ -347,23 +362,55 @@ TEMPLATE;
 	/**
 	 * Render the ALV Dutch template.
 	 *
-	 * @param array<string,mixed> $minutes The Minutes data
-	 * @param array<string,mixed> $meeting The Meeting data
-	 * @param array<int,array<string,mixed>> $agendaItems The agenda items
-	 * @param int $presentCount The present member count
-	 * @param int $memberCount The total member count
+	 * @param AlvDraftRun $run The draft being rendered
 	 *
 	 * @return string The rendered ALV minutes text
 	 *
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
-	private function renderAlvTemplate(
-		array $minutes,
-		array $meeting,
-		array $agendaItems,
-		int $presentCount,
-		int $memberCount,
-	): string {
+	private function renderAlvTemplate(AlvDraftRun $run): string {
+		return str_replace(self::ALV_PLACEHOLDERS, $this->alvReplacements(run: $run), self::ALV_TEMPLATE);
+	}//end renderAlvTemplate()
+
+	/**
+	 * The value of each ALV placeholder, in ALV_PLACEHOLDERS order.
+	 *
+	 * Every replacement is cast to string. `$minutes` / `$meeting` are
+	 * decoded object payloads, so their values are `mixed` — str_replace
+	 * declares `array<string>|string` and PHP would coerce silently (an array
+	 * replacement raises "Array to string conversion" and substitutes the
+	 * literal "Array").
+	 *
+	 * @param AlvDraftRun $run The draft being rendered
+	 *
+	 * @return list<string> The replacements.
+	 *
+	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 */
+	private function alvReplacements(AlvDraftRun $run): array {
+		return [
+			(string)($run->minutes['title'] ?? 'Algemene Ledenvergadering'),
+			(string)($run->meeting['scheduledDate'] ?? date('d-m-Y')),
+			(string)($run->meeting['location'] ?? ''),
+			(string)$run->presentCount,
+			(string)$run->memberCount,
+			self::quorumStatus(run: $run),
+			self::agendaText(agendaItems: $run->agendaItems),
+			'[Resoluties met stemming in aparte tabel]',
+			'[Secretaris naam]',
+			'[Voorzitter naam]',
+			'[Rondvraag: geen bijzonderheden / gesloten om ...]',
+		];
+	}//end alvReplacements()
+
+	/**
+	 * The agenda as one line per item: its number and its title.
+	 *
+	 * @param array<int, array<string, mixed>> $agendaItems The agenda items
+	 *
+	 * @return string The agenda text.
+	 */
+	private static function agendaText(array $agendaItems): string {
 		$agendaText = '';
 		foreach ($agendaItems as $item) {
 			$agendaText .= sprintf(
@@ -373,47 +420,22 @@ TEMPLATE;
 			);
 		}
 
-		$quorumStatus = "Quorum niet bereikt ($presentCount/$memberCount leden)";
-		if ($presentCount >= ($meeting['quorumRequired'] ?? 0)) {
-			$quorumStatus = "Quorum bereikt ($presentCount/$memberCount leden)";
+		return trim($agendaText);
+	}//end agendaText()
+
+	/**
+	 * Whether the quorum is reached, with the present and total member count.
+	 *
+	 * @param AlvDraftRun $run The draft being rendered
+	 *
+	 * @return string The quorum statement.
+	 */
+	private static function quorumStatus(AlvDraftRun $run): string {
+		$counts = $run->presentCount . '/' . $run->memberCount . ' leden';
+		if ($run->presentCount >= ($run->meeting['quorumRequired'] ?? 0)) {
+			return 'Quorum bereikt (' . $counts . ')';
 		}
 
-		$searchKeys = [
-			'{title}',
-			'{date}',
-			'{location}',
-			'{presentCount}',
-			'{totalCount}',
-			'{quorumStatus}',
-			'{agendaItems}',
-			'{resolutions}',
-			'{secretary}',
-			'{chair}',
-			'{aob}',
-		];
-
-		// Every replacement is cast to string. `$minutes` / `$meeting` are
-		// decoded object payloads, so their values are `mixed` — str_replace
-		// declares `array<string>|string` and PHP would coerce silently
-		// (an array replacement raises "Array to string conversion" and
-		// substitutes the literal "Array").
-		return str_replace(
-			$searchKeys,
-			[
-				(string)($minutes['title'] ?? 'Algemene Ledenvergadering'),
-				(string)($meeting['scheduledDate'] ?? date('d-m-Y')),
-				(string)($meeting['location'] ?? ''),
-				(string)$presentCount,
-				(string)$memberCount,
-				$quorumStatus,
-				trim($agendaText),
-				'[Resoluties met stemming in aparte tabel]',
-				'[Secretaris naam]',
-				'[Voorzitter naam]',
-				'[Rondvraag: geen bijzonderheden / gesloten om ...]',
-			],
-			self::ALV_TEMPLATE
-		);
-
-	}//end renderAlvTemplate()
+		return 'Quorum niet bereikt (' . $counts . ')';
+	}//end quorumStatus()
 }//end class
