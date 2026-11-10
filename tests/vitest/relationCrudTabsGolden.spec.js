@@ -12,10 +12,17 @@
  * @spec exclude golden test of the relation tabs, no behaviour of its own
  */
 import * as path from 'path'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import * as relationRows from '../../src/components/tabs/relationRows.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 globalThis.t = (_app, text) => text
+
+// The tabs and the steps they share reach the store through the same double.
+let currentStore = null
+vi.mock('../../src/components/tabs/useRelationStore.js', () => ({
+	ensureRelationType: (type) => currentStore(type),
+}))
 
 const TABS = path.resolve(__dirname, '../../src/components/tabs')
 
@@ -71,8 +78,10 @@ function tab(file, answer) {
 			act({ fn: 'updateActionItem', uid, data }, data),
 		deleteActionItem: async (uid) => act({ fn: 'deleteActionItem', uid }, true),
 	}
+	currentStore = store
 	const component = loadSfcScript(path.join(TABS, file), {
 		...BASE,
+		'./relationRows.js': relationRows,
 		'../../services/actionItemApi.js': api,
 		'../../services/deckProjection.js': {
 			// The board's own uid rule, as deckProjection.itemUid states it.

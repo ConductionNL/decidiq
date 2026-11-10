@@ -98,7 +98,12 @@ import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
-import { ensureRelationType } from './useRelationStore.js'
+import {
+	deleteRelationRow,
+	loadRelationRows,
+	openRelationForm,
+	saveRelationRow,
+} from './relationRows.js'
 
 export default {
 	name: 'MotionAmendmentsTab',
@@ -201,36 +206,34 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async refresh() {
-			if (!this.objectId) return
-			this.loading = true
-			this.error = ''
-			try {
-				const store = ensureRelationType('amendment')
-				if (!this.amendmentSchema)
-					this.amendmentSchema = await store.fetchSchema('amendment')
-				const items = await store.fetchCollection('amendment', {
+		/**
+		 * The relation this tab lists: its type, where it keeps the schema,
+		 * the fields that tie a row to the parent and the load failure text.
+		 *
+		 * @return {object} The listing.
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		relationListing() {
+			return {
+				type: 'amendment',
+				schemaKey: 'amendmentSchema',
+				filter: {
 					decisionType: 'amendment',
 					amends: this.objectId,
-					_limit: 100,
-				})
-				this.rows = items || []
-			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load amendments.')
-			} finally {
-				this.loading = false
+				},
+
+				failedText: this.t('decidiq', 'Failed to load amendments.'),
 			}
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		async refresh() {
+			await loadRelationRows(this)
+		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
-			const store = ensureRelationType('amendment')
-			if (!this.amendmentSchema)
-				this.amendmentSchema = await store.fetchSchema('amendment')
-			this.editTarget = null
-			this.formOpen = true
+			await openRelationForm(this, null)
 		},
 
 		/**
@@ -238,11 +241,7 @@ export default {
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
 		async openEdit(row) {
-			const store = ensureRelationType('amendment')
-			if (!this.amendmentSchema)
-				this.amendmentSchema = await store.fetchSchema('amendment')
-			this.editTarget = { ...row }
-			this.formOpen = true
+			await openRelationForm(this, row)
 		},
 
 		/**
@@ -250,34 +249,12 @@ export default {
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
 		async onConfirm(formData) {
-			const store = ensureRelationType('amendment')
-			try {
-				await store.saveObject('amendment', {
-					...formData,
-					decisionType: 'amendment',
-					amends: this.objectId,
-				})
-				this.$refs.formDialog?.setResult({ success: true })
-				this.refresh()
-			} catch (e) {
-				this.$refs.formDialog?.setResult({
-					error: e?.message || this.t('decidiq', 'Save failed.'),
-				})
-			}
+			await saveRelationRow(this, formData)
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
-			const store = ensureRelationType('amendment')
-			try {
-				await store.deleteObject('amendment', this.deleteTarget.id)
-				this.$refs.deleteDialog?.setResult({ success: true })
-				this.refresh()
-			} catch (e) {
-				this.$refs.deleteDialog?.setResult({
-					error: e?.message || this.t('decidiq', 'Delete failed.'),
-				})
-			}
+			await deleteRelationRow(this)
 		},
 	},
 }

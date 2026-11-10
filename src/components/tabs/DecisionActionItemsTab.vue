@@ -103,7 +103,7 @@ import {
 	deleteActionItem,
 	updateActionItem,
 } from '../../services/actionItemApi.js'
-import { ensureRelationType } from './useRelationStore.js'
+import { loadRelationRows, openRelationForm } from './relationRows.js'
 
 export default {
 	name: 'DecisionActionItemsTab',
@@ -191,35 +191,30 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async refresh() {
-			if (!this.objectId) return
-			this.loading = true
-			this.error = ''
-			try {
-				const store = ensureRelationType('action-item')
-				if (!this.actionItemSchema)
-					this.actionItemSchema = await store.fetchSchema('action-item')
-				const items = await store.fetchCollection('action-item', {
-					decision: this.objectId,
-					_limit: 100,
-				})
-				this.rows = items || []
-			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load action items.')
-			} finally {
-				this.loading = false
+		/**
+		 * The relation this tab lists: its type, where it keeps the schema,
+		 * the fields that tie a row to the parent and the load failure text.
+		 *
+		 * @return {object} The listing.
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		relationListing() {
+			return {
+				type: 'action-item',
+				schemaKey: 'actionItemSchema',
+				filter: { decision: this.objectId },
+				failedText: this.t('decidiq', 'Failed to load action items.'),
 			}
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		async refresh() {
+			await loadRelationRows(this)
+		},
+
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async openCreate() {
-			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema)
-				this.actionItemSchema = await store.fetchSchema('action-item')
-			this.editTarget = null
-			this.formOpen = true
+			await openRelationForm(this, null)
 		},
 
 		/**
@@ -227,11 +222,7 @@ export default {
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
 		async openEdit(row) {
-			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema)
-				this.actionItemSchema = await store.fetchSchema('action-item')
-			this.editTarget = { ...row }
-			this.formOpen = true
+			await openRelationForm(this, row)
 		},
 
 		/**
