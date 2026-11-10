@@ -28,6 +28,7 @@ use OCA\Decidiq\Service\FlowDecisionService;
 use OCA\OpenRegister\Service\Flow\FlowNodeRegistry;
 use OCA\OpenRegister\Service\Flow\RegisterFlowNodesEvent;
 use OCP\EventDispatcher\Event;
+use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IL10N;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -56,7 +57,7 @@ class DecidiqFlowNodeListenerTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->with(DecidiqRequestDecisionNode::class)->willReturn($node);
 
-		$registry = new FlowNodeRegistry();
+		$registry = new FlowNodeRegistry(dispatcher: $this->createMock(IEventDispatcher::class), logger: new NullLogger());
 		(new DecidiqFlowNodeListener($container, new NullLogger()))->handle(new RegisterFlowNodesEvent($registry));
 
 		self::assertSame($node, $registry->get('decidiq.request-decision'));
@@ -66,7 +67,7 @@ class DecidiqFlowNodeListenerTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willThrowException(new RuntimeException('interface not found'));
 
-		$registry = new FlowNodeRegistry();
+		$registry = new FlowNodeRegistry(dispatcher: $this->createMock(IEventDispatcher::class), logger: new NullLogger());
 		(new DecidiqFlowNodeListener($container, new NullLogger()))->handle(new RegisterFlowNodesEvent($registry));
 
 		self::assertSame([], $registry->all());

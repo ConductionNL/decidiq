@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\OpenRegister\Service\Flow;
 
+use OCP\EventDispatcher\IEventDispatcher;
+use OCP\IURLGenerator;
+use Psr\Log\LoggerInterface;
 use UnexpectedValueException;
 
 /**
@@ -36,6 +39,21 @@ class FlowNodeRegistry {
 	 * @var array<string, IFlowNode>
 	 */
 	private array $nodes = [];
+
+	/**
+	 * Constructor shape of OpenRegister main (6d85d5f369): the dispatcher and
+	 * the logger are required; the optional collaborators are not mirrored.
+	 *
+	 * @param IEventDispatcher   $dispatcher The event dispatcher.
+	 * @param LoggerInterface    $logger     The logger.
+	 * @param IURLGenerator|null $urls       The URL generator.
+	 */
+	public function __construct(
+		private readonly IEventDispatcher $dispatcher,
+		private readonly LoggerInterface $logger,
+		private readonly ?IURLGenerator $urls = null,
+	) {
+	}//end __construct()
 
 	/**
 	 * @param IFlowNode $node The node type.
