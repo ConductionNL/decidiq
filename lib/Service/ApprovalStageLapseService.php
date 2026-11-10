@@ -170,52 +170,77 @@ class ApprovalStageLapseService {
 			return false;
 		}
 
-		$actor = (string)($stage['assignedPerson'] ?? '');
-		$substitute = $this->activator->substituteOf($actor);
-		$uuid = (string)($stage['id'] ?? '');
-
+		$run = new StageLapseRun(stage: $stage, now: $now);
+		$substitute = $this->activator->substituteOf($run->actor());
 		if ($substitute === null) {
-			// A note, not a refusal. Nobody's deadline changes and the original
-			// actor is still the one being waited on.
-			$this->store->patch(
-				schema: self::STAGE_SCHEMA,
-				data: ['substituteSearchedAt' => $now->format(DateTimeImmutable::ATOM)],
-				uuid: $uuid,
-			);
-			$this->tell(
-				person: $actor,
-				title: $this->translate(text: 'No stand-in was found for your sign-off'),
-				message: $this->translate(text: 'Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.')
-			);
+			$this->noteNoSubstitute(run: $run);
 			return false;
 		}
 
+		$this->askSubstitute(run: $run, substitute: $substitute);
+		return true;
+	}//end askSubstituteIfDue()
+
+	/**
+	 * Note on the stage that no stand-in was found, and tell the actor.
+	 *
+	 * A note, not a refusal. Nobody's deadline changes and the original actor
+	 * is still the one being waited on.
+	 *
+	 * @param StageLapseRun $run The stage being swept.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	private function noteNoSubstitute(StageLapseRun $run): void {
+		$this->store->patch(
+			schema: self::STAGE_SCHEMA,
+			data: ['substituteSearchedAt' => $run->stampedAt()],
+			uuid: $run->uuid(),
+		);
+		$this->tell(
+			person: $run->actor(),
+			title: $this->translate(text: 'No stand-in was found for your sign-off'),
+			message: $this->translate(text: 'Nobody is recorded as your substitute, so this sign-off is still waiting on you. Its deadline has not moved.')
+		);
+	}//end noteNoSubstitute()
+
+	/**
+	 * Ask the actor's substitute to stand in, and tell both of them.
+	 *
+	 * BOTH are told, because both may act. Telling only the substitute reads
+	 * to the original actor as if the step had been taken off them.
+	 *
+	 * @param StageLapseRun $run        The stage being swept.
+	 * @param string        $substitute The actor's substitute.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
+	 */
+	private function askSubstitute(StageLapseRun $run, string $substitute): void {
 		$this->store->patch(
 			schema: self::STAGE_SCHEMA,
 			data: [
 				'substituteActor' => $substitute,
-				'substituteAskedAt' => $now->format(DateTimeImmutable::ATOM),
+				'substituteAskedAt' => $run->stampedAt(),
 			],
-			uuid: $uuid,
+			uuid: $run->uuid(),
 		);
-
-		// BOTH are told, because both may act. Telling only the substitute
-		// reads to the original actor as if the step had been taken off them.
 		$this->tell(
 			person: $substitute,
 			title: $this->translate(text: 'A sign-off is waiting, on behalf of a colleague'),
 			message: $this->translate(text: 'You have been asked to stand in on a sign-off that is part-way through its term. Whoever acts first closes it.')
 		);
 		$this->tell(
-			person: $actor,
+			person: $run->actor(),
 			title: $this->translate(text: 'Your stand-in has been asked as well'),
 			message: $this->translate(
 				text: 'This sign-off is part-way through its term, so your substitute has been asked too. You can still sign it yourself.'
 			)
 		);
-
-		return true;
-	}//end askSubstituteIfDue()
+	}//end askSubstitute()
 
 	/**
 	 * Apply a stage's declared silence, once.
@@ -233,97 +258,166 @@ class ApprovalStageLapseService {
 			return false;
 		}
 
-		$uuid = (string)($stage['id'] ?? '');
-		$stampedAt = $now->format(DateTimeImmutable::ATOM);
-		$actor = (string)($stage['assignedPerson'] ?? '');
-
+		$run = new StageLapseRun(stage: $stage, now: $now);
 		if ($effect['effect'] === StageLapsePolicy::EFFECT_REASSIGN) {
-			$manager = $this->activator->managerOf($actor);
-			if ($manager === null) {
-				// Escalation with nobody to escalate to holds. It does not
-				// advance and it does not conclude: both would turn a missing
-				// line in the organisation record into a decision.
-				$this->logger->info(
-					'Decidiq: an approval stage could not escalate and holds',
-					['stage' => $uuid, 'actor' => $actor]
-				);
-				return false;
-			}
-
-			$this->store->patch(
-				schema: self::STAGE_SCHEMA,
-				data: [
-					'assignedPerson' => $manager,
-					'decisionMakerType' => 'person',
-					'actorResolvedBy' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
-					'actorResolvedAt' => $stampedAt,
-					'activatedAt' => $stampedAt,
-					'dueAt' => $this->restartedWindow(stage: $stage, now: $now),
-					'lapsedAt' => $stampedAt,
-					// The stand-in fields belong to the person who has just been
-					// replaced; carrying them onto the manager would ask their
-					// predecessor's substitute.
-					'substituteActor' => '',
-					'substituteAskedAt' => '',
-					'substituteSearchedAt' => '',
-				],
-				uuid: $uuid,
-			);
-
-			$this->recordLapse(stage: $stage, effect: $effect, now: $now);
-			$this->tell(
-				person: $actor,
-				title: $this->translate(text: 'Your sign-off has moved up'),
-				message: $this->translate(
-					text: 'The term on this sign-off passed without an answer, and the step declares that silence escalates, so it is now with your manager.'
-				)
-			);
-			$this->tell(
-				person: $manager,
-				title: $this->translate(text: 'A sign-off has escalated to you'),
-				message: $this->translate(
-					text: 'A step your colleague was asked to sign passed its term without an answer. Silence escalates there, so it is now yours, with a new term.'
-				)
-			);
-
-			return true;
+			return $this->escalate(run: $run, effect: $effect);
 		}
 
+		$this->concludeLapsed(run: $run, effect: $effect);
+		return true;
+	}//end applyLapse()
+
+	/**
+	 * Hand a silent stage to the actor's manager with a fresh term, or hold
+	 * when there is no manager.
+	 *
+	 * @param StageLapseRun $run The stage being lapsed.
+	 * @param array{effect: string, outcome: ?string, reason: string} $effect What the lapse does.
+	 *
+	 * @return bool True when the stage moved.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
+	 */
+	private function escalate(StageLapseRun $run, array $effect): bool {
+		$manager = $this->activator->managerOf($run->actor());
+		if ($manager === null) {
+			// Escalation with nobody to escalate to holds. It does not
+			// advance and it does not conclude: both would turn a missing
+			// line in the organisation record into a decision.
+			$this->logger->info(
+				'Decidiq: an approval stage could not escalate and holds',
+				['stage' => $run->uuid(), 'actor' => $run->actor()]
+			);
+			return false;
+		}
+
+		$this->store->patch(
+			schema: self::STAGE_SCHEMA,
+			data: $this->escalationPatch(run: $run, manager: $manager),
+			uuid: $run->uuid(),
+		);
+		$this->recordLapse(run: $run, effect: $effect);
+		$this->tellEscalation(run: $run, manager: $manager);
+		return true;
+	}//end escalate()
+
+	/**
+	 * The fields that move an escalated stage to the manager.
+	 *
+	 * @param StageLapseRun $run     The stage being lapsed.
+	 * @param string        $manager The actor's manager.
+	 *
+	 * @return array<string, string> The patch.
+	 */
+	private function escalationPatch(StageLapseRun $run, string $manager): array {
+		return [
+			'assignedPerson' => $manager,
+			'decisionMakerType' => 'person',
+			'actorResolvedBy' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
+			'actorResolvedAt' => $run->stampedAt(),
+			'activatedAt' => $run->stampedAt(),
+			'dueAt' => $this->restartedWindow(stage: $run->stage, now: $run->now),
+			'lapsedAt' => $run->stampedAt(),
+			// The stand-in fields belong to the person who has just been
+			// replaced; carrying them onto the manager would ask their
+			// predecessor's substitute.
+			'substituteActor' => '',
+			'substituteAskedAt' => '',
+			'substituteSearchedAt' => '',
+		];
+	}//end escalationPatch()
+
+	/**
+	 * Tell the silent actor and their manager that the stage moved up.
+	 *
+	 * @param StageLapseRun $run     The stage being lapsed.
+	 * @param string        $manager The actor's manager.
+	 *
+	 * @return void
+	 */
+	private function tellEscalation(StageLapseRun $run, string $manager): void {
+		$this->tell(
+			person: $run->actor(),
+			title: $this->translate(text: 'Your sign-off has moved up'),
+			message: $this->translate(
+				text: 'The term on this sign-off passed without an answer, and the step declares that silence escalates, so it is now with your manager.'
+			)
+		);
+		$this->tell(
+			person: $manager,
+			title: $this->translate(text: 'A sign-off has escalated to you'),
+			message: $this->translate(
+				text: 'A step your colleague was asked to sign passed its term without an answer. Silence escalates there, so it is now yours, with a new term.'
+			)
+		);
+	}//end tellEscalation()
+
+	/**
+	 * Decide a silent stage the way its policy declares, record why, and
+	 * move the route on.
+	 *
+	 * @param StageLapseRun $run The stage being lapsed.
+	 * @param array{effect: string, outcome: ?string, reason: string} $effect What the lapse does.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015, REQ-AR-017)
+	 */
+	private function concludeLapsed(StageLapseRun $run, array $effect): void {
 		$this->store->patch(
 			schema: self::STAGE_SCHEMA,
 			data: [
 				'status' => 'decided',
 				'outcome' => $effect['outcome'],
-				'decidedAt' => $stampedAt,
-				'lapsedAt' => $stampedAt,
+				'decidedAt' => $run->stampedAt(),
+				'lapsedAt' => $run->stampedAt(),
 			],
-			uuid: $uuid,
+			uuid: $run->uuid(),
 		);
 
-		$this->recordLapse(stage: $stage, effect: $effect, now: $now);
-
+		$this->recordLapse(run: $run, effect: $effect);
 		if ($effect['effect'] === StageLapsePolicy::EFFECT_ADVANCE) {
-			$this->activateNext(stage: $stage, now: $now);
-			$this->tell(
-				person: $actor,
-				title: $this->translate(text: 'A sign-off passed its term and was taken as approved'),
-				message: $this->translate(
-					text: 'The term passed without an answer. Silence approves here, so the system recorded it as approved and the next step is live.'
-				)
-			);
-			return true;
+			$this->activateNext(stage: $run->stage, now: $run->now);
+			$this->tellLapseApproved(run: $run);
+			return;
 		}
 
+		$this->tellLapseRefused(run: $run);
+	}//end concludeLapsed()
+
+	/**
+	 * Tell the silent actor their silence was taken as approval.
+	 *
+	 * @param StageLapseRun $run The stage being lapsed.
+	 *
+	 * @return void
+	 */
+	private function tellLapseApproved(StageLapseRun $run): void {
 		$this->tell(
-			person: $actor,
+			person: $run->actor(),
+			title: $this->translate(text: 'A sign-off passed its term and was taken as approved'),
+			message: $this->translate(
+				text: 'The term passed without an answer. Silence approves here, so the system recorded it as approved and the next step is live.'
+			)
+		);
+	}//end tellLapseApproved()
+
+	/**
+	 * Tell the silent actor their silence was taken as refusal.
+	 *
+	 * @param StageLapseRun $run The stage being lapsed.
+	 *
+	 * @return void
+	 */
+	private function tellLapseRefused(StageLapseRun $run): void {
+		$this->tell(
+			person: $run->actor(),
 			title: $this->translate(text: 'A sign-off passed its term and was taken as refused'),
 			message: $this->translate(
 				text: 'The term on this sign-off passed without an answer. The step declares that silence refuses, so the route has been concluded as rejected.'
 			)
 		);
-
-		return true;
-	}//end applyLapse()
+	}//end tellLapseRefused()
 
 	/**
 	 * Make the next pending step of the same subject live.
@@ -394,18 +488,17 @@ class ApprovalStageLapseService {
 	/**
 	 * Append the action that says the step moved, and under which policy.
 	 *
-	 * @param array<string, mixed> $stage The stage.
+	 * @param StageLapseRun $run The stage being lapsed.
 	 * @param array{effect: string, outcome: ?string, reason: string} $effect What the lapse did.
-	 * @param DateTimeImmutable $now The clock.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
 	 */
-	private function recordLapse(array $stage, array $effect, DateTimeImmutable $now): void {
+	private function recordLapse(StageLapseRun $run, array $effect): void {
 		$this->store->save(
 			schema: self::ACTION_SCHEMA,
-			object: $this->policy->lapseAction(stage: $stage, effect: $effect, now: $now),
+			object: $this->policy->lapseAction(stage: $run->stage, effect: $effect, now: $run->now),
 		);
 	}//end recordLapse()
 
