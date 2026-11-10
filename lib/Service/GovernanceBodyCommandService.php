@@ -398,11 +398,7 @@ class GovernanceBodyCommandService {
 		);
 
 		foreach ($rows as $row) {
-			if ((string)($row['nextcloudUserId'] ?? '') !== $uid) {
-				continue;
-			}
-
-			$id = $this->idOf(row: $row);
+			$id = $this->personIdCarrying(row: $row, uid: $uid);
 			if ($id !== null) {
 				return $id;
 			}
@@ -411,6 +407,23 @@ class GovernanceBodyCommandService {
 		return null;
 
 	}//end findPersonId()
+
+	/**
+	 * A person row's id, when the row carries this uid.
+	 *
+	 * @param array<string, mixed> $row The person row.
+	 * @param string $uid The Nextcloud user id.
+	 *
+	 * @return string|null The id, or null when the row is somebody else's or has no id.
+	 */
+	private function personIdCarrying(array $row, string $uid): ?string {
+		if ((string)($row['nextcloudUserId'] ?? '') !== $uid) {
+			return null;
+		}
+
+		return $this->idOf(row: $row);
+
+	}//end personIdCarrying()
 
 	/**
 	 * Store a new Person for a uid.
