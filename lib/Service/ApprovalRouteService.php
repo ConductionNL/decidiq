@@ -157,35 +157,12 @@ class ApprovalRouteService {
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function holdFor(HeldRouteRequest $request): array {
-		$named = [];
-		foreach ($request->actors as $actor) {
-			$actor = trim((string)$actor);
-			if ($actor !== '' && in_array($actor, $named, true) === false) {
-				// A person named twice would be asked twice on the same
-				// document, and the second ask would refuse: the first sign-off
-				// already advanced past their step.
-				$named[] = $actor;
-			}
-		}
-
+		$named = self::distinctActors(actors: $request->actors);
 		if ($named === []) {
 			throw new RuntimeException('A route held from named people needs at least one person.');
 		}
 
-		$steps = [];
-		foreach ($named as $index => $actor) {
-			$steps[] = [
-				'order' => ($index + 1),
-				'stageType' => 'endorsement',
-				'actorType' => 'person',
-				'actor' => $actor,
-				'mandatory' => true,
-			];
-			if ($request->askSubstituteAfter() !== null) {
-				$steps[$index]['askSubstituteAfter'] = $request->askSubstituteAfter();
-			}
-		}
-
+		$steps = self::heldSteps(request: $request, named: $named);
 		$stages = $this->instantiate(
 			route: [
 				'id' => '',
@@ -202,6 +179,56 @@ class ApprovalRouteService {
 
 		return $this->stampHeldRoute(stages: $stages, deadline: $request->deadline());
 	}//end holdFor()
+
+	/**
+	 * The named people, trimmed, each once, in the order first named.
+	 *
+	 * A person named twice would be asked twice on the same document, and the
+	 * second ask would refuse: the first sign-off already advanced past their
+	 * step.
+	 *
+	 * @param array<int, mixed> $actors The people the request names.
+	 *
+	 * @return list<string> The people.
+	 */
+	private static function distinctActors(array $actors): array {
+		$named = [];
+		foreach ($actors as $actor) {
+			$actor = trim((string)$actor);
+			if ($actor !== '' && in_array($actor, $named, true) === false) {
+				$named[] = $actor;
+			}
+		}
+
+		return $named;
+	}//end distinctActors()
+
+	/**
+	 * One endorsement step per named person, in order, each carrying the
+	 * request's substitute fraction when it has one.
+	 *
+	 * @param HeldRouteRequest $request The request.
+	 * @param list<string>     $named   The people, each once.
+	 *
+	 * @return list<array<string, mixed>> The steps.
+	 */
+	private static function heldSteps(HeldRouteRequest $request, array $named): array {
+		$steps = [];
+		foreach ($named as $index => $actor) {
+			$steps[] = [
+				'order' => ($index + 1),
+				'stageType' => 'endorsement',
+				'actorType' => 'person',
+				'actor' => $actor,
+				'mandatory' => true,
+			];
+			if ($request->askSubstituteAfter() !== null) {
+				$steps[$index]['askSubstituteAfter'] = $request->askSubstituteAfter();
+			}
+		}
+
+		return $steps;
+	}//end heldSteps()
 
 	/**
 	 * Mark the stages as ad-hoc and divide one deadline over them.
@@ -377,57 +404,17 @@ class ApprovalRouteService {
 			return $existing;
 		}
 
-		$steps = $this->mapper->orderedSteps(route: $route);
-		if ($steps === []) {
-			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
-		}
+		$steps = $this->travellableSteps(route: $route, principal: $principal);
 
-		// BEFORE any write, for every step at once. A route refused half way
-		// through would leave the stages it had already written behind, and a
-		// subject carrying half a route is worse than one carrying none.
-		$this->policy->assertEverySilenceIsSettable(
-			steps: $steps,
-			isAdministrator: $principal->isAdministrator(),
-		);
-
-		$routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
-		$firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
+		$run = new RouteStagesRun(subject: $subject, subjectSchema: $subjectSchema);
+		$run->routeId = (string)($route['id'] ?? ($route['@self']['id'] ?? ''));
+		$run->firstSequence = $this->mapper->sequenceOf(step: $steps[0], index: 0);
 		$owner = $this->advancer->ownerOf(subject: $subject, subjectSchema: $subjectSchema);
 
 		$created = [];
 		foreach ($steps as $index => $step) {
-			$sequence = $this->mapper->sequenceOf(step: $step, index: $index);
-			// A step that names a RULE cannot be resolved here: it is resolved
-			// when its stage becomes live, which for anything past the first
-			// group is weeks away. So the rule travels onto the stage, copied
-			// like every other step field, and editing the route afterwards
-			// leaves a route already in flight alone.
-			$declared = $this->mapper->declaredStepFields(step: $step);
-			$created[] = $this->store->save(
-				schema: 'decision-stage',
-				object: $declared + [
-					'sequence' => $sequence,
-					'stageType' => (string)$step['stageType'],
-					// Every stage in the FIRST parallel group is active
-					// immediately. A route whose every stage is pending is
-					// indistinguishable from one nobody has started, and
-					// nothing would ever start it.
-					'status' => $this->mapper->initialStatus(sequence: $sequence, firstSequence: $firstSequence),
-					'decisionMakerType' => $this->mapper->decisionMakerType(step: $step),
-					// Derived when the step carries none: the schema REQUIRES a
-					// label, an empty string stores as NULL, and a NULL label
-					// 400s the patch that records the FIRST sign-off — after
-					// the action row was already appended. Cross-app routes
-					// (dossiq) never carry step labels, so they always hit it.
-					'label' => $this->mapper->labelOf(step: $step, sequence: $sequence),
-					'mandatory' => (bool)($step['mandatory'] ?? true),
-					'decision' => $subject,
-					'assignedPerson' => $this->mapper->assignedPerson(step: $step),
-					'assignedBody' => $this->mapper->assignedBody(step: $step),
-					'note' => $subjectSchema,
-					'route' => $routeId,
-				],
-			);
+			$run->sequence = $this->mapper->sequenceOf(step: $step, index: $index);
+			$created[] = $this->store->save(schema: 'decision-stage', object: $this->stageObject(run: $run, step: $step));
 		}
 
 		$created = $this->resolveLiveStages(stages: $created, owner: $owner);
@@ -436,6 +423,76 @@ class ApprovalRouteService {
 
 		return $created;
 	}//end instantiate()
+
+	/**
+	 * The route's steps in order, once every declared silence is one this
+	 * principal may set.
+	 *
+	 * Checked BEFORE any write, for every step at once. A route refused half
+	 * way through would leave the stages it had already written behind, and a
+	 * subject carrying half a route is worse than one carrying none.
+	 *
+	 * @param array<string, mixed> $route     The route.
+	 * @param ApprovalPrincipal    $principal Who is asking.
+	 *
+	 * @return list<array<string, mixed>> The steps.
+	 *
+	 * @throws RuntimeException When the route declares no usable steps, or a silence this principal may not set.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
+	 */
+	private function travellableSteps(array $route, ApprovalPrincipal $principal): array {
+		$steps = $this->mapper->orderedSteps(route: $route);
+		if ($steps === []) {
+			throw new RuntimeException('This route declares no steps, so there is nothing to travel.');
+		}
+
+		$this->policy->assertEverySilenceIsSettable(
+			steps: $steps,
+			isAdministrator: $principal->isAdministrator(),
+		);
+		return $steps;
+	}//end travellableSteps()
+
+	/**
+	 * The stage a route step becomes on the subject.
+	 *
+	 * A step that names a RULE cannot be resolved here: it is resolved when
+	 * its stage becomes live, which for anything past the first group is weeks
+	 * away. So the rule travels onto the stage, copied like every other step
+	 * field, and editing the route afterwards leaves a route already in flight
+	 * alone.
+	 *
+	 * @param RouteStagesRun       $run  The route being laid onto the subject.
+	 * @param array<string, mixed> $step The route step.
+	 *
+	 * @return array<string, mixed> The stage to save.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md
+	 */
+	private function stageObject(RouteStagesRun $run, array $step): array {
+		return $this->mapper->declaredStepFields(step: $step) + [
+			'sequence' => $run->sequence,
+			'stageType' => (string)$step['stageType'],
+			// Every stage in the FIRST parallel group is active immediately. A
+			// route whose every stage is pending is indistinguishable from one
+			// nobody has started, and nothing would ever start it.
+			'status' => $this->mapper->initialStatus(sequence: $run->sequence, firstSequence: $run->firstSequence),
+			'decisionMakerType' => $this->mapper->decisionMakerType(step: $step),
+			// Derived when the step carries none: the schema REQUIRES a label,
+			// an empty string stores as NULL, and a NULL label 400s the patch
+			// that records the FIRST sign-off — after the action row was
+			// already appended. Cross-app routes (dossiq) never carry step
+			// labels, so they always hit it.
+			'label' => $this->mapper->labelOf(step: $step, sequence: $run->sequence),
+			'mandatory' => (bool)($step['mandatory'] ?? true),
+			'decision' => $run->subject,
+			'assignedPerson' => $this->mapper->assignedPerson(step: $step),
+			'assignedBody' => $this->mapper->assignedBody(step: $step),
+			'note' => $run->subjectSchema,
+			'route' => $run->routeId,
+		];
+	}//end stageObject()
 
 
 	/**
