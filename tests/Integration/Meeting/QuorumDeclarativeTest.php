@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Integration\Meeting;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -380,9 +382,7 @@ class QuorumDeclarativeTest extends TestCase {
 					// never once removed a row (#399).
 					$this->objectService->runAsSystem(
 						fn () => $this->objectService->deleteObject(
-							uuid: $pid,
-							register: 'decidiq',
-							schema: 'participant',
+							deletion: new ObjectDeletion(uuid: $pid, target: new ObjectFindTarget(register: 'decidiq', schema: 'participant'))
 						)
 					);
 				}
@@ -390,16 +390,12 @@ class QuorumDeclarativeTest extends TestCase {
 
 			$this->objectService->runAsSystem(
 				fn () => $this->objectService->deleteObject(
-					uuid: $meetingId,
-					register: 'decidiq',
-					schema: 'meeting',
+					deletion: new ObjectDeletion(uuid: $meetingId, target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'))
 				)
 			);
 			$this->objectService->runAsSystem(
 				fn () => $this->objectService->deleteObject(
-					uuid: $governanceBodyId,
-					register: 'decidiq',
-					schema: 'governance-body',
+					deletion: new ObjectDeletion(uuid: $governanceBodyId, target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-body'))
 				)
 			);
 		} catch (\Throwable) {

@@ -25,6 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCP\App\IAppManager;
@@ -162,9 +165,7 @@ class OpenCatalogiPublisher {
 
 		try {
 			$service->deleteObject(
-				uuid: $catalogPublication,
-				register: 'opencatalogi',
-				schema: 'publication',
+				deletion: new ObjectDeletion(uuid: $catalogPublication, target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
 			);
 			return true;
 		} catch (\Throwable $e) {
@@ -179,11 +180,11 @@ class OpenCatalogiPublisher {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
-	 * @return object|null
+	 * @return ObjectServiceInterface|null
 	 */
-	private function resolvePublicationService(): ?object {
+	private function resolvePublicationService(): ?ObjectServiceInterface {
 		try {
-			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			return $this->container->get(ObjectServiceInterface::class);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq publication: OpenCatalogi ObjectService unresolvable', ['exception' => $e->getMessage()]);
 			return null;

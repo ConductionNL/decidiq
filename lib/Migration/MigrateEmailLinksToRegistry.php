@@ -41,6 +41,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -281,9 +283,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 
 		// Archive via OR archival workflow (soft delete; not a hard purge).
 		$objectService->deleteObject(
-			uuid: $uuid,
-			register: self::REGISTER,
-			schema: self::LEGACY_SCHEMA
+			deletion: new ObjectDeletion(uuid: $uuid, target: new ObjectFindTarget(register: self::REGISTER, schema: self::LEGACY_SCHEMA))
 		);
 	}//end archiveLegacy()
 

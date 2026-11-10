@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use OCA\Decidiq\Migration\MigrateEmailLinksToRegistry;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
@@ -382,13 +383,15 @@ class MigrateEmailLinksToRegistryTest extends TestCase {
 			/**
 			 * Capture a delete.
 			 *
-			 * @param string $uuid Object UUID.
-			 * @param string|null $register Register slug.
-			 * @param string|null $schema Schema slug.
+			 * @param ObjectDeletion $deletion        The object to delete.
+			 * @param bool           $_rbac           Apply RBAC.
+			 * @param bool           $_multitenancy   Apply organisation scoping.
+			 * @param bool           $_retentionSweep Whether this is a retention sweep.
 			 *
 			 * @return bool
 			 */
-			public function deleteObject(string $uuid, ?string $register = null, ?string $schema = null): bool {
+			public function deleteObject(ObjectDeletion $deletion, bool $_rbac = true, bool $_multitenancy = true, bool $_retentionSweep = false): bool {
+				$uuid = $deletion->uuid;
 				$this->deleteCalls++;
 				$this->deleted[] = $uuid;
 				return true;
