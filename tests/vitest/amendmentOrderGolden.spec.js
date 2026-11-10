@@ -10,6 +10,7 @@
  */
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
+import * as amendmentVotingOrder from '../../src/utils/amendmentVotingOrder.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 const FILE = path.resolve(
@@ -24,6 +25,7 @@ const MODULES = {
 	'vue-material-design-icons/ArrowDown.vue': { default: {} },
 	'vue-material-design-icons/ArrowUp.vue': { default: {} },
 	'../../constants/decisionLifecycle.js': { DECISION_LIFECYCLE_COLORS: {} },
+	'../../utils/amendmentVotingOrder.js': amendmentVotingOrder,
 	'../../utils/textDiff.js': { suggestVotingOrder: (a) => a },
 	'./useRelationStore.js': { ensureRelationType: () => ({}) },
 }
