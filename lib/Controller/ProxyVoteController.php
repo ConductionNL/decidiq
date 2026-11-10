@@ -70,17 +70,7 @@ class ProxyVoteController extends Controller {
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function resolveCallerUid(): ?string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		$uid = $user->getUID();
-		if ($this->groupManager->isAdmin($uid) === true) {
-			return null;
-		}
-
-		return $uid;
+		return GuardCaller::uidFor(userSession: $this->userSession, groupManager: $this->groupManager);
 	}//end resolveCallerUid()
 
 	/**
@@ -98,10 +88,9 @@ class ProxyVoteController extends Controller {
 	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
-		if (($result['success'] ?? false) === false
-			&& stripos((string)($result['message'] ?? ''), 'Forbidden:') === 0
-		) {
-			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		$forbidden = ForbiddenResult::responseFor(result: $result);
+		if ($forbidden !== null) {
+			return $forbidden;
 		}
 
 		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);

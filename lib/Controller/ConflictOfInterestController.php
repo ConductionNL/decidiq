@@ -70,17 +70,7 @@ class ConflictOfInterestController extends Controller {
 	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function resolveCallerUid(): ?string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		$uid = $user->getUID();
-		if ($this->groupManager->isAdmin($uid) === true) {
-			return null;
-		}
-
-		return $uid;
+		return GuardCaller::uidFor(userSession: $this->userSession, groupManager: $this->groupManager);
 	}//end resolveCallerUid()
 
 	/**
@@ -99,10 +89,9 @@ class ConflictOfInterestController extends Controller {
 	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
-		if (($result['success'] ?? false) === false
-			&& stripos((string)($result['message'] ?? ''), 'Forbidden:') === 0
-		) {
-			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
+		$forbidden = ForbiddenResult::responseFor(result: $result);
+		if ($forbidden !== null) {
+			return $forbidden;
 		}
 
 		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
