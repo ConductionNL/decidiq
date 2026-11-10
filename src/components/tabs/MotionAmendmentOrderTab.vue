@@ -328,33 +328,9 @@ export default {
 }
 </script>
 
+<style scoped src="./relationTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__count {
-	color: var(--color-text-maxcontrast);
-	font-weight: normal;
-	margin-inline-start: 4px;
-}
-
 .decidiq-tab__hint {
 	margin: 0;
 	color: var(--color-text-maxcontrast);
