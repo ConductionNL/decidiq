@@ -79,16 +79,7 @@ final class MeetingAttendanceReader {
 		}
 
 		try {
-			$rows = $this->objectService->findAll(
-				[
-					'filters' => [
-						'register' => 'decidiq',
-						'schema' => self::SCHEMA,
-						'meeting' => $meetingId,
-					],
-					'limit' => 1000,
-				]
-			);
+			$rows = (new MeetingScopedRecords(objectService: $this->objectService, schema: self::SCHEMA))->rowsFor(meetingId: $meetingId);
 		} catch (Throwable $e) {
 			$this->logger?->warning(
 				'Decidiq: attendance of a meeting could not be read, using the participant value',
@@ -97,14 +88,21 @@ final class MeetingAttendanceReader {
 			return [];
 		}
 
-		$statuses = [];
-		foreach ($rows as $row) {
-			$record = $this->data(row: $row);
-			if ($this->refId(ref: ($record['meeting'] ?? null)) !== $meetingId) {
-				continue;
-			}
+		return self::statusesOf(records: MeetingScopedRecords::ofMeeting(rows: $rows, meetingId: $meetingId));
 
-			$participant = $this->refId(ref: ($record['participant'] ?? null));
+	}//end statusesFor()
+
+	/**
+	 * The status each attendance record gives its participant; a later record wins.
+	 *
+	 * @param list<array<string, mixed>> $records The meeting's attendance records
+	 *
+	 * @return array<string, string> Participant UUID => status
+	 */
+	private static function statusesOf(array $records): array {
+		$statuses = [];
+		foreach ($records as $record) {
+			$participant = MeetingScopedRecords::refId(ref: ($record['participant'] ?? null));
 			if ($participant !== '') {
 				$statuses[$participant] = (string)($record['status'] ?? '');
 			}
@@ -112,7 +110,7 @@ final class MeetingAttendanceReader {
 
 		return $statuses;
 
-	}//end statusesFor()
+	}//end statusesOf()
 
 	/**
 	 * The participants with this meeting's status as their attendanceStatus.
@@ -149,52 +147,7 @@ final class MeetingAttendanceReader {
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
 	public function idOf(array $row): string {
-		$self = ($row['@self'] ?? []);
-		if (is_array($self) === false) {
-			$self = [];
-		}
-
-		return (string)($row['id'] ?? $row['uuid'] ?? $self['id'] ?? '');
+		return MeetingScopedRecords::idOf(row: $row);
 
 	}//end idOf()
-
-	/**
-	 * An object as an array, from an entity or an array.
-	 *
-	 * @param mixed $row One findAll() result
-	 *
-	 * @return array<string, mixed>
-	 */
-	private function data(mixed $row): array {
-		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-			$row = $row->jsonSerialize();
-		}
-
-		if (is_array($row) === false) {
-			return [];
-		}
-
-		return $row;
-
-	}//end data()
-
-	/**
-	 * Read a reference that is a bare uuid or an expanded object.
-	 *
-	 * @param mixed $ref The reference
-	 *
-	 * @return string
-	 */
-	private function refId(mixed $ref): string {
-		if (is_string($ref) === true) {
-			return $ref;
-		}
-
-		if (is_array($ref) === true) {
-			return (string)($ref['id'] ?? $ref['uuid'] ?? '');
-		}
-
-		return '';
-
-	}//end refId()
 }//end class
