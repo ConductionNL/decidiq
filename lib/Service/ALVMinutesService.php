@@ -207,6 +207,28 @@ TEMPLATE;
 			return 0;
 		}
 
+		$notice = $this->membersNotice(minutesId: $minutesId, meetingId: $meetingId);
+		$sent = 0;
+		foreach ($uids as $uid) {
+			$sent += $this->sendNotice(uid: $uid, notice: $notice);
+		}
+
+		$this->logger->info("Minutes $minutesId sent to members: $sent notices");
+
+		return $sent;
+	}//end distribute()
+
+	/**
+	 * The notice every member gets: the title naming the meeting (or "this
+	 * meeting" when it has no title or cannot be read), the message, the deep
+	 * link and the in-app payload.
+	 *
+	 * @param string $minutesId The Minutes ID
+	 * @param string $meetingId The linked Meeting ID
+	 *
+	 * @return array{title: string, message: string, deepLink: string, inApp: array<string, mixed>} The notice.
+	 */
+	private function membersNotice(string $minutesId, string $meetingId): array {
 		try {
 			$meeting = $this->context->requireMeeting(meetingId: $meetingId);
 		} catch (MissingObjectException) {
@@ -220,36 +242,45 @@ TEMPLATE;
 			$named = $l10n->t('this meeting');
 		}
 
-		$inApp = [
-			'subject'    => 'minutes_available',
-			'parameters' => ['meetingId' => $meetingId, 'meetingTitle' => $meetingTitle],
-			'objectType' => 'minutes',
-			'objectId'   => $minutesId,
+		return [
+			'title' => $l10n->t('The minutes of %s are available', [$named]),
+			'message' => $l10n->t('Open the minutes in Decidiq to read them.'),
+			'deepLink' => '/minutes/' . $minutesId,
+			'inApp' => [
+				'subject'    => 'minutes_available',
+				'parameters' => ['meetingId' => $meetingId, 'meetingTitle' => $meetingTitle],
+				'objectType' => 'minutes',
+				'objectId'   => $minutesId,
+			],
 		];
+	}//end membersNotice()
 
-		$sent = 0;
-		foreach ($uids as $uid) {
-			try {
-				$sent += $this->preferences->dispatch(
-					personId: $uid,
-					eventType: 'decisionPublished',
-					title: $l10n->t('The minutes of %s are available', [$named]),
-					message: $l10n->t('Open the minutes in Decidiq to read them.'),
-					deepLink: '/minutes/' . $minutesId,
-					inApp: $inApp
-				);
-			} catch (Throwable $e) {
-				$this->logger->warning(
-					'Decidiq: minutes notice to {userId} failed: {error}',
-					['userId' => $uid, 'error' => $e->getMessage()]
-				);
-			}
+	/**
+	 * Send the notice to one member; a failure is logged and counts nothing.
+	 *
+	 * @param string                                                                              $uid    The member's Nextcloud user
+	 * @param array{title: string, message: string, deepLink: string, inApp: array<string, mixed>} $notice The notice
+	 *
+	 * @return int The notices delivered.
+	 */
+	private function sendNotice(string $uid, array $notice): int {
+		try {
+			return $this->preferences->dispatch(
+				personId: $uid,
+				eventType: 'decisionPublished',
+				title: $notice['title'],
+				message: $notice['message'],
+				deepLink: $notice['deepLink'],
+				inApp: $notice['inApp']
+			);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: minutes notice to {userId} failed: {error}',
+				['userId' => $uid, 'error' => $e->getMessage()]
+			);
+			return 0;
 		}
-
-		$this->logger->info("Minutes $minutesId sent to members: $sent notices");
-
-		return $sent;
-	}//end distribute()
+	}//end sendNotice()
 
 	/**
 	 * The Nextcloud users of the meeting's current members: the linked
