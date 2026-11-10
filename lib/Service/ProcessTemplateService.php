@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleGraph;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -324,10 +325,12 @@ class ProcessTemplateService {
 
 		$errors = $this->listFromErrors(transitions: $transitions);
 		$found = $validator->validate(
-			states: array_values(array_filter((array)($stateMachine['states'] ?? []), 'is_array')),
-			initial: $initialState,
-			transitions: $transitions,
-			knownGuards: self::KNOWN_GUARDS
+			graph: new LifecycleGraph(
+				states: array_values(array_filter((array)($stateMachine['states'] ?? []), 'is_array')),
+				initial: $initialState,
+				transitions: $transitions,
+				knownGuards: self::KNOWN_GUARDS
+			)
 		);
 		foreach ($found as $error) {
 			$errors[] = $error['message'];

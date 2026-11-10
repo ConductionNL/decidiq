@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateTime;
+use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -461,15 +463,17 @@ class MailVoteReplyProcessor {
 		}
 
 		try {
-			$notificationService = $this->container->get('OCA\OpenRegister\Service\NotificationService');
-			$notificationService->createNotification(
-				userId: $notifyUid,
-				app: 'decidiq',
-				subject: $subject,
-				subjectParameters: $parameters,
-				object: 'voting-round',
-				objectId: $roundId
-			);
+			// OpenRegister's NotificationService has no generic createNotification();
+			// the decidiq Notifier renders these subjects, so go through the
+			// Nextcloud notification manager directly.
+			$manager      = $this->container->get(IManager::class);
+			$notification = $manager->createNotification();
+			$notification->setApp('decidiq')
+				->setUser($notifyUid)
+				->setDateTime(new DateTime())
+				->setObject('voting-round', $roundId)
+				->setSubject($subject, $parameters);
+			$manager->notify($notification);
 		} catch (Throwable $e) {
 			$this->logger->warning($failureMessage, ['error' => $e->getMessage()]);
 		}

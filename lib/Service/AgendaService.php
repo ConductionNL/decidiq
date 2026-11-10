@@ -29,7 +29,6 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCA\OpenRegister\Service\CalendarEventService;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -78,7 +77,6 @@ class AgendaService {
 	 * Constructor for AgendaService.
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister object service
-	 * @param CalendarEventService $calendarEventService OpenRegister calendar event service
 	 * @param AgendaNotices $notices Sends the agenda notices to the members
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
@@ -90,7 +88,6 @@ class AgendaService {
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly CalendarEventService $calendarEventService,
 		private readonly AgendaNotices $notices,
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
@@ -138,7 +135,6 @@ class AgendaService {
 	 */
 	public function publishAgenda(string $meetingId): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
-		$this->refreshCalendarEvent(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
@@ -166,21 +162,6 @@ class AgendaService {
 
 		return $items;
 	}//end publishableItems()
-
-	/**
-	 * Update the meeting calendar entry to reflect the published agenda
-	 * (method guard for forward-compatibility until CalendarEventService
-	 * exposes updateMeetingEvent).
-	 *
-	 * @param string $meetingId UUID of the Meeting
-	 *
-	 * @return void
-	 */
-	private function refreshCalendarEvent(string $meetingId): void {
-		if (method_exists($this->calendarEventService, 'updateMeetingEvent') === true) {
-			$this->calendarEventService->updateMeetingEvent(meetingId: $meetingId);
-		}
-	}//end refreshCalendarEvent()
 
 	/**
 	 * Save the meeting with its next agenda version and the publication fields.

@@ -35,7 +35,6 @@ use OCA\Decidiq\Service\PublicationEligibilityService;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
-use OCA\OpenRegister\Service\CalendarEventService;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
 use Opis\JsonSchema\Validator;
@@ -153,7 +152,6 @@ class AgendaInvitationTest extends TestCase {
 		$logger = new NullLogger();
 		return new AgendaService(
 			objectService: $objectService,
-			calendarEventService: $this->createMock(CalendarEventService::class),
 			notices: new AgendaNotices(preferences: $preferences, l10nFactory: $factory, logger: $logger),
 			logger: $logger,
 			participantResolver: $resolver,
