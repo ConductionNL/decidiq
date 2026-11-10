@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\TaskProcessing\Task;
 use OCP\TaskProcessing\TaskTypes\TextToText;
 use Psr\Container\ContainerInterface;
@@ -348,7 +349,7 @@ class MinutesDraftService {
 	private function fetchObject(string $id, string $schema): ?array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable) {
 			return null;
 		}

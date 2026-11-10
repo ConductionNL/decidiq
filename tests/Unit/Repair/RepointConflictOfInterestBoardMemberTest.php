@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Repair;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Repair\RepointConflictOfInterestBoardMember;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -71,7 +72,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				return array_map(fn (array $r) => $this->entity(data: $r), $rows);
 			}
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				// Participant-1 still exists as a live Participant — not yet migrated.
 				if ($schema === 'participant' && $id === 'participant-1') {
@@ -80,7 +81,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
 			function (
@@ -181,7 +182,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		$objectService->method('findAll')->willReturnCallback(
 			fn (array $config): array => array_map(fn (array $r) => $this->entity(data: $r), $rows)
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'participant' && $id === 'participant-orphan') {
 					return $this->entity(data: ['id' => 'participant-orphan']);
@@ -189,7 +190,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array $object) use (&$savedRef) {
@@ -345,7 +346,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		$objectService->method('findAll')->willReturn(
 			[['id' => 'coi-plain', 'boardMember' => 'participant-plain']]
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'participant' && $id === 'participant-plain') {
 					return $this->entity(data: ['id' => 'participant-plain']);
@@ -353,7 +354,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
 			function (
@@ -414,7 +415,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$objectService->method('findAll')->willReturn([$entity]);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'participant' && $id === 'participant-fallback') {
 					return $this->entity(data: ['id' => 'participant-fallback']);
@@ -422,7 +423,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(
 			function (
@@ -515,7 +516,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		$objectService->method('findAll')->willReturnCallback(
 			fn (array $config): array => array_map(fn (array $r) => $this->entity(data: $r), $rows)
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'participant' && $id === 'participant-save-fails') {
 					return $this->entity(data: ['id' => 'participant-save-fails']);
@@ -523,7 +524,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$objectService->method('saveObject')->willThrowException(new \RuntimeException('write conflict'));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);

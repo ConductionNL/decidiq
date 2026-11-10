@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Service\MeetingPackageService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -62,7 +63,7 @@ class MeetingPackageServiceTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($meetings): ?ObjectEntity {
 				if (isset($meetings[(string)$id]) === false) {
 					return null;
@@ -74,7 +75,7 @@ class MeetingPackageServiceTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturn($items);
 
 		$fileService = new class($written, $itemFiles) {

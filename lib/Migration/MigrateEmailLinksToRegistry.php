@@ -42,6 +42,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use OCA\Decidiq\Service\SettingsService;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -227,7 +228,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 
 		[$register, $schema, $targetUuid] = $parts;
 
-		$targetEntity = $objectService->find(id: $targetUuid, register: $register, schema: $schema);
+		$targetEntity = $objectService->find(id: $targetUuid, options: new ObjectFindOptions(register: $register, schema: $schema));
 		if ($targetEntity === null) {
 			return;
 		}

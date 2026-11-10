@@ -78,6 +78,7 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Portal\PortalContributionProvider;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Container\ContainerInterface;
@@ -459,7 +460,7 @@ class PortalCreateOpenParentGuardListener implements IEventListener {
 		$objectService = $this->container->get(self::OBJECT_SERVICE);
 
 		$parentSchema = (string)($constraint['parentSchema'] ?? '');
-		$parentEntity = $objectService->find(id: $parentId, register: self::REGISTER, schema: $parentSchema);
+		$parentEntity = $objectService->find(id: $parentId, options: new ObjectFindOptions(register: self::REGISTER, schema: $parentSchema));
 		if ($parentEntity === null) {
 			return false;
 		}

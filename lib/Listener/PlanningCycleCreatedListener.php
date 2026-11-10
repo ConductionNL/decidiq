@@ -34,6 +34,7 @@ use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\Decidiq\Service\PlanningCycleGenerator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -124,7 +125,7 @@ class PlanningCycleCreatedListener implements IEventListener {
 			return null;
 		}
 
-		$template = $this->objectService->find(id: $templateId, register: 'decidiq', schema: 'planning-cycle-template');
+		$template = $this->objectService->find(id: $templateId, options: new ObjectFindOptions(register: 'decidiq', schema: 'planning-cycle-template'));
 		if ($template === null) {
 			return null;
 		}

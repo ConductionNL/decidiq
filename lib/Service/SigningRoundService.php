@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 
@@ -136,7 +137,7 @@ class SigningRoundService {
 			return ['success' => false, 'message' => 'This record cannot be sent for signature.'];
 		}
 
-		$entity = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $subjectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return ['success' => false, 'message' => 'The record was not found.'];
 		}
@@ -190,7 +191,7 @@ class SigningRoundService {
 			return ['status' => 'failed', 'message' => 'This record cannot be sent for signature.'];
 		}
 
-		$entity = $this->objectService->find(id: $subjectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService->find(id: $subjectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return ['status' => 'failed', 'message' => 'The record was not found.'];
 		}

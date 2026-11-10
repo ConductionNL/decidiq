@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Controller\MemberCompetenceController;
 use OCA\Decidiq\Service\CompetenceConfirmationGuard;
 use OCA\Decidiq\Service\GovernanceScopeGuard;
@@ -100,7 +101,7 @@ class MemberCompetenceControllerTest extends TestCase {
 	 */
 	private function controller(?string $uid, array $params = []): MemberCompetenceController {
 		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('find')->willReturnCallback(
+		$objects->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
@@ -112,7 +113,7 @@ class MemberCompetenceControllerTest extends TestCase {
 				$entity->setObject($data);
 				return $entity;
 			}
-		);
+		));
 		$objects->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
 				if ($this->broken === true) {

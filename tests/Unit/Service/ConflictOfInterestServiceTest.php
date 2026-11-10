@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
 use OCA\Decidiq\Service\ConflictDeclaration;
@@ -115,7 +116,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 				return $entity;
 			}
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rows, $agendaItems): ?ObjectEntity {
 				foreach ($rows as $row) {
 					if (is_array($row) === true && ($row['id'] ?? null) === $id) {
@@ -137,7 +138,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$auditLog = $this->createMock(AuditLogService::class);
 		$auditLog->method('append')->willReturnCallback(

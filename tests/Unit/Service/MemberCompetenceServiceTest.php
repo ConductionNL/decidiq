@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\CompetenceRefusedException;
@@ -148,12 +149,12 @@ class MemberCompetenceServiceTest extends TestCase {
 	 */
 	private function service(): MemberCompetenceService {
 		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('find')->willReturnCallback(
+		$objects->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				return $data === null ? null : self::entity(schema: (string)$schema, id: (string)$id, data: $data);
 			}
-		);
+		));
 		$objects->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->saves[] = [(string)$schema, $object, $uuid, $_rbac, $_multitenancy];

@@ -45,6 +45,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Controller\MotionController;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -245,7 +247,9 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if ($schema !== null) {
 					$this->assertSchemaExists((string)$schema);
 				}
@@ -352,7 +356,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			}
 		);
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -360,14 +364,14 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 				string|int|null $register = null,
 				string|int|null $schema = null,
 			) use ($double): ?ObjectEntity {
-				$row = $double->find($id, $register, $schema);
+				$row = $double->find(id: $id, options: new ObjectFindOptions(register: $register, schema: $schema));
 				if ($row === null) {
 					return null;
 				}
 
 				return $this->wrapObject($row->getObject());
 			}
-		);
+		));
 
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config = []) use ($double): array {

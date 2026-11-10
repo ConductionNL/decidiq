@@ -53,6 +53,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -562,8 +563,7 @@ class ProxyVoteService {
 		try {
 			$entity = $this->objectService->find(
 				id: $proxyId,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA)
 			);
 			if ($entity === null) {
 				return [

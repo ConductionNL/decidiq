@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Controller\VotingBehaviourController;
 use OCA\Decidiq\Service\VotingBehaviourService;
 use OCA\Decidiq\Tests\Unit\Support\FakeSlugResolver;
@@ -245,7 +246,7 @@ class VotingBehaviourControllerTest extends TestCase {
 			// with the code and with no instance the code ran on. The controller
 			// is built here with a migrated instance, so this is now the
 			// assertion that reddens if the resolution is dropped.
-			->with($participantUuid, [], false, 'decidiq', 'participant')
+			->with(...FindCallShape::findArgs($participantUuid, [], false, 'decidiq', 'participant'))
 			->willReturn($this->makeParticipantEntity('user-1'));
 
 		$expectedStats = [

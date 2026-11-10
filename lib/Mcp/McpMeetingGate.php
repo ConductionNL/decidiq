@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Mcp;
 
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -203,7 +204,7 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function loadMeeting(string $meetingUuid): ?array {
-		$meetingEntity = $this->objectService->find(id: $meetingUuid, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingUuid, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			return null;
 		}

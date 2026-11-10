@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\PublicationEligibilityService;
@@ -58,7 +59,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($objectData): ?object {
 				if ($objectData === null) {
 					return null;
@@ -68,7 +69,7 @@ class PublicationEligibilityServiceTest extends TestCase {
 				$entity->method('jsonSerialize')->willReturn($objectData);
 				return $entity;
 			}
-		);
+		));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);

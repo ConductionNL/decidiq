@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -72,7 +73,7 @@ class LiveDecisionService {
 	public function recordDecision(string $meetingId, array $decisionData): string {
 		try {
 			// Fetch Meeting.
-			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();
@@ -202,7 +203,7 @@ class LiveDecisionService {
 			}
 
 			// No Minutes found, create one.
-			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			$meeting = null;
 			if ($meetingEntity !== null) {
 				$meeting = $meetingEntity->jsonSerialize();

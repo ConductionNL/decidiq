@@ -32,6 +32,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -325,7 +326,12 @@ class PublicationEventRecorder {
 	 * @return array<string,mixed>
 	 */
 	private function read(string $schema, string $id): array {
-		$found = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$found = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($found === null) {
 			return [];
 		}

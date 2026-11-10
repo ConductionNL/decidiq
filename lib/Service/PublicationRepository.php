@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -105,7 +106,7 @@ class PublicationRepository {
 	 * @return array<string,mixed> The record data.
 	 */
 	public function loadRecord(string $recordId): array {
-		$entity = $this->objectService()->find(id: $recordId, register: 'decidiq', schema: 'publication-record');
+		$entity = $this->objectService()->find(id: $recordId, options: new ObjectFindOptions(register: 'decidiq', schema: 'publication-record'));
 		if ($entity === null) {
 			throw new MissingObjectException(message: 'Publication record not found: ' . $recordId);
 		}
@@ -131,7 +132,7 @@ class PublicationRepository {
 	public function setDepublicationDate(string $payloadId, string $timestamp): void {
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $payloadId, register: 'decidiq', schema: 'publication-payload');
+			$entity = $objectService->find(id: $payloadId, options: new ObjectFindOptions(register: 'decidiq', schema: 'publication-payload'));
 			if ($entity === null) {
 				return;
 			}
@@ -176,7 +177,7 @@ class PublicationRepository {
 		try {
 			$objectService = $this->objectService();
 			if ($source === null) {
-				$entity = $objectService->find(id: $sourceId, register: 'decidiq', schema: 'decision');
+				$entity = $objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 				if ($entity === null) {
 					return;
 				}

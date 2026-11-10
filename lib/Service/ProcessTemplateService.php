@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
@@ -160,7 +161,7 @@ class ProcessTemplateService {
 	 * @return array<string, mixed>|null The template object, or null when not found
 	 */
 	public function get(string $templateId): ?array {
-		$entity = $this->objectService()->find(id: $templateId, register: 'decidiq', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $templateId, options: new ObjectFindOptions(register: 'decidiq', schema: 'process-template'));
 		if ($entity === null) {
 			return null;
 		}
@@ -424,7 +425,7 @@ class ProcessTemplateService {
 		}
 
 		try {
-			$bodyEntity = $this->objectService()->find(id: $governanceBodyId, register: 'decidiq', schema: 'governance-body');
+			$bodyEntity = $this->objectService()->find(id: $governanceBodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
 			if ($bodyEntity === null) {
 				return null;
 			}
@@ -472,7 +473,7 @@ class ProcessTemplateService {
 		}
 
 		// Fall back to a direct UUID lookup.
-		$entity = $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'process-template');
+		$entity = $this->objectService()->find(id: $ref, options: new ObjectFindOptions(register: 'decidiq', schema: 'process-template'));
 		if ($entity === null) {
 			return null;
 		}

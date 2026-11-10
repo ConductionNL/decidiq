@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
 use Psr\Container\ContainerInterface;
@@ -142,7 +143,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishConsultationResults(string $consultationId, string $staffResponse = ''): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -188,7 +189,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishBudgetResults(string $budgetId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$entity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($entity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}
@@ -244,7 +245,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishEvaluationResults(string $evaluationId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity === null) {
 			throw new RuntimeException("BoardEvaluation {$evaluationId} not found");
 		}
@@ -408,7 +409,7 @@ class ParticipationPublicationService {
 		$objectService = $this->objectService();
 
 		if ($sourceObject === null) {
-			$entity = $objectService->find(id: $sourceId, register: 'decidiq', schema: $sourceSchema);
+			$entity = $objectService->find(id: $sourceId, options: new ObjectFindOptions(register: 'decidiq', schema: $sourceSchema));
 			$sourceObject = [];
 			if ($entity !== null) {
 				$sourceObject = $entity->jsonSerialize();
@@ -506,7 +507,7 @@ class ParticipationPublicationService {
 	 */
 	public function publishReaction(string $reactionId): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}

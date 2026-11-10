@@ -44,6 +44,7 @@ namespace OCA\Decidiq\Repair;
 
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -337,7 +338,7 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 */
 	private function exists(string $id, string $schema): bool {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: $schema));
 		} catch (Throwable $e) {
 			return false;
 		}

@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\GovernanceBodyCommandService;
 use OCA\Decidiq\Service\GovernanceBodyQueryService;
 use OCA\Decidiq\Service\RegisterObjectStore;
@@ -79,13 +80,13 @@ class GovernanceBodyQueryServiceTest extends TestCase {
 				return $out;
 			}
 		);
-		$facade->method('find')->willReturnCallback(
+		$facade->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntityInterface {
 				$row = ($this->rows[(string)$schema][(string)$id] ?? null);
 
 				return ($row === null) ? null : $this->entity($row);
 			}
-		);
+		));
 
 		$this->store = new RegisterObjectStore($facade);
 

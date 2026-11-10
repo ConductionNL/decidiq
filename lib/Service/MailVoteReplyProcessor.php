@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -258,7 +259,7 @@ class MailVoteReplyProcessor {
 	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function findParticipant(object $objectService, string $participantId, string $roundId): ?array {
-		$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
+		$entity = $objectService->find(id: $participantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		if ($entity !== null) {
 			return $entity->jsonSerialize();
 		}

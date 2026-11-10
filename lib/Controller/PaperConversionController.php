@@ -26,6 +26,7 @@ use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -119,7 +120,12 @@ class PaperConversionController extends Controller {
 	 */
 	private function readObject(string $schema, string $objectId): array|JSONResponse {
 		try {
-			$object = $this->objectService->find(id: $objectId, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+			$object = $this->objectService->find(
+				id: $objectId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (\Throwable) {
 			return new JSONResponse(['message' => 'The papers of this page could not be read.'], Http::STATUS_SERVICE_UNAVAILABLE);
 		}

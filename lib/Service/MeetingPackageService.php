@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -121,7 +122,7 @@ class MeetingPackageService {
 	private function loadMeeting(string $meetingId): array {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (\Throwable $e) {
 			$this->logger->error('Decidiq: MeetingPackageService::assemble lookup failed', ['meetingId' => $meetingId, 'exception' => $e->getMessage()]);
 			return ['failure' => $this->failure(message: 'Failed to load meeting.')];

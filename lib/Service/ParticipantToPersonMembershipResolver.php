@@ -47,6 +47,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -163,7 +164,10 @@ class ParticipantToPersonMembershipResolver {
 	 */
 	private function loadParticipant(string $participantId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $participantId, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
+			$entity = $this->objectService->find(
+				id: $participantId,
+				options: new ObjectFindOptions(register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA)
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver could not load the Participant',

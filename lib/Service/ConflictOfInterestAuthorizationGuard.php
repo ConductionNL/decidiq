@@ -35,6 +35,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -233,12 +234,12 @@ class ConflictOfInterestAuthorizationGuard {
 		}
 
 		try {
-			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+			$entity = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 			if ($entity === null) {
 				// A declaration made on a motion's page names the motion (a
 				// Decision) as its subject; the motion carries the same
 				// `meeting` reference an agenda item does (bod-10).
-				$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'decision');
+				$entity = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(

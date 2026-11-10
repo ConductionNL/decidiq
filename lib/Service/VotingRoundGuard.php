@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
@@ -330,7 +331,7 @@ class VotingRoundGuard {
 	 * @return array<string,mixed>|null The object data, or null when not found
 	 */
 	private function findData(object $objectService, mixed $id, string $schema): ?array {
-		$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}

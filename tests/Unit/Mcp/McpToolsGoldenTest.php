@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Mcp;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
 use OCA\Decidiq\Mcp\McpActionItemTools;
 use OCA\Decidiq\Mcp\McpMeetingTools;
@@ -305,7 +306,7 @@ class McpToolsGoldenTest extends TestCase {
 	 *
 	 * @return array<string, mixed> The named arguments.
 	 */
-	private function named(string $method, array $args): array {
+	private function namedAsDeclared(string $method, array $args): array {
 		$out = [];
 		foreach ((new ReflectionMethod(ObjectServiceInterface::class, $method))->getParameters() as $i => $param) {
 			if (array_key_exists($i, $args) === false) {
@@ -320,5 +321,23 @@ class McpToolsGoldenTest extends TestCase {
 		}
 
 		return $out;
+	}//end namedAsDeclared()
+
+	/**
+	 * The arguments by name; a find() or findSilent() call is expanded back into
+	 * its old parameter names, so the recording describes the read, not the call shape.
+	 *
+	 * @param mixed $method See namedAsDeclared()
+	 * @param mixed $args See namedAsDeclared()
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function named(string $method, array $args): array {
+		$named = $this->namedAsDeclared($method, $args);
+		if (in_array($method, ['find', 'findSilent'], true) === true) {
+			return FindCallShape::legacyNamed(named: $named);
+		}
+
+		return $named;
 	}//end named()
 }//end class

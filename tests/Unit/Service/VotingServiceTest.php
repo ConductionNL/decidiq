@@ -34,6 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
@@ -201,7 +202,7 @@ class VotingServiceTest extends TestCase {
 			}
 		);
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -216,7 +217,7 @@ class VotingServiceTest extends TestCase {
 
 				return $this->entity($row['object']);
 			}
-		);
+		));
 
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config = []) use ($store, &$schema): array {

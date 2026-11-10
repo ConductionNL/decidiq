@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -158,7 +159,7 @@ final class PublicationDigestServiceTest extends TestCase {
 				};
 			}
 		);
-		$objects->method('find')->willReturnCallback(
+		$objects->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend=[], bool $files=false, string|int|null $register=null, string|int|null $schema=null, bool $_rbac=true): ?ObjectEntity {
 				if ($schema === 'governance-body') {
 					return $this->entity(data: ['name' => ($id === self::BODY ? 'Gemeenteraad' : 'Commissie Ruimte')]);
@@ -171,7 +172,7 @@ final class PublicationDigestServiceTest extends TestCase {
 
 				return $this->entity(data: ['id' => $id]);
 			}
-		);
+		));
 		$objects->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null, bool $_rbac=true): ObjectEntity {
 				$this->saved[] = [(string)$schema, $object, $uuid];

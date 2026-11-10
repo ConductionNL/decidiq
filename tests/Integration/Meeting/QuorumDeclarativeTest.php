@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Integration\Meeting;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -338,7 +339,7 @@ class QuorumDeclarativeTest extends TestCase {
 	private function fetchMeeting(string $meetingId): array {
 		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('meeting');
-		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$entity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 
 		if ($entity === null) {
 			return [];

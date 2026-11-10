@@ -33,6 +33,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Resolves Minutes, Meeting, GovernanceBody and Participant context from OpenRegister.
@@ -176,7 +177,7 @@ class MinutesContextResolver {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function findObject(string $id, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $id, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService()->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}

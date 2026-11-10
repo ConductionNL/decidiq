@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -329,7 +330,7 @@ class GovernanceReportingService {
 	 */
 	private function loadReport(string $reportId): array|string {
 		try {
-			$entity = $this->objectService->find(id: $reportId, register: 'decidiq', schema: self::SCHEMA);
+			$entity = $this->objectService->find(id: $reportId, options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA));
 			if ($entity === null) {
 				return 'Report not found.';
 			}

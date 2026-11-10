@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Listener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -285,7 +286,7 @@ class SubmissionDeadlineListener implements IEventListener {
 			return null;
 		}
 
-		$motionEntity = $this->objectService->find(id: $parentMotionId, register: 'decidiq', schema: 'decision');
+		$motionEntity = $this->objectService->find(id: $parentMotionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($motionEntity === null) {
 			return null;
 		}
@@ -340,7 +341,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return array{opensAt: int|null, deadline: int|null} Each null when unset, unparseable or the meeting is missing
 	 */
 	private function resolveSubmissionWindow(string $meetingId): array {
-		$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($meetingEntity === null) {
 			return ['opensAt' => null, 'deadline' => null];
 		}

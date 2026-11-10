@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\Decidiq\Service\AdvisoryVoteService;
 use OCA\Decidiq\Service\BudgetVotingService;
@@ -115,7 +116,7 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 	 * @return void
 	 */
 	private function stubFind(array $proposal, ?array $round): void {
-		$this->objectService->method('find')->willReturnCallback(
+		$this->objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -133,7 +134,7 @@ class ParticipationAdvisoryVoteWindowTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 	}//end stubFind()
 

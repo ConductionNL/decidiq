@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service\Records;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Service\MeetingFolderService;
@@ -135,7 +136,7 @@ class DestructionCertificateRendererTest extends TestCase {
 	 */
 	private function renderer(): DestructionCertificateRenderer {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
@@ -147,7 +148,7 @@ class DestructionCertificateRendererTest extends TestCase {
 				$entity->setObject($data);
 				return $entity;
 			}
-		);
+		));
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
 				$this->saves[] = $object;

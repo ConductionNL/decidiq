@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
@@ -209,7 +210,12 @@ class PublicationDigestComposer {
 		}
 
 		try {
-			$found = $this->objectService->find(id: $id, register: 'decidiq', schema: 'governance-body', _rbac: false, _multitenancy: false);
+			$found = $this->objectService->find(
+				id: $id,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable) {
 			return '';
 		}

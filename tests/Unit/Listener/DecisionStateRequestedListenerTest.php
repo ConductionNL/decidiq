@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Event\DecisionStateRequestedEvent;
 use OCA\Decidiq\Listener\DecisionStateRequestedListener;
 use OCA\Decidiq\Service\AuditLogService;
@@ -139,7 +140,7 @@ class DecisionStateRequestedListenerTest extends TestCase {
 	private function objectService(): ObjectService&MockObject {
 		$service = $this->createMock(ObjectService::class);
 
-		$service->method('find')->willReturnCallback(
+		$service->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -161,7 +162,7 @@ class DecisionStateRequestedListenerTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 
 		$service->method('findAll')->willReturnCallback(
 			static function (array $config = []): array {

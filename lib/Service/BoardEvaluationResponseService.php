@@ -33,6 +33,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 
@@ -100,8 +101,7 @@ class BoardEvaluationResponseService {
 		try {
 			$entity = $this->objectService()->find(
 				id: $evaluationId,
-				register: 'decidiq',
-				schema: 'board-evaluation'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation')
 			);
 			if ($entity !== null) {
 				$evaluation = $entity->jsonSerialize();
@@ -156,7 +156,7 @@ class BoardEvaluationResponseService {
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}
@@ -299,7 +299,7 @@ class BoardEvaluationResponseService {
 
 		// Re-fetch to reduce (not eliminate) a lost-update race between the
 		// response write above and this roster update.
-		$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+		$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 		if ($entity !== null) {
 			$evaluation = $entity->jsonSerialize();
 		}

@@ -43,6 +43,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeInterface;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Constants;
 use OCP\IURLGenerator;
@@ -376,7 +377,12 @@ class BroadcastCaptionService {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}

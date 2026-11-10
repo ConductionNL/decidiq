@@ -29,6 +29,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -141,7 +142,7 @@ class ReactionIntakeService {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -201,7 +202,7 @@ class ReactionIntakeService {
 	 */
 	public function approveReaction(string $reactionId, ?string $reason = null): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}
@@ -253,7 +254,10 @@ class ReactionIntakeService {
 		}
 
 		try {
-			$consultationEntity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+			$consultationEntity = $objectService->find(
+				id: $consultationId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation')
+			);
 			if ($consultationEntity === null) {
 				return;
 			}
@@ -293,7 +297,7 @@ class ReactionIntakeService {
 		}
 
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $reactionId, register: 'decidiq', schema: 'consultation-reaction');
+		$entity = $objectService->find(id: $reactionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'consultation-reaction'));
 		if ($entity === null) {
 			throw new RuntimeException("ConsultationReaction {$reactionId} not found");
 		}

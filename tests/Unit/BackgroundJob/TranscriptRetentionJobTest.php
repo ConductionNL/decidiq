@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\BackgroundJob\TranscriptRetentionJob;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
@@ -110,7 +111,7 @@ class TranscriptRetentionJobTest extends TestCase {
 			$minutes = [['lifecycle' => 'approved', 'approvedAt' => $approvedAt, 'relations' => ['meeting' => 'm1']]];
 		}
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (string $id, ?array $extend = null, bool $files = false, $register = null, $schema = null) {
 				return match ($schema) {
 					'meeting' => $this->entity(['id' => 'm1', 'governanceBody' => 'b1']),
@@ -120,7 +121,7 @@ class TranscriptRetentionJobTest extends TestCase {
 					default => null,
 				};
 			}
-		);
+		));
 
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use ($minutes): array {
@@ -316,7 +317,7 @@ class TranscriptRetentionJobTest extends TestCase {
 	 */
 	public function testDeleteRecordingOnly(): void {
 		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (string $id, ?array $extend = null, bool $files = false, $register = null, $schema = null) {
 				return match ($schema) {
 					'meeting' => $this->entity(['id' => 'm1', 'governanceBody' => 'b1']),
@@ -326,7 +327,7 @@ class TranscriptRetentionJobTest extends TestCase {
 					default => null,
 				};
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturnCallback(
 			fn (array $config): array => ($config['schema'] ?? '') === 'minutes'
 				? [['lifecycle' => 'approved', 'approvedAt' => '2020-01-01T00:00:00Z', 'relations' => ['meeting' => 'm1']]]
@@ -374,7 +375,7 @@ class TranscriptRetentionJobTest extends TestCase {
 	 */
 	public function testKeepPolicyDeletesNothing(): void {
 		$objectService = $this->createMock(\OCA\OpenRegister\Service\ObjectService::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (string $id, ?array $extend = null, bool $files = false, $register = null, $schema = null) {
 				return match ($schema) {
 					'meeting' => $this->entity(['id' => 'm1', 'governanceBody' => 'b1']),
@@ -382,7 +383,7 @@ class TranscriptRetentionJobTest extends TestCase {
 					default => null,
 				};
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturnCallback(
 			fn (array $config): array => ($config['schema'] ?? '') === 'minutes'
 				? [['lifecycle' => 'approved', 'approvedAt' => '2020-01-01T00:00:00Z', 'relations' => ['meeting' => 'm1']]]

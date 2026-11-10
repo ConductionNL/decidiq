@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
@@ -159,7 +160,7 @@ class ProxyVoteServiceTest extends TestCase {
 				return $out;
 			}
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rowsRef) {
 				foreach ($rowsRef as $row) {
 					if (($row['id'] ?? null) === $id) {
@@ -172,7 +173,7 @@ class ProxyVoteServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$objectService->method('saveObject')->willReturnCallback(
 			function (
 				array $object,

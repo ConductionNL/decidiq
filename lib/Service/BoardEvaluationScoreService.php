@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -179,7 +180,7 @@ class BoardEvaluationScoreService {
 
 		try {
 			$objectService = $this->objectService();
-			$entity = $objectService->find(id: $evaluationId, register: 'decidiq', schema: 'board-evaluation');
+			$entity = $objectService->find(id: $evaluationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'board-evaluation'));
 			if ($entity === null) {
 				return ['success' => false, 'message' => "BoardEvaluation {$evaluationId} not found."];
 			}

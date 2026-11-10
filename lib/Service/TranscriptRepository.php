@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\FileService;
 use RuntimeException;
 
@@ -133,7 +134,7 @@ class TranscriptRepository {
 		$objectService = $this->getObjectService();
 
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\OCP\AppFramework\Db\DoesNotExistException) {
 			throw new MissingObjectException(message: $absentMessage);
 		}

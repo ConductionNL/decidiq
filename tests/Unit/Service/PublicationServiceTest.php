@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
@@ -78,7 +79,7 @@ class PublicationServiceTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?object {
 				if (isset($this->store[(string)$id]) === false) {
 					return null;
@@ -88,7 +89,7 @@ class PublicationServiceTest extends TestCase {
 				$entity->method('jsonSerialize')->willReturn($this->store[(string)$id]);
 				return $entity;
 			}
-		);
+		));
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
 				if ($uuid === null) {

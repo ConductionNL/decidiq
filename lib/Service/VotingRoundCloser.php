@@ -32,6 +32,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -579,7 +580,7 @@ class VotingRoundCloser {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function findObject(string $objectId, string $schema): ?array {
-		$entity = $this->objectService()->find(id: $objectId, register: 'decidiq', schema: $schema);
+		$entity = $this->objectService()->find(id: $objectId, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		if ($entity === null) {
 			return null;
 		}

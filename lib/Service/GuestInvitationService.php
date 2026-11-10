@@ -38,6 +38,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\OpenRegister\Service\FileService;
 use OCP\IGroupManager;
 use OCP\IL10N;
@@ -221,7 +222,7 @@ class GuestInvitationService {
 	 */
 	private function loadMeeting(string $meetingId): array {
 		try {
-			$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (\Throwable $e) {
 			$entity = null;
 		}

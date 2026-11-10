@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -213,7 +214,7 @@ final class TranslationQueueEntryProcessor {
 	 */
 	private function loadMinutes(string $minutesId): ?array {
 		try {
-			$entity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+			$entity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 			if ($entity === null) {
 				return null;
 			}

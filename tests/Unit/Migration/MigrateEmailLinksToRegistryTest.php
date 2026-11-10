@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Migration\MigrateEmailLinksToRegistry;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
@@ -350,7 +351,9 @@ class MigrateEmailLinksToRegistryTest extends TestCase {
 			 *
 			 * @return object
 			 */
-			public function find(string $id, ?string $register = null, ?string $schema = null): object {
+			public function find(string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				return new class {
 					/**
 					 * Serialise the target object.
