@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Lifecycle;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
@@ -212,9 +214,7 @@ class MotionLifecycleTransitioner {
 
 		$this->objectService->saveObject(
 			object: array_merge($payload, ['lifecycle' => $newState, 'status' => $newState]),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $objectId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $objectId)
 		);
 
 		$this->logger->info(

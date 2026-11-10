@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -206,9 +208,8 @@ class MigrateVveToBodyConfiguration implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema(self::TARGET_SCHEMA);
 				$objectService->saveObject(
-					register: self::REGISTER,
-					schema: self::TARGET_SCHEMA,
 					object: $this->mapConfiguration(body: $bodyRef, source: $source),
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET_SCHEMA))
 				);
 				$existingBodies[$bodyRef] = true;
 				$migrated++;

@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\MandateSubstitutionController;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use OCA\Decidiq\Service\AmendmentOrderService;
@@ -139,7 +140,7 @@ class MandateSubstitutionServiceTest extends TestCase {
 		$objectService->method('find')->willReturnCallback(
 			fn (int|string $id, mixed ...$rest): ?ObjectEntity => isset($this->substitutions[$id]) === true ? $this->entity($this->substitutions[$id]) : null
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->assertFalse($_rbac, 'A substitution is written in system context');
 				$this->assertSame('mandate-substitution', $schema);
@@ -148,7 +149,7 @@ class MandateSubstitutionServiceTest extends TestCase {
 				$this->substitutions[$id] = ['id' => $id] + $object;
 				return $this->entity($this->substitutions[$id]);
 			}
-		);
+		));
 
 		$participants = $this->createMock(ParticipantResolver::class);
 		$participants->method('resolveMeetingParticipants')->willReturnCallback(fn (): array => $this->participants);

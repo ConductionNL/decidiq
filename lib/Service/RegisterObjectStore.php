@@ -33,6 +33,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -86,9 +88,7 @@ class RegisterObjectStore {
 	public function save(string $schema, array $object, ?string $uuid = null): array {
 		$stored = $this->objectService->saveObject(
 			object: $object,
-			register: self::REGISTER,
-			schema: $schema,
-			uuid: $uuid,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $schema), uuid: $uuid)
 		);
 
 		return $this->normalise(row: $stored);

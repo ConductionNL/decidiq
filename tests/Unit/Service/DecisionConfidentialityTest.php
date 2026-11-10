@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
 use OCA\Decidiq\Service\AgendaPapers;
@@ -148,14 +149,14 @@ class DecisionConfidentialityTest extends TestCase {
 		$objects->method('find')->willReturnCallback(
 			fn (int|string $id): ?object => isset($this->store[(string)$id]) === true ? $this->entity($this->store[(string)$id]) : null
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): object {
 				$uuid = ($uuid ?? ('obj-' . (count($this->written) + 1)));
 				$this->written[] = array_merge(['id' => $uuid, '_schema' => $schema], $object);
 				$this->store[$uuid] = end($this->written);
 				return $this->entity($this->store[$uuid]);
 			}
-		);
+		));
 
 		return $objects;
 	}//end objects()

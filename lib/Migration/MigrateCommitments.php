@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -181,8 +183,6 @@ class MigrateCommitments implements IRepairStep {
 					$objectService->setRegister(self::REGISTER);
 					$objectService->setSchema($target);
 					$saved = $objectService->saveObject(
-						register: self::REGISTER,
-						schema: $target,
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: $target),
@@ -194,6 +194,7 @@ class MigrateCommitments implements IRepairStep {
 								copiedIds: $copiedIds
 							),
 						),
+						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $target))
 					);
 					$existing[$origin]  = true;
 					$copiedIds[$origin] = $this->identifierOf(object: $this->toArray(entity: $saved));

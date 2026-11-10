@@ -32,6 +32,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Listener\PaperSummaryTaskListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -168,9 +170,7 @@ class PaperSummaryService {
 		$record += ['status' => 'requested', 'taskId' => $task->getId(), 'chunked' => $chunked];
 		$saved = $this->objectService->saveObject(
 			object: $record,
-			register: 'decidiq',
-			schema: 'paper-summary',
-			uuid: $uuid,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'paper-summary'), uuid: $uuid),
 			_rbac: false,
 			_multitenancy: false
 		);

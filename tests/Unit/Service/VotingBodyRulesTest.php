@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ProcessTemplateService;
@@ -113,12 +114,12 @@ class VotingBodyRulesTest extends TestCase {
 			}
 		);
 		$objectService->method('findAll')->willReturn($participants);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$templateService = $this->createMock(ProcessTemplateService::class);
 		$templateService->method('resolveVotingRuleForBody')->willReturnCallback(

@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -258,9 +260,7 @@ class VotingDeadlineReminderService {
 			$round['deadlineReminderSentAt'] = gmdate('Y-m-d\TH:i:s\Z', $now);
 			$objectService->saveObject(
 				object: $round,
-				register: 'decidiq',
-				schema: 'voting-round',
-				uuid: $roundId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'), uuid: $roundId)
 			);
 
 			$this->logger->info(

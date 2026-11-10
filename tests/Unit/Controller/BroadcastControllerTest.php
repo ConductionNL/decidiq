@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use DateTime;
 use OCA\Decidiq\Controller\BroadcastController;
 use OCA\Decidiq\Service\BroadcastCaptionService;
@@ -111,9 +112,9 @@ final class BroadcastControllerTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(fn (int|string $id): ?ObjectEntity => (isset($this->world->objects[(string)$id]) === true ? $this->entity(id: (string)$id) : null));
 		$objects->method('findAll')->willReturnCallback(fn (array $config=[]): array => array_map(fn (string $id): ObjectEntity => $this->entity(id: $id), $this->world->match(config: $config)));
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			fn (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity => $this->entity(id: $this->world->save(data: $object, register: (string)$register, schema: (string)$schema, id: $uuid))
-		);
+		));
 
 		$session = $this->createMock(IUserSession::class);
 		$user    = null;

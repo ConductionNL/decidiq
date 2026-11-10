@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Flow;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard;
 use OCA\Decidiq\Service\DecisionIntegrationService;
@@ -148,7 +149,7 @@ trait FlowDecisionStoreFixture {
 	private function fakeObjectService(): ObjectService {
 		$service = $this->createMock(ObjectService::class);
 
-		$service->method('saveObject')->willReturnCallback(
+		$service->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array|ObjectEntity $object, ?array $_extend = [], mixed $register = null, mixed $schema = null): ObjectEntity {
 				if ($this->saveFails === true || (string)$register !== 'decidiq' || (string)$schema !== 'decision') {
 					throw new RuntimeException('save refused');
@@ -162,7 +163,7 @@ trait FlowDecisionStoreFixture {
 
 				return $this->entity(row: $row);
 			}
-		);
+		));
 
 		$service->method('find')->willReturnCallback(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {

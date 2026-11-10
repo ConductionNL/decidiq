@@ -36,6 +36,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidiq\Service\MotionLinkResolver;
@@ -106,7 +107,7 @@ class MotionServiceTest extends TestCase {
 				return $out;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -118,7 +119,7 @@ class MotionServiceTest extends TestCase {
 				$storeRef[(string)($uuid ?? $object['id'] ?? ('new-' . count($saves)))] = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 
 		// The co-signer threshold is disabled (0) here; its own matrix lives in
 		// MotionServiceCosignerThresholdTest.

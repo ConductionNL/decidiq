@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\OpenCatalogiPublisher;
@@ -166,13 +167,13 @@ class PublicationPapersTest extends TestCase {
 		$objects->method('find')->willReturnCallback(
 			fn (int|string $id): ?object => isset($this->store[(string)$id]) ? $this->entity($this->store[(string)$id]) : null
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
 				$uuid = ($uuid ?? ('obj-' . (count($this->store) + 1)));
 				$this->store[$uuid] = array_merge(['id' => $uuid, '_schema' => $schema], $object);
 				return $this->entity($this->store[$uuid]);
 			}
-		);
+		));
 		$this->objects = $objects;
 
 		$fileService = $this->getMockBuilder(FileService::class)

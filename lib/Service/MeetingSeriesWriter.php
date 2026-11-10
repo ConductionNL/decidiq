@@ -27,6 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
+
 /**
  * Writes the objects of a meeting series planned by MeetingSeriesService.
  *
@@ -70,9 +73,7 @@ final class MeetingSeriesWriter {
 	public function stampTemplate(array $run): void {
 		$run['objectService']->saveObject(
 			object: array_merge($run['template'], ['series' => $run['series'], 'seriesPattern' => $run['pattern']]),
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $run['meetingId']
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'), uuid: $run['meetingId'])
 		);
 
 	}//end stampTemplate()
@@ -112,7 +113,10 @@ final class MeetingSeriesWriter {
 	 */
 	private function createInstance(array $run, string $date): array {
 		$instance = $this->instancePayload(run: $run, date: $date);
-		$saved = $run['objectService']->saveObject(object: $instance, register: 'decidiq', schema: 'meeting');
+		$saved = $run['objectService']->saveObject(
+			object: $instance,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'))
+		);
 		if (is_object($saved) === true) {
 			return (array)$saved->jsonSerialize();
 		}
@@ -189,7 +193,10 @@ final class MeetingSeriesWriter {
 	private function copyAgendaTo(array $run, array $copy): void {
 		$payloads = $copy['copier']->payloads(items: $copy['items'], fromMeetingId: $run['meetingId'], toMeetingId: $copy['to']);
 		foreach ($payloads as $payload) {
-			$run['objectService']->saveObject(object: $payload, register: 'decidiq', schema: 'agenda-item');
+			$run['objectService']->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'agenda-item'))
+			);
 		}
 
 	}//end copyAgendaTo()

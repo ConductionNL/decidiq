@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -77,14 +78,14 @@ final class PublicationEventRecorderTest extends TestCase {
 				return $entity;
 			}
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null, bool $_rbac=true): ObjectEntity {
 				$this->assertSame('publication-event', $schema);
 				$this->assertFalse($_rbac, 'Events are written in system context');
 				$this->saved[] = $object;
 				return $this->createMock(ObjectEntity::class);
 			}
-		);
+		));
 
 		return new PublicationEventRecorder(objectService: $objects, logger: new NullLogger());
 	}//end recorder()

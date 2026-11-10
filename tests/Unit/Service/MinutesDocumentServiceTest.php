@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\Decidiq\Service\MeetingFolderService;
@@ -171,10 +172,10 @@ class MinutesDocumentServiceTest extends TestCase {
 
 		$savedObject = null;
 		$this->objectService->method('saveObject')
-			->willReturnCallback(static function (array $object) use (&$savedObject): array {
+			->willReturnCallback(SaveCallShape::legacy(static function (array $object) use (&$savedObject): array {
 				$savedObject = $object;
 				return $object;
-			});
+			}));
 
 		$result = $this->service->generate(minutesId: 'minutes-001', format: 'markdown', displayName: 'Secretaris');
 

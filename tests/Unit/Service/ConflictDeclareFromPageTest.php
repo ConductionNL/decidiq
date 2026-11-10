@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
 use OCA\Decidiq\Service\ConflictDeclaration;
@@ -90,12 +91,12 @@ class ConflictDeclareFromPageTest extends TestCase {
 				return [];
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				return $this->entity(array_merge(['id' => 'decl-1'], $object));
 			}
-		);
+		));
 
 		$participantResolver = $this->createMock(ParticipantResolver::class);
 		$participantResolver->method('hasRole')->willReturnCallback(

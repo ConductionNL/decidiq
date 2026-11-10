@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingRelationException;
@@ -327,7 +329,10 @@ class MinutesGenerationService {
 		// Named arguments: the positional form ($object, 'decidesk', 'minutes', $id)
 		// silently bound the register string to ObjectService::saveObject()'s second
 		// parameter ($extend) — a latent pre-existing defect fixed here.
-		$saved = $objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+		$saved = $objectService->saveObject(
+			object: $updated,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end transition()
@@ -434,7 +439,10 @@ class MinutesGenerationService {
 			]
 		);
 
-		$saved = $objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+		$saved = $objectService->saveObject(
+			object: $updated,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $updated);
 	}//end reject()

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\VotingDeadlineReminderService;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -155,7 +156,11 @@ class VotingDeadlineReminderServiceTest extends TestCase {
 			 *
 			 * @return object
 			 */
-			public function saveObject(array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): object {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): object {
+				$extend = $options->extend;
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$this->saved->append($object);
 				return new \stdClass();
 			}//end saveObject()

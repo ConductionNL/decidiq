@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -242,7 +244,10 @@ class BoardEvaluationScoreService {
 			$evaluation['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 			$evaluation['respondedCount'] = $summary['respondentCount'];
 
-			$saved = $objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
+			$saved = $objectService->saveObject(
+				object: $evaluation,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'board-evaluation'))
+			);
 
 			return [
 				'success' => true,

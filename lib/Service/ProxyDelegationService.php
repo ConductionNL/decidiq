@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -132,7 +134,10 @@ class ProxyDelegationService {
 				'body' => json_encode($proxyRecord),
 			];
 			$round['notes'] = $notes;
-			$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+			$objectService->saveObject(
+				object: $round,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+			);
 		}
 
 		if ($toParticipant !== null) {
@@ -189,7 +194,10 @@ class ProxyDelegationService {
 		);
 
 		$round['notes'] = $filtered;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 	}//end revokeProxy()
 

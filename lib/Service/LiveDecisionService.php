@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -94,9 +96,8 @@ class LiveDecisionService {
 			$decisionToSave = $this->decisionFor(meetingId: $meetingId, decisionData: $decisionData);
 
 			$decisionEntity = $this->objectService->saveObject(
-				register: 'decidiq',
-				schema: 'decision',
-				object: $decisionToSave
+				object: $decisionToSave,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 			$decision = $decisionEntity->jsonSerialize();
 
@@ -223,9 +224,8 @@ class LiveDecisionService {
 			];
 
 			$minutesEntity = $this->objectService->saveObject(
-				register: 'decidiq',
-				schema: 'Minutes',
-				object: $minutesToCreate
+				object: $minutesToCreate,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'Minutes'))
 			);
 			$minutes = $minutesEntity->jsonSerialize();
 

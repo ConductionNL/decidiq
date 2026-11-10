@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -185,7 +187,10 @@ class ProcessTemplateService {
 		// Created templates are never built-in; only seeds may be built-in.
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(
+			object: $template,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end create()
 
@@ -220,7 +225,10 @@ class ProcessTemplateService {
 		$template['id'] = $templateId;
 		$template['builtIn'] = false;
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $template);
+		$saved = $this->objectService()->saveObject(
+			object: $template,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end update()
 
@@ -250,7 +258,10 @@ class ProcessTemplateService {
 		$copy['builtIn'] = false;
 		$copy['name'] = ($newName ?? (($source['name'] ?? 'Template') . ' (copy)'));
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'process-template', object: $copy);
+		$saved = $this->objectService()->saveObject(
+			object: $copy,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 		return $this->toArray(row: $saved);
 	}//end duplicate()
 

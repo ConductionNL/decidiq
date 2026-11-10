@@ -37,6 +37,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\ConflictOfInterestController;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
@@ -184,7 +185,7 @@ class ConflictDeclareGoldenTest extends TestCase {
 		);
 
 		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array|ObjectEntityInterface $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null, bool $_rbac = true): ObjectEntityInterface {
 				$this->log[] = ['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid, '_rbac' => $_rbac]];
 				if (($object['description'] ?? '') === 'refuse') {
@@ -195,7 +196,7 @@ class ConflictDeclareGoldenTest extends TestCase {
 				$entity->method('jsonSerialize')->willReturn(['id' => 'coi-1'] + $object);
 				return $entity;
 			}
-		);
+		));
 
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturnCallback(

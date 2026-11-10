@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
@@ -392,7 +393,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		// register. PHPUnit forwards every argument positionally, so a callback
 		// shaped like the call site (which uses named arguments and skips
 		// $extend) receives the wrong values in the wrong order.
-		$facade->method('saveObject')->willReturnCallback(
+		$facade->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -411,7 +412,7 @@ class ApprovalRouteServiceTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
 		$facade->method('patchObject')->willReturnCallback(

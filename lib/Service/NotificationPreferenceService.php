@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTime;
 use DateTimeImmutable;
 use OCA\Decidiq\AppInfo\Application;
@@ -175,8 +177,7 @@ class NotificationPreferenceService {
 		$objectService = $this->getObjectService();
 		$saved = $objectService->saveObject(
 			object: $merged,
-			register: 'decidiq',
-			schema: 'notification-preference',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'notification-preference'))
 		);
 
 		$this->logger->info('Decidiq: NotificationPreference updated', ['personId' => $personId]);

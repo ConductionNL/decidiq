@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Integration\Meeting;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -243,8 +245,7 @@ class QuorumDeclarativeTest extends TestCase {
 					'bodyType' => 'legislative',
 					'domain' => 'test',
 				],
-				register: 'decidiq',
-				schema: 'governance-body',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-body'))
 			)
 		);
 
@@ -280,8 +281,7 @@ class QuorumDeclarativeTest extends TestCase {
 		$meeting = $this->objectService->runAsSystem(
 			fn () => $this->objectService->saveObject(
 				object: $data,
-				register: 'decidiq',
-				schema: 'meeting',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'))
 			)
 		);
 
@@ -320,8 +320,7 @@ class QuorumDeclarativeTest extends TestCase {
 						'governanceBody' => $governanceBodyId,
 						'attendanceStatus' => $status,
 					],
-					register: 'decidiq',
-					schema: 'participant',
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participant'))
 				)
 			);
 		}

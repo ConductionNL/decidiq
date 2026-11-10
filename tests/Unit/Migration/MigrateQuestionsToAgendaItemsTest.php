@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Migration\AgendaItemTypeResolver;
 use OCA\Decidiq\Migration\MigrateQuestionsToAgendaItems;
 use OCA\Decidiq\Service\SettingsService;
@@ -471,12 +472,10 @@ class MigrateQuestionsToAgendaItemsTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The saved object.
 			 */
-			public function saveObject(
-				string $register,
-				string $schema,
-				array $object,
-				?string $uuid = null,
-			): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = (string)$options->target->register;
+				$schema = (string)$options->target->schema;
+				$uuid = $options->uuid;
 				$this->saves[] = [$schema, $object, $uuid];
 
 				$saved = ($object + ['id' => ($uuid ?? ($schema . '-' . count($this->saves)))]);

@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -187,7 +189,10 @@ class VotingRoundResults {
 		$round['result'] = $outcome['result'];
 		$round['rankingResult'] = $outcome['rankingResult'];
 		$round['winningOption'] = $outcome['winningOption'];
-		$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$this->objectService()->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		return [
 			'votesFor' => 0,
@@ -242,7 +247,10 @@ class VotingRoundResults {
 		$computed = $this->compute(for: $votesFor, against: $votesAgainst, abstain: $votesAbstain, round: $round);
 		$round = $this->withOutcome(round: $round, counts: $counts, computed: $computed);
 
-		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$saved = $this->objectService()->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 		// The saveObject() call returns an ObjectEntity; normalise to satisfy the `: array` return type.
 		return $this->normaliser->toArray(saved: $saved, fallback: $round);
@@ -326,9 +334,8 @@ class VotingRoundResults {
 		}
 
 		$this->objectService()->saveObject(
-			register: 'decidiq',
-			schema: 'voting-round',
-			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed)
+			object: $this->withOutcome(round: $round, counts: $counts, computed: $computed),
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
 		);
 
 	}//end persistOutcome()

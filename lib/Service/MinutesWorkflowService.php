@@ -33,6 +33,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
@@ -124,9 +126,8 @@ class MinutesWorkflowService {
 
 		$minutes['lifecycle'] = 'review';
 		$this->objectService->saveObject(
-			register: 'decidiq',
-			schema: 'minutes',
-			object: $minutes
+			object: $minutes,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'))
 		);
 
 		$notified = $this->minutesService->notifyApproversOnSubmit(minutesId: $minutesId);

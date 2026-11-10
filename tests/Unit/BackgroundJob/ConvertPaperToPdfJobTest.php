@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Filinq\Exception\ConversionFailedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -163,12 +164,12 @@ class ConvertPaperToPdfJobTest extends TestCase {
 		$entity->method('getObject')->willReturn($item);
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturn($entity);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use ($entity): ObjectEntity {
 				$this->saved[] = $object;
 				return $entity;
 			}
-		);
+		));
 
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->method('info')->willReturnCallback(

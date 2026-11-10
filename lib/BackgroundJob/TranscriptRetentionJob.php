@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -196,9 +198,10 @@ class TranscriptRetentionJob extends TimedJob {
 		$transcript['retentionState'] = $currentState;
 		$objectService->saveObject(
 			object: $transcript,
-			register: 'decidiq',
-			schema: 'transcript',
-			uuid: $this->objectId(object: $transcript)
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'),
+				uuid: $this->objectId(object: $transcript)
+			)
 		);
 
 		$this->appendAudit(meetingId: $meetingId, deleted: $deleted, policy: $policy);

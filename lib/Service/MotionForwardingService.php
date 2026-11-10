@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\AppInfo\Application;
@@ -117,8 +119,7 @@ class MotionForwardingService {
 		// normalise once here rather than array-accessing an entity.
 		$created = $this->objectService->saveObject(
 			object: $forwardedMotion,
-			register: 'decidiq',
-			schema: 'decision',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 		)->jsonSerialize();
 
 		$sourceMotionData = $this->noteForwarding(
@@ -240,9 +241,7 @@ class MotionForwardingService {
 		$objectService->setSchema('decision');
 		$objectService->saveObject(
 			object: $sourceMotionData,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $motionId)
 		);
 
 		return $sourceMotionData;

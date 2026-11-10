@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -250,9 +252,7 @@ class MotionService {
 			$objectService->setSchema('decision');
 			$objectService->saveObject(
 				object: array_merge($motionData, ['pendingCoSignerUids' => array_values($existing)]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $motionId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $motionId)
 			);
 		}
 
@@ -323,9 +323,7 @@ class MotionService {
 			$coSigners[] = $coSignerName;
 			$objectService->saveObject(
 				object: array_merge($motionData, ['coSigners' => $coSigners]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $motionId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $motionId)
 			);
 		}
 
@@ -419,9 +417,7 @@ class MotionService {
 
 		$objectService->saveObject(
 			object: array_merge($motionData, ['notes' => $notes]),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $motionId)
 		);
 
 	}//end saveBudgetImpact()

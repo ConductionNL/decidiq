@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Controller\ApiController;
 use OCA\Decidiq\Controller\HealthController;
 use OCA\Decidiq\Controller\OriController;
@@ -303,7 +304,10 @@ class CorsControllersGoldenTest extends TestCase {
 			 *
 			 * @return array<string, mixed> The stored object.
 			 */
-			public function saveObject(array $object, string $register, string $schema, ?string $uuid): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = (string)$options->target->register;
+				$schema = (string)$options->target->schema;
+				$uuid = $options->uuid;
 				$this->test->answer(call: ['saveObject' => compact('object', 'register', 'schema', 'uuid')]);
 				return ['id' => ($uuid ?? 'new'), 'stored' => $object];
 			}//end saveObject()

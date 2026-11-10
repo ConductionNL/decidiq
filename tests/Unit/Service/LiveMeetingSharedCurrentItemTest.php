@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\CurrentAgendaItemService;
 use OCA\Decidiq\Service\EngagementService;
 use OCA\Decidiq\Service\LiveDecisionService;
@@ -140,12 +141,12 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$objectService->method('setSchema')->willReturnSelf();
 		$objectService->method('find')->willReturn($this->entity(['id' => 'm-14', 'title' => 'Raad', 'lifecycle' => 'opened']));
 		$objectService->method('findAll')->willReturn([$this->entity(['id' => 'min-1', 'meeting' => 'm-14', 'relations' => ['Meeting' => ['m-14']]])]);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null) use (&$saved): ObjectEntity {
 				$saved[] = [$schema, $object];
 				return $this->entity(['id' => 'd-1', '@self' => ['slug' => 'd-1']]);
 			}
-		);
+		));
 
 		$service = new LiveDecisionService(
 			container: $this->createMock(ContainerInterface::class),
@@ -180,12 +181,12 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 		$objectService->method('setSchema')->willReturnSelf();
 		$objectService->method('find')->willReturn($this->entity(['id' => 'm-14', 'lifecycle' => 'opened']));
 		$objectService->method('findAll')->willReturn([$this->entity(['id' => 'min-1', 'relations' => ['Meeting' => ['m-14']]])]);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$saved): ObjectEntity {
 				$saved[] = $object;
 				return $this->entity(['id' => 'd-1']);
 			}
-		);
+		));
 
 		(new LiveDecisionService(container: $this->createMock(ContainerInterface::class), logger: new NullLogger(), objectService: $objectService))
 			->recordDecision('m-14', ['title' => 'Kennisname', 'text' => 'De raad neemt kennis.']);
@@ -212,12 +213,12 @@ class LiveMeetingSharedCurrentItemTest extends TestCase {
 				return $stored === null ? [] : [$this->entity($stored)];
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$stored): ObjectEntity {
 				$stored = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$service = new EngagementService(logger: new NullLogger(), objectService: $objectService);
 		$service->captureEngagement('m-14', 'p-anna', 'speech', ['duration' => 90, 'agendaItem' => 'item-5']);

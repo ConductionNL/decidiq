@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AgendaItemCopier;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\MeetingSeriesService;
@@ -216,7 +217,7 @@ class AgendaTemplatesAndCopyTest extends TestCase {
 				);
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null) use (&$saved): ObjectEntity {
 				$uuid = ($uuid ?? ($schema . '-' . (count($saved) + 1)));
 				$row = array_merge(['id' => $uuid], $object);
@@ -226,7 +227,7 @@ class AgendaTemplatesAndCopyTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);
 

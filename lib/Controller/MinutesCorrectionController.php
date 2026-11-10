@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
@@ -160,9 +162,7 @@ class MinutesCorrectionController extends Controller {
 			$minutes['corrections'] = $corrections;
 			$this->objectService->saveObject(
 				object: $minutes,
-				register: 'decidiq',
-				schema: 'minutes',
-				uuid: $minutesId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
 			);
 
 			return new JSONResponse(['corrections' => $corrections]);
@@ -305,9 +305,7 @@ class MinutesCorrectionController extends Controller {
 
 		$this->objectService->saveObject(
 			object: $minutes,
-			register: 'decidiq',
-			schema: 'minutes',
-			uuid: $minutesId
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
 		);
 
 		return new JSONResponse(['correction' => $updated]);

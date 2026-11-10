@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\Decidiq\Service\ProcessTemplateService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -378,12 +379,12 @@ class ProcessTemplateServiceTest extends TestCase {
 	public function testCreatePersistsAndClearsBuiltIn(): void {
 		$this->objectService->expects(self::once())
 			->method('saveObject')
-			->willReturnCallback(
+			->willReturnCallback(SaveCallShape::legacy(
 				function (array $object) {
 					self::assertFalse($object['builtIn'], 'Created templates must never be built-in.');
 					return $this->entity($object + ['id' => 'tpl-1']);
 				}
-			);
+			));
 
 		$created = $this->service->create(template: ($this->validTemplate() + ['builtIn' => true]));
 		self::assertSame('tpl-1', $created['id']);
@@ -431,14 +432,14 @@ class ProcessTemplateServiceTest extends TestCase {
 
 		$this->objectService->expects(self::once())
 			->method('saveObject')
-			->willReturnCallback(
+			->willReturnCallback(SaveCallShape::legacy(
 				function (array $object) {
 					self::assertArrayNotHasKey('id', $object, 'Duplicate must drop the source id.');
 					self::assertFalse($object['builtIn']);
 					self::assertSame('My ALV', $object['name']);
 					return $this->entity($object + ['id' => 'tpl-copy']);
 				}
-			);
+			));
 
 		$copy = $this->service->duplicate(templateId: 'tpl-src', newName: 'My ALV');
 		self::assertSame('tpl-copy', $copy['id']);

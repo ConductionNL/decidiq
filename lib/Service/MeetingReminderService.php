@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -181,9 +183,7 @@ class MeetingReminderService {
 		if ($patch !== []) {
 			$this->objectService->saveObject(
 				object: array_merge($meeting, $patch),
-				register: 'decidiq',
-				schema: 'meeting',
-				uuid: $meetingId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'), uuid: $meetingId)
 			);
 		}
 

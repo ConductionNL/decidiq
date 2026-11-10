@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -175,9 +177,8 @@ class AgendaItemTypeResolver {
 			$objectService->setRegister(self::REGISTER);
 			$objectService->setSchema(self::TYPE_SCHEMA);
 			$created = $objectService->saveObject(
-				register: self::REGISTER,
-				schema: self::TYPE_SCHEMA,
 				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TYPE_SCHEMA))
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(

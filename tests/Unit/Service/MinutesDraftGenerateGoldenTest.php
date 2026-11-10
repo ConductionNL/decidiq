@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\MinutesDraftComposer;
 use OCA\Decidiq\Service\MinutesDraftService;
 use OCP\TaskProcessing\IManager;
@@ -274,7 +275,10 @@ class MinutesDraftGenerateGoldenTest extends TestCase {
 			 *
 			 * @return array<string, mixed>
 			 */
-			public function saveObject(array $object, mixed $register = null, mixed $schema = null, ?string $uuid = null): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				($this->log)(['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]]);
 				return $object;
 			}

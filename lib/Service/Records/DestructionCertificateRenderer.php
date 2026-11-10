@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\Records;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
@@ -121,9 +123,7 @@ class DestructionCertificateRenderer {
 
 		$saved = $this->objectService->saveObject(
 			object: $dossier,
-			register: 'decidiq',
-			schema: 'archival-dossier',
-			uuid: $dossierId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'archival-dossier'), uuid: $dossierId),
 			_rbac: false,
 			_multitenancy: false
 		);

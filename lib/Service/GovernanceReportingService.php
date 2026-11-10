@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -272,8 +274,7 @@ class GovernanceReportingService {
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $report,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA))
 			);
 			// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could
 			// never be false, so this always returned here.

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\DecisionController;
 use OCA\Decidiq\Service\ConfidentialityRestrictions;
 use OCA\Decidiq\Service\DecisionLifecycleService;
@@ -342,7 +343,7 @@ class DecisionControllerTest extends TestCase {
 		$saves = [];
 		$this->objectService->expects($this->once())
 			->method('saveObject')
-			->willReturnCallback(
+			->willReturnCallback(SaveCallShape::legacy(
 				function (
 					array $object,
 					?array $extend = [],
@@ -362,7 +363,7 @@ class DecisionControllerTest extends TestCase {
 					$saved->method('jsonSerialize')->willReturn($stored);
 					return $saved;
 				}
-			);
+			));
 
 		$result = $this->controller->publish('decision-uuid-004');
 

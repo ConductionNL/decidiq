@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Repair;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Repair\RepointConflictOfInterestBoardMember;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -82,7 +83,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			}
 		);
 		$savedRef = &$saved;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -93,7 +94,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid, 'schema' => $schema];
 				return $this->entity(data: $object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$resolver->expects($this->once())
@@ -137,7 +138,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 		// No id ever resolves as a live Participant — boardMember is already a Membership.
 		$objectService->method('find')->willReturn(null);
 		$savedRef = &$saved;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -148,7 +149,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				$savedRef[] = $object;
 				return $this->entity(data: $object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$resolver->expects($this->never())->method('resolve');
@@ -191,12 +192,12 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			}
 		);
 		$savedRef = &$saved;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$savedRef) {
 				$savedRef[] = $object;
 				return $this->entity(data: $object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$resolver->method('resolve')->willReturn(null);
@@ -355,7 +356,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			}
 		);
 		$savedRef = &$saved;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -366,7 +367,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity(data: $object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$resolver->method('resolve')->willReturn(['person' => 'person-plain', 'membership' => 'membership-plain']);
@@ -424,7 +425,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 			}
 		);
 		$savedRef = &$saved;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -435,7 +436,7 @@ class RepointConflictOfInterestBoardMemberTest extends TestCase {
 				$savedRef[] = ['object' => $object, 'uuid' => $uuid];
 				return $this->entity(data: $object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$resolver->method('resolve')->willReturn(['person' => 'person-fallback', 'membership' => 'membership-fallback']);

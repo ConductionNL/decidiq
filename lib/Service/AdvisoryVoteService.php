@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
@@ -146,7 +148,10 @@ class AdvisoryVoteService {
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'citizen-vote', object: $vote);
+		$saved = $objectService->saveObject(
+			object: $vote,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'citizen-vote'))
+		);
 		$savedArr = $this->normaliseSaved(saved: $saved, fallback: $vote);
 
 		// Re-tally all CitizenVotes for this proposal (atomic count path) and persist
@@ -202,7 +207,10 @@ class AdvisoryVoteService {
 			$proposal = $proposalEntity->jsonSerialize();
 			$proposal['votesFor'] = $for;
 			$proposal['votesAgainst'] = $against;
-			$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+			$objectService->saveObject(
+				object: $proposal,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+			);
 		}
 
 		return [

@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\Records;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
@@ -105,9 +107,7 @@ class DossierCategory {
 
 		$saved = $this->objectService->saveObject(
 			object: $dossier,
-			register: 'decidiq',
-			schema: self::SCHEMA,
-			uuid: $dossierId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA), uuid: $dossierId),
 			_rbac: false,
 			_multitenancy: false
 		);

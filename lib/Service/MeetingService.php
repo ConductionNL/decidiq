@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
@@ -258,9 +260,7 @@ class MeetingService {
 		// a generic error response without leaking object details.
 		$updated = $this->objectService->saveObject(
 			object: array_merge($change['meeting'], ['lifecycle' => $toState], $this->buildEfficiencyPatch(meetingId: $meetingId, change: $change)),
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $meetingId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'), uuid: $meetingId)
 		);
 
 		$this->logger->info('Decidiq: meeting lifecycle transitioned', ['id' => $meetingId, 'action' => $change['action'], 'to' => $toState]);

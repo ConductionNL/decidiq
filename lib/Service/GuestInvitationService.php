@@ -35,6 +35,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -146,15 +148,13 @@ class GuestInvitationService {
 
 		$participant = $this->objectService->saveObject(
 			object: ['displayName' => $name, 'role' => 'guest', 'email' => $email],
-			register: 'decidiq',
-			schema: 'participant'
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participant'))
 		);
 		$participantId = $this->idOf(entity: $participant);
 
 		$attendance = $this->objectService->saveObject(
 			object: ['meeting' => $meetingId, 'participant' => $participantId],
-			register: 'decidiq',
-			schema: 'meeting-attendance'
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting-attendance'))
 		);
 
 		$mailed = $this->sendInvitation(meeting: $meeting, meetingId: $meetingId, email: $email, name: $name, link: $link);

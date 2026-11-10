@@ -46,6 +46,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -271,7 +273,10 @@ class ParticipantToPersonMembershipResolver {
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::PERSON_SCHEMA);
+			$saved = $this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::PERSON_SCHEMA))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Person',
@@ -304,9 +309,7 @@ class ParticipantToPersonMembershipResolver {
 		try {
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: self::REGISTER,
-				schema: self::PERSON_SCHEMA,
-				uuid: $personId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::PERSON_SCHEMA), uuid: $personId)
 			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
@@ -355,7 +358,10 @@ class ParticipantToPersonMembershipResolver {
 		}
 
 		try {
-			$saved = $this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA);
+			$saved = $this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::MEMBERSHIP_SCHEMA))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ParticipantToPersonMembershipResolver failed to create a Membership',

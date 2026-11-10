@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -113,9 +115,7 @@ class PaperSummaryTaskListener implements IEventListener {
 		$data = array_merge($data, $this->outcome(event: $event, task: $task));
 		$this->objectService->saveObject(
 			object: $data,
-			register: 'decidiq',
-			schema: 'paper-summary',
-			uuid: $summaryId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'paper-summary'), uuid: $summaryId),
 			_rbac: false,
 			_multitenancy: false
 		);

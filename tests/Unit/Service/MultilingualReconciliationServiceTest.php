@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\ITranslationAdapter;
 use OCA\Decidiq\Service\MultilingualReconciliationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -92,7 +93,7 @@ class MultilingualReconciliationServiceTest extends TestCase {
 			}
 		);
 
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {
 				$schemaKey = (string)$schema;
 				$savedRef[] = $object + ['_schema' => $schemaKey, '_uuid' => (string)($uuid ?? '')];
@@ -124,7 +125,7 @@ class MultilingualReconciliationServiceTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);

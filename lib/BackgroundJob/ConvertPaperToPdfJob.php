@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Support\FleetAppId;
@@ -227,7 +229,12 @@ class ConvertPaperToPdfJob extends QueuedJob {
 
 			$renditions[]            = $entry;
 			$data['paperRenditions'] = $renditions;
-			$this->objectService->saveObject(object: $data, register: 'decidiq', schema: $schema, uuid: $objectId, _rbac: false, _multitenancy: false);
+			$this->objectService->saveObject(
+				object: $data,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $objectId),
+				_rbac: false,
+				_multitenancy: false
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: the PDF of an Office paper could not be recorded', ['objectId' => $objectId, 'error' => $e->getMessage()]);
 		}//end try

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
@@ -142,12 +143,12 @@ class RecusalGuardTest extends TestCase {
 				return array_map(fn (array $row): ObjectEntity => $this->entity($row), $this->declarations);
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 		return $objectService;
 	}//end objectService()
 

@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
@@ -174,7 +176,10 @@ class BudgetVotingService {
 			$proposal['category'] = $category;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+		$saved = $objectService->saveObject(
+			object: $proposal,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 	}//end submitProposal()
@@ -211,7 +216,10 @@ class BudgetVotingService {
 			$proposal['status'] = 'validated';
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+		$saved = $objectService->saveObject(
+			object: $proposal,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $proposal);
 	}//end validateProposal()
@@ -339,7 +347,10 @@ class BudgetVotingService {
 			// Persist the award decision on the proposal.
 			if ($funded === true && $proposalId !== '') {
 				$proposal['status'] = 'awarded';
-				$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+				$objectService->saveObject(
+					object: $proposal,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'budget-proposal'))
+				);
 			}
 
 			$ranked[] = [

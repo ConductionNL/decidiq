@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
@@ -206,7 +207,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 	private function service(): ApprovalRouteService {
 		$state = $this->objectService;
 		$facade = $this->createMock(ObjectServiceInterface::class);
-		$facade->method('saveObject')->willReturnCallback(
+		$facade->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -220,7 +221,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 		$facade->method('patchObject')->willReturnCallback(
 			function (
 				string $objectId,

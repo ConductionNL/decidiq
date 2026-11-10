@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service\Records;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
@@ -200,14 +201,14 @@ class DossierDispositionTest extends TestCase {
 				return self::entity(schema: (string)$schema, id: (string)$id, data: $data);
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->saves[] = [$object, $uuid, $_rbac, $_multitenancy];
 				unset($object['@self']);
 				$this->store[(string)$schema][(string)$uuid] = $object;
 				return self::entity(schema: (string)$schema, id: (string)$uuid, data: $object);
 			}
-		);
+		));
 		return $objectService;
 	}//end objectService()
 

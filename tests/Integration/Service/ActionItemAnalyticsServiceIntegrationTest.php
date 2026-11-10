@@ -21,6 +21,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Integration\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\ActionItemAnalyticsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use PHPUnit\Framework\TestCase;
@@ -129,14 +131,13 @@ class ActionItemAnalyticsServiceIntegrationTest extends TestCase {
 		// Seed one overdue open action-item.
 		try {
 			$entity = $this->objectService->saveObject(
-				register: 'decidiq',
-				schema: 'action-item',
 				object: [
 					'title' => 'Integration test action item (wave-9 C1)',
 					'taskStatus' => 'open',
 					'dueDate' => date('Y-m-d', strtotime('-3 days')),
 					'createdAt' => date('Y-m-d', strtotime('-10 days')),
-				]
+				],
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'action-item'))
 			);
 		} catch (\Throwable $e) {
 			$this->markTestSkipped(

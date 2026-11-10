@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
@@ -551,7 +553,10 @@ class MinutesDocumentService {
 	 */
 	private function recordGeneratedDocument(string $minutesId, array $minutes): void {
 		try {
-			$this->objectService->saveObject(object: $minutes, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+			$this->objectService->saveObject(
+				object: $minutes,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
+			);
 		} catch (\Throwable $e) {
 			// The document itself was persisted; a failed bookkeeping write must
 			// not fail the request. Log and continue.

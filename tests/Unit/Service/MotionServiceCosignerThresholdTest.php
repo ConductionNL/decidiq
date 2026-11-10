@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidiq\Service\MotionService;
@@ -247,7 +248,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 		$objectService->method('find')->willReturnCallback(
 			static fn (int|string $id): ?ObjectEntityInterface => $backend->find($id)
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			static function (
 				array $object,
 				?array $extend = [],
@@ -257,7 +258,7 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			) use ($backend): ObjectEntityInterface {
 				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
 			}
-		);
+		));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(

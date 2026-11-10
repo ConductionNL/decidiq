@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Listener\PaperSummaryTaskListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -101,12 +102,12 @@ class PaperSummaryTaskListenerTest extends TestCase {
 		$objects->method('find')->willReturnCallback(
 			static fn (int|string $id): ?ObjectEntity => ((string)$id === self::UUID ? $entity : null)
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use ($entity): ObjectEntity {
 				$this->saved[] = $object;
 				return $entity;
 			}
-		);
+		));
 
 		$provider = $this->createMock(IProvider::class);
 		$provider->method('getId')->willReturn('llm2');

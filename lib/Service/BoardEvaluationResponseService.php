@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\AppInfo\Application;
@@ -191,7 +193,10 @@ class BoardEvaluationResponseService {
 				],
 			];
 
-			$saved = $objectService->saveObject(register: 'decidiq', schema: 'evaluation-response', object: $response);
+			$saved = $objectService->saveObject(
+				object: $response,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'evaluation-response'))
+			);
 
 			// Completion tracking lives on the BoardEvaluation roster, entirely
 			// separate from the response content saved above.
@@ -312,7 +317,10 @@ class BoardEvaluationResponseService {
 		$evaluation['respondedParticipantIds'] = array_values($responded);
 		$evaluation['respondedCount'] = count($responded);
 
-		$objectService->saveObject(register: 'decidiq', schema: 'board-evaluation', object: $evaluation);
+		$objectService->saveObject(
+			object: $evaluation,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'board-evaluation'))
+		);
 
 	}//end recordCompletion()
 

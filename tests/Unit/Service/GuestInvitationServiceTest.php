@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
 use OCA\Decidiq\Service\GuestInvitationService;
 use OCA\Decidiq\Tests\Unit\Support\MergedRegisterSchema;
@@ -78,12 +79,12 @@ class GuestInvitationServiceTest extends TestCase {
 
 		$this->objects = $this->createMock(ObjectServiceInterface::class);
 		$this->objects->method('find')->willReturnCallback(fn (): ?ObjectEntity => $this->entity(data: $this->meeting, uuid: self::MEETING));
-		$this->objects->method('saveObject')->willReturnCallback(
+		$this->objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null): ObjectEntity {
 				$this->saved[] = ['schema' => (string)$schema, 'object' => $object];
 				return $this->entity(data: $object, uuid: 'saved-' . count($this->saved));
 			}
-		);
+		));
 		$this->objects->method('findAll')->willReturn([
 			$this->entity(data: ['title' => 'Afspraken en vervolg', 'orderNumber' => 3], uuid: 'a3'),
 			$this->entity(data: ['title' => 'Opening en kennismaking', 'orderNumber' => 1], uuid: 'a1'),
