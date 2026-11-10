@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -309,9 +311,7 @@ class PublicationDigestService {
 			$moment    = $this->schedule->time(value: ($event['occurredAt'] ?? null));
 			if ($moment !== null && $moment < $cutoff && ($event['id'] ?? '') !== '') {
 				$this->objectService->deleteObject(
-					uuid: (string)$event['id'],
-					register: 'decidiq',
-					schema: 'publication-event',
+					deletion: new ObjectDeletion(uuid: (string)$event['id'], target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-event')),
 					_rbac: false,
 					_multitenancy: false
 				);

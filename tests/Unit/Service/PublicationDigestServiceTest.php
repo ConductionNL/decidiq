@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -179,8 +180,8 @@ final class PublicationDigestServiceTest extends TestCase {
 			}
 		);
 		$objects->method('deleteObject')->willReturnCallback(
-			function (string $uuid): bool {
-				$this->deleted[] = $uuid;
+			function (ObjectDeletion $deletion): bool {
+				$this->deleted[] = $deletion->uuid;
 				return true;
 			}
 		);

@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use OCA\Decidiq\Migration\MigrateVveToBodyConfiguration;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
@@ -469,14 +470,16 @@ class MigrateVveToBodyConfigurationTest extends TestCase {
 			/**
 			 * Record a delete.
 			 *
-			 * @param string $register The register slug.
-			 * @param string $schema   The schema slug.
-			 * @param string $uuid     The object id.
+			 * @param ObjectDeletion $deletion        The object to delete.
+			 * @param bool           $_rbac           Apply RBAC.
+			 * @param bool           $_multitenancy   Apply organisation scoping.
+			 * @param bool           $_retentionSweep Whether this is a retention sweep.
 			 *
-			 * @return void
+			 * @return bool
 			 */
-			public function deleteObject(string $register, string $schema, string $uuid): void {
+			public function deleteObject(ObjectDeletion $deletion, bool $_rbac = true, bool $_multitenancy = true, bool $_retentionSweep = false): bool {
 				$this->deleteCalls++;
+				return true;
 
 			}//end deleteObject()
 		};

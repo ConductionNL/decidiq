@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectDeletion;
 use InvalidArgumentException;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -275,7 +277,9 @@ class ProcessTemplateService {
 			throw new RuntimeException('Built-in templates are read-only and cannot be deleted.');
 		}
 
-		$this->objectService()->deleteObject(uuid: $templateId, register: 'decidiq', schema: 'process-template');
+		$this->objectService()->deleteObject(
+			deletion: new ObjectDeletion(uuid: $templateId, target: new ObjectFindTarget(register: 'decidiq', schema: 'process-template'))
+		);
 
 	}//end delete()
 
