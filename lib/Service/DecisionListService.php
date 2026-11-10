@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IL10N;
 
 /**
@@ -236,7 +237,12 @@ class DecisionListService {
 	 * @return array<string,mixed>
 	 */
 	private function meeting(string $meetingId): array {
-		$entity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $meetingId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Meeting not found', status: 404);
 		}

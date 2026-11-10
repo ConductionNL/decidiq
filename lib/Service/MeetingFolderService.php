@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -264,7 +265,7 @@ class MeetingFolderService {
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$entity = $objectService->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+			$entity = $objectService->find(id: $bodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
 		} catch (\Throwable) {
 			return '';
 		}

@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use ArrayObject;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\AuditLogService;
@@ -230,7 +231,7 @@ class DecisionTransitionGoldenTest extends TestCase {
 	private function service(array $case): DecisionLifecycleService {
 		$store   = new ArrayObject($this->store());
 		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('find')->willReturnCallback(
+		$objects->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($store): ?ObjectEntity {
 				$this->log[] = ['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]];
 				if ($id === 'd-dne' || $id === 'gone-p') {
@@ -243,7 +244,7 @@ class DecisionTransitionGoldenTest extends TestCase {
 
 				return isset($store[(string)$id]) === true ? $this->entity(object: $store[(string)$id]) : null;
 			}
-		);
+		));
 		$objects->method('saveObject')->willReturnCallback(
 			function (array|ObjectEntity $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntity {
 				$this->log[] = ['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]];

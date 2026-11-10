@@ -38,6 +38,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IL10N;
 
 /**
@@ -288,7 +289,12 @@ class DestructionCertificateRenderer {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}

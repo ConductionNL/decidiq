@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Controller\ApiController;
 use OCA\Decidiq\Controller\HealthController;
 use OCA\Decidiq\Controller\OriController;
@@ -288,7 +289,9 @@ class CorsControllersGoldenTest extends TestCase {
 			 *
 			 * @return ObjectEntity|null The entity.
 			 */
-			public function find(string $id, string $register, string $schema): ?ObjectEntity {
+			public function find(string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?ObjectEntity {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$this->test->answer(call: ['find' => compact('id', 'register', 'schema')]);
 				return $this->test->entity(id: $id);
 			}//end find()

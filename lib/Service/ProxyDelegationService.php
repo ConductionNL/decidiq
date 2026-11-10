@@ -34,6 +34,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IUserManager;
 use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
@@ -96,7 +97,7 @@ class ProxyDelegationService {
 
 		$objectService = $this->objectService();
 
-		$toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidiq', schema: 'participant');
+		$toParticipantEntity = $objectService->find(id: $toParticipantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		$toParticipant = null;
 		if ($toParticipantEntity !== null) {
 			$toParticipant = $toParticipantEntity->jsonSerialize();
@@ -119,7 +120,7 @@ class ProxyDelegationService {
 		];
 
 		// Store proxy as a structured note on the VotingRound.
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $objectService->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();
@@ -159,7 +160,7 @@ class ProxyDelegationService {
 	 */
 	public function revokeProxy(string $votingRoundId, string $fromParticipantId): void {
 		$objectService = $this->objectService();
-		$roundEntity = $objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $objectService->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();

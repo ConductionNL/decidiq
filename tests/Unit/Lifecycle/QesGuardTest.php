@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Lifecycle;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Lifecycle\QesGuard;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -53,7 +54,7 @@ class QesGuardTest extends TestCase {
 		$resolutionEntity->method('jsonSerialize')->willReturn($resolution);
 		$resolutionEntity->method('getObject')->willReturn($resolution);
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($resolutionEntity) {
 				if ($schema === 'decision') {
 					return $resolutionEntity;
@@ -61,7 +62,7 @@ class QesGuardTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$objectService->method('findAll')->willReturn($minutesRows);
 

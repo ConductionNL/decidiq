@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -87,7 +88,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 	): ParticipantToPersonMembershipResolver {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -105,7 +106,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use ($persons, $memberships, $throwOnPersonFindAll, $throwOnMembershipFindAll): array {
@@ -478,7 +479,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 		$savedMemberships = [];
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -492,7 +493,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config) use ($persons, &$membershipFindAllCalled): array {
 				$filters = ($config['filters'] ?? []);

@@ -37,6 +37,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\MeetingCostService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -221,9 +222,9 @@ class MeetingCostGoldenTest extends TestCase {
 	 */
 	private function service(array $case): MeetingCostService {
 		$objects = $this->createMock(ObjectServiceInterface::class);
-		$objects->method('find')->willReturnCallback(
+		$objects->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (mixed ...$all) use ($case): ?ObjectEntity {
-				$names       = array_map(static fn (\ReflectionParameter $p): string => $p->getName(), (new \ReflectionMethod(ObjectServiceInterface::class, 'find'))->getParameters());
+				$names       = ['id', '_extend', 'files', 'register', 'schema', '_rbac', '_multitenancy', '_render', '_audit'];
 				$args        = array_combine(array_slice($names, 0, count($all)), $all);
 				$schema      = ($args['schema'] ?? null);
 				$this->log[] = ['find' => [$args['id'], ($args['register'] ?? null), $schema]];
@@ -248,7 +249,7 @@ class MeetingCostGoldenTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 		$objects->method('setRegister')->willReturnCallback(
 			function (string|int $register) use ($objects): ObjectServiceInterface {
 				$this->log[] = ['setRegister' => $register];

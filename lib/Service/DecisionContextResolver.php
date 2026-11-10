@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
 
@@ -65,7 +66,7 @@ class DecisionContextResolver {
 	 */
 	public function loadDecision(object $objectService, string $decisionId): ?array {
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -98,7 +99,7 @@ class DecisionContextResolver {
 		}
 
 		try {
-			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$entity = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (DoesNotExistException) {
 			return null;
 		}
@@ -213,8 +214,7 @@ class DecisionContextResolver {
 		try {
 			$chairParticipant = $objectService->find(
 				id: $chairId,
-				register: 'decidiq',
-				schema: 'participant'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'participant')
 			);
 		} catch (DoesNotExistException) {
 			return null;

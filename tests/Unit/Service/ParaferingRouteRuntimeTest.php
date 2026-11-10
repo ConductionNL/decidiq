@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
 use OCA\Decidiq\Service\ApprovalStageGuard;
@@ -240,7 +241,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 		);
 		// find() resolves by uuid, as live OpenRegister does — the resolving
 		// form a top-level 'id' filter never was.
-		$facade->method('find')->willReturnCallback(
+		$facade->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -258,7 +259,7 @@ class ParaferingRouteRuntimeTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 
 		$store = new RegisterObjectStore($facade);
 

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Repair;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Repair\MigrateBoardProxyToProxyAuthorization;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -111,7 +112,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 				return [];
 			}
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (
 				int|string $id,
 				?array $_extend = [],
@@ -125,7 +126,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$savedRef = &$saved;
 		$objectService->method('saveObject')->willReturnCallback(

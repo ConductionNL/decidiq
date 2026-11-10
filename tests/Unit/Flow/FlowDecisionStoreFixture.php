@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Flow;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard;
 use OCA\Decidiq\Service\DecisionIntegrationService;
@@ -164,7 +165,7 @@ trait FlowDecisionStoreFixture {
 			}
 		);
 
-		$service->method('find')->willReturnCallback(
+		$service->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
 				if ((string)$register !== 'decidiq' || (string)$schema !== 'decision') {
 					return null;
@@ -177,7 +178,7 @@ trait FlowDecisionStoreFixture {
 
 				return $this->entity(row: $row);
 			}
-		);
+		));
 
 		$service->method('findAll')->willReturnCallback(
 			function (array $config = []): array {

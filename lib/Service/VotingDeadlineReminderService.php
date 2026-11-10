@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -404,7 +405,7 @@ class VotingDeadlineReminderService {
 
 		try {
 			// ADR-005: the motion is a `decision` discriminated by decisionType.
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
+			$motionEntity = $objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable) {
 			return null;
 		}
@@ -430,7 +431,7 @@ class VotingDeadlineReminderService {
 	 */
 	private function participantUserId(object $objectService, string $participantId): ?string {
 		try {
-			$entity = $objectService->find(id: $participantId, register: 'decidiq', schema: 'participant');
+			$entity = $objectService->find(id: $participantId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participant'));
 		} catch (\Throwable) {
 			return null;
 		}

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\RegulatorExportService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -81,7 +82,7 @@ class RegulatorExportServiceTest extends TestCase {
 			}
 		);
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rowsRef) {
 				$schemaKey = (string)$schema;
 				foreach (($rowsRef[$schemaKey] ?? []) as $row) {
@@ -95,7 +96,7 @@ class RegulatorExportServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {

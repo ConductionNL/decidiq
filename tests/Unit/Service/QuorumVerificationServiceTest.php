@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\QuorumVerificationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -49,7 +50,7 @@ class QuorumVerificationServiceTest extends TestCase {
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($meeting): ?ObjectEntity {
 				if ($schema === 'meeting' && (string)$id === (string)($meeting['id'] ?? '')) {
 					$entity = $this->createMock(ObjectEntity::class);
@@ -58,7 +59,7 @@ class QuorumVerificationServiceTest extends TestCase {
 				}
 				return null;
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use ($members): array {
 				return $members;

@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service\Records;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
@@ -190,7 +191,7 @@ class DossierDispositionTest extends TestCase {
 	 */
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null): ?ObjectEntity {
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($data === null) {
@@ -199,7 +200,7 @@ class DossierDispositionTest extends TestCase {
 
 				return self::entity(schema: (string)$schema, id: (string)$id, data: $data);
 			}
-		);
+		));
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->saves[] = [$object, $uuid, $_rbac, $_multitenancy];

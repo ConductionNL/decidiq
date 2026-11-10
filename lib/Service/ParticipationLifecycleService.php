@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -158,7 +159,7 @@ class ParticipationLifecycleService {
 	 */
 	public function transitionConsultation(string $consultationId, string $newStatus): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
+		$entity = $objectService->find(id: $consultationId, options: new ObjectFindOptions(register: 'decidiq', schema: 'public-consultation'));
 		if ($entity === null) {
 			throw new RuntimeException("PublicConsultation {$consultationId} not found");
 		}
@@ -202,7 +203,7 @@ class ParticipationLifecycleService {
 	 */
 	public function transitionBudgetRound(string $budgetId, string $newStatus): array {
 		$objectService = $this->objectService();
-		$entity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
+		$entity = $objectService->find(id: $budgetId, options: new ObjectFindOptions(register: 'decidiq', schema: 'participatory-budget'));
 		if ($entity === null) {
 			throw new RuntimeException("ParticipatoryBudget {$budgetId} not found");
 		}

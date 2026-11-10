@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
@@ -429,7 +430,7 @@ class TranscriptRetentionJob extends TimedJob {
 	 */
 	private function fetchObject(object $objectService, string $id, string $schema): ?array {
 		try {
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 		} catch (\Throwable) {
 			return null;
 		}

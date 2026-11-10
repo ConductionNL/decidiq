@@ -37,6 +37,7 @@ namespace OCA\Decidiq\Repair;
 
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -231,7 +232,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 	 */
 	private function isParticipant(string $id): ?bool {
 		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA);
+			$entity = $this->objectService->find(id: $id, options: new ObjectFindOptions(register: self::REGISTER, schema: self::PARTICIPANT_SCHEMA));
 		} catch (Throwable $e) {
 			// Null means UNKNOWN, not "no". A transient OpenRegister failure
 			// here used to be indistinguishable from "already migrated", so a

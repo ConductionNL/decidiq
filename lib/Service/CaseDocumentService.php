@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Throwable;
 
@@ -229,7 +230,7 @@ class CaseDocumentService {
 	 * @return array<string,mixed>
 	 */
 	private function item(string $itemId): array {
-		$entity = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+		$entity = $this->objectService->find(id: $itemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Agenda item not found', status: 404);
 		}

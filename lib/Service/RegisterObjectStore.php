@@ -34,6 +34,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -158,8 +159,7 @@ class RegisterObjectStore {
 
 		$entity = $this->objectService->find(
 			id: $uuid,
-			register: self::REGISTER,
-			schema: $schema,
+			options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
 		);
 		if ($entity === null) {
 			return null;

@@ -42,6 +42,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -755,8 +756,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		try {
 			$entity = $this->objectService->find(
 				id: $minutesId,
-				register: 'decidiq',
-				schema: 'minutes'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes')
 			);
 			if ($entity === null) {
 				return;

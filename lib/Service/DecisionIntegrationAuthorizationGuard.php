@@ -41,6 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -298,7 +299,7 @@ class DecisionIntegrationAuthorizationGuard {
 	private function loadDecisionForGuard(string $decisionId, string $callerUid, string $guard): array|false|null {
 		try {
 			$objectService = $this->container->get('OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'DecisionIntegrationAuthorizationGuard: could not resolve Decision for the ' . $guard . ' guard; denying',

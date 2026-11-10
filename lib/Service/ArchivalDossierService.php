@@ -42,6 +42,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IGroupManager;
 use OCP\IL10N;
 use OCP\IUserSession;
@@ -324,7 +325,12 @@ class ArchivalDossierService {
 			return null;
 		}
 
-		$entity = $this->objectService->find(id: $id, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $id,
+			options: new ObjectFindOptions(register: 'decidiq', schema: $schema),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			return null;
 		}

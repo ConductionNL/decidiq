@@ -35,6 +35,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -150,7 +151,7 @@ class MinutesWorkflowService {
 	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	private function requireMinutes(string $minutesId): array {
-		$entity = $this->objectService->find(id: $minutesId, register: 'decidiq', schema: 'minutes');
+		$entity = $this->objectService->find(id: $minutesId, options: new ObjectFindOptions(register: 'decidiq', schema: 'minutes'));
 		if ($entity === null) {
 			throw new MissingObjectException(message: 'Minutes not found.');
 		}

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Controller\VotingController;
 use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -330,7 +331,9 @@ class VotingOpenSubjectScopeTest extends TestCase {
 			 *
 			 * @return object|null
 			 */
-			public function find(int|string $id, mixed $register = null, mixed $schema = null): ?object {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?object {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				if (str_ends_with((string)$id, '-boom') === true) {
 					throw new RuntimeException('lookup failed');
 				}

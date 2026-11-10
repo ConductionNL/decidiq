@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -130,7 +131,7 @@ class MinutesRecordReader {
 		}
 
 		try {
-			$meetingEntity = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meetingEntity = $this->objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 			if ($meetingEntity === null) {
 				return null;
 			}

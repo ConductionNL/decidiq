@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use OCP\TaskProcessing\Events\AbstractTaskProcessingEvent;
@@ -95,8 +96,7 @@ class PaperSummaryTaskListener implements IEventListener {
 		$summaryId = substr($customId, strlen(self::CUSTOM_ID_PREFIX));
 		$summary = $this->objectService->find(
 			id: $summaryId,
-			register: 'decidiq',
-			schema: 'paper-summary',
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'paper-summary'),
 			_rbac: false,
 			_multitenancy: false
 		);

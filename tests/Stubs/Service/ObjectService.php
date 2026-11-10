@@ -40,6 +40,7 @@ namespace OCA\OpenRegister\Service;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Register;
 use OCA\OpenRegister\Db\Schema;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IUser;
 
 /**
@@ -76,26 +77,18 @@ abstract class ObjectService {
 	 * caller a bare stdClass or an anonymous JsonSerializable is asserting
 	 * against a value the app can never receive.
 	 *
-	 * @param int|string $id Object UUID or integer ID
-	 * @param array|null $_extend Properties to extend the object with
-	 * @param bool $files Whether to include file information
-	 * @param Register|string|int|null $register Register entity, slug or ID
-	 * @param Schema|string|int|null $schema Schema entity, slug or ID
-	 * @param bool $_rbac Whether to apply RBAC checks
-	 * @param bool $_multitenancy Whether to apply organisation scoping
-	 * @param bool $_render Whether to render the entity
+	 * @param int|string             $id            Object UUID or integer ID
+	 * @param ObjectFindOptions|null $options       Register, schema, extend, files, render and audit
+	 * @param bool                   $_rbac         Whether to apply RBAC checks
+	 * @param bool                   $_multitenancy Whether to apply organisation scoping
 	 *
 	 * @return ObjectEntity|null
 	 */
 	abstract public function find(
 		int|string $id,
-		?array $_extend = [],
-		bool $files = false,
-		Register|string|int|null $register = null,
-		Schema|string|int|null $schema = null,
+		?ObjectFindOptions $options = null,
 		bool $_rbac = true,
 		bool $_multitenancy = true,
-		bool $_render = true,
 	): ?ObjectEntity;
 
 	/**

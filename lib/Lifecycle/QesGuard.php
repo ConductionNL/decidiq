@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Lifecycle;
 
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -181,8 +182,7 @@ class QesGuard {
 	private function loadSignedBy(string $resolutionId): array {
 		$resolution = $this->objectService->find(
 			id: $resolutionId,
-			register: 'decidiq',
-			schema: 'decision'
+			options: new ObjectFindOptions(register: 'decidiq', schema: 'decision')
 		);
 		if ($resolution === null) {
 			return [];

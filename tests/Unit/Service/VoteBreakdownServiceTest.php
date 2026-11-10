@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\VoteBallotFactory;
 use OCA\Decidiq\Service\VoteCast;
@@ -118,7 +119,7 @@ class VoteBreakdownServiceTest extends TestCase {
 		}
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			static function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null) use ($roundEntity, $people): ?ObjectEntity {
 				if ($id === 'round-1' && $schema === 'voting-round') {
 					return $roundEntity;
@@ -130,7 +131,7 @@ class VoteBreakdownServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturnCallback(
 			static function (array $config) use ($voteEntities): array {
 				$filters = ($config['filters'] ?? []);

@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Start, end and read the seats of a meeting.
@@ -211,8 +212,7 @@ class MandateSubstitutionService {
 
 		$entity = $this->objectService->find(
 			id: $substitutionId,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
+			options: new ObjectFindOptions(register: 'decidiq', schema: SubstitutionResolver::SCHEMA),
 			_rbac: false,
 			_multitenancy: false
 		);

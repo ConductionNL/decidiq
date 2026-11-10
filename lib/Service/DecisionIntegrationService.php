@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Support\FleetAppId;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -339,7 +340,7 @@ class DecisionIntegrationService {
 		}
 
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable $e) {
 			return null;
 		}
@@ -461,7 +462,7 @@ class DecisionIntegrationService {
 
 		// Load and guard the target Decision.
 		try {
-			$entity = $objectService->find(id: $decisionId, register: 'decidiq', schema: 'decision');
+			$entity = $objectService->find(id: $decisionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		} catch (\Throwable $e) {
 			$entity = null;
 		}

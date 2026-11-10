@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -139,7 +140,7 @@ class MeetingCostService {
 			return $meeting;
 		}
 
-		$entity = $this->getObjectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		$entity = $this->getObjectService()->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		if ($entity === null) {
 			return null;
 		}
@@ -185,7 +186,7 @@ class MeetingCostService {
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	private function bodyHourlyRate(string $bodyId): ?float {
-		$bodyEntity = $this->getObjectService()->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+		$bodyEntity = $this->getObjectService()->find(id: $bodyId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-body'));
 		if ($bodyEntity === null) {
 			return null;
 		}

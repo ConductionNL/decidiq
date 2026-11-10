@@ -26,6 +26,7 @@ namespace OCA\Decidiq\Listener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -132,7 +133,7 @@ class DocumentTypeFieldsGuardListener implements IEventListener {
 		}
 
 		try {
-			$type = $this->objectService->find(id: $typeId, register: self::REGISTER, schema: 'document-type', _rbac: false);
+			$type = $this->objectService->find(id: $typeId, options: new ObjectFindOptions(register: self::REGISTER, schema: 'document-type'), _rbac: false);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: the document type of a document record could not be read', ['type' => $typeId, 'error' => $e->getMessage()]);
 			return 'The details were not saved: the document type could not be read. Try again in a moment.';

@@ -34,6 +34,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IConfig;
 use OCP\IUserManager;
 use OCP\IUserSession;
@@ -196,8 +197,7 @@ class PublicationDigestService {
 				try {
 					$found = $this->objectService->find(
 						id: (string)$event['objectId'],
-						register: 'decidiq',
-						schema: (string)$event['objectType'],
+						options: new ObjectFindOptions(register: 'decidiq', schema: (string)$event['objectType']),
 						_rbac: true
 					);
 				} catch (Throwable) {

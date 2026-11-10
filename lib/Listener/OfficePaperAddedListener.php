@@ -28,6 +28,7 @@ use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\BackgroundJob\IJobList;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -228,7 +229,7 @@ class OfficePaperAddedListener implements IEventListener {
 	 */
 	private function ownerSchema(string $uuid): ?string {
 		try {
-			$found = $this->objectService->find(id: $uuid, register: 'decidiq', _rbac: false, _multitenancy: false);
+			$found = $this->objectService->find(id: $uuid, options: new ObjectFindOptions(register: 'decidiq'), _rbac: false, _multitenancy: false);
 		} catch (\Throwable $e) {
 			$this->logger->debug('Decidiq: no decidiq object for a new paper folder', ['folder' => $uuid, 'error' => $e->getMessage()]);
 			return null;

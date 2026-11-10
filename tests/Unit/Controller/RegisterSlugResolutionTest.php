@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Controller\VotingBehaviourController;
 use OCA\Decidiq\Service\VotingBehaviourService;
 use OCA\Decidiq\Tests\Unit\Support\FakeSlugResolver;
@@ -189,8 +190,8 @@ class RegisterSlugResolutionTest extends TestCase {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 		$objectService->method('find')->willReturnCallback(
 			function (...$args) use ($participant, $presentSlugs) {
-				// `register` is find()'s fourth positional parameter.
-				$this->readRegister = ($args[3] ?? null);
+				// `register` is the fourth value of the flat find() call.
+				$this->readRegister = FindCallShape::find(args: $args)[3];
 
 				// The double HONOURS the register, and it has to. A double that
 				// hands the participant back whatever register it was asked for

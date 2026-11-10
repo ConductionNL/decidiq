@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\SigningRoundService;
@@ -155,7 +156,7 @@ class SigningRoundServiceTest extends TestCase {
 				return [];
 			}
 		);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			static function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schemaArg = null) use ($record, $schema): ?ObjectEntity {
 				if ($id === 'rec-1' && $schemaArg === $schema) {
 					return $record;
@@ -163,7 +164,7 @@ class SigningRoundServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 		$objectService->method('saveObject')->willReturnCallback(
 			function (array|ObjectEntity $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null) use ($record): ObjectEntity {
 				$this->saved[] = ['schema' => (string)$schema, 'object' => (array)$object];

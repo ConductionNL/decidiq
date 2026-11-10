@@ -46,6 +46,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -305,8 +306,7 @@ class ConflictOfInterestService {
 		try {
 			$entity = $this->objectService->find(
 				id: $declarationId,
-				register: 'decidiq',
-				schema: 'conflict-of-interest'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'conflict-of-interest')
 			);
 
 			if ($entity === null) {

@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\Decidiq\Service\MotionService;
@@ -200,7 +201,9 @@ class MotionServiceCosignerThresholdTest extends TestCase {
 			 *
 			 * @return ObjectEntityInterface|null
 			 */
-			public function find(int|string $id, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
+			public function find(int|string $id, ?ObjectFindOptions $options = null, bool $_rbac = true, bool $_multitenancy = true): ?ObjectEntityInterface {
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$row = ($this->store[(string)$id] ?? null);
 				if ($row === null) {
 					return null;

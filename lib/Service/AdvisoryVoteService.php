@@ -35,6 +35,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -197,7 +198,7 @@ class AdvisoryVoteService {
 			}
 		}
 
-		$proposalEntity = $objectService->find(id: $proposalId, register: 'decidiq', schema: 'budget-proposal');
+		$proposalEntity = $objectService->find(id: $proposalId, options: new ObjectFindOptions(register: 'decidiq', schema: 'budget-proposal'));
 		if ($proposalEntity !== null) {
 			$proposal = $proposalEntity->jsonSerialize();
 			$proposal['votesFor'] = $for;

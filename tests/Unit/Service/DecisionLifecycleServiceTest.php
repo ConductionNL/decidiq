@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationService;
@@ -205,7 +206,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 	public function testChairOnlyFailsClosedWithoutResolvableChair(): void {
 		// legislative domain: deliberating → voting is chair-only.
 		// The linked meeting has no chair → reject, never skip.
-		$this->objectService->method('find')->willReturnCallback(
+		$this->objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'legislative', 'meeting' => 'meet-1']);
@@ -217,7 +218,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'alice');
 		self::assertFalse(condition: $result['success']);
@@ -233,7 +234,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testChairOnlyRejectsNonChair(): void {
-		$this->objectService->method('find')->willReturnCallback(
+		$this->objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'legislative', 'meeting' => 'meet-1']);
@@ -249,7 +250,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'mallory');
 		self::assertFalse(condition: $result['success']);
@@ -265,7 +266,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testQuorumGateBlocksOpenVoting(): void {
-		$this->objectService->method('find')->willReturnCallback(
+		$this->objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'association', 'meeting' => 'meet-1']);
@@ -281,7 +282,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'the-chair');
 		self::assertFalse(condition: $result['success']);
@@ -440,11 +441,11 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testInFlightTransitionNeedsNoOutcome(): void {
-		$this->objectService->method('find')->willReturnCallback(
+		$this->objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'title' => 'Motie Woonlasten']);
 			}
-		);
+		));
 
 		$saved = null;
 		$this->objectService->method('saveObject')->willReturnCallback(
@@ -586,7 +587,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testGetAvailableTransitions(): void {
-		$this->objectService->method('find')->willReturnCallback(
+		$this->objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) {
 				if ($schema === 'decision') {
 					return $this->entity(['id' => 'dec-1', 'lifecycle' => 'deliberating', 'domain' => 'association', 'meeting' => 'meet-1']);
@@ -598,7 +599,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 				return null;
 			}
-		);
+		));
 
 		$result = $this->service->getAvailableTransitions(decisionId: 'dec-1');
 		self::assertTrue(condition: $result['success']);

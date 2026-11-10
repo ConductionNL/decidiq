@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Service\CitizenAdviceService;
@@ -86,7 +87,7 @@ class CitizenAdviceServiceTest extends TestCase {
 	private function service(?array $motion, array $votes = []): CitizenAdviceService {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
 
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null, bool $_rbac = true) use ($motion): ?ObjectEntityInterface {
 				$this->rbacFlags[] = $_rbac;
 				if ($motion === null || $id !== $motion['id'] || $schema !== 'decision') {
@@ -95,7 +96,7 @@ class CitizenAdviceServiceTest extends TestCase {
 
 				return $this->entity(row: $motion);
 			}
-		);
+		));
 
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config = [], bool $_rbac = true) use ($votes): array {

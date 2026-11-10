@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -255,8 +256,7 @@ class RegulatorExportService {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entity = $objectService->find(
 				id: $exportId,
-				register: 'decidiq',
-				schema: self::SCHEMA
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA)
 			);
 			if ($entity === null) {
 				return $this->failureDownload(message: 'Export not found.');

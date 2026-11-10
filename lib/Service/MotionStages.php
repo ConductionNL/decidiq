@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IAppConfig;
 use OCP\IGroupManager;
 
@@ -155,7 +156,7 @@ class MotionStages {
 	 * @return array{object: array<string, mixed>, owner: string}|null
 	 */
 	private function load(string $motionId): ?array {
-		$entity = $this->objectService->find(id: $motionId, register: 'decidiq', schema: 'decision');
+		$entity = $this->objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: 'decision'));
 		if ($entity === null) {
 			return null;
 		}

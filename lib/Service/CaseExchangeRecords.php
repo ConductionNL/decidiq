@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Utility\ITimeFactory;
 
 /**
@@ -100,7 +101,12 @@ class CaseExchangeRecords {
 	 * @return array<string,mixed>
 	 */
 	public function find(string $recordId): array {
-		$entity = $this->objectService->find(id: $recordId, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+		$entity = $this->objectService->find(
+			id: $recordId,
+			options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+			_rbac: false,
+			_multitenancy: false
+		);
 		if ($entity === null) {
 			throw new CaseSystemException(message: 'Exchange record not found', status: 404);
 		}

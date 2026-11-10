@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use RuntimeException;
 
 /**
@@ -421,7 +422,7 @@ class VotingRoundResults {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function loadRound(string $votingRoundId): ?array {
-		$entity = $this->objectService()->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$entity = $this->objectService()->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		if ($entity === null) {
 			return null;
 		}

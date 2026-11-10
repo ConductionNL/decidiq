@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * Progress entries on a commitment.
@@ -136,7 +137,7 @@ class CommitmentProgressService {
 	 * @return array<string, mixed>
 	 */
 	private function load(string $commitmentId): array {
-		$entity = $this->objectService->find(id: $commitmentId, register: 'decidiq', schema: 'governance-commitment');
+		$entity = $this->objectService->find(id: $commitmentId, options: new ObjectFindOptions(register: 'decidiq', schema: 'governance-commitment'));
 		if ($entity === null) {
 			return [];
 		}

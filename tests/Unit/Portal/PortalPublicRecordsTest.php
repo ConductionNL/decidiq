@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Portal;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Portal\PortalContributionProvider;
 use OCA\Decidiq\Service\OriPersonPublicationRule;
 use OCA\Decidiq\Service\OriVotePublicationRule;
@@ -441,7 +442,7 @@ final class PortalPublicRecordsTest extends TestCase {
 	 */
 	private function objectService(): ObjectServiceInterface {
 		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('find')->willReturnCallback(
+		$objectService->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, mixed $register = null, mixed $schema = null, bool $_rbac = true): ?ObjectEntity {
 				$data = ($this->store[(string)$schema][(string)$id] ?? null);
 				if ($_rbac === true) {
@@ -455,7 +456,7 @@ final class PortalPublicRecordsTest extends TestCase {
 
 				return self::entity(schema: (string)$schema, id: (string)$id, data: $data);
 			}
-		);
+		));
 		$objectService->method('findAll')->willReturnCallback(
 			function (array $config = [], bool $_rbac = true): array {
 				if ($_rbac === true) {

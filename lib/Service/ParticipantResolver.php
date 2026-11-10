@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
 
@@ -90,7 +91,7 @@ class ParticipantResolver {
 		// "Not found" is this method's documented answer, so it is translated here
 		// and only here; every other failure still propagates.
 		try {
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+			$meetingEntity = $objectService->find(id: $meetingId, options: new ObjectFindOptions(register: 'decidiq', schema: 'meeting'));
 		} catch (DoesNotExistException) {
 			return null;
 		}

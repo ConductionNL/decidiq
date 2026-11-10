@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -218,8 +219,7 @@ class VoteBallotFactory {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$participantEntity = $objectService->find(
 				id: $participantId,
-				register: 'decidiq',
-				schema: 'participant'
+				options: new ObjectFindOptions(register: 'decidiq', schema: 'participant')
 			);
 			if ($participantEntity !== null) {
 				$participant = $participantEntity->jsonSerialize();

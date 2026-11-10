@@ -36,6 +36,7 @@ namespace OCA\Decidiq\Service;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 
 /**
  * The griffie's side of a residents' advisory vote on a motion.
@@ -221,8 +222,7 @@ class CitizenAdviceService {
 	private function motion(string $motionId): array {
 		$entity = $this->objectService->find(
 			id: $motionId,
-			register: self::REGISTER,
-			schema: 'decision',
+			options: new ObjectFindOptions(register: self::REGISTER, schema: 'decision'),
 			_rbac: false,
 			_multitenancy: false
 		);

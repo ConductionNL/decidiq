@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -177,7 +178,7 @@ class VotingOpenedNotifier {
 
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$motionEntity = $objectService->find(id: $motionId, register: 'decidiq', schema: $lookupSchema);
+			$motionEntity = $objectService->find(id: $motionId, options: new ObjectFindOptions(register: 'decidiq', schema: $lookupSchema));
 			if ($motionEntity === null) {
 				return $fallback;
 			}

@@ -36,6 +36,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use ArrayObject;
 use InvalidArgumentException;
 use OCA\Decidiq\Service\ActivityPublisherService;
@@ -327,7 +328,7 @@ class VotingRoundOpenGoldenTest extends TestCase {
 				return $objects;
 			}
 		);
-		$objects->method('find')->willReturnCallback(
+		$objects->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use ($store): ?ObjectEntity {
 				$this->log[] = ['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]];
 				$row = ($store[(string)$id] ?? null);
@@ -337,7 +338,7 @@ class VotingRoundOpenGoldenTest extends TestCase {
 
 				return $this->entity(object: $row['object']);
 			}
-		);
+		));
 		$objects->method('findAll')->willReturnCallback(
 			function (array $config = []) use ($store, &$schema): array {
 				$this->log[] = ['findAll' => ['schema' => $schema, 'config' => $config]];

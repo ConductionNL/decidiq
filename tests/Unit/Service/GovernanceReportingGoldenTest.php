@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Service\GovernanceReportingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -241,7 +242,7 @@ class GovernanceReportingGoldenTest extends TestCase {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function named(string $class, string $method, array $arguments): array {
+	private function namedAsDeclared(string $class, string $method, array $arguments): array {
 		$named = [];
 		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $parameter) {
 			if (array_key_exists($i, $arguments) === false) {
@@ -253,6 +254,25 @@ class GovernanceReportingGoldenTest extends TestCase {
 			}
 
 			$named[$parameter->getName()] = $arguments[$i];
+		}
+
+		return $named;
+	}//end namedAsDeclared()
+
+	/**
+	 * The arguments by name; a find() or findSilent() call is expanded back into
+	 * its old parameter names, so the recording describes the read, not the call shape.
+	 *
+	 * @param mixed $class See namedAsDeclared()
+	 * @param mixed $method See namedAsDeclared()
+	 * @param mixed $arguments See namedAsDeclared()
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function named(string $class, string $method, array $arguments): array {
+		$named = $this->namedAsDeclared($class, $method, $arguments);
+		if (in_array($method, ['find', 'findSilent'], true) === true) {
+			return FindCallShape::legacyNamed(named: $named);
 		}
 
 		return $named;

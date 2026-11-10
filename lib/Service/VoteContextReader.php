@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 
 /**
@@ -237,8 +238,7 @@ class VoteContextReader {
 			try {
 				$entity = $this->objectService->find(
 					id: $id,
-					register: self::REGISTER,
-					schema: $schema,
+					options: new ObjectFindOptions(register: self::REGISTER, schema: $schema),
 					_rbac: false,
 					_multitenancy: false
 				);

@@ -34,6 +34,7 @@ use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\MissingRelationException;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -413,7 +414,7 @@ class MinutesDocumentService {
 	 * @return string
 	 */
 	private function lookupAgendaItemTitle(string $agendaItemId): string {
-		$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+		$entity = $this->objectService->find(id: $agendaItemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		if ($entity === null) {
 			return $agendaItemId;
 		}

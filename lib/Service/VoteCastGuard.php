@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -110,7 +111,7 @@ class VoteCastGuard {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function loadOpenRound(string $votingRoundId): array {
-		$roundEntity = $this->objectService->find(id: $votingRoundId, register: 'decidiq', schema: 'voting-round');
+		$roundEntity = $this->objectService->find(id: $votingRoundId, options: new ObjectFindOptions(register: 'decidiq', schema: 'voting-round'));
 		$round = null;
 		if ($roundEntity !== null) {
 			$round = $roundEntity->jsonSerialize();

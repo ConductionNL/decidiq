@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Service\OriSerializer;
 use OCA\Decidiq\Service\OriPersonPublicationRule;
 use OCA\Decidiq\Service\OriVotePublicationRule;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -415,7 +416,7 @@ class OriController extends CorsJsonController {
 
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
-			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+			$entity = $objectService->find(id: $id, options: new ObjectFindOptions(register: 'decidiq', schema: $schema));
 			$object = null;
 			if ($entity !== null) {
 				$object = $entity->jsonSerialize();

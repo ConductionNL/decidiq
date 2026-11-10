@@ -30,6 +30,7 @@ use OCA\Decidiq\Service\CaseSystemClient;
 use OCA\Decidiq\Service\CaseSystemExchangeService;
 use OCA\Decidiq\Service\TranscriptionStaffGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -190,7 +191,7 @@ class CaseSystemController extends Controller {
 	 */
 	private function forItem(string $itemId, callable $action): JSONResponse {
 		try {
-			$item = $this->objectService->find(id: $itemId, register: 'decidiq', schema: 'agenda-item');
+			$item = $this->objectService->find(id: $itemId, options: new ObjectFindOptions(register: 'decidiq', schema: 'agenda-item'));
 		} catch (\Exception $e) {
 			return new JSONResponse(['message' => 'The agenda item could not be read.'], Http::STATUS_SERVICE_UNAVAILABLE);
 		}

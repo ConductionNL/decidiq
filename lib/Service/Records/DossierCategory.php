@@ -31,6 +31,7 @@ use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
 use OCP\IL10N;
 
 /**
@@ -129,7 +130,12 @@ class DossierCategory {
 	private function dossier(string $dossierId): array {
 		$entity = null;
 		if ($dossierId !== '') {
-			$entity = $this->objectService->find(id: $dossierId, register: 'decidiq', schema: self::SCHEMA, _rbac: false, _multitenancy: false);
+			$entity = $this->objectService->find(
+				id: $dossierId,
+				options: new ObjectFindOptions(register: 'decidiq', schema: self::SCHEMA),
+				_rbac: false,
+				_multitenancy: false
+			);
 		}
 
 		if ($entity === null) {

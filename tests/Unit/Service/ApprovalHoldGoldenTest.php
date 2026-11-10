@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\FindCallShape;
 use OCA\Decidiq\Controller\ApprovalRouteController;
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
@@ -278,13 +279,13 @@ class ApprovalHoldGoldenTest extends TestCase {
 				return $out;
 			}
 		);
-		$facade->method('find')->willReturnCallback(
+		$facade->method('find')->willReturnCallback(FindCallShape::legacy(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null): ?ObjectEntityInterface {
 				$this->log[] = ['find' => ['id' => $id, 'register' => $register, 'schema' => $schema]];
 				$row = ($this->rows[(string)$schema][(string)$id] ?? null);
 				return $row === null ? null : $this->entity(row: $row);
 			}
-		);
+		));
 
 		$store = new RegisterObjectStore($facade);
 		return new ApprovalRouteService(
