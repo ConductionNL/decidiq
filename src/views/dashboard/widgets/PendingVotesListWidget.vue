@@ -197,48 +197,9 @@ export default {
 }
 </script>
 
+<style scoped src="./dashboardListWidget.css"></style>
+
 <style scoped>
-.dashboard-list-widget {
-	display: flex;
-	flex-direction: column;
-	min-height: 0;
-	/* The card content box has no padding of its own; every decidiq-local
-	   dashboard widget therefore sits flush at gapTop 0, where shared-library
-	   widgets on the same dashboard inset by ~17px. Same fix as
-	   RunningProcessesWidget, applied to the whole class rather than the one
-	   widget where it happened to show. */
-	padding-block-start: 4px;
-}
-
-.dashboard-list-widget__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-}
-
-.dashboard-list-widget__row {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 12px;
-	padding: 8px 12px;
-	border-bottom: 1px solid var(--color-border, #e0e0e0);
-	cursor: pointer;
-}
-
-.dashboard-list-widget__row:hover {
-	background: var(--color-background-hover, #f5f5f5);
-}
-
-/* The row is keyboard-focusable, so its focus must be VISIBLE (WCAG 2.4.7).
-   Without this the row could be tabbed to but not seen, which is worse than
-   not being reachable at all. */
-.dashboard-list-widget__row:focus-visible {
-	background: var(--color-background-hover, #f5f5f5);
-	outline: 2px solid var(--color-primary-element, #0082c9);
-	outline-offset: -2px;
-}
-
 .dashboard-list-widget__row--urgent {
 	border-inline-start: 3px solid var(--color-error, #c93030);
 }

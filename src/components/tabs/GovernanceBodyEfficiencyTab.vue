@@ -592,32 +592,9 @@ export default {
 }
 </script>
 
+<style scoped src="./governanceBodyResultsTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: calc(var(--default-grid-baseline) * 2);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__empty,
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-
 .efficiency-section {
 	display: flex;
 	flex-direction: column;

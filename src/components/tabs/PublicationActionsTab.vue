@@ -455,20 +455,9 @@ export default {
 }
 </script>
 
+<style scoped src="./documentTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: calc(var(--default-grid-baseline) * 2);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
 .decidiq-tab__actions {
 	display: flex;
 	flex-wrap: wrap;

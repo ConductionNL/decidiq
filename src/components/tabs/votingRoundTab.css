@@ -1,0 +1,19 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * The layout the voting-round tabs share: the column and its empty line.
+ * Each component includes it as a scoped style.
+ */
+
+.decidiq-tab {
+	display: flex;
+	flex-direction: column;
+	gap: var(--default-grid-baseline);
+	padding: var(--default-grid-baseline);
+}
+
+.decidiq-tab__empty {
+	color: var(--color-text-maxcontrast);
+	margin: 0;
+}
