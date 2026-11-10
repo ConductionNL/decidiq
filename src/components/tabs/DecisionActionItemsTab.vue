@@ -95,15 +95,13 @@ import {
 	CnStatusBadge,
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import {
 	createActionItem,
 	deleteActionItem,
 	updateActionItem,
 } from '../../services/actionItemApi.js'
-import { relationCrudTab } from './relationRows.js'
+import { relationCrudTab, relationRowActions } from './relationRows.js'
 
 export default {
 	name: 'DecisionActionItemsTab',
@@ -118,7 +116,7 @@ export default {
 		Plus,
 	},
 
-	mixins: [relationCrudTab],
+	mixins: [relationCrudTab, relationRowActions],
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
@@ -155,25 +153,6 @@ export default {
 				completed: 'success',
 				overdue: 'error',
 			}
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		rowActions() {
-			return [
-				{
-					label: this.t('decidiq', 'Edit'),
-					icon: Pencil,
-					handler: (row) => this.openEdit(row),
-				},
-				{
-					label: this.t('decidiq', 'Delete'),
-					icon: TrashCanOutline,
-					destructive: true,
-					handler: (row) => {
-						this.deleteTarget = { ...row }
-					},
-				},
-			]
 		},
 
 		/** @spec openspec/specs/relation-tab-ui/spec.md */

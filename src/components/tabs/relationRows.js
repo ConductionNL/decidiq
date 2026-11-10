@@ -13,6 +13,8 @@
  *
  * @spec openspec/specs/relation-tab-ui/spec.md
  */
+import Pencil from 'vue-material-design-icons/Pencil.vue'
+import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { ensureRelationType } from './useRelationStore.js'
 
 /**
@@ -161,6 +163,34 @@ export const relationCrudTab = {
 		/** @spec openspec/specs/relation-tab-ui/spec.md */
 		async confirmDelete() {
 			await deleteRelationRow(this)
+		},
+	},
+}
+
+/**
+ * The Edit and Delete row actions of a relation table, as a mixin.
+ *
+ * @spec openspec/specs/relation-tab-ui/spec.md
+ */
+export const relationRowActions = {
+	computed: {
+		/** @spec openspec/specs/relation-tab-ui/spec.md */
+		rowActions() {
+			return [
+				{
+					label: this.t('decidiq', 'Edit'),
+					icon: Pencil,
+					handler: (row) => this.openEdit(row),
+				},
+				{
+					label: this.t('decidiq', 'Delete'),
+					icon: TrashCanOutline,
+					destructive: true,
+					handler: (row) => {
+						this.deleteTarget = { ...row }
+					},
+				},
+			]
 		},
 	},
 }
