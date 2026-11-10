@@ -99,7 +99,13 @@ function tab(file, answer) {
 		},
 		'./useRelationStore.js': { ensureRelationType: store },
 	})
-	const vm = instanceOf(component, { objectId: 'parent-1' })
+	// Mixin methods first, the component's own win, as Vue merges them.
+	const mixinMethods = (component.mixins || []).map((mixin) => mixin.methods || {})
+	const merged = {
+		...component,
+		methods: Object.assign({}, ...mixinMethods, component.methods),
+	}
+	const vm = instanceOf(merged, { objectId: 'parent-1' })
 	vm.$refs = {
 		formDialog: { setResult: (r) => calls.push({ fn: 'formResult', r }) },
 		deleteDialog: { setResult: (r) => calls.push({ fn: 'deleteResult', r }) },

@@ -94,12 +94,7 @@ import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
-import {
-	deleteRelationRow,
-	loadRelationRows,
-	openRelationForm,
-	saveRelationRow,
-} from './relationRows.js'
+import { relationCrudTab } from './relationRows.js'
 
 export default {
 	name: 'AgendaMotionsTab',
@@ -113,6 +108,8 @@ export default {
 		NcButton,
 		Plus,
 	},
+
+	mixins: [relationCrudTab],
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
@@ -189,16 +186,6 @@ export default {
 		},
 	},
 
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
 	methods: {
 		/**
 		 * The relation this tab lists: its type, where it keeps the schema,
@@ -218,41 +205,6 @@ export default {
 
 				failedText: this.t('decidiq', 'Failed to load motions.'),
 			}
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async refresh() {
-			await loadRelationRows(this)
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async openCreate() {
-			await openRelationForm(this, null)
-		},
-
-		/**
-		 * @param row The decision row to edit.
-		 * @spec openspec/specs/relation-tab-ui/spec.md
-		 */
-		async openEdit(row) {
-			await openRelationForm(this, row)
-		},
-
-		/**
-		 * @param formData The submitted form values.
-		 * @spec openspec/specs/relation-tab-ui/spec.md
-		 */
-		async onConfirm(formData) {
-			// The discriminator is written on save, not picked on the form —
-			// see excludedFields. Without it, a create carried no decisionType
-			// at all and the row fell out of this tab's own decisionType=motion
-			// filter on the next refresh.
-			await saveRelationRow(this, formData)
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async confirmDelete() {
-			await deleteRelationRow(this)
 		},
 	},
 }

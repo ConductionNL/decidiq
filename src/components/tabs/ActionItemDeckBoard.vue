@@ -183,7 +183,7 @@ import {
 	statusToLane,
 } from '../../services/deckProjection.js'
 import { useSettingsStore } from '../../store/store.js'
-import { loadRelationRows, openRelationForm } from './relationRows.js'
+import { relationCrudTab } from './relationRows.js'
 
 const LANE_LABELS = {
 	open: 'Open',
@@ -204,6 +204,8 @@ export default {
 		TrashCanOutline,
 		ViewColumnOutline,
 	},
+
+	mixins: [relationCrudTab],
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
@@ -264,15 +266,6 @@ export default {
 		},
 	},
 
-	watch: {
-		objectId: {
-			immediate: true,
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
 	methods: {
 		/**
 		 * The relation this tab lists: its type, where it keeps the schema,
@@ -301,30 +294,6 @@ export default {
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
 			return { id: key, label: this.t('decidiq', LANE_LABELS[key]) }
-		},
-
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
-		async refresh() {
-			await loadRelationRows(this)
-		},
-
-		/**
-		 * Open the create dialog.
-		 *
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
-		 */
-		async openCreate() {
-			await openRelationForm(this, null)
-		},
-
-		/**
-		 * Open the edit dialog for a card.
-		 *
-		 * @param {object} item The action-item row.
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
-		 */
-		async openEdit(item) {
-			await openRelationForm(this, item)
 		},
 
 		/**
