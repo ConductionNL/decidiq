@@ -227,6 +227,42 @@ final class PortalPublicRecordsTest extends TestCase {
 	}//end testADanglingDecisionReferenceSkipsOnlyThatRound()
 
 	/**
+	 * Golden: every published member's whole voting record in the example set
+	 * (title, subtitle, summary, columns, rows in order, note), byte for byte.
+	 * Pinned before PublicVotingRecords::record() was split into named steps.
+	 *
+	 * @return void
+	 */
+	public function testEveryMembersVotingRecordIsUnchanged(): void {
+		$this->store = [];
+		$path = dirname(__DIR__, 3).'/lib/Settings/example-sets/zuiddrecht.json';
+		$set = json_decode((string)file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
+		foreach ($set['objects'] as $row) {
+			if ($row['register'] === 'decidiq') {
+				$this->put($row['schema'], $row['key'], self::resolve(value: $row['data']));
+			}
+		}
+
+		$provider = $this->provider();
+		$records = [];
+		foreach (array_column($provider->publicMembers(), 'id') as $id) {
+			$records[$id] = $provider->publicVotingRecord($id);
+		}
+
+		ksort($records);
+		$records['nobody'] = $provider->publicVotingRecord('nobody');
+		$golden = dirname(__DIR__, 2).'/fixtures/public-voting-records-golden.json';
+		$json = json_encode($records, (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))."\n";
+		if (getenv('DECIDIQ_WRITE_GOLDEN') === '1') {
+			file_put_contents($golden, $json);
+		}
+
+		self::assertGreaterThan(20, count($records));
+		self::assertSame(file_get_contents($golden), $json);
+
+	}//end testEveryMembersVotingRecordIsUnchanged()
+
+	/**
 	 * The shipped example set, loaded as-is: every voting councillor has a
 	 * record with one named vote per public round, the votes add up to each
 	 * round's totals, and the mayor and the griffier are not listed.
