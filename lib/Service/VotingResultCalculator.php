@@ -82,7 +82,7 @@ class VotingResultCalculator {
 	 */
 	public function compute(int $for, int $against, int $abstain, array $round): array {
 		$rules = $this->rulesOf(round: $round);
-		$tally = new VoteTally(for: $for, against: $against, abstain: $abstain);
+		$tally = new VoteTally(votesFor: $for, votesAgainst: $against, abstentions: $abstain);
 
 		$meta = [
 			'base' => $tally->base(abstentionHandling: $rules->abstentionHandling),
@@ -175,7 +175,7 @@ class VotingResultCalculator {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function tieOutcome(VoteTally $tally, EffectiveVoteRules $rules): ?string {
-		if ($rules->threshold !== 'simple-majority' || $tally->for !== $tally->against || $tally->for <= 0) {
+		if ($rules->threshold !== 'simple-majority' || $tally->votesFor !== $tally->votesAgainst || $tally->votesFor <= 0) {
 			return null;
 		}
 
@@ -222,7 +222,7 @@ class VotingResultCalculator {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function meetsThreshold(VoteTally $tally, EffectiveVoteRules $rules): bool {
-		$for = $tally->for;
+		$for = $tally->votesFor;
 		$base = $tally->base(abstentionHandling: $rules->abstentionHandling);
 		if ($base === 0) {
 			return false;

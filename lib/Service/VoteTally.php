@@ -32,14 +32,14 @@ final class VoteTally {
 	/**
 	 * Describe one tally.
 	 *
-	 * @param int $for     Weighted for-votes
-	 * @param int $against Weighted against-votes
-	 * @param int $abstain Weighted abstentions
+	 * @param int $votesFor     Weighted for-votes
+	 * @param int $votesAgainst Weighted against-votes
+	 * @param int $abstentions  Weighted abstentions
 	 */
 	public function __construct(
-		public readonly int $for,
-		public readonly int $against,
-		public readonly int $abstain,
+		public readonly int $votesFor,
+		public readonly int $votesAgainst,
+		public readonly int $abstentions,
 	) {
 	}//end __construct()
 
@@ -51,7 +51,7 @@ final class VoteTally {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function total(): int {
-		return ($this->for + $this->against + $this->abstain);
+		return ($this->votesFor + $this->votesAgainst + $this->abstentions);
 	}//end total()
 
 	/**
@@ -68,6 +68,6 @@ final class VoteTally {
 			return $this->total();
 		}
 
-		return ($this->for + $this->against);
+		return ($this->votesFor + $this->votesAgainst);
 	}//end base()
 }//end class
