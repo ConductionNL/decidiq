@@ -114,13 +114,15 @@ class ExportBundleController extends Controller {
 		$ids    = $this->request->getParam('ids', []);
 		$filter = $this->request->getParam('filter', []);
 
-		return new ExportRequest(
+		$export = new ExportRequest(
 			format: (string)$this->request->getParam('format', ''),
 			list: (string)$this->request->getParam('list', 'Decisions'),
-			ids: array_values(array_map('strval', (array)$ids)),
-			filter: (array)$filter,
-			search: (string)$this->request->getParam('search', ''),
 		);
+		$export->ids = array_values(array_map('strval', (array)$ids));
+		$export->filter = (array)$filter;
+		$export->search = (string)$this->request->getParam('search', '');
+
+		return $export;
 	}//end exportRequest()
 
 	/**

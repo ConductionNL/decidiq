@@ -74,7 +74,7 @@ class ExportBundleControllerTest extends TestCase {
 	public function testCreateAnswersCreatedOrAccepted(): void {
 		$exports = $this->createMock(ExportBundleService::class);
 		$exports->expects(self::exactly(2))->method('export')
-			->with(self::equalTo(new ExportRequest(format: 'zip', list: 'Motions', ids: ['m-1', 'm-2'], filter: [], search: '')))
+			->with(self::equalTo(self::exportRequest(format: 'zip', list: 'Motions', ids: ['m-1', 'm-2'], filter: [], search: '')))
 			->willReturnOnConsecutiveCalls(
 				['status' => 'done', 'format' => 'zip', 'name' => 'Motions 2026-10-20.zip', 'path' => 'Decidiq exports/Motions 2026-10-20.zip', 'fileId' => 5],
 				['status' => 'queued', 'format' => 'zip', 'name' => 'Motions 2026-10-20.zip', 'path' => 'Decidiq exports/Motions 2026-10-20.zip', 'fileId' => null],
@@ -106,4 +106,23 @@ class ExportBundleControllerTest extends TestCase {
 		self::assertSame(500, $failed->getStatus());
 		self::assertStringNotContainsString('disk full', (string)json_encode($failed->getData()));
 	}//end testARefusalKeepsItsStatusAndSentence()
+
+	/**
+	 * An export request with every field set.
+	 *
+	 * @param string              $format The format.
+	 * @param string              $list   The list.
+	 * @param list<mixed>         $ids    The selection.
+	 * @param array<string,mixed> $filter The filter.
+	 * @param string              $search The search text.
+	 *
+	 * @return ExportRequest The request.
+	 */
+	private static function exportRequest(string $format, string $list, array $ids, array $filter, string $search): ExportRequest {
+		$request = new ExportRequest(format: $format, list: $list);
+		$request->ids = $ids;
+		$request->filter = $filter;
+		$request->search = $search;
+		return $request;
+	}//end exportRequest()
 }//end class

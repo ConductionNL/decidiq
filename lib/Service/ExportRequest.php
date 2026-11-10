@@ -32,20 +32,35 @@ namespace OCA\Decidiq\Service;
  */
 final class ExportRequest {
 	/**
-	 * Describe one export.
+	 * The selected decisions; empty means "all matching the filter".
 	 *
-	 * @param string              $format `pdf` or `zip`.
-	 * @param string              $list   `Motions` or `Decisions`, the file's name.
-	 * @param list<mixed>         $ids    The selected decisions; empty means "all matching the filter".
-	 * @param array<string,mixed> $filter The list's filter.
-	 * @param string              $search The list's search text.
+	 * @var list<mixed>
+	 */
+	public array $ids = [];
+
+	/**
+	 * The list's filter.
+	 *
+	 * @var array<string,mixed>
+	 */
+	public array $filter = [];
+
+	/**
+	 * The list's search text.
+	 *
+	 * @var string
+	 */
+	public string $search = '';
+
+	/**
+	 * Describe one export; which rows is set beside it.
+	 *
+	 * @param string $format `pdf` or `zip`.
+	 * @param string $list   `Motions` or `Decisions`, the file's name.
 	 */
 	public function __construct(
 		public readonly string $format,
 		public readonly string $list,
-		public readonly array $ids,
-		public readonly array $filter,
-		public readonly string $search,
 	) {
 	}//end __construct()
 }//end class

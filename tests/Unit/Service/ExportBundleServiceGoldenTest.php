@@ -149,7 +149,7 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 	 */
 	private function refusal(ExportBundleService $service, string $format = 'zip'): array {
 		try {
-			$service->export(request: new ExportRequest(format: $format, list: 'Motions', ids: [], filter: [], search: ''));
+			$service->export(request: self::exportRequest(format: $format, list: 'Motions', ids: [], filter: [], search: ''));
 		} catch (ExportBundleException $e) {
 			return [$e->getStatus(), $e->getMessage()];
 		}
@@ -188,7 +188,7 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 	 * @return void
 	 */
 	public function testAFilteredSearchBecomesADecisionsZip(): void {
-		$result = $this->service([['id' => 'b'], ['id' => 'a']], 'griffier', false)->export(request: new ExportRequest(
+		$result = $this->service([['id' => 'b'], ['id' => 'a']], 'griffier', false)->export(request: self::exportRequest(
 			format: 'zip',
 			list: 'Everything',
 			ids: ['', ''],
@@ -214,7 +214,7 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 	 */
 	public function testASelectionBecomesOnePdfInItsOwnOrder(): void {
 		$rows = [['id' => 'x'], ['@self' => ['id' => 'c']], ['uuid' => 'a'], ['id' => 'b']];
-		$result = $this->service($rows)->export(request: new ExportRequest(format: 'pdf', list: 'Motions', ids: ['a', 7, '', 'b', 'c'], filter: ['decisionType' => 'motion'], search: 'ignored'));
+		$result = $this->service($rows)->export(request: self::exportRequest(format: 'pdf', list: 'Motions', ids: ['a', 7, '', 'b', 'c'], filter: ['decisionType' => 'motion'], search: 'ignored'));
 
 		$this->assertSame(['status' => 'queued'], $result);
 		$this->assertSame(
@@ -223,4 +223,23 @@ final class ExportBundleServiceGoldenTest extends TestCase {
 		);
 		$this->assertSame(['pdf', true, true, 'Motions 2026-10-20.pdf', ['a', 'b', 'c', 'x'], 'griffier'], $this->calls[2]);
 	}//end testASelectionBecomesOnePdfInItsOwnOrder()
+
+	/**
+	 * An export request with every field set.
+	 *
+	 * @param string              $format The format.
+	 * @param string              $list   The list.
+	 * @param list<mixed>         $ids    The selection.
+	 * @param array<string,mixed> $filter The filter.
+	 * @param string              $search The search text.
+	 *
+	 * @return ExportRequest The request.
+	 */
+	private static function exportRequest(string $format, string $list, array $ids, array $filter, string $search): ExportRequest {
+		$request = new ExportRequest(format: $format, list: $list);
+		$request->ids = $ids;
+		$request->filter = $filter;
+		$request->search = $search;
+		return $request;
+	}//end exportRequest()
 }//end class
