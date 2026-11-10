@@ -33,6 +33,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectPatch;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -118,10 +120,7 @@ class RegisterObjectStore {
 	 */
 	public function patch(string $schema, array $data, string $uuid): array {
 		$stored = $this->objectService->patchObject(
-			objectId: $uuid,
-			data: $data,
-			register: self::REGISTER,
-			schema: $schema,
+			patch: new ObjectPatch(objectId: $uuid, data: $data, target: new ObjectFindTarget(register: self::REGISTER, schema: $schema))
 		);
 
 		return $this->normalise(row: $stored);

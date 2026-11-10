@@ -33,6 +33,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectPatch;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -268,10 +270,7 @@ class CitizenAdviceService {
 	 */
 	private function patch(string $motionId, array $data): array {
 		$stored = $this->objectService->patchObject(
-			objectId: $motionId,
-			data: $data,
-			register: self::REGISTER,
-			schema: 'decision',
+			patch: new ObjectPatch(objectId: $motionId, data: $data, target: new ObjectFindTarget(register: self::REGISTER, schema: 'decision')),
 			_rbac: false,
 			_multitenancy: false
 		);

@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Controller\ApprovalRouteController;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
@@ -241,13 +242,13 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 				return $entity;
 			}
 		);
-		$this->facade->method('patchObject')->willReturnCallback(
+		$this->facade->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (string $objectId, array $data): ObjectEntityInterface {
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($data + ['id' => $objectId]);
 				return $entity;
 			}
-		);
+		));
 
 		$response = $controller->instantiate();
 

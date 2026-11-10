@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Service\CitizenAdviceService;
@@ -107,14 +108,14 @@ class CitizenAdviceServiceTest extends TestCase {
 			}
 		);
 
-		$objectService->method('patchObject')->willReturnCallback(
+		$objectService->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (string $objectId, array $data, string|int|null $register = null, string|int|null $schema = null, bool $_rbac = true) use ($motion): ObjectEntityInterface {
 				$this->rbacFlags[] = $_rbac;
 				$this->patches[] = ['id' => $objectId, 'schema' => $schema, 'data' => $data];
 
 				return $this->entity(row: array_merge((array)$motion, $data));
 			}
-		);
+		));
 
 		return new CitizenAdviceService(objectService: $objectService);
 	}//end service()

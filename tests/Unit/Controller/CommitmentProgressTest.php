@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Controller\CommitmentController;
 use OCA\Decidiq\Service\CommitmentProgressService;
 use OCA\Decidiq\Service\MeetingRoleGate;
@@ -136,7 +137,7 @@ class CommitmentProgressTest extends TestCase {
 			['date' => $today, 'note' => 'Draft report sent to the committee'],
 		];
 		$this->objectService->expects(self::once())->method('patchObject')
-			->with('c-1', ['progress' => $expected], 'decidiq', 'governance-commitment', false);
+			->with(...PatchCallShape::patchArgs('c-1', ['progress' => $expected], 'decidiq', 'governance-commitment', false));
 
 		$response = $this->controller->addProgress(id: 'c-1');
 

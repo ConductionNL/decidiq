@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -256,12 +257,12 @@ class AgendaServiceTest extends TestCase {
 			$objectService
 				->expects($this->once())
 				->method('patchObject')
-				->willReturnCallback(
+				->willReturnCallback(PatchCallShape::legacy(
 					function (string $objectId, array $data) use (&$patches): ObjectEntity {
 						$patches[] = ['id' => $objectId, 'data' => $data];
 						return $this->entity($data);
 					}
-				);
+				));
 
 			$freshService = new AgendaService(
 				objectService: $objectService,
@@ -734,12 +735,12 @@ class AgendaServiceTest extends TestCase {
 		$patches = new \ArrayObject();
 		$this->objectService
 			->method('patchObject')
-			->willReturnCallback(
+			->willReturnCallback(PatchCallShape::legacy(
 				function (string $objectId, array $data) use ($patches): ObjectEntity {
 					$patches->append(['id' => $objectId, 'data' => $data]);
 					return $this->entity($data);
 				}
-			);
+			));
 
 		return $patches;
 

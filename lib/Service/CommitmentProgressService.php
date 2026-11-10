@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectPatch;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -118,11 +120,12 @@ class CommitmentProgressService {
 		$progress[] = ['date' => (new DateTimeImmutable())->format('Y-m-d'), 'note' => $note];
 
 		$this->objectService->patchObject(
-			objectId: $commitmentId,
-			data: ['progress' => $progress],
-			register: 'decidiq',
-			schema: 'governance-commitment',
-			_rbac: false,
+			patch: new ObjectPatch(
+				objectId: $commitmentId,
+				data: ['progress' => $progress],
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-commitment')
+			),
+			_rbac: false
 		);
 
 		return $progress;

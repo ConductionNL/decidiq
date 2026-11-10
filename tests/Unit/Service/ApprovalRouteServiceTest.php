@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\PatchCallShape;
 use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteStepMapper;
@@ -414,7 +415,7 @@ class ApprovalRouteServiceTest extends TestCase {
 		);
 		// patchObject() mirrors the contract's real signature for the same
 		// positional-forwarding reason as saveObject() above.
-		$facade->method('patchObject')->willReturnCallback(
+		$facade->method('patchObject')->willReturnCallback(PatchCallShape::legacy(
 			function (
 				string $objectId,
 				array $data,
@@ -428,7 +429,7 @@ class ApprovalRouteServiceTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 		$facade->method('findAll')->willReturnCallback(
 			static fn (array $config = []): array => $state->findAll($config)
 		);
