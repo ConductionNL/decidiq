@@ -162,7 +162,13 @@ describe('resolveObjectLabel fallback order', () => {
 
 	it('takes the label field, then title, then name, then @self.name, skipping non-strings and blanks', async () => {
 		const label = (obj, field) =>
-			resolveObjectLabel(storeAnswering(obj), 't', 's', 'r', 'id-1', field)
+			resolveObjectLabel(storeAnswering(obj), {
+				typeSlug: 't',
+				schemaSlug: 's',
+				registerSlug: 'r',
+				id: 'id-1',
+				labelField: field,
+			})
 		expect(await label({ lab: 'L', title: 'T' }, 'lab')).toBe('L')
 		expect(await label({ lab: '', title: 'T', name: 'N' }, 'lab')).toBe('T')
 		expect(await label({ title: 5, name: 'N' }, 'lab')).toBe('N')
@@ -173,18 +179,47 @@ describe('resolveObjectLabel fallback order', () => {
 
 	it('registers the type only when the store has no registry entry for it', async () => {
 		const known = storeAnswering({ name: 'N' })
-		await resolveObjectLabel(known, 't', 's', 'r', 'x')
+		await resolveObjectLabel(known, {
+			typeSlug: 't',
+			schemaSlug: 's',
+			registerSlug: 'r',
+			id: 'x',
+		})
 		expect(known.registered).toEqual([])
 		const noRegistry = storeAnswering({ name: 'N' }, null)
-		await resolveObjectLabel(noRegistry, 't', 's', 'r', 'x')
+		await resolveObjectLabel(noRegistry, {
+			typeSlug: 't',
+			schemaSlug: 's',
+			registerSlug: 'r',
+			id: 'x',
+		})
 		expect(noRegistry.registered).toEqual([['t', 's', 'r']])
 	})
 
 	it('stringifies a numeric id on every fallback', async () => {
-		expect(await resolveObjectLabel(null, 't', 's', 'r', 7)).toBe('7')
 		expect(
-			await resolveObjectLabel(storeAnswering(null), 't', 's', 'r', 7),
+			await resolveObjectLabel(null, {
+				typeSlug: 't',
+				schemaSlug: 's',
+				registerSlug: 'r',
+				id: 7,
+			}),
 		).toBe('7')
-		expect(await resolveObjectLabel(null, 't', 's', 'r', 0)).toBe('')
+		expect(
+			await resolveObjectLabel(storeAnswering(null), {
+				typeSlug: 't',
+				schemaSlug: 's',
+				registerSlug: 'r',
+				id: 7,
+			}),
+		).toBe('7')
+		expect(
+			await resolveObjectLabel(null, {
+				typeSlug: 't',
+				schemaSlug: 's',
+				registerSlug: 'r',
+				id: 0,
+			}),
+		).toBe('')
 	})
 })

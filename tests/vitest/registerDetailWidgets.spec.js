@@ -225,22 +225,31 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 describe('resolveObjectLabel (shared reference-label resolver)', () => {
 	it('returns an empty string when no id is given', async () => {
 		expect(
-			await resolveObjectLabel(null, 'decision', 'decision', 'decidiq', ''),
+			await resolveObjectLabel(null, {
+				typeSlug: 'decision',
+				schemaSlug: 'decision',
+				registerSlug: 'decidiq',
+				id: '',
+			}),
 		).toBe('')
 		expect(
-			await resolveObjectLabel(null, 'decision', 'decision', 'decidiq', null),
+			await resolveObjectLabel(null, {
+				typeSlug: 'decision',
+				schemaSlug: 'decision',
+				registerSlug: 'decidiq',
+				id: null,
+			}),
 		).toBe('')
 	})
 
 	it('degrades to the raw id when no store is available', async () => {
 		expect(
-			await resolveObjectLabel(
-				null,
-				'decision',
-				'decision',
-				'decidiq',
-				'abc-123',
-			),
+			await resolveObjectLabel(null, {
+				typeSlug: 'decision',
+				schemaSlug: 'decision',
+				registerSlug: 'decidiq',
+				id: 'abc-123',
+			}),
 		).toBe('abc-123')
 	})
 
@@ -254,14 +263,13 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 				return { title: 'Besluit statutenwijziging' }
 			},
 		}
-		const label = await resolveObjectLabel(
-			store,
-			'decision',
-			'decision',
-			'decidiq',
-			'd-1',
-			'title',
-		)
+		const label = await resolveObjectLabel(store, {
+			typeSlug: 'decision',
+			schemaSlug: 'decision',
+			registerSlug: 'decidiq',
+			id: 'd-1',
+			labelField: 'title',
+		})
 		expect(label).toBe('Besluit statutenwijziging')
 	})
 
@@ -277,13 +285,12 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 				return { name: 'Grond raadsstukken' }
 			},
 		}
-		await resolveObjectLabel(
-			store,
-			'geheimhouding-grond',
-			'geheimhouding-grond',
-			'decidiq',
-			'g-1',
-		)
+		await resolveObjectLabel(store, {
+			typeSlug: 'geheimhouding-grond',
+			schemaSlug: 'geheimhouding-grond',
+			registerSlug: 'decidiq',
+			id: 'g-1',
+		})
 		expect(registered).toEqual({
 			typeSlug: 'geheimhouding-grond',
 			schemaSlug: 'geheimhouding-grond',
@@ -300,13 +307,12 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 			},
 		}
 		expect(
-			await resolveObjectLabel(
-				store,
-				'decision',
-				'decision',
-				'decidiq',
-				'd-2',
-			),
+			await resolveObjectLabel(store, {
+				typeSlug: 'decision',
+				schemaSlug: 'decision',
+				registerSlug: 'decidiq',
+				id: 'd-2',
+			}),
 		).toBe('d-2')
 	})
 
@@ -319,13 +325,12 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 			},
 		}
 		expect(
-			await resolveObjectLabel(
-				store,
-				'decision',
-				'decision',
-				'decidiq',
-				'd-3',
-			),
+			await resolveObjectLabel(store, {
+				typeSlug: 'decision',
+				schemaSlug: 'decision',
+				registerSlug: 'decidiq',
+				id: 'd-3',
+			}),
 		).toBe('d-3')
 	})
 })

@@ -145,6 +145,9 @@ import {
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import {
+	contentWithDefaults,
+	detailObjectId,
+	plainObject,
 	resolveObjectLabel,
 	sortVersionsByEffectiveDate,
 } from './registerDetailWidgets.js'
@@ -204,15 +207,18 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				versionRegister: c.versionRegister || this.register || 'decidiq',
-				versionSchema: c.versionSchema || '',
-				parentRefField: c.parentRefField || '',
-				effectiveDateField: c.effectiveDateField || 'effectiveDate',
-				lapseDateField: c.lapseDateField || '',
-				versionNumberField: c.versionNumberField || 'versionNumber',
-				statusField: c.statusField || 'status',
-				decisionRefField: c.decisionRefField || '',
-				decisionRoute: c.decisionRoute || 'DecisionDetail',
+				...contentWithDefaults(c, {
+					versionRegister: this.register || 'decidiq',
+					versionSchema: '',
+					parentRefField: '',
+					effectiveDateField: 'effectiveDate',
+					lapseDateField: '',
+					versionNumberField: 'versionNumber',
+					statusField: 'status',
+					decisionRefField: '',
+					decisionRoute: 'DecisionDetail',
+				}),
+
 				extraFields: Array.isArray(c.extraFields) ? c.extraFields : [],
 			}
 		},
@@ -223,12 +229,7 @@ export default {
 		 * @spec exclude defensive object-id accessor, no behavioural requirement of its own
 		 */
 		resolvedObjectId() {
-			const data =
-				this.objectData && typeof this.objectData === 'object'
-					? this.objectData
-					: {}
-			const self = data['@self'] || {}
-			return this.objectId || data.id || self.id || ''
+			return detailObjectId(this.objectId, this.objectData)
 		},
 
 		/**
@@ -245,10 +246,7 @@ export default {
 		 * @spec exclude defensive object-slug accessor, no behavioural requirement of its own
 		 */
 		resolvedObjectSlug() {
-			const data =
-				this.objectData && typeof this.objectData === 'object'
-					? this.objectData
-					: {}
+			const data = plainObject(this.objectData)
 			const self = data['@self'] || {}
 			return self.slug || data.slug || ''
 		},
@@ -456,14 +454,13 @@ export default {
 			await Promise.all(
 				ids.map(async (id) => {
 					if (labels[id]) return
-					labels[id] = await resolveObjectLabel(
-						store,
-						'decision',
-						'decision',
-						versionRegister,
+					labels[id] = await resolveObjectLabel(store, {
+						typeSlug: 'decision',
+						schemaSlug: 'decision',
+						registerSlug: versionRegister,
 						id,
-						'title',
-					)
+						labelField: 'title',
+					})
 				}),
 			)
 			this.decisionLabels = labels
