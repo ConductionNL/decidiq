@@ -160,12 +160,35 @@ class SetupController extends Controller {
 		// The choice step is `multiple`, so the browser posts an ARRAY. A single
 		// value still arrives from an older manifest, and from anything that
 		// posts this endpoint by hand, so both shapes are read.
-		$profileIds = [];
-		$submitted  = [$value];
+		$submitted = [$value];
 		if (is_array($value) === true) {
 			$submitted = $value;
 		}
 
+		$refusal = $this->refuseSubmittedSets(submitted: $submitted);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$profileIds = $this->withoutNoneBesideASet(profileIds: self::distinctProfiles(submitted: $submitted));
+		$stored = implode(',', $profileIds);
+		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, $stored);
+
+		return new JSONResponse(data: ['success' => true, 'config' => [self::PROFILE_KEY => $stored]]);
+
+	}//end saveConfig()
+
+	/**
+	 * The refusal of the first submitted value that is not a string or names
+	 * no selectable set, or null when every value is a selectable set.
+	 *
+	 * @param array<int|string, mixed> $submitted The posted values.
+	 *
+	 * @return JSONResponse|null The 400 refusal, or null.
+	 *
+	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 */
+	private function refuseSubmittedSets(array $submitted): ?JSONResponse {
 		foreach ($submitted as $candidate) {
 			if (is_scalar($candidate) === false) {
 				return new JSONResponse(
@@ -174,37 +197,62 @@ class SetupController extends Controller {
 				);
 			}
 
-			$profileId = (string)$candidate;
-			if ($this->isSelectableProfile(profileId: $profileId) === false) {
+			if ($this->isSelectableProfile(profileId: (string)$candidate) === false) {
 				return new JSONResponse(
-					data: ['success' => false, 'message' => 'No example set is called "' . $profileId . '".'],
+					data: ['success' => false, 'message' => 'No example set is called "' . (string)$candidate . '".'],
 					statusCode: Http::STATUS_BAD_REQUEST,
 				);
 			}
+		}
 
-			if (in_array($profileId, $profileIds, true) === false) {
-				$profileIds[] = $profileId;
+		return null;
+	}//end refuseSubmittedSets()
+
+	/**
+	 * The submitted sets as ids, each once, in the order first submitted.
+	 *
+	 * @param array<int|string, mixed> $submitted The posted values, all scalar.
+	 *
+	 * @return list<string> The ids.
+	 *
+	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 */
+	private static function distinctProfiles(array $submitted): array {
+		$profileIds = [];
+		foreach ($submitted as $candidate) {
+			if (in_array((string)$candidate, $profileIds, true) === false) {
+				$profileIds[] = (string)$candidate;
 			}
 		}
 
-		// 🔴 "NONE" ALONGSIDE A SET IS A CONTRADICTION, AND THE SET WINS.
-		// The cards are checkboxes, so an operator can tick "None" and then tick
-		// a set without unticking the first. Storing both would leave
-		// `load-example-set` reading "import nothing" and "import the
-		// municipality" from one value; dropping `none` keeps the answer the
-		// operator's LAST intent rather than a state the importer has to guess at.
+		return $profileIds;
+	}//end distinctProfiles()
+
+	/**
+	 * Drop "none" when a set is picked beside it.
+	 *
+	 * 🔴 "NONE" ALONGSIDE A SET IS A CONTRADICTION, AND THE SET WINS. The cards
+	 * are checkboxes, so an operator can tick "None" and then tick a set
+	 * without unticking the first. Storing both would leave `load-example-set`
+	 * reading "import nothing" and "import the municipality" from one value;
+	 * dropping `none` keeps the answer the operator's LAST intent rather than
+	 * a state the importer has to guess at.
+	 *
+	 * @param list<string> $profileIds The picked ids.
+	 *
+	 * @return list<string> The ids to store.
+	 *
+	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 */
+	private function withoutNoneBesideASet(array $profileIds): array {
 		if (count($profileIds) > 1) {
-			$profileIds = array_values(
+			return array_values(
 				array_filter($profileIds, static fn (string $id): bool => $id !== SeedProfileService::NONE_PROFILE)
 			);
 		}
 
-		$stored = implode(',', $profileIds);
-		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, $stored);
-
-		return new JSONResponse(data: ['success' => true, 'config' => [self::PROFILE_KEY => $stored]]);
-
-	}//end saveConfig()
+		return $profileIds;
+	}//end withoutNoneBesideASet()
 
 	/**
 	 * The example sets the operator picked, in the order they were stored.
