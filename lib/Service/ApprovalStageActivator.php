@@ -115,7 +115,7 @@ class ApprovalStageActivator {
 			);
 		}
 
-		$resolved = $this->resolver->resolve(
+		$resolved = $this->resolver->resolve(resolution: new ActorResolution(
 			step: [
 				'actor' => '',
 				'actorRule' => $rule,
@@ -125,7 +125,7 @@ class ApprovalStageActivator {
 			subjectOwner: $subjectOwner,
 			hasAccount: $this->accountCheck(),
 			resolvedAt: $stampedAt,
-		);
+		));
 
 		$patch['assignedPerson'] = $resolved['actor'];
 		$patch['actorResolvedBy'] = $resolved['actorResolvedBy'];
@@ -216,14 +216,14 @@ class ApprovalStageActivator {
 		}
 
 		try {
-			$resolved = $this->resolver->resolve(
+			$resolved = $this->resolver->resolve(resolution: new ActorResolution(
 				step: [
 					'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 					'actorRuleSubject' => $person,
 				],
 				people: $this->people(),
 				hasAccount: $this->accountCheck(),
-			);
+			));
 		} catch (\Throwable $e) {
 			$this->logger?->info(
 				'Decidiq: no manager resolved for an escalating approval stage',
@@ -259,9 +259,9 @@ class ApprovalStageActivator {
 	/**
 	 * Whether a resolved person can sign on this instance.
 	 *
-	 * @return callable(string): bool|null The check, or null when there is no user manager.
+	 * @return \Closure(string): bool|null The check, or null when there is no user manager.
 	 */
-	private function accountCheck(): ?callable {
+	private function accountCheck(): ?\Closure {
 		if ($this->userManager === null) {
 			return null;
 		}

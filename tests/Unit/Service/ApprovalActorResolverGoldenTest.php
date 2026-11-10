@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\ActorResolution;
 use OCA\Decidiq\Service\ApprovalActorResolver;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -127,7 +128,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testAStepNamingAPersonIsRefused(): void {
 		$this->assertSame(
 			'This step names a person, not a rule; there is nothing to resolve.',
-			$this->refusal(fn () => $this->resolver->resolve(step: ['actor' => 'x'], people: []))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actor' => 'x'], people: [])))
 		);
 	}//end testAStepNamingAPersonIsRefused()
 
@@ -139,7 +140,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testTheGrammarIsCheckedFirst(): void {
 		$this->assertSame(
 			'Unknown actor rule "boss"; expected one of manager-of-actor, manager-of-subject-owner, substitute-of-actor.',
-			$this->refusal(fn () => $this->resolver->resolve(step: ['actorRule' => 'boss'], people: []))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'boss'], people: [])))
 		);
 	}//end testTheGrammarIsCheckedFirst()
 
@@ -152,11 +153,11 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 		$this->assertSame(
 			'The rule "manager-of-subject-owner" has nobody to read against; the subject has no owner on record.',
 			$this->refusal(
-				fn () => $this->resolver->resolve(
+				fn () => $this->resolver->resolve(resolution: new ActorResolution(
 					step: ['actorRule' => 'manager-of-subject-owner', 'actorRuleSubject' => 'ignored'],
 					people: $this->people(),
 					subjectOwner: '  ',
-				)
+				))
 			)
 		);
 	}//end testTheOwnerRuleWithoutAnOwnerIsRefused()
@@ -168,7 +169,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	 */
 	public function testReferencesAreMergedAcrossRecords(): void {
 		$seen = [];
-		$resolved = $this->resolver->resolve(
+		$resolved = $this->resolver->resolve(resolution: new ActorResolution(
 			step: ['actorRule' => 'manager-of-subject-owner'],
 			people: $this->people(),
 			subjectOwner: ' u-1 ',
@@ -177,7 +178,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 				return true;
 			},
 			resolvedAt: '2026-01-02T03:04:05+00:00',
-		);
+		));
 
 		$this->assertSame(
 			['actor' => 'a.aarts', 'actorResolvedBy' => 'manager-of-subject-owner', 'actorResolvedAt' => '2026-01-02T03:04:05+00:00'],
@@ -194,11 +195,11 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testEmptyAndNonStringReferencesResolveToNobody(): void {
 		$this->assertSame(
 			'The rule "manager-of-actor" resolved to nobody for acc; the organisation record names no manager.',
-			$this->refusal(fn () => $this->resolver->resolve(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people()))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people())))
 		);
 		$this->assertSame(
 			'The rule "manager-of-actor" resolved to nobody for n.num; the organisation record names no manager.',
-			$this->refusal(fn () => $this->resolver->resolve(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'n.num'], people: $this->people()))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'n.num'], people: $this->people())))
 		);
 	}//end testEmptyAndNonStringReferencesResolveToNobody()
 
@@ -210,9 +211,9 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testTheSubstituteRuleReadsTheSubstitute(): void {
 		$this->assertSame(
 			'The rule "substitute-of-actor" resolved to more than one person for acc: s.one and s.two. The organisation record has to say which.',
-			$this->refusal(fn () => $this->resolver->resolve(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people()))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people())))
 		);
-		$resolved = $this->resolver->resolve(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people());
+		$resolved = $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people()));
 		$this->assertSame('s.only', $resolved['actor']);
 	}//end testTheSubstituteRuleReadsTheSubstitute()
 
@@ -223,7 +224,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	 */
 	public function testTheDefaultInstantIsNow(): void {
 		$before = time();
-		$resolved = $this->resolver->resolve(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people());
+		$resolved = $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people()));
 		$stamp = \DateTimeImmutable::createFromFormat(\DateTimeImmutable::ATOM, $resolved['actorResolvedAt']);
 
 		$this->assertNotFalse($stamp);
