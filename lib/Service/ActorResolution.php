@@ -34,20 +34,35 @@ use Closure;
  */
 final class ActorResolution {
 	/**
-	 * Describe one resolution.
+	 * Who owns the subject, for the rule that reads it.
 	 *
-	 * @param array<string, mixed>             $step         The step carrying the rule.
-	 * @param array<int, array<string, mixed>> $people       The person records readable from the organisation register.
-	 * @param string                           $subjectOwner Who owns the subject, for the rule that reads it.
-	 * @param Closure(string): bool|null       $hasAccount   Whether a person id has an account on this instance.
-	 * @param string                           $resolvedAt   When, as an ISO-8601 instant; now when empty.
+	 * @var string
+	 */
+	public string $subjectOwner = '';
+
+	/**
+	 * Whether a person id has an account on this instance; null skips the check.
+	 *
+	 * @var (Closure(string): bool)|null
+	 */
+	public ?Closure $hasAccount = null;
+
+	/**
+	 * When, as an ISO-8601 instant; now when empty.
+	 *
+	 * @var string
+	 */
+	public string $resolvedAt = '';
+
+	/**
+	 * Describe one resolution; what the rule may need besides is set beside it.
+	 *
+	 * @param array<string, mixed>             $step   The step carrying the rule.
+	 * @param array<int, array<string, mixed>> $people The person records readable from the organisation register.
 	 */
 	public function __construct(
 		public readonly array $step,
 		public readonly array $people,
-		public readonly string $subjectOwner = '',
-		public readonly ?Closure $hasAccount = null,
-		public readonly string $resolvedAt = '',
 	) {
 	}//end __construct()
 }//end class

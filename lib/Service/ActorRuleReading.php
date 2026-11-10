@@ -32,16 +32,21 @@ namespace OCA\Decidiq\Service;
  */
 final class ActorRuleReading {
 	/**
-	 * Describe one reading.
+	 * The reference the rule reads: manager or substitute.
 	 *
-	 * @param string $rule     The rule being resolved, for the refusals.
-	 * @param string $person   The person the rule is read against.
-	 * @param string $property The reference the rule reads: manager or substitute.
+	 * @var string
+	 */
+	public string $property = 'manager';
+
+	/**
+	 * Describe one reading; the property it reads is set beside it.
+	 *
+	 * @param string $rule   The rule being resolved, for the refusals.
+	 * @param string $person The person the rule is read against.
 	 */
 	public function __construct(
 		public readonly string $rule,
 		public readonly string $person,
-		public readonly string $property,
 	) {
 	}//end __construct()
 }//end class

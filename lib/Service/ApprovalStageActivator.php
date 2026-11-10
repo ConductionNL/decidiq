@@ -115,17 +115,18 @@ class ApprovalStageActivator {
 			);
 		}
 
-		$resolved = $this->resolver->resolve(resolution: new ActorResolution(
+		$resolution = new ActorResolution(
 			step: [
 				'actor' => '',
 				'actorRule' => $rule,
 				'actorRuleSubject' => (string)($stage['actorRuleSubject'] ?? ''),
 			],
 			people: $this->people(),
-			subjectOwner: $subjectOwner,
-			hasAccount: $this->accountCheck(),
-			resolvedAt: $stampedAt,
-		));
+		);
+		$resolution->subjectOwner = $subjectOwner;
+		$resolution->hasAccount = $this->accountCheck();
+		$resolution->resolvedAt = $stampedAt;
+		$resolved = $this->resolver->resolve(resolution: $resolution);
 
 		$patch['assignedPerson'] = $resolved['actor'];
 		$patch['actorResolvedBy'] = $resolved['actorResolvedBy'];
@@ -216,14 +217,15 @@ class ApprovalStageActivator {
 		}
 
 		try {
-			$resolved = $this->resolver->resolve(resolution: new ActorResolution(
+			$resolution = new ActorResolution(
 				step: [
 					'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 					'actorRuleSubject' => $person,
 				],
 				people: $this->people(),
-				hasAccount: $this->accountCheck(),
-			));
+			);
+			$resolution->hasAccount = $this->accountCheck();
+			$resolved = $this->resolver->resolve(resolution: $resolution);
 		} catch (\Throwable $e) {
 			$this->logger?->info(
 				'Decidiq: no manager resolved for an escalating approval stage',

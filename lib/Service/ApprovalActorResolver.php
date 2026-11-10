@@ -286,7 +286,10 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		return new ActorRuleReading(rule: $rule, person: $readAgainst, property: $this->propertyFor(rule: $rule));
+		$reading = new ActorRuleReading(rule: $rule, person: $readAgainst);
+		$reading->property = $this->propertyFor(rule: $rule);
+
+		return $reading;
 	}//end readingFor()
 
 	/**
@@ -366,10 +369,9 @@ final class ApprovalActorResolver {
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function substituteOf(array $people, string $person): ?string {
-		$candidates = $this->candidatesFor(
-			people: $people,
-			reading: new ActorRuleReading(rule: self::RULE_SUBSTITUTE_OF_ACTOR, person: $person, property: 'substitute')
-		);
+		$reading = new ActorRuleReading(rule: self::RULE_SUBSTITUTE_OF_ACTOR, person: $person);
+		$reading->property = 'substitute';
+		$candidates = $this->candidatesFor(people: $people, reading: $reading);
 
 		// More than one is as unusable as none: there is no basis to pick.
 		if (count($candidates) === 1) {

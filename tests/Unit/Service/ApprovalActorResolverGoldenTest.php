@@ -128,7 +128,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testAStepNamingAPersonIsRefused(): void {
 		$this->assertSame(
 			'This step names a person, not a rule; there is nothing to resolve.',
-			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actor' => 'x'], people: [])))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: self::resolution(step: ['actor' => 'x'], people: [])))
 		);
 	}//end testAStepNamingAPersonIsRefused()
 
@@ -140,7 +140,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testTheGrammarIsCheckedFirst(): void {
 		$this->assertSame(
 			'Unknown actor rule "boss"; expected one of manager-of-actor, manager-of-subject-owner, substitute-of-actor.',
-			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'boss'], people: [])))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: self::resolution(step: ['actorRule' => 'boss'], people: [])))
 		);
 	}//end testTheGrammarIsCheckedFirst()
 
@@ -153,7 +153,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 		$this->assertSame(
 			'The rule "manager-of-subject-owner" has nobody to read against; the subject has no owner on record.',
 			$this->refusal(
-				fn () => $this->resolver->resolve(resolution: new ActorResolution(
+				fn () => $this->resolver->resolve(resolution: self::resolution(
 					step: ['actorRule' => 'manager-of-subject-owner', 'actorRuleSubject' => 'ignored'],
 					people: $this->people(),
 					subjectOwner: '  ',
@@ -169,7 +169,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	 */
 	public function testReferencesAreMergedAcrossRecords(): void {
 		$seen = [];
-		$resolved = $this->resolver->resolve(resolution: new ActorResolution(
+		$resolved = $this->resolver->resolve(resolution: self::resolution(
 			step: ['actorRule' => 'manager-of-subject-owner'],
 			people: $this->people(),
 			subjectOwner: ' u-1 ',
@@ -195,11 +195,11 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testEmptyAndNonStringReferencesResolveToNobody(): void {
 		$this->assertSame(
 			'The rule "manager-of-actor" resolved to nobody for acc; the organisation record names no manager.',
-			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people())))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: self::resolution(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people())))
 		);
 		$this->assertSame(
 			'The rule "manager-of-actor" resolved to nobody for n.num; the organisation record names no manager.',
-			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'n.num'], people: $this->people())))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: self::resolution(step: ['actorRule' => 'manager-of-actor', 'actorRuleSubject' => 'n.num'], people: $this->people())))
 		);
 	}//end testEmptyAndNonStringReferencesResolveToNobody()
 
@@ -211,9 +211,9 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	public function testTheSubstituteRuleReadsTheSubstitute(): void {
 		$this->assertSame(
 			'The rule "substitute-of-actor" resolved to more than one person for acc: s.one and s.two. The organisation record has to say which.',
-			$this->refusal(fn () => $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people())))
+			$this->refusal(fn () => $this->resolver->resolve(resolution: self::resolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'acc'], people: $this->people())))
 		);
-		$resolved = $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people()));
+		$resolved = $this->resolver->resolve(resolution: self::resolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people()));
 		$this->assertSame('s.only', $resolved['actor']);
 	}//end testTheSubstituteRuleReadsTheSubstitute()
 
@@ -224,7 +224,7 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 	 */
 	public function testTheDefaultInstantIsNow(): void {
 		$before = time();
-		$resolved = $this->resolver->resolve(resolution: new ActorResolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people()));
+		$resolved = $this->resolver->resolve(resolution: self::resolution(step: ['actorRule' => 'substitute-of-actor', 'actorRuleSubject' => 'solo'], people: $this->people()));
 		$stamp = \DateTimeImmutable::createFromFormat(\DateTimeImmutable::ATOM, $resolved['actorResolvedAt']);
 
 		$this->assertNotFalse($stamp);
@@ -242,4 +242,23 @@ final class ApprovalActorResolverGoldenTest extends TestCase {
 		$this->assertNull($this->resolver->substituteOf(people: $this->people(), person: 'nobody'));
 		$this->assertSame('s.only', $this->resolver->substituteOf(people: $this->people(), person: 'solo'));
 	}//end testTheSubstituteLookupNeedsExactlyOne()
+
+	/**
+	 * A resolution with every field set.
+	 *
+	 * @param array<string, mixed>     $step         The step.
+	 * @param array<int, mixed>        $people       The people.
+	 * @param string                   $subjectOwner The subject's owner.
+	 * @param (\Closure(string): bool)|null $hasAccount   The account check.
+	 * @param string                   $resolvedAt   The instant.
+	 *
+	 * @return ActorResolution The resolution.
+	 */
+	private static function resolution(array $step, array $people, string $subjectOwner = '', ?\Closure $hasAccount = null, string $resolvedAt = ''): ActorResolution {
+		$resolution = new ActorResolution(step: $step, people: $people);
+		$resolution->subjectOwner = $subjectOwner;
+		$resolution->hasAccount = $hasAccount;
+		$resolution->resolvedAt = $resolvedAt;
+		return $resolution;
+	}//end resolution()
 }//end class
