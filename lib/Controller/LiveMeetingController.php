@@ -128,25 +128,13 @@ class LiveMeetingController extends Controller {
 		}
 
 		try {
-			$title = $this->request->getParam('title');
-			$text = $this->request->getParam('text');
-			$outcome = $this->request->getParam('outcome');
-
-			if (empty($title) === true || empty($text) === true || empty($outcome) === true) {
+			$decisionData = $this->liveDecisionData();
+			if ($decisionData === null) {
 				return new JSONResponse(
 					['error' => 'Missing required fields: title, text, outcome'],
 					400
 				);
 			}
-
-			$decisionData = [
-				'title' => $title,
-				'text' => $text,
-				'outcome' => $outcome,
-				'legalBasis' => $this->request->getParam('legalBasis'),
-				'decisionType' => $this->request->getParam('decisionType'),
-				'agendaItem' => $this->request->getParam('agendaItem'),
-			];
 
 			$decisionSlug = $this->liveDecisionService->recordDecision(
 				$meetingId,
@@ -162,11 +150,55 @@ class LiveMeetingController extends Controller {
 		} catch (MissingObjectException $e) {
 			return new JSONResponse(['error' => $e->getMessage()], 404);
 		} catch (\Exception $e) {
-			if ((int)$e->getCode() === 409) {
-				return new JSONResponse(['error' => $e->getMessage()], 409);
-			}
-
-			return new JSONResponse(['error' => 'Internal server error.'], 500);
+			return self::failureResponse(exception: $e);
 		}//end try
 	}//end recordLiveDecision()
+
+	/**
+	 * The decision a live-decision request carries.
+	 *
+	 * @return array<string,mixed>|null The decision data, or null when a required field is empty
+	 */
+	private function liveDecisionData(): ?array {
+		$decision = [
+			'title' => $this->request->getParam('title'),
+			'text' => $this->request->getParam('text'),
+			'outcome' => $this->request->getParam('outcome'),
+		];
+		if (self::lacksRequiredField(decision: $decision) === true) {
+			return null;
+		}
+
+		return $decision + [
+			'legalBasis' => $this->request->getParam('legalBasis'),
+			'decisionType' => $this->request->getParam('decisionType'),
+			'agendaItem' => $this->request->getParam('agendaItem'),
+		];
+	}//end liveDecisionData()
+
+	/**
+	 * Whether a decision misses its title, text or outcome.
+	 *
+	 * @param array<string,mixed> $decision The title, text and outcome
+	 *
+	 * @return bool True when any of them is empty
+	 */
+	private static function lacksRequiredField(array $decision): bool {
+		return empty($decision['title']) === true || empty($decision['text']) === true || empty($decision['outcome']) === true;
+	}//end lacksRequiredField()
+
+	/**
+	 * The response for a failed recording: 409 passes its message, anything else is a generic 500.
+	 *
+	 * @param \Exception $exception The failure
+	 *
+	 * @return JSONResponse The error response
+	 */
+	private static function failureResponse(\Exception $exception): JSONResponse {
+		if ((int)$exception->getCode() === 409) {
+			return new JSONResponse(['error' => $exception->getMessage()], 409);
+		}
+
+		return new JSONResponse(['error' => 'Internal server error.'], 500);
+	}//end failureResponse()
 }//end class
