@@ -30,16 +30,21 @@ namespace OCA\Decidiq\Service;
  */
 final class VoteTally {
 	/**
-	 * Describe one tally.
+	 * Weighted abstentions.
+	 *
+	 * @var int
+	 */
+	public int $abstentions = 0;
+
+	/**
+	 * Describe one tally; the abstentions are set beside it.
 	 *
 	 * @param int $votesFor     Weighted for-votes
 	 * @param int $votesAgainst Weighted against-votes
-	 * @param int $abstentions  Weighted abstentions
 	 */
 	public function __construct(
 		public readonly int $votesFor,
 		public readonly int $votesAgainst,
-		public readonly int $abstentions,
 	) {
 	}//end __construct()
 

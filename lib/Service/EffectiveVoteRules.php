@@ -31,18 +31,28 @@ namespace OCA\Decidiq\Service;
  */
 final class EffectiveVoteRules {
 	/**
-	 * Describe the effective rules.
+	 * The effective tie-break rule.
+	 *
+	 * @var string
+	 */
+	public string $tieBreakRule = 'rejected';
+
+	/**
+	 * The chair's casting vote as stored, null when none.
+	 *
+	 * @var mixed
+	 */
+	public mixed $chairCastingVote = null;
+
+	/**
+	 * Describe the effective rules; the tie-break rule and casting vote are set beside them.
 	 *
 	 * @param string $threshold          The effective majority threshold
 	 * @param string $abstentionHandling The effective abstention mode
-	 * @param string $tieBreakRule       The effective tie-break rule
-	 * @param mixed  $chairCastingVote   The chair's casting vote as stored, null when none
 	 */
 	public function __construct(
 		public readonly string $threshold,
 		public readonly string $abstentionHandling,
-		public readonly string $tieBreakRule,
-		public readonly mixed $chairCastingVote,
 	) {
 	}//end __construct()
 }//end class

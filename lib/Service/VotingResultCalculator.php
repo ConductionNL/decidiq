@@ -82,7 +82,8 @@ class VotingResultCalculator {
 	 */
 	public function compute(int $for, int $against, int $abstain, array $round): array {
 		$rules = $this->rulesOf(round: $round);
-		$tally = new VoteTally(votesFor: $for, votesAgainst: $against, abstentions: $abstain);
+		$tally = new VoteTally(votesFor: $for, votesAgainst: $against);
+		$tally->abstentions = $abstain;
 
 		$meta = [
 			'base' => $tally->base(abstentionHandling: $rules->abstentionHandling),
@@ -106,12 +107,14 @@ class VotingResultCalculator {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function rulesOf(array $round): EffectiveVoteRules {
-		return new EffectiveVoteRules(
+		$rules = new EffectiveVoteRules(
 			threshold: $this->rule(round: $round, name: 'voteThreshold'),
 			abstentionHandling: $this->rule(round: $round, name: 'abstentionHandling'),
-			tieBreakRule: $this->rule(round: $round, name: 'tieBreakRule'),
-			chairCastingVote: ($round['chairCastingVote'] ?? null),
 		);
+		$rules->tieBreakRule = $this->rule(round: $round, name: 'tieBreakRule');
+		$rules->chairCastingVote = ($round['chairCastingVote'] ?? null);
+
+		return $rules;
 	}//end rulesOf()
 
 	/**
