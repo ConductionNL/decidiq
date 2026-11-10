@@ -4,7 +4,7 @@
  * Decidiq Audit Log Service
  *
  * Append-only audit log for governance actions, persisted through
- * OpenRegister's audit-trail surface (AuditTrailMapper::createAuditTrailEntry,
+ * OpenRegister's audit-trail surface (AuditTrailMapper::recordObjectEvent,
  * hash-chained and sealed platform-side by AuditSealJob / AuditHashService).
  * Every action (vote, conflict declaration, material access, signature,
  * notice send, proxy grant or revocation, decision transition) lands as an OR
@@ -41,6 +41,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
 use OCA\OpenRegister\Db\AuditTrailMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\AuditHashService;
@@ -49,7 +50,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tamper-evident append-only audit log service, consuming OR's audit trail.
  *
- * Writes go through AuditTrailMapper::createAuditTrailEntry() — the same
+ * Writes go through AuditTrailMapper::recordObjectEvent() — the same
  * surface dossiq's parafering audit uses — so decidiq rows join the
  * platform-wide hash chain instead of maintaining a parallel one. Reads
  * (query/export) select the `decidiq.audit.*` action namespace back out of
@@ -158,7 +159,7 @@ class AuditLogService {
 	 *
 	 * Resolves the first referenced object uid to its OR ObjectEntity and
 	 * writes one `decidiq.audit.{action}` entry onto it through
-	 * AuditTrailMapper::createAuditTrailEntry(). The decidiq context (actor,
+	 * AuditTrailMapper::recordObjectEvent(). The decidiq context (actor,
 	 * the full uid list, the payload) is carried in the entry's `changed`
 	 * column; hash chaining and sealing are the platform's.
 	 *
@@ -219,10 +220,12 @@ class AuditLogService {
 			return $target;
 		}
 
-		$entry = $this->auditTrailMapper->createAuditTrailEntry(
-			object: $target,
-			action: (self::ACTION_NAMESPACE . $request['action']),
-			context: ['actorUuid' => $request['actor'], 'objectUids' => $request['objectUids'], 'payload' => $request['payload']]
+		$entry = $this->auditTrailMapper->recordObjectEvent(
+			event: new ObjectAuditEvent(
+				object: $target,
+				action: (self::ACTION_NAMESPACE . $request['action']),
+				context: ['actorUuid' => $request['actor'], 'objectUids' => $request['objectUids'], 'payload' => $request['payload']]
+			)
 		);
 
 		return $this->appended(entry: $entry, request: $request);

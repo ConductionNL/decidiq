@@ -26,6 +26,7 @@ use DateTime;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
 use OCA\OpenRegister\Db\AuditTrailMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\AuditHashService;
@@ -119,16 +120,16 @@ class AuditLogServiceTest extends TestCase {
 			}
 
 			/**
-			 * In-memory createAuditTrailEntry (production signature).
+			 * In-memory recordObjectEvent (production signature).
 			 *
-			 * @param ObjectEntity $object The object the entry relates to
-			 * @param string $action The namespaced action string
-			 * @param array $context Context payload
+			 * @param ObjectAuditEvent $event The object, action and context
 			 *
 			 * @return AuditTrail
 			 */
-			public function createAuditTrailEntry(ObjectEntity $object, string $action, array $context = [],): AuditTrail {
-				$entry = new AuditTrail();
+			public function recordObjectEvent(ObjectAuditEvent $event): AuditTrail {
+				$action  = $event->action;
+				$context = $event->context;
+				$entry   = new AuditTrail();
 				$entry->setId(count($this->trail) + 1);
 				$entry->setUuid('trail-' . (count($this->trail) + 1));
 				$entry->setAction($action);
@@ -278,7 +279,7 @@ class AuditLogServiceTest extends TestCase {
 		$objectService->method('find')->willReturn($this->createMock(ObjectEntity::class));
 
 		$mapper = $this->createMock(AuditTrailMapper::class);
-		$mapper->method('createAuditTrailEntry')->willThrowException(
+		$mapper->method('recordObjectEvent')->willThrowException(
 			new \RuntimeException('audit surface unavailable')
 		);
 

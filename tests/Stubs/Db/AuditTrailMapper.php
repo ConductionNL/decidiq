@@ -32,6 +32,8 @@ declare(strict_types=1);
 
 namespace OCA\OpenRegister\Db;
 
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
+
 /**
  * Stub for AuditTrailMapper; declares only the members decidiq touches, in
  * exact signature parity with production.
@@ -39,19 +41,13 @@ namespace OCA\OpenRegister\Db;
 abstract class AuditTrailMapper {
 
 	/**
-	 * Create a custom audit trail entry attached to an object.
+	 * Record a non-CRUD action on one object.
 	 *
-	 * @param ObjectEntity $object The object the entry relates to
-	 * @param string $action The namespaced action string
-	 * @param array $context Additional context data (persisted in `changed`)
+	 * @param ObjectAuditEvent $event The object, action, context, and the explicit actor and address
 	 *
 	 * @return AuditTrail The created audit trail entry
 	 */
-	abstract public function createAuditTrailEntry(
-		ObjectEntity $object,
-		string $action,
-		array $context = [],
-	): AuditTrail;
+	abstract public function recordObjectEvent(ObjectAuditEvent $event): AuditTrail;
 
 	/**
 	 * Find audit trail rows matching the filters.

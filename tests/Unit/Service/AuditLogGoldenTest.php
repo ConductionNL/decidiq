@@ -45,6 +45,7 @@ use OCA\Decidiq\Service\AuditLogService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
+use OCA\OpenRegister\Db\AuditTrail\ObjectAuditEvent;
 use OCA\OpenRegister\Db\AuditTrailMapper;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\AuditHashService;
@@ -203,9 +204,12 @@ class AuditLogGoldenTest extends TestCase {
 		);
 
 		$mapper = $this->createMock(AuditTrailMapper::class);
-		$mapper->method('createAuditTrailEntry')->willReturnCallback(
-			function (ObjectEntity $object, string $action, array $context = []): AuditTrail {
-				$this->log[] = ['createAuditTrailEntry' => [$object->getObject(), $action, $context]];
+		$mapper->method('recordObjectEvent')->willReturnCallback(
+			function (ObjectAuditEvent $event): AuditTrail {
+				$object      = $event->object;
+				$action      = $event->action;
+				$context     = $event->context;
+				$this->log[] = ['recordObjectEvent' => [$object->getObject(), $action, $context, $event->options->actor->id, $event->options->ipAddress]];
 				if (($this->case['create'] ?? null) === 'throw') {
 					throw new RuntimeException('trail down');
 				}
