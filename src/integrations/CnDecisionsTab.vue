@@ -136,7 +136,6 @@
 <script>
 import { CnFormDialog, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { translate as t } from '@nextcloud/l10n'
-import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import Gavel from 'vue-material-design-icons/Gavel.vue'
 import OpenInNew from 'vue-material-design-icons/OpenInNew.vue'
@@ -152,13 +151,13 @@ import {
 	stageSteps,
 	userDisplayNames,
 } from './decisionCard.js'
+import { objId } from './decisionLink.js'
 import {
-	isProposal,
-	listDecisionTypes,
-	listHostDecisions,
-	objId,
-	proposalFormSchema,
-} from './decisionLink.js'
+	hostDecisionsMixin,
+	isDraft,
+	lifecycleLabelOf,
+	lifecycleVariantOf,
+} from './hostDecisions.js'
 import { hostProposalMixin } from './hostProposalCreate.js'
 
 /**
@@ -179,31 +178,10 @@ export default {
 		ShieldCheckOutline,
 	},
 
-	mixins: [hostProposalMixin],
-
-	props: {
-		/** Stable integration id (forwarded from the registry — always `'decidesk-decisions'`). */
-		integrationId: { type: String, default: 'decidesk-decisions' },
-		/** OpenRegister register id of the HOST object (slug or uuid). */
-		register: { type: String, default: '' },
-		/** OpenRegister schema id of the HOST object (slug or uuid). */
-		schema: { type: String, default: '' },
-		/** UUID of the HOST object the decisions are linked to. */
-		objectId: { type: [String, Number], default: '' },
-		/** Whole integration context — fallback when discrete props are absent. */
-		integrationContext: { type: Object, default: () => ({}) },
-		/** Human label for the host object (stored as subjectLabel on created decisions). */
-		objectLabel: { type: String, default: '' },
-	},
+	mixins: [hostDecisionsMixin, hostProposalMixin],
 
 	data() {
 		return {
-			decisions: [],
-			decisionTypes: null,
-			loading: false,
-			creating: false,
-			error: '',
-			createOpen: false,
 			/** Route stages by decision id. */
 			stages: {},
 			/** Person names by id, for the stages. */
@@ -216,26 +194,6 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
-		hostObjectId() {
-			return String(this.objectId || this.integrationContext.objectId || '')
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
-		hostRegister() {
-			return this.register || this.integrationContext.register || ''
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 host subject reference. */
-		hostSchema() {
-			return this.schema || this.integrationContext.schema || ''
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
-		appUrl() {
-			return generateUrl('/apps/decidiq/decisions')
-		},
-
 		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — empty-state copy for the leaf surface. */
 		emptyLabel() {
 			return t('decidiq', 'No decision has been prepared yet.')
@@ -281,62 +239,9 @@ export default {
 		headingId() {
 			return `cn-decisions-tab-${this.hostObjectId || 'none'}`
 		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 link-out to decidiq. */
-		openInDecidiqLabel() {
-			return t('decidiq', 'Open in decidiq')
-		},
-
-		/**
-		 * The picker offers the REGISTRY's vocabulary, not a hardcoded list:
-		 * a type an administrator adds appears here without a release.
-		 *
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal form schema.
-		 */
-		createSchema() {
-			return proposalFormSchema(this.decisionTypes)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			handler() {
-				this.refresh()
-			},
-		},
-
-		integrationContext: {
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
-	created() {
-		this.loadDecisionTypes()
 	},
 
 	methods: {
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — stable list-row key.
-		 */
-		rowKey(decision) {
-			return objId(decision)
-		},
-
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — list-row title fallback.
-		 */
-		rowTitle(decision) {
-			return (
-				String(decision?.title ?? decision?.data?.title ?? '').trim()
-				|| t('decidiq', 'Untitled decision')
-			)
-		},
-
 		/**
 		 * @param decision
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — format decision date for display.
@@ -357,30 +262,10 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle label.
 		 */
 		lifecycleLabel(decision) {
-			if (
-				String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '')
-				=== 'draft'
-			) {
+			if (isDraft(decision)) {
 				return t('decidiq', 'Draft')
 			}
-			if (isProposal(decision)) {
-				return t('decidiq', 'Proposal')
-			}
-			const lifecycle = String(
-				decision?.lifecycle ?? decision?.data?.lifecycle ?? 'decided',
-			)
-			switch (lifecycle) {
-				case 'decided':
-					return t('decidiq', 'Decided')
-				case 'enacted':
-					return t('decidiq', 'Enacted')
-				case 'archived':
-					return t('decidiq', 'Archived')
-				case 'withdrawn':
-					return t('decidiq', 'Withdrawn')
-				default:
-					return lifecycle
-			}
+			return lifecycleLabelOf(decision)
 		},
 
 		/**
@@ -388,38 +273,10 @@ export default {
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-003 outcome/lifecycle badge variant.
 		 */
 		lifecycleVariant(decision) {
-			if (
-				String(decision?.lifecycle ?? decision?.data?.lifecycle ?? '')
-				=== 'draft'
-			) {
+			if (isDraft(decision)) {
 				return 'default'
 			}
-			if (isProposal(decision)) {
-				return 'info'
-			}
-			const lifecycle = String(
-				decision?.lifecycle ?? decision?.data?.lifecycle ?? '',
-			)
-			switch (lifecycle) {
-				case 'decided':
-				case 'enacted':
-					return 'success'
-				case 'withdrawn':
-					return 'error'
-				default:
-					return 'default'
-			}
-		},
-
-		/**
-		 * @param decision
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-007 deep-link to a decision.
-		 */
-		decisionUrl(decision) {
-			const id = objId(decision)
-			return id
-				? generateUrl(`/apps/decidiq/decisions/${encodeURIComponent(id)}`)
-				: this.appUrl
+			return lifecycleVariantOf(decision)
 		},
 
 		/**
@@ -527,7 +384,7 @@ export default {
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-draws-each-decision-with-its-route
 		 */
-		async loadRoutes() {
+		async loadDecisionDetails() {
 			const ids = this.decisions
 				.map((decision) => objId(decision))
 				.filter(Boolean)
@@ -558,45 +415,6 @@ export default {
 			])
 			this.people = people
 			this.userNames = userNames
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 open create-proposal dialog. */
-		openCreate() {
-			if (this.hostObjectId) {
-				this.createOpen = true
-			}
-		},
-
-		/**
-		 * Load the decisionType vocabulary from the registry endpoint.
-		 *
-		 * Fire-and-forget from created(): until it answers, the picker offers
-		 * the shipped seed, and the schema is reactive so the configured
-		 * vocabulary replaces it the moment it arrives.
-		 *
-		 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create-proposal form schema.
-		 */
-		async loadDecisionTypes() {
-			this.decisionTypes = await listDecisionTypes()
-		},
-
-		/** @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-001 load decisions for the host object. */
-		async refresh() {
-			if (!this.hostObjectId) {
-				this.decisions = []
-				return
-			}
-			this.loading = true
-			this.error = ''
-			try {
-				this.decisions = await listHostDecisions(this.hostObjectId, 100)
-				await this.loadRoutes()
-			} catch (e) {
-				this.error =
-					e?.message || t('decidiq', 'Could not load decision-making.')
-			} finally {
-				this.loading = false
-			}
 		},
 	},
 }
