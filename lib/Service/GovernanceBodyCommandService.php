@@ -317,11 +317,9 @@ class GovernanceBodyCommandService {
 		foreach ($members as $member) {
 			$uid = self::uidOf(member: $member);
 			$role = self::roleOf(member: $member);
-			$personId = $this->resolvePerson(uid: $uid, member: $member);
-			$this->upsertMembership(
-				seat: new RosterSeat(bodyId: $bodyId, personId: $personId, role: $role),
-				member: $member,
-			);
+			$seat = new RosterSeat(bodyId: $bodyId, personId: $this->resolvePerson(uid: $uid, member: $member));
+			$seat->role = $role;
+			$this->upsertMembership(seat: $seat, member: $member);
 		}
 
 	}//end syncRoster()

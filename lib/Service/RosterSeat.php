@@ -35,16 +35,21 @@ namespace OCA\Decidiq\Service;
  */
 final class RosterSeat {
 	/**
-	 * Describe one seat.
+	 * The membership role.
+	 *
+	 * @var string
+	 */
+	public string $role = 'member';
+
+	/**
+	 * Describe one seat; the role is set beside it.
 	 *
 	 * @param string $bodyId   The body's id.
 	 * @param string $personId The person's id.
-	 * @param string $role     The membership role.
 	 */
 	public function __construct(
 		public readonly string $bodyId,
 		public readonly string $personId,
-		public readonly string $role,
 	) {
 	}//end __construct()
 }//end class
