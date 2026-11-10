@@ -79,7 +79,7 @@ final class MeetingAttendanceReader {
 		}
 
 		try {
-			$rows = (new MeetingScopedRecords(objectService: $this->objectService, schema: self::SCHEMA))->rowsFor(meetingId: $meetingId);
+			$rows = $this->records()->rowsFor(meetingId: $meetingId);
 		} catch (Throwable $e) {
 			$this->logger?->warning(
 				'Decidiq: attendance of a meeting could not be read, using the participant value',
@@ -88,7 +88,7 @@ final class MeetingAttendanceReader {
 			return [];
 		}
 
-		return self::statusesOf(records: MeetingScopedRecords::ofMeeting(rows: $rows, meetingId: $meetingId));
+		return $this->statusesOf(records: $this->records()->ofMeeting(rows: $rows, meetingId: $meetingId));
 
 	}//end statusesFor()
 
@@ -99,10 +99,10 @@ final class MeetingAttendanceReader {
 	 *
 	 * @return array<string, string> Participant UUID => status
 	 */
-	private static function statusesOf(array $records): array {
+	private function statusesOf(array $records): array {
 		$statuses = [];
 		foreach ($records as $record) {
-			$participant = MeetingScopedRecords::refId(ref: ($record['participant'] ?? null));
+			$participant = $this->records()->refId(ref: ($record['participant'] ?? null));
 			if ($participant !== '') {
 				$statuses[$participant] = (string)($record['status'] ?? '');
 			}
@@ -147,7 +147,17 @@ final class MeetingAttendanceReader {
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
 	public function idOf(array $row): string {
-		return MeetingScopedRecords::idOf(row: $row);
+		return $this->records()->idOf(row: $row);
 
 	}//end idOf()
+
+	/**
+	 * The attendance records of a meeting, as the register holds them.
+	 *
+	 * @return MeetingScopedRecords
+	 */
+	private function records(): MeetingScopedRecords {
+		return new MeetingScopedRecords(objectService: $this->objectService, schema: self::SCHEMA);
+
+	}//end records()
 }//end class

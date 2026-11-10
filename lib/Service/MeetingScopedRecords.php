@@ -82,11 +82,11 @@ final class MeetingScopedRecords {
 	 *
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	public static function ofMeeting(iterable $rows, string $meetingId): array {
+	public function ofMeeting(iterable $rows, string $meetingId): array {
 		$records = [];
 		foreach ($rows as $row) {
-			$record = self::data(row: $row);
-			if (self::refId(ref: ($record['meeting'] ?? null)) === $meetingId) {
+			$record = $this->data(row: $row);
+			if ($this->refId(ref: ($record['meeting'] ?? null)) === $meetingId) {
 				$records[] = $record;
 			}
 		}
@@ -103,7 +103,7 @@ final class MeetingScopedRecords {
 	 *
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	public static function idOf(array $row): string {
+	public function idOf(array $row): string {
 		$self = ($row['@self'] ?? []);
 		if (is_array($self) === false) {
 			$self = [];
@@ -121,7 +121,7 @@ final class MeetingScopedRecords {
 	 *
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	public static function refId(mixed $ref): string {
+	public function refId(mixed $ref): string {
 		if (is_string($ref) === true) {
 			return $ref;
 		}
@@ -140,7 +140,7 @@ final class MeetingScopedRecords {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function data(mixed $row): array {
+	private function data(mixed $row): array {
 		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
 			$row = $row->jsonSerialize();
 		}

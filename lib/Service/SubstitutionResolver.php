@@ -92,8 +92,8 @@ class SubstitutionResolver {
 		}
 
 		$records = array_map(
-			static fn (array $record): array => self::withId(record: $record),
-			MeetingScopedRecords::ofMeeting(rows: $this->rowsFor(meetingId: $meetingId), meetingId: $meetingId)
+			fn (array $record): array => $this->withId(record: $record),
+			$this->records()->ofMeeting(rows: $this->rowsFor(meetingId: $meetingId), meetingId: $meetingId)
 		);
 		usort($records, static fn (array $a, array $b): int => strcmp((string)($a['startedAt'] ?? ''), (string)($b['startedAt'] ?? '')));
 
@@ -112,7 +112,7 @@ class SubstitutionResolver {
 	 */
 	private function rowsFor(string $meetingId): array {
 		try {
-			return (new MeetingScopedRecords(objectService: $this->objectService, schema: self::SCHEMA))->rowsFor(meetingId: $meetingId);
+			return $this->records()->rowsFor(meetingId: $meetingId);
 		} catch (Throwable $e) {
 			$this->logger?->warning(
 				'Decidiq: substitutions of a meeting could not be read; every member keeps their seat',
@@ -152,7 +152,7 @@ class SubstitutionResolver {
 	 */
 	public function substitutionOf(string $meetingId, string $participantId): ?array {
 		foreach ($this->activeFor(meetingId: $meetingId) as $record) {
-			if (MeetingScopedRecords::refId(ref: ($record['outgoingParticipant'] ?? null)) === $participantId) {
+			if ($this->records()->refId(ref: ($record['outgoingParticipant'] ?? null)) === $participantId) {
 				return $record;
 			}
 		}
@@ -190,7 +190,7 @@ class SubstitutionResolver {
 			return $participantId;
 		}
 
-		return MeetingScopedRecords::refId(ref: ($record['incomingParticipant'] ?? null));
+		return $this->records()->refId(ref: ($record['incomingParticipant'] ?? null));
 	}//end seatHolderFor()
 
 	/**
@@ -204,7 +204,7 @@ class SubstitutionResolver {
 	 */
 	public function activeSubstitutes(string $meetingId): array {
 		return array_map(
-			fn (array $record): string => MeetingScopedRecords::refId(ref: ($record['incomingParticipant'] ?? null)),
+			fn (array $record): string => $this->records()->refId(ref: ($record['incomingParticipant'] ?? null)),
 			$this->activeFor(meetingId: $meetingId)
 		);
 	}//end activeSubstitutes()
@@ -230,7 +230,7 @@ class SubstitutionResolver {
 			return $participants;
 		}
 
-		$sides = self::seatSides(active: $active, participants: $participants);
+		$sides = $this->seatSides(active: $active, participants: $participants);
 		$seats = [];
 		foreach ($participants as $row) {
 			$seat = $this->seatOf(row: $row, sides: $sides);
@@ -251,15 +251,15 @@ class SubstitutionResolver {
 	 *
 	 * @return array{outgoing: array<string, true>, incoming: array<string, true>, attendanceTaken: bool}
 	 */
-	private static function seatSides(array $active, array $participants): array {
+	private function seatSides(array $active, array $participants): array {
 		$sides = [
 			'outgoing' => [],
 			'incoming' => [],
 			'attendanceTaken' => array_filter($participants, static fn (array $row): bool => (string)($row['attendanceStatus'] ?? '') !== '') !== [],
 		];
 		foreach ($active as $record) {
-			$sides['outgoing'][MeetingScopedRecords::refId(ref: ($record['outgoingParticipant'] ?? null))] = true;
-			$sides['incoming'][MeetingScopedRecords::refId(ref: ($record['incomingParticipant'] ?? null))] = true;
+			$sides['outgoing'][$this->records()->refId(ref: ($record['outgoingParticipant'] ?? null))] = true;
+			$sides['incoming'][$this->records()->refId(ref: ($record['incomingParticipant'] ?? null))] = true;
 		}
 
 		return $sides;
@@ -297,8 +297,17 @@ class SubstitutionResolver {
 	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function idOf(array $row): string {
-		return MeetingScopedRecords::idOf(row: $row);
+		return $this->records()->idOf(row: $row);
 	}//end idOf()
+
+	/**
+	 * The substitution records of a meeting, as the register holds them.
+	 *
+	 * @return MeetingScopedRecords
+	 */
+	private function records(): MeetingScopedRecords {
+		return new MeetingScopedRecords(objectService: $this->objectService, schema: self::SCHEMA);
+	}//end records()
 
 	/**
 	 * A substitution record that always carries its id.
@@ -307,9 +316,9 @@ class SubstitutionResolver {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private static function withId(array $record): array {
+	private function withId(array $record): array {
 		if (isset($record['id']) === false) {
-			$record['id'] = MeetingScopedRecords::idOf(row: $record);
+			$record['id'] = $this->records()->idOf(row: $record);
 		}
 
 		return $record;
