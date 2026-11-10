@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Migration\MigrateEmailLinksToRegistry;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
@@ -373,7 +374,9 @@ class MigrateEmailLinksToRegistryTest extends TestCase {
 			 *
 			 * @return array<string,mixed>
 			 */
-			public function saveObject(array $object, ?string $register = null, ?string $schema = null): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$this->saveCalls++;
 				$this->saved[] = $object;
 				return $object;

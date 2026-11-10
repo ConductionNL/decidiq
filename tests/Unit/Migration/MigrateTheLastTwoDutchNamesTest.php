@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Migration\MigrateTheLastTwoDutchNames;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\Decidiq\Tests\Unit\Support\MergedRegisterSchema;
@@ -388,7 +389,9 @@ class MigrateTheLastTwoDutchNamesTest extends TestCase {
 			 *
 			 * @return array<string,mixed> The saved object.
 			 */
-			public function saveObject(string $register, string $schema, array $object): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = (string)$options->target->register;
+				$schema = (string)$options->target->schema;
 				$id = 'new-' . $schema . '-' . (count($this->saves) + 1);
 				$this->saves[] = [$schema, $object, $id];
 

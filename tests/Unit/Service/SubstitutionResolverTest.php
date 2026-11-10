@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MeetingRuleSource;
 use OCA\Decidiq\Service\MotionService;
@@ -300,12 +301,12 @@ class SubstitutionResolverTest extends TestCase {
 	private function votersOfARoundWith(array $presetIds): array {
 		$saved = [];
 		$objectService = $this->objectService();
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$saved): ObjectEntity {
 				$saved[] = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 		$logger = new NullLogger();
 		$motionService = $this->createMock(MotionService::class);
 		$participants = $this->participantResolver();

@@ -41,6 +41,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -247,9 +249,8 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 			$targetObject['relations'] = $relations;
 
 			$objectService->saveObject(
-				register: $register,
-				schema: $schema,
-				object: $targetObject
+				object: $targetObject,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: $register, schema: $schema))
 			);
 		}
 	}//end relinkToRegistry()
@@ -274,9 +275,8 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 		// Stamp the migration marker first so the step is resume-safe.
 		$link['_migratedToRegistry'] = true;
 		$objectService->saveObject(
-			register: self::REGISTER,
-			schema: self::LEGACY_SCHEMA,
-			object: $link
+			object: $link,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::LEGACY_SCHEMA))
 		);
 
 		// Archive via OR archival workflow (soft delete; not a hard purge).

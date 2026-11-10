@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
@@ -207,14 +208,14 @@ class ArchivalDossierServiceTest extends TestCase {
 				return $found;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true): ObjectEntity {
 				$this->saves[] = [(string)$schema, $object, $uuid, $_rbac, $_multitenancy];
 				$id = ($uuid ?? sprintf('5d1f0a10-0000-4000-8000-%012d', count($this->saves)));
 				$this->store[(string)$schema][$id] = $object;
 				return self::entity(schema: (string)$schema, id: $id, data: $object);
 			}
-		);
+		));
 		return $objectService;
 	}//end objectService()
 

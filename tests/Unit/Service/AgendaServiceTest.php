@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -691,12 +692,12 @@ class AgendaServiceTest extends TestCase {
 		);
 
 		$saved = new \ArrayObject();
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use ($saved): ObjectEntity {
 				$saved->append($object);
 				return $this->entity($object);
 			}
-		);
+		));
 
 		return $saved;
 

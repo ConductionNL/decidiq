@@ -42,6 +42,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Migration\IOutput;
@@ -264,7 +266,10 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 		];
 
 		try {
-			$this->objectService->saveObject(object: $payload, register: self::REGISTER, schema: self::TARGET_SCHEMA);
+			$this->objectService->saveObject(
+				object: $payload,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET_SCHEMA))
+			);
 			$this->logger->info(
 				'Decidiq: MigrateBoardProxyToProxyAuthorization created a proxy-authorization object',
 				[

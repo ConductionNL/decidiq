@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use DateTimeImmutable;
 use DateTimeZone;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -172,12 +173,12 @@ final class PublicationDigestServiceTest extends TestCase {
 				return $this->entity(data: ['id' => $id]);
 			}
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null, bool $_rbac=true): ObjectEntity {
 				$this->saved[] = [(string)$schema, $object, $uuid];
 				return $this->entity(data: $object);
 			}
-		);
+		));
 		$objects->method('deleteObject')->willReturnCallback(
 			function (string $uuid): bool {
 				$this->deleted[] = $uuid;

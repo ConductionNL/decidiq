@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -182,7 +184,10 @@ class ParticipationLifecycleService {
 		}
 
 		$consultation['status'] = $newStatus;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
+		$saved = $objectService->saveObject(
+			object: $consultation,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'public-consultation'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $consultation);
 	}//end transitionConsultation()
@@ -218,7 +223,10 @@ class ParticipationLifecycleService {
 		);
 
 		$round['status'] = $newStatus;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'participatory-budget', object: $round);
+		$saved = $objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'participatory-budget'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $round);
 	}//end transitionBudgetRound()

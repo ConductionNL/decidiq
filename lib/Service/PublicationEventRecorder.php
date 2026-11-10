@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -347,8 +349,7 @@ class PublicationEventRecorder {
 		try {
 			$this->objectService->saveObject(
 				object: $event,
-				register: 'decidiq',
-				schema: 'publication-event',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-event')),
 				_rbac: false,
 				_multitenancy: false
 			);

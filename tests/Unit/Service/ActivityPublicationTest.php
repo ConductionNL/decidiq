@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Service\AgendaPapers;
 use OCA\Decidiq\Service\AuditLogService;
@@ -180,12 +181,12 @@ class ActivityPublicationTest extends TestCase {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('find')->willReturnCallback(fn (int|string $id): ?ObjectEntity => isset($store[(string)$id]) === true ? $this->entity($store[(string)$id]) : null);
 		$objects->method('findAll')->willReturn([]);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
 				$this->written[] = ['_schema' => $schema] + $object;
 				return $this->entity(['id' => 'obj-' . count($this->written)] + $object);
 			}
-		);
+		));
 
 		$logger    = $this->createMock(LoggerInterface::class);
 		$container = $this->createMock(ContainerInterface::class);

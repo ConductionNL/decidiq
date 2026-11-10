@@ -41,6 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
 use OCA\Decidiq\Service\ActivityPublisherService;
 use OCA\Decidiq\Service\GovernanceScopeGuard;
@@ -207,7 +208,7 @@ class MeetingTransitionGoldenTest extends TestCase {
 		);
 		$objects->method('saveObject')->willReturnCallback(
 			function (mixed $object, mixed ...$rest) use ($case): ObjectEntity {
-				$this->log[] = ['saveObject' => [$object, $rest]];
+				$this->log[] = ['saveObject' => [$object, array_slice(SaveCallShape::save(args: [$object, ...$rest]), 1)]];
 				if (($case['save'] ?? null) === 'throw') {
 					throw new RuntimeException('no write access');
 				}

@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Migration\MigrateLegacyTemplatesToDecisionTemplate;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
@@ -977,7 +978,9 @@ class MigrateLegacyTemplatesToDecisionTemplateTest extends TestCase {
 			 *
 			 * @return array<string,mixed>
 			 */
-			public function saveObject(array $object, ?string $register = null, ?string $schema = null): array {
+			public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): array {
+				$register = $options->target->register;
+				$schema = $options->target->schema;
 				$sourceUuid = ($object['migratedFrom']['sourceUuid'] ?? null);
 				if ($sourceUuid !== null && in_array($sourceUuid, $this->failSaveForSourceUuids, true) === true) {
 					throw new \RuntimeException('saveObject failed for ' . $sourceUuid);

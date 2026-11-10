@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
@@ -173,7 +174,7 @@ class ProxyVoteServiceTest extends TestCase {
 				return null;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -207,7 +208,7 @@ class ProxyVoteServiceTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 
 		$appConfig = $this->createMock(\OCP\IAppConfig::class);
 		$appConfig->method('getValueInt')->willReturnCallback(

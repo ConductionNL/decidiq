@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\GovernanceBodyCommandService;
 use OCA\Decidiq\Service\RegisterObjectStore;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
@@ -155,7 +156,7 @@ class GovernanceBodyCommandServiceTest extends TestCase {
 	private function service(): GovernanceBodyCommandService {
 		$state = $this->objectService;
 		$facade = $this->createMock(ObjectServiceInterface::class);
-		$facade->method('saveObject')->willReturnCallback(
+		$facade->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -170,7 +171,7 @@ class GovernanceBodyCommandServiceTest extends TestCase {
 
 				return $entity;
 			}
-		);
+		));
 		$facade->method('findAll')->willReturnCallback(
 			static fn (array $config = []): array => $state->findAll($config)
 		);

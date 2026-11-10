@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
@@ -90,12 +91,12 @@ final class PlanningCycleCreatedListenerTest extends TestCase {
 				return $entity;
 			}
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				return new ObjectEntity();
 			}
-		);
+		));
 
 		$mapper = new class {
 			/**

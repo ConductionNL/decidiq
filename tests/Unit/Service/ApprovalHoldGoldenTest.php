@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\ApprovalRouteController;
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
@@ -240,14 +241,14 @@ class ApprovalHoldGoldenTest extends TestCase {
 	 */
 	private function service(): ApprovalRouteService {
 		$facade = $this->createMock(ObjectServiceInterface::class);
-		$facade->method('saveObject')->willReturnCallback(
+		$facade->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
 				$this->log[] = ['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]];
 				$uuid = ($uuid ?? ($schema . '-' . count($this->log)));
 				$this->rows[(string)$schema][$uuid] = ($object + ['id' => $uuid]);
 				return $this->entity(row: $this->rows[(string)$schema][$uuid]);
 			}
-		);
+		));
 		$facade->method('patchObject')->willReturnCallback(
 			function (string $objectId, array $data, string|int|null $register = null, string|int|null $schema = null): ObjectEntityInterface {
 				$this->log[] = ['patch' => ['objectId' => $objectId, 'data' => $data, 'register' => $register, 'schema' => $schema]];

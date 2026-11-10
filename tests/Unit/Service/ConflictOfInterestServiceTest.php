@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\ConflictOfInterestAuthorizationGuard;
 use OCA\Decidiq\Service\ConflictDeclaration;
@@ -105,7 +106,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 				return $rows;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$rows): ObjectEntity {
 				$row = array_merge(['id' => $uuid ?? ('decl-' . count($rows))], $object);
 				$rows[] = $row;
@@ -114,7 +115,7 @@ class ConflictOfInterestServiceTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 		$objectService->method('find')->willReturnCallback(
 			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rows, $agendaItems): ?ObjectEntity {
 				foreach ($rows as $row) {

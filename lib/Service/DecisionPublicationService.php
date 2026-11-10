@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Activity\DecidiqProvider;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -306,9 +308,7 @@ class DecisionPublicationService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $updated,
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId)
 			);
 
 			// The response carries what was STORED, not what was sent.

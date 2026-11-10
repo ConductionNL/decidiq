@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service\Records;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Service\MeetingFolderService;
@@ -148,7 +149,7 @@ class DestructionCertificateRendererTest extends TestCase {
 				return $entity;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
 				$this->saves[] = $object;
 				$this->store[(string)$schema][(string)$uuid] = $object;
@@ -157,7 +158,7 @@ class DestructionCertificateRendererTest extends TestCase {
 				$entity->setObject($object);
 				return $entity;
 			}
-		);
+		));
 
 		$test = $this;
 		$repository = new class($test) {

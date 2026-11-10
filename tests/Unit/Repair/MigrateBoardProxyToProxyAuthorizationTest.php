@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Repair;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Repair\MigrateBoardProxyToProxyAuthorization;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -128,7 +129,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 		);
 
 		$savedRef = &$saved;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -144,7 +145,7 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 				$savedRef[] = $row;
 				return $this->entity(data: $row);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
 		$resolver->method('resolve')->willReturnCallback(

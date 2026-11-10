@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\NotificationPreferenceService;
@@ -298,11 +299,11 @@ class VotingServiceDelegationGateTest extends TestCase {
 		$objectService->method('setRegister')->willReturnSelf();
 		$objectService->method('setSchema')->willReturnSelf();
 		$objectService->method('findAll')->willReturn([]);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$prefService = $this->createMock(NotificationPreferenceService::class);
 		$prefService->expects($this->never())->method('hasActiveDelegationTo');

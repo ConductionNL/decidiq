@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
@@ -83,7 +84,7 @@ class VotingRoundCloserStageOutcomeTest extends TestCase {
 				return $this->entity($objects[(string)$id]);
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array|ObjectEntity $object) use (&$saved): ObjectEntity {
 				$data = $object;
 				if ($object instanceof ObjectEntity) {
@@ -94,7 +95,7 @@ class VotingRoundCloserStageOutcomeTest extends TestCase {
 
 				return $this->entity($data);
 			}
-		);
+		));
 
 		$motionService = $this->createMock(MotionService::class);
 

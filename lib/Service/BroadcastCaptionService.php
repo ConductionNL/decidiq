@@ -40,6 +40,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeInterface;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -400,9 +402,7 @@ class BroadcastCaptionService {
 		unset($broadcast['id'], $broadcast['@self']);
 		$saved = $this->objectService->saveObject(
 			object: $broadcast,
-			register: 'decidiq',
-			schema: 'meeting-broadcast',
-			uuid: $uuid,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting-broadcast'), uuid: $uuid),
 			_rbac: false,
 			_multitenancy: false
 		);

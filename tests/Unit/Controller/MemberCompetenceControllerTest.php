@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\MemberCompetenceController;
 use OCA\Decidiq\Service\CompetenceConfirmationGuard;
 use OCA\Decidiq\Service\GovernanceScopeGuard;
@@ -113,7 +114,7 @@ class MemberCompetenceControllerTest extends TestCase {
 				return $entity;
 			}
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null): ObjectEntity {
 				if ($this->broken === true) {
 					throw new RuntimeException('database down');
@@ -125,7 +126,7 @@ class MemberCompetenceControllerTest extends TestCase {
 				$entity->setObject($object);
 				return $entity;
 			}
-		);
+		));
 
 		$session = $this->createMock(IUserSession::class);
 		if ($uid !== null) {

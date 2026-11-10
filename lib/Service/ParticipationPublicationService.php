@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -435,7 +437,10 @@ class ParticipationPublicationService {
 		$predicateSet = false;
 		$persistError = null;
 		try {
-			$saved = $objectService->saveObject(register: 'decidiq', schema: $sourceSchema, object: $sourceObject);
+			$saved = $objectService->saveObject(
+				object: $sourceObject,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $sourceSchema))
+			);
 			$summary = array_merge($summary, ['sourceObject' => $this->normaliseSaved(saved: $saved, fallback: $sourceObject)]);
 			$predicateSet = true;
 		} catch (\Throwable $e) {
@@ -518,7 +523,10 @@ class ParticipationPublicationService {
 
 		$reaction['publicationDate'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 		$reaction['depublicationDate'] = null;
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end publishReaction()
@@ -580,7 +588,10 @@ class ParticipationPublicationService {
 				'publishedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 				'publicationDate' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 			];
-			$objectService->saveObject(register: 'opencatalogi', schema: 'publication', object: $publication);
+			$objectService->saveObject(
+				object: $publication,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
+			);
 			return true;
 		} catch (\Throwable $e) {
 			$this->logger->warning(

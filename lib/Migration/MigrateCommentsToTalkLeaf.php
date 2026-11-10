@@ -46,6 +46,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\App\IAppManager;
@@ -413,9 +415,8 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 		// Stamp the migration marker first so the step is resume-safe.
 		$comment[self::MIGRATION_MARKER] = true;
 		$objectService->saveObject(
-			register: self::REGISTER,
-			schema: self::LEGACY_SCHEMA,
 			object: $comment,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::LEGACY_SCHEMA))
 		);
 
 		// Archive via OR archival workflow (soft delete; not a hard purge).

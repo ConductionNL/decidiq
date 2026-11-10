@@ -45,6 +45,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -228,8 +230,7 @@ class ConflictOfInterestService {
 			// (same convention as ProxyVoteService::register()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
-				register: 'decidiq',
-				schema: 'conflict-of-interest',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'conflict-of-interest')),
 				_rbac: false
 			);
 
@@ -338,9 +339,10 @@ class ConflictOfInterestService {
 			// chair/secretary-only rule; see the class docblock note on declare().
 			$saved = $this->objectService->saveObject(
 				object: $updated,
-				register: 'decidiq',
-				schema: 'conflict-of-interest',
-				uuid: $declarationId,
+				options: new ObjectSaveOptions(
+					target: new ObjectFindTarget(register: 'decidiq', schema: 'conflict-of-interest'),
+					uuid: $declarationId
+				),
 				_rbac: false
 			);
 

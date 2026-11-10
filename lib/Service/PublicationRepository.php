@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -67,7 +69,10 @@ class PublicationRepository {
 	 * @return string The created payload object UUID.
 	 */
 	public function persistPayload(array $payload): string {
-		$saved = $this->objectService()->saveObject(object: $payload, register: 'decidiq', schema: 'publication-payload');
+		$saved = $this->objectService()->saveObject(
+			object: $payload,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-payload'))
+		);
 
 		return $this->extractId(saved: $saved);
 	}//end persistPayload()
@@ -84,11 +89,17 @@ class PublicationRepository {
 	 */
 	public function persistRecord(array $record, ?string $uuid = null): string {
 		if ($uuid !== null) {
-			$this->objectService()->saveObject(object: $record, register: 'decidiq', schema: 'publication-record', uuid: $uuid);
+			$this->objectService()->saveObject(
+				object: $record,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-record'), uuid: $uuid)
+			);
 			return $uuid;
 		}
 
-		$saved = $this->objectService()->saveObject(object: $record, register: 'decidiq', schema: 'publication-record');
+		$saved = $this->objectService()->saveObject(
+			object: $record,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-record'))
+		);
 
 		return $this->extractId(saved: $saved);
 	}//end persistRecord()
@@ -141,9 +152,7 @@ class PublicationRepository {
 
 			$objectService->saveObject(
 				object: $data,
-				register: 'decidiq',
-				schema: 'publication-payload',
-				uuid: $payloadId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-payload'), uuid: $payloadId)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq publication: failed to set depublicationDate on payload', ['exception' => $e->getMessage()]);
@@ -192,7 +201,10 @@ class PublicationRepository {
 			$source['isPublished'] = $isPublished;
 			$source['publishedAt'] = $publishedAt;
 
-			$objectService->saveObject(object: $source, register: 'decidiq', schema: 'decision', uuid: $sourceId);
+			$objectService->saveObject(
+				object: $source,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $sourceId)
+			);
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq publication: failed to stamp source published state', ['exception' => $e->getMessage()]);
 		}//end try

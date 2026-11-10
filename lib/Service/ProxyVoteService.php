@@ -51,6 +51,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -356,8 +358,7 @@ class ProxyVoteService {
 			// REQ-BPV-001; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $row,
-				register: 'decidiq',
-				schema: self::SCHEMA,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA)),
 				_rbac: false
 			);
 		} catch (\Throwable $e) {
@@ -599,9 +600,7 @@ class ProxyVoteService {
 			// REQ-BPV-002; see the class docblock's RBAC note.
 			$saved = $this->objectService->saveObject(
 				object: $merged,
-				register: 'decidiq',
-				schema: self::SCHEMA,
-				uuid: $proxyId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: self::SCHEMA), uuid: $proxyId),
 				_rbac: false
 			);
 		} catch (\Throwable $e) {

@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -382,9 +384,7 @@ class ApiController extends CorsJsonController {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
 			$stored = $objectService->saveObject(
 				object: $body,
-				register: 'decidiq',
-				schema: $schema,
-				uuid: $id,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $id)
 			);
 		} catch (Throwable $e) {
 			// A schema-validation rejection and an infrastructure failure arrive

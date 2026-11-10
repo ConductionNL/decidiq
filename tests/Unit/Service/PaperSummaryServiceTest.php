@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\PaperSummaryController;
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Listener\PaperSummaryTaskListener;
@@ -165,7 +166,7 @@ class PaperSummaryServiceTest extends TestCase {
 		$objects->method('findAll')->willReturnCallback(
 			static fn (array $config=[]): array => ($rows[$config['filters']['schema'] ?? ''] ?? [])
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend=[], string|int|null $register=null, string|int|null $schema=null, ?string $uuid=null): ObjectEntity {
 				$this->saved[] = [$object, $uuid];
 				$entity = new ObjectEntity();
@@ -173,7 +174,7 @@ class PaperSummaryServiceTest extends TestCase {
 				$entity->setObject($object);
 				return $entity;
 			}
-		);
+		));
 
 		$fileService = $this->createMock(FileService::class);
 		$fileService->method('getFiles')->willReturnCallback(

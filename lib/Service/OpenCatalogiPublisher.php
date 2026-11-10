@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCP\App\IAppManager;
@@ -90,8 +92,7 @@ class OpenCatalogiPublisher {
 					'register' => 'decidiq',
 					'schema' => 'publication-payload',
 				],
-				register: 'opencatalogi',
-				schema: 'publication',
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'opencatalogi', schema: 'publication'))
 			);
 
 			return $this->referenceOf(publication: $publication);

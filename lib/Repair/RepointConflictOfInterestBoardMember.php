@@ -35,6 +35,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Migration\IOutput;
@@ -172,9 +174,7 @@ class RepointConflictOfInterestBoardMember implements IRepairStep {
 			try {
 				$this->objectService->saveObject(
 					object: array_merge($row, ['boardMember' => $resolution['membership']]),
-					register: self::REGISTER,
-					schema: self::SCHEMA,
-					uuid: $id
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::SCHEMA), uuid: $id)
 				);
 				$resolved++;
 				$this->logger->info(

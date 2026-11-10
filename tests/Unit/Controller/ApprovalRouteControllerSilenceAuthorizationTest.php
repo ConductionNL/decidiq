@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\ApprovalRouteController;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
@@ -233,14 +234,14 @@ class ApprovalRouteControllerSilenceAuthorizationTest extends TestCase {
 		);
 
 		$saved = new \ArrayObject();
-		$this->facade->method('saveObject')->willReturnCallback(
+		$this->facade->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use ($saved): ObjectEntityInterface {
 				$saved->append($object);
 				$entity = $this->createMock(ObjectEntityInterface::class);
 				$entity->method('jsonSerialize')->willReturn($object + ['id' => 'stage-' . count($saved)]);
 				return $entity;
 			}
-		);
+		));
 		$this->facade->method('patchObject')->willReturnCallback(
 			function (string $objectId, array $data): ObjectEntityInterface {
 				$entity = $this->createMock(ObjectEntityInterface::class);

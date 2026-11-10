@@ -30,6 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\SigningRoundService;
@@ -164,13 +165,13 @@ class SigningRoundServiceTest extends TestCase {
 				return null;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array|ObjectEntity $object, ?array $extend = [], mixed $register = null, mixed $schema = null, ?string $uuid = null) use ($record): ObjectEntity {
 				$this->saved[] = ['schema' => (string)$schema, 'object' => (array)$object];
 				$record->setObject((array)$object);
 				return $record;
 			}
-		);
+		));
 
 		$fileService = $this->createMock(FileService::class);
 		$fileService->method('addFile')->willReturnCallback(

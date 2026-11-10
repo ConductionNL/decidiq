@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Exception\AccessDeniedException;
@@ -307,9 +309,7 @@ class MemberCompetenceService {
 	private function write(string $schema, array $object, ?string $id): array {
 		$saved = $this->objectService->saveObject(
 			object: $object,
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $id,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $id),
 			_rbac: false,
 			_multitenancy: false
 		);

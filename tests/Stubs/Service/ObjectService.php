@@ -40,6 +40,7 @@ namespace OCA\OpenRegister\Service;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Register;
 use OCA\OpenRegister\Db\Schema;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCP\IUser;
 
 /**
@@ -110,38 +111,20 @@ abstract class ObjectService {
 	abstract public function findAll(array $config = [], bool $_rbac = true, bool $_multitenancy = true): array;
 
 	/**
-	 * Save (create or update) an object.
+	 * Create or update an object (openregister #9123 shape).
 	 *
-	 * Production returns `ObjectEntity` — never an array. A mock returning the
-	 * payload array it was handed proves nothing about how the app treats a
-	 * real save result.
-	 *
-	 * @param array<string,mixed>|ObjectEntity $object Object data or entity
-	 * @param array|null $extend Extend options
-	 * @param Register|string|int|null $register Register entity, slug or ID
-	 * @param Schema|string|int|null $schema Schema entity, slug or ID
-	 * @param string|null $uuid Existing UUID for updates
-	 * @param bool $_rbac Whether to apply RBAC checks
-	 * @param bool $_multitenancy Whether to apply organisation scoping
-	 * @param bool $silent Whether to suppress events
-	 * @param array|null $uploadedFiles Files uploaded alongside the object
-	 * @param IUser|null $currentUser The acting user
-	 * @param bool $failIfExists Whether to fail on an existing object
+	 * @param array|ObjectEntity $object        The object data or entity
+	 * @param ObjectSaveOptions  $options       Target, uuid, extend, files, policy and actor
+	 * @param bool               $_rbac         Whether to apply RBAC checks
+	 * @param bool               $_multitenancy Whether to apply organisation scoping
 	 *
 	 * @return ObjectEntity
 	 */
 	abstract public function saveObject(
 		array|ObjectEntity $object,
-		?array $extend = [],
-		Register|string|int|null $register = null,
-		Schema|string|int|null $schema = null,
-		?string $uuid = null,
+		ObjectSaveOptions $options = new ObjectSaveOptions(),
 		bool $_rbac = true,
 		bool $_multitenancy = true,
-		bool $silent = false,
-		?array $uploadedFiles = null,
-		?IUser $currentUser = null,
-		bool $failIfExists = false,
 	): ObjectEntity;
 
 	/**

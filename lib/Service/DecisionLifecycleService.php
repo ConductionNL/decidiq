@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Event\DecisionConcludedEvent;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -243,9 +245,7 @@ class DecisionLifecycleService {
 			// write access on this specific object (caught below, generic error).
 			$updated = $this->objectService->saveObject(
 				object: array_merge($decision, $patch),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId)
 			);
 
 			$this->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
@@ -652,8 +652,7 @@ class DecisionLifecycleService {
 
 			$this->objectService->saveObject(
 				object: $resolution,
-				register: 'decidiq',
-				schema: 'decision'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(
@@ -741,8 +740,7 @@ class DecisionLifecycleService {
 
 				$created = $this->objectService->saveObject(
 					object: $membership,
-					register: 'decidiq',
-					schema: 'membership'
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'membership'))
 				);
 
 				$membershipIds[] = (string)($created->jsonSerialize()['id'] ?? '');
@@ -750,9 +748,7 @@ class DecisionLifecycleService {
 
 			$this->objectService->saveObject(
 				object: array_merge($decision, ['appointedMemberships' => $membershipIds]),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(

@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -242,9 +244,7 @@ class MotionAmendmentService {
 			$objectService->setSchema('decision');
 			$objectService->saveObject(
 				object: $amendment,
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $amendmentId,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $amendmentId)
 			);
 			$updated[] = $amendment;
 		}
@@ -319,9 +319,7 @@ class MotionAmendmentService {
 					'decisionType' => 'amendment',
 				]
 			),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $newAmendmentId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $newAmendmentId)
 		);
 
 		$this->logger->info("Decidiq: Amendment conflict detected for amendment $newAmendmentId on motion $motionId");
@@ -459,9 +457,7 @@ class MotionAmendmentService {
 
 		$objectService->saveObject(
 			object: array_merge($motionData, $merged),
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $motionId)
 		);
 
 	}//end applyAmendment()

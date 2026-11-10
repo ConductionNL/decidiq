@@ -31,6 +31,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -330,9 +332,7 @@ class MandateSubstitutionService {
 	private function write(array $object, ?string $id): array {
 		$saved = $this->objectService->saveObject(
 			object: $object,
-			register: 'decidiq',
-			schema: SubstitutionResolver::SCHEMA,
-			uuid: $id,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: SubstitutionResolver::SCHEMA), uuid: $id),
 			_rbac: false,
 			_multitenancy: false
 		);

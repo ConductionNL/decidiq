@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\BackgroundJob\MeetingReminderJob;
@@ -121,7 +122,7 @@ class MeetingReminderServiceTest extends TestCase {
 		$objectService->method('findAll')->willReturnCallback(
 			fn (array $config = []): array => (($config['filters']['lifecycle'] ?? '') === $this->meeting['lifecycle'] ? [$this->entity($this->meeting)] : [])
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				$this->meeting = $object;
@@ -131,7 +132,7 @@ class MeetingReminderServiceTest extends TestCase {
 
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(ParticipantResolver::class);
 		$resolver->method('resolveMeetingParticipants')->willReturn([

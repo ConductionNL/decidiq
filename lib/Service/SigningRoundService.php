@@ -32,6 +32,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
@@ -160,9 +162,7 @@ class SigningRoundService {
 					'signingStatus' => 'sent',
 				]
 			),
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $subjectId
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $subjectId)
 		);
 
 		return [
@@ -210,9 +210,7 @@ class SigningRoundService {
 		if ($result['status'] === 'failed') {
 			$this->objectService->saveObject(
 				object: array_merge($data, ['signingStatus' => 'failed']),
-				register: 'decidiq',
-				schema: $schema,
-				uuid: $subjectId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $subjectId)
 			);
 			return ['status' => 'failed', 'message' => $result['message']];
 		}
@@ -236,9 +234,7 @@ class SigningRoundService {
 					'signedAt' => $now,
 				]
 			),
-			register: 'decidiq',
-			schema: $schema,
-			uuid: $subjectId
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: $schema), uuid: $subjectId)
 		);
 
 		return ['status' => 'signed', 'message' => 'The signed copy is stored.', 'signedCopy' => $fileName];

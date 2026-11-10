@@ -29,6 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
@@ -207,9 +209,7 @@ class MotionCoauthorService {
 	private function saveMotion(array $motion, string $motionId): void {
 		$this->getObjectService()->saveObject(
 			object: $motion,
-			register: 'decidiq',
-			schema: 'decision',
-			uuid: $motionId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $motionId)
 		);
 	}//end saveMotion()
 

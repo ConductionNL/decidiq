@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -191,9 +193,8 @@ class MigrateTermRulesToPositionTypes implements IRepairStep {
 				$objectService->setRegister(self::REGISTER);
 				$objectService->setSchema(self::TARGET);
 				$objectService->saveObject(
-					register: self::REGISTER,
-					schema: self::TARGET,
 					object: $this->mapPositionType(source: $source, body: $body, origin: $origin),
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::TARGET))
 				);
 				$existing[$origin] = true;
 				$migrated++;

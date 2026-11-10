@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\MeetingSeriesService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -63,7 +64,7 @@ class MeetingSeriesServiceTest extends TestCase {
 				return $entity;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$meetings, &$created): ObjectEntity {
 				if ($uuid === null) {
 					$uuid = 'gen-' . (count($created) + 1);
@@ -80,7 +81,7 @@ class MeetingSeriesServiceTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);

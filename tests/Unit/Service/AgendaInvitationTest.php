@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AgendaInvitation;
 use OCA\Decidiq\Service\AgendaNotices;
 use OCA\Decidiq\Service\AgendaService;
@@ -112,12 +113,12 @@ class AgendaInvitationTest extends TestCase {
 		$objectService->method('findAll')->willReturnCallback(
 			static fn (array $config): array => (($config['filters']['schema'] ?? '') === 'agenda-item' ? $items : [])
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object): ObjectEntity {
 				$this->saved[] = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$resolver = $this->createMock(ParticipantResolver::class);
 		$resolver->method('resolveMeetingParticipants')->willReturn([

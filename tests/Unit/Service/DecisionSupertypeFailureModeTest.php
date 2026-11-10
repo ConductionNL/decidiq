@@ -45,6 +45,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Controller\MotionController;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -378,7 +379,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			}
 		);
 
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -387,7 +388,7 @@ class DecisionSupertypeFailureModeTest extends TestCase {
 			) use ($double): ObjectEntity {
 				return $this->wrapObject($double->saveObject($object, (string)$register, (string)$schema));
 			}
-		);
+		));
 
 		return $objectService;
 	}//end objectServiceContract()

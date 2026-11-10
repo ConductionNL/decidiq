@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Exception\CaseSystemException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -78,7 +80,10 @@ class CaseDocumentService {
 
 		$item['caseReference'] = $case;
 		unset($item['id'], $item['@self']);
-		$this->objectService->saveObject(object: $item, register: 'decidiq', schema: 'agenda-item', uuid: $itemId);
+		$this->objectService->saveObject(
+			object: $item,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'agenda-item'), uuid: $itemId)
+		);
 
 		return $case;
 	}//end link()

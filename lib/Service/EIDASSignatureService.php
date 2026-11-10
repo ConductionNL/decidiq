@@ -40,6 +40,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -601,9 +603,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 				$this->objectService->saveObject(
 					object: array_merge($current, $patch),
-					register: 'decidiq',
-					schema: 'decision-stage',
-					uuid: $stageId
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'), uuid: $stageId)
 				);
 
 				$this->auditLogService->append(
@@ -764,9 +764,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 			$this->objectService->saveObject(
 				object: array_merge($this->toObjectArray(entity: $entity), $patch),
-				register: 'decidiq',
-				schema: 'minutes',
-				uuid: $minutesId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'minutes'), uuid: $minutesId)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(

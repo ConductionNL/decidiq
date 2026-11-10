@@ -31,6 +31,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MeetingFolderService;
 use OCA\Decidiq\Service\MinutesDocumentService;
 use OCA\Decidiq\Service\MinutesDraftRenderer;
@@ -252,7 +253,7 @@ class MinutesLookupGoldenTest extends TestCase {
 	 *
 	 * @return array<string, mixed> The named arguments.
 	 */
-	private function named(string $class, string $method, array $args): array {
+	private function namedAsDeclared(string $class, string $method, array $args): array {
 		$out = [];
 		foreach ((new ReflectionMethod($class, $method))->getParameters() as $i => $param) {
 			if (array_key_exists($i, $args) === false) {
@@ -267,5 +268,24 @@ class MinutesLookupGoldenTest extends TestCase {
 		}
 
 		return $out;
+	}//end namedAsDeclared()
+
+	/**
+	 * The arguments by name; a saveObject() call is expanded back into its old
+	 * parameter names, so the recording describes the write, not the call shape.
+	 *
+	 * @param mixed $class See namedAsDeclared()
+	 * @param mixed $method See namedAsDeclared()
+	 * @param mixed $args See namedAsDeclared()
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function named(string $class, string $method, array $args): array {
+		$named = $this->namedAsDeclared($class, $method, $args);
+		if ($method === 'saveObject') {
+			return SaveCallShape::legacyNamed(named: $named);
+		}
+
+		return $named;
 	}//end named()
 }//end class

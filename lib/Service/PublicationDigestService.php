@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
@@ -259,8 +261,7 @@ class PublicationDigestService {
 				'status'      => 'sent',
 				'sentAt'      => (new DateTimeImmutable('@' . $now))->format(DateTimeInterface::ATOM),
 			],
-			register: 'decidiq',
-			schema: 'notification',
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'notification')),
 			_rbac: false,
 			_multitenancy: false
 		);
@@ -340,9 +341,7 @@ class PublicationDigestService {
 
 		$this->objectService->saveObject(
 			object: $data,
-			register: 'decidiq',
-			schema: 'publication-subscription',
-			uuid: $id,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'publication-subscription'), uuid: $id),
 			_rbac: false,
 			_multitenancy: false
 		);

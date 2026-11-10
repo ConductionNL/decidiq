@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DomainException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCP\TaskProcessing\Task;
@@ -380,9 +382,7 @@ class MinutesDraftService {
 
 			$objectService->saveObject(
 				object: $transcript,
-				register: 'decidiq',
-				schema: 'transcript',
-				uuid: $uuid
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'), uuid: $uuid)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->warning(

@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MotionService;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -310,7 +311,7 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 		$objectService->method('findAll')->willReturnCallback(
 			static fn (array $config = []): array => $backend->findAll($config)
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			static function (
 				array $object,
 				?array $extend = [],
@@ -320,7 +321,7 @@ class MotionServiceAmendmentOrderTest extends TestCase {
 			) use ($backend): ObjectEntityInterface {
 				return $backend->saveObject($object, (string)$register, (string)$schema, $uuid);
 			}
-		);
+		));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(

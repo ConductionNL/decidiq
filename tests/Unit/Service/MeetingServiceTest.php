@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
 use OCA\Decidiq\Service\GovernanceScopeGuard;
 use OCA\Decidiq\Service\MeetingCostService;
@@ -183,17 +184,19 @@ class MeetingServiceTest extends TestCase {
 		$this->objectService->expects($this->once())
 			->method('saveObject')
 			->with(
-				$this->callback(
-					static function (array $object): bool {
-						return $object['lifecycle'] === 'opened'
-							&& $object['domain'] === 'operations'
-							&& isset($object['openedAt']) === true;
-					}
-				),
-				$this->anything(),
-				'decidiq',
-				'meeting',
-				$uuid,
+				...SaveCallShape::saveArgs(
+					$this->callback(
+						static function (array $object): bool {
+							return $object['lifecycle'] === 'opened'
+								&& $object['domain'] === 'operations'
+								&& isset($object['openedAt']) === true;
+						}
+					),
+					$this->anything(),
+					'decidiq',
+					'meeting',
+					$uuid,
+				)
 			)
 			->willReturn($updatedEntity);
 
@@ -586,12 +589,12 @@ class MeetingServiceTest extends TestCase {
 		$this->workflowService->method('isQuorumRequired')->willReturn(false);
 
 		$captured = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$captured, $entity) {
 				$captured = $object;
 				return $entity;
 			}
-		);
+		));
 
 		$result = $this->service->transition(meetingId: $uuid, action: 'open');
 
@@ -622,12 +625,12 @@ class MeetingServiceTest extends TestCase {
 		$this->meetingCostService->method('calculateForMeeting')->willReturn(675.0);
 
 		$captured = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$captured, $entity) {
 				$captured = $object;
 				return $entity;
 			}
-		);
+		));
 
 		$result = $this->service->transition(meetingId: $uuid, action: 'close');
 
@@ -656,12 +659,12 @@ class MeetingServiceTest extends TestCase {
 			->willThrowException(new \RuntimeException('cost failed'));
 
 		$captured = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$captured, $entity) {
 				$captured = $object;
 				return $entity;
 			}
-		);
+		));
 
 		$result = $this->service->transition(meetingId: $uuid, action: 'close');
 

@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -603,9 +605,7 @@ class AgendaService {
 	private function saveMeeting(string $meetingId, array $meeting): void {
 		$this->objectService->saveObject(
 			object: $meeting,
-			register: 'decidiq',
-			schema: 'meeting',
-			uuid: $meetingId,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'meeting'), uuid: $meetingId)
 		);
 	}//end saveMeeting()
 

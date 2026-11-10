@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -103,7 +105,13 @@ class EngagementService {
 		$record = $this->applyEvent(record: $record, event: ['type' => $eventType, 'data' => $eventData]);
 		$record['engagementScore'] = $this->calculateScore(record: $record);
 
-		$saved = $this->getObjectService()->saveObject(object: $record, register: 'decidiq', schema: 'engagement-record', uuid: ($existing['id'] ?? null));
+		$saved = $this->getObjectService()->saveObject(
+			object: $record,
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'engagement-record'),
+				uuid: ($existing['id'] ?? null)
+			)
+		);
 		$this->logger->info('Decidiq: Engagement captured', ['meetingId' => $meetingId, 'participant' => $participant, 'eventType' => $eventType]);
 		return $this->savedRecord(saved: $saved);
 	}//end captureEngagement()

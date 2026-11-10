@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationService;
@@ -137,12 +138,12 @@ class DecisionLifecycleServiceTest extends TestCase {
 			public ?array $value = null;
 		};
 
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($holder) {
 				$holder->value = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 		$this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
 
 		return $holder;
@@ -392,12 +393,12 @@ class DecisionLifecycleServiceTest extends TestCase {
 		);
 
 		$saved = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
 				$saved = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 		$this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'decide', currentUserId: 'alice');
@@ -447,12 +448,12 @@ class DecisionLifecycleServiceTest extends TestCase {
 		);
 
 		$saved = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
 				$saved = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 		$this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
 
 		$result = $this->service->transition(decisionId: 'dec-1', action: 'openVoting', currentUserId: 'alice');
@@ -474,12 +475,12 @@ class DecisionLifecycleServiceTest extends TestCase {
 			->willReturn($this->entity(['id' => 'dec-1', 'lifecycle' => 'draft', 'title' => 'Test']));
 
 		$saved = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$saved) {
 				$saved = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$this->auditLogService->expects(self::once())
 			->method('append')
@@ -539,7 +540,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 		// (no uuid) carrying a `status` + `effectiveDate`.
 		$updates = [];
 		$resolution = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$updates, &$resolution) {
 				if ((string)($uuid ?? '') !== '') {
 					$updates[] = $object;
@@ -549,7 +550,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 
 				return $this->entity($object);
 			}
-		);
+		));
 		$this->auditLogService->method('append')
 			->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
 
@@ -670,7 +671,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 			public array $membership = [];
 		};
 
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use ($buckets) {
 				if ($schema === 'membership') {
 					$id = 'membership-' . (count($buckets->membership) + 1);
@@ -686,7 +687,7 @@ class DecisionLifecycleServiceTest extends TestCase {
 				$buckets->resolution[] = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 		$this->auditLogService->method('append')->willReturn(['success' => true, 'entry' => [], 'message' => 'OK']);
 
 		return $buckets;

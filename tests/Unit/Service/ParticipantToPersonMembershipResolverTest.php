@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -152,7 +153,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 
 		$savedPersonsRef = &$savedPersons;
 		$savedMembershipsRef = &$savedMemberships;
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -182,7 +183,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				$savedMembershipsRef[] = $row;
 				return $this->entity($row);
 			}
-		);
+		));
 
 		return new ParticipantToPersonMembershipResolver(
 			objectService: $objectService,
@@ -520,7 +521,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				return [];
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -532,7 +533,7 @@ class ParticipantToPersonMembershipResolverTest extends TestCase {
 				$savedMemberships[] = $row;
 				return $this->entity($row);
 			}
-		);
+		));
 
 		$resolver = new ParticipantToPersonMembershipResolver(
 			objectService: $objectService,

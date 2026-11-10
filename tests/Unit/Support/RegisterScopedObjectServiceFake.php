@@ -42,6 +42,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Support;
 
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\AppFramework\Db\DoesNotExistException;
 
@@ -157,14 +158,17 @@ final class RegisterScopedObjectServiceFake {
 	 * two-step path (publish a decision, then build its publication) a real
 	 * chain rather than two isolated calls.
 	 *
-	 * @param array<string, mixed> $object The object to store.
-	 * @param string $register The register to store it in.
-	 * @param string $schema The schema to store it under.
-	 * @param string|null $uuid The uuid, when replacing an existing object.
+	 * @param array<string, mixed> $object        The object to store.
+	 * @param ObjectSaveOptions    $options       The register and schema to store it in, and the uuid when replacing.
+	 * @param bool                 $_rbac         Apply RBAC (ignored).
+	 * @param bool                 $_multitenancy Apply organisation scoping (ignored).
 	 *
 	 * @return object The stored entity.
 	 */
-	public function saveObject(array $object, string $register, string $schema, ?string $uuid = null): object {
+	public function saveObject(array $object, ObjectSaveOptions $options = new ObjectSaveOptions(), bool $_rbac = true, bool $_multitenancy = true): object {
+		$register = (string)$options->target->register;
+		$schema   = (string)$options->target->schema;
+		$uuid     = $options->uuid;
 		$key = ($uuid ?? (string)($object['id'] ?? ('generated-' . (count($this->writes) + 1))));
 		$stored = ($object + ['id' => $key]);
 

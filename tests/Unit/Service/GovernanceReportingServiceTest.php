@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\GovernanceReportingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -88,7 +89,7 @@ class GovernanceReportingServiceTest extends TestCase {
 				return null;
 			}
 		);
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {
 				$savedRef[] = $object + ['_schema' => (string)$schema];
 				$row = array_merge(['id' => $schema . '-' . count($savedRef)], $object);
@@ -100,7 +101,7 @@ class GovernanceReportingServiceTest extends TestCase {
 				$entity->method('getObject')->willReturn($row);
 				return $entity;
 			}
-		);
+		));
 
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturn($objectService);

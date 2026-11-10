@@ -35,6 +35,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use ArrayObject;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
@@ -382,13 +383,13 @@ class VoteCastGoldenTest extends TestCase {
 				return $out;
 			}
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null) use ($store): ObjectEntity {
 				$this->log[] = ['save' => ['register' => $register, 'schema' => $schema, 'object' => $this->masked(value: $object)]];
 				$store['saved-' . count($store)] = ['schema' => (string)$schema, 'object' => $object];
 				return $this->entity(object: $object + ['saved' => true]);
 			}
-		);
+		));
 
 		return $objects;
 	}//end objectService()

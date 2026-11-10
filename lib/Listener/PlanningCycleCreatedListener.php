@@ -30,6 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\Decidiq\Service\PlanningCycleGenerator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -102,7 +104,10 @@ class PlanningCycleCreatedListener implements IEventListener {
 			}
 
 			foreach ($this->generator->stepsFor(cycleId: $cycleId, year: $year, template: $template) as $step) {
-				$this->objectService->saveObject(object: $step, register: 'decidiq', schema: 'planning-cycle-step');
+				$this->objectService->saveObject(
+					object: $step,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'planning-cycle-step'))
+				);
 			}
 		} catch (\Throwable $e) {
 			$this->logger->warning('Decidiq: generating the planning cycle steps failed', ['exception' => $e->getMessage()]);

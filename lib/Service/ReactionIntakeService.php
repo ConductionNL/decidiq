@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\AppInfo\Application;
@@ -178,7 +180,10 @@ class ReactionIntakeService {
 			],
 		];
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 		$result = $this->normaliseSaved(saved: $saved, fallback: $reaction);
 
 		return $result;
@@ -213,7 +218,10 @@ class ReactionIntakeService {
 			$reaction['moderationReason'] = $reason;
 		}
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		// Increment the parent consultation's submissionCount when a reaction is
 		// approved (pre-moderation: reactions start as pending and only count
@@ -260,7 +268,10 @@ class ReactionIntakeService {
 
 			$consultation = $consultationEntity->jsonSerialize();
 			$consultation['submissionCount'] = ((int)($consultation['submissionCount'] ?? 0)) + 1;
-			$objectService->saveObject(register: 'decidiq', schema: 'public-consultation', object: $consultation);
+			$objectService->saveObject(
+				object: $consultation,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'public-consultation'))
+			);
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'ReactionIntakeService: could not increment consultation submissionCount: ' . $e->getMessage()
@@ -302,7 +313,10 @@ class ReactionIntakeService {
 		$reaction['moderationStatus'] = 'rejected';
 		$reaction['moderationReason'] = $reason;
 
-		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction);
+		$saved = $objectService->saveObject(
+			object: $reaction,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'consultation-reaction'))
+		);
 
 		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
 	}//end rejectReaction()

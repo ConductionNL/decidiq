@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\MinutesDraftRenderer;
 use OCA\Decidiq\Service\MinutesGenerationService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -285,10 +286,10 @@ class MinutesGenerationServiceTest extends TestCase {
 			->method('saveObject')
 			// saveObject() is typed `: ObjectEntity` in production and can never
 			// return the payload array it was handed (#399).
-			->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
+			->willReturnCallback(SaveCallShape::legacy(function (array $object) use (&$savedObject): ObjectEntity {
 				$savedObject = $object;
 				return $this->createEntityMock($object);
-			});
+			}));
 
 		$result = $this->service->reject(
 			minutesId: 'minutes-010',
@@ -335,10 +336,10 @@ class MinutesGenerationServiceTest extends TestCase {
 		$this->objectService->method('saveObject')
 			// saveObject() is typed `: ObjectEntity` in production and can never
 			// return the payload array it was handed (#399).
-			->willReturnCallback(function (array $object) use (&$savedObject): ObjectEntity {
+			->willReturnCallback(SaveCallShape::legacy(function (array $object) use (&$savedObject): ObjectEntity {
 				$savedObject = $object;
 				return $this->createEntityMock($object);
-			});
+			}));
 
 		$this->service->reject(minutesId: 'minutes-011', comment: 'Second round', userId: 'chair-user');
 

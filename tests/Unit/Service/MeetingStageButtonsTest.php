@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
@@ -269,12 +270,12 @@ class MeetingStageButtonsTest extends TestCase {
 		$this->workflowService->method('requiresChairAuthorization')->willReturn(false);
 
 		$saved = null;
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$saved): ObjectEntity {
 				$saved = $object;
 				return $this->entity($object);
 			}
-		);
+		));
 
 		$result = $this->service()->transition(meetingId: 'm-1', action: 'close', currentUserId: 'chair-uid');
 

@@ -24,6 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Service\SettingsService;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -190,14 +192,13 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 					$objectService->setRegister(self::REGISTER);
 					$objectService->setSchema($target);
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: $target,
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: $target),
 							alreadyResolved: array_keys(self::REFERENCES),
 							payload: $this->mapRow(objectService: $objectService, row: $row, origin: $origin),
 						),
+						options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: $target))
 					);
 					$existing[$origin] = true;
 					$copied++;
@@ -261,19 +262,19 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 					// (governanceBody) is missing" — reported through
 					// $output->warning(), which does not fail an upgrade.
 					$objectService->saveObject(
-						register: self::REGISTER,
-						schema: self::CONFIGURATION,
 						object: ($patch + ['governanceBody' => $body]),
-						uuid: $existing,
+						options: new ObjectSaveOptions(
+							target: new ObjectFindTarget(register: self::REGISTER, schema: self::CONFIGURATION),
+							uuid: $existing
+						)
 					);
 					$folded++;
 					continue;
 				}
 
 				$saved = $objectService->saveObject(
-					register: self::REGISTER,
-					schema: self::CONFIGURATION,
 					object: ($patch + ['governanceBody' => $body]),
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: self::REGISTER, schema: self::CONFIGURATION))
 				);
 				$configurations[$body] = $this->identifierOf(object: $this->toArray(entity: $saved));
 				$folded++;

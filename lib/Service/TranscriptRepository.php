@@ -27,6 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
@@ -202,9 +204,10 @@ class TranscriptRepository {
 
 		$saved = $objectService->saveObject(
 			object: $transcript,
-			register: 'decidiq',
-			schema: 'transcript',
-			uuid: $this->transcriptId(transcript: $transcript)
+			options: new ObjectSaveOptions(
+				target: new ObjectFindTarget(register: 'decidiq', schema: 'transcript'),
+				uuid: $this->transcriptId(transcript: $transcript)
+			)
 		);
 
 		if (is_array($saved) === true) {
@@ -257,9 +260,7 @@ class TranscriptRepository {
 
 		$this->getObjectService()->saveObject(
 			object: $body,
-			register: 'decidiq',
-			schema: 'governance-body',
-			uuid: $bodyId
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'governance-body'), uuid: $bodyId)
 		);
 
 	}//end saveRetentionPolicy()

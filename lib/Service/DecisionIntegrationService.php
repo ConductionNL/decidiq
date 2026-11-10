@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use OCA\Decidiq\Support\FleetAppId;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -261,8 +263,7 @@ class DecisionIntegrationService {
 		try {
 			$saved = $objectService->saveObject(
 				object: $object,
-				register: 'decidiq',
-				schema: 'decision'
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'))
 			);
 
 			$savedArr = $this->toArray(value: $saved);
@@ -478,9 +479,7 @@ class DecisionIntegrationService {
 		try {
 			$objectService->saveObject(
 				object: $updated,
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision'), uuid: $decisionId)
 			);
 		} catch (\Throwable $e) {
 			$this->logger->error(

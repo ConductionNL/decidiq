@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AmendmentOrderService;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\ObjectRelationFilter;
@@ -247,7 +248,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 			}
 		);
 
-		$objectService->method('saveObject')->willReturnCallback(
+		$objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (
 				array $object,
 				?array $extend = [],
@@ -260,7 +261,7 @@ class VotingServiceAmendmentOrderTest extends TestCase {
 				$store[$id] = ['schema' => (string)$schema, 'object' => $object];
 				return $this->entity($object);
 			}
-		);
+		));
 
 		return $objectService;
 	}//end makeObjectService()

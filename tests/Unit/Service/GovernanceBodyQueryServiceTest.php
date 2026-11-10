@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\GovernanceBodyCommandService;
 use OCA\Decidiq\Service\GovernanceBodyQueryService;
 use OCA\Decidiq\Service\RegisterObjectStore;
@@ -47,7 +48,7 @@ class GovernanceBodyQueryServiceTest extends TestCase {
 		parent::setUp();
 
 		$facade = $this->createMock(ObjectServiceInterface::class);
-		$facade->method('saveObject')->willReturnCallback(
+		$facade->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntityInterface {
 				$schema = (string)$schema;
 				if ($uuid === null) {
@@ -59,7 +60,7 @@ class GovernanceBodyQueryServiceTest extends TestCase {
 
 				return $this->entity($this->rows[$schema][$uuid]);
 			}
-		);
+		));
 		$facade->method('findAll')->willReturnCallback(
 			function (array $config = []): array {
 				$filters = $config['filters'];

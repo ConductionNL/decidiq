@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\OpenRegister\Service\Object\ObjectFindTarget;
+use OCA\OpenRegister\Service\Object\ObjectSaveOptions;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
@@ -151,7 +153,10 @@ class VotingRoundCloser {
 		}
 
 		$round['chairCastingVote'] = $chairCasting;
-		$objectService->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+		$objectService->saveObject(
+			object: $round,
+			options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+		);
 
 	}//end applyChairCastingVote()
 
@@ -172,7 +177,10 @@ class VotingRoundCloser {
 
 		if (($round['closedAt'] ?? null) === null) {
 			$round['closedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-			$this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $round);
+			$this->objectService()->saveObject(
+				object: $round,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'voting-round'))
+			);
 		}
 
 		return $round;
@@ -344,7 +352,10 @@ class VotingRoundCloser {
 			$stage['status'] = 'decided';
 			$stage['outcome'] = $outcome;
 			$stage['decidedAt'] = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
-			$this->objectService()->saveObject(register: 'decidiq', schema: 'decision-stage', object: $stage);
+			$this->objectService()->saveObject(
+				object: $stage,
+				options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'decision-stage'))
+			);
 
 			$this->logger->info(
 				'Decidiq: decision stage resolved by its voting round',
@@ -481,7 +492,10 @@ class VotingRoundCloser {
 					$vote['ranking'] = null;
 				}
 
-				$objectService->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
+				$objectService->saveObject(
+					object: $vote,
+					options: new ObjectSaveOptions(target: new ObjectFindTarget(register: 'decidiq', schema: 'vote'))
+				);
 			}
 
 			$this->logger->info('Decidiq: votes anonymised', ['votingRoundId' => $votingRoundId]);

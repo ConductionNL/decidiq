@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use OCA\Decidiq\Service\AuditLogService;
 use OCA\Decidiq\Service\DecisionIntegrationService;
 use OCA\Decidiq\Service\DecisionTypeRegistry;
@@ -392,12 +393,12 @@ class DecisionIntegrationServiceTest extends TestCase {
 
 		$captured = null;
 		$savedEntity = $this->entity(['id' => 'dec-ctx', 'uuid' => 'dec-ctx']);
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$captured, $savedEntity) {
 				$captured = $object;
 				return $savedEntity;
 			}
-		);
+		));
 
 		$result = $this->service->createDecision(
 			decisionData: [
@@ -439,12 +440,12 @@ class DecisionIntegrationServiceTest extends TestCase {
 
 		$captured = null;
 		$savedEntity = $this->entity(['id' => 'dec-fb', 'uuid' => 'dec-fb']);
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$captured, $savedEntity) {
 				$captured = $object;
 				return $savedEntity;
 			}
-		);
+		));
 
 		$result = $this->service->createDecision(
 			decisionData: [
@@ -479,12 +480,12 @@ class DecisionIntegrationServiceTest extends TestCase {
 
 		$captured = null;
 		$savedEntity = $this->entity(['id' => 'dec-sup', 'uuid' => 'dec-sup']);
-		$this->objectService->method('saveObject')->willReturnCallback(
+		$this->objectService->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array $object) use (&$captured, $savedEntity) {
 				$captured = $object;
 				return $savedEntity;
 			}
-		);
+		));
 
 		$result = $this->service->createDecision(
 			decisionData: [

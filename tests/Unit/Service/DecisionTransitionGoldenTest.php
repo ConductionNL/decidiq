@@ -38,6 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Tests\Unit\Support\SaveCallShape;
 use ArrayObject;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\Decidiq\Service\AuditLogService;
@@ -244,7 +245,7 @@ class DecisionTransitionGoldenTest extends TestCase {
 				return isset($store[(string)$id]) === true ? $this->entity(object: $store[(string)$id]) : null;
 			}
 		);
-		$objects->method('saveObject')->willReturnCallback(
+		$objects->method('saveObject')->willReturnCallback(SaveCallShape::legacy(
 			function (array|ObjectEntity $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null): ObjectEntity {
 				$this->log[] = ['save' => ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid]];
 				if ($uuid === 'd-readonly') {
@@ -258,7 +259,7 @@ class DecisionTransitionGoldenTest extends TestCase {
 				$id = ($uuid ?? ('new-' . count($this->log)));
 				return $this->entity(object: ['id' => $id] + $object);
 			}
-		);
+		));
 
 		$audit = $this->createMock(AuditLogService::class);
 		$audit->method('append')->willReturnCallback(
