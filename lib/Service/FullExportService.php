@@ -108,54 +108,87 @@ class FullExportService {
 		$now  = $this->timeFactory->getDateTime();
 		$name = 'decidiq-export-' . $now->format('Ymd-His') . '.zip';
 		$path = (string)$this->tempManager->getTemporaryFile('.zip');
-		$zip  = new ZipArchive();
-		if ($path === '' || $zip->open($path, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) !== true) {
-			throw new RuntimeException('The export archive could not be created.');
+		$run  = new FullExportRun(zip: $this->openArchive(path: $path), exportedAt: $now->format(DATE_ATOM));
+		foreach (SettingsService::shippedRegisterDescriptor()['components']['schemas'] as $schema) {
+			$this->exportSchema(run: $run, schema: $schema);
 		}
 
-		$manifest = [
-			'app' => 'decidiq',
-			'exportedAt' => $now->format(DATE_ATOM),
-			'schemas' => [],
-			'skipped' => [],
-			'files' => 0,
-			'missingFiles' => [],
-		];
-		foreach (SettingsService::shippedRegisterDescriptor()['components']['schemas'] as $schema) {
-			$slug = (string)($schema['slug'] ?? '');
-			if ($slug === '') {
-				continue;
-			}
-
-			try {
-				$objects = $this->readAll(slug: $slug);
-			} catch (\Throwable $e) {
-				$manifest['skipped'][] = ['schema' => $slug, 'reason' => $e->getMessage()];
-				continue;
-			}
-
-			$zip->addFromString($slug . '.json', (string)json_encode($objects, self::JSON_FLAGS));
-			$manifest['schemas'][] = [
-				'slug' => $slug,
-				'title' => (string)($schema['title'] ?? $slug),
-				'version' => (string)($schema['version'] ?? ''),
-				'file' => $slug . '.json',
-				'count' => count($objects),
-				'relations' => $this->relationsOf(schema: $schema),
-			];
-			if (in_array($slug, self::FILE_SCHEMAS, true) === true) {
-				$this->addFiles(zip: $zip, slug: $slug, objects: $objects, manifest: $manifest);
-			}
-		}//end foreach
-
-		$zip->addFromString('manifest.json', (string)json_encode($manifest, self::JSON_FLAGS));
-		if ($zip->close() === false) {
+		$run->zip->addFromString('manifest.json', (string)json_encode($run->manifest, self::JSON_FLAGS));
+		if ($run->zip->close() === false) {
 			throw new RuntimeException('The export archive could not be written.');
 		}
 
 		$this->keepOnly(name: $name, path: $path);
 		return $name;
 	}//end build()
+
+	/**
+	 * Open a new archive at the temporary path.
+	 *
+	 * @param string $path The temporary file, '' when none could be made.
+	 *
+	 * @throws RuntimeException When the archive cannot be created.
+	 *
+	 * @return ZipArchive The open archive.
+	 */
+	private function openArchive(string $path): ZipArchive {
+		$zip = new ZipArchive();
+		if ($path === '' || $zip->open($path, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) !== true) {
+			throw new RuntimeException('The export archive could not be created.');
+		}
+
+		return $zip;
+	}//end openArchive()
+
+	/**
+	 * Write one schema's records (and, for the file schemas, their files) and
+	 * describe it in the manifest; a schema that cannot be read is skipped
+	 * with its reason.
+	 *
+	 * @param FullExportRun        $run    The export being written.
+	 * @param array<string, mixed> $schema The shipped schema.
+	 *
+	 * @return void
+	 */
+	private function exportSchema(FullExportRun $run, array $schema): void {
+		$slug = (string)($schema['slug'] ?? '');
+		if ($slug === '') {
+			return;
+		}
+
+		try {
+			$objects = $this->readAll(slug: $slug);
+		} catch (\Throwable $e) {
+			$run->manifest['skipped'][] = ['schema' => $slug, 'reason' => $e->getMessage()];
+			return;
+		}
+
+		$run->zip->addFromString($slug . '.json', (string)json_encode($objects, self::JSON_FLAGS));
+		$run->manifest['schemas'][] = $this->schemaEntry(schema: $schema, count: count($objects));
+		if (in_array($slug, self::FILE_SCHEMAS, true) === true) {
+			$this->addFiles(zip: $run->zip, slug: $slug, objects: $objects, manifest: $run->manifest);
+		}
+	}//end exportSchema()
+
+	/**
+	 * The manifest entry of one exported schema.
+	 *
+	 * @param array<string, mixed> $schema The shipped schema.
+	 * @param int                  $count  How many records were exported.
+	 *
+	 * @return array<string, mixed> The entry.
+	 */
+	private function schemaEntry(array $schema, int $count): array {
+		$slug = (string)$schema['slug'];
+		return [
+			'slug' => $slug,
+			'title' => (string)($schema['title'] ?? $slug),
+			'version' => (string)($schema['version'] ?? ''),
+			'file' => $slug . '.json',
+			'count' => $count,
+			'relations' => $this->relationsOf(schema: $schema),
+		];
+	}//end schemaEntry()
 
 	/**
 	 * The newest export, or null when there is none.
