@@ -100,11 +100,8 @@ final class AdmissibilityVerdictService {
 	/**
 	 * Record a verdict on an intake step.
 	 *
-	 * @param array<string, mixed> $step The step the verdict is recorded on.
-	 * @param string $verdict One of the two verdicts.
-	 * @param string $ground The ground it rests on.
-	 * @param string $decidedBy Who gave it.
-	 * @param string $decidedAt When, as an ISO-8601 instant; now when empty.
+	 * @param array<string, mixed> $step    The step the verdict is recorded on.
+	 * @param IntakeVerdict        $verdict The verdict, its ground, who gave it and when.
 	 *
 	 * @return array{verdict: string, ground: string, decidedBy: string,
 	 *         decidedAt: string, routeOutcome: ?string, advances: bool} The
@@ -114,58 +111,109 @@ final class AdmissibilityVerdictService {
 	 *
 	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-004)
 	 */
-	public function record(
-		array $step,
-		string $verdict,
-		string $ground = '',
-		string $decidedBy = '',
-		string $decidedAt = '',
-	): array {
+	public function record(array $step, IntakeVerdict $verdict): array {
+		$this->assertIntakeStep(step: $step);
+		$this->assertKnownVerdict(verdict: $verdict->verdict);
+		$this->assertAttributable(verdict: $verdict);
+
+		$inadmissible = ($verdict->verdict === self::NIET_ONTVANKELIJK);
+
+		return [
+			'verdict' => $verdict->verdict,
+			'ground' => trim($verdict->ground),
+			'decidedBy' => $verdict->decidedBy,
+			'decidedAt' => $this->decidedAtOrNow(decidedAt: $verdict->decidedAt),
+			'routeOutcome' => $this->routeOutcomeFor(inadmissible: $inadmissible),
+			'advances' => ($inadmissible === false),
+		];
+	}//end record()
+
+	/**
+	 * Refuse a verdict recorded on anything but an intake step.
+	 *
+	 * @param array<string, mixed> $step The step the verdict is recorded on.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the step is not an intake step.
+	 */
+	private function assertIntakeStep(array $step): void {
 		if ((string)($step['stepKind'] ?? 'approval') !== self::STEP_KIND_INTAKE) {
 			throw new InvalidArgumentException(
 				'An admissibility verdict belongs on an intake step; this step is an approval step and expects a grant or a refusal.'
 			);
 		}
+	}//end assertIntakeStep()
 
+	/**
+	 * Refuse a verdict that is neither of the two known ones.
+	 *
+	 * @param string $verdict The verdict as given.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the verdict is unknown.
+	 */
+	private function assertKnownVerdict(string $verdict): void {
 		if (in_array($verdict, self::VERDICTS, true) === false) {
 			throw new InvalidArgumentException(
 				sprintf('Unknown verdict "%s"; expected %s.', $verdict, implode(' or ', self::VERDICTS))
 			);
 		}
+	}//end assertKnownVerdict()
 
-		if (trim($decidedBy) === '') {
+	/**
+	 * Refuse a verdict that names nobody, or a refusal that names no ground.
+	 *
+	 * @param IntakeVerdict $verdict The verdict as given.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When nobody gave it, or a refusal has no ground.
+	 */
+	private function assertAttributable(IntakeVerdict $verdict): void {
+		if (trim($verdict->decidedBy) === '') {
 			throw new InvalidArgumentException('A verdict has to name who gave it.');
 		}
 
-		if ($verdict === self::NIET_ONTVANKELIJK && trim($ground) === '') {
+		if ($verdict->verdict === self::NIET_ONTVANKELIJK && trim($verdict->ground) === '') {
 			// Refused here rather than at review: by then the term to object has
 			// already started running against a refusal nobody can argue with.
 			throw new InvalidArgumentException(
 				'A niet-ontvankelijk verdict needs the ground it rests on; without one the party has nothing to contest.'
 			);
 		}
+	}//end assertAttributable()
 
-		$inadmissible = ($verdict === self::NIET_ONTVANKELIJK);
-
-		$decidedWhen = $decidedAt;
-		if ($decidedWhen === '') {
-			$decidedWhen = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+	/**
+	 * The instant the verdict was given, now when none was given.
+	 *
+	 * @param string $decidedAt The given instant, or empty.
+	 *
+	 * @return string An ISO-8601 instant.
+	 */
+	private function decidedAtOrNow(string $decidedAt): string {
+		if ($decidedAt === '') {
+			return (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
 		}
 
-		$routeOutcome = null;
+		return $decidedAt;
+	}//end decidedAtOrNow()
+
+	/**
+	 * The outcome the route closes with: ended at intake when inadmissible.
+	 *
+	 * @param bool $inadmissible Whether the verdict refuses the request.
+	 *
+	 * @return string|null The outcome, or null when the route walks on.
+	 */
+	private function routeOutcomeFor(bool $inadmissible): ?string {
 		if ($inadmissible === true) {
-			$routeOutcome = self::OUTCOME_ENDED_AT_INTAKE;
+			return self::OUTCOME_ENDED_AT_INTAKE;
 		}
 
-		return [
-			'verdict' => $verdict,
-			'ground' => trim($ground),
-			'decidedBy' => $decidedBy,
-			'decidedAt' => $decidedWhen,
-			'routeOutcome' => $routeOutcome,
-			'advances' => ($inadmissible === false),
-		];
-	}//end record()
+		return null;
+	}//end routeOutcomeFor()
 
 	/**
 	 * The verdict as the consuming case app reads it off the decision.
