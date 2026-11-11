@@ -68,6 +68,7 @@ class VotingOpenSubjectScopeTest extends TestCase {
 		],
 		'motion-expanded-a' => ['id' => 'motion-expanded-a', 'decisionType' => 'motion', 'meeting' => ['id' => 'meeting-a']],
 		'motion-no-meeting' => ['id' => 'motion-no-meeting', 'decisionType' => 'motion'],
+		'resolution-a' => ['id' => 'resolution-a', 'decisionType' => 'resolution', 'meeting' => 'meeting-a'],
 		'amend-a' => ['id' => 'amend-a', 'decisionType' => 'amendment', 'amends' => 'motion-a'],
 		'amend-b' => ['id' => 'amend-b', 'decisionType' => 'amendment', 'amends' => 'motion-b'],
 		'round-tied-a' => [
@@ -124,6 +125,7 @@ class VotingOpenSubjectScopeTest extends TestCase {
 			],
 			'motion without a meeting' => ['chair-a', ['meetingId' => 'meeting-a', 'motionId' => 'motion-no-meeting'], 403, null],
 			'unknown motion' => ['chair-a', ['meetingId' => 'meeting-a', 'motionId' => 'motion-missing'], 403, null],
+			'decision in the meeting that is no motion' => ['chair-a', ['meetingId' => 'meeting-a', 'motionId' => 'resolution-a'], 403, null],
 			'lookup fails' => ['chair-a', ['meetingId' => 'meeting-a', 'motionId' => 'motion-boom'], 403, null],
 			'own amendment' => [
 				'chair-a',
@@ -191,6 +193,13 @@ class VotingOpenSubjectScopeTest extends TestCase {
 				201,
 				'motion-a',
 			],
+			'revote of a round OpenRegister reports missing is left to the service' => [
+				'chair-a',
+				['meetingId' => 'meeting-a', 'motionId' => 'motion-a', 'revoteOfRound' => 'round-gone'],
+				201,
+				'motion-a',
+			],
+			'motion OpenRegister reports missing' => ['chair-a', ['meetingId' => 'meeting-a', 'motionId' => 'motion-gone'], 403, null],
 			'revote id that is not a string' => [
 				'chair-a',
 				['meetingId' => 'meeting-a', 'motionId' => 'motion-a', 'revoteOfRound' => ['round-tied-b']],
@@ -333,6 +342,10 @@ class VotingOpenSubjectScopeTest extends TestCase {
 			public function find(int|string $id, mixed $register = null, mixed $schema = null): ?object {
 				if (str_ends_with((string)$id, '-boom') === true) {
 					throw new RuntimeException('lookup failed');
+				}
+
+				if (str_ends_with((string)$id, '-gone') === true) {
+					throw new \OCP\AppFramework\Db\DoesNotExistException('Object not found');
 				}
 
 				if (isset($this->objects[$id]) === false) {
