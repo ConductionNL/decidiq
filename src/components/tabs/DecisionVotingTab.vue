@@ -153,51 +153,79 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const decisionStore = ensureRelationType('decision')
-				const decision = await decisionStore.fetchObject(
-					'decision',
-					this.objectId,
-				)
-				const rawMotion =
-					decision && (decision.motion?.id || decision.motion)
-				this.motionId =
-					rawMotion != null && rawMotion !== '' ? String(rawMotion) : ''
-
-				if (!this.motionId) {
-					this.rounds = []
-					this.votes = []
-					return
-				}
-
-				const roundStore = ensureRelationType('voting-round')
-				const rounds = await roundStore.fetchCollection('voting-round', {
-					motion: this.motionId,
-					_limit: 50,
-				})
-				this.rounds = rounds || []
-
-				if (!this.rounds.length) {
-					this.votes = []
-					return
-				}
-
-				const voteStore = ensureRelationType('vote')
-				const all = []
-				for (const round of this.rounds) {
-					const list = await voteStore.fetchCollection('vote', {
-						votingRound: round.id,
-						_limit: 200,
-					})
-					if (Array.isArray(list))
-						all.push(...withRankingText(list, round))
-				}
-				this.votes = all
+				await this.loadVotingResults()
 			} catch (e) {
 				this.error =
 					e?.message || this.t('decidiq', 'Failed to load voting results.')
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * Read the decision's linked motion, then its rounds and their votes.
+		 *
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
+		async loadVotingResults() {
+			const decisionStore = ensureRelationType('decision')
+			const decision = await decisionStore.fetchObject(
+				'decision',
+				this.objectId,
+			)
+			this.motionId = this.linkedMotionId(decision)
+			if (!this.motionId) {
+				this.rounds = []
+				this.votes = []
+				return
+			}
+			await this.loadRounds()
+		},
+
+		/**
+		 * The id of the motion a decision is linked to, or '' when none is.
+		 *
+		 * @param {object|null} decision The decision.
+		 * @return {string} The motion id.
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
+		linkedMotionId(decision) {
+			const rawMotion = decision && (decision.motion?.id || decision.motion)
+			return rawMotion != null && rawMotion !== '' ? String(rawMotion) : ''
+		},
+
+		/**
+		 * Load the motion's voting rounds, then the votes when there are any.
+		 *
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
+		async loadRounds() {
+			const roundStore = ensureRelationType('voting-round')
+			const rounds = await roundStore.fetchCollection('voting-round', {
+				motion: this.motionId,
+				_limit: 50,
+			})
+			this.rounds = rounds || []
+			this.votes = this.rounds.length ? await this.fetchRoundVotes() : []
+		},
+
+		/**
+		 * The votes of every loaded round, with their ranking text.
+		 *
+		 * @return {Promise<Array<object>>} The votes.
+		 * @spec openspec/specs/decision-management/spec.md
+		 */
+		async fetchRoundVotes() {
+			const voteStore = ensureRelationType('vote')
+			const all = []
+			for (const round of this.rounds) {
+				const list = await voteStore.fetchCollection('vote', {
+					votingRound: round.id,
+					_limit: 200,
+				})
+				if (Array.isArray(list)) all.push(...withRankingText(list, round))
+			}
+			return all
 		},
 	},
 }

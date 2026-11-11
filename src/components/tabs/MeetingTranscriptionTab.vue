@@ -328,6 +328,26 @@ import {
 import { isVideoRecording, itemStartTimes } from '../../utils/recordingJump.js'
 import { ensureRelationType } from './useRelationStore.js'
 
+/**
+ * The id of a reference that is either an object or a plain id.
+ *
+ * @param {object|string} ref The reference.
+ * @return {string} The id.
+ */
+function refOf(ref) {
+	return ref && typeof ref === 'object' ? ref.id || ref.uuid : ref
+}
+
+/**
+ * Whether minutes exist and are past the draft stage (no lifecycle is a draft).
+ *
+ * @param {object|undefined} minutes The minutes.
+ * @return {boolean} True when the minutes must not be overwritten.
+ */
+function isPastDraft(minutes) {
+	return Boolean(minutes) && (minutes.lifecycle || 'draft') !== 'draft'
+}
+
 export default {
 	name: 'MeetingTranscriptionTab',
 	components: {
@@ -711,34 +731,7 @@ export default {
 			this.error = ''
 			this.usedNotice = ''
 			try {
-				const store = ensureRelationType('minutes')
-				const found = await store.fetchCollection('minutes', {
-					meeting: meetingId,
-					_limit: 20,
-				})
-				const refOf = (ref) =>
-					ref && typeof ref === 'object' ? ref.id || ref.uuid : ref
-				let minutes = (found || []).find(
-					(m) => refOf(m.meeting) === meetingId,
-				)
-				if (minutes && (minutes.lifecycle || 'draft') !== 'draft') {
-					this.error = this.t(
-						'decidiq',
-						'The minutes of this meeting are past the draft stage, so the AI draft was not written into them.',
-					)
-					return
-				}
-				if (!minutes) {
-					minutes = newMinutesFor(meetingId, this.t('decidiq', 'Minutes'))
-				}
-				await store.saveObject(
-					'minutes',
-					minutesFromAiDraft(minutes, this.draft),
-				)
-				this.usedNotice = this.t(
-					'decidiq',
-					'The kept sections are in the minutes. Open the minutes to review them.',
-				)
+				await this.writeDraftIntoMinutes(meetingId)
 			} catch (e) {
 				this.error =
 					e?.message
@@ -749,6 +742,36 @@ export default {
 			} finally {
 				this.working = false
 			}
+		},
+
+		/**
+		 * Save the AI draft into the meeting's draft minutes, or into new
+		 * minutes when it has none; refuse minutes past the draft stage.
+		 *
+		 * @param {string} meetingId The meeting.
+		 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-002-use-the-ai-draft-as-the-minutes
+		 */
+		async writeDraftIntoMinutes(meetingId) {
+			const store = ensureRelationType('minutes')
+			const found = await store.fetchCollection('minutes', {
+				meeting: meetingId,
+				_limit: 20,
+			})
+			const minutes = (found || []).find((m) => refOf(m.meeting) === meetingId)
+			if (isPastDraft(minutes)) {
+				this.error = this.t(
+					'decidiq',
+					'The minutes of this meeting are past the draft stage, so the AI draft was not written into them.',
+				)
+				return
+			}
+			const target =
+				minutes || newMinutesFor(meetingId, this.t('decidiq', 'Minutes'))
+			await store.saveObject('minutes', minutesFromAiDraft(target, this.draft))
+			this.usedNotice = this.t(
+				'decidiq',
+				'The kept sections are in the minutes. Open the minutes to review them.',
+			)
 		},
 
 		/**

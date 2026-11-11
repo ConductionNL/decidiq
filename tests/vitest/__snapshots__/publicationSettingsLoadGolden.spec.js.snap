@@ -1,0 +1,60 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PublicationSettings loadBodies() > seeds every body from its stored entry, defaulting what is missing 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 200,
+      },
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+  ],
+  "state": {
+    "bodies": [
+      {
+        "id": "b1",
+      },
+      {
+        "id": "b2",
+      },
+      {
+        "id": "b3",
+      },
+    ],
+    "config": {
+      "b1": {
+        "attendance": "role-holders",
+        "catalog": "cat-1",
+        "policy": {
+          "agenda": "manual-only",
+          "decision": "prompt-on-transition",
+          "minutes": "prompt-on-transition",
+        },
+      },
+      "b2": {
+        "attendance": "counts",
+        "catalog": "",
+        "policy": {
+          "agenda": "manual-only",
+          "decision": "manual-only",
+          "minutes": "manual-only",
+        },
+      },
+      "b3": {
+        "attendance": "counts",
+        "catalog": "",
+        "policy": {
+          "agenda": "manual-only",
+          "decision": "manual-only",
+          "minutes": "manual-only",
+        },
+      },
+    },
+    "error": "",
+    "loading": false,
+  },
+}
+`;

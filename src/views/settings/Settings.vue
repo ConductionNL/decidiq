@@ -245,6 +245,18 @@ import { NcButton, NcSelect } from '@nextcloud/vue'
 import ProcessTemplates from '../../components/processTemplates/ProcessTemplates.vue'
 import { useSettingsStore } from '../../store/modules/settings.js'
 
+/** The form fields seeded as text from the stored settings, empty when unset. */
+const TEXT_SETTINGS = [
+	'ori_endpoint',
+	'organisation_name',
+	'organisation_logo',
+	'organisation_timezone',
+	'organisation_currency',
+	'organisation_retention_days',
+	'participation_catalog',
+	'participation_anon_rate_limit',
+]
+
 /** Where the settings widgets save: the app config endpoint, with the changed fields only. */
 const SETTINGS_SAVE = {
 	url: '/apps/decidiq/api/settings',
@@ -456,26 +468,29 @@ export default {
 	created() {
 		const settingsStore = useSettingsStore()
 		const settings = settingsStore.settings || {}
-		this.form.ori_endpoint = settings.ori_endpoint || ''
-		this.form.organisation_name = settings.organisation_name || ''
-		this.form.organisation_logo = settings.organisation_logo || ''
-		this.form.organisation_timezone = settings.organisation_timezone || ''
+		this.seedTextFields(settings)
 		this.form.organisation_locale =
 			this.localeOptions.find((o) => o.id === settings.organisation_locale)
 			|| null
-		this.form.organisation_currency = settings.organisation_currency || ''
-		this.form.organisation_retention_days =
-			settings.organisation_retention_days || ''
 		this.form.participation_default_moderation_policy =
 			this.moderationPolicyOptions.find(
 				(o) => o.id === settings.participation_default_moderation_policy,
 			) || this.moderationPolicyOptions[0]
-		this.form.participation_catalog = settings.participation_catalog || ''
-		this.form.participation_anon_rate_limit =
-			settings.participation_anon_rate_limit || ''
 	},
 
 	methods: {
+		/**
+		 * Copy the text fields of the stored settings into the form.
+		 *
+		 * @param {object} settings The stored settings.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
+		seedTextFields(settings) {
+			for (const key of TEXT_SETTINGS) {
+				this.form[key] = settings[key] || ''
+			}
+		},
+
 		/** @spec openspec/specs/admin-settings/spec.md */
 		async saveOrganisation() {
 			this.savingOrganisation = true
