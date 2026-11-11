@@ -2,10 +2,8 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:6c9302d0-98ca-444b-bea8-79711a10b8b9",
   "version": 1,
   "metadata": {
-    "timestamp": "2026-11-11T17:22:53Z",
     "tools": [
       {
         "name": "composer",
@@ -82,10 +80,10 @@
       }
     ],
     "component": {
-      "bom-ref": "conductionnl/decidiq-dev-development",
+      "bom-ref": "conductionnl/decidiq-0.1.0.0",
       "type": "application",
       "name": "decidiq",
-      "version": "dev-development",
+      "version": "0.1.0",
       "group": "conductionnl",
       "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings",
       "author": "Conduction b.v.",
@@ -96,16 +94,8 @@
           }
         }
       ],
-      "purl": "pkg:composer/conductionnl/decidiq@dev-development",
+      "purl": "pkg:composer/conductionnl/decidiq@0.1.0",
       "properties": [
-        {
-          "name": "cdx:composer:package:distReference",
-          "value": "190c32ade72ff423eafb2af875d80969154a0c97"
-        },
-        {
-          "name": "cdx:composer:package:sourceReference",
-          "value": "190c32ade72ff423eafb2af875d80969154a0c97"
-        },
         {
           "name": "cdx:composer:package:type",
           "value": "library"
@@ -24230,7 +24220,7 @@
   ],
   "dependencies": [
     {
-      "ref": "conductionnl/decidiq-dev-development"
+      "ref": "conductionnl/decidiq-0.1.0.0"
     }
   ]
 }
