@@ -15,6 +15,23 @@ import { generateUrl } from '@nextcloud/router'
 const VOTING_ROLES = ['chair', 'vice-chair', 'secretary', 'member']
 
 /**
+ * Who sits on a participant's seat now: the substitution in force, if any,
+ * and the participant holding the seat.
+ */
+class SeatHolding {
+
+	/**
+	 * @param {object|null} substitution The substitution in force, or null.
+	 * @param {object} holder The participant holding the seat.
+	 */
+	constructor(substitution, holder) {
+		this.substitution = substitution
+		this.holder = holder
+	}
+
+}
+
+/**
  * The seat rows of the panel, in seat order: each voting participant, and on
  * a seat a substitute holds now, the substitute with the member they replace.
  *
@@ -26,38 +43,101 @@ const VOTING_ROLES = ['chair', 'vice-chair', 'secretary', 'member']
 export function seatRows(seats) {
 	const participants = seats?.participants ?? []
 	const byId = Object.fromEntries(participants.map((p) => [p.id, p]))
-	const active = (seats?.substitutions ?? []).filter((s) => !s.endedAt)
-	const activeByOutgoing = Object.fromEntries(
-		active.map((s) => [s.outgoingParticipant, s]),
-	)
+	const activeByOutgoing = activeSubstitutionsByOutgoing(seats)
 
 	return participants
 		.filter((p) => VOTING_ROLES.includes(p.role))
 		.map((p) => {
 			const substitution = activeByOutgoing[p.id] ?? null
-			const holder = substitution
-				? (byId[substitution.incomingParticipant] ?? {
-						id: substitution.incomingParticipant,
-						displayName: '',
-					})
-				: p
-			return {
-				seat: substitution?.seatNumber ?? p.seatNumber ?? null,
-				id: holder.id,
-				name: holder.displayName,
-				party: substitution?.party ?? p.party ?? '',
-				role: p.role,
-				substitution,
-				substituteFor: substitution ? p.displayName : '',
-				canSwap: p.role === 'member' && !substitution,
-			}
+			const holder = substitution ? substituteHolder(substitution, byId) : p
+			return seatRow(p, new SeatHolding(substitution, holder))
 		})
-		.sort(
-			(a, b) =>
-				(a.seat ?? Number.MAX_SAFE_INTEGER)
-					- (b.seat ?? Number.MAX_SAFE_INTEGER)
-				|| a.name.localeCompare(b.name),
-		)
+		.sort(bySeatThenName)
+}
+
+/**
+ * The substitutions still in force, by the participant they replace.
+ *
+ * @param {object} seats The seats read.
+ * @return {Object<string, object>} The substitutions by outgoing participant.
+ */
+function activeSubstitutionsByOutgoing(seats) {
+	const active = (seats?.substitutions ?? []).filter((s) => !s.endedAt)
+	return Object.fromEntries(active.map((s) => [s.outgoingParticipant, s]))
+}
+
+/**
+ * The participant a substitution brings in, or a bare stand-in when the
+ * seats read does not list them.
+ *
+ * @param {object} substitution The substitution.
+ * @param {Object<string, object>} byId The participants, by id.
+ * @return {object} The holder.
+ */
+function substituteHolder(substitution, byId) {
+	return (
+		byId[substitution.incomingParticipant] ?? {
+			id: substitution.incomingParticipant,
+			displayName: '',
+		}
+	)
+}
+
+/**
+ * One seat row of the panel.
+ *
+ * @param {object} p The voting participant whose seat it is.
+ * @param {SeatHolding} holding Who sits on it now.
+ * @return {object} The row.
+ */
+function seatRow(p, holding) {
+	const { substitution, holder } = holding
+	return {
+		seat: seatNumberOf(p, substitution),
+		id: holder.id,
+		name: holder.displayName,
+		party: partyOf(p, substitution),
+		role: p.role,
+		substitution,
+		substituteFor: substitution ? p.displayName : '',
+		canSwap: p.role === 'member' && !substitution,
+	}
+}
+
+/**
+ * The seat number a row shows: the substitution's, else the participant's.
+ *
+ * @param {object} p The voting participant.
+ * @param {object|null} substitution The substitution in force, or null.
+ * @return {number|null} The seat number.
+ */
+function seatNumberOf(p, substitution) {
+	return substitution?.seatNumber ?? p.seatNumber ?? null
+}
+
+/**
+ * The party a row shows: the substitution's, else the participant's.
+ *
+ * @param {object} p The voting participant.
+ * @param {object|null} substitution The substitution in force, or null.
+ * @return {string} The party.
+ */
+function partyOf(p, substitution) {
+	return substitution?.party ?? p.party ?? ''
+}
+
+/**
+ * Orders rows by seat number, unnumbered seats last, then by name.
+ *
+ * @param {object} a A row.
+ * @param {object} b Another row.
+ * @return {number} The comparison.
+ */
+function bySeatThenName(a, b) {
+	return (
+		(a.seat ?? Number.MAX_SAFE_INTEGER) - (b.seat ?? Number.MAX_SAFE_INTEGER)
+		|| a.name.localeCompare(b.name)
+	)
 }
 
 /**
