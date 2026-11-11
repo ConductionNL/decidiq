@@ -1,0 +1,385 @@
+{
+  "CnDecisionsTab.vue": {
+    "props": [
+      "integrationContext",
+      "integrationId",
+      "objectId",
+      "objectLabel",
+      "register",
+      "schema"
+    ],
+    "data": {
+      "decisions": [],
+      "decisionTypes": null,
+      "loading": false,
+      "creating": false,
+      "error": "",
+      "createOpen": false,
+      "stages": {},
+      "people": {},
+      "authority": {},
+      "userNames": {}
+    },
+    "watch": {
+      "objectId": true,
+      "integrationContext": false
+    },
+    "created": 1,
+    "fromContext": [
+      "ctx-1",
+      "ctx-reg",
+      "ctx-schema"
+    ],
+    "fromProps": [
+      "7",
+      "reg",
+      "case",
+      "/index.php/apps/decidiq/decisions",
+      "Open in decidiq"
+    ],
+    "createSchemaIsObject": true,
+    "rows": [
+      [
+        "d-1",
+        "Budget",
+        "Draft",
+        "default",
+        "/index.php/apps/decidiq/decisions/d-1"
+      ],
+      [
+        "d-2",
+        "Plan",
+        "Enacted",
+        "success",
+        "/index.php/apps/decidiq/decisions/d-2"
+      ],
+      [
+        "d-3",
+        "Untitled decision",
+        "Proposal",
+        "info",
+        "/index.php/apps/decidiq/decisions/d-3"
+      ],
+      [
+        "d-4",
+        "Untitled decision",
+        "Withdrawn",
+        "error",
+        "/index.php/apps/decidiq/decisions/d-4"
+      ],
+      [
+        "d-5",
+        "Untitled decision",
+        "Archived",
+        "default",
+        "/index.php/apps/decidiq/decisions/d-5"
+      ],
+      [
+        "d-6",
+        "Untitled decision",
+        "odd",
+        "default",
+        "/index.php/apps/decidiq/decisions/d-6"
+      ],
+      [
+        "d-7",
+        "Untitled decision",
+        "Proposal",
+        "info",
+        "/index.php/apps/decidiq/decisions/d-7"
+      ],
+      [
+        "",
+        "no id",
+        "Decided",
+        "success",
+        "/index.php/apps/decidiq/decisions"
+      ]
+    ],
+    "openCreate": [
+      true,
+      false
+    ],
+    "afterCreated": [
+      [
+        [
+          "listDecisionTypes"
+        ]
+      ],
+      [
+        "proposal",
+        "decision"
+      ]
+    ],
+    "refresh": {
+      "no host": {
+        "calls": [],
+        "loading": [
+          false,
+          false
+        ],
+        "error": "",
+        "decisions": 0
+      },
+      "loaded": {
+        "calls": [
+          [
+            "listHostDecisions",
+            "h-1",
+            100
+          ],
+          [
+            "listDecisionStages",
+            "a"
+          ],
+          [
+            "decisionAuthority",
+            "a"
+          ],
+          [
+            "listDecisionStages",
+            "b"
+          ],
+          [
+            "decisionAuthority",
+            "b"
+          ],
+          [
+            "listDecisionStages",
+            "c"
+          ],
+          [
+            "decisionAuthority",
+            "c"
+          ],
+          [
+            "personNames",
+            [
+              "p-a",
+              "p-b",
+              "p-c"
+            ]
+          ],
+          [
+            "userDisplayNames",
+            [
+              null,
+              "o"
+            ]
+          ]
+        ],
+        "loading": [
+          true,
+          false
+        ],
+        "error": "",
+        "decisions": 3
+      },
+      "failed with message": {
+        "calls": [
+          [
+            "listHostDecisions",
+            "h-1",
+            100
+          ]
+        ],
+        "loading": [
+          true,
+          false
+        ],
+        "error": "server said no",
+        "decisions": 0
+      },
+      "failed without message": {
+        "calls": [
+          [
+            "listHostDecisions",
+            "h-1",
+            100
+          ]
+        ],
+        "loading": [
+          true,
+          false
+        ],
+        "error": "Could not load decision-making.",
+        "decisions": 0
+      }
+    }
+  },
+  "CnDecisionsWidget.vue": {
+    "props": [
+      "collapsible",
+      "createLabel",
+      "emptyText",
+      "emptyTitle",
+      "integrationContext",
+      "integrationId",
+      "objectId",
+      "objectLabel",
+      "onHeader",
+      "onSummary",
+      "register",
+      "schema",
+      "surface",
+      "title"
+    ],
+    "data": {
+      "decisions": [],
+      "decisionTypes": null,
+      "loading": false,
+      "creating": false,
+      "error": "",
+      "createOpen": false
+    },
+    "watch": {
+      "hostHeader": true,
+      "hostSummary": true,
+      "objectId": true,
+      "integrationContext": false
+    },
+    "created": 1,
+    "fromContext": [
+      "ctx-1",
+      "ctx-reg",
+      "ctx-schema"
+    ],
+    "fromProps": [
+      "7",
+      "reg",
+      "case",
+      "/index.php/apps/decidiq/decisions",
+      "Open in decidiq"
+    ],
+    "createSchemaIsObject": true,
+    "rows": [
+      [
+        "d-1",
+        "Budget",
+        "Proposal",
+        "info",
+        "/index.php/apps/decidiq/decisions/d-1"
+      ],
+      [
+        "d-2",
+        "Plan",
+        "Enacted",
+        "success",
+        "/index.php/apps/decidiq/decisions/d-2"
+      ],
+      [
+        "d-3",
+        "Untitled decision",
+        "Proposal",
+        "info",
+        "/index.php/apps/decidiq/decisions/d-3"
+      ],
+      [
+        "d-4",
+        "Untitled decision",
+        "Withdrawn",
+        "error",
+        "/index.php/apps/decidiq/decisions/d-4"
+      ],
+      [
+        "d-5",
+        "Untitled decision",
+        "Archived",
+        "default",
+        "/index.php/apps/decidiq/decisions/d-5"
+      ],
+      [
+        "d-6",
+        "Untitled decision",
+        "odd",
+        "default",
+        "/index.php/apps/decidiq/decisions/d-6"
+      ],
+      [
+        "d-7",
+        "Untitled decision",
+        "Proposal",
+        "info",
+        "/index.php/apps/decidiq/decisions/d-7"
+      ],
+      [
+        "",
+        "no id",
+        "Decided",
+        "success",
+        "/index.php/apps/decidiq/decisions"
+      ]
+    ],
+    "openCreate": [
+      true,
+      false
+    ],
+    "afterCreated": [
+      [
+        [
+          "listDecisionTypes"
+        ]
+      ],
+      [
+        "proposal",
+        "decision"
+      ]
+    ],
+    "refresh": {
+      "no host": {
+        "calls": [],
+        "loading": [
+          false,
+          false
+        ],
+        "error": "",
+        "decisions": 0
+      },
+      "loaded": {
+        "calls": [
+          [
+            "listHostDecisions",
+            "h-1",
+            100
+          ]
+        ],
+        "loading": [
+          true,
+          false
+        ],
+        "error": "",
+        "decisions": 3
+      },
+      "failed with message": {
+        "calls": [
+          [
+            "listHostDecisions",
+            "h-1",
+            100
+          ]
+        ],
+        "loading": [
+          true,
+          false
+        ],
+        "error": "server said no",
+        "decisions": 0
+      },
+      "failed without message": {
+        "calls": [
+          [
+            "listHostDecisions",
+            "h-1",
+            100
+          ]
+        ],
+        "loading": [
+          true,
+          false
+        ],
+        "error": "Could not load decision-making.",
+        "decisions": 0
+      }
+    }
+  }
+}
