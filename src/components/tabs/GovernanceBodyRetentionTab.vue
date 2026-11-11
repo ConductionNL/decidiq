@@ -73,15 +73,14 @@ import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { loadState } from '@nextcloud/initial-state'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'GovernanceBodyRetentionTab',
 	components: { CnNoteCard, NcButton, NcSelect, NcTextField },
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
 
+	mixins: [objectIdLoader],
 	data() {
 		// Server-provided defaults via initial state (never DOM data-attributes).
 		const defaults = this.readDefaults()
@@ -108,15 +107,6 @@ export default {
 					label: this.t('decidiq', 'Delete recording and transcript'),
 				},
 			]
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			handler() {
-				this.load()
-			},
 		},
 	},
 

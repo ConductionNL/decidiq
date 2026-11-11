@@ -70,15 +70,15 @@
 <script>
 import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { technicalQuestionRows } from '../../utils/technicalQuestions.js'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingTechnicalQuestionsTab',
 	components: { CnNoteCard },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/motion-management/spec.md#requirement-req-mtq-001-technical-questions-go-to-an-official-with-a-deadline */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -97,16 +97,6 @@ export default {
 				this.types,
 				new Date().toISOString().slice(0, 10),
 			)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/motion-management/spec.md#requirement-req-mtq-001-technical-questions-go-to-an-official-with-a-deadline */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

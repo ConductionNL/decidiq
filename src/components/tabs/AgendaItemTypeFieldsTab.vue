@@ -88,6 +88,7 @@ import {
 	missingRequiredTypeFields,
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -98,9 +99,8 @@ export default {
 		NcButton,
 	},
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -145,16 +145,6 @@ export default {
 							? JSON.stringify(value)
 							: String(value),
 				}))
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

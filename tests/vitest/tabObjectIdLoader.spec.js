@@ -49,3 +49,19 @@ describe('detail tabs load their object by objectId', () => {
 		})
 	}
 })
+
+describe('objectIdLoader', async () => {
+	const { objectIdLoader } = await import('../../src/components/tabs/objectIdLoader.js')
+
+	it('declares objectId as a String or Number, empty by default', () => {
+		expect(objectIdLoader.props).toEqual({ objectId: { type: [String, Number], default: '' } })
+	})
+
+	it('calls load() immediately and on every change', () => {
+		const watcher = objectIdLoader.watch.objectId
+		expect(watcher.immediate).toBe(true)
+		let calls = 0
+		watcher.handler.call({ load: () => { calls++ } })
+		expect(calls).toBe(1)
+	})
+})
