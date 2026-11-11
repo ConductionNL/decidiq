@@ -67,6 +67,31 @@ class ActionItemWriter {
 	private ?array $ids = null;
 
 	/**
+	 * The action-item keys that map onto core VTODO fields, or are the task's
+	 * own; every other key rides along in the task's `fields` blob.
+	 *
+	 * @var list<string>
+	 */
+	private const CORE_TASK_KEYS = [
+		'title',
+		'summary',
+		'description',
+		'dueDate',
+		'due',
+		'status',
+		'priority',
+		'id',
+		'uid',
+		'calendarId',
+		'completed',
+		'created',
+		'objectUuid',
+		'registerId',
+		'schemaId',
+		'fields',
+	];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param LoggerInterface $logger Logger for write failures.
@@ -212,37 +237,31 @@ class ActionItemWriter {
 		}
 
 		// Everything that is not a core VTODO field rides along in the field blob.
-		$coreKeys = [
-			'title',
-			'summary',
-			'description',
-			'dueDate',
-			'due',
-			'status',
-			'priority',
-			'id',
-			'uid',
-			'calendarId',
-			'completed',
-			'created',
-			'objectUuid',
-			'registerId',
-			'schemaId',
-			'fields',
-		];
-		$fields = [];
-		foreach ($item as $key => $value) {
-			if (in_array($key, $coreKeys, true) === false) {
-				$fields[$key] = $value;
-			}
-		}
-
+		$fields = self::extraFields(item: $item);
 		if (empty($fields) === false) {
 			$data['fields'] = $fields;
 		}
 
 		return $data;
 	}//end toTaskData()
+
+	/**
+	 * The keys of an action item that are not core VTODO fields, in order.
+	 *
+	 * @param array<string, mixed> $item The action-item payload.
+	 *
+	 * @return array<string, mixed> The extra fields.
+	 */
+	private static function extraFields(array $item): array {
+		$fields = [];
+		foreach ($item as $key => $value) {
+			if (in_array($key, self::CORE_TASK_KEYS, true) === false) {
+				$fields[$key] = $value;
+			}
+		}
+
+		return $fields;
+	}//end extraFields()
 
 	/**
 	 * Map an action-item taskStatus onto a VTODO STATUS value.
