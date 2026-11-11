@@ -94,11 +94,9 @@ import {
 	CnStatusBadge,
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
-import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
-import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import { DECISION_LIFECYCLE_COLORS } from '../../constants/decisionLifecycle.js'
-import { ensureRelationType } from './useRelationStore.js'
+import { relationCrudTab, relationRowActions } from './relationRows.js'
 
 export default {
 	name: 'MotionAmendmentsTab',
@@ -112,6 +110,8 @@ export default {
 		NcButton,
 		Plus,
 	},
+
+	mixins: [relationCrudTab, relationRowActions],
 
 	props: {
 		objectId: { type: [String, Number], default: '' },
@@ -144,25 +144,6 @@ export default {
 			return DECISION_LIFECYCLE_COLORS
 		},
 
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		rowActions() {
-			return [
-				{
-					label: this.t('decidiq', 'Edit'),
-					icon: Pencil,
-					handler: (row) => this.openEdit(row),
-				},
-				{
-					label: this.t('decidiq', 'Delete'),
-					icon: TrashCanOutline,
-					destructive: true,
-					handler: (row) => {
-						this.deleteTarget = { ...row }
-					},
-				},
-			]
-		},
-
 		/**
 		 * `decisionType` is excluded because it is this tab's DISCRIMINATOR,
 		 * not a choice: every row here is a Decision of decisionType=amendment
@@ -190,93 +171,24 @@ export default {
 		},
 	},
 
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/relation-tab-ui/spec.md */
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
 	methods: {
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async refresh() {
-			if (!this.objectId) return
-			this.loading = true
-			this.error = ''
-			try {
-				const store = ensureRelationType('amendment')
-				if (!this.amendmentSchema)
-					this.amendmentSchema = await store.fetchSchema('amendment')
-				const items = await store.fetchCollection('amendment', {
-					decisionType: 'amendment',
-					amends: this.objectId,
-					_limit: 100,
-				})
-				this.rows = items || []
-			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load amendments.')
-			} finally {
-				this.loading = false
-			}
-		},
-
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async openCreate() {
-			const store = ensureRelationType('amendment')
-			if (!this.amendmentSchema)
-				this.amendmentSchema = await store.fetchSchema('amendment')
-			this.editTarget = null
-			this.formOpen = true
-		},
-
 		/**
-		 * @param row The decision row to edit.
+		 * The relation this tab lists: its type, where it keeps the schema,
+		 * the fields that tie a row to the parent and the load failure text.
+		 *
+		 * @return {object} The listing.
 		 * @spec openspec/specs/relation-tab-ui/spec.md
 		 */
-		async openEdit(row) {
-			const store = ensureRelationType('amendment')
-			if (!this.amendmentSchema)
-				this.amendmentSchema = await store.fetchSchema('amendment')
-			this.editTarget = { ...row }
-			this.formOpen = true
-		},
-
-		/**
-		 * @param formData The submitted form values.
-		 * @spec openspec/specs/relation-tab-ui/spec.md
-		 */
-		async onConfirm(formData) {
-			const store = ensureRelationType('amendment')
-			try {
-				await store.saveObject('amendment', {
-					...formData,
+		relationListing() {
+			return {
+				type: 'amendment',
+				schemaKey: 'amendmentSchema',
+				filter: {
 					decisionType: 'amendment',
 					amends: this.objectId,
-				})
-				this.$refs.formDialog?.setResult({ success: true })
-				this.refresh()
-			} catch (e) {
-				this.$refs.formDialog?.setResult({
-					error: e?.message || this.t('decidiq', 'Save failed.'),
-				})
-			}
-		},
+				},
 
-		/** @spec openspec/specs/relation-tab-ui/spec.md */
-		async confirmDelete() {
-			const store = ensureRelationType('amendment')
-			try {
-				await store.deleteObject('amendment', this.deleteTarget.id)
-				this.$refs.deleteDialog?.setResult({ success: true })
-				this.refresh()
-			} catch (e) {
-				this.$refs.deleteDialog?.setResult({
-					error: e?.message || this.t('decidiq', 'Delete failed.'),
-				})
+				failedText: this.t('decidiq', 'Failed to load amendments.'),
 			}
 		},
 	},
