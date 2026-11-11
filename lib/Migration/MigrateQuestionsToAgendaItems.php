@@ -178,32 +178,8 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	public function run(IOutput $output): void {
-		if ($this->settingsService->isOpenRegisterAvailable() === false) {
-			$output->info('OpenRegister unavailable — nothing to migrate.');
-			return;
-		}
-
-		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			$output->warning('Could not resolve OpenRegister ObjectService: ' . $e->getMessage());
-			return;
-		}
-
-		// 🔴 RUN AS SYSTEM, AND THE WHOLE TRAVERSAL IN ONE SCOPE. A repair step
-		// executes during `occ upgrade`, where there is no session, so
-		// OpenRegister sees the actor as 'Anonymous' and refuses `create` — and
-		// this step reports such a failure as $output->warning(), which does NOT
-		// fail an upgrade. Without this line the upgrade says "Update successful"
-		// and nothing anyone reads says the migration did not happen. The sibling
-		// body-configuration migration carries the same comment for the same
-		// measured reason.
-		$objectService->runAsSystem(
-			function () use ($objectService, $output): void {
-				$this->migrateAll(objectService: $objectService, output: $output);
-			}
-		);
-
+		$runner = new SystemMigrationRunner(settingsService: $this->settingsService, container: $this->container);
+		$runner->run(output: $output, migrateAll: $this->migrateAll(...));
 	}//end run()
 
 	/**
