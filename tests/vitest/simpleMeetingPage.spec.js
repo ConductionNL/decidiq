@@ -556,11 +556,17 @@ describe('the meeting page in the simple structure', () => {
 
 	it('keeps the four steps on one row, with a word for each, and lets the card follow its content', () => {
 		const bar = read('src', 'components', 'widgets', 'MeetingStepBar.vue')
+		// The tiles and their words are shared by the three step bars.
+		expect(bar).toContain('<style scoped src="./stepBar.css"></style>')
+		expect(bar).toContain('mixins: [stepBarWordsMixin],')
+		const shared =
+			read('src', 'components', 'widgets', 'stepBar.css')
+			+ read('src', 'components', 'widgets', 'stepBarWords.js')
 		expect(bar).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));')
 		// The card is at least two grid rows high: the tiles fill it.
-		expect(bar).toContain('min-height: 124px;')
+		expect(shared).toContain('min-height: 124px;')
 		for (const word of ['Done', 'Now', 'Next']) {
-			expect(bar).toContain(`this.t('decidiq', '${word}')`)
+			expect(shared).toContain(`this.t('decidiq', '${word}')`)
 			expect(dutch[word], word).toBeTruthy()
 		}
 		const entry = config.layout.find((item) => item.widgetId === 'meeting-steps')

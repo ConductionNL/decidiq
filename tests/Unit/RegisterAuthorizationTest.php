@@ -798,6 +798,48 @@ class RegisterAuthorizationTest extends TestCase {
 	}//end testARenamedSchemaKeepsItsPredecessorsReadRule()
 
 	/**
+	 * A read rule matches only on properties its schema declares.
+	 *
+	 * OpenRegister refuses to import a schema whose rule names a property the
+	 * schema does not have, so such a rule breaks a fresh install of that schema.
+	 *
+	 * @return void
+	 */
+	public function testEveryRuleMatchesADeclaredProperty(): void {
+		$files = array_merge(
+			[__DIR__ . '/../../lib/Settings/decidesk_register.json'],
+			glob(__DIR__ . '/../../lib/Settings/register.d/*.json') ?: []
+		);
+
+		$declared = [];
+		foreach ($files as $file) {
+			$decoded = json_decode((string)file_get_contents($file), true);
+			foreach (($decoded['components']['schemas'] ?? []) as $name => $schema) {
+				if (is_array($schema) === true) {
+					$declared[$name] = array_merge(($declared[$name] ?? []), array_keys((array)($schema['properties'] ?? [])));
+				}
+			}
+		}
+
+		$undeclared = [];
+		foreach ($this->schemaBlocks() as $name => $entry) {
+			foreach ($entry['block'] as $action => $rules) {
+				foreach ((array)$rules as $rule) {
+					foreach (array_keys((array)(is_array($rule) === true ? ($rule['match'] ?? []) : [])) as $field) {
+						if (str_starts_with((string)$field, '@') === false && str_starts_with((string)$field, '_') === false
+							&& in_array($field, ($declared[$name] ?? []), true) === false
+						) {
+							$undeclared[] = $name . '.' . $action . '.' . $field;
+						}
+					}
+				}
+			}
+		}
+
+		$this->assertSame([], $undeclared, 'A rule matches on a property its schema does not declare.');
+	}//end testEveryRuleMatchesADeclaredProperty()
+
+	/**
 	 * The demo register resolves to the same permissions as the real one.
 	 *
 	 * `DemoDataService` imports `decidiq_mock_register.json` with `force: true`

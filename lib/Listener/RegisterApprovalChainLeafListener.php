@@ -31,7 +31,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\OpenRegister\Service\Integration\LeafAvailability;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
+use OCA\OpenRegister\Service\Integration\LeafIdentity;
+use OCA\OpenRegister\Service\Integration\LeafRendering;
 
 /**
  * Contributes the `decidiq-approval-chain` render leaf to OpenRegister's
@@ -104,15 +107,16 @@ class RegisterApprovalChainLeafListener extends AbstractRenderLeafListener {
 	/**
 	 * Build the `decidiq-approval-chain` leaf descriptor.
 	 *
-	 * @param array<string, string> $optional Arguments only some OpenRegister versions accept.
+	 * @param array<string, string> $optional LeafRendering arguments only some OpenRegister versions accept.
 	 *
 	 * @return LeafDescriptor The descriptor.
 	 *
 	 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 	 */
 	protected function descriptor(array $optional): LeafDescriptor {
-		// The optional half is UNPACKED FIRST and every agreed field stays a
-		// written-out named argument, for two reasons that pull the same way.
+		// The optional half is UNPACKED FIRST into the rendering value object,
+		// and every agreed field stays a written-out named argument, for two
+		// reasons that pull the same way.
 		// PHP refuses unpacking after a named argument, and
 		// `scripts/check-integration-parity.js` reads this call as SOURCE: it
 		// correlates the two halves of the leaf by matching `name: value`
@@ -121,19 +125,23 @@ class RegisterApprovalChainLeafListener extends AbstractRenderLeafListener {
 		// it dropped from 8 field assertions to 0 and reported the leaf as
 		// having no id at all.
 		return new LeafDescriptor(
-			...$optional,
-			id: self::LEAF_ID,
-			label: $this->l10n->t(self::LABEL_SOURCE),
-			icon: self::ICON,
+			identity: new LeafIdentity(
+				id: self::LEAF_ID,
+				label: $this->l10n->t(self::LABEL_SOURCE),
+				icon: self::ICON,
+				group: self::GROUP,
+			),
 			kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
-			requiredApp: Application::APP_ID,
-			group: self::GROUP,
-			surfaces: self::SURFACES,
-			referenceType: self::REFERENCE_TYPE,
-			// The JS half renders through a `mount`/`unmount` DOM hand-off, so
-			// this MUST declare the same mode under the shared id or the
-			// surface blanks.
-			renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+			availability: new LeafAvailability(requiredApp: Application::APP_ID),
+			rendering: new LeafRendering(
+				...$optional,
+				surfaces: self::SURFACES,
+				referenceType: self::REFERENCE_TYPE,
+				// The JS half renders through a `mount`/`unmount` DOM hand-off, so
+				// this MUST declare the same mode under the shared id or the
+				// surface blanks.
+				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+			),
 		);
 
 	}//end descriptor()

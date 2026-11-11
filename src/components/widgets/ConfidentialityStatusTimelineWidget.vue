@@ -207,6 +207,8 @@ import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue
 import ClockOutline from 'vue-material-design-icons/ClockOutline.vue'
 import {
 	buildConfidentialityStages,
+	contentWithDefaults,
+	plainObject,
 	resolveObjectLabel,
 } from './registerDetailWidgets.js'
 
@@ -310,11 +312,10 @@ export default {
 	computed: {
 		/** @spec exclude config-merge helper (register/groundSchema defaults), no behavioural requirement of its own */
 		cfg() {
-			const c = this.content || {}
-			return {
-				register: c.register || this.register || 'decidiq',
-				groundSchema: c.groundSchema || 'geheimhouding-grond',
-			}
+			return contentWithDefaults(this.content, {
+				register: this.register || 'decidiq',
+				groundSchema: 'geheimhouding-grond',
+			})
 		},
 
 		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
@@ -324,9 +325,7 @@ export default {
 
 		/** @spec exclude defensive objectData accessor, no behavioural requirement of its own */
 		record() {
-			return this.objectData && typeof this.objectData === 'object'
-				? this.objectData
-				: {}
+			return plainObject(this.objectData)
 		},
 
 		/**
@@ -536,14 +535,13 @@ export default {
 				this[link.key] = ''
 				return null
 			}
-			return resolveObjectLabel(
-				store,
-				link.schema,
-				link.schema,
-				this.cfg.register,
+			return resolveObjectLabel(store, {
+				typeSlug: link.schema,
+				schemaSlug: link.schema,
+				registerSlug: this.cfg.register,
 				id,
-				link.labelField,
-			).then((label) => {
+				labelField: link.labelField,
+			}).then((label) => {
 				this[link.key] = label
 			})
 		},

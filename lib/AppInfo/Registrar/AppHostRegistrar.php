@@ -36,6 +36,7 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\AppInfo\OpenRegisterAutoloader;
 use OCA\OpenRegister\AppHost\Bootstrap;
+use OCA\OpenRegister\AppHost\LeafAdoption;
 use OCA\OpenRegister\Event\DeepLinkRegistrationEvent;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -162,9 +163,8 @@ class AppHostRegistrar {
 	 * @return void
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) OCA\OpenRegister\AppHost\Bootstrap
-	 * is a cross-app static entry point in a SIBLING app that may be absent or
-	 * unloadable here — the call is guarded by class_exists() and wrapped in a
-	 * catch(\Throwable) for exactly that reason. It cannot be injected: this
+	 * is a cross-app static entry point in a SIBLING app that may be absent
+	 * here — the call is guarded by class_exists() for exactly that reason. It cannot be injected: this
 	 * runs at the composition root, so there is no container to resolve an
 	 * adapter from. OpenRegisterAutoloader::register() is static for the same
 	 * reason.
@@ -174,7 +174,7 @@ class AppHostRegistrar {
 	 * 🔴 `$context` IS USED. psalm used to say otherwise, and the error it
 	 * printed named the wrong thing.
 	 *
-	 * It is passed to `Bootstrap::aliasStoreController(context: $context, …)`
+	 * It is passed to `Bootstrap::aliasStoreController(context: $context, adoption: …)`
 	 * below. `OCA\OpenRegister\AppHost\Bootstrap` lives in a SIBLING app that
 	 * may be absent, so psalm could not resolve it, pruned the guarded block as
 	 * dead code, and then reported
@@ -203,18 +203,18 @@ class AppHostRegistrar {
 		// The class_exists() guard MUST stay in this method: it is also the
 		// assertion psalm relies on to accept the Bootstrap call below, and
 		// psalm does not carry that narrowing across a call.
+		// No catch-all around the call: a catch(\Throwable) here once turned a
+		// changed Bootstrap signature into a silent HTTP 500 on
+		// /api/store/items. An absent OpenRegister is handled by the guard;
+		// a present one with a different shape must fail loudly.
 		if (class_exists(Bootstrap::class) === true) {
-			try {
-				Bootstrap::aliasStoreController(
-					context: $context,
+			Bootstrap::aliasStoreController(
+				context: $context,
+				adoption: new LeafAdoption(
 					appId: Application::APP_ID,
-					controllerNs: 'OCA\\Decidiq\\Controller'
-				);
-			} catch (\Throwable) {
-				// An OpenRegister older than the helper, or present but
-				// unloadable. The store route is then no worse off than it is
-				// today, and every registration around this one still runs.
-			}
+					options: ['controllerNamespace' => 'OCA\\Decidiq\\Controller']
+				)
+			);
 		}
 
 	}//end bindStoreController()

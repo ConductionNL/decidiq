@@ -30,6 +30,7 @@ use OCA\OpenRegister\Db\FlowRun;
 use OCA\OpenRegister\Db\FlowRunMapper;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunSignalService;
+use OCA\OpenRegister\Service\Flow\RunSignal;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -183,15 +184,17 @@ class FlowDecisionConcludedListener implements IEventListener {
 	 */
 	private function wake(FlowRun $run, string $nodeId, DecisionConcludedEvent $event): void {
 		try {
-			$this->signals->signalRunAs(
+			$this->signals->answer(
 				run: $run,
-				payload: [
-					'decision' => $event->getStatus(),
-					'decisionRef' => $event->getDecisionId(),
-					'subjectId' => (string)$event->getSubjectId(),
-				],
-				actorUid: null,
-				nodeId: $nodeId
+				signal: new RunSignal(
+					payload: [
+						'decision' => $event->getStatus(),
+						'decisionRef' => $event->getDecisionId(),
+						'subjectId' => (string)$event->getSubjectId(),
+					],
+					actorUid: null,
+					nodeId: $nodeId
+				)
 			);
 
 			$this->logger->info(

@@ -223,15 +223,15 @@ import {
 	reviewPayload,
 	visibleSummaries,
 } from '../../utils/paperSummaries.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'AgendaPaperSummariesTab',
 
 	components: { NcButton, NcLoadingIcon, NcSelect, NcTextArea },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -267,16 +267,6 @@ export default {
 		/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-001-an-ai-summary-is-a-record-with-a-review-status */
 		summaries() {
 			return visibleSummaries(this.records, this.isClerk)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-005-members-see-a-summary-only-after-a-clerk-shows-it */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

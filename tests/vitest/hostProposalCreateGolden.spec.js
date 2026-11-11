@@ -149,6 +149,8 @@ describe('creating a proposal on a host object', () => {
 			await import('../../src/integrations/decisionCard.js')
 		SIBLINGS['./hostProposalCreate.js'] =
 			await import('../../src/integrations/hostProposalCreate.js')
+		SIBLINGS['./hostDecisions.js'] =
+			await import('../../src/integrations/hostDecisions.js')
 		const actual = {}
 		for (const file of ['CnDecisionsTab.vue', 'CnDecisionsWidget.vue']) {
 			const component = load(file)

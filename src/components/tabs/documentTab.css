@@ -1,0 +1,20 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * The layout the minutes document and publication actions tabs share: the column and its title.
+ * Each component includes it as a scoped style.
+ */
+
+.decidiq-tab {
+	display: flex;
+	flex-direction: column;
+	gap: calc(var(--default-grid-baseline) * 2);
+	padding: var(--default-grid-baseline);
+}
+
+.decidiq-tab__title {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: bold;
+}

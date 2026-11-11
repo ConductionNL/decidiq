@@ -191,12 +191,7 @@
   },
   "src/integrations/CnDecisionsTab.vue": {
     "jsdoc/require-param-type": {
-      "count": 8
-    }
-  },
-  "src/integrations/CnDecisionsWidget.vue": {
-    "jsdoc/require-param-type": {
-      "count": 6
+      "count": 3
     }
   },
   "src/main.js": {

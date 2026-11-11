@@ -52,15 +52,15 @@ import {
 	recordedCost,
 	transitionsPath,
 } from '../../utils/meetingStages.js'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingStageTab',
 	components: { NcButton },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -69,16 +69,6 @@ export default {
 			busy: false,
 			error: '',
 		}
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages */
-			handler() {
-				this.load()
-			},
-		},
 	},
 
 	methods: {

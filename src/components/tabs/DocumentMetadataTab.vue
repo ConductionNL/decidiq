@@ -75,6 +75,7 @@ import {
 	TARGETS,
 	typesFor,
 } from '../../utils/documentMetadata.js'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
@@ -82,8 +83,10 @@ export default {
 
 	components: { DocumentMetadataModal, NcButton, NcLoadingIcon },
 
+	/** @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-003-the-clerk-fills-in-document-details-on-the-meeting-and-agenda-item-pages */
+	mixins: [objectIdLoader],
+
 	props: {
-		objectId: { type: [String, Number], default: '' },
 		/** 'meeting' or 'agenda-item'; read from the page when not given. */
 		targetType: { type: String, default: '' },
 	},
@@ -121,16 +124,6 @@ export default {
 		/** @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-001-an-administrator-declares-document-types-and-their-fields */
 		offered() {
 			return typesFor(this.types, this.target)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/document-metadata-fields/spec.md#requirement-req-dmf-003-the-clerk-fills-in-document-details-on-the-meeting-and-agenda-item-pages */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

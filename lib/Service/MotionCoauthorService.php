@@ -45,6 +45,11 @@ use Throwable;
  */
 class MotionCoauthorService {
 	/**
+	 * The refusal a caller gets for a motion they may not modify, or that does not exist.
+	 */
+	private const ACCESS_REFUSED = 'Only the motion proposer or an existing co-author may modify this motion';
+
+	/**
 	 * Construct the MotionCoauthorService.
 	 *
 	 * @param LoggerInterface $logger Logger interface
@@ -85,6 +90,19 @@ class MotionCoauthorService {
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
 	private function findMotion(string $motionId): array {
+		return ($this->motionOrNull(motionId: $motionId) ?? throw new RuntimeException("Motion $motionId not found"));
+	}//end findMotion()
+
+	/**
+	 * The motion with this UUID, or null when there is no motion by that id.
+	 *
+	 * @param string $motionId Motion UUID
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
+	 */
+	private function motionOrNull(string $motionId): ?array {
 		$objectService = $this->getObjectService();
 		// M4: use named-arg find() instead of setRegister/setSchema pattern.
 		// ADR-005: motions live in the unified `decision` schema, so the id
@@ -98,11 +116,11 @@ class MotionCoauthorService {
 		if ($entity === null
 			|| ($motion['decisionType'] ?? null) !== 'motion'
 		) {
-			throw new RuntimeException("Motion $motionId not found");
+			return null;
 		}
 
 		return $motion;
-	}//end findMotion()
+	}//end motionOrNull()
 
 	/**
 	 * Resolve the OpenRegister participant UUID for a given Nextcloud user ID.
@@ -168,9 +186,7 @@ class MotionCoauthorService {
 			return;
 		}
 
-		throw new InvalidArgumentException(
-			'Only the motion proposer or an existing co-author may modify this motion'
-		);
+		throw new InvalidArgumentException(self::ACCESS_REFUSED);
 
 	}//end checkMotionAccess()
 
@@ -188,7 +204,14 @@ class MotionCoauthorService {
 	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.2
 	 */
 	private function accessibleMotion(string $motionId, ?string $callerUid): array {
-		$motion = $this->findMotion(motionId: $motionId);
+		// A checked caller gets the same refusal for a missing motion as for
+		// one they may not touch, so the answer does not reveal which exist.
+		if ($callerUid !== null) {
+			$motion = ($this->motionOrNull(motionId: $motionId) ?? throw new InvalidArgumentException(self::ACCESS_REFUSED));
+		} else {
+			$motion = $this->findMotion(motionId: $motionId);
+		}
+
 		$this->checkMotionAccess(motion: $motion, callerUid: $callerUid, callerIsAdmin: false);
 
 		return $motion;

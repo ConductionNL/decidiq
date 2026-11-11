@@ -153,27 +153,17 @@ class VotingController extends Controller {
 
 		$params = $this->request->getParams();
 		$ballot = $this->ballotOf(params: $params);
-		$value = $ballot['value'];
-		$ranking = $ballot['ranking'];
-		$isProxy = (bool)($params['isProxy'] ?? false);
-		$delegatorId = null;
-		if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
-			$delegatorId = $params['delegatorId'];
-		}
 
-		if ($value === '') {
-			return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
-		}
-
-		if ($ranking === null && in_array($value, ['for', 'against', 'abstain'], true) === false) {
-			return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
+		$refusal = self::ballotRefusal(ballot: $ballot);
+		if ($refusal !== null) {
+			return $refusal;
 		}
 
 		return $this->errors->badRequest(
-			function () use ($id, $participantId, $value, $ranking, $isProxy, $delegatorId, $nextcloudUid): JSONResponse {
-				$cast = new VoteCast(votingRoundId: $id, participantId: $participantId, value: $value, ranking: $ranking);
-				if ($isProxy === true) {
-					$cast = $cast->asProxy(delegatorId: $delegatorId);
+			function () use ($id, $participantId, $ballot, $params, $nextcloudUid): JSONResponse {
+				$cast = new VoteCast(votingRoundId: $id, participantId: $participantId, value: $ballot['value'], ranking: $ballot['ranking']);
+				if ((bool)($params['isProxy'] ?? false) === true) {
+					$cast = $cast->asProxy(delegatorId: self::delegatorOf(params: $params));
 				}
 
 				return new JSONResponse(
@@ -204,6 +194,41 @@ class VotingController extends Controller {
 
 		return ['value' => ($params['value'] ?? ''), 'ranking' => null];
 	}//end ballotOf()
+
+	/**
+	 * The delegator a proxy vote names, or null when it names none.
+	 *
+	 * @param array<string, mixed> $params The request body.
+	 *
+	 * @return mixed The delegator id, or null.
+	 */
+	private static function delegatorOf(array $params): mixed {
+		if (isset($params['delegatorId']) === true && $params['delegatorId'] !== '') {
+			return $params['delegatorId'];
+		}
+
+		return null;
+	}//end delegatorOf()
+
+	/**
+	 * The 400 for a ballot without a value, or with a plain value that is not
+	 * for, against or abstain; null for an acceptable ballot.
+	 *
+	 * @param array{value: mixed, ranking: array<int, mixed>|null} $ballot The ballot.
+	 *
+	 * @return JSONResponse|null The refusal, or null.
+	 */
+	private static function ballotRefusal(array $ballot): ?JSONResponse {
+		if ($ballot['value'] === '') {
+			return new JSONResponse(['message' => 'value is required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		if ($ballot['ranking'] === null && in_array($ballot['value'], ['for', 'against', 'abstain'], true) === false) {
+			return new JSONResponse(['message' => 'value must be for, against, or abstain'], Http::STATUS_BAD_REQUEST);
+		}
+
+		return null;
+	}//end ballotRefusal()
 
 	/**
 	 * Close a VotingRound, optionally anonymising votes.

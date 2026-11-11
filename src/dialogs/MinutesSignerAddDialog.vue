@@ -65,19 +65,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.decidiq-tab__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-
-.decidiq-tab__empty,
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-</style>
+<style scoped src="./personPickerDialog.css"></style>

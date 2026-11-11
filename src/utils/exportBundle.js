@@ -28,21 +28,25 @@ const RESERVED = new Set(['action', 'page', 'limit'])
  * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
  */
 export function filterFromQuery(query = {}, baseFilter = {}) {
-	const filter = { ...baseFilter }
-	for (const [key, value] of Object.entries(query || {})) {
-		if (
-			key.startsWith('_')
-			|| RESERVED.has(key)
-			|| value === undefined
-			|| value === null
-			|| value === ''
-		) {
-			continue
-		}
-		filter[key] = value
-	}
+	const entries = Object.entries(query || {}).filter(isFilterEntry)
+	const filter = { ...baseFilter, ...Object.fromEntries(entries) }
 	const search = typeof query?._search === 'string' ? query._search : ''
 	return { filter, search }
+}
+
+/**
+ * Whether a route query entry is part of the list's filter: not one of
+ * CnIndexPage's own keys and not left empty.
+ *
+ * @param {Array} entry The [key, value] pair.
+ * @return {boolean} True when the entry filters the list.
+ */
+function isFilterEntry(entry) {
+	const [key, value] = entry
+	if (key.startsWith('_') || RESERVED.has(key)) {
+		return false
+	}
+	return value !== undefined && value !== null && value !== ''
 }
 
 /**

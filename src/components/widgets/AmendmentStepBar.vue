@@ -58,9 +58,11 @@
 <script>
 import { amendmentNote, buildAmendmentSteps } from '../../utils/amendmentSteps.js'
 import { STATE_LABELS } from '../tabs/decisionLifecycle.js'
+import { stepBarWordsMixin } from './stepBarWords.js'
 
 export default {
 	name: 'AmendmentStepBar',
+	mixins: [stepBarWordsMixin],
 	props: {
 		/** The loaded amendment, or null while it is still being fetched. */
 		objectData: { type: Object, default: null },
@@ -126,26 +128,11 @@ export default {
 		stepLabel(state) {
 			return STATE_LABELS[state] || state
 		},
-
-		/**
-		 * Whether a step is behind, current or ahead, in a word. Colour alone
-		 * must not carry it.
-		 *
-		 * @param {string} status `done`, `current` or `upcoming`.
-		 * @return {string} The translated word.
-		 * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
-		 */
-		stateWord(status) {
-			if (status === 'done') {
-				return this.t('decidiq', 'Done')
-			}
-			return status === 'current'
-				? this.t('decidiq', 'Now')
-				: this.t('decidiq', 'Next')
-		},
 	},
 }
 </script>
+
+<style scoped src="./stepBar.css"></style>
 
 <style scoped>
 /*
@@ -153,83 +140,9 @@ export default {
  * number above the label and a word for done, now or next under it. On a
  * narrow page the steps wrap three to a row, and the card grows with them
  * (the layout entry sizes to its content).
- *
- * THE STEPS ARE AS TALL AS THE CARD HAS TO BE. The detail grid gives every
- * card at least two rows, and sizing to content cannot go below that floor.
- * A bar one line high would leave an empty band under it, so each step is a
- * tile that fills those two rows. The same measure as the decision page and the meeting page.
  */
 .amendment-steps__list {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	display: grid;
 	grid-template-columns: repeat(5, minmax(0, 1fr));
-	gap: var(--default-grid-baseline);
-}
-
-.amendment-steps__step {
-	min-width: 0;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 2px;
-	justify-content: center;
-	min-height: 124px;
-	box-sizing: border-box;
-	padding: calc(var(--default-grid-baseline) * 2) var(--default-grid-baseline);
-	border-radius: var(--border-radius-large);
-	background: var(--color-background-hover);
-	color: var(--color-text-maxcontrast);
-	font-size: 0.85em;
-	text-align: center;
-}
-
-.amendment-steps__label {
-	max-width: 100%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.amendment-steps__state {
-	font-size: 0.9em;
-	font-weight: normal;
-}
-
-.amendment-steps__number {
-	flex: none;
-	width: 22px;
-	height: 22px;
-	border-radius: 50%;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: bold;
-	border: 2px solid var(--color-border-dark);
-}
-
-.amendment-steps__step--done {
-	color: var(--color-main-text);
-}
-
-.amendment-steps__step--done .amendment-steps__number {
-	border-color: var(--color-success);
-}
-
-.amendment-steps__step--current {
-	background: var(--color-primary-element-light);
-	color: var(--color-primary-element-light-text);
-	font-weight: bold;
-}
-
-.amendment-steps__step--current .amendment-steps__number {
-	border-color: var(--color-primary-element);
-}
-
-.amendment-steps__note {
-	margin: calc(var(--default-grid-baseline) * 2) 0 0;
-	color: var(--color-text-maxcontrast);
 }
 
 @media (max-width: 700px) {

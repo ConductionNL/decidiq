@@ -19,6 +19,7 @@
 
 import { translate as t } from '@nextcloud/l10n'
 import { createLazyMountPair } from './createLazyMountPair.js'
+import { registerLeaf } from './leafRegistration.js'
 
 /**
  * The integration id a consuming app references to render this leaf.
@@ -116,37 +117,8 @@ export const approvalChainLeafDescriptor = {
  * @return {void}
  */
 export function registerApprovalChainLeaf(globalRef) {
-	const target = globalRef || (typeof window !== 'undefined' ? window : null)
-	if (target === null) {
-		return
-	}
-
-	target.OCA = target.OCA || {}
-	target.OCA.OpenRegister = target.OCA.OpenRegister || {}
-	const current = target.OCA.OpenRegister.integrations
-
-	if (
-		current
-		&& typeof current.register === 'function'
-		&& current._queue === undefined
-	) {
-		try {
-			current.register(approvalChainLeafDescriptor)
-		} catch (e) {
-			// AD-13: a duplicate id throws in dev, and that is not fatal to boot.
-			// eslint-disable-next-line no-console
-			console.warn('[decidiq] approval chain leaf already registered', e)
-		}
-		return
-	}
-
-	if (current === undefined || current === null) {
-		target.OCA.OpenRegister.integrations = {
-			_queue: [],
-			register(entry) {
-				this._queue.push(entry)
-			},
-		}
-	}
-	target.OCA.OpenRegister.integrations.register(approvalChainLeafDescriptor)
+	registerLeaf(globalRef, {
+		descriptor: approvalChainLeafDescriptor,
+		name: 'approval chain',
+	})
 }

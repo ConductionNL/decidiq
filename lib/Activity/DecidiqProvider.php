@@ -29,6 +29,7 @@ use OCA\Decidiq\AppInfo\Application;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\Activity\IProvider;
+use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\L10N\IFactory;
 
@@ -114,11 +115,45 @@ class DecidiqProvider implements IProvider {
 		}
 
 		$l10n = $this->languageFactory->get(Application::APP_ID, $language);
+		[$plain, $rich] = $this->subjectLines(l10n: $l10n, event: $event);
+
+		$params = $event->getSubjectParameters();
+		$link = $this->buildDeepLink(params: $params);
+
+		$event->setParsedSubject($plain);
+		$event->setRichSubject($rich, $this->richParameters(params: $params, link: $link));
+
+		if ($link !== '') {
+			$event->setLink($link);
+		}
+
+		$event->setIcon(
+			$this->urlGenerator->getAbsoluteURL(
+				$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')
+			)
+		);
+
+		return $event;
+	}//end parse()
+
+	/**
+	 * The plain and the rich subject line of a governance event, translated.
+	 *
+	 * @param IL10N  $l10n  The translator for the reader's language
+	 * @param IEvent $event The event
+	 *
+	 * @return array{0: string, 1: string} The plain and the rich line.
+	 *
+	 * @throws UnknownActivityException When the subject is not one of Decidiq's
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	private function subjectLines(IL10N $l10n, IEvent $event): array {
 		$params = $event->getSubjectParameters();
 		$title = (string)($params['title'] ?? '');
 		$status = (string)($params['status'] ?? '');
 
-		[$plain, $rich] = match ($event->getSubject()) {
+		return match ($event->getSubject()) {
 			self::SUBJECT_DECISION_RECORDED => [
 				$l10n->t('Decision "%1$s" was recorded', [$title]),
 				$l10n->t('Decision {object} was recorded'),
@@ -143,34 +178,28 @@ class DecidiqProvider implements IProvider {
 				'Unknown Decidiq activity subject: ' . $event->getSubject()
 			),
 		};// End match.
+	}//end subjectLines()
 
-		$link = $this->buildDeepLink(params: $params);
-
-		$event->setParsedSubject($plain);
-		$event->setRichSubject(
-			$rich,
-			[
-				'object' => [
-					'type' => 'highlight',
-					'id' => (string)($params['uuid'] ?? ''),
-					'name' => $title,
-					'link' => $link,
-				],
-			]
-		);
-
-		if ($link !== '') {
-			$event->setLink($link);
-		}
-
-		$event->setIcon(
-			$this->urlGenerator->getAbsoluteURL(
-				$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')
-			)
-		);
-
-		return $event;
-	}//end parse()
+	/**
+	 * The rich subject's `object` parameter: the highlighted record and its link.
+	 *
+	 * @param array<string,mixed> $params The event subject parameters
+	 * @param string              $link   The deep link, or ''
+	 *
+	 * @return array<string, array<string, string>> The rich parameters.
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	private function richParameters(array $params, string $link): array {
+		return [
+			'object' => [
+				'type' => 'highlight',
+				'id' => (string)($params['uuid'] ?? ''),
+				'name' => (string)($params['title'] ?? ''),
+				'link' => $link,
+			],
+		];
+	}//end richParameters()
 
 	/**
 	 * Build the absolute deep link into the Decidiq SPA for an event.

@@ -55,7 +55,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCA\OpenRegister\Service\Integration\LeafAvailability;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
+use OCA\OpenRegister\Service\Integration\LeafIdentity;
+use OCA\OpenRegister\Service\Integration\LeafRendering;
 
 /**
  * Contributes the `decidesk-decisions` render leaf to OpenRegister's catalogue.
@@ -140,15 +143,16 @@ class RegisterDecisionsLeafListener extends AbstractRenderLeafListener {
 	/**
 	 * Build the `decidesk-decisions` leaf descriptor.
 	 *
-	 * @param array<string, string> $optional Arguments only some OpenRegister versions accept.
+	 * @param array<string, string> $optional LeafRendering arguments only some OpenRegister versions accept.
 	 *
 	 * @return LeafDescriptor The descriptor.
 	 *
 	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
 	 */
 	protected function descriptor(array $optional): LeafDescriptor {
-		// The optional half is UNPACKED FIRST and every agreed field stays a
-		// written-out named argument, for two reasons that pull the same way.
+		// The optional half is UNPACKED FIRST into the rendering value object,
+		// and every agreed field stays a written-out named argument, for two
+		// reasons that pull the same way.
 		// PHP refuses unpacking after a named argument, and
 		// `scripts/check-integration-parity.js` reads this call as SOURCE: it
 		// correlates the two halves of the leaf by matching `name: value`
@@ -157,20 +161,24 @@ class RegisterDecisionsLeafListener extends AbstractRenderLeafListener {
 		// it dropped from 8 field assertions to 0 and reported the leaf as
 		// having no id at all.
 		return new LeafDescriptor(
-			...$optional,
-			id: self::LEAF_ID,
-			label: $this->l10n->t(self::LABEL_SOURCE),
-			icon: self::ICON,
+			identity: new LeafIdentity(
+				id: self::LEAF_ID,
+				label: $this->l10n->t(self::LABEL_SOURCE),
+				icon: self::ICON,
+				group: self::GROUP,
+			),
 			kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
-			requiredApp: Application::APP_ID,
-			group: self::GROUP,
-			surfaces: self::SURFACES,
-			referenceType: self::REFERENCE_TYPE,
-			// Vue 3 leaf under a possibly-Vue-2.7 host: the JS half renders via a
-			// `mount`/`unmount` DOM hand-off (openregister#2127, ADR-066 decision 7),
-			// so the server descriptor MUST declare the SAME render mode under the
-			// shared id or the surface blanks (gate-24 R3).
-			renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+			availability: new LeafAvailability(requiredApp: Application::APP_ID),
+			rendering: new LeafRendering(
+				...$optional,
+				surfaces: self::SURFACES,
+				referenceType: self::REFERENCE_TYPE,
+				// Vue 3 leaf under a possibly-Vue-2.7 host: the JS half renders via a
+				// `mount`/`unmount` DOM hand-off (openregister#2127, ADR-066 decision 7),
+				// so the server descriptor MUST declare the SAME render mode under the
+				// shared id or the surface blanks (gate-24 R3).
+				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
+			),
 		);
 
 	}//end descriptor()

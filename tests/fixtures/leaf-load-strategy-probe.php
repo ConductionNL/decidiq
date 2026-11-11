@@ -14,7 +14,8 @@
  * Nothing here is a test double for its own sake: each mode is a real
  * LeafDescriptor shape that exists in the fleet today.
  *
- *   new     — post-#3956: the LOADS_* constants and the `loadStrategy` parameter.
+ *   new     — post-#3956: the LOADS_* constants and the `loadStrategy` parameter
+ *             (on LeafRendering since the descriptor takes value objects).
  *   partial — a backport that took the constants and not the parameter. `defined()`
  *             answers yes and the constructor still throws, which is why the
  *             listener's guard asks both questions.
@@ -77,32 +78,43 @@ $loadConstants = <<<'PHP'
 	public const LOADS_ALREADY_PRESENT = 'already-present';
 PHP;
 
-$loadParameter = "\t\tprivate ?string \$loadStrategy = null,\n";
-$loadGetter = "\tpublic function getLoadStrategy(): ?string { return \$this->loadStrategy; }\n";
+$loadParameter = "\t\tpublic readonly ?string \$loadStrategy = null,\n";
+$loadGetter = "\tpublic function getLoadStrategy(): ?string { return \$this->rendering->loadStrategy ?? null; }\n";
 
 $constants = ($mode === 'old') ? '' : $loadConstants;
 $parameter = ($mode === 'new') ? $loadParameter : '';
 $getter = ($mode === 'new') ? $loadGetter : '';
 
+// The rendering value object carries the load strategy; `old` and `partial`
+// model an OpenRegister whose LeafRendering does not accept one.
 eval(
 	"namespace OCA\\OpenRegister\\Service\\Integration;\n"
+	. "final class LeafIdentity {\n"
+	. "\tpublic function __construct(public readonly string \$id, public readonly string \$label, "
+	. "public readonly string \$icon, public readonly ?string \$group = null) {\n\t}\n"
+	. "}\n"
+	. "final class LeafAvailability {\n"
+	. "\tpublic function __construct(public readonly ?string \$requiredApp = null, "
+	. "public readonly ?string \$requiresPermission = null) {\n\t}\n"
+	. "}\n"
+	. "final class LeafRendering {\n"
+	. "\tpublic function __construct(\n"
+	. "\t\tpublic readonly array \$surfaces = [],\n"
+	. "\t\tpublic readonly ?string \$referenceType = null,\n"
+	. "\t\tpublic readonly string \$renderMode = 'component',\n"
+	. $parameter
+	. "\t) {\n\t}\n"
+	. "}\n"
 	. "final class LeafDescriptor {\n"
 	. $common . "\n"
 	. $constants . "\n"
 	. "\tpublic function __construct(\n"
-	. "\t\tprivate string \$id,\n"
-	. "\t\tprivate string \$label,\n"
-	. "\t\tprivate string \$icon,\n"
+	. "\t\tprivate LeafIdentity \$identity,\n"
 	. "\t\tprivate array \$kinds,\n"
-	. "\t\tprivate ?string \$requiredApp = null,\n"
-	. "\t\tprivate ?string \$group = null,\n"
-	. "\t\tprivate array \$surfaces = [],\n"
-	. "\t\tprivate ?string \$referenceType = null,\n"
-	. "\t\tprivate ?string \$requiresPermission = null,\n"
-	. "\t\tprivate string \$renderMode = self::RENDER_MODE_COMPONENT,\n"
-	. $parameter
+	. "\t\tprivate ?LeafAvailability \$availability = null,\n"
+	. "\t\tprivate ?LeafRendering \$rendering = null,\n"
 	. "\t) {\n\t}\n"
-	. "\tpublic function getId(): string { return \$this->id; }\n"
+	. "\tpublic function getId(): string { return \$this->identity->id; }\n"
 	. $getter
 	. "}\n"
 );

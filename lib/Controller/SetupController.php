@@ -160,12 +160,35 @@ class SetupController extends Controller {
 		// The choice step is `multiple`, so the browser posts an ARRAY. A single
 		// value still arrives from an older manifest, and from anything that
 		// posts this endpoint by hand, so both shapes are read.
-		$profileIds = [];
-		$submitted  = [$value];
+		$submitted = [$value];
 		if (is_array($value) === true) {
 			$submitted = $value;
 		}
 
+		$refusal = $this->refuseSubmittedSets(submitted: $submitted);
+		if ($refusal !== null) {
+			return $refusal;
+		}
+
+		$profileIds = $this->withoutNoneBesideASet(profileIds: self::distinctProfiles(submitted: $submitted));
+		$stored = implode(',', $profileIds);
+		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, $stored);
+
+		return new JSONResponse(data: ['success' => true, 'config' => [self::PROFILE_KEY => $stored]]);
+
+	}//end saveConfig()
+
+	/**
+	 * The refusal of the first submitted value that is not a string or names
+	 * no selectable set, or null when every value is a selectable set.
+	 *
+	 * @param array<int|string, mixed> $submitted The posted values.
+	 *
+	 * @return JSONResponse|null The 400 refusal, or null.
+	 *
+	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 */
+	private function refuseSubmittedSets(array $submitted): ?JSONResponse {
 		foreach ($submitted as $candidate) {
 			if (is_scalar($candidate) === false) {
 				return new JSONResponse(
@@ -174,37 +197,62 @@ class SetupController extends Controller {
 				);
 			}
 
-			$profileId = (string)$candidate;
-			if ($this->isSelectableProfile(profileId: $profileId) === false) {
+			if ($this->isSelectableProfile(profileId: (string)$candidate) === false) {
 				return new JSONResponse(
-					data: ['success' => false, 'message' => 'No example set is called "' . $profileId . '".'],
+					data: ['success' => false, 'message' => 'No example set is called "' . (string)$candidate . '".'],
 					statusCode: Http::STATUS_BAD_REQUEST,
 				);
 			}
+		}
 
-			if (in_array($profileId, $profileIds, true) === false) {
-				$profileIds[] = $profileId;
+		return null;
+	}//end refuseSubmittedSets()
+
+	/**
+	 * The submitted sets as ids, each once, in the order first submitted.
+	 *
+	 * @param array<int|string, mixed> $submitted The posted values, all scalar.
+	 *
+	 * @return list<string> The ids.
+	 *
+	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 */
+	private static function distinctProfiles(array $submitted): array {
+		$profileIds = [];
+		foreach ($submitted as $candidate) {
+			if (in_array((string)$candidate, $profileIds, true) === false) {
+				$profileIds[] = (string)$candidate;
 			}
 		}
 
-		// 🔴 "NONE" ALONGSIDE A SET IS A CONTRADICTION, AND THE SET WINS.
-		// The cards are checkboxes, so an operator can tick "None" and then tick
-		// a set without unticking the first. Storing both would leave
-		// `load-example-set` reading "import nothing" and "import the
-		// municipality" from one value; dropping `none` keeps the answer the
-		// operator's LAST intent rather than a state the importer has to guess at.
+		return $profileIds;
+	}//end distinctProfiles()
+
+	/**
+	 * Drop "none" when a set is picked beside it.
+	 *
+	 * 🔴 "NONE" ALONGSIDE A SET IS A CONTRADICTION, AND THE SET WINS. The cards
+	 * are checkboxes, so an operator can tick "None" and then tick a set
+	 * without unticking the first. Storing both would leave `load-example-set`
+	 * reading "import nothing" and "import the municipality" from one value;
+	 * dropping `none` keeps the answer the operator's LAST intent rather than
+	 * a state the importer has to guess at.
+	 *
+	 * @param list<string> $profileIds The picked ids.
+	 *
+	 * @return list<string> The ids to store.
+	 *
+	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 */
+	private function withoutNoneBesideASet(array $profileIds): array {
 		if (count($profileIds) > 1) {
-			$profileIds = array_values(
+			return array_values(
 				array_filter($profileIds, static fn (string $id): bool => $id !== SeedProfileService::NONE_PROFILE)
 			);
 		}
 
-		$stored = implode(',', $profileIds);
-		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, $stored);
-
-		return new JSONResponse(data: ['success' => true, 'config' => [self::PROFILE_KEY => $stored]]);
-
-	}//end saveConfig()
+		return $profileIds;
+	}//end withoutNoneBesideASet()
 
 	/**
 	 * The example sets the operator picked, in the order they were stored.
@@ -364,18 +412,44 @@ class SetupController extends Controller {
 		}
 
 		if ($profileIds === [SeedProfileService::NONE_PROFILE]) {
-			$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
-			$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
-
-			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
+			return $this->recordNoExampleData();
 		}
 
-		// 🔴 A PARTIAL IMPORT IS REPORTED AS A FAILURE, NOT AS A SUCCESS WITH A
-		// SMALLER NUMBER. Three sets were asked for; if the second throws, the
-		// operator has a register holding one of them and no reason to think so.
-		// The sets that DID land stay landed, because the import is idempotent
-		// by slug: running the step again finishes the job rather than doubling
-		// what already arrived.
+		return $this->importExampleSets(profileIds: $profileIds);
+
+	}//end loadExampleSet()
+
+	/**
+	 * Record that the operator chose no example data, and close the step.
+	 *
+	 * @return JSONResponse `{ success, message }`.
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 */
+	private function recordNoExampleData(): JSONResponse {
+		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
+		$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
+
+		return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
+	}//end recordNoExampleData()
+
+	/**
+	 * Import each example set in turn and report how much landed.
+	 *
+	 * 🔴 A PARTIAL IMPORT IS REPORTED AS A FAILURE, NOT AS A SUCCESS WITH A
+	 * SMALLER NUMBER. Three sets were asked for; if the second throws, the
+	 * operator has a register holding one of them and no reason to think so.
+	 * The sets that DID land stay landed, because the import is idempotent by
+	 * slug: running the step again finishes the job rather than doubling what
+	 * already arrived.
+	 *
+	 * @param list<string> $profileIds The sets to import.
+	 *
+	 * @return JSONResponse `{ success, message }`.
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 */
+	private function importExampleSets(array $profileIds): JSONResponse {
 		$objects  = 0;
 		$imported = [];
 		foreach ($profileIds as $profileId) {
@@ -387,27 +461,62 @@ class SetupController extends Controller {
 					['app' => Application::APP_ID, 'exception' => $e]
 				);
 
-				$partial = '';
-				if ($imported !== []) {
-					$partial = ' Already imported: ' . implode(', ', $imported) . '.';
-				}
-
-				return new JSONResponse(
-					data: [
-						'success' => false,
-						'message' => 'Could not import the example data: ' . $e->getMessage() . $partial,
-					],
-					statusCode: Http::STATUS_INTERNAL_SERVER_ERROR,
-				);
+				return $this->importFailure(error: $e, imported: $imported);
 			}
 
 			$objects  += $result['objects'];
 			$imported[] = $profileId;
 		}
 
-		// Loading IS choosing, so the loaded sets join the stored picks. The
-		// step is `multiple`: a second card adds to the first, and "none"
-		// next to a loaded set is dropped (see saveConfig()).
+		$this->storeLoadedPicks(imported: $imported);
+
+		return new JSONResponse(
+			data: [
+				'success' => true,
+				'message' => 'Imported ' . $objects . ' example object(s) from ' . count($imported) . ' set(s).',
+			]
+		);
+	}//end importExampleSets()
+
+	/**
+	 * The failure of an import, naming the sets that already landed.
+	 *
+	 * @param \Throwable    $error    Why the import stopped.
+	 * @param list<string> $imported The sets imported before it stopped.
+	 *
+	 * @return JSONResponse `{ success: false, message }` with status 500.
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 */
+	private function importFailure(\Throwable $error, array $imported): JSONResponse {
+		$partial = '';
+		if ($imported !== []) {
+			$partial = ' Already imported: ' . implode(', ', $imported) . '.';
+		}
+
+		return new JSONResponse(
+			data: [
+				'success' => false,
+				'message' => 'Could not import the example data: ' . $error->getMessage() . $partial,
+			],
+			statusCode: Http::STATUS_INTERNAL_SERVER_ERROR,
+		);
+	}//end importFailure()
+
+	/**
+	 * Add the loaded sets to the stored picks and close the step as installed.
+	 *
+	 * Loading IS choosing, so the loaded sets join the stored picks. The step
+	 * is `multiple`: a second card adds to the first, and "none" next to a
+	 * loaded set is dropped (see saveConfig()).
+	 *
+	 * @param list<string> $imported The sets that were imported.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 */
+	private function storeLoadedPicks(array $imported): void {
 		$picks = array_values(
 			array_filter(
 				array_unique(array_merge($this->pickedProfiles(), $imported)),
@@ -416,13 +525,5 @@ class SetupController extends Controller {
 		);
 		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, implode(',', $picks));
 		$this->appConfig->setValueString(Application::APP_ID, self::DEMO_DECIDED_KEY, 'installed');
-
-		return new JSONResponse(
-			data: [
-				'success' => true,
-				'message' => 'Imported ' . $objects . ' example object(s) from ' . count($imported) . ' set(s).',
-			]
-		);
-
-	}//end loadExampleSet()
+	}//end storeLoadedPicks()
 }//end class

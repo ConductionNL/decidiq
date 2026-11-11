@@ -21,6 +21,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Service\AdmissibilityVerdictService;
 use OCA\Decidiq\Service\DecisionWithdrawalService;
+use OCA\Decidiq\Service\IntakeVerdict;
 use OCA\Decidiq\Service\LegalRemedyResolver;
 use OCA\Decidiq\Service\OpenApprovalGuard;
 use PHPUnit\Framework\TestCase;
@@ -62,9 +63,7 @@ final class DecisionWalkedProcessTest extends TestCase {
 	public function testAnInadmissibleRequestEndsTheRoute(): void {
 		$verdict = (new AdmissibilityVerdictService())->record(
 			$this->intakeStep(),
-			AdmissibilityVerdictService::NIET_ONTVANKELIJK,
-			'Artikel 4:5 Awb, aanvraag onvolledig na hersteltermijn',
-			'j.jansen'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::NIET_ONTVANKELIJK, ground: 'Artikel 4:5 Awb, aanvraag onvolledig na hersteltermijn', decidedBy: 'j.jansen')
 		);
 
 		self::assertSame(AdmissibilityVerdictService::OUTCOME_ENDED_AT_INTAKE, $verdict['routeOutcome']);
@@ -79,9 +78,7 @@ final class DecisionWalkedProcessTest extends TestCase {
 	public function testAnAdmissibleRequestWalksOn(): void {
 		$verdict = (new AdmissibilityVerdictService())->record(
 			$this->intakeStep(),
-			AdmissibilityVerdictService::ONTVANKELIJK,
-			'',
-			'j.jansen'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::ONTVANKELIJK, ground: '', decidedBy: 'j.jansen')
 		);
 
 		self::assertNull($verdict['routeOutcome']);
@@ -101,9 +98,7 @@ final class DecisionWalkedProcessTest extends TestCase {
 
 		(new AdmissibilityVerdictService())->record(
 			$this->intakeStep(),
-			AdmissibilityVerdictService::NIET_ONTVANKELIJK,
-			'   ',
-			'j.jansen'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::NIET_ONTVANKELIJK, ground: '   ', decidedBy: 'j.jansen')
 		);
 	}//end testAnInadmissibleVerdictWithNoGroundIsRefused()
 
@@ -119,9 +114,7 @@ final class DecisionWalkedProcessTest extends TestCase {
 
 		(new AdmissibilityVerdictService())->record(
 			['order' => 2, 'stepKind' => 'approval'],
-			AdmissibilityVerdictService::ONTVANKELIJK,
-			'',
-			'j.jansen'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::ONTVANKELIJK, ground: '', decidedBy: 'j.jansen')
 		);
 	}//end testAVerdictOnAnApprovalStepIsRefused()
 
