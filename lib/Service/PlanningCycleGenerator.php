@@ -64,16 +64,7 @@ class PlanningCycleGenerator {
 	public function stepsFor(string $cycleId, int $year, array $template): array {
 		$steps = [];
 		foreach (array_values((array)($template['steps'] ?? [])) as $index => $templateStep) {
-			if (is_array($templateStep) === false) {
-				continue;
-			}
-
-			$stepType = trim((string)($templateStep['stepType'] ?? ''));
-			$label = trim((string)($templateStep['label'] ?? ''));
-			if ($label === '') {
-				$label = $stepType;
-			}
-
+			$label = self::labelOf(templateStep: $templateStep);
 			if ($label === '') {
 				continue;
 			}
@@ -85,27 +76,100 @@ class PlanningCycleGenerator {
 				'status' => 'planned',
 				'concernsYear' => ($year + (int)($templateStep['subjectYearOffset'] ?? 0)),
 			];
-			if ($stepType !== '') {
-				$step['stepType'] = $stepType;
-			}
-
-			foreach (self::DATE_FIELDS as $field) {
-				$date = $this->resolveDate(monthDay: $templateStep[$field] ?? null, year: $year);
-				if ($date !== null) {
-					$step[$field] = $date;
-				}
-			}
-
-			$slots = $this->documentSlots(slots: $templateStep['documentSlots'] ?? null);
-			if ($slots !== []) {
-				$step['documentSlots'] = $slots;
-			}
-
-			$steps[] = $step;
-		}//end foreach
+			$steps[] = $step + $this->detailsOf(templateStep: $templateStep, year: $year);
+		}
 
 		return $steps;
 	}//end stepsFor()
+
+	/**
+	 * A template step's label, its step type when it has none; empty for an
+	 * entry that is not a step or names neither.
+	 *
+	 * @param mixed $templateStep One template entry
+	 *
+	 * @return string The label, or '' to skip the entry
+	 */
+	private static function labelOf(mixed $templateStep): string {
+		if (is_array($templateStep) === false) {
+			return '';
+		}
+
+		$label = trim((string)($templateStep['label'] ?? ''));
+		if ($label === '') {
+			return trim((string)($templateStep['stepType'] ?? ''));
+		}
+
+		return $label;
+	}//end labelOf()
+
+	/**
+	 * What a step carries beyond its place in the cycle: its type, its dates
+	 * and its document slots, each only when the template gives one.
+	 *
+	 * @param array<string, mixed> $templateStep The template step
+	 * @param int                  $year         The cycle year
+	 *
+	 * @return array<string, mixed> The extra fields, in payload order
+	 */
+	private function detailsOf(array $templateStep, int $year): array {
+		return self::stepTypeOf(templateStep: $templateStep)
+			+ $this->datesOf(templateStep: $templateStep, year: $year)
+			+ $this->slotsOf(templateStep: $templateStep);
+	}//end detailsOf()
+
+	/**
+	 * The step type a step carries, when the template names one.
+	 *
+	 * @param array<string, mixed> $templateStep The template step
+	 *
+	 * @return array<string, string> ['stepType' => …], or nothing
+	 */
+	private static function stepTypeOf(array $templateStep): array {
+		$stepType = trim((string)($templateStep['stepType'] ?? ''));
+		if ($stepType === '') {
+			return [];
+		}
+
+		return ['stepType' => $stepType];
+	}//end stepTypeOf()
+
+	/**
+	 * The template's MM-DD defaults resolved in the cycle year, in field
+	 * order; a missing, unreadable or impossible date is left out.
+	 *
+	 * @param array<string, mixed> $templateStep The template step
+	 * @param int                  $year         The cycle year
+	 *
+	 * @return array<string, string> Date field => YYYY-MM-DD
+	 */
+	private function datesOf(array $templateStep, int $year): array {
+		$dates = [];
+		foreach (self::DATE_FIELDS as $field) {
+			$date = $this->resolveDate(monthDay: $templateStep[$field] ?? null, year: $year);
+			if ($date !== null) {
+				$dates[$field] = $date;
+			}
+		}
+
+		return $dates;
+	}//end datesOf()
+
+	/**
+	 * The step's document slots, when it declares any.
+	 *
+	 * @param array<string, mixed> $templateStep The template step
+	 *
+	 * @return array<string, array<int, array{name: string, required: bool}>> ['documentSlots' => …], or nothing
+	 */
+	private function slotsOf(array $templateStep): array {
+		$slots = $this->documentSlots(slots: $templateStep['documentSlots'] ?? null);
+		if ($slots === []) {
+			return [];
+		}
+
+		return ['documentSlots' => $slots];
+	}//end slotsOf()
 
 	/**
 	 * A MM-DD default as a date in the year, or null when absent or not a day.
