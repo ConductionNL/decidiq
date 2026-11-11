@@ -203,16 +203,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @return string|null
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidiq');
-		$this->objectService->setSchema('participant');
-		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
-
-		foreach ($entities as $participantEntity) {
-			$participant = $participantEntity->jsonSerialize();
-			return ($participant['uuid'] ?? $participant['id'] ?? null);
-		}
-
-		return null;
+		return (new ParticipantUuidLookup(objectService: $this->objectService))->forNextcloudUser(nextcloudUid: $nextcloudUid);
 	}//end resolveParticipantUuid()
 
 	/**
