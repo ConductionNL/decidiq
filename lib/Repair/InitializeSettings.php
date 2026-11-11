@@ -83,6 +83,31 @@ class InitializeSettings implements IRepairStep {
 	public function run(IOutput $output): void {
 		$output->info('Initializing Decidiq configuration...');
 
+		$this->ensureVoterTokenSecret(output: $output);
+
+		if ($this->settingsService->isOpenRegisterAvailable() === false) {
+			$output->warning(
+				'OpenRegister is not installed or enabled. Skipping auto-configuration.'
+			);
+			$this->logger->warning(
+				'Decidiq: OpenRegister not available, skipping register initialization'
+			);
+			return;
+		}
+
+		$this->importConfiguration(output: $output);
+	}//end run()
+
+	/**
+	 * Make sure the voter token secret exists, and is flagged sensitive.
+	 *
+	 * @param IOutput $output The output interface for progress reporting
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	private function ensureVoterTokenSecret(IOutput $output): void {
 		// Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
 		// to prevent a concurrent first-call race in VotingService::voterTokenSecret().
 		//
@@ -119,17 +144,18 @@ class InitializeSettings implements IRepairStep {
 				$output->warning('Could not flag voter_token_secret as sensitive: ' . $e->getMessage());
 			}
 		}
+	}//end ensureVoterTokenSecret()
 
-		if ($this->settingsService->isOpenRegisterAvailable() === false) {
-			$output->warning(
-				'OpenRegister is not installed or enabled. Skipping auto-configuration.'
-			);
-			$this->logger->warning(
-				'Decidiq: OpenRegister not available, skipping register initialization'
-			);
-			return;
-		}
-
+	/**
+	 * Import the register configuration and report how that went.
+	 *
+	 * @param IOutput $output The output interface for progress reporting
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+	 */
+	private function importConfiguration(IOutput $output): void {
 		try {
 			$result = $this->settingsService->loadConfiguration();
 
@@ -152,5 +178,5 @@ class InitializeSettings implements IRepairStep {
 				['exception' => $e->getMessage()]
 			);
 		}//end try
-	}//end run()
+	}//end importConfiguration()
 }//end class
