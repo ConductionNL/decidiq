@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\ActorResolution;
 use OCA\Decidiq\Service\ApprovalActorResolver;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
@@ -94,14 +95,14 @@ final class ApprovalActorResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheManagerOfTheNamedPersonIsResolved(): void {
-		$resolved = $this->resolver->resolve(
+		$resolved = $this->resolver->resolve(resolution: self::resolution(
 			step: [
 				'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 				'actorRuleSubject' => 'j.jansen',
 			],
 			people: $this->people(),
 			resolvedAt: '2026-09-18T09:00:00+00:00',
-		);
+		));
 
 		$this->assertSame('d.devries', $resolved['actor']);
 		$this->assertSame(ApprovalActorResolver::RULE_MANAGER_OF_ACTOR, $resolved['actorResolvedBy']);
@@ -115,11 +116,11 @@ final class ApprovalActorResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheSubjectOwnersManagerIsResolved(): void {
-		$resolved = $this->resolver->resolve(
+		$resolved = $this->resolver->resolve(resolution: self::resolution(
 			step: ['actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_SUBJECT_OWNER],
 			people: $this->people(),
 			subjectOwner: 'd.devries',
-		);
+		));
 
 		$this->assertSame('b.bakker', $resolved['actor']);
 	}//end testTheSubjectOwnersManagerIsResolved()
@@ -133,18 +134,18 @@ final class ApprovalActorResolverTest extends TestCase {
 	 * @return void
 	 */
 	public function testAChangedRecordAnswersTheNewManager(): void {
-		$before = $this->resolver->resolve(
+		$before = $this->resolver->resolve(resolution: self::resolution(
 			step: ['actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_SUBJECT_OWNER],
 			people: $this->people(),
 			subjectOwner: 'j.jansen',
-		);
+		));
 		$this->assertSame('d.devries', $before['actor']);
 
-		$after = $this->resolver->resolve(
+		$after = $this->resolver->resolve(resolution: self::resolution(
 			step: ['actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_SUBJECT_OWNER],
 			people: [['id' => 'j.jansen', 'manager' => 'n.nieuwenhuis']],
 			subjectOwner: 'j.jansen',
-		);
+		));
 
 		$this->assertSame('n.nieuwenhuis', $after['actor']);
 	}//end testAChangedRecordAnswersTheNewManager()
@@ -158,11 +159,11 @@ final class ApprovalActorResolverTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('no readable organisation record implements the person kind');
 
-		$this->resolver->resolve(
+		$this->resolver->resolve(resolution: self::resolution(
 			step: ['actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_SUBJECT_OWNER],
 			people: [],
 			subjectOwner: 'j.jansen',
-		);
+		));
 	}//end testNoPersonRecordRefusesAndNamesTheRule()
 
 	/**
@@ -172,13 +173,13 @@ final class ApprovalActorResolverTest extends TestCase {
 	 */
 	public function testTwoCandidatesRefuseAndNameBoth(): void {
 		try {
-			$this->resolver->resolve(
+			$this->resolver->resolve(resolution: self::resolution(
 				step: [
 					'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 					'actorRuleSubject' => 'k.kok',
 				],
 				people: $this->people(),
-			);
+			));
 			$this->fail('Two candidate managers should have been refused.');
 		} catch (RuntimeException $e) {
 			$this->assertStringContainsString('a.aarts', $e->getMessage());
@@ -195,14 +196,14 @@ final class ApprovalActorResolverTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('has no account on this instance');
 
-		$this->resolver->resolve(
+		$this->resolver->resolve(resolution: self::resolution(
 			step: [
 				'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 				'actorRuleSubject' => 'j.jansen',
 			],
 			people: $this->people(),
 			hasAccount: static fn (string $uid): bool => false,
-		);
+		));
 	}//end testAResolvedPersonWithNoAccountIsRefused()
 
 	/**
@@ -214,13 +215,13 @@ final class ApprovalActorResolverTest extends TestCase {
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('resolved to nobody');
 
-		$this->resolver->resolve(
+		$this->resolver->resolve(resolution: self::resolution(
 			step: [
 				'actorRule' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR,
 				'actorRuleSubject' => 'm.mulder',
 			],
 			people: $this->people(),
-		);
+		));
 	}//end testNoManagerOnRecordRefuses()
 
 	/**
@@ -248,4 +249,23 @@ final class ApprovalActorResolverTest extends TestCase {
 		$this->assertStringNotContainsString('IClientService', $source);
 		$this->assertDoesNotMatchRegularExpression('/OCA\\\\(?!Decidiq)[A-Za-z]+\\\\/', $source);
 	}//end testTheResolverReachesIntoNoSiblingApp()
+
+	/**
+	 * A resolution with every field set.
+	 *
+	 * @param array<string, mixed>     $step         The step.
+	 * @param array<int, mixed>        $people       The people.
+	 * @param string                   $subjectOwner The subject's owner.
+	 * @param (\Closure(string): bool)|null $hasAccount   The account check.
+	 * @param string                   $resolvedAt   The instant.
+	 *
+	 * @return ActorResolution The resolution.
+	 */
+	private static function resolution(array $step, array $people, string $subjectOwner = '', ?\Closure $hasAccount = null, string $resolvedAt = ''): ActorResolution {
+		$resolution = new ActorResolution(step: $step, people: $people);
+		$resolution->subjectOwner = $subjectOwner;
+		$resolution->hasAccount = $hasAccount;
+		$resolution->resolvedAt = $resolvedAt;
+		return $resolution;
+	}//end resolution()
 }//end class

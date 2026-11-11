@@ -110,7 +110,7 @@ final class ApprovalActorResolver {
 	 */
 	public function assertStepIsResolvable(array $step): void {
 		$actor = trim((string)($step['actor'] ?? ''));
-		$rule = trim((string)($step['actorRule'] ?? ''));
+		$rule = self::ruleOf(step: $step);
 
 		if ($actor !== '' && $rule !== '') {
 			// Two answers to the same question, and whichever the engine reads
@@ -120,30 +120,15 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		if ($rule !== '' && in_array($rule, self::RULES, true) === false) {
-			throw new RuntimeException(
-				sprintf('Unknown actor rule "%s"; expected one of %s.', $rule, implode(', ', self::RULES))
-			);
-		}
-
-		if (in_array($rule, self::RULES_NEEDING_A_SUBJECT, true) === true
-			&& trim((string)($step['actorRuleSubject'] ?? '')) === ''
-		) {
-			throw new RuntimeException(
-				sprintf('The rule "%s" has to say whose manager or substitute it means.', $rule)
-			);
-		}
+		self::assertKnownRule(rule: $rule);
+		self::assertRuleNamesItsSubject(step: $step, rule: $rule);
 	}//end assertStepIsResolvable()
 
 	/**
 	 * Resolve a step's rule to one person, at the moment the stage becomes
 	 * active.
 	 *
-	 * @param array<string, mixed> $step The step.
-	 * @param array<int, array<string, mixed>> $people The person records readable from the organisation register.
-	 * @param string $subjectOwner Who owns the subject, for the rule that reads it.
-	 * @param callable(string): bool $hasAccount Whether a person id has an account on this instance.
-	 * @param string $resolvedAt When, as an ISO-8601 instant; now when empty.
+	 * @param ActorResolution $resolution The step, the organisation records and what the rule may need besides.
 	 *
 	 * @return array{actor: string, actorResolvedBy: string, actorResolvedAt: string} The resolved actor and its provenance.
 	 *
@@ -151,21 +136,105 @@ final class ApprovalActorResolver {
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-013)
 	 */
-	public function resolve(
-		array $step,
-		array $people,
-		string $subjectOwner = '',
-		?callable $hasAccount = null,
-		string $resolvedAt = '',
-	): array {
-		$this->assertStepIsResolvable(step: $step);
+	public function resolve(ActorResolution $resolution): array {
+		$this->assertStepIsResolvable(step: $resolution->step);
+		$rule = self::ruleToResolve(resolution: $resolution);
+		$reading = $this->readingFor(resolution: $resolution, rule: $rule);
+		$resolved = $this->signableCandidate(resolution: $resolution, reading: $reading);
 
-		$rule = trim((string)($step['actorRule'] ?? ''));
+		return [
+			'actor' => $resolved,
+			'actorResolvedBy' => $rule,
+			'actorResolvedAt' => self::instantOr(resolvedAt: $resolution->resolvedAt),
+		];
+	}//end resolve()
+
+	/**
+	 * The one person a rule resolves to, once they are known to have an account.
+	 *
+	 * @param ActorResolution  $resolution The resolution, carrying the people and the account check.
+	 * @param ActorRuleReading $reading    The reading.
+	 *
+	 * @return string The resolved person.
+	 *
+	 * @throws RuntimeException When the rule resolves to nobody, to more than one, or to somebody with no account.
+	 */
+	private function signableCandidate(ActorResolution $resolution, ActorRuleReading $reading): string {
+		$resolved = $this->soleCandidate(people: $resolution->people, reading: $reading);
+
+		if ($resolution->hasAccount !== null && ($resolution->hasAccount)($resolved) === false) {
+			throw new RuntimeException(
+				sprintf('The rule "%s" resolved to %s, who has no account on this instance and cannot sign anything.', $reading->rule, $resolved)
+			);
+		}
+
+		return $resolved;
+	}//end signableCandidate()
+
+	/**
+	 * The rule a step names, trimmed; empty when it names none.
+	 *
+	 * @param array<string, mixed> $step The step.
+	 *
+	 * @return string The rule.
+	 */
+	private static function ruleOf(array $step): string {
+		return trim((string)($step['actorRule'] ?? ''));
+	}//end ruleOf()
+
+	/**
+	 * Refuse a rule that is not one of the known rules.
+	 *
+	 * @param string $rule The rule, empty when the step names none.
+	 *
+	 * @return void
+	 *
+	 * @throws RuntimeException When the rule is unknown.
+	 */
+	private static function assertKnownRule(string $rule): void {
+		if ($rule !== '' && in_array($rule, self::RULES, true) === false) {
+			throw new RuntimeException(
+				sprintf('Unknown actor rule "%s"; expected one of %s.', $rule, implode(', ', self::RULES))
+			);
+		}
+	}//end assertKnownRule()
+
+	/**
+	 * Refuse a rule that reads a named person when the step names nobody.
+	 *
+	 * @param array<string, mixed> $step The step.
+	 * @param string               $rule The rule it names.
+	 *
+	 * @return void
+	 *
+	 * @throws RuntimeException When the subject is missing.
+	 */
+	private static function assertRuleNamesItsSubject(array $step, string $rule): void {
+		if (in_array($rule, self::RULES_NEEDING_A_SUBJECT, true) === true
+			&& trim((string)($step['actorRuleSubject'] ?? '')) === ''
+		) {
+			throw new RuntimeException(
+				sprintf('The rule "%s" has to say whose manager or substitute it means.', $rule)
+			);
+		}
+	}//end assertRuleNamesItsSubject()
+
+	/**
+	 * The rule to resolve, once there is a rule and there are people to read it against.
+	 *
+	 * @param ActorResolution $resolution The resolution.
+	 *
+	 * @return string The rule.
+	 *
+	 * @throws RuntimeException When the step names a person, or no person record is readable.
+	 */
+	private static function ruleToResolve(ActorResolution $resolution): string {
+		$rule = self::ruleOf(step: $resolution->step);
 		if ($rule === '') {
 			throw new RuntimeException('This step names a person, not a rule; there is nothing to resolve.');
 		}
 
-		if ($people === []) {
+		if ($resolution->people === []) {
 			// No installed schema implements the person kind. Refusing here is
 			// the difference between "we could not find the manager" and "we
 			// asked somebody else instead".
@@ -177,48 +246,38 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		$readAgainst = $this->readAgainstFor(step: $step, rule: $rule, subjectOwner: $subjectOwner);
-		$property = $this->propertyFor(rule: $rule);
-		$resolved = $this->soleCandidate(
-			people: $people,
-			readAgainst: $readAgainst,
-			property: $property,
-			rule: $rule,
-		);
-
-		if ($hasAccount !== null && $hasAccount($resolved) === false) {
-			throw new RuntimeException(
-				sprintf('The rule "%s" resolved to %s, who has no account on this instance and cannot sign anything.', $rule, $resolved)
-			);
-		}
-
-		$resolvedWhen = $resolvedAt;
-		if ($resolvedWhen === '') {
-			$resolvedWhen = (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
-		}
-
-		return [
-			'actor' => $resolved,
-			'actorResolvedBy' => $rule,
-			'actorResolvedAt' => $resolvedWhen,
-		];
-	}//end resolve()
+		return $rule;
+	}//end ruleToResolve()
 
 	/**
-	 * The person the rule is read against.
+	 * The instant a resolution is stamped with: the given one, or now.
 	 *
-	 * @param array<string, mixed> $step The step carrying the rule.
-	 * @param string $rule The rule being resolved.
-	 * @param string $subjectOwner The subject's owner, for the rule that reads it.
+	 * @param string $resolvedAt The given instant, empty for now.
 	 *
-	 * @return string The person to read the organisation record against.
+	 * @return string The instant, as ISO-8601.
+	 */
+	private static function instantOr(string $resolvedAt): string {
+		if ($resolvedAt === '') {
+			return (new DateTimeImmutable())->format(DateTimeImmutable::ATOM);
+		}
+
+		return $resolvedAt;
+	}//end instantOr()
+
+	/**
+	 * The person the rule is read against, and the reference it reads.
+	 *
+	 * @param ActorResolution $resolution The resolution, carrying the step and the subject's owner.
+	 * @param string          $rule       The rule being resolved.
+	 *
+	 * @return ActorRuleReading The reading.
 	 *
 	 * @throws RuntimeException When there is nobody to read against.
 	 */
-	private function readAgainstFor(array $step, string $rule, string $subjectOwner): string {
-		$readAgainst = trim((string)($step['actorRuleSubject'] ?? ''));
+	private function readingFor(ActorResolution $resolution, string $rule): ActorRuleReading {
+		$readAgainst = trim((string)($resolution->step['actorRuleSubject'] ?? ''));
 		if ($rule === self::RULE_MANAGER_OF_SUBJECT_OWNER) {
-			$readAgainst = trim($subjectOwner);
+			$readAgainst = trim($resolution->subjectOwner);
 		}
 
 		if ($readAgainst === '') {
@@ -227,8 +286,11 @@ final class ApprovalActorResolver {
 			);
 		}
 
-		return $readAgainst;
-	}//end readAgainstFor()
+		$reading = new ActorRuleReading(rule: $rule, person: $readAgainst);
+		$reading->property = $this->propertyFor(rule: $rule);
+
+		return $reading;
+	}//end readingFor()
 
 	/**
 	 * The organisation-record property a rule reads.
@@ -248,39 +310,49 @@ final class ApprovalActorResolver {
 	/**
 	 * The one person a rule resolves to, or a refusal.
 	 *
-	 * @param array<int, mixed> $people The organisation records.
-	 * @param string $readAgainst The person the rule is read against.
-	 * @param string $property The property the rule reads.
-	 * @param string $rule The rule being resolved, for the refusals.
+	 * @param array<int, mixed> $people  The organisation records.
+	 * @param ActorRuleReading  $reading The rule, the person it is read against and the property it reads.
 	 *
 	 * @return string The resolved person.
 	 *
 	 * @throws RuntimeException When the rule resolves to nobody, or to more than one.
 	 */
-	private function soleCandidate(array $people, string $readAgainst, string $property, string $rule): string {
-		$candidates = $this->candidatesFor(people: $people, person: $readAgainst, property: $property);
+	private function soleCandidate(array $people, ActorRuleReading $reading): string {
+		$candidates = $this->candidatesFor(people: $people, reading: $reading);
 
 		if ($candidates === []) {
 			throw new RuntimeException(
-				sprintf('The rule "%s" resolved to nobody for %s; the organisation record names no %s.', $rule, $readAgainst, $property)
+				sprintf('The rule "%s" resolved to nobody for %s; the organisation record names no %s.', $reading->rule, $reading->person, $reading->property)
 			);
 		}
 
 		if (count($candidates) > 1) {
 			// Picking the first of two is picking at random, and the random
 			// choice is then recorded as a deliberate one.
-			throw new RuntimeException(
-				sprintf(
-					'The rule "%s" resolved to more than one person for %s: %s. The organisation record has to say which.',
-					$rule,
-					$readAgainst,
-					implode(' and ', $candidates)
-				)
-			);
+			throw self::ambiguity(reading: $reading, candidates: $candidates);
 		}
 
 		return $candidates[0];
 	}//end soleCandidate()
+
+	/**
+	 * The refusal for a rule that resolves to more than one person.
+	 *
+	 * @param ActorRuleReading   $reading    The reading.
+	 * @param array<int, string> $candidates Everybody it resolved to.
+	 *
+	 * @return RuntimeException The refusal, naming them all.
+	 */
+	private static function ambiguity(ActorRuleReading $reading, array $candidates): RuntimeException {
+		return new RuntimeException(
+			sprintf(
+				'The rule "%s" resolved to more than one person for %s: %s. The organisation record has to say which.',
+				$reading->rule,
+				$reading->person,
+				implode(' and ', $candidates)
+			)
+		);
+	}//end ambiguity()
 
 	/**
 	 * Resolve the substitute of a person, returning null rather than throwing.
@@ -297,7 +369,9 @@ final class ApprovalActorResolver {
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-016)
 	 */
 	public function substituteOf(array $people, string $person): ?string {
-		$candidates = $this->candidatesFor(people: $people, person: $person, property: 'substitute');
+		$reading = new ActorRuleReading(rule: self::RULE_SUBSTITUTE_OF_ACTOR, person: $person);
+		$reading->property = 'substitute';
+		$candidates = $this->candidatesFor(people: $people, reading: $reading);
 
 		// More than one is as unusable as none: there is no basis to pick.
 		if (count($candidates) === 1) {
@@ -310,33 +384,45 @@ final class ApprovalActorResolver {
 	/**
 	 * Who the organisation record names as this person's manager or substitute.
 	 *
-	 * @param array<int, array<string, mixed>> $people The person records.
-	 * @param string $person The person to read.
-	 * @param string $property Which reference to read.
+	 * @param array<int, array<string, mixed>> $people  The person records.
+	 * @param ActorRuleReading                 $reading The person to read and which reference to read.
 	 *
 	 * @return array<int, string> The candidates, without duplicates.
 	 */
-	private function candidatesFor(array $people, string $person, string $property): array {
+	private function candidatesFor(array $people, ActorRuleReading $reading): array {
 		$candidates = [];
 
 		foreach ($people as $record) {
-			if (is_array($record) === false) {
+			if (is_array($record) === false || $this->identifies(record: $record, person: $reading->person) === false) {
 				continue;
 			}
 
-			if ($this->identifies(record: $record, person: $person) === false) {
-				continue;
-			}
-
-			foreach ($this->referencesOf(record: $record, property: $property) as $reference) {
-				if ($reference !== '' && in_array($reference, $candidates, true) === false) {
-					$candidates[] = $reference;
-				}
-			}
+			$candidates = self::withoutDuplicates(
+				candidates: $candidates,
+				references: $this->referencesOf(record: $record, property: $reading->property)
+			);
 		}
 
 		return $candidates;
 	}//end candidatesFor()
+
+	/**
+	 * The candidates so far, followed by the references not yet among them.
+	 *
+	 * @param array<int, string> $candidates The candidates so far.
+	 * @param array<int, string> $references One record's references, in order.
+	 *
+	 * @return array<int, string> The candidates, first occurrence kept.
+	 */
+	private static function withoutDuplicates(array $candidates, array $references): array {
+		foreach ($references as $reference) {
+			if (in_array($reference, $candidates, true) === false) {
+				$candidates[] = $reference;
+			}
+		}
+
+		return $candidates;
+	}//end withoutDuplicates()
 
 	/**
 	 * Whether a person record is the person being read.
@@ -363,30 +449,24 @@ final class ApprovalActorResolver {
 	 * @param array<string, mixed> $record The record.
 	 * @param string $property The property.
 	 *
-	 * @return array<int, string> The references.
+	 * @return array<int, string> The non-empty string references, in order.
 	 */
 	private function referencesOf(array $record, string $property): array {
 		$value = ($record[$property] ?? null);
 
 		if (is_string($value) === true) {
-			if ($value === '') {
-				return [];
-			}
-
-			return [$value];
+			$value = [$value];
 		}
 
 		if (is_array($value) === false) {
 			return [];
 		}
 
-		$references = [];
-		foreach ($value as $entry) {
-			if (is_string($entry) === true && $entry !== '') {
-				$references[] = $entry;
-			}
-		}
-
-		return $references;
+		return array_values(
+			array_filter(
+				$value,
+				static fn (mixed $entry): bool => is_string($entry) === true && $entry !== ''
+			)
+		);
 	}//end referencesOf()
 }//end class
