@@ -47,6 +47,7 @@ use OCA\Decidiq\Listener\RegisterApprovalChainLeafListener;
 use OCA\Decidiq\Listener\RegisterDecisionsLeafListener;
 use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
+use OCA\OpenRegister\Service\Integration\LeafRendering;
 use OCP\IL10N;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -186,7 +187,7 @@ class LeafLoadStrategyCapabilityTest extends TestCase {
 			'The LeafDescriptor beside this suite predates openregister#3956: it has no LOADS_VIA_OWN_SCRIPT.'
 		);
 
-		$constructor = (new ReflectionClass(LeafDescriptor::class))->getConstructor();
+		$constructor = (new ReflectionClass(LeafRendering::class))->getConstructor();
 		$this->assertNotNull($constructor);
 
 		$parameters = array_map(
@@ -197,7 +198,7 @@ class LeafLoadStrategyCapabilityTest extends TestCase {
 		$this->assertContains(
 			'loadStrategy',
 			$parameters,
-			'The LeafDescriptor beside this suite carries the constant but not the parameter. '
+			'The LeafRendering beside this suite carries no loadStrategy parameter. '
 				. 'That is the partial-backport case, and passing the argument to it throws '
 				. '"Unknown named parameter $loadStrategy".'
 		);
