@@ -669,28 +669,6 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
 	 */
 	private function toArray(mixed $entity): ?array {
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-
-			return null;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		return null;
+		return (new MigratedObjectNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class
