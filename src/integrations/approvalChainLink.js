@@ -189,8 +189,18 @@ export function isOverdue(stage, now) {
  */
 export function stagePolicyLines(stage) {
 	if (!stage) return []
-	const lines = []
-	const rule = String(stage.actorRule || '')
+	return [actorRuleLine(stage), silenceLine(stage), substituteLine(stage)].filter(
+		Boolean,
+	)
+}
+
+/**
+ * The line naming the step's actor rule, or '' for a step without one.
+ *
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function actorRuleLine(stage) {
 	const rules = {
 		'manager-of-actor': t(
 			'decidiq',
@@ -205,8 +215,16 @@ export function stagePolicyLines(stage) {
 			'Asked of the substitute of the person who acts',
 		),
 	}
-	if (rules[rule]) lines.push(rules[rule])
+	return rules[String(stage.actorRule || '')] || ''
+}
 
+/**
+ * The line saying what the step's silence means, or '' when it holds.
+ *
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function silenceLine(stage) {
 	const silence = {
 		approve: t(
 			'decidiq',
@@ -215,22 +233,26 @@ export function stagePolicyLines(stage) {
 		refuse: t('decidiq', 'Refuses on its own if nobody answers by the deadline'),
 		escalate: t('decidiq', 'Goes up a level if nobody answers by the deadline'),
 	}
-	const onSilence = String(stage.onSilence || '')
-	if (silence[onSilence]) lines.push(silence[onSilence])
+	return silence[String(stage.onSilence || '')] || ''
+}
 
+/**
+ * The line saying when the substitute is asked too, or '' when the ask point
+ * is not inside the term.
+ *
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function substituteLine(stage) {
 	const after = Number(stage.askSubstituteAfter)
-	if (Number.isFinite(after) && after > 0 && after <= 1) {
-		lines.push(
-			t(
-				'decidiq',
-				'The substitute is also asked after {percent}% of the time',
-				{
-					percent: Math.round(after * 100),
-				},
-			),
-		)
-	}
-	return lines
+	if (!(Number.isFinite(after) && after > 0 && after <= 1)) return ''
+	return t(
+		'decidiq',
+		'The substitute is also asked after {percent}% of the time',
+		{
+			percent: Math.round(after * 100),
+		},
+	)
 }
 
 /**
@@ -421,18 +443,40 @@ export function mayActOnBehalf(stage, uid, mandates) {
  * @param {number} [params.askSubstituteAfter] When to ask the substitute too.
  * @return {Promise<object[]>} The stages.
  */
-export async function holdRoute({
-	subject,
-	subjectSchema,
-	actors,
-	deadline,
-	name,
-	askSubstituteAfter,
-}) {
-	const substitute =
+export async function holdRoute(params) {
+	const res = await axios.post(
+		generateUrl('/apps/decidiq/api/approval-routes/instantiate'),
+		heldRouteBody(params),
+	)
+	const data = (res && res.data) || {}
+	return Array.isArray(data.stages) ? data.stages : []
+}
+
+/**
+ * Whether an ask point is a fraction of the term the substitute can be asked at.
+ *
+ * @param {number|string|undefined} askSubstituteAfter The ask point.
+ * @return {boolean} True for a number above 0 and at most 1.
+ */
+function isAskPoint(askSubstituteAfter) {
+	return (
 		typeof askSubstituteAfter === 'number'
 		&& askSubstituteAfter > 0
 		&& askSubstituteAfter <= 1
+	)
+}
+
+/**
+ * The request body of a held route: one endorsement step per person, the
+ * deadline, and the ask point on every step and the route when it is one.
+ *
+ * @param {object} params The route (see holdRoute).
+ * @return {object} The body.
+ */
+function heldRouteBody(params) {
+	const { subject, subjectSchema, actors, deadline, name, askSubstituteAfter } =
+		params
+	const substitute = isAskPoint(askSubstituteAfter)
 	const body = {
 		subject,
 		subjectSchema,
@@ -452,12 +496,7 @@ export async function holdRoute({
 	if (substitute) {
 		body.askSubstituteAfter = askSubstituteAfter
 	}
-	const res = await axios.post(
-		generateUrl('/apps/decidiq/api/approval-routes/instantiate'),
-		body,
-	)
-	const data = (res && res.data) || {}
-	return Array.isArray(data.stages) ? data.stages : []
+	return body
 }
 
 /**
