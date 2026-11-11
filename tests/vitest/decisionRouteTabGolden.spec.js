@@ -131,16 +131,14 @@ describe('DecisionRouteTab golden runs', () => {
 				{ decisionDate: '2025-01-01' },
 				{ enactedAt: '' },
 			]) {
-				notices.push(
-					notice.call({
-						...vm,
-						formatDate: (value) => `date(${value})`,
-						t: (_app, text, vars = {}) =>
-							text.replace(/\{(\w+)\}/g, (_m, key) => `<${vars[key]}>`),
-						effectiveStatus,
-						effectingDecision,
-					}),
-				)
+				Object.assign(vm, {
+					formatDate: (value) => `date(${value})`,
+					t: (_app, text, vars = {}) =>
+						text.replace(/\{(\w+)\}/g, (_m, key) => `<${vars[key]}>`),
+					effectiveStatus,
+					effectingDecision,
+				})
+				notices.push(notice.call(vm))
 			}
 		}
 		expect({ names, notices }).toMatchSnapshot()
