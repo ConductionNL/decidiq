@@ -83,15 +83,7 @@ class BudgetVotingService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**
