@@ -91,6 +91,41 @@ import {
 import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
+/**
+ * The headers of a JSON request to decidiq or Talk, with the CSRF token.
+ *
+ * @return {object} The headers.
+ */
+function talkHeaders() {
+	return {
+		'Content-Type': 'application/json',
+		Accept: 'application/json',
+		'OCS-APIRequest': 'true',
+		requesttoken: OC.requestToken,
+	}
+}
+
+/**
+ * Why a request was refused: the server's message or error, else the status.
+ *
+ * @param {Response} response The refused response.
+ * @param {object} payload Its body.
+ * @return {string} The message.
+ */
+function refusalMessage(response, payload) {
+	return payload?.message || payload?.error || response.statusText
+}
+
+/**
+ * The governance body a meeting belongs to, by id or reference.
+ *
+ * @param {object|null} meeting The meeting.
+ * @return {string} The body id, or ''.
+ */
+function meetingBodyId(meeting) {
+	return meeting?.governanceBody?.id || meeting?.governanceBody || ''
+}
+
 export default {
 	name: 'MeetingVideoCallTab',
 	components: { CnNoteCard, NcButton, NcTextField, VideoIcon },
@@ -142,20 +177,10 @@ export default {
 		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 		 */
 		async request(url, options = {}) {
-			const response = await fetch(url, {
-				...options,
-				headers: {
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-					'OCS-APIRequest': 'true',
-					requesttoken: OC.requestToken,
-				},
-			})
+			const response = await fetch(url, { ...options, headers: talkHeaders() })
 			const payload = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(
-					payload?.message || payload?.error || response.statusText,
-				)
+				throw new Error(refusalMessage(response, payload))
 			}
 			return payload
 		},
@@ -215,21 +240,8 @@ export default {
 			this.busy = true
 			this.error = ''
 			try {
-				const link = await this.request(
-					generateUrl(`${talkLinksPath(String(this.objectId))}/new`),
-					{
-						method: 'POST',
-						body: JSON.stringify({
-							roomName:
-								this.meeting?.title || this.t('decidiq', 'Meeting'),
-							roomType: 2,
-						}),
-					},
-				)
-				const token = roomToken([link?.link || link])
-				if (token) {
-					await this.inviteMembers(token)
-				}
+				const token = await this.newRoomToken()
+				if (token) await this.inviteMembers(token)
 				await this.loadRoom()
 			} catch (e) {
 				this.error =
@@ -241,35 +253,60 @@ export default {
 		},
 
 		/**
+		 * Create the Talk room linked to the meeting, named after it.
+		 *
+		 * @return {Promise<string>} The new room's token, or ''.
+		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+		 */
+		async newRoomToken() {
+			const link = await this.request(
+				generateUrl(`${talkLinksPath(String(this.objectId))}/new`),
+				{
+					method: 'POST',
+					body: JSON.stringify({
+						roomName: this.meeting?.title || this.t('decidiq', 'Meeting'),
+						roomType: 2,
+					}),
+				},
+			)
+			return roomToken([link?.link || link])
+		},
+
+		/**
 		 * @param {string} token The room token
 		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
 		 */
 		async inviteMembers(token) {
-			const bodyId =
-				this.meeting?.governanceBody?.id
-				|| this.meeting?.governanceBody
-				|| ''
+			const bodyId = meetingBodyId(this.meeting)
 			if (!bodyId) return
 			const participants = await ensureRelationType(
 				'participant',
 			).fetchCollection('participant', { _limit: 500 })
 			for (const uid of memberUids(participants, bodyId)) {
-				try {
-					await this.request(
-						generateOcsUrl(
-							`apps/spreed/api/v4/room/${token}/participants`,
-						),
-						{
-							method: 'POST',
-							body: JSON.stringify({
-								newParticipant: uid,
-								source: 'users',
-							}),
-						},
-					)
-				} catch {
-					// One member who cannot be added does not stop the others.
-				}
+				await this.addParticipant(token, uid)
+			}
+		},
+
+		/**
+		 * Add one member to the Talk room; one who cannot be added does not
+		 * stop the others.
+		 *
+		 * @param {string} token The room token
+		 * @param {string} uid The member's Nextcloud user id
+		 * @return {Promise<void>}
+		 * @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call
+		 */
+		async addParticipant(token, uid) {
+			try {
+				await this.request(
+					generateOcsUrl(`apps/spreed/api/v4/room/${token}/participants`),
+					{
+						method: 'POST',
+						body: JSON.stringify({ newParticipant: uid, source: 'users' }),
+					},
+				)
+			} catch {
+				// One member who cannot be added does not stop the others.
 			}
 		},
 
