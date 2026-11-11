@@ -47,6 +47,16 @@ class LogTranslationAdapter implements ITranslationAdapter {
 	 *
 	 * @var string[]
 	 */
+	/**
+	 * The message of an answer that returns the original text, by provider.
+	 *
+	 * @var array<string, string>
+	 */
+	private const UNTRANSLATED_MESSAGES = [
+		'noop' => 'Source and target locales are equal.',
+		'log' => 'No translation provider configured; original text returned.',
+	];
+
 	public const OPENCONNECTOR_SERVICES = [
 		'Service\\TranslationService',
 		'Service\\TranslationSourceService',
@@ -78,48 +88,19 @@ class LogTranslationAdapter implements ITranslationAdapter {
 	 */
 	public function translate(string $text, string $sourceLocale, string $targetLocale): array {
 		if ($sourceLocale === $targetLocale) {
-			return [
-				'success' => true,
-				'text' => $text,
-				'provider' => 'noop',
-				'message' => 'Source and target locales are equal.',
-			];
+			return self::untranslated(text: $text, provider: 'noop');
 		}
 
 		$delegate = $this->resolveOpenConnector();
 		if ($delegate !== null) {
-			try {
-				if (method_exists($delegate, 'translate') === true) {
-					/*
-					 * @var string|array<string, mixed> $result
-					 */
-
-					$result = $delegate->translate($text, $sourceLocale, $targetLocale);
-					if (is_array($result) === true && isset($result['text']) === true) {
-						return [
-							'success' => (bool)($result['success'] ?? true),
-							'text' => (string)$result['text'],
-							'provider' => 'openconnector',
-							'message' => (string)($result['message'] ?? 'Translated via openconnector.'),
-						];
-					}
-
-					if (is_string($result) === true && $result !== '') {
-						return [
-							'success' => true,
-							'text' => $result,
-							'provider' => 'openconnector',
-							'message' => 'Translated via openconnector.',
-						];
-					}
-				}//end if
-			} catch (\Throwable $e) {
-				$this->logger->warning(
-					'Decidiq: openconnector translation delegate failed; falling back to log adapter',
-					['exception' => $e->getMessage()]
-				);
-			}//end try
-		}//end if
+			$translated = $this->askDelegate(
+				delegate: $delegate,
+				call: static fn (object $service): mixed => $service->translate($text, $sourceLocale, $targetLocale)
+			);
+			if ($translated !== null) {
+				return $translated;
+			}
+		}
 
 		$this->logger->info(
 			'Decidiq: LogTranslationAdapter — translation requested (dormant default)',
@@ -130,14 +111,94 @@ class LogTranslationAdapter implements ITranslationAdapter {
 			]
 		);
 
+		return self::untranslated(text: $text, provider: 'log');
+
+	}//end translate()
+
+	/**
+	 * The answer that returns the original text: `noop` for equal locales,
+	 * `log` when no provider translated it.
+	 *
+	 * @param string $text     The source text
+	 * @param string $provider noop or log
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string} The answer.
+	 */
+	private static function untranslated(string $text, string $provider): array {
 		return [
 			'success' => true,
 			'text' => $text,
-			'provider' => 'log',
-			'message' => 'No translation provider configured; original text returned.',
+			'provider' => $provider,
+			'message' => self::UNTRANSLATED_MESSAGES[$provider],
 		];
+	}//end untranslated()
 
-	}//end translate()
+	/**
+	 * Ask the openconnector delegate to translate; null when it cannot, gives
+	 * no usable answer, or fails (logged, then the log adapter answers).
+	 *
+	 * @param object   $delegate The openconnector translation service
+	 * @param \Closure $call     Calls the delegate's translate() with the request
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string}|null The answer, or null.
+	 */
+	private function askDelegate(object $delegate, \Closure $call): ?array {
+		try {
+			if (method_exists($delegate, 'translate') === false) {
+				return null;
+			}
+
+			return self::delegateAnswer(result: $call($delegate));
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: openconnector translation delegate failed; falling back to log adapter',
+				['exception' => $e->getMessage()]
+			);
+			return null;
+		}//end try
+	}//end askDelegate()
+
+	/**
+	 * The adapter's answer for what the delegate returned: an array with text,
+	 * or a non-empty string; null for anything else.
+	 *
+	 * @param mixed $result The delegate's answer
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string}|null The answer, or null.
+	 */
+	private static function delegateAnswer(mixed $result): ?array {
+		if (is_array($result) === true && isset($result['text']) === true) {
+			return self::arrayAnswer(result: $result);
+		}
+
+		if (is_string($result) === true && $result !== '') {
+			return [
+				'success' => true,
+				'text' => $result,
+				'provider' => 'openconnector',
+				'message' => 'Translated via openconnector.',
+			];
+		}
+
+		return null;
+	}//end delegateAnswer()
+
+	/**
+	 * The adapter's answer for a delegate array that carries text, keeping the
+	 * delegate's own success flag and message when it gives them.
+	 *
+	 * @param array<string, mixed> $result The delegate's answer
+	 *
+	 * @return array{success: bool, text: string, provider: string, message: string} The answer.
+	 */
+	private static function arrayAnswer(array $result): array {
+		return [
+			'success' => (bool)($result['success'] ?? true),
+			'text' => (string)$result['text'],
+			'provider' => 'openconnector',
+			'message' => (string)($result['message'] ?? 'Translated via openconnector.'),
+		];
+	}//end arrayAnswer()
 
 	/**
 	 * Try to resolve an openconnector translation service from the DI container.
