@@ -1,0 +1,353 @@
+{
+    "label": "Council and participation",
+    "collections": [
+        {
+            "id": "citizenReactions",
+            "register": "decidiq",
+            "schema": "consultation-reaction",
+            "scopeField": "submitterId",
+            "label": "My consultation reactions",
+            "listable": true,
+            "minTrust": "low",
+            "fields": [
+                "body",
+                "submittedAt",
+                "moderationStatus",
+                "voteCount",
+                "proposalTitle",
+                "proposalAmount"
+            ]
+        },
+        {
+            "id": "citizenVotes",
+            "register": "decidiq",
+            "schema": "citizen-vote",
+            "scopeField": "voterId",
+            "label": "My votes",
+            "listable": true,
+            "minTrust": "low",
+            "fields": [
+                "voteValue",
+                "motionId",
+                "proposalId",
+                "citizenPanelId",
+                "weight",
+                "isProxy",
+                "castAt",
+                "notes"
+            ]
+        },
+        {
+            "id": "citizenBudgetProposals",
+            "register": "decidiq",
+            "schema": "budget-proposal",
+            "scopeField": "submitter",
+            "label": "My budget proposals",
+            "listable": true,
+            "minTrust": "low",
+            "fields": [
+                "title",
+                "description",
+                "requestedAmount",
+                "category",
+                "status",
+                "votesFor",
+                "votesAgainst"
+            ]
+        },
+        {
+            "id": "citizenNotifications",
+            "register": "decidiq",
+            "schema": "notification",
+            "scopeField": "recipientId",
+            "kind": "inbox",
+            "label": "My notifications",
+            "listable": true,
+            "minTrust": "low",
+            "fields": [
+                "type",
+                "subject",
+                "content",
+                "channel",
+                "status",
+                "sentAt",
+                "readAt"
+            ]
+        },
+        {
+            "id": "citizenSubscriptions",
+            "register": "decidiq",
+            "schema": "publication-subscription",
+            "scopeField": "subscriberRef",
+            "label": "My subscriptions",
+            "listable": true,
+            "minTrust": "low",
+            "fields": [
+                "governanceBodies",
+                "kinds",
+                "frequency",
+                "active",
+                "lastSentAt"
+            ]
+        },
+        {
+            "id": "publicCalendar",
+            "register": "decidiq",
+            "schema": "publication-payload",
+            "anonymous": true,
+            "label": "Council calendar",
+            "listable": true,
+            "fields": [
+                "title",
+                "bodyName",
+                "meetingDate",
+                "meetingType",
+                "location",
+                "audiences",
+                "oriType"
+            ],
+            "filter": {
+                "oriType": "Vergadering"
+            },
+            "defaultFilters": {
+                "oriType": "Vergadering"
+            },
+            "defaultSort": {
+                "field": "meetingDate",
+                "direction": "asc"
+            },
+            "fieldConfigs": {
+                "title": {
+                    "label": "Meeting"
+                },
+                "meetingDate": {
+                    "label": "Date"
+                },
+                "bodyName": {
+                    "label": "Body"
+                },
+                "meetingType": {
+                    "label": "Meeting type",
+                    "valueLabels": {
+                        "regular": "Regular meeting",
+                        "extraordinary": "Extraordinary meeting",
+                        "committee": "Committee meeting",
+                        "public hearing": "Public hearing",
+                        "general_assembly": "General assembly"
+                    }
+                },
+                "location": {
+                    "label": "Location"
+                },
+                "oriType": {
+                    "label": "Kind",
+                    "valueLabels": {
+                        "Vergadering": "Meeting",
+                        "Besluit": "Decision",
+                        "Verslag": "Minutes"
+                    }
+                }
+            },
+            "columns": [
+                {
+                    "field": "meetingDate",
+                    "render": "datetime"
+                },
+                {
+                    "field": "title"
+                },
+                {
+                    "field": "bodyName"
+                },
+                {
+                    "field": "meetingType"
+                }
+            ],
+            "detail": {
+                "layout": "card",
+                "fields": [
+                    "title",
+                    "meetingDate",
+                    "bodyName",
+                    "meetingType",
+                    "location"
+                ]
+            }
+        },
+        {
+            "id": "publicBroadcasts",
+            "register": "decidiq",
+            "schema": "meeting-broadcast",
+            "anonymous": true,
+            "label": "Live and recent meetings",
+            "listable": true,
+            "fields": [
+                "title",
+                "eveningTitle",
+                "bodyName",
+                "scheduledDate",
+                "lifecycle",
+                "playerUrl",
+                "recordingUrl",
+                "captionTracks"
+            ],
+            "defaultSort": {
+                "field": "scheduledDate",
+                "direction": "desc"
+            }
+        },
+        {
+            "id": "motionsOpenForAdvice",
+            "register": "decidiq",
+            "schema": "decision",
+            "anonymous": true,
+            "label": "Motions open for your advice",
+            "listable": true,
+            "fields": [
+                "title",
+                "text",
+                "motionType",
+                "citizenVotingStatus",
+                "citizenAdviceFor",
+                "citizenAdviceAgainst",
+                "citizenAdviceAbstain"
+            ],
+            "filter": {
+                "citizenVotingAllowed": true
+            },
+            "defaultFilters": {
+                "citizenVotingAllowed": true
+            }
+        }
+    ],
+    "actions": [
+        {
+            "id": "createReaction",
+            "type": "create",
+            "label": "React to this consultation",
+            "register": "decidiq",
+            "schema": "consultation-reaction",
+            "scopeField": "submitterId",
+            "minTrust": "low",
+            "fields": [
+                "consultation",
+                "body"
+            ],
+            "defaults": {
+                "moderationStatus": "pending",
+                "submittedAt": "<now>"
+            },
+            "parentConstraint": {
+                "field": "consultation",
+                "parentSchema": "public-consultation",
+                "statusField": "status",
+                "statusValue": "open"
+            }
+        },
+        {
+            "id": "createBudgetProposal",
+            "type": "create",
+            "label": "Submit a budget proposal",
+            "register": "decidiq",
+            "schema": "budget-proposal",
+            "scopeField": "submitter",
+            "minTrust": "low",
+            "fields": [
+                "participatoryBudget",
+                "title",
+                "description",
+                "requestedAmount",
+                "category"
+            ],
+            "defaults": {
+                "status": "submitted"
+            },
+            "parentConstraint": {
+                "field": "participatoryBudget",
+                "parentSchema": "participatory-budget",
+                "statusField": "status",
+                "statusValue": "submission"
+            }
+        },
+        {
+            "id": "castMotionAdvice",
+            "type": "create",
+            "label": "Give your advice on this motion",
+            "register": "decidiq",
+            "schema": "citizen-vote",
+            "scopeField": "voterId",
+            "minTrust": "substantial",
+            "fields": [
+                "motionId",
+                "voteValue"
+            ],
+            "defaults": {
+                "weight": 1,
+                "isProxy": false,
+                "castAt": "<now>"
+            },
+            "parentConstraint": {
+                "field": "motionId",
+                "parentSchema": "decision",
+                "statusField": "citizenVotingStatus",
+                "statusValue": "open"
+            }
+        },
+        {
+            "id": "subscribeToPublications",
+            "type": "create",
+            "label": "Follow agendas and decisions",
+            "register": "decidiq",
+            "schema": "publication-subscription",
+            "scopeField": "subscriberRef",
+            "minTrust": "low",
+            "fields": [
+                "governanceBodies",
+                "kinds",
+                "frequency"
+            ],
+            "defaults": {
+                "active": true
+            }
+        },
+        {
+            "id": "unsubscribeFromPublications",
+            "type": "update",
+            "label": "Stop following",
+            "register": "decidiq",
+            "schema": "publication-subscription",
+            "scopeField": "subscriberRef",
+            "minTrust": "low",
+            "fields": [
+                "active"
+            ],
+            "set": {
+                "active": false
+            }
+        }
+    ],
+    "notifications": [],
+    "publicRecords": [
+        {
+            "id": "publicMeetings",
+            "label": "Meetings",
+            "group": "Council",
+            "listProvider": "publicMeetings",
+            "recordProvider": "publicMeeting"
+        },
+        {
+            "id": "publicDecisions",
+            "label": "Decisions",
+            "group": "Council",
+            "listProvider": "publicDecisions",
+            "recordProvider": "publicDecision"
+        },
+        {
+            "id": "memberVotingRecords",
+            "label": "How members voted",
+            "group": "Council",
+            "listProvider": "publicMembers",
+            "recordProvider": "publicVotingRecord"
+        }
+    ]
+}
