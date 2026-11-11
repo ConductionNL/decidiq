@@ -31,6 +31,7 @@ use OCA\OpenRegister\Db\FlowRunMapper;
 use OCA\OpenRegister\Exception\FlowSignalRefused;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunSignalService;
+use OCA\OpenRegister\Service\Flow\RunSignal;
 use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -139,11 +140,13 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 		$this->runs->expects(self::once())->method('findByUuid')->with('run-1')->willReturn($run);
 		$this->runs->expects(self::never())->method('findSuspendedBySubject');
 
-		$this->signals->expects(self::once())->method('signalRunAs')->with(
+		$this->signals->expects(self::once())->method('answer')->with(
 			$run,
-			['decision' => 'approved', 'decisionRef' => 'd-1', 'subjectId' => 'lead-1'],
-			null,
-			'decide-b'
+			new RunSignal(
+				payload: ['decision' => 'approved', 'decisionRef' => 'd-1', 'subjectId' => 'lead-1'],
+				actorUid: null,
+				nodeId: 'decide-b'
+			)
 		)->willReturn($run);
 
 		$this->listener()->handle(self::concluded());
@@ -151,14 +154,14 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 
 	public function testARunWaitingOnAnotherDecisionIsNotWoken(): void {
 		$this->runs->method('findByUuid')->willReturn(self::suspendedRun(['decide' => 'd-9']));
-		$this->signals->expects(self::never())->method('signalRunAs');
+		$this->signals->expects(self::never())->method('answer');
 
 		$this->listener()->handle(self::concluded());
 	}//end testARunWaitingOnAnotherDecisionIsNotWoken()
 
 	public function testARunThatIsNoLongerSuspendedIsNotWoken(): void {
 		$this->runs->method('findByUuid')->willReturn(self::suspendedRun(['decide' => 'd-1'], 'completed'));
-		$this->signals->expects(self::never())->method('signalRunAs');
+		$this->signals->expects(self::never())->method('answer');
 
 		$this->listener()->handle(self::concluded());
 	}//end testARunThatIsNoLongerSuspendedIsNotWoken()
@@ -166,7 +169,7 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 	public function testADecisionAnotherAppRaisedIsLeftAlone(): void {
 		$this->runs->expects(self::never())->method('findByUuid');
 		$this->runs->expects(self::never())->method('findSuspendedBySubject');
-		$this->signals->expects(self::never())->method('signalRunAs');
+		$this->signals->expects(self::never())->method('answer');
 
 		$this->listener()->handle(self::concluded(sourceApp: 'procest'));
 	}//end testADecisionAnotherAppRaisedIsLeftAlone()
@@ -176,7 +179,10 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 		$waiting = self::suspendedRun(['decide' => 'd-1']);
 		$this->runs->expects(self::once())->method('findSuspendedBySubject')->with('lead-1')->willReturn([$other, $waiting]);
 
-		$this->signals->expects(self::once())->method('signalRunAs')->with($waiting, self::anything(), null, 'decide')->willReturn($waiting);
+		$this->signals->expects(self::once())->method('answer')->with(
+			$waiting,
+			self::callback(static fn (RunSignal $signal): bool => $signal->actorUid === null && $signal->nodeId === 'decide')
+		)->willReturn($waiting);
 
 		$this->listener()->handle(self::concluded(externalReference: 'lead-1'));
 	}//end testWithoutARunReferenceTheSubjectsRunsAreSearched()
@@ -184,7 +190,7 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 	public function testARefusedOrFailedWakeIsSwallowed(): void {
 		$run = self::suspendedRun(['decide' => 'd-1']);
 		$this->runs->method('findByUuid')->willReturn($run);
-		$this->signals->method('signalRunAs')->willThrowException(
+		$this->signals->method('answer')->willThrowException(
 			new FlowSignalRefused(reason: FlowSignalRefused::NOT_SUSPENDED, message: 'not suspended', runUuid: 'run-1', actorUid: null)
 		);
 
@@ -195,7 +201,7 @@ class FlowDecisionConcludedListenerTest extends TestCase {
 
 	public function testAnUnknownRunIsSwallowed(): void {
 		$this->runs->method('findByUuid')->willThrowException(new \RuntimeException('no such run'));
-		$this->signals->expects(self::never())->method('signalRunAs');
+		$this->signals->expects(self::never())->method('answer');
 
 		$this->listener()->handle(self::concluded());
 	}//end testAnUnknownRunIsSwallowed()
