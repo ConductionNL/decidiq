@@ -13,6 +13,7 @@ import { generateUrl } from '@nextcloud/router'
  */
 import * as path from 'path'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import * as jsonRequests from '../../src/components/tabs/jsonRequests.js'
 import * as agendaRules from '../../src/services/agendaRules.js'
 import * as agendaCopy from '../../src/utils/agendaCopy.js'
 import * as agendaItemTypeFields from '../../src/utils/agendaItemTypeFields.js'
@@ -105,6 +106,7 @@ function tab(answers) {
 		'../../utils/agendaItemTypeFields.js': agendaItemTypeFields,
 		'../../utils/agendaPublication.js': agendaPublication,
 		'../../utils/formalities.js': formalities,
+		'./jsonRequests.js': jsonRequests,
 		'./useRelationStore.js': { ensureRelationType: store },
 	}
 	for (const icon of ICONS) {
