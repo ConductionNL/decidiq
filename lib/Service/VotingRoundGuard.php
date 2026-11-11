@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\AppInfo\Application;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
@@ -291,7 +292,7 @@ class VotingRoundGuard {
 
 		// ADR-005: the motion is a `decision` discriminated by decisionType.
 		$motion = $this->findData(objectService: $objectService, id: $motionId, schema: 'decision');
-		if ($motion === null) {
+		if ($motion === null || ($motion['decisionType'] ?? null) !== 'motion') {
 			return null;
 		}
 
@@ -330,7 +331,13 @@ class VotingRoundGuard {
 	 * @return array<string,mixed>|null The object data, or null when not found
 	 */
 	private function findData(object $objectService, mixed $id, string $schema): ?array {
-		$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		// OpenRegister reports a missing object by returning null or by throwing; both are a miss.
+		try {
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
 		if ($entity === null) {
 			return null;
 		}

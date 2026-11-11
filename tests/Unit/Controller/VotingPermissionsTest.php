@@ -126,7 +126,7 @@ class VotingPermissionsTest extends TestCase {
 		// Rounds: round-M belongs to motion-M in meeting M; round-orphan has no motion.
 		$objects = [
 			'round-M'      => ['id' => 'round-M', 'relations' => [['schema' => 'motion', 'id' => 'motion-M']]],
-			'motion-M'     => ['id' => 'motion-M', 'meeting' => 'M'],
+			'motion-M'     => ['id' => 'motion-M', 'decisionType' => 'motion', 'meeting' => 'M'],
 			'round-orphan' => ['id' => 'round-orphan', 'relations' => []],
 		];
 		$objectService = $this->createMock(ObjectService::class);
