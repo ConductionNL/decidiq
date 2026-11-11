@@ -121,21 +121,7 @@ class NotificationPreferenceService {
 	 */
 	public function findPreference(string $personId): ?array {
 		try {
-			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidiq');
-			$objectService->setSchema('notification-preference');
-
-			// ObjectService::findAll() takes a single $config array — the
-			// named-argument form (limit:/offset:/filters:) threw
-			// "Unknown named parameter" and was swallowed by the catch below,
-			// leaving this lookup permanently returning null.
-			$results = $objectService->findAll(
-				[
-					'filters' => ['person' => $personId],
-					'limit' => 1,
-					'offset' => 0,
-				]
-			);
+			$results = $this->queryPreferenceRows(personId: $personId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: findPreference failed',
@@ -144,8 +130,48 @@ class NotificationPreferenceService {
 			return null;
 		}//end try
 
+		return $this->firstPreferenceRow(results: $results);
+	}//end findPreference()
+
+	/**
+	 * Query OpenRegister for the person's NotificationPreference rows (at most one).
+	 *
+	 * @param string $personId Person UUID or user ID
+	 *
+	 * @return mixed The findAll() result
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function queryPreferenceRows(string $personId): mixed {
+		$objectService = $this->getObjectService();
+		$objectService->setRegister('decidiq');
+		$objectService->setSchema('notification-preference');
+
+		// ObjectService::findAll() takes a single $config array — the
+		// named-argument form (limit:/offset:/filters:) threw
+		// "Unknown named parameter" and was swallowed by the catch in
+		// findPreference(), leaving this lookup permanently returning null.
+		return $objectService->findAll(
+			[
+				'filters' => ['person' => $personId],
+				'limit' => 1,
+				'offset' => 0,
+			]
+		);
+	}//end queryPreferenceRows()
+
+	/**
+	 * The first entity's object or array row of a findAll() result.
+	 *
+	 * @param mixed $results The findAll() result
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function firstPreferenceRow(mixed $results): ?array {
 		foreach ($results as $entity) {
-			if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
+			if ($this->isObjectEntity(entity: $entity) === true) {
 				return $entity->getObject();
 			}
 
@@ -155,7 +181,20 @@ class NotificationPreferenceService {
 		}
 
 		return null;
-	}//end findPreference()
+	}//end firstPreferenceRow()
+
+	/**
+	 * Whether a findAll() item is an entity carrying its object.
+	 *
+	 * @param mixed $entity A findAll() item
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function isObjectEntity(mixed $entity): bool {
+		return is_object($entity) === true && method_exists($entity, 'getObject') === true;
+	}//end isObjectEntity()
 
 	/**
 	 * Create or update a NotificationPreference object for a person.
@@ -260,31 +299,72 @@ class NotificationPreferenceService {
 	public function getActiveDelegate(string $personId, ?DateTimeImmutable $today = null): ?string {
 		$pref = $this->findPreference(personId: $personId);
 		$delegate = ($pref['delegate'] ?? null);
-		if (is_string($delegate) === false || $delegate === '') {
+		if ($this->isFilledString(value: $delegate) === false) {
 			return null;
 		}
 
-		$until = ($pref['delegationUntil'] ?? null);
-		if (is_string($until) === false || $until === '') {
-			// No expiry configured — treat as not active (the spec requires
-			// delegation to expire automatically, so an unbounded delegation
-			// is never honoured).
-			return null;
-		}
-
-		$todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
-
-		$from = ($pref['delegationFrom'] ?? null);
-		if (is_string($from) === true && $from !== '' && substr($from, 0, 10) > $todayStr) {
-			return null;
-		}
-
-		if (substr($until, 0, 10) < $todayStr) {
+		if ($this->delegationWindowCovers(pref: ($pref ?? []), today: $today) === false) {
 			return null;
 		}
 
 		return $delegate;
 	}//end getActiveDelegate()
+
+	/**
+	 * Whether the stored delegation window covers today (dates inclusive).
+	 *
+	 * @param array<string, mixed>   $pref  The stored preference
+	 * @param DateTimeImmutable|null $today Clock override for tests (defaults to today)
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationWindowCovers(array $pref, ?DateTimeImmutable $today): bool {
+		$until = ($pref['delegationUntil'] ?? null);
+		if ($this->isFilledString(value: $until) === false) {
+			// No expiry configured — treat as not active (the spec requires
+			// delegation to expire automatically, so an unbounded delegation
+			// is never honoured).
+			return false;
+		}
+
+		$todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
+		if ($this->delegationStartsAfter(from: ($pref['delegationFrom'] ?? null), todayStr: $todayStr) === true) {
+			return false;
+		}
+
+		return (substr($until, 0, 10) < $todayStr) === false;
+	}//end delegationWindowCovers()
+
+	/**
+	 * Whether a stored delegation start date lies after today; a blank start means "already started".
+	 *
+	 * @param mixed  $from     The stored delegationFrom value
+	 * @param string $todayStr Today as Y-m-d
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationStartsAfter(mixed $from, string $todayStr): bool {
+		return $this->isFilledString(value: $from) === true && substr($from, 0, 10) > $todayStr;
+	}//end delegationStartsAfter()
+
+	/**
+	 * Whether a stored value is a non-empty string.
+	 *
+	 * @param mixed $value The stored value
+	 *
+	 * @return bool
+	 *
+	 * @phpstan-assert-if-true non-empty-string $value
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function isFilledString(mixed $value): bool {
+		return is_string($value) === true && $value !== '';
+	}//end isFilledString()
 
 	/**
 	 * Check whether $delegatorId currently has an active absence delegation to $delegateId.
@@ -352,26 +432,54 @@ class NotificationPreferenceService {
 	public function getGovernanceEmail(string $personId): ?string {
 		$pref = $this->findPreference(personId: $personId);
 		$override = ($pref['governanceEmail'] ?? null);
-		if (is_string($override) === true && $override !== '') {
+		if ($this->isFilledString(value: $override) === true) {
 			return $override;
 		}
 
+		return $this->accountEmail(personId: $personId);
+	}//end getGovernanceEmail()
+
+	/**
+	 * The Nextcloud account e-mail of a user, or null when none is set (fail-soft).
+	 *
+	 * @param string $personId NC UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function accountEmail(string $personId): ?string {
 		try {
-			$userManager = $this->container->get(\OCP\IUserManager::class);
-			$user = $userManager->get($personId);
-			$email = $user?->getEMailAddress();
-			if (is_string($email) === true && $email !== '') {
-				return $email;
-			}
+			$email = $this->lookupAccountEmail(personId: $personId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: account email lookup failed',
 				['personId' => $personId, 'error' => $e->getMessage()]
 			);
+			return null;
 		}
 
-		return null;
-	}//end getGovernanceEmail()
+		if ($this->isFilledString(value: $email) === false) {
+			return null;
+		}
+
+		return $email;
+	}//end accountEmail()
+
+	/**
+	 * Read the account e-mail through Nextcloud's user manager.
+	 *
+	 * @param string $personId NC UID
+	 *
+	 * @return mixed The stored address, or null for an unknown user
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function lookupAccountEmail(string $personId): mixed {
+		$userManager = $this->container->get(\OCP\IUserManager::class);
+		$user = $userManager->get($personId);
+		return $user?->getEMailAddress();
+	}//end lookupAccountEmail()
 
 	/**
 	 * Preference-aware, delegation-aware notification dispatch.
