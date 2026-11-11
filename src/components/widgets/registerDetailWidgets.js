@@ -230,42 +230,99 @@ function dissolutionStage(r) {
  *
  * @param {object|null} store Object store instance (`fetchObject`,
  *   `registerObjectType`, `objectTypeRegistry`).
- * @param {string} typeSlug The store-registered type slug for this
+ * @param {object} ref The reference to resolve.
+ * @param {string} ref.typeSlug The store-registered type slug for this
  *   reference (a local slug; conventionally the schema slug itself).
- * @param {string} schemaSlug OpenRegister schema slug (used only if the
+ * @param {string} ref.schemaSlug OpenRegister schema slug (used only if the
  *   type still needs registering).
- * @param {string} registerSlug OpenRegister register slug (used only if the
- *   type still needs registering).
- * @param {string} id The reference id.
- * @param {string} [labelField] Property to prefer as the label.
+ * @param {string} ref.registerSlug OpenRegister register slug (used only if
+ *   the type still needs registering).
+ * @param {string} ref.id The reference id.
+ * @param {string} [ref.labelField] Property to prefer as the label.
  * @return {Promise<string>} The resolved label, or the raw id when
  *   unresolvable.
  */
-export async function resolveObjectLabel(
-	store,
-	typeSlug,
-	schemaSlug,
-	registerSlug,
-	id,
-	labelField = 'name',
-) {
-	if (!id) return ''
-	if (!store) return String(id)
+export async function resolveObjectLabel(store, ref) {
+	if (!ref.id) return ''
+	if (!store) return String(ref.id)
 	try {
-		if (!store.objectTypeRegistry || !store.objectTypeRegistry[typeSlug]) {
-			store.registerObjectType(typeSlug, schemaSlug, registerSlug)
-		}
-		const obj = await store.fetchObject(typeSlug, id)
-		if (!obj) return String(id)
-		const self = obj['@self'] || {}
-		const candidates = [obj[labelField], obj.title, obj.name, self.name]
-		for (const raw of candidates) {
-			if (typeof raw === 'string' && raw !== '') return raw
-		}
-		return String(id)
+		return (await fetchObjectLabel(store, ref)) || String(ref.id)
 	} catch {
-		return String(id)
+		return String(ref.id)
 	}
+}
+
+/**
+ * Fetch the referenced object, registering its type first when the store
+ * does not know it yet, and read its label.
+ *
+ * @param {object} store Object store instance.
+ * @param {object} ref The reference (see resolveObjectLabel).
+ * @return {Promise<string>} The label, or '' when the object has none.
+ */
+async function fetchObjectLabel(store, ref) {
+	const { typeSlug, schemaSlug, registerSlug, id, labelField = 'name' } = ref
+	if (!store.objectTypeRegistry || !store.objectTypeRegistry[typeSlug]) {
+		store.registerObjectType(typeSlug, schemaSlug, registerSlug)
+	}
+	const obj = await store.fetchObject(typeSlug, id)
+	return obj ? firstLabel(obj, labelField) : ''
+}
+
+/**
+ * The first non-empty string among the label field, title, name and
+ * `@self.name` of an object.
+ *
+ * @param {object} obj The fetched object.
+ * @param {string} labelField Property to prefer as the label.
+ * @return {string|undefined} The label, undefined when there is none.
+ */
+function firstLabel(obj, labelField) {
+	const self = obj['@self'] || {}
+	return [obj[labelField], obj.title, obj.name, self.name].find(
+		(raw) => typeof raw === 'string' && raw !== '',
+	)
+}
+
+/**
+ * A widget's content config merged over its defaults: each key takes the
+ * content's value when it is set, else the default.
+ *
+ * @param {object|null|undefined} content The widget's content config.
+ * @param {object} defaults The default per key, in config order.
+ * @return {object} The merged config.
+ */
+export function contentWithDefaults(content, defaults) {
+	const set = content || {}
+	const merged = {}
+	for (const [key, fallback] of Object.entries(defaults)) {
+		merged[key] = set[key] || fallback
+	}
+	return merged
+}
+
+/**
+ * The value when it is an object, else an empty object.
+ *
+ * @param {object|string|null|undefined} value The objectData prop.
+ * @return {object} The object.
+ */
+export function plainObject(value) {
+	return value && typeof value === 'object' ? value : {}
+}
+
+/**
+ * The id of the detail page's object: the explicit prop wins, else the id
+ * in objectData or its `@self`.
+ *
+ * @param {string} objectId The objectId prop.
+ * @param {object} objectData The objectData prop.
+ * @return {string} The id, or ''.
+ */
+export function detailObjectId(objectId, objectData) {
+	const data = plainObject(objectData)
+	const self = data['@self'] || {}
+	return objectId || data.id || self.id || ''
 }
 
 /**
