@@ -157,7 +157,37 @@ class VotingBehaviourService {
 	public function getStats(string $participantId, string $governanceBodyId): array {
 		$closedRounds = $this->closedRoundsForBody(governanceBodyId: $governanceBodyId);
 		$totalRounds = count($closedRounds);
+		$tally = $this->tallyRounds(rounds: $closedRounds, participantId: $participantId);
 
+		return array_merge(
+			[
+				'participantId' => $participantId,
+				'governanceBodyId' => $governanceBodyId,
+				'totalRounds' => $totalRounds,
+				'participated' => $tally['participated'],
+				'participationRate' => self::participationRate(participated: $tally['participated'], totalRounds: $totalRounds),
+			],
+			[
+				'votesFor' => $tally['votesFor'],
+				'votesAgainst' => $tally['votesAgainst'],
+				'votesAbstain' => $tally['votesAbstain'],
+				'proxiesGiven' => $tally['proxiesGiven'],
+				'proxiesReceived' => $tally['proxiesReceived'],
+			]
+		);
+
+	}//end getStats()
+
+	/**
+	 * The participant's tally over the closed rounds; a round without an id
+	 * is skipped.
+	 *
+	 * @param array<int, array<string, mixed>> $rounds        The closed rounds.
+	 * @param string                           $participantId The participant.
+	 *
+	 * @return array<string, int> The tally.
+	 */
+	private function tallyRounds(array $rounds, string $participantId): array {
 		$tally = [
 			'participated' => 0,
 			'votesFor' => 0,
@@ -167,7 +197,7 @@ class VotingBehaviourService {
 			'proxiesReceived' => 0,
 		];
 
-		foreach ($closedRounds as $round) {
+		foreach ($rounds as $round) {
 			$roundId = ($round['id'] ?? ($round['uuid'] ?? null));
 			if ($roundId === null) {
 				continue;
@@ -180,30 +210,24 @@ class VotingBehaviourService {
 			);
 		}
 
-		// Participation rate as percentage.
-		$participationRate = 0.0;
-		if ($totalRounds > 0) {
-			$participationRate = round((($tally['participated'] / $totalRounds) * 100), 1);
+		return $tally;
+	}//end tallyRounds()
+
+	/**
+	 * Participation as a percentage of the closed rounds, to one decimal.
+	 *
+	 * @param int $participated The rounds the participant took part in.
+	 * @param int $totalRounds  The closed rounds.
+	 *
+	 * @return float The rate, 0 without closed rounds.
+	 */
+	private static function participationRate(int $participated, int $totalRounds): float {
+		if ($totalRounds === 0) {
+			return 0.0;
 		}
 
-		return array_merge(
-			[
-				'participantId' => $participantId,
-				'governanceBodyId' => $governanceBodyId,
-				'totalRounds' => $totalRounds,
-				'participated' => $tally['participated'],
-				'participationRate' => $participationRate,
-			],
-			[
-				'votesFor' => $tally['votesFor'],
-				'votesAgainst' => $tally['votesAgainst'],
-				'votesAbstain' => $tally['votesAbstain'],
-				'proxiesGiven' => $tally['proxiesGiven'],
-				'proxiesReceived' => $tally['proxiesReceived'],
-			]
-		);
-
-	}//end getStats()
+		return round((($participated / $totalRounds) * 100), 1);
+	}//end participationRate()
 
 	/**
 	 * Collect every closed voting round of a governance body.

@@ -47,6 +47,19 @@ use Throwable;
 class McpMeetingTools {
 
 	/**
+	 * The objects a meeting's details include, in the order they are read:
+	 * the source type each is cited as and the fields its label is read from
+	 * (the last one a fixed fallback).
+	 *
+	 * @var array<string, array{sourceType: string, labels: list<string>}>
+	 */
+	private const RELATED_OBJECTS = [
+		'agenda-item' => ['sourceType' => 'decidesk.agendaItem', 'labels' => ['title', 'subject', 'Agenda item']],
+		'decision' => ['sourceType' => 'decidesk.decision', 'labels' => ['title', 'text', 'Decision']],
+		'action-item' => ['sourceType' => 'decidesk.actionItem', 'labels' => ['title', 'name', 'Action item']],
+	];
+
+	/**
 	 * Shapes tool results and source descriptors.
 	 *
 	 * @var McpSourceFormatter
@@ -299,46 +312,27 @@ class McpMeetingTools {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	private function collectMeetingDetails(string $meetingUuid, array $meeting): array {
-		$agenda = $this->relatedObjects(
-			objectService: $this->objectService,
-			meetingUuid: $meetingUuid,
-			schema: 'agenda-item',
-			sourceType: 'decidesk.agendaItem',
-			labels: ['title', 'subject', 'Agenda item'],
-		);
-
-		$decisions = $this->relatedObjects(
-			objectService: $this->objectService,
-			meetingUuid: $meetingUuid,
-			schema: 'decision',
-			sourceType: 'decidesk.decision',
-			labels: ['title', 'text', 'Decision'],
-		);
-
-		$actions = $this->relatedObjects(
-			objectService: $this->objectService,
-			meetingUuid: $meetingUuid,
-			schema: 'action-item',
-			sourceType: 'decidesk.actionItem',
-			labels: ['title', 'name', 'Action item'],
-		);
+		$related = [];
+		foreach (array_keys(self::RELATED_OBJECTS) as $schema) {
+			$related[$schema] = $this->relatedObjects(meetingUuid: $meetingUuid, schema: $schema);
+		}
 
 		$sources = array_merge(
 			[
 				$this->formatter->meetingSource(meetingUuid: $meetingUuid, meeting: $meeting),
 			],
-			$agenda['sources'],
-			$decisions['sources'],
-			$actions['sources']
+			$related['agenda-item']['sources'],
+			$related['decision']['sources'],
+			$related['action-item']['sources']
 		);
 
 		return $this->formatter->withSources(
 			payload: [
 				'success' => true,
 				'meeting' => $meeting,
-				'agendaItems' => $agenda['items'],
-				'decisions' => $decisions['items'],
-				'actionItems' => $actions['items'],
+				'agendaItems' => $related['agenda-item']['items'],
+				'decisions' => $related['decision']['items'],
+				'actionItems' => $related['action-item']['items'],
 			],
 			sources: $sources
 		);
@@ -346,26 +340,16 @@ class McpMeetingTools {
 	}//end collectMeetingDetails()
 
 	/**
-	 * Fetch every object of one schema related to a meeting, with its sources.
+	 * The objects of one schema linked to the meeting, with one source each.
 	 *
-	 * @param object $objectService The OpenRegister ObjectService
-	 * @param string $meetingUuid The meeting UUID to filter on
-	 * @param string $schema The OpenRegister schema slug
-	 * @param string $sourceType The MCP source type for these objects
-	 * @param array<string> $labels Candidate label keys, last element is the fallback label
+	 * @param string $meetingUuid The meeting
+	 * @param string $schema      agenda-item, decision or action-item (see RELATED_OBJECTS)
 	 *
-	 * @return array{items: array<int, array<string, mixed>>, sources: array<int, array<string, mixed>>}
-	 *
-	 * @spec openspec/specs/mcp-tools/spec.md
+	 * @return array{items: list<array<string, mixed>>, sources: list<array<string, mixed>>} The objects and their sources.
 	 */
-	private function relatedObjects(
-		object $objectService,
-		string $meetingUuid,
-		string $schema,
-		string $sourceType,
-		array $labels,
-	): array {
-		$raws = $objectService->findAll(
+	private function relatedObjects(string $meetingUuid, string $schema): array {
+		$kind = self::RELATED_OBJECTS[$schema];
+		$raws = $this->objectService->findAll(
 			[
 				'filters' => [
 					'register' => 'decidiq',
@@ -381,9 +365,9 @@ class McpMeetingTools {
 			$item = $this->formatter->toArray(item: $raw);
 			$items[] = $item;
 			$sources[] = $this->formatter->source(
-				type: $sourceType,
+				type: $kind['sourceType'],
 				uuid: $this->formatter->extractUuid(item: $item),
-				label: $this->pickLabel(item: $item, labels: $labels),
+				label: $this->pickLabel(item: $item, labels: $kind['labels']),
 			);
 		}
 
