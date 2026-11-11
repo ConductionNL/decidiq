@@ -684,13 +684,12 @@ export default {
 			const items =
 				choice.source === 'template'
 					? itemsFromTemplate(choice.template, meetingId, startAt)
-					: itemsFromMeeting(
-							this.copySourceItems,
-							choice.meetingId,
+					: itemsFromMeeting(this.copySourceItems, {
+							fromMeetingId: choice.meetingId,
 							meetingId,
 							startAt,
-							choice.itemIds,
-						)
+							pickedIds: choice.itemIds,
+						})
 			this.copying = true
 			this.copyError = ''
 			try {

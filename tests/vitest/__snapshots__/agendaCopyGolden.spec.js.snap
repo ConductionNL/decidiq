@@ -1,0 +1,27 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`itemsFromMeeting > copies every item of the earlier meeting by order number, after the given start 1`] = `
+[
+  {
+    "itemType": "informational",
+    "meeting": "new",
+    "orderNumber": 7,
+    "title": "Unnumbered",
+  },
+  {
+    "itemType": "informational",
+    "meeting": "new",
+    "orderNumber": 8,
+    "title": "First",
+  },
+  {
+    "itemType": "informational",
+    "meeting": "new",
+    "orderNumber": 9,
+    "title": "Second",
+    "typeFields": {
+      "a": 1,
+    },
+  },
+]
+`;
