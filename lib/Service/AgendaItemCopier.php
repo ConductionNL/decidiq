@@ -114,15 +114,6 @@ final class AgendaItemCopier {
 	 * @return string
 	 */
 	private function refId(mixed $ref): string {
-		if (is_string($ref) === true) {
-			return $ref;
-		}
-
-		if (is_array($ref) === true) {
-			return (string)($ref['id'] ?? $ref['uuid'] ?? '');
-		}
-
-		return '';
-
+		return (new ReferenceId())->of(ref: $ref);
 	}//end refId()
 }//end class
