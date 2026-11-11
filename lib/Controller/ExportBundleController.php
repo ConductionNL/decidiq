@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\ExportBundleException;
 use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Service\ExportRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -87,17 +88,10 @@ class ExportBundleController extends Controller {
 	 */
 	#[NoAdminRequired]
 	public function create(): JSONResponse {
-		$ids    = $this->request->getParam('ids', []);
-		$filter = $this->request->getParam('filter', []);
+		$exportRequest = $this->exportRequest();
 
 		try {
-			$result = $this->exports->export(
-				format: (string)$this->request->getParam('format', ''),
-				list: (string)$this->request->getParam('list', 'Decisions'),
-				ids: array_values(array_map('strval', (array)$ids)),
-				filter: (array)$filter,
-				search: (string)$this->request->getParam('search', ''),
-			);
+			$result = $this->exports->export(request: $exportRequest);
 		} catch (ExportBundleException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
 		} catch (Throwable $e) {
@@ -108,11 +102,41 @@ class ExportBundleController extends Controller {
 			);
 		}
 
-		$status = Http::STATUS_CREATED;
+		return new JSONResponse($result, self::statusOf(result: $result));
+	}//end create()
+
+	/**
+	 * The export the request asks for.
+	 *
+	 * @return ExportRequest The format, the list's name and which of its rows.
+	 */
+	private function exportRequest(): ExportRequest {
+		$ids    = $this->request->getParam('ids', []);
+		$filter = $this->request->getParam('filter', []);
+
+		$export = new ExportRequest(
+			format: (string)$this->request->getParam('format', ''),
+			list: (string)$this->request->getParam('list', 'Decisions'),
+		);
+		$export->ids = array_values(array_map('strval', (array)$ids));
+		$export->filter = (array)$filter;
+		$export->search = (string)$this->request->getParam('search', '');
+
+		return $export;
+	}//end exportRequest()
+
+	/**
+	 * 201 for a finished export, 202 for one queued.
+	 *
+	 * @param array<string,mixed> $result The export's result.
+	 *
+	 * @return int The status.
+	 */
+	private static function statusOf(array $result): int {
 		if ($result['status'] === 'queued') {
-			$status = Http::STATUS_ACCEPTED;
+			return Http::STATUS_ACCEPTED;
 		}
 
-		return new JSONResponse($result, $status);
-	}//end create()
+		return Http::STATUS_CREATED;
+	}//end statusOf()
 }//end class
