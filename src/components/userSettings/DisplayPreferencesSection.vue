@@ -219,22 +219,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.user-settings-section {
-	margin-bottom: 24px;
-}
-
-.user-settings-section__hint {
-	color: var(--color-text-maxcontrast);
-	margin-bottom: 8px;
-}
-
-.user-settings-section__field {
-	margin: 12px 0;
-	max-width: 400px;
-}
-
-.user-settings-section__actions {
-	margin-top: 12px;
-}
-</style>
+<style scoped src="./userSettingsFields.css"></style>
