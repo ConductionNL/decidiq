@@ -99,6 +99,33 @@ export function competenceGaps(competences, held, seatIds = null) {
 }
 
 /**
+ * One cell of the skills matrix: the level a member holds, or null.
+ *
+ * @param {object|undefined} found The member competence, when held.
+ * @return {object|null} The cell.
+ */
+function heldCell(found) {
+	if (!found) return null
+	return {
+		id: found.id,
+		level: found.level,
+		confirmed: isConfirmed(found),
+		confirmedBy: found.confirmedBy || '',
+	}
+}
+
+/**
+ * The display name of a seat's holder, falling back to the person id.
+ *
+ * @param {object} seat A membership.
+ * @param {Object<string, object>} personsById The people, by id.
+ * @return {string} The name.
+ */
+function seatName(seat, personsById) {
+	return personsById?.[seat.person]?.name || seat.person || ''
+}
+
+/**
  * The skills matrix: current members as rows, active competences as
  * columns, each cell the level held with whether it is confirmed.
  *
@@ -120,19 +147,12 @@ export function skillsMatrix(memberships, personsById, competences, held) {
 				const found = (held || []).find(
 					(h) => h.membership === seat.id && h.competence === column.id,
 				)
-				cells[column.id] = found
-					? {
-							id: found.id,
-							level: found.level,
-							confirmed: isConfirmed(found),
-							confirmedBy: found.confirmedBy || '',
-						}
-					: null
+				cells[column.id] = heldCell(found)
 			}
 			return {
 				seat: seat.id,
 				person: seat.person,
-				name: personsById?.[seat.person]?.name || seat.person || '',
+				name: seatName(seat, personsById),
 				cells,
 			}
 		})
@@ -161,7 +181,27 @@ export function skillsMatrix(memberships, personsById, competences, held) {
 export function ageBand(birthDate, today) {
 	const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(birthDate || ''))
 	if (!match) return null
-	const [year, month, day] = match.slice(1).map(Number)
+	return bandOfAge(ageOn(match.slice(1).map(Number), today))
+}
+
+/**
+ * The upper age limits of the bands below 70-plus, youngest first.
+ */
+const AGE_BAND_LIMITS = [
+	[40, 'under-40'],
+	[55, '40-54'],
+	[70, '55-69'],
+]
+
+/**
+ * The age in whole years on a day of someone born on a date.
+ *
+ * @param {Array<number>} birth Year, month and day of birth.
+ * @param {Date} today The day to count on.
+ * @return {number} The age.
+ */
+function ageOn(birth, today) {
+	const [year, month, day] = birth
 	let age = today.getFullYear() - year
 	if (
 		today.getMonth() + 1 < month
@@ -169,10 +209,18 @@ export function ageBand(birthDate, today) {
 	) {
 		age -= 1
 	}
-	if (age < 40) return 'under-40'
-	if (age < 55) return '40-54'
-	if (age < 70) return '55-69'
-	return '70-plus'
+	return age
+}
+
+/**
+ * The band an age falls in.
+ *
+ * @param {number} age The age in years.
+ * @return {string} under-40, 40-54, 55-69 or 70-plus.
+ */
+function bandOfAge(age) {
+	const band = AGE_BAND_LIMITS.find(([limit]) => age < limit)
+	return band ? band[1] : '70-plus'
 }
 
 /**
@@ -185,23 +233,39 @@ export function ageBand(birthDate, today) {
  * @spec openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies/spec.md#requirement-req-bcs-004-the-body-sees-its-composition-figures-against-its-own-targets
  */
 function figure(values) {
-	const counts = new Map()
-	let notRecorded = 0
-	for (const value of values) {
-		if (value === null || value === undefined || value === '') {
-			notRecorded += 1
-			continue
-		}
-		counts.set(value, (counts.get(value) || 0) + 1)
-	}
+	const counts = countRecorded(values)
 	const total = values.length
 	return {
 		total,
 		values: [...counts.entries()]
 			.map(([value, count]) => ({ value, count, share: count / total }))
 			.sort((a, b) => b.count - a.count || a.value.localeCompare(b.value)),
-		notRecorded,
+		notRecorded: values.filter(isNotRecorded).length,
 	}
+}
+
+/**
+ * Whether a figure value is missing.
+ *
+ * @param {string|null|undefined} value The value.
+ * @return {boolean} True when nothing is recorded.
+ */
+function isNotRecorded(value) {
+	return value === null || value === undefined || value === ''
+}
+
+/**
+ * How often each recorded value occurs, in first-seen order.
+ *
+ * @param {Array<string|null>} values The values.
+ * @return {Map<string, number>} The counts.
+ */
+function countRecorded(values) {
+	const counts = new Map()
+	for (const value of values) {
+		if (!isNotRecorded(value)) counts.set(value, (counts.get(value) || 0) + 1)
+	}
+	return counts
 }
 
 /**
