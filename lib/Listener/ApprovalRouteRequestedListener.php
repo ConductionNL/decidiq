@@ -73,32 +73,40 @@ class ApprovalRouteRequestedListener implements IEventListener {
 			return;
 		}
 
+		$result = $this->holdRequestedRoute(event: $event);
+		if ($result === null) {
+			return;
+		}
+
+		$this->answer(event: $event, result: $result);
+
+	}//end handle()
+
+	/**
+	 * Hold the requested route, or log why not.
+	 *
+	 * A producer that names PEOPLE rather than steps gets the ad-hoc path: no
+	 * template row is written, because a template nobody reuses on every
+	 * document review is a register full of them. That path answers the event
+	 * itself, so it yields no result here.
+	 *
+	 * Never rethrown: an exception out of handle() aborts the whole dispatch,
+	 * so an unrelated listener on the same event would stop running because
+	 * this one failed. The producer sees isHandled().
+	 *
+	 * @param ApprovalRouteRequestedEvent $event The command
+	 *
+	 * @return array{id: string, created: bool, stageCount: int}|null The result, null when there is none to write.
+	 */
+	private function holdRequestedRoute(ApprovalRouteRequestedEvent $event): ?array {
 		try {
-			// A producer that names PEOPLE rather than steps gets the ad-hoc
-			// path: no template row is written, because a template nobody
-			// reuses on every document review is a register full of them.
 			if ($event->getActors() !== [] && $event->getSubject() !== '') {
 				$this->handleAdhoc(event: $event);
-				return;
+				return null;
 			}
 
-			$result = $this->commandService->holdRoute(
-				sourceApp: $event->getSourceApp(),
-				externalReference: $event->getExternalReference(),
-				template: [
-					'name' => $event->getName(),
-					'steps' => $event->getSteps(),
-					'subjectType' => $event->getSubjectType(),
-					'description' => $event->getDescription(),
-					'isDefault' => $event->isDefault(),
-				],
-				subject: $event->getSubject(),
-				subjectSchema: $event->getSubjectSchema(),
-			);
+			return $this->holdTemplateRoute(event: $event);
 		} catch (Throwable $e) {
-			// Never rethrown: an exception out of handle() aborts the whole
-			// dispatch, so an unrelated listener on the same event would stop
-			// running because this one failed. The producer sees isHandled().
 			$this->logger->error(
 				'Decidiq: ApprovalRouteRequestedEvent not handled',
 				[
@@ -107,9 +115,42 @@ class ApprovalRouteRequestedListener implements IEventListener {
 					'exception' => $e,
 				]
 			);
-			return;
+			return null;
 		}//end try
+	}//end holdRequestedRoute()
 
+	/**
+	 * Hold a route from the steps the producer named, as a reusable template.
+	 *
+	 * @param ApprovalRouteRequestedEvent $event The command
+	 *
+	 * @return array{id: string, created: bool, stageCount: int} The held route.
+	 */
+	private function holdTemplateRoute(ApprovalRouteRequestedEvent $event): array {
+		return $this->commandService->holdRoute(
+			sourceApp: $event->getSourceApp(),
+			externalReference: $event->getExternalReference(),
+			template: [
+				'name' => $event->getName(),
+				'steps' => $event->getSteps(),
+				'subjectType' => $event->getSubjectType(),
+				'description' => $event->getDescription(),
+				'isDefault' => $event->isDefault(),
+			],
+			subject: $event->getSubject(),
+			subjectSchema: $event->getSubjectSchema(),
+		);
+	}//end holdTemplateRoute()
+
+	/**
+	 * Write the result slots on the command and log that it was handled.
+	 *
+	 * @param ApprovalRouteRequestedEvent                         $event  The command
+	 * @param array{id: string, created: bool, stageCount: int} $result The held route
+	 *
+	 * @return void
+	 */
+	private function answer(ApprovalRouteRequestedEvent $event, array $result): void {
 		$event->setRouteId($result['id']);
 		$event->setCreated($result['created']);
 		$event->setStageCount($result['stageCount']);
@@ -125,8 +166,7 @@ class ApprovalRouteRequestedListener implements IEventListener {
 				'stageCount' => $result['stageCount'],
 			]
 		);
-
-	}//end handle()
+	}//end answer()
 
 	/**
 	 * Hold a route from the people the producer named, with no template.

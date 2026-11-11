@@ -86,42 +86,16 @@ class DecisionRequestedListener implements IEventListener {
 		}
 
 		try {
-			$decisionData = $this->buildDecisionData(event: $event);
-
 			$result = $this->integrationService->createDecision(
-				$decisionData,
+				$this->buildDecisionData(event: $event),
 				$event->getActorId()
 			);
-
 			if ($result['success'] === true) {
-				$decisionId = (string)($result['decisionId'] ?? '');
-				if ($decisionId !== '') {
-					$event->setDecisionId($decisionId);
-				}
-
-				$event->setHandled(true);
-				$this->logger->info(
-					'Decidiq: handled DecisionRequestedEvent',
-					[
-						'sourceApp' => $event->getSourceApp(),
-						'subjectId' => $event->getSubjectId(),
-						'decisionId' => $decisionId,
-						'created' => ($result['created'] ?? null),
-					]
-				);
+				$this->answer(event: $event, result: $result);
 				return;
 			}
 
-			// Non-success service result: leave the event unhandled (the producer
-			// sees isHandled() === false) and log the reason. Never throw.
-			$this->logger->warning(
-				'Decidiq: DecisionRequestedEvent not handled',
-				[
-					'sourceApp' => $event->getSourceApp(),
-					'subjectId' => $event->getSubjectId(),
-					'message' => ($result['message'] ?? 'unknown'),
-				]
-			);
+			$this->logNotHandled(event: $event, result: $result);
 		} catch (\Throwable $e) {
 			// The event bus must never surface a Decidiq failure as an exception
 			// to the dispatching consumer; log and leave unhandled.
@@ -136,6 +110,52 @@ class DecisionRequestedListener implements IEventListener {
 		}//end try
 
 	}//end handle()
+
+	/**
+	 * Write the created decision's id on the command, mark it handled and log it.
+	 *
+	 * @param DecisionRequestedEvent $event  The command
+	 * @param array<string, mixed>   $result The service result
+	 *
+	 * @return void
+	 */
+	private function answer(DecisionRequestedEvent $event, array $result): void {
+		$decisionId = (string)($result['decisionId'] ?? '');
+		if ($decisionId !== '') {
+			$event->setDecisionId($decisionId);
+		}
+
+		$event->setHandled(true);
+		$this->logger->info(
+			'Decidiq: handled DecisionRequestedEvent',
+			[
+				'sourceApp' => $event->getSourceApp(),
+				'subjectId' => $event->getSubjectId(),
+				'decisionId' => $decisionId,
+				'created' => ($result['created'] ?? null),
+			]
+		);
+	}//end answer()
+
+	/**
+	 * Log a non-success service result. The event stays unhandled (the
+	 * producer sees isHandled() === false); nothing is thrown.
+	 *
+	 * @param DecisionRequestedEvent $event  The command
+	 * @param array<string, mixed>   $result The service result
+	 *
+	 * @return void
+	 */
+	private function logNotHandled(DecisionRequestedEvent $event, array $result): void {
+		$this->logger->warning(
+			'Decidiq: DecisionRequestedEvent not handled',
+			[
+				'sourceApp' => $event->getSourceApp(),
+				'subjectId' => $event->getSubjectId(),
+				'message' => ($result['message'] ?? 'unknown'),
+			]
+		);
+	}//end logNotHandled()
 
 	/**
 	 * Build the decision-data array createDecision() expects from the event.
