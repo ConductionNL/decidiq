@@ -387,45 +387,91 @@ class DecisionLifecycleService {
 			return $this->resolveQuorumRejection(run: $run);
 		}
 
-		// Outcome gate: only adopted decisions may be enacted.
 		if ($newState === 'enacted') {
-			if ($this->transitionGuard->isEnactAllowed(decision: $decision) === false) {
-				return "Only decisions with outcome 'adopted' may be enacted.";
-			}
-
-			// Appointment posts/candidates pairing gate (decision-management,
-			// appointment-decision-type-membership, design.md D1): zero or
-			// exactly one `targetPosts` entry is never ambiguous (every
-			// candidate gets no post, or the same single post); more than one
-			// entry MUST match `candidates`' length exactly, paired by array
-			// index, or materializeAppointmentMemberships() would have to
-			// guess. Non-appointment decisions never carry `targetPosts`, so
-			// this never fires for them.
-			$targetPosts = (array)($decision['targetPosts'] ?? []);
-			if (($decision['decisionType'] ?? '') === 'appointment' && count($targetPosts) > 1) {
-				$candidateCount = count((array)($decision['candidates'] ?? []));
-				if (count($targetPosts) !== $candidateCount) {
-					return "Cannot enact: 'targetPosts' has " . count($targetPosts) . ' entries but '
-						. "'candidates' has " . $candidateCount . ' — provide zero, one, or exactly '
-						. 'one target post per candidate.';
-				}
+			$rejection = $this->resolveEnactRejection(decision: $decision);
+			if ($rejection !== null) {
+				return $rejection;
 			}
 		}
 
-		// Terminal-state completeness. This gate is the reason `outcome` and
-		// `decisionDate` could safely leave the schema's unconditional
-		// `required[]`: an in-flight motion (draft/proposed/deliberating/voting)
-		// legitimately has neither and a `withdrawn` decision never acquires
-		// them, but a decision that reaches `decided`/`enacted`/`archived`
-		// without them is a real defect — and dropping the requirement outright
-		// would have made that undetectable.
-		//
-		// It is enforced HERE, at the transition boundary, rather than as a
-		// JSON-Schema `if`/`then` on the schema, because OpenRegister cannot
-		// enforce a conditional `required`: Schema::getSchemaObject() rebuilds
-		// the validated schema from a fixed key list, so the block is discarded
-		// before the validator ever runs (measured — see the register's
-		// `x-decidesk-terminal-completeness` note).
+		return $this->resolveTerminalCompletenessRejection(decision: $decision, newState: $newState);
+	}//end resolveStateGateRejection()
+
+	/**
+	 * The enact gates: the adopted outcome, then the appointment posts/candidates pairing.
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
+	 *
+	 * @return string|null Rejection message, or null when the decision may be enacted
+	 */
+	private function resolveEnactRejection(array $decision): ?string {
+		// Outcome gate: only adopted decisions may be enacted.
+		if ($this->transitionGuard->isEnactAllowed(decision: $decision) === false) {
+			return "Only decisions with outcome 'adopted' may be enacted.";
+		}
+
+		return $this->resolvePostPairingRejection(decision: $decision);
+	}//end resolveEnactRejection()
+
+	/**
+	 * Appointment posts/candidates pairing gate (design.md D1).
+	 *
+	 * Zero or exactly one `targetPosts` entry is never ambiguous (every
+	 * candidate gets no post, or the same single post); more than one entry
+	 * MUST match `candidates`' length exactly, paired by array index, or
+	 * materializeAppointmentMemberships() would have to guess. Non-appointment
+	 * decisions never carry `targetPosts`, so this never fires for them.
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 *
+	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
+	 *
+	 * @return string|null Rejection message, or null when the posts can be paired
+	 */
+	private function resolvePostPairingRejection(array $decision): ?string {
+		$targetPosts = (array)($decision['targetPosts'] ?? []);
+		if (($decision['decisionType'] ?? '') !== 'appointment' || count($targetPosts) <= 1) {
+			return null;
+		}
+
+		$candidateCount = count((array)($decision['candidates'] ?? []));
+		if (count($targetPosts) === $candidateCount) {
+			return null;
+		}
+
+		return "Cannot enact: 'targetPosts' has " . count($targetPosts) . ' entries but '
+			. "'candidates' has " . $candidateCount . ' — provide zero, one, or exactly '
+			. 'one target post per candidate.';
+	}//end resolvePostPairingRejection()
+
+	/**
+	 * Terminal-state completeness: a decided/enacted/archived decision needs its result.
+	 *
+	 * This gate is the reason `outcome` and `decisionDate` could safely leave
+	 * the schema's unconditional `required[]`: an in-flight motion
+	 * (draft/proposed/deliberating/voting) legitimately has neither and a
+	 * `withdrawn` decision never acquires them, but a decision that reaches
+	 * `decided`/`enacted`/`archived` without them is a real defect — and
+	 * dropping the requirement outright would have made that undetectable.
+	 *
+	 * It is enforced HERE, at the transition boundary, rather than as a
+	 * JSON-Schema `if`/`then` on the schema, because OpenRegister cannot
+	 * enforce a conditional `required`: Schema::getSchemaObject() rebuilds the
+	 * validated schema from a fixed key list, so the block is discarded before
+	 * the validator ever runs (measured — see the register's
+	 * `x-decidesk-terminal-completeness` note).
+	 *
+	 * @param array<string, mixed> $decision Decision object array
+	 * @param string               $newState The state being entered
+	 *
+	 * @spec openspec/specs/decision-management/spec.md
+	 *
+	 * @return string|null Rejection message, or null when the state may be entered
+	 */
+	private function resolveTerminalCompletenessRejection(array $decision, string $newState): ?string {
 		if ($this->transitionGuard->isTerminalOutcomeState(lifecycle: $newState) === false) {
 			return null;
 		}
@@ -437,8 +483,7 @@ class DecisionLifecycleService {
 
 		return "A decision cannot enter '$newState' without a recorded result. "
 			. 'Missing or invalid: ' . implode(', ', $missing) . '.';
-
-	}//end resolveStateGateRejection()
+	}//end resolveTerminalCompletenessRejection()
 
 	/**
 	 * Enforce the quorum gate before entering `voting` (OWASP A01:2021).
