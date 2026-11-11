@@ -20,6 +20,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Service\AdmissibilityVerdictService;
+use OCA\Decidiq\Service\IntakeVerdict;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -37,7 +38,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 			'An admissibility verdict belongs on an intake step; this step is an approval step and expects a grant or a refusal.'
 		);
 
-		(new AdmissibilityVerdictService())->record(['order' => 1], AdmissibilityVerdictService::ONTVANKELIJK, '', 'j.jansen');
+		(new AdmissibilityVerdictService())->record(['order' => 1], new IntakeVerdict(verdict: AdmissibilityVerdictService::ONTVANKELIJK, ground: '', decidedBy: 'j.jansen'));
 	}//end testAStepWithoutAKindIsRefusedAsAnApprovalStep()
 
 	/**
@@ -49,7 +50,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('Unknown verdict "maybe"; expected ontvankelijk or niet-ontvankelijk.');
 
-		(new AdmissibilityVerdictService())->record(['stepKind' => 'intake'], 'maybe', '', 'j.jansen');
+		(new AdmissibilityVerdictService())->record(['stepKind' => 'intake'], new IntakeVerdict(verdict: 'maybe', ground: '', decidedBy: 'j.jansen'));
 	}//end testAnUnknownVerdictIsRefused()
 
 	/**
@@ -61,7 +62,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 		$this->expectException(InvalidArgumentException::class);
 		$this->expectExceptionMessage('intake step');
 
-		(new AdmissibilityVerdictService())->record(['stepKind' => 'approval'], 'maybe', '', '');
+		(new AdmissibilityVerdictService())->record(['stepKind' => 'approval'], new IntakeVerdict(verdict: 'maybe', ground: '', decidedBy: ''));
 	}//end testTheStepKindIsCheckedBeforeTheVerdict()
 
 	/**
@@ -75,9 +76,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 
 		(new AdmissibilityVerdictService())->record(
 			['stepKind' => 'intake'],
-			AdmissibilityVerdictService::NIET_ONTVANKELIJK,
-			'',
-			'  '
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::NIET_ONTVANKELIJK, ground: '', decidedBy: '  ')
 		);
 	}//end testAVerdictWithoutADeciderIsRefused()
 
@@ -94,9 +93,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 
 		(new AdmissibilityVerdictService())->record(
 			['stepKind' => 'intake'],
-			AdmissibilityVerdictService::NIET_ONTVANKELIJK,
-			'',
-			'j.jansen'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::NIET_ONTVANKELIJK, ground: '', decidedBy: 'j.jansen')
 		);
 	}//end testARefusalWithoutAGroundIsRefusedWithItsMessage()
 
@@ -108,10 +105,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 	public function testARefusalIsRecordedInFull(): void {
 		$verdict = (new AdmissibilityVerdictService())->record(
 			['stepKind' => 'intake'],
-			AdmissibilityVerdictService::NIET_ONTVANKELIJK,
-			'  Artikel 4:5 Awb  ',
-			'j.jansen',
-			'2026-03-01T10:00:00+00:00'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::NIET_ONTVANKELIJK, ground: '  Artikel 4:5 Awb  ', decidedBy: 'j.jansen', decidedAt: '2026-03-01T10:00:00+00:00')
 		);
 
 		self::assertSame(
@@ -136,9 +130,7 @@ final class AdmissibilityVerdictServiceTest extends TestCase {
 		$before = time();
 		$verdict = (new AdmissibilityVerdictService())->record(
 			['stepKind' => 'intake'],
-			AdmissibilityVerdictService::ONTVANKELIJK,
-			' note ',
-			'j.jansen'
+			new IntakeVerdict(verdict: AdmissibilityVerdictService::ONTVANKELIJK, ground: ' note ', decidedBy: 'j.jansen')
 		);
 		$after = time();
 
