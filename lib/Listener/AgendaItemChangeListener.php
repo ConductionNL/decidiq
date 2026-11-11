@@ -169,15 +169,6 @@ class AgendaItemChangeListener implements IEventListener {
 	 * @return array<string, mixed>
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 }//end class

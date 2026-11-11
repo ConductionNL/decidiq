@@ -208,16 +208,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return array<string, mixed> Serialized payload, or [] when unavailable
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 
 	/**
