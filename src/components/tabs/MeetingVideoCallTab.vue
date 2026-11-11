@@ -88,15 +88,15 @@ import {
 	talkLinksPath,
 	tokenFromInput,
 } from '../../utils/videoCall.js'
-import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'MeetingVideoCallTab',
 	components: { CnNoteCard, NcButton, NcTextField, VideoIcon },
 
-	/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
-	mixins: [objectIdLoader],
+	props: {
+		objectId: { type: [String, Number], default: '' },
+	},
 
 	data() {
 		return {
@@ -129,6 +129,16 @@ export default {
 		/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
 		linkToken() {
 			return tokenFromInput(this.linkInput)
+		},
+	},
+
+	watch: {
+		objectId: {
+			immediate: true,
+			/** @spec openspec/specs/digital-meetings-and-recurrence/spec.md#requirement-req-mvc-001-a-digital-or-hybrid-meeting-has-its-video-call */
+			handler() {
+				this.load()
+			},
 		},
 	},
 
