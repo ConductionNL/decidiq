@@ -1,0 +1,53 @@
+# gitleaks configuration: the default rules, plus allowlists for findings
+# that are not secrets. Each allowlist names the exact files and only the
+# rules that fire there, so anything else in those files is still reported.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Agent skill instructions: curl examples with the default admin:admin login of the local development container."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)\.claude/skills/opsx\-pipeline/SKILL\.md$''',
+  '''(^|/)\.claude/skills/opsx\-verify/SKILL\.md$''',
+  '''(^|/)\.claude/skills/team\-qa/SKILL\.md$''',
+  '''(^|/)\.claude/skills/test\-api/SKILL\.md$''',
+  '''(^|/)\.claude/skills/test\-performance/SKILL\.md$''',
+  '''(^|/)\.claude/skills/test\-security/SKILL\.md$''',
+]
+
+[[allowlists]]
+description = "Documentation examples: the default admin:admin login of the local development and demo containers."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)docs/Installation/demo\-environment\.md$''',
+]
+
+[[allowlists]]
+description = "Demo seed data: the key fields are human-readable slugs (for example vote-..., agenda-...), not credentials."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)lib/Settings/example\-sets/zuiddrecht\.json$''',
+]
+
+[[allowlists]]
+description = "Demo profile seed data: anonymous survey response tokens made of sequential hex (3c4d5e6f...), not credentials."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)lib/Settings/profiles/corporate\.json$''',
+]
+
+[[allowlists]]
+description = "E2E seed script: curl login built from the ADMIN_USER/ADMIN_PASSWORD environment variables, not a literal."
+targetRules = ["curl-auth-user"]
+paths = [
+  '''(^|/)tests/e2e/ci\-seed\.sh$''',
+]
+
+[[allowlists]]
+description = "Golden test fixture: voter and delegate pseudonym hashes computed from fixture inputs, not credentials."
+targetRules = ["generic-api-key"]
+paths = [
+  '''(^|/)tests/fixtures/vote\-cast\-golden\.json$''',
+]
