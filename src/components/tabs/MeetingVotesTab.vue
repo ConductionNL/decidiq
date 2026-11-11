@@ -78,12 +78,40 @@ import { ensureRelationType } from './useRelationStore.js'
  */
 function roundTally(round) {
 	return {
-		votesFor: round.votesFor ?? 0,
-		votesAgainst: round.votesAgainst ?? 0,
-		votesAbstain: round.votesAbstain ?? 0,
+		...voteCounts(round),
 		result: round.result || '',
 		timestamp: round.closedAt || round.openedAt || '',
 	}
+}
+
+/**
+ * The vote counts of a round, a missing count read as 0.
+ *
+ * @param {object} round The voting round
+ * @return {{votesFor: number, votesAgainst: number, votesAbstain: number}} The counts.
+ * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+ */
+function voteCounts(round) {
+	return {
+		votesFor: round.votesFor ?? 0,
+		votesAgainst: round.votesAgainst ?? 0,
+		votesAbstain: round.votesAbstain ?? 0,
+	}
+}
+
+/**
+ * The per-faction breakdown of a round, or null when the server refuses it.
+ *
+ * @param {string} roundId The voting round id
+ * @return {Promise<object|null>} The breakdown.
+ * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+ */
+async function fetchBreakdown(roundId) {
+	const response = await fetch(generateUrl(breakdownUrl(roundId)), {
+		headers: { requesttoken: window.OC?.requestToken },
+	})
+	if (!response.ok) return null
+	return response.json()
 }
 
 /**
@@ -268,29 +296,35 @@ export default {
 		 */
 		async factionSummary(roundId) {
 			try {
-				const response = await fetch(generateUrl(breakdownUrl(roundId)), {
-					headers: { requesttoken: window.OC?.requestToken },
-				})
-				if (!response.ok) return ''
-				const breakdown = await response.json()
+				const breakdown = await fetchBreakdown(roundId)
+				if (breakdown === null) return ''
 				if (breakdown.secret) return this.t('decidiq', 'Secret vote')
 				return factionRows(breakdown)
-					.map((row) =>
-						this.t(
-							'decidiq',
-							'{faction}: {for} for, {against} against, {abstain} abstain',
-							{
-								faction: row.faction,
-								for: row.for,
-								against: row.against,
-								abstain: row.abstain,
-							},
-						),
-					)
+					.map((row) => this.factionLine(row))
 					.join('; ')
 			} catch {
 				return ''
 			}
+		},
+
+		/**
+		 * One faction's line of a round's summary.
+		 *
+		 * @param {object} row The faction row
+		 * @return {string}
+		 * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
+		 */
+		factionLine(row) {
+			return this.t(
+				'decidiq',
+				'{faction}: {for} for, {against} against, {abstain} abstain',
+				{
+					faction: row.faction,
+					for: row.for,
+					against: row.against,
+					abstain: row.abstain,
+				},
+			)
 		},
 
 		/**
