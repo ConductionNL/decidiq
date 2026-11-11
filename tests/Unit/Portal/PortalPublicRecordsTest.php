@@ -253,6 +253,13 @@ final class PortalPublicRecordsTest extends TestCase {
 		$records['nobody'] = $provider->publicVotingRecord('nobody');
 		$golden = dirname(__DIR__, 2).'/fixtures/public-voting-records-golden.json';
 		$json = json_encode($records, (JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))."\n";
+		// The example set's dates are relative to today, so they are recorded as day offsets.
+		$today = strtotime(gmdate('Y-m-d'));
+		$json = (string)preg_replace_callback(
+			'/\b\d{4}-\d{2}-\d{2}\b/',
+			static fn (array $date): string => 'today'.sprintf('%+d', (int)round((strtotime($date[0]) - $today) / 86400)),
+			$json
+		);
 		if (getenv('DECIDIQ_WRITE_GOLDEN') === '1') {
 			file_put_contents($golden, $json);
 		}
