@@ -45,11 +45,6 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 class OriPersonPublicationRule {
 
 	/**
-	 * The register every object lives in.
-	 */
-	private const REGISTER = 'decidiq';
-
-	/**
 	 * How many people or memberships one collection request reads.
 	 */
 	private const LIMIT = 500;
@@ -166,21 +161,6 @@ class OriPersonPublicationRule {
 	 * @return array<string, array<string, mixed>>
 	 */
 	private function all(string $schema): array {
-		$entities = $this->objectService->findAll(
-			config: ['filters' => ['register' => self::REGISTER, 'schema' => $schema], 'limit' => self::LIMIT],
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		$objects = [];
-		foreach ($entities as $entity) {
-			$object = $entity->jsonSerialize();
-			$id = ($object['id'] ?? ($object['@self']['id'] ?? ($object['uuid'] ?? null)));
-			if (is_string($id) === true && $id !== '') {
-				$objects[$id] = $object;
-			}
-		}
-
-		return $objects;
+		return (new OriObjectsById(objectService: $this->objectService))->all(schema: $schema, limit: self::LIMIT);
 	}//end all()
 }//end class
