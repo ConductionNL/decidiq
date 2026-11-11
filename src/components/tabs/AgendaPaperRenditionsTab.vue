@@ -83,14 +83,17 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
 import { canManageAgenda } from '../../services/agendaRules.js'
 import { paperEntries, retryUrl } from '../../utils/paperRenditions.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'AgendaPaperRenditionsTab',
 
 	components: { NcButton, NcLoadingIcon },
 
+	/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
+	mixins: [objectIdLoader],
+
 	props: {
-		objectId: { type: [String, Number], default: '' },
 		targetType: { type: String, default: '' },
 	},
 
@@ -120,16 +123,6 @@ export default {
 				this.object?.paperRenditions,
 				canManageAgenda(this.roles),
 			)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

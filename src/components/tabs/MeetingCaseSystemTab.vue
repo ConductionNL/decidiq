@@ -80,28 +80,18 @@ import {
 	newestFirst,
 	recordsUrl,
 } from '../../utils/caseSystem.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'MeetingCaseSystemTab',
 
 	components: { NcButton, NcLoadingIcon },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-006-every-exchange-is-recorded-and-a-failed-document-is-sent-again-on-request */
+	mixins: [objectIdLoader],
 
 	data() {
 		return { loading: false, working: '', records: [], message: '' }
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-006-every-exchange-is-recorded-and-a-failed-document-is-sent-again-on-request */
-			handler() {
-				this.load()
-			},
-		},
 	},
 
 	methods: {

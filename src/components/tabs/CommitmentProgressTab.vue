@@ -50,6 +50,7 @@ import {
 	noteIsValid,
 	progressPath,
 } from '../../utils/commitmentProgress.js'
+import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 const TYPE = 'governance-commitment'
@@ -58,9 +59,8 @@ export default {
 	name: 'CommitmentProgressTab',
 	components: { NcButton, NcTextArea },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-002-the-clerk-adds-a-progress-entry */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -75,16 +75,6 @@ export default {
 		/** @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-002-the-clerk-adds-a-progress-entry */
 		canSend() {
 			return noteIsValid(this.note)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-002-the-clerk-adds-a-progress-entry */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

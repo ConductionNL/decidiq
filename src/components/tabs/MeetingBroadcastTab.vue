@@ -191,15 +191,15 @@ import {
 	testResultOf,
 	testUrl,
 } from '../../utils/meetingBroadcast.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'MeetingBroadcastTab',
 
 	components: { NcButton, NcCheckboxRadioSwitch, NcLoadingIcon, NcTextArea },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -253,16 +253,6 @@ export default {
 				paused: this.t('decidiq', 'Paused for a closed session.'),
 				ended: this.t('decidiq', 'The broadcast has ended.'),
 			}[this.broadcast?.lifecycle || 'planned']
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-003-going-live-needs-a-public-meeting-and-a-connected-streaming-service */
-			handler() {
-				this.load()
-			},
 		},
 	},
 

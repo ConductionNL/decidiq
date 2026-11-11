@@ -61,15 +61,15 @@ import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon, NcTextField } from '@nextcloud/vue'
 import CaseDocumentsModal from '../../modals/CaseDocumentsModal.vue'
 import { apiUrl, caseLabel } from '../../utils/caseSystem.js'
+import { objectIdLoader } from './objectIdLoader.js'
 
 export default {
 	name: 'AgendaItemCaseTab',
 
 	components: { CaseDocumentsModal, NcButton, NcLoadingIcon, NcTextField },
 
-	props: {
-		objectId: { type: [String, Number], default: '' },
-	},
+	/** @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-001-the-case-system-is-an-integriq-connection */
+	mixins: [objectIdLoader],
 
 	data() {
 		return {
@@ -87,16 +87,6 @@ export default {
 		/** @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-002-an-agenda-item-links-to-its-case */
 		label() {
 			return caseLabel(this.caseReference)
-		},
-	},
-
-	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-001-the-case-system-is-an-integriq-connection */
-			handler() {
-				this.load()
-			},
 		},
 	},
 
