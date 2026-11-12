@@ -1,0 +1,359 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DecisionRouteTab golden runs > deriveEffectiveStatus 1`] = `
+[
+  {
+    "label": "repealed wins",
+    "log": [
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": {
+        "id": "c2",
+        "repeals": [
+          {
+            "uuid": "d-1",
+          },
+        ],
+      },
+      "effectiveStatus": "repealed",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "superseded",
+    "log": [
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": {
+        "id": "c1",
+        "supersedes": [
+          "d-1",
+        ],
+      },
+      "effectiveStatus": "superseded",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "by object id",
+    "log": [
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": {
+        "id": "x",
+        "supersedes": [
+          {
+            "id": "d-1",
+          },
+        ],
+      },
+      "effectiveStatus": "superseded",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "none",
+    "log": [
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": null,
+      "effectiveStatus": "",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "nothing read",
+    "log": [
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": null,
+      "effectiveStatus": "",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+]
+`;
+
+exports[`DecisionRouteTab golden runs > makerName and the effective status notice 1`] = `
+{
+  "names": [
+    "Ann",
+    "Bob",
+    "Unassigned",
+    "Unassigned",
+    "Board",
+    "Decision maker",
+    "Unassigned",
+  ],
+  "notices": [
+    "This decision was repealed<>.",
+    "This decision was repealed< on <date(2026-01-02T00:00:00Z)>>.",
+    "This decision was repealed< on <date(2025-01-01)>>.",
+    "This decision was repealed<>.",
+    "This decision was superseded<>.",
+    "This decision was superseded< on <date(2026-01-02T00:00:00Z)>>.",
+    "This decision was superseded< on <date(2025-01-01)>>.",
+    "This decision was superseded<>.",
+  ],
+}
+`;
+
+exports[`DecisionRouteTab golden runs > refresh 1`] = `
+[
+  {
+    "label": "loads",
+    "log": [
+      [
+        "fetchObject",
+        "decision",
+        "decision",
+        "d-1",
+      ],
+      [
+        "fetchCollection",
+        "decision-stage",
+        "decision-stage",
+        {
+          "_limit": 100,
+          "decision": "d-1",
+        },
+      ],
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+      [
+        "fetchCollection",
+        "action-item",
+        "action-item",
+        {
+          "_limit": 100,
+          "decision": "d-1",
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "s2",
+      "effectingDecision": null,
+      "effectiveStatus": "",
+      "error": "",
+      "lifecycle": "decided",
+      "loading": false,
+      "openActionItemCount": 1,
+      "stages": [
+        {
+          "id": "s0",
+        },
+        {
+          "id": "s1",
+          "sequence": 1,
+        },
+        {
+          "id": "s2",
+          "sequence": 2,
+        },
+      ],
+    },
+  },
+  {
+    "label": "no decision",
+    "log": [
+      [
+        "fetchObject",
+        "decision",
+        "decision",
+        "d-1",
+      ],
+      [
+        "fetchCollection",
+        "decision-stage",
+        "decision-stage",
+        {
+          "_limit": 100,
+          "decision": "d-1",
+        },
+      ],
+      [
+        "fetchCollection",
+        "decision",
+        "decision",
+        {
+          "_limit": 200,
+          "lifecycle": [
+            "decided",
+            "enacted",
+          ],
+        },
+      ],
+      [
+        "fetchCollection",
+        "action-item",
+        "action-item",
+        {
+          "_limit": 100,
+          "decision": "d-1",
+        },
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": null,
+      "effectiveStatus": "",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "no id",
+    "log": [],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": "stale",
+      "effectiveStatus": "stale",
+      "error": "",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "fails",
+    "log": [
+      [
+        "fetchObject",
+        "decision",
+        "decision",
+        "d-1",
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": null,
+      "effectiveStatus": "",
+      "error": "gone",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+  {
+    "label": "fails silently",
+    "log": [
+      [
+        "fetchObject",
+        "decision",
+        "decision",
+        "d-1",
+      ],
+    ],
+    "state": {
+      "currentStage": "",
+      "effectingDecision": null,
+      "effectiveStatus": "",
+      "error": "Failed to load route.",
+      "lifecycle": "",
+      "loading": false,
+      "openActionItemCount": 0,
+      "stages": [],
+    },
+  },
+]
+`;
