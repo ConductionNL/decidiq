@@ -84,6 +84,28 @@ class ConsultationAutoCloseJob extends TimedJob {
 	protected function run(mixed $argument): void {
 		$this->logger->info('Decidiq: ConsultationAutoCloseJob started');
 
+		$run = $this->startRun();
+		if ($run === null) {
+			return;
+		}
+
+		$this->closeExpiredPages(run: $run);
+
+		$this->logger->info(
+			sprintf('Decidiq ConsultationAutoCloseJob: closed %d consultations (%d errors)', $run->closed, $run->errors)
+		);
+
+	}//end run()
+
+	/**
+	 * Resolve the services a sweep needs and start it, or log and return null
+	 * when they are unavailable.
+	 *
+	 * @return ConsultationCloseRun|null The started sweep, or null to skip.
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function startRun(): ?ConsultationCloseRun {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$lifecycleService = $this->container->get(\OCA\Decidiq\Service\ParticipationLifecycleService::class);
@@ -92,41 +114,58 @@ class ConsultationAutoCloseJob extends TimedJob {
 				'Decidiq ConsultationAutoCloseJob: dependencies unavailable, skipping.',
 				['exception' => $e->getMessage()]
 			);
-			return;
+			return null;
 		}
 
-		$now = time();
-		$tally = ['closed' => 0, 'errors' => 0];
+		return new ConsultationCloseRun(objectService: $objectService, lifecycleService: $lifecycleService, now: time());
+	}//end startRun()
+
+	/**
+	 * Walk the open consultations page by page, closing the expired ones,
+	 * until a page is short or a fetch fails.
+	 *
+	 * @param ConsultationCloseRun $run The sweep.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function closeExpiredPages(ConsultationCloseRun $run): void {
 		$offset = 0;
 
 		while (true) {
-			$entities = $this->fetchOpenConsultations(objectService: $objectService, offset: $offset);
+			$entities = $this->fetchOpenConsultations(objectService: $run->objectService, offset: $offset);
 			if ($entities === null) {
-				break;
+				return;
 			}
 
-			$batchCount = 0;
-			foreach ($entities as $entity) {
-				$batchCount++;
-				$this->closeIfExpired(
-					lifecycleService: $lifecycleService,
-					consultation: $entity->jsonSerialize(),
-					now: $now,
-					tally: $tally
-				);
-			}
-
+			$batchCount = $this->closeExpiredIn(run: $run, entities: $entities);
 			$offset += $batchCount;
 			if ($batchCount < self::PAGE_SIZE) {
-				break;
+				return;
 			}
-		}//end while
+		}
+	}//end closeExpiredPages()
 
-		$this->logger->info(
-			sprintf('Decidiq ConsultationAutoCloseJob: closed %d consultations (%d errors)', $tally['closed'], $tally['errors'])
-		);
+	/**
+	 * Close the expired consultations of one page.
+	 *
+	 * @param ConsultationCloseRun $run      The sweep.
+	 * @param array<int, mixed>    $entities The page of entities.
+	 *
+	 * @return int How many entities the page held.
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function closeExpiredIn(ConsultationCloseRun $run, array $entities): int {
+		$batchCount = 0;
+		foreach ($entities as $entity) {
+			$batchCount++;
+			$this->closeIfExpired(run: $run, consultation: $entity->jsonSerialize());
+		}
 
-	}//end run()
+		return $batchCount;
+	}//end closeExpiredIn()
 
 	/**
 	 * Fetch one page of open consultations, or null when the fetch failed.
@@ -165,28 +204,26 @@ class ConsultationAutoCloseJob extends TimedJob {
 
 	/**
 	 * Close a single consultation when its submission deadline has passed,
-	 * updating the closed/error tally.
+	 * counting it as closed or as an error on the sweep.
 	 *
-	 * @param object $lifecycleService The participation lifecycle service
+	 * @param ConsultationCloseRun $run          The sweep.
 	 * @param array<string, mixed> $consultation The serialised consultation
-	 * @param int $now Current unix timestamp
-	 * @param array<string, int> $tally Closed/error counters (by reference)
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
-	private function closeIfExpired(object $lifecycleService, array $consultation, int $now, array &$tally): void {
-		$uuid = $this->expiredConsultationId(consultation: $consultation, now: $now);
+	private function closeIfExpired(ConsultationCloseRun $run, array $consultation): void {
+		$uuid = $this->expiredConsultationId(consultation: $consultation, now: $run->now);
 		if ($uuid === null) {
 			return;
 		}
 
 		try {
-			$lifecycleService->transitionConsultation(consultationId: $uuid, newStatus: 'closed');
-			$tally['closed']++;
+			$run->lifecycleService->transitionConsultation(consultationId: $uuid, newStatus: 'closed');
+			$run->closed++;
 		} catch (\Throwable $e) {
-			$tally['errors']++;
+			$run->errors++;
 			$this->logger->error(
 				'Decidiq ConsultationAutoCloseJob: failed to close consultation',
 				['uuid' => $uuid, 'exception' => $e->getMessage()]
