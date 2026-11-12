@@ -16,3 +16,4 @@
 - DcSpoedbesluiten https://identity.conduction.nl/screens/board?id=decidiq/DcSpoedbesluiten
 - DcBesluitActiepunten https://identity.conduction.nl/screens/board?id=decidiq/DcBesluitActiepunten
 - DcBesluitConsultatie https://identity.conduction.nl/screens/board?id=decidiq/DcBesluitConsultatie
+- DcStemuitslag https://identity.conduction.nl/screens/board?id=decidiq/DcStemuitslag (the Uitvoering panel with implementation status and progress updates)
