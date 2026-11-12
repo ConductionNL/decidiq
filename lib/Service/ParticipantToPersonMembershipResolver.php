@@ -411,28 +411,6 @@ class ParticipantToPersonMembershipResolver {
 	 * @return array<string, mixed>|null
 	 */
 	private function toArray(mixed $entity): ?array {
-		if ($entity === null) {
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-		}
-
-		return null;
+		return (new ObjectResultNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class
