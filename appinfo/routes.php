@@ -32,6 +32,8 @@
 declare(strict_types=1);
 
 $extra = [
+        // The OpenAPI document of decidiq's own API, public, served under /api/v1/ too.
+    ['name' => 'openApi#show', 'url' => '/api/openapi.json', 'verb' => 'GET'],
         // Publication configuration (publish-decisions-via-opencatalogi).
         // @spec openspec/changes/publish-decisions-via-opencatalogi/specs/public-publication/spec.md
         // First-time setup wizard (ADR-042) - the standard CnSetupWizard contract.
@@ -419,7 +421,8 @@ $extra = [
 // Preferred path: the OpenRegister AppHost owns the canonical route table.
 // `class_exists()` autoloads without fatalling when the class is unavailable.
 if (class_exists('OCA\OpenRegister\AppHost\Routes') === true) {
-    return \OCA\OpenRegister\AppHost\Routes::standard($extra);
+    // Every unversioned API route is also served under /api/v1/; see ApiPathAliases.
+    return \OCA\Decidiq\Middleware\Support\ApiPathAliases::withVersionedAliases(\OCA\OpenRegister\AppHost\Routes::standard($extra));
 }
 
 // Fallback: openregister is not installed. Reproduce `Routes::standard()`
@@ -464,4 +467,4 @@ foreach ($canonicalRoutes as $canonicalRoute) {
 $mergedRoutes   = array_merge($mergedRoutes, $extra);
 $mergedRoutes[] = $catchAllRoute;
 
-return ['routes' => $mergedRoutes];
+return \OCA\Decidiq\Middleware\Support\ApiPathAliases::withVersionedAliases(['routes' => $mergedRoutes]);
