@@ -149,7 +149,11 @@ class ProxyDelegationService {
 		$round = $roundEntity->jsonSerialize();
 		$notes = ($round['notes'] ?? []);
 
-		$this->assertBelowProxyCap(notes: $this->notesInMeeting(round: $round, votingRoundId: $votingRoundId), fromParticipantId: $fromParticipantId, toParticipantId: $toParticipantId);
+		$this->assertBelowProxyCap(
+			notes: $this->notesInMeeting(round: $round, votingRoundId: $votingRoundId),
+			fromParticipantId: $fromParticipantId,
+			toParticipantId: $toParticipantId
+		);
 
 		$notes[] = [
 			'title' => 'Proxy',
