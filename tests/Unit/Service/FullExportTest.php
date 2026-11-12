@@ -56,6 +56,7 @@ use ZipArchive;
  * @covers \OCA\Decidiq\Controller\FullExportController
  * @uses   \OCA\Decidiq\Service\SettingsService
  * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
+ * @uses \OCA\Decidiq\Service\FullExportRun
  *
  * @spec openspec/specs/openregister-integration/spec.md#requirement-req-pfe-001-an-administrator-exports-all-data
  */

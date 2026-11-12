@@ -70,6 +70,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Service\VotingRoundRules
  * @uses   \OCA\Decidiq\Service\VoteBallotFactory
  * @uses   \OCA\Decidiq\Service\VoterTokenSecret
+ * @uses \OCA\Decidiq\Service\MeetingScopedRecords
  */
 class SubstitutionResolverTest extends TestCase {
 
