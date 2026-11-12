@@ -1451,6 +1451,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
+				"plan": "openspec/changes/retire-the-unbuilt-rooster",
 				"state": "building",
 				"evidence": "src/manifest.json:478 body-position-holders sorted by endDate asc with columns termNumber and 'Until'; lib/Settings/register.d/70-configurable-types.json PositionHold startDate/endDate/termNumber, PositionType termDurationMonths/maxConsecutiveTerms; lib/Settings/register.d/80-retire-the-unbuilt-rooster.json retires RoosterVanAftreden ('generator RoosterService was never written')",
 				"owner": "ConductionNL/decidiq",
@@ -1490,6 +1491,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
+				"plan": "openspec/changes/member-onboarding",
 				"state": "building",
 				"evidence": "lib/Settings/register.d/88-member-onboarding-in-plain-words.json MemberOnboarding/MemberOffboarding with steps[] checklist and lifecycle; src/manifest.d/member-onboarding.json MemberOnboarding/MemberOffboarding index+detail (generic data widget); no PHP service executes steps (grep 'onboarding' in lib/Service, lib/Listener: none); completion guard and created-notification only as x-openregister-lifecycle/x-openregister-notifications declarations",
 				"owner": "ConductionNL/decidiq",
@@ -1529,6 +1531,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/integrity-disclosures-in-plain-words",
 				"state": "built",
 				"evidence": "lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json AncillaryPosition (organisation, role, remunerated, reviewedAt, lifecycle) and DeclaredGift (giver, estimatedValue, decision); src/manifest.d/interests-and-integrity.json MyDeclarations (/my-declarations), AncillaryPositions, DeclaredGifts index+detail; src/manifest.json:480-481 body-ancillary-positions and body-gifts on GovernanceBodyDetail",
 				"owner": "ConductionNL/decidiq",
@@ -1768,6 +1771,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
+				"plan": "openspec/changes/example-set-zuiddrecht",
 				"state": "built",
 				"evidence": "src/manifest.json setup wizard steps 'example-set' (optionsSource profiles) and 'load-example-set'; lib/Controller/SetupController.php:114-122 status lists profiles, :301-330 loadExampleSet() calls SeedProfileService::install(); lib/Settings/profiles/{municipality,association,corporate,works-council}.json",
 				"owner": "ConductionNL/decidiq",
@@ -2269,6 +2273,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/configuration-surface",
 				"state": "built",
 				"evidence": "lib/Listener/MeetingDefaultsListener.php on ObjectCreatingEvent (meeting, subscribed in lib/AppInfo/Registrar/ObjectListenerRegistrar.php) fills governanceBody, quorumRequired (defaultQuorum, else body quorum), endDate (scheduledDate + defaultDurationMinutes) and lifecycle (initialLifecycle) through setModifiedData; lib/Service/MeetingRuleSource.php meetingTypeThreshold() gives the type's defaultVoteThreshold to a round before the body's template",
 				"owner": "ConductionNL/decidiq",
@@ -5336,6 +5341,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/action-item-vtodo-migration",
 				"state": "built",
 				"evidence": "DecisionDetail widget decision-actions -> src/components/tabs/ActionItemsSurface.vue (DecisionActionItemsTab or ActionItemDeckBoard); DecisionActionItemsTab.vue:142-143 assignee/dueDate columns, :256 createActionItem({...formData, decision}) -> src/services/actionItemApi.js POST /api/action-items (routes.php:78) -> lib/Service/ActionItemWriter.php:98 create() writes a CalDAV VTODO via OpenRegister TaskService.",
 				"owner": "ConductionNL/decidiq",
@@ -5704,6 +5710,11 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
+				"plan": [
+					"openspec/changes/the-decision-as-a-walked-process",
+					"openspec/changes/routes-send-proposal-along-route",
+					"openspec/changes/competitor-parity-2026-09"
+				],
 				"state": "building",
 				"evidence": "lib/Service/ApprovalRouteService.php:354 instantiate() and :483 record(), lib/Service/ApprovalRouteAdvancer.php, ApprovalThresholdCalculator; started via routes.php:58 POST /api/approval-routes/instantiate or lib/Listener/ApprovalRouteRequestedListener.php:84 (registered lib/AppInfo/Registrar/CrossAppEventRegistrar.php:83). Frontend: src/integrations/approvalChainLink.js:237 holdRoute() is exported but called by no component; CnApprovalChainWidget.vue:306 recordAction() lets the actor approve/reject. Inside decidiq, src/components/tabs/DecisionRouteTab.vue is read-only and no decidiq screen starts a route (src/dialogs/DecisionFormDialog.vue has no route step).",
 				"owner": "ConductionNL/decidiq",
@@ -5806,6 +5817,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/document-approval-chain-leaf",
 				"state": "built",
 				"evidence": "src/components/tabs/DecisionRouteTab.vue:419 fetches the decision's decision-stage rows and renders the timeline with current stage and 'N of M stages decided'; for documents in other apps lib/Listener/RegisterApprovalChainLeafListener.php:58 LEAF_ID decidiq-approval-chain, SURFACES :106 (detail-page, single-entity, dashboards), registered in lib/AppInfo/Registrar/IntegrationLeafRegistrar.php:90, JS half src/integrations/registerApprovalChainLeaf.js (CnApprovalChainTab timeline).",
 				"owner": "ConductionNL/decidiq",
@@ -5842,6 +5854,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/delegated-authority-check",
 				"state": "built",
 				"evidence": "src/manifest.d/delegatie-mandaatregister.json pages AuthorityDelegations (/authority-delegations) and AuthorityDelegationDetail with the delegation-chain widget (:100) rendered by src/components/widgets/DelegationChainWidget.vue, registered in src/components/widgets/registerDetailWidgets.js:272 (called from src/main.js:280); schema AuthorityDelegation in lib/Settings/register.d/86-the-last-two-dutch-names.json.",
 				"owner": "ConductionNL/decidiq",
@@ -5881,6 +5894,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
+				"plan": "openspec/changes/urgent-decision-procedure",
 				"state": "specified",
 				"evidence": "src/manifest.d/urgent-decision-procedure.json:15 UrgentDecisions list (/urgent-decisions, filter isUrgent, quick filters on awaitingRatification); fields and awaitingRatification calculation declared in lib/Settings/register.d/46-urgency-policy.json:12. Nothing sets them: no PHP under lib/ handles urgency, no route, and the UrgencyTriggerGuard the schema names does not exist, so the list is always empty. The declare flow and ratification stage are specified in openspec/changes/urgent-decision-procedure; urgent-decisions-register adds the board's declaring body and report date.",
 				"owner": "ConductionNL/decidiq",
@@ -6142,6 +6156,10 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": [
+					"openspec/changes/decision-types-as-configuration",
+					"openspec/changes/the-decision-carries-the-brc-besluit-fields"
+				],
 				"state": "built",
 				"evidence": "lib/Controller/IntegrationController.php:155 createDecision(), :236 getOutcome(), :321 subscribe() (routes.php:291-293 /api/v1/decisions, /{id}/outcome, /{id}/subscriptions) over lib/Service/DecisionIntegrationService.php:135/333/446; event path lib/Listener/DecisionRequestedListener.php:83 (registered CrossAppEventRegistrar.php:67); host-app UI via the decisions leaf src/integrations/registerDecisionsLeaf.js / CnDecisionsTab with src/integrations/decisionLink.js:103 createHostDecision(); leaf registered lib/Listener/RegisterDecisionsLeafListener.php.",
 				"owner": "ConductionNL/decidiq",
@@ -6181,6 +6199,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/fold-regulations-into-governing-documents",
 				"state": "built",
 				"evidence": "src/manifest.d/governing-documents-register.json GoverningDocuments (/governing-documents), GoverningDocumentDetail with version-timeline widget (:164, src/components/widgets/RegisterVersionTimelineWidget.vue registered registerDetailWidgets.js:262) and GoverningDocumentVersieDetail; schemas GoverningDocument / GoverningDocumentVersie in lib/Settings/register.d/55-governing-documents-register.json (versionNumber, effectiveDate, expiryDate, deed).",
 				"owner": "ConductionNL/decidiq",
@@ -6411,6 +6430,7 @@
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
+				"plan": "openspec/changes/hand-woo-diwoo-to-integriq",
 				"state": "decided-no",
 				"evidence": "lib/Settings/register.d/87-hand-woo-diwoo-to-integriq.json:2 _note: 'Woo informatiecategorieën, TOOI bestuursorgaan identifiers and DROP/STOP-TPOD delivery packages ... Mapping an object onto a publication standard is integriq's responsibility'; WooCategorieMapping, WooBestuursorgaan retired active:false; openspec/changes/hand-woo-diwoo-to-integriq/",
 				"owner": "ConductionNL/integriq"
@@ -6441,6 +6461,7 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
+				"plan": "openspec/changes/embargo-geheimhouding",
 				"state": "specified",
 				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json:6 ConfidentialityRestriction with scope, targets, ground ($ref confidentiality-ground), imposedBy/imposedByBody/imposedAt, ratification fields; src/manifest.d/embargo-geheimhouding.json:23,70 index and detail with a three-stage timeline. No end date: liftingDate (:260) is the date it was lifted, liftingConditions (:269) free text; no link to the imposing decision.",
 				"owner": "ConductionNL/decidiq",
@@ -7816,6 +7837,7 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": "openspec/changes/l10n-parity-ci-gate",
 				"state": "built",
 				"evidence": "l10n/ holds 26 languages (bg..tr); l10n/nl.json 2359 keys, l10n/en.json 2109, l10n/de.json and l10n/fr.json 1083 each; src/settings.js:13 loadTranslations('decidiq'); UI strings via t('decidiq', ...)",
 				"owner": "ConductionNL/decidiq",
@@ -8028,6 +8050,11 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
+				"plan": [
+					"openspec/changes/decisions-card-board-look",
+					"openspec/changes/decisions-leaf-speaks-the-hosts-words",
+					"openspec/changes/leaf-loads-its-translations"
+				],
 				"state": "built",
 				"evidence": "lib/Service/DecisionIntegrationService.php:60 PROVENANCE_FIELDS sourceApp/subjectRegister/subjectSchema/subjectId/externalReference, :135 createDecision() idempotent; appinfo/routes.php:291-293 /api/v1/decisions; lib/AppInfo/Registrar/CrossAppEventRegistrar.php:67 DecisionRequestedEvent -> DecisionRequestedListener; src/integrations/registerDecisionsLeaf.js mounted globally via src/integration-init.js:24 (lib/AppInfo/Application.php:198 addInitScript); lib/Event/DecisionConcludedEvent.php (procest ZGW advance)",
 				"owner": "ConductionNL/decidiq",
@@ -8410,6 +8437,11 @@
 			"originUrl": "https://www.tenderned.nl/aankondigingen/overzicht/384605",
 			"decidiq": "partial",
 			"built": {
+				"plan": [
+					"openspec/changes/council-calendar-columns-in-the-readers-language",
+					"openspec/changes/council-calendar-meeting-type-in-the-readers-language",
+					"openspec/changes/public-calendar-narrows-with-filter"
+				],
 				"state": "built",
 				"evidence": "lib/Settings/register.d/109-activity-calendar.json MeetingType.audiences (council, executive, joint-arrangement, residents, staff), PublicationRecord.sourceType activity, PublicationPayload.location/audiences; src/utils/activityCalendar.js calendarParams (visible grid scheduledDate range, type ids per audience, governanceBody) used by src/views/meetings/MeetingCalendarView.vue load() with Audience and Body NcSelect filters kept in the route query; PublicationEligibilityService::assertActivityEligible + PublicationPayloadService::buildActivityPayload; AgendaPublicationTab 'Publish to the public calendar'; lib/Portal/PortalContributionProvider.php anonymous publicCalendar collection; tests/Unit/Service/ActivityPublicationTest.php, tests/Unit/Controller/PublicationActivityTest.php, tests/vitest/meetingCalendarLoad.spec.js",
 				"owner": "ConductionNL/decidiq",
@@ -8984,7 +9016,10 @@
 				"evidence": "lib/Search/DecidiqSearchProvider.php:59 SCHEMAS decision and meeting, :157 search() passes the plain term to OpenRegister findAll 'search' with LIMIT_PER_SCHEMA 5 (:69); index pages use OpenRegister's list search; grep -rniE 'boolean operator|highlight|unaccent' lib/Search src: no search-related hit (only UI highlight comments), so no query syntax or result highlighting in decidiq; document contents in Nextcloud Files are not searched by decidiq",
 				"owner": "ConductionNL/openregister",
 				"change": "openregister/search-accent-insensitive",
-				"requirement": "openregister:openspec/changes/search-quality-operators-and-facets/specs/zoeken-filteren :: The search term accepts boolean operators and wildcards (REQ-SQF-002)"
+				"requirement": [
+					"openregister:openspec/changes/search-quality-operators-and-facets/specs/zoeken-filteren :: The search term accepts boolean operators and wildcards (REQ-SQF-002)",
+					"openregister:openspec/changes/search-accent-insensitive/specs/zoeken-filteren :: Object search ignores accents where the database supports it"
+				]
 			},
 			"reachedOn": "Nextcloud unified search bar; the search box on each index page",
 			"provider": "openregister",
