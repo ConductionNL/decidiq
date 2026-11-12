@@ -94,9 +94,9 @@ class ProxyDelegationService {
 	 * Grant proxy: delegate voting right from one participant to another for a VotingRound.
 	 *
 	 * Validates that the receiver has a voting role (not observer/guest) and
-	 * holds fewer proxies in the round than the configured cap
-	 * (`decidiq`/`max_proxies_per_holder`, default 2). Sends notification to
-	 * the delegate.
+	 * holds fewer proxies in the round's meeting than the configured cap
+	 * (`decidiq`/`max_proxies_per_holder`, default 2); a round without a
+	 * meeting counts its own proxies only. Sends notification to the delegate.
 	 *
 	 * @param string $votingRoundId The voting round UUID
 	 * @param string $fromParticipantId The delegating participant UUID
@@ -149,7 +149,7 @@ class ProxyDelegationService {
 		$round = $roundEntity->jsonSerialize();
 		$notes = ($round['notes'] ?? []);
 
-		$this->assertBelowProxyCap(notes: $notes, fromParticipantId: $fromParticipantId, toParticipantId: $toParticipantId);
+		$this->assertBelowProxyCap(notes: $this->notesInMeeting(round: $round, votingRoundId: $votingRoundId), fromParticipantId: $fromParticipantId, toParticipantId: $toParticipantId);
 
 		$notes[] = [
 			'title' => 'Proxy',
@@ -171,11 +171,11 @@ class ProxyDelegationService {
 	/**
 	 * Refuse the grant when the holder already holds the maximum number of proxies.
 	 *
-	 * Counts the distinct grantors whose proxy note on the round names the
-	 * holder; the grantor of this request is left out, so a repeated grant
-	 * does not count twice.
+	 * Counts the distinct grantors whose proxy note names the holder; the
+	 * grantor of this request is left out, so a repeated grant does not count
+	 * twice.
 	 *
-	 * @param array<int,mixed> $notes The voting round's notes
+	 * @param array<int,mixed> $notes The notes of every round the cap spans
 	 * @param string $fromParticipantId The delegating participant UUID
 	 * @param string $toParticipantId The receiving participant UUID
 	 *
@@ -216,6 +216,45 @@ class ProxyDelegationService {
 		}
 
 	}//end assertBelowProxyCap()
+
+	/**
+	 * The notes of the round and of every other round of its meeting.
+	 *
+	 * A round without a meeting contributes its own notes only. The other
+	 * rounds are read without RBAC or organisation scoping, so a round the
+	 * granting user cannot see still counts towards the cap.
+	 *
+	 * @param array<string,mixed> $round The voting round the proxy is granted on
+	 * @param string $votingRoundId The voting round UUID
+	 *
+	 * @return array<int,mixed> The notes the cap counts
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	private function notesInMeeting(array $round, string $votingRoundId): array {
+		$notes = ($round['notes'] ?? []);
+		$meetingId = ($round['meeting'] ?? '');
+		if (is_string($meetingId) === false || $meetingId === '') {
+			return $notes;
+		}
+
+		$rounds = $this->objectService->findAll(
+			config: ['filters' => ['register' => 'decidiq', 'schema' => 'voting-round', 'meeting' => $meetingId], 'limit' => 1000],
+			_rbac: false,
+			_multitenancy: false
+		);
+		foreach ($rounds as $entity) {
+			$other = $entity->jsonSerialize();
+			if (($other['id'] ?? '') === $votingRoundId || ($other['meeting'] ?? '') !== $meetingId) {
+				continue;
+			}
+
+			$notes = array_merge($notes, ($other['notes'] ?? []));
+		}
+
+		return $notes;
+
+	}//end notesInMeeting()
 
 	/**
 	 * Resolve the configured per-holder proxy cap.

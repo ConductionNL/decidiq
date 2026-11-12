@@ -153,12 +153,14 @@ class ProxyDelegationServiceTest extends TestCase {
 	/**
 	 * Build a voting-round entity carrying a proxy note per grantor, all held by the holder.
 	 *
-	 * @param string   $holder   Receiving participant UUID.
-	 * @param string[] $grantors Delegating participant UUIDs.
+	 * @param string      $holder   Receiving participant UUID.
+	 * @param string[]    $grantors Delegating participant UUIDs.
+	 * @param string      $id       Voting round UUID.
+	 * @param string|null $meeting  Meeting UUID the round was opened in, or null for none.
 	 *
 	 * @return ObjectEntity&MockObject
 	 */
-	private function roundWithProxies(string $holder, array $grantors): ObjectEntity&MockObject {
+	private function roundWithProxies(string $holder, array $grantors, string $id='round-uuid', ?string $meeting=null): ObjectEntity&MockObject {
 		$notes = [['title' => 'Agenda', 'body' => 'not a proxy']];
 		foreach ($grantors as $grantor) {
 			$notes[] = [
@@ -172,7 +174,12 @@ class ProxyDelegationServiceTest extends TestCase {
 			'body' => json_encode(['fromParticipantId' => 'other-grantor', 'toParticipantId' => 'other-holder', 'votingRoundId' => 'round-uuid']),
 		];
 
-		return $this->entity(data: ['id' => 'round-uuid', 'notes' => $notes]);
+		$data = ['id' => $id, 'notes' => $notes];
+		if ($meeting !== null) {
+			$data['meeting'] = $meeting;
+		}
+
+		return $this->entity(data: $data);
 	}//end roundWithProxies()
 
 	/**
@@ -333,5 +340,82 @@ class ProxyDelegationServiceTest extends TestCase {
 		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
 
 	}//end testGrantProxyRefusedWhenRoundMissing()
+
+	/**
+	 * Proxies the holder holds in other rounds of the same meeting count towards the cap.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	public function testGrantProxyCountsProxiesAcrossTheMeeting(): void {
+		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a'], meeting: 'meeting-1'));
+		$this->objectService->expects($this->once())->method('findAll')
+			->with(['filters' => ['register' => 'decidiq', 'schema' => 'voting-round', 'meeting' => 'meeting-1'], 'limit' => 1000], false, false)
+			->willReturn([$this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-b'], id: 'round-2', meeting: 'meeting-1')]);
+		$this->objectService->expects($this->never())->method('saveObject');
+
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: '2 van de 2 toegestane volmachten');
+
+		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
+
+	}//end testGrantProxyCountsProxiesAcrossTheMeeting()
+
+	/**
+	 * A grantor who gave the holder a proxy in an earlier round of the meeting counts once.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	public function testGrantProxySameGrantorAcrossRoundsCountedOnce(): void {
+		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a'], meeting: 'meeting-1'));
+		$this->objectService->method('findAll')->willReturn(
+			[$this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a'], id: 'round-2', meeting: 'meeting-1')]
+		);
+		$this->objectService->expects($this->once())->method('saveObject');
+
+		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
+
+	}//end testGrantProxySameGrantorAcrossRoundsCountedOnce()
+
+	/**
+	 * The round itself and rounds of another meeting in the result are not counted again.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	public function testGrantProxySkipsTheRoundItselfAndOtherMeetings(): void {
+		$round = $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a'], meeting: 'meeting-1');
+		$this->stubFind(round: $round);
+		$this->objectService->method('findAll')->willReturn(
+			[
+				$round,
+				$this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-b'], id: 'round-9', meeting: 'meeting-9'),
+			]
+		);
+		$this->objectService->expects($this->once())->method('saveObject');
+
+		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
+
+	}//end testGrantProxySkipsTheRoundItselfAndOtherMeetings()
+
+	/**
+	 * A round without a meeting counts its own proxies only and reads no other rounds.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	public function testGrantProxyWithoutMeetingCountsTheRoundOnly(): void {
+		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a']));
+		$this->objectService->expects($this->never())->method('findAll');
+		$this->objectService->expects($this->once())->method('saveObject');
+
+		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
+
+	}//end testGrantProxyWithoutMeetingCountsTheRoundOnly()
 
 }//end class

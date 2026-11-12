@@ -20,6 +20,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -126,7 +127,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -256,6 +258,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -362,7 +365,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -492,6 +496,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -598,7 +603,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -728,6 +734,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -834,7 +841,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -964,6 +972,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -1070,7 +1079,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -1220,6 +1230,7 @@
                     "id": "p-in"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new",
             "excludedPresetUuids": [
                 "p-stranger"
@@ -1375,7 +1386,8 @@
                                 "schema": "participant",
                                 "id": "p-in"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -1505,6 +1517,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -1604,7 +1617,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -1819,6 +1833,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-typed",
             "id": "round-new"
         },
         "calls": [
@@ -1932,7 +1947,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-typed"
                     }
                 }
             },
@@ -2062,6 +2078,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -2161,7 +2178,8 @@
                                 "schema": "motion",
                                 "id": "mot-2"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -2490,6 +2508,7 @@
                     "id": "am-1"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -2603,7 +2622,8 @@
                                 "schema": "amendment",
                                 "id": "am-1"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -2826,6 +2846,7 @@
                     "id": "mot-1"
                 }
             ],
+            "meeting": "meet-1",
             "revoteOfRound": "round-tied",
             "id": "round-new"
         },
@@ -2948,6 +2969,7 @@
                                 "id": "mot-1"
                             }
                         ],
+                        "meeting": "meet-1",
                         "revoteOfRound": "round-tied"
                     }
                 }
@@ -3349,6 +3371,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "options": [
                 {
                     "key": "a",
@@ -3466,6 +3489,7 @@
                                 "id": "mot-2"
                             }
                         ],
+                        "meeting": "meet-1",
                         "options": [
                             {
                                 "key": "a",
@@ -3771,6 +3795,7 @@
                     "id": "mot-2"
                 }
             ],
+            "meeting": "meet-1",
             "revoteOfRound": "round-tied-ranked",
             "options": [
                 {
@@ -3910,6 +3935,7 @@
                                 "id": "mot-2"
                             }
                         ],
+                        "meeting": "meet-1",
                         "revoteOfRound": "round-tied-ranked",
                         "options": [
                             {
@@ -4127,7 +4153,8 @@
                                 "schema": "motion",
                                 "id": "mot-locked"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },
@@ -4163,6 +4190,7 @@
                     "id": "mot-broken"
                 }
             ],
+            "meeting": "meet-1",
             "id": "round-new"
         },
         "calls": [
@@ -4269,7 +4297,8 @@
                                 "schema": "motion",
                                 "id": "mot-broken"
                             }
-                        ]
+                        ],
+                        "meeting": "meet-1"
                     }
                 }
             },

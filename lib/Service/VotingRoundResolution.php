@@ -58,11 +58,15 @@ final class VotingRoundResolution {
 	/**
 	 * Assemble the VotingRound payload that gets persisted.
 	 *
+	 * The round carries its meeting, so rules that hold per meeting (the
+	 * per-holder proxy cap) can find every round of that meeting.
+	 *
 	 * @param VotingRoundRequest $request The request: subject, method, secrecy, deadline and revote
 	 *
 	 * @return array<string,mixed> The voting-round payload
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
 	 */
 	public function roundPayload(VotingRoundRequest $request): array {
 		$rules = $this->rules;
@@ -86,6 +90,10 @@ final class VotingRoundResolution {
 			'tieBreakRule' => $rules['tieBreakRule'],
 			'relations' => $relations,
 		];
+
+		if ($request->meetingId !== '') {
+			$round['meeting'] = $request->meetingId;
+		}
 
 		if ($request->isFreshRound() === false) {
 			$round['revoteOfRound'] = $request->revoteOfRoundId();
