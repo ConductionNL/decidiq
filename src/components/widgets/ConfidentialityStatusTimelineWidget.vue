@@ -19,9 +19,9 @@
  "confidentiality-status-timeline" (renderer-only, surfaces: ['detail-page'])
  by registerDetailWidgets.js.
 
- @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
- @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
- @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+ @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+ @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+ @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 -->
 <template>
 	<CnWidgetWrapper
@@ -329,28 +329,28 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		stages() {
 			return buildConfidentialityStages(this.record, Date.now())
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		decisionRoute() {
 			return 'DecisionDetail'
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		agendaItemRoute() {
 			return 'AgendaItemDetail'
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		imposedByLabel() {
 			const fn = IMPOSED_BY_LABELS[this.record.imposedBy]
@@ -360,7 +360,7 @@ export default {
 		/**
 		 * Whichever of targetDocument/targetAgendaItem/targetDecision is set.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetKind() {
 			if (this.record.targetDocument) return 'document'
@@ -370,7 +370,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetId() {
 			const kind = TARGET_KINDS[this.targetKind]
@@ -378,7 +378,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetRoute() {
 			const kind = TARGET_KINDS[this.targetKind]
@@ -386,7 +386,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetKindLabel() {
 			const labels = {
@@ -402,7 +402,7 @@ export default {
 		record: {
 			immediate: true,
 			/**
-			 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+			 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
 			 */
 			handler() {
 				this.resolveReferences()
@@ -424,7 +424,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 * @param {string} key Stage key (imposed/ratification/dissolution).
 		 * @return {string}
 		 */
@@ -465,8 +465,8 @@ export default {
 		 * record (watch immediate); a missing store degrades to raw ids
 		 * rather than throwing.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 * @return {Promise<void>}
 		 */
 		async resolveReferences() {
@@ -489,7 +489,7 @@ export default {
 		/**
 		 * Fetch the ground object, registering its type first when needed.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
 		 * @param {object} store The object store.
 		 * @return {Promise<void>}
 		 */
@@ -510,7 +510,7 @@ export default {
 		/**
 		 * The labelled links the timeline shows, the target last.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 * @return {Array<object>} Per link its field, label key, schema and label field.
 		 */
 		labelLinks() {
@@ -524,7 +524,7 @@ export default {
 		/**
 		 * Resolve one link label, or clear it when the record does not link.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 * @param {object} store The object store.
 		 * @param {object} link The link: field, key, schema and label field.
 		 * @return {Promise<void>|null}
@@ -547,7 +547,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 * @param {string} routeName Vue-router route name.
 		 * @param {string} id Object id to navigate to.
 		 * @return {void}

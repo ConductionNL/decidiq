@@ -37,7 +37,7 @@ use Throwable;
 /**
  * Copies oral questions and interpellation requests onto generic agenda items.
  *
- * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ * @spec openspec/specs/questions-as-agenda-items/spec.md
  */
 class MigrateQuestionsToAgendaItems implements IRepairStep {
 	use ReadsLegacyRows;
@@ -175,7 +175,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -214,7 +214,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$migrated = 0;
@@ -427,7 +427,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return array<string,mixed> The type-specific values.
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	private function typeFieldsFor(array $source, array $carry, string $origin): array {
 		$fields = [self::ORIGIN_KEY => $origin];
@@ -460,7 +460,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-the-question-hour-configuration-moves-onto-the-type
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-the-question-hour-configuration-moves-onto-the-type
 	 */
 	private function applyConfigurations(object $objectService, IOutput $output): void {
 		$applied = 0;

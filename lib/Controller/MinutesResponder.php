@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -48,7 +48,7 @@ use Throwable;
  * InvalidArgumentException, whereas the lifecycle endpoints reserve 404 for
  * MissingObjectException and use 422 for an invalid argument.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
 class MinutesResponder {
 
@@ -79,7 +79,7 @@ class MinutesResponder {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function runDraft(callable $operation): JSONResponse {
 		try {
@@ -104,7 +104,7 @@ class MinutesResponder {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function runLifecycle(callable $operation): JSONResponse {
 		try {
@@ -132,7 +132,7 @@ class MinutesResponder {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.2
 	 */
 	public function runCoded(callable $operation, int $honouredStatus): JSONResponse {
 		try {
@@ -161,7 +161,7 @@ class MinutesResponder {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
 	 */
 	public function runInternal(callable $operation): JSONResponse {
 		try {
@@ -189,7 +189,7 @@ class MinutesResponder {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function badRequest(string $message): JSONResponse {
 		return new JSONResponse(['message' => $message], Http::STATUS_BAD_REQUEST);
@@ -203,7 +203,7 @@ class MinutesResponder {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function failure(Throwable $exception, int $status): JSONResponse {
 		return new JSONResponse(['message' => $exception->getMessage()], $status);

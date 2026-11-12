@@ -40,7 +40,7 @@ use RuntimeException;
  * Reads and writes decidiq's OpenRegister objects.
  *
  * @spec openspec/specs/approval-routes/spec.md
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class RegisterObjectStore {
 	/**
@@ -149,7 +149,7 @@ class RegisterObjectStore {
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function find(string $schema, string $uuid): ?array {
 		if (trim($uuid) === '') {

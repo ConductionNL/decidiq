@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -45,7 +45,7 @@ use OCP\IUserSession;
  *
  * @NoAdminRequired absence (which is silently bypassed in some test setups).
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
  */
 class AuditLogController extends Controller {
 	use RequiresOrAdmin;
@@ -71,7 +71,7 @@ class AuditLogController extends Controller {
 	/**
 	 * Query the audit log.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -117,7 +117,7 @@ class AuditLogController extends Controller {
 	 *
 	 * @param string $id UUID of the entry to stop at
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -134,7 +134,7 @@ class AuditLogController extends Controller {
 	/**
 	 * Export a date-range slice of the audit log as JSON or CSV.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.4
 	 *
 	 * @return Response
 	 */

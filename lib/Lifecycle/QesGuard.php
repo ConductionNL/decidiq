@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -49,7 +49,7 @@ use Psr\Log\LoggerInterface;
  * (the decision conclude flow) treat the soft-block as an
  * `HTTP 422 Unprocessable` rather than a 500.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 class QesGuard {
 	/**
@@ -74,7 +74,7 @@ class QesGuard {
 	 * @param string $resolutionId UUID of the resolution
 	 * @param array<int, string> $requiredSigners List of required member (Person) UUIDs
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{allowed: bool, reason: string, missing: array<int,string>, invalid: array<int,string>}
 	 */
@@ -123,7 +123,7 @@ class QesGuard {
 	 *
 	 * @param array<int, array<string, mixed>> $signed The persisted signedBy entries
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{present: array<string, true>, invalid: array<int, string>}
 	 */
@@ -156,7 +156,7 @@ class QesGuard {
 	 * @param array<int, string> $missing Member UUIDs without a QES
 	 * @param array<int, string> $invalid Member UUIDs whose chain failed
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{allowed: bool, reason: string, missing: array<int,string>, invalid: array<int,string>}
 	 */
@@ -226,7 +226,7 @@ class QesGuard {
 	 *
 	 * @param mixed $row The ObjectService row
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array<string, mixed> The property map, empty when unusable
 	 */

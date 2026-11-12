@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the joining and leaving pathways into plain words.
  *
- * @spec openspec/changes/member-onboarding-in-plain-words/specs/member-onboarding-in-plain-words/spec.md
+ * @spec openspec/specs/member-onboarding-in-plain-words/spec.md
  */
 class MigrateMemberOnboarding implements IRepairStep {
 	use ReadsLegacyRows;
@@ -172,7 +172,7 @@ class MigrateMemberOnboarding implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding-in-plain-words/specs/member-onboarding-in-plain-words/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/member-onboarding-in-plain-words/spec.md#requirement-existing-records-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -206,7 +206,7 @@ class MigrateMemberOnboarding implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/member-onboarding-in-plain-words/specs/member-onboarding-in-plain-words/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/member-onboarding-in-plain-words/spec.md#requirement-existing-records-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$copied = 0;

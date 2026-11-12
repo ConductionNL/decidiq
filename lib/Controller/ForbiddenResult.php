@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use OCP\AppFramework\Http\JSONResponse;
 /**
  * Maps a guard's refusal to a bare 403.
  *
- * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
  */
 final class ForbiddenResult {
 	/**
@@ -50,7 +50,7 @@ final class ForbiddenResult {
 	 *
 	 * @return JSONResponse|null
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	public function response(): ?JSONResponse {
 		if (($this->result['success'] ?? false) === false

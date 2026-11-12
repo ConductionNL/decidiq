@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -38,7 +38,7 @@ use Throwable;
  * it has nothing to contribute; render() numbers only the sections that were
  * actually emitted, which is the behaviour the template has always had.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
 class MinutesDraftRenderer {
 	/**
@@ -63,7 +63,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string Markdown content for the draft minutes
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
 	 */
 	public function render(array $minutes, array $parts): string {
@@ -87,7 +87,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return array<int, array{title: string, body: string[]}>
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function sections(array $parts): array {
 		$present = [];
@@ -108,7 +108,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return array<string, string[]>
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function sectionBodies(array $parts): array {
 		return [
@@ -130,7 +130,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function linesOf(array $rows, callable $lines): array {
 		return array_merge([], ...array_map($lines, array_values($rows), array_keys($rows)));
@@ -145,7 +145,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function headerLines(array $minutes, array $meeting): array {
 		return array_merge(
@@ -162,7 +162,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function meetingLines(array $meeting): array {
 		$lines = ['**Vergadering:** ' . ($meeting['title'] ?? $meeting['name'] ?? 'Vergadering')];
@@ -186,7 +186,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function meetingDate(array $meeting): string {
 		$scheduledDate = $meeting['scheduledDate'] ?? $meeting['date'] ?? '';
@@ -204,7 +204,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function attendanceBody(array $attendance): array {
 		$groups = $this->attendanceGroups(attendance: $attendance);
@@ -227,7 +227,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return array<string, string[]>
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function attendanceGroups(array $attendance): array {
 		$groups = [];
@@ -249,7 +249,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function agendaBody(array $agendaItems): array {
 		if (count($agendaItems) === 0) {
@@ -269,7 +269,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function agendaLine(array $item, int|string $index): array {
 		return [vsprintf('%d. %s', $this->itemHeading(item: $item, index: $index))];
@@ -285,7 +285,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return array{0: mixed, 1: mixed}
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function itemHeading(array $item, int|string $index): array {
 		$order = $item['orderNumber'] ?? ($index + 1);
@@ -301,7 +301,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function treatmentLines(array $item, int|string $index): array {
 		$lines = [vsprintf('### %d. %s', $this->itemHeading(item: $item, index: $index)), ''];
@@ -322,7 +322,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function motionLines(array $motion): array {
 		$lines = ['**' . ($motion['title'] ?? $motion['name'] ?? 'Motie') . '**'];
@@ -343,7 +343,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function votingLines(array $round): array {
 		$lines = ['**' . ($round['title'] ?? $round['name'] ?? 'Stemming') . '**'];
@@ -364,7 +364,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string[]
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function decisionLines(array $decision): array {
 		$lines = ['**' . ($decision['title'] ?? 'Besluit') . '**'];
@@ -390,7 +390,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string The Dutch label
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function outcomeLabel(string $outcome): string {
 		if ($outcome === 'adopted') {
@@ -407,7 +407,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return array<int,string> The closing lines
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function closingLines(int $sectionNumber): array {
 		$lines = [];
@@ -429,7 +429,7 @@ class MinutesDraftRenderer {
 	 *
 	 * @return string Dutch formatted date (dd-mm-yyyy HH:MM) or original string on failure
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function formatDate(string $isoDate): string {
 		try {

@@ -22,7 +22,7 @@ import {
  *   Where to post, the CSRF token, and the fetch to use (a test passes its own).
  * @return {Promise<string>} The structure the server stored.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
  */
 export async function saveMenuStructure(
 	structure,

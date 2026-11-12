@@ -36,7 +36,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -53,7 +53,7 @@ use RuntimeException;
  * Service for managing conflict-of-interest declarations and their effect on
  * read/vote access to specific agenda items.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
  */
 class ConflictOfInterestService {
 
@@ -115,9 +115,9 @@ class ConflictOfInterestService {
 	 *                               authorization check (admin path, mirroring
 	 *                               `ProxyVoteService`'s convention)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 * @return array{success: bool, declaration: array|null, message: string}
@@ -288,8 +288,8 @@ class ConflictOfInterestService {
 	 *                               recording the action taken is a presiding-officer
 	 *                               act, so a non-null caller must be chair/secretary.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return array{success: bool, declaration: array|null, message: string}
 	 */
@@ -376,7 +376,7 @@ class ConflictOfInterestService {
 	 * @param string $membershipId UUID of the member's Membership (was Participant)
 	 * @param string $agendaItemId UUID of the agenda item
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
 	 *
 	 * @return array<string, mixed>|null
@@ -480,7 +480,7 @@ class ConflictOfInterestService {
 	 * @param string $agendaItemId UUID of the agenda item the declaration concerns
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @return bool
 	 */

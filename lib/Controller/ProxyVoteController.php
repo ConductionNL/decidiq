@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,8 +37,8 @@ use OCP\IUserSession;
 /**
  * REST controller for proxy votes.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
- * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
  */
 class ProxyVoteController extends Controller {
 	use GovernanceControllerTrait;
@@ -67,7 +67,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function resolveCallerUid(): ?string {
 		return (new GuardCaller(userSession: $this->userSession, groupManager: $this->groupManager))->uid();
@@ -85,7 +85,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
 		return (new ForbiddenResult(result: $result))->response()
@@ -97,7 +97,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 *
 	 * @return JSONResponse
 	 */
@@ -144,8 +144,8 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-11-12-member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
 	 *
 	 * @return JSONResponse
 	 */
@@ -195,7 +195,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 *
 	 * @return JSONResponse
 	 */
@@ -222,7 +222,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 *
 	 * @return JSONResponse
 	 */

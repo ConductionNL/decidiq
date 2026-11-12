@@ -376,7 +376,7 @@ export default {
 		 *
 		 * @return {Array<object>} The rows to render.
 		 *
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		rows() {
 			return this.rawRows.map((item) => ({
@@ -495,7 +495,7 @@ export default {
 		 * The type picked in the open form, whose `fields` the form renders.
 		 *
 		 * @return {?object} The AgendaItemType, or null.
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		formItemType() {
 			return findItemType(this.itemTypes, this.formType)
@@ -565,7 +565,7 @@ export default {
 		 * agenda-item-type collection is the normal state of an instance that
 		 * has seeded no example set, so it must not read as an error.
 		 *
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		async loadItemTypes() {
 			try {
@@ -1033,7 +1033,7 @@ export default {
 		 * The dialog keeps its values internally and emits no change event, so
 		 * its reactive `formData.type` is watched once it has mounted.
 		 *
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		openForm() {
 			this.formType = this.editTarget?.type || null
@@ -1050,7 +1050,7 @@ export default {
 			})
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		closeForm() {
 			this.unwatchFormType?.()
 			this.unwatchFormType = null

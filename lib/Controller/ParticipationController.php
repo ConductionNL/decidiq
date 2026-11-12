@@ -129,7 +129,7 @@ class ParticipationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	#[NoAdminRequired]
 	public function submitReaction(string $consultationId, string $body = ''): JSONResponse {

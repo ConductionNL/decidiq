@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -42,7 +42,7 @@ use Psr\Container\ContainerInterface;
  * chair_group / system-admin check, and any failure yields a 401/403 response
  * instead of an exception.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
 class VotingRoundGuard {
 	/**
@@ -54,7 +54,7 @@ class VotingRoundGuard {
 	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
 	 * @param ContainerInterface $container DI container (lazy-loads ObjectService)
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	public function __construct(
 		private readonly IUserSession $userSession,
@@ -79,7 +79,7 @@ class VotingRoundGuard {
 	 *
 	 * @return JSONResponse|null A 401/403 response on failure, null when authorised
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	public function requireChairOrSecretary(?string $meetingId = null): ?JSONResponse {
 		return $this->requireRoles(
@@ -126,7 +126,7 @@ class VotingRoundGuard {
 	 *
 	 * @return JSONResponse|null A 401/403 response on failure, null when authorised
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function requireRoles(
 		?string $meetingId,
@@ -169,7 +169,7 @@ class VotingRoundGuard {
 	 *
 	 * @return bool True when the user holds global chair authority
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function isGloballyAuthorized(string $uid): bool {
 		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');

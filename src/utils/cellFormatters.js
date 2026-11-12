@@ -14,7 +14,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/ux-debt-rendering/design.md#decision-2-year-formatting-via-a-new-app-registered-formatter-not-a-nc-vue-change
+ * @spec openspec/changes/archive/2026-08-19-ux-debt-rendering/design.md#decision-2-year-formatting-via-a-new-app-registered-formatter-not-a-nc-vue-change
  */
 
 /**

@@ -10,7 +10,7 @@ so, because a setting that seems to do nothing gets changed back.
 
 @visual exclude A section of two radios on the Nextcloud admin settings page, drawn by the settings framework and not by the app's own pages. What it does to the app, the menu, is covered in a browser by tests/e2e/simple-structure-menu.spec.ts.
 
-@spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+@spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 -->
 <template>
 	<CnSettingsSection
@@ -89,7 +89,7 @@ import {
 /**
  * The menu structure choice on the admin settings page.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+ * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
  */
 export default {
 	name: 'MenuStructureTab',
@@ -112,7 +112,7 @@ export default {
 		/**
 		 * Store the chosen structure, and put the radio back when that fails.
 		 *
-		 * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+		 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 		 */
 		async save() {
 			if (this.structure === this.stored) {

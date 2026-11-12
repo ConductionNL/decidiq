@@ -22,7 +22,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use Throwable;
  * the rule tables below: each ORI target key lists the source properties to try,
  * in order, and the first one present wins.
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 class OriSerializer {
 
@@ -172,7 +172,7 @@ class OriSerializer {
 	 *
 	 * @return list<array<string, mixed>> The serialized ORI items
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function serializeCollection(string $resource, string $type, iterable $objects): array {
@@ -233,7 +233,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The serialized ORI resource
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	public function serialize(string $type, array $object): array {
 		$self = ($object['@self'] ?? []);
@@ -361,7 +361,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The mapped subset, in rule order
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function applyRules(array $object, array $rules): array {
 		$mapped = [];
@@ -388,7 +388,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The flat property map
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function normalise(mixed $object): array {
 		if (is_object($object) === true && method_exists($object, 'jsonSerialize') === true) {

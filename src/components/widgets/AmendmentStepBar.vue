@@ -16,8 +16,8 @@
  voting order of the amendments and writes an adopted amendment into the
  motion. A recorded result is said in words.
 
- @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
- @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
+ @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
+ @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
 -->
 <template>
 	<nav
@@ -73,7 +73,7 @@ export default {
 		 * The five steps, each done, current or upcoming.
 		 *
 		 * @return {Array<{state: string, status: string}>} The steps.
-		 * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
+		 * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
 		 */
 		steps() {
 			return buildAmendmentSteps(this.objectData?.lifecycle || '')
@@ -83,7 +83,7 @@ export default {
 		 * Which sentence stands under the steps.
 		 *
 		 * @return {string} `who`, `vote`, `adopted`, `rejected` or ''.
-		 * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
+		 * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
 		 */
 		noteKind() {
 			return amendmentNote(
@@ -96,7 +96,7 @@ export default {
 		 * The sentence under the steps, translated.
 		 *
 		 * @return {string} The sentence, or '' when there is none.
-		 * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
+		 * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
 		 */
 		note() {
 			const sentences = {
@@ -123,7 +123,7 @@ export default {
 		 *
 		 * @param {string} state The lifecycle state.
 		 * @return {string} Its label, or the state itself when it has none.
-		 * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
+		 * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
 		 */
 		stepLabel(state) {
 			return STATE_LABELS[state] || state

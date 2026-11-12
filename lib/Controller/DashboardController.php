@@ -30,7 +30,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.1
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -142,7 +142,7 @@ class DashboardController extends Controller {
 	 *
 	 * @return string `simple` or `full`.
 	 *
-	 * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+	 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 	 */
 	protected function menuStructure(): string {
 		return (new MenuStructure())->normalise(

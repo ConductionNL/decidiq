@@ -9,7 +9,7 @@
  * @category Controller
  * @package  OCA\Decidiq\Controller
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -39,7 +39,7 @@ use OCP\IUserSession;
  *
  * Provides the endpoint for recording decisions during an active meeting.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  */
 class LiveMeetingController extends Controller {
 	/**
@@ -51,7 +51,7 @@ class LiveMeetingController extends Controller {
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -117,7 +117,7 @@ class LiveMeetingController extends Controller {
 	 *
 	 * @return JSONResponse The created Decision object
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
 	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 	 */
 	#[NoAdminRequired]

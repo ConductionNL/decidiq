@@ -37,7 +37,7 @@ use Throwable;
  * `VALUE_MAP` would have planned nothing, rewritten nothing, and reported
  * success — the silent no-op this app keeps meeting.
  *
- * @spec openspec/changes/plain-words-for-groups-and-the-installation-step/specs/plain-words-for-groups-and-the-installation-step/spec.md
+ * @spec openspec/specs/plain-words-for-groups-and-the-installation-step/spec.md
  */
 class RenameStepTypes implements IRepairStep {
 	use ReadsLegacyRows;
@@ -138,7 +138,7 @@ class RenameStepTypes implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/plain-words-for-groups-and-the-installation-step/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
+	 * @spec openspec/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -172,7 +172,7 @@ class RenameStepTypes implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/plain-words-for-groups-and-the-installation-step/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
+	 * @spec openspec/specs/plain-words-for-groups-and-the-installation-step/spec.md#requirement-stored-steps-follow-the-renamed-value
 	 */
 	private function rewriteAll(object $objectService, IOutput $output): void {
 		$rewritten = 0;

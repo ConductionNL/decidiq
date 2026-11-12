@@ -19,7 +19,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+ * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
 
 declare(strict_types=1);
@@ -63,7 +63,7 @@ use Psr\Log\LoggerInterface;
  * (`isPublished === 'public'`), the WRITE does not. Public readability is not a
  * write grant — see subscribe()'s docblock.
  *
- * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+ * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
 class IntegrationController extends Controller {
 	/**
@@ -138,7 +138,7 @@ class IntegrationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
-	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -218,7 +218,7 @@ class IntegrationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
-	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 * @spec            openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	#[NoAdminRequired]
@@ -303,7 +303,7 @@ class IntegrationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @NoAdminRequired
-	 * @spec            openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec            openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 * @spec            openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	#[NoAdminRequired]

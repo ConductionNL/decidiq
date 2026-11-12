@@ -11,7 +11,7 @@
  this component (the abstract-sidebar contract doesn't traverse
  references for us).
 
- @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
+ @spec openspec/changes/archive/2026-05-11-decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
 	<div

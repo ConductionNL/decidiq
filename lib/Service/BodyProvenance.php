@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Which app raised a governance body, under which of its own references.
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 final class BodyProvenance {
 	/**
@@ -53,7 +53,7 @@ final class BodyProvenance {
 	 *
 	 * @return bool True when both halves match.
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function isProvenanceOf(array $row): bool {
 		$matchesApp = ((string)($row['sourceApp'] ?? '') === $this->sourceApp);

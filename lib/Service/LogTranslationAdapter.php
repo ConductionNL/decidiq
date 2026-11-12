@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Dormant default translation adapter.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 class LogTranslationAdapter implements ITranslationAdapter {
 
@@ -82,7 +82,7 @@ class LogTranslationAdapter implements ITranslationAdapter {
 	 * @param string $sourceLocale ISO 639-1 source locale
 	 * @param string $targetLocale ISO 639-1 target locale
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{success: bool, text: string, provider: string, message: string}
 	 */

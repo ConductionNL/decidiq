@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use OCP\IUserSession;
 /**
  * Thin controller for voting behaviour API endpoint.
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 class VotingBehaviourController extends Controller {
 
@@ -71,7 +71,7 @@ class VotingBehaviourController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function __construct(
 		IRequest $request,
@@ -101,7 +101,7 @@ class VotingBehaviourController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	#[NoAdminRequired]
 	public function getStats(string $participantId, string $governanceBodyId = ''): JSONResponse {
@@ -221,7 +221,7 @@ class VotingBehaviourController extends Controller {
 	 * @param string $registerSlug The slug the participant register answers to here,
 	 *                             already resolved by the caller
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 *
 	 * @return bool True when the participant belongs to this user
 	 */

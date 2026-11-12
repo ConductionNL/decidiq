@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -49,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *   PUT  /api/agendas/{meetingId}/reorder      → reorderItems
  *   PUT  /api/agendas/{meetingId}/items/{itemId}/formality → setFormality
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 class AgendaController extends Controller {
 	/**
@@ -63,7 +63,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -82,7 +82,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	private function denyUnlessChairOrAdmin(string $meetingId): ?JSONResponse {
 		$denied = $this->guard->requireUser();
@@ -104,7 +104,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function publish(string $meetingId): JSONResponse {
@@ -137,7 +137,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function advanceBobPhase(string $id): JSONResponse {
@@ -180,7 +180,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function processHamerstukken(string $meetingId): JSONResponse {
@@ -215,7 +215,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function revise(string $meetingId): JSONResponse {
@@ -249,7 +249,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function reorder(string $meetingId): JSONResponse {

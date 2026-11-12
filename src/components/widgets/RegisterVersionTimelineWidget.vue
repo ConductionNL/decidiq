@@ -22,8 +22,8 @@
  (v-bind) onto this component — so `content.title` / `content.icon` land on
  this component's own `title` / `icon` props without extra wiring.
 
- @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
- @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+ @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+ @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 -->
 <template>
 	<CnWidgetWrapper
@@ -268,8 +268,8 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 */
 		sortedVersions() {
 			return sortVersionsByEffectiveDate(
@@ -279,8 +279,8 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 */
 		rows() {
 			const {
@@ -315,8 +315,8 @@ export default {
 		resolvedObjectId: {
 			immediate: true,
 			/**
-			 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-			 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+			 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+			 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 			 */
 			handler() {
 				this.load()
@@ -348,8 +348,8 @@ export default {
 		 * Fetch the version collection filtered on `parentRefField == currentId`,
 		 * then batch-resolve the (deduplicated) Decision links.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @return {Promise<void>}
 		 */
 		async load() {
@@ -437,8 +437,8 @@ export default {
 		 * Batch-resolve every unique amending-Decision id referenced by the
 		 * loaded versions (single Promise.all pass, not one request per row).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {object} store The object store.
 		 * @return {Promise<void>}
 		 */
@@ -481,7 +481,7 @@ export default {
 		/**
 		 * Locale date, empty-safe (never a raw ISO string — REQ-VOR-011).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
 		 * @param {string} value ISO date string.
 		 * @return {string}
 		 */
@@ -494,7 +494,7 @@ export default {
 		/**
 		 * Render an extraFields entry value, date-formatted when configured.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string|number|null|undefined} value The raw field value.
 		 * @param {string} [format] `'date'` to format through formatDate.
 		 * @return {string}
@@ -507,8 +507,8 @@ export default {
 		/**
 		 * Navigate to the enacting Decision's detail page.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string} decisionId The Decision id.
 		 * @return {void}
 		 */

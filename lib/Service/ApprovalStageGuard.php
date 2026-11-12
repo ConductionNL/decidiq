@@ -28,7 +28,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use RuntimeException;
 /**
  * Resolves the addressed stage and authorises the action against it.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class ApprovalStageGuard {
 
@@ -90,7 +90,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When no active stage accepts this actor.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function stageForAction(array $actives, array $action): array {
 		if (count($actives) === 1) {
@@ -133,7 +133,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When the verb does not fit the stage type.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertVerbFitsStage(array $stage, string $verb): void {
 		if ($verb === 'skipped') {
@@ -163,7 +163,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When a mandatory field is missing.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertRequiredFields(string $verb, array $action): void {
 		if ($verb === 'returned' && trim((string)($action['comment'] ?? '')) === '') {
@@ -188,7 +188,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When the target does not point backwards.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertReturnTargetValid(array $action, array $active): void {
 		$target = (int)($action['returnToStep'] ?? 0);
@@ -218,7 +218,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When the actor may not act.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function assertActorMayAct(array $stage, array $action): void {
 		$assigned = (string)($stage['assignedPerson'] ?? '');
