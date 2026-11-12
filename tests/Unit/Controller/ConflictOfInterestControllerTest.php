@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -35,7 +35,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Tests for ConflictOfInterestController.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
  */
 class ConflictOfInterestControllerTest extends TestCase {
 

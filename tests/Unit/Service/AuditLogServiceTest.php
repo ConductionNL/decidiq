@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -47,7 +47,7 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\AuditRowFormat
  * @uses   \OCA\Decidiq\Service\CsvCell
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 class AuditLogServiceTest extends TestCase {
 
