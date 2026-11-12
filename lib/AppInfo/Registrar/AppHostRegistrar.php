@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -113,7 +113,7 @@ class AppHostRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2
 	 * @spec openspec/specs/apphost-adoption/spec.md
 	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-the-deep-link-listener-is-registered-in-decidiqs-namespace
 	 */

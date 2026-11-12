@@ -20,7 +20,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 
 declare(strict_types=1);
@@ -49,7 +49,7 @@ use Throwable;
  * versioned independently from the general v1 REST API (REQ-ORI-001) so its
  * URL and response envelope live in this dedicated controller.
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 class OriController extends CorsJsonController {
 
@@ -195,7 +195,7 @@ class OriController extends CorsJsonController {
 	 *
 	 * @return JSONResponse JSON-LD list envelope or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	#[PublicPage]
@@ -249,7 +249,7 @@ class OriController extends CorsJsonController {
 	 *
 	 * @return array<string, string> The filter set
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function buildFilters(string $resource, string $schema): array {
@@ -395,7 +395,7 @@ class OriController extends CorsJsonController {
 	 * @param string $resource The ORI resource slug
 	 * @param string $id The entity UUID
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
 	 * @return JSONResponse The JSON-LD entity or error
@@ -557,7 +557,7 @@ class OriController extends CorsJsonController {
 	 *
 	 * @return JSONResponse The decorated response
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function jsonLdResponse(array $payload): JSONResponse {
 		$response = new JSONResponse($payload);
@@ -575,7 +575,7 @@ class OriController extends CorsJsonController {
 	 *
 	 * @return JSONResponse The decorated response
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function collectionResponse(string $type, array $items): JSONResponse {
 		return $this->jsonLdResponse(
@@ -595,7 +595,7 @@ class OriController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -618,7 +618,7 @@ class OriController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]

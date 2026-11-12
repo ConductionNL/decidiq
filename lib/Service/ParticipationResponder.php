@@ -96,7 +96,7 @@ class ParticipationResponder {
 	 * @return string|null The acting UID, or null when no user is signed in.
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	public function currentUid(): ?string {
 		return $this->staffGuard->currentUid();
@@ -113,7 +113,7 @@ class ParticipationResponder {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	public function citizenAction(callable $operation, ?string $uid, ?string $key = null, int $status = Http::STATUS_OK): JSONResponse {
 		if ($uid === null) {

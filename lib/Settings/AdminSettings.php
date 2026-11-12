@@ -39,9 +39,9 @@ use OCP\Settings\IDelegatedSettings;
  * #[AuthorizedAdminSetting(AdminSettings::class)] on the controllers that
  * mutate Decidiq configuration.
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class AdminSettings implements IDelegatedSettings {
 	/**
@@ -65,10 +65,10 @@ class AdminSettings implements IDelegatedSettings {
 	 *
 	 * @return TemplateResponse
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
-	 * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 	 */
 	public function getForm(): TemplateResponse {
 		$version = $this->appManager->getAppVersion(appId: Application::APP_ID);
@@ -95,7 +95,7 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState('transcriptRetentionDefaultPolicy', 'delete-both');
 		$this->initialState->provideInitialState('transcriptRetentionDefaultDays', 30);
 
-		// @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+		// @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 		// The structure choice reads what is stored now, already normalised, so
 		// a mistyped stored value shows as the simple structure it behaves as.
 		$this->initialState->provideInitialState(
@@ -140,9 +140,9 @@ class AdminSettings implements IDelegatedSettings {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getSection(): string {
 		return Application::APP_ID;
@@ -153,9 +153,9 @@ class AdminSettings implements IDelegatedSettings {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getPriority(): int {
 		return 10;

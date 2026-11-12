@@ -8,7 +8,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
  * Verifies that the Meeting lifecycle is 'opened', creates Decision objects,
  * auto-creates draft Minutes if needed, and links decisions to minutes.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  */
 class LiveDecisionService {
 	/**
@@ -43,7 +43,7 @@ class LiveDecisionService {
 	 * @param LoggerInterface $logger The logger
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
 	 */
 	public function __construct(
 		private ContainerInterface $container,
@@ -67,7 +67,7 @@ class LiveDecisionService {
 	 * @throws MissingObjectException If the Meeting is not found
 	 * @throws Exception If the Meeting lifecycle is not 'opened'
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
 	 */
 	public function recordDecision(string $meetingId, array $decisionData): string {
 		try {
@@ -176,7 +176,7 @@ class LiveDecisionService {
 	 * @psalm-suppress UnusedReturnValue Return preserved for future-callers; current callsites only use
 	 *                 the side effect of creating the Minutes record.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.1
 	 */
 	private function ensureDraftMinutes(string $meetingId): string {
 		try {

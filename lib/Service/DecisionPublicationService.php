@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,7 +41,7 @@ use Psr\Log\LoggerInterface;
  * render it as a JSONResponse without the service knowing about the HTTP
  * layer beyond the status constant.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  */
 class DecisionPublicationService {
 	/**
@@ -79,7 +79,7 @@ class DecisionPublicationService {
 	 * @param string $decisionId UUID of the Decision object
 	 * @param string $actorUid Nextcloud UID of the publishing administrator
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array{status: int, data: array<string, mixed>} Response status + payload
 	 */
@@ -240,7 +240,7 @@ class DecisionPublicationService {
 	 * @param object $objectService OpenRegister ObjectService instance
 	 * @param string $decisionId UUID of the Decision object
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -268,7 +268,7 @@ class DecisionPublicationService {
 	 *
 	 * @param array<string, mixed> $decision The Decision object array
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return string|null Rejection message, or null when publication may proceed
 	 */
@@ -293,7 +293,7 @@ class DecisionPublicationService {
 	 * @param string $decisionId UUID of the Decision object
 	 * @param string $actorUid Nextcloud UID of the publishing administrator
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array{status: int, data: array<string, mixed>} Response status + payload
 	 */
@@ -384,7 +384,7 @@ class DecisionPublicationService {
 	 * @param int $status HTTP status code
 	 * @param string $message Human-readable message
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 *
 	 * @return array{status: int, data: array<string, mixed>}
 	 */

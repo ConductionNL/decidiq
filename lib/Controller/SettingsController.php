@@ -39,7 +39,7 @@ use OCP\IUserSession;
 /**
  * Controller for managing Decidiq application settings.
  *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.4
  */
 class SettingsController extends Controller {
 	/**
@@ -68,8 +68,8 @@ class SettingsController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.4
 	 *
 	 * @return JSONResponse
 	 */
@@ -114,7 +114,7 @@ class SettingsController extends Controller {
 	 *
 	 * @spec openspec/specs/apphost-adoption/spec.md#requirement-boilerplate-delegation
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-organization-configuration
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
 	 *
 	 * @return JSONResponse
 	 */
@@ -165,9 +165,9 @@ class SettingsController extends Controller {
 	 * Requires admin privileges — enforced via the AuthorizedAdminSetting
 	 * attribute (NC28+ settings panel).
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.4
 	 *
 	 * @return JSONResponse
 	 */

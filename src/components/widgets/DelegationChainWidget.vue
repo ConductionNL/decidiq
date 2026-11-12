@@ -16,7 +16,7 @@
  what actually prevents one). Registered as type "delegation-chain"
  (renderer-only, surfaces: ['detail-page']) by registerDetailWidgets.js.
 
- @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+ @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 -->
 <template>
 	<CnWidgetWrapper
@@ -229,7 +229,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 */
 		decisionId() {
 			return this.safeObjectData[this.cfg.decisionRefField] || null
@@ -238,7 +238,7 @@ export default {
 		/**
 		 * Root → … → current, current LAST (REQ-DMR-008 breadcrumb order).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 */
 		breadcrumb() {
 			const current = {
@@ -253,7 +253,7 @@ export default {
 		resolvedObjectId: {
 			immediate: true,
 			/**
-			 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+			 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 			 */
 			handler() {
 				this.load()
@@ -290,7 +290,7 @@ export default {
 		 * A display label for a toedeling row: prefer the configured
 		 * `labelField` (default `subject`), fall back to the raw id.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} obj The toedeling record.
 		 * @return {string}
 		 */
@@ -305,7 +305,7 @@ export default {
 		 * visited ids so a defensive cycle terminates instead of hanging
 		 * (REQ-DMR-008 scenario "never infinite-loops on malformed data").
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {string} typeSlug The registered type slug.
 		 * @param {object} startObj The current toedeling record.
@@ -328,7 +328,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 */
 		async load() {
 			const id = this.resolvedObjectId
@@ -362,7 +362,7 @@ export default {
 		 * Load the current toedeling, its ancestors and its children, and
 		 * return the current record.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {string} id The current toedeling id.
 		 * @return {Promise<object>} The current toedeling record.
@@ -405,7 +405,7 @@ export default {
 		/**
 		 * The current toedeling: the loaded object data, else fetched by id.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {string} id The current toedeling id.
 		 * @return {Promise<object>} The current toedeling record.
@@ -421,7 +421,7 @@ export default {
 		/**
 		 * Resolve the label of the decision the toedeling rests on.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {object} current The current toedeling record.
 		 * @return {Promise<void>}
@@ -444,7 +444,7 @@ export default {
 		 * GovernanceBody/Person label where set, else the plain-text
 		 * description/function field (bevoegdheidstoedeling's own anyOf).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {object} current The current toedeling record.
 		 * @return {Promise<void>}
@@ -462,7 +462,7 @@ export default {
 		/**
 		 * The delegans: the referenced body, else its description.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {object} current The current toedeling record.
 		 * @return {Promise<string>}
@@ -484,7 +484,7 @@ export default {
 		 * The delegataris: the referenced body, the role, the referenced
 		 * person, or nothing, in that order.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {object} store The object store.
 		 * @param {object} current The current toedeling record.
 		 * @return {Promise<string>}
@@ -516,7 +516,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {string} id Toedeling id to navigate to.
 		 * @return {void}
 		 */
@@ -526,7 +526,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
+		 * @spec openspec/specs/delegatie-mandaatregister/spec.md#req-dmr-008-ondermandaat-chain-widget-on-bevoegdheidstoedelingdetail
 		 * @param {string} id Decision id to navigate to.
 		 * @return {void}
 		 */

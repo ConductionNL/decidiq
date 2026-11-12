@@ -26,8 +26,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
- * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -53,7 +53,7 @@ use Psr\Log\LoggerInterface;
  * MailVoteSigner's. The signing methods below stay on this class because the
  * ingestion path already calls them and their contract is public API.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  */
 class MailReplyHandler extends TimedJob {
 	/**
@@ -68,7 +68,7 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function __construct(
 		ITimeFactory $time,
@@ -93,7 +93,7 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @return string The hex HMAC
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function computeMailHmac(string $participantId, string $roundId, string $timestamp): string {
 		return $this->signer->compute(
@@ -116,7 +116,7 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @return array<string,mixed> The entry with hmac appended
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function signMailEntry(array $entry, string $roundId): array {
 		return $this->signer->sign(entry: $entry, roundId: $roundId);
@@ -131,7 +131,7 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @return string|null The canonical vote value or null
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	public function parseVoteKeyword(string $body): ?string {
 		return $this->processor->parseVoteKeyword(body: $body);
@@ -144,7 +144,7 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by
 	 * the OCP\BackgroundJob\Job::run() signature this method overrides. The job
@@ -170,7 +170,7 @@ class MailReplyHandler extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
 	 */
 	private function processOpenRounds(): void {
 		$this->objectService->setRegister('decidiq');

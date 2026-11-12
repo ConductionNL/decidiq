@@ -16,7 +16,7 @@
  *
  * @param {object} widget A section's widget definition.
  * @return {object} The same definition with `content.fit` defaulted to false.
- * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
+ * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-004-the-blocks-of-a-decision-sit-behind-five-tabs-and-more
  */
 export function unfittedWidget(widget) {
 	const content = widget.content || {}

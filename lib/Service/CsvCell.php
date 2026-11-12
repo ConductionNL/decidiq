@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -28,7 +28,7 @@ namespace OCA\Decidiq\Service;
  * semicolon-separated reader would split it (RFC 4180).
  * It holds no state.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 final class CsvCell {
 
@@ -40,7 +40,7 @@ final class CsvCell {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function escape(string $cell): string {
 		$cell = $this->inert(cell: $cell);
@@ -58,7 +58,7 @@ final class CsvCell {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function quote(string $cell): string {
 		return $this->wrap(cell: $this->inert(cell: $cell));

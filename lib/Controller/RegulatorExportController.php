@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -42,7 +42,7 @@ use OCP\IUserSession;
 /**
  * REST controller for regulator exports.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 class RegulatorExportController extends Controller {
 	use RequiresOrAdmin;
@@ -73,7 +73,7 @@ class RegulatorExportController extends Controller {
 	 * - scope (string: resolutions|minutes|audit-log, required)
 	 * - format (string: pdf|csv, default pdf)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return Response
 	 */
@@ -129,7 +129,7 @@ class RegulatorExportController extends Controller {
 	 *
 	 * @param string $id UUID of the persisted export record
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return Response
 	 */
@@ -169,7 +169,7 @@ class RegulatorExportController extends Controller {
 	/**
 	 * List previously generated exports for a board.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return JSONResponse
 	 */

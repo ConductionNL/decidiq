@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -39,7 +39,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Regulator-facing export of resolutions and minutes.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 class RegulatorExportService {
 
@@ -108,7 +108,7 @@ class RegulatorExportService {
 	 * @param string $format One of self::FORMATS
 	 * @param string $actor Acting user UID (for the audit log)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return array{success: bool, export: array|null, body: string, contentType: string, filename: string, message: string}
 	 */
@@ -216,7 +216,7 @@ class RegulatorExportService {
 	 * @param string $scope Requested scope (already lower-cased)
 	 * @param string $format Requested format (already lower-cased)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string|null Rejection message, or null when the request is valid
 	 */
@@ -242,7 +242,7 @@ class RegulatorExportService {
 	 * @param string $exportId UUID of the persisted export record
 	 * @param string $actor Acting user UID (for the audit log)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return array{success: bool, body: string, contentType: string, filename: string, export: array|null, message: string}
 	 */
@@ -301,7 +301,7 @@ class RegulatorExportService {
 	 *
 	 * @param string $boardId UUID of the board
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return array{success: bool, exports: array<int, array<string, mixed>>, count: int}
 	 */

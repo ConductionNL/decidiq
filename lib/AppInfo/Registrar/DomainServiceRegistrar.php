@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -58,7 +58,7 @@ use Psr\Log\LoggerInterface;
  * implementation bindings, named service aliases, event listeners, and
  * factories that pass a value the container cannot infer.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md
  */
 class DomainServiceRegistrar {
 	/**
@@ -68,7 +68,7 @@ class DomainServiceRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decidesk-decision-events/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function register(IRegistrationContext $context): void {
@@ -129,8 +129,8 @@ class DomainServiceRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.3
 	 */
 	private function registerEidasBindings(IRegistrationContext $context): void {
 		// Resolve the IEIDASSignatureService interface at request time. If
@@ -168,8 +168,8 @@ class DomainServiceRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 */
 	private function registerTranslationAdapter(IRegistrationContext $context): void {
 		$context->registerService(

@@ -21,7 +21,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+ * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
 
 declare(strict_types=1);
@@ -42,7 +42,7 @@ use Psr\Log\LoggerInterface;
  *  - Callback URLs are VALIDATED against the ADR-019 registry before acceptance (anti-SSRF).
  *  - create-decision is IDEMPOTENT on (sourceApp, subjectRegister, subjectSchema, subjectId, externalReference).
  *
- * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+ * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
 class DecisionIntegrationService {
 
@@ -129,7 +129,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 	 */
 	public function createDecision(array $decisionData, string $actorId): array {
@@ -221,7 +221,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return string|null The existing decision id, or null when there is no match
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 */
 	private function findExistingDecisionId(mixed $objectService, array $filters): ?string {
 		try {
@@ -255,7 +255,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return array{success: bool, decisionId?: string, created?: bool, message?: string}
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 */
 	private function persistDecision(mixed $objectService, array $object, string $actorId, array $auditPayload): array {
 		try {
@@ -293,7 +293,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return array<string, mixed> The plain property map
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 */
 	private function toArray(mixed $value): array {
 		if (is_array($value) === true) {
@@ -327,7 +327,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return array<string, mixed>|null Outcome envelope, or null when the Decision does not exist
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	public function getOutcomeEnvelope(string $decisionId): ?array {
@@ -395,7 +395,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return string One of withdrawn|approved|rejected|pending
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 */
 	private function deriveStatus(string $lifecycle, string $outcome): string {
 		if ($lifecycle === 'withdrawn') {
@@ -440,7 +440,7 @@ class DecisionIntegrationService {
 	 *
 	 * @return array{success: bool, subscriptionId?: string, decisionId?: string, callbackUrl?: string, code?: string, message?: string}
 	 *
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-2
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array {

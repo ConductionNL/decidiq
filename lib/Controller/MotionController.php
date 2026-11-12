@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -41,7 +41,7 @@ use OCP\IUserSession;
 /**
  * Thin controller for motion lifecycle and co-signature API endpoints.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
  */
 class MotionController extends Controller {
 	/**
@@ -57,7 +57,7 @@ class MotionController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -89,7 +89,7 @@ class MotionController extends Controller {
 	 *
 	 * @return JSONResponse|null
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 */
 	private function requireChairOrSecretary(?string $motionId = null): ?JSONResponse {
 		return $this->requireMeetingRole(
@@ -240,7 +240,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -335,7 +335,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -372,7 +372,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -415,7 +415,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -459,7 +459,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.2
 	 *
 	 * @return JSONResponse
 	 */
@@ -502,7 +502,7 @@ class MotionController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 *
 	 * @return JSONResponse
 	 */

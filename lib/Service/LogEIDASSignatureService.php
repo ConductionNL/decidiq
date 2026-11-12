@@ -26,7 +26,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -40,7 +40,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Dormant fallback for {@see IEIDASSignatureService}.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 class LogEIDASSignatureService implements IEIDASSignatureService {
 
@@ -70,7 +70,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
 	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
@@ -127,7 +127,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $requestId UUID of the signing request
 	 * @param string $signature Base-64 encoded signature blob
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
 	 */
@@ -152,7 +152,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $minutesId UUID of the BoardMinutes record
 	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
 	 */
@@ -187,7 +187,7 @@ class LogEIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $certThumbprint SHA-256 thumbprint of the cert
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
 	 */

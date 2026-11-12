@@ -31,7 +31,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md
+ * @spec openspec/specs/app-navigation/spec.md
  */
 
 declare(strict_types=1);
@@ -41,7 +41,7 @@ namespace OCA\Decidiq\Service\Settings;
 /**
  * The structure setting: its key, its two values and how a stored value reads.
  *
- * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md
+ * @spec openspec/specs/app-navigation/spec.md
  */
 class MenuStructure {
 
@@ -77,7 +77,7 @@ class MenuStructure {
 	 *
 	 * @return string `simple` or `full`.
 	 *
-	 * @spec openspec/changes/simple-structure-profile/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
+	 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 	 */
 	public function normalise(string $stored): string {
 		if (strtolower(trim($stored)) === self::FULL) {

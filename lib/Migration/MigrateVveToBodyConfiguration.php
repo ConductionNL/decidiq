@@ -35,7 +35,7 @@ use Throwable;
 /**
  * Copies VveConfiguration rows onto the generic BodyGovernanceConfiguration.
  *
- * @spec openspec/changes/generic-body-configuration/specs/generic-body-configuration/spec.md
+ * @spec openspec/specs/generic-body-configuration/spec.md
  */
 class MigrateVveToBodyConfiguration implements IRepairStep {
 	use ReadsLegacyRows;
@@ -114,7 +114,7 @@ class MigrateVveToBodyConfiguration implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/generic-body-configuration/specs/generic-body-configuration/spec.md#requirement-existing-configurations-are-carried-across
+	 * @spec openspec/specs/generic-body-configuration/spec.md#requirement-existing-configurations-are-carried-across
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -160,7 +160,7 @@ class MigrateVveToBodyConfiguration implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/generic-body-configuration/specs/generic-body-configuration/spec.md#requirement-existing-configurations-are-carried-across
+	 * @spec openspec/specs/generic-body-configuration/spec.md#requirement-existing-configurations-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$migrated = 0;

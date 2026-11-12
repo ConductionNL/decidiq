@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -39,7 +39,7 @@ use OCP\IUserSession;
 /**
  * REST controller for the multilingual reconciliation queue.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 class MultilingualReconciliationController extends Controller {
 	use RequiresOrAdmin;
@@ -70,7 +70,7 @@ class MultilingualReconciliationController extends Controller {
 	 * - sourceLocale (string, required)
 	 * - targetLocales (array<string>, required)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return JSONResponse
 	 */
@@ -113,7 +113,7 @@ class MultilingualReconciliationController extends Controller {
 	/**
 	 * Return queue status (counts per status + listing).
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return JSONResponse
 	 */
@@ -138,7 +138,7 @@ class MultilingualReconciliationController extends Controller {
 	/**
 	 * Force-process up to N queue entries (operational endpoint).
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return JSONResponse
 	 */

@@ -13,7 +13,7 @@
  store. Members already linked to the body (by NC uid or email) are
  flagged as duplicates and skipped.
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -243,7 +243,7 @@ export default {
 		 * The previewed group members not yet in the body, as people to import.
 		 *
 		 * @return {Array<{name: string, email: string, nextcloudUserId: string, role: string}>} The people.
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		importablePeople() {
 			return this.preview
@@ -260,7 +260,7 @@ export default {
 		 * The preview once imported: every member reads as a duplicate.
 		 *
 		 * @return {Array<object>} The rows.
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		previewAfterImport() {
 			return this.preview.map((row) => ({

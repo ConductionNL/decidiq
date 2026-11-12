@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -52,7 +52,7 @@ use OCP\EventDispatcher\Event;
  * `isHandled()`, `isFound()` and `isPermitted()` are three separate slots and
  * an absent envelope never has to be interpreted.
  *
- * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  */
 class DecisionStateRequestedEvent extends Event {
 
@@ -114,7 +114,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function getSourceApp(): string {
 		return $this->sourceApp;
@@ -125,7 +125,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function getDecisionId(): string {
 		return $this->decisionId;
@@ -136,7 +136,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function getActorId(): string {
 		return $this->actorId;
@@ -147,7 +147,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function isHandled(): bool {
 		return $this->handled;
@@ -160,7 +160,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function setHandled(bool $handled): void {
 		$this->handled = $handled;
@@ -171,7 +171,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function isPermitted(): bool {
 		return $this->permitted;
@@ -184,7 +184,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function setPermitted(bool $permitted): void {
 		$this->permitted = $permitted;
@@ -195,7 +195,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function isFound(): bool {
 		return $this->found;
@@ -208,7 +208,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function setFound(bool $found): void {
 		$this->found = $found;
@@ -219,7 +219,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function getEnvelope(): ?array {
 		return $this->envelope;
@@ -232,7 +232,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function setEnvelope(array $envelope): void {
 		$this->envelope = $envelope;
@@ -247,7 +247,7 @@ class DecisionStateRequestedEvent extends Event {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function getStatus(): ?string {
 		if ($this->envelope === null) {

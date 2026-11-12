@@ -32,7 +32,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.5
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -123,8 +123,8 @@ class HealthController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.5
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -210,7 +210,7 @@ class HealthController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -224,7 +224,7 @@ class HealthController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]

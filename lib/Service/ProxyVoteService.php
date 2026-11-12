@@ -38,7 +38,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
 
@@ -54,7 +54,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Proxy vote lifecycle service.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
 class ProxyVoteService {
@@ -161,7 +161,7 @@ class ProxyVoteService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
+	 * @spec openspec/changes/archive/2026-11-12-member-proxy-authorization/specs/member-proxy-authorization/spec.md#requirement-req-mpa-008-per-meeting-proxy-register-attachable-to-the-minutes
 	 */
 	public function isAuthorizedToList(string $meetingId, string $callerUid): bool {
 		if ($meetingId === '' || $callerUid === '') {
@@ -218,7 +218,7 @@ class ProxyVoteService {
 	 * @param string $meetingId UUID of the meeting
 	 * @param string|null $status Filter by proxyStatus
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxies: array, count: int}
@@ -289,7 +289,7 @@ class ProxyVoteService {
 	 *                               `$actor` for the audit log does not by itself authorize the
 	 *                               mutation.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
@@ -389,7 +389,7 @@ class ProxyVoteService {
 	 * @param string $actor UUID of the user driving the transition (audit-log label)
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization check
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
@@ -405,7 +405,7 @@ class ProxyVoteService {
 	 * @param string $actor UUID of the user driving the transition (audit-log label)
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization check
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
 	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}

@@ -42,7 +42,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  */
 
 declare(strict_types=1);
@@ -76,7 +76,7 @@ use OCP\L10N\IFactory;
  * writable scalar property to whitelist and cannot be constrained to an open
  * parent by the flat create vocabulary — see design.md "Deferred creates".
  *
- * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+ * @spec openspec/specs/portal-contribution/spec.md
  * @spec openspec/specs/portal-citizen-create-actions/spec.md
  */
 class PortalContributionProvider {
@@ -440,7 +440,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<int, string> The audience identifiers.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getAudiences(): array {
 		return ['citizen'];
@@ -454,7 +454,7 @@ class PortalContributionProvider {
 	 *
 	 * @return string The primary audience identifier.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getAudience(): string {
 		return 'citizen';
@@ -472,7 +472,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>|null The manifest, or null when not contributing.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function getContribution(array $subject): ?array {
@@ -539,7 +539,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed> The citizen manifest.
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/specs/portal-citizen-create-actions/spec.md
 	 */
 	private function citizenContribution(): array {
@@ -594,7 +594,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<int, array<string, mixed>>
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	private function citizenCollections(): array {
 		return [
@@ -616,7 +616,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	private function citizenReactionsCollection(): array {
 		return [
@@ -637,7 +637,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	private function citizenVotesCollection(): array {
 		return [
@@ -658,7 +658,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	private function citizenBudgetProposalsCollection(): array {
 		return [
@@ -679,7 +679,7 @@ class PortalContributionProvider {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/portal-contribution/specs/portal-contribution/spec.md
+	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	private function citizenNotificationsCollection(): array {
 		return [

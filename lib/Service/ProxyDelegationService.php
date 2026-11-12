@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use Throwable;
 /**
  * Proxy (volmacht) delegation on a VotingRound.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
  */
 class ProxyDelegationService {
 	/**
@@ -63,7 +63,7 @@ class ProxyDelegationService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -87,7 +87,7 @@ class ProxyDelegationService {
 	 *
 	 * @throws \InvalidArgumentException When the receiver cannot receive proxies
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
 	 */
 	public function grantProxy(string $votingRoundId, string $fromParticipantId, string $toParticipantId): void {
 		if ($fromParticipantId === $toParticipantId) {
@@ -155,7 +155,7 @@ class ProxyDelegationService {
 	 *
 	 * @throws \RuntimeException When the round is already open
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
 	 */
 	public function revokeProxy(string $votingRoundId, string $fromParticipantId): void {
 		$objectService = $this->objectService();
@@ -205,7 +205,7 @@ class ProxyDelegationService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
 	 */
 	private function notifyDelegate(array $toParticipant, string $votingRoundId, string $fromParticipantId): void {
 		try {
@@ -245,7 +245,7 @@ class ProxyDelegationService {
 	 *
 	 * @return object The OpenRegister ObjectService
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
 	 */
 	private function objectService(): object {
 		return $this->objectService;

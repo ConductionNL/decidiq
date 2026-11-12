@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -29,7 +29,7 @@ use OCA\OpenRegister\Db\AuditTrail;
  * audit row, the export bodies, a query page and a chain verification.
  * It holds no state.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 final class AuditRowFormat {
 
@@ -45,7 +45,7 @@ final class AuditRowFormat {
 	 *
 	 * @return array<string, mixed> The mapped decidiq audit row
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function mapRow(AuditTrail $entry): array {
 		$changed = self::changedOf(entry: $entry);
@@ -69,7 +69,7 @@ final class AuditRowFormat {
 	 *
 	 * @return list<array<string, mixed>>
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function inPeriod(array $chain, array $period): array {
 		[$startDate, $endDate] = $period;
@@ -92,7 +92,7 @@ final class AuditRowFormat {
 	 *
 	 * @return array{success: bool, format: string, body: string, count: int}
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function exportResult(string $format, array $rows): array {
 		$body = self::jsonBody(rows: $rows);
@@ -115,7 +115,7 @@ final class AuditRowFormat {
 	 *
 	 * @return array{success: false, format: string, body: string, count: int}
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function exportFailure(string $format): array {
 		return [
@@ -134,7 +134,7 @@ final class AuditRowFormat {
 	 *
 	 * @return array{success: bool, entries: array, count: int}
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function queryPage(array $filtered, array $filters): array {
 		$limit = (int)($filters['limit'] ?? 100);
@@ -157,7 +157,7 @@ final class AuditRowFormat {
 	 *
 	 * @return array{valid: bool, checked: int, tampered: array<int, string>}
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function verification(array $result): array {
 		$tampered = [];
@@ -178,7 +178,7 @@ final class AuditRowFormat {
 	 *
 	 * @return array{valid: false, checked: 0, tampered: array<int, string>}
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 */
 	public function notVerified(): array {
 		return [

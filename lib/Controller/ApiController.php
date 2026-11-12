@@ -21,8 +21,8 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-1
- * @spec openspec/changes/p4-integration/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -48,9 +48,9 @@ use Throwable;
  * OAuthScope register entries declared by `lib/Settings/decidesk_register.json`
  * — Decidiq does not implement custom token validation (REQ-OAUTH-002).
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-1
- * @spec openspec/changes/p4-integration/tasks.md#task-2
- * @spec openspec/changes/p4-integration/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-9
  */
 class ApiController extends CorsJsonController {
 
@@ -158,8 +158,8 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse Paginated list envelope or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1
-	 * @spec openspec/changes/p4-integration/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -237,7 +237,7 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse The serialized entity or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -415,7 +415,7 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
 	#[NoAdminRequired]
@@ -436,7 +436,7 @@ class ApiController extends CorsJsonController {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
 	#[NoAdminRequired]

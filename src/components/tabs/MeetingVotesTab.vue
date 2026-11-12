@@ -13,7 +13,7 @@
  MotionVotesTab) and groups the rounds by their parent motion. No
  create / edit / cast action is offered.
 
- @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-stemmingen-overview-tab
+ @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-stemmingen-overview-tab
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--votes" data-testid="meeting-votes-tab">
@@ -74,7 +74,7 @@ import { ensureRelationType } from './useRelationStore.js'
  *
  * @param {object} round The voting round
  * @return {{votesFor: number, votesAgainst: number, votesAbstain: number, result: string, timestamp: string}} The tally.
- * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+ * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
  */
 function roundTally(round) {
 	return {
@@ -91,7 +91,7 @@ function roundTally(round) {
  *
  * @param {object|null} object An agenda item or motion
  * @return {string|undefined} The id.
- * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+ * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
  */
 function idOf(object) {
 	return object?.id || object?.uuid
@@ -115,7 +115,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 		columns() {
 			return [
 				{ key: 'motionTitle', label: this.t('decidiq', 'Motion') },
@@ -129,7 +129,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 		resultColors() {
 			return { adopted: 'success', rejected: 'error', tied: 'warning' }
 		},
@@ -138,7 +138,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+			/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 			handler() {
 				this.refresh()
 			},
@@ -150,7 +150,7 @@ export default {
 		// voting-round (the chain AgendaMotionsTab/MotionVotesTab use);
 		// no direct meeting link exists on voting-round. Vote authoring
 		// stays exclusively in LiveMeetingView.
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -170,7 +170,7 @@ export default {
 		 * Every voting round of the meeting, one row per round.
 		 *
 		 * @return {Promise<Array<object>>} The rows.
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
 		 */
 		async meetingRounds() {
 			const agendaItems = await ensureRelationType(
@@ -195,7 +195,7 @@ export default {
 		 *
 		 * @param {string} itemId The agenda item id
 		 * @return {Promise<Array<object>>} The rows.
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
 		 */
 		async agendaItemRounds(itemId) {
 			const motions = await ensureRelationType('motion').fetchCollection(
@@ -220,7 +220,7 @@ export default {
 		 *
 		 * @param {object} motion The motion
 		 * @return {Promise<Array<object>>} The rows.
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
 		 */
 		async motionRounds(motion) {
 			const rounds = await ensureRelationType('voting-round').fetchCollection(
@@ -243,7 +243,7 @@ export default {
 		 * @param {object} motion The motion
 		 * @param {object} round The voting round
 		 * @return {Promise<object>} The row.
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
 		 */
 		async roundRow(motion, round) {
 			const roundId = round.id || round.uuid
@@ -297,7 +297,7 @@ export default {
 		 * Deep-link to MotionDetail with the votes tab requested via query.
 		 *
 		 * @param {object} row Round row (must carry `motionId`).
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-voting-rounds-for-the-meeting
 		 */
 		openMotion(row) {
 			if (!row || !row.motionId) return

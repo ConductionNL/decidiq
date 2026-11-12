@@ -5,7 +5,7 @@
 // previewed person becomes a Person (matched by email, else created) plus a
 // Membership of the body, one after the other. A dialog says which rows it
 // imports (`importablePeople`) and how its preview reads afterwards
-// (`previewAfterImport`). @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+// (`previewAfterImport`). @spec openspec/specs/admin-settings/spec.md
 
 import {
 	buildMembershipPayload,
@@ -20,7 +20,7 @@ export const memberImportRunMixin = {
 		 * many and mark them so a second click cannot double-import.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		async runImport() {
 			this.importing = true
@@ -52,7 +52,7 @@ export const memberImportRunMixin = {
 		 * @param {{name: string, email: string, nextcloudUserId: string, role: string}} person The person.
 		 * @param {{personStore: object, membershipStore: object}} stores The person and membership stores.
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		async importPerson(person, stores) {
 			const stored = await resolveOrCreatePerson(stores.personStore, {

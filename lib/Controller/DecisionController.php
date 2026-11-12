@@ -9,7 +9,7 @@
  * @category Controller
  * @package  OCA\Decidiq\Controller
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -44,7 +44,7 @@ use Psr\Log\LoggerInterface;
  * and validates outcome/publication state before persisting — preventing the
  * frontend-only guard bypass described in OWASP A01:2021 / ADR-005.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
  */
 class DecisionController extends Controller {
 
@@ -65,7 +65,7 @@ class DecisionController extends Controller {
 	 * @param LoggerInterface $logger The logger (handed to the publication service)
 	 * @param DecisionLifecycleService $lifecycleService Guarded decision state machine
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -245,7 +245,7 @@ class DecisionController extends Controller {
 	 * in-body `isAdmin()` check is kept as defence in depth for any non-HTTP
 	 * caller that bypasses the middleware.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
 	#[AuthorizedAdminSetting(AdminSettings::class)]
 	public function publish(string $decisionId): JSONResponse {
