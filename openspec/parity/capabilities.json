@@ -1734,7 +1734,10 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-rules-from-body-and-type",
 				"readOn": "2026-09-29",
-				"requirement": "openspec/changes/capability-rows-get-requirements/specs/meeting-management :: A body limits which voting methods its meetings may use",
+				"requirement": [
+					"openspec/changes/capability-rows-get-requirements/specs/meeting-management :: A body limits which voting methods its meetings may use",
+					"openspec/specs/meeting-management :: REQ-MRB-002 Votes follow the body rules"
+				],
 				"plan": "openspec/changes/capability-rows-get-requirements"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id) sets quorum, quorum rule and process template; the Voting round widget on a motion or amendment opens rounds that follow them",
@@ -1892,7 +1895,10 @@
 				"evidence": "lib/Settings/decidesk_register.json:665 Meeting (title, governanceBody, scheduledDate, endDate, location, meetingMode, required title/meetingType/scheduledDate/meetingMode/lifecycle); src/manifest.json:516 Meetings index and :561 MeetingDetail with 'meeting-planning' data widget (:570); src/manifest.json:472 body-meetings list on GovernanceBodyDetail",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/meeting-crud",
-				"requirement": "openspec/specs/meeting-crud :: Meeting list view"
+				"requirement": [
+					"openspec/specs/meeting-management :: Meeting Creation and Scheduling",
+					"openspec/specs/meeting-crud :: Create a meeting"
+				]
 			},
 			"reachedOn": "Meetings index (/meetings, menu 'Meetings') create form; MeetingDetail (/meetings/:id) Planning widget",
 			"provider": "decidiq",
@@ -1932,7 +1938,10 @@
 				"evidence": "src/manifest.json:546 MeetingsCalendar page (/meetings/calendar, component MeetingCalendarView); src/views/meetings/MeetingCalendarView.vue month grid placing meetings by scheduledDate, fetch via src/services/dashboardData.js getMeetings (:119); toggle src/views/meetings/MeetingViewToggle.vue as actionsComponent on the Meetings index",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/activity-calendar",
-				"requirement": "openspec/specs/activity-calendar :: REQ-ACAL-003 The calendar asks the server for the visible month"
+				"requirement": [
+					"openspec/specs/meeting-management :: Meeting List and Calendar View",
+					"openspec/specs/activity-calendar :: REQ-ACAL-003 The calendar asks the server for the visible month"
+				]
 			},
 			"reachedOn": "Meetings index (/meetings) Table/Calendar toggle, MeetingsCalendar (/meetings/calendar)",
 			"provider": "decidiq",
@@ -4744,7 +4753,10 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-10-01-bodies-member-profile-and-voting-record",
 				"readOn": "2026-09-28",
-				"requirement": "openspec/specs/ori-api :: REQ-MPR-005 A body decides whether its members' votes are public"
+				"requirement": [
+					"openspec/specs/person-and-membership :: REQ-MPR-004 The profile shows the member's voting record",
+					"openspec/specs/ori-api :: REQ-MPR-005 A body decides whether its members' votes are public"
+				]
 			},
 			"reachedOn": "the Voting record widget on /people/:id",
 			"provider": "decidiq",
@@ -5039,7 +5051,10 @@
 				"evidence": "src/manifest.json MeetingDetail widget meeting-decisions -> src/components/tabs/MeetingDecisionsTab.vue:129 fetchCollection('decision',{meeting}) lists and creates decisions for the meeting; Decision.meeting added in lib/Settings/register.d/67-model-debt-cleanup.json. Decisions index /decisions for the cross-meeting list.",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/decision-management",
-				"requirement": "openspec/specs/schemas-and-data-model :: REQ-SDM-022 Decision declares its meeting and agendaItem joins"
+				"requirement": [
+					"openspec/specs/schemas-and-data-model :: REQ-SDM-022 Decision declares its meeting and agendaItem joins",
+					"openspec/specs/case-system-exchange :: REQ-CSDX-004 Approving the minutes produces a decision list document"
+				]
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Decisions widget (MeetingDecisionsTab); Decisions index (/decisions)",
 			"provider": "decidiq",
@@ -5350,7 +5365,10 @@
 				"evidence": "DecisionDetail widget decision-actions -> src/components/tabs/ActionItemsSurface.vue (DecisionActionItemsTab or ActionItemDeckBoard); DecisionActionItemsTab.vue:142-143 assignee/dueDate columns, :256 createActionItem({...formData, decision}) -> src/services/actionItemApi.js POST /api/action-items (routes.php:78) -> lib/Service/ActionItemWriter.php:98 create() writes a CalDAV VTODO via OpenRegister TaskService.",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-06-23-action-items-vtodo-deck-reconcile",
-				"requirement": "openspec/specs/action-item-board-via-deck-leaf :: REQ-AI-DECK-004 Creation paths write VTODOs, not an app-local store"
+				"requirement": [
+					"openspec/specs/p2-minutes-and-decisions :: REQ-DR-003 Link action items to a decision",
+					"openspec/specs/action-item-board-via-deck-leaf :: REQ-AI-DECK-004 Creation paths write VTODOs, not an app-local store"
+				]
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Action items widget (ActionItemsSurface)",
 			"provider": "decidiq",
@@ -5904,7 +5922,10 @@
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
 				"change": "urgent-decisions-register",
-				"requirement": "openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure :: REQ-020 The declaration records the declaring body or office"
+				"requirement": [
+					"openspec/changes/urgent-decisions-register/specs/urgent-decision-procedure :: REQ-020 The declaration records the declaring body or office",
+					"openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure :: REQ-005 Ratification outcome confirms or reverses"
+				]
 			},
 			"reachedOn": "Urgent decisions index (/urgent-decisions); setting a decision urgent only through the generic decision form, if at all",
 			"provider": "decidiq",
@@ -6615,7 +6636,10 @@
 				"evidence": "lib/Settings/register.d/113-publication-subscriptions.json (publication-subscription, publication-event), src/components/userSettings/SubscriptionsSection.vue (members subscribe per body, kind and frequency), lib/Portal/PortalContributionProvider.php subscribeToPublications + citizenSubscriptions (residents on the portal), lib/Service/PublicationDigestService.php + lib/BackgroundJob/PublicationDigestJob.php (email or bell per member choice, resident portal inbox). Email alert, no RSS feed.",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-30-publication-subscriptions-and-daily-digest",
-				"requirement": "openspec/specs/public-publication :: REQ-PSD-001 Anyone can subscribe per body and kind, and choose how often"
+				"requirement": [
+					"openspec/specs/public-publication :: REQ-PSD-001 Anyone can subscribe per body and kind, and choose how often",
+					"openspec/specs/public-publication :: REQ-PSD-003 Subscribers receive matching events immediately, daily or weekly"
+				]
 			},
 			"reachedOn": "nothing reaches it: no RSS feed or citizen email alert",
 			"provider": "decidiq",
@@ -6776,7 +6800,10 @@
 			},
 			"screen": {
 				"canvas": "QAAxpcsFKBCvDUGbQbwtCa",
-				"board": "DcPersoon"
+				"board": [
+					"DcPersoon",
+					"portaliq/PtStemgedrag"
+				]
 			}
 		},
 		{
@@ -7109,7 +7136,10 @@
 				"evidence": "openspec/changes/inspreekrecht-plenair/ (proposal, design, specs, tasks); grep inspreek/speaking/spreekrecht in lib/Settings and src/manifest finds only speakingDuration (participant statistic) and transcript speaker labels",
 				"owner": "ConductionNL/decidiq",
 				"change": "inspreekrecht-plenair",
-				"requirement": "openspec/changes/inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-001 Generalized inspraak-aanmelding schema on OpenRegister"
+				"requirement": [
+					"openspec/changes/inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-001 Generalized inspraak-aanmelding schema on OpenRegister",
+					"openspec/changes/inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-004 Registration API enforces policy and closes at the deadline"
+				]
 			},
 			"reachedOn": "nothing reaches it: change specified only, no schema or page",
 			"provider": "decidiq",
@@ -8022,7 +8052,11 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-reminders-before-deadlines",
 				"readOn": "2026-09-29",
-				"requirement": "openspec/specs/decidesk-notifications :: REQ-MRD-001 Meeting notices follow the member switches"
+				"requirement": [
+					"openspec/specs/decidesk-notifications :: REQ-MRD-001 Meeting notices follow the member switches",
+					"openspec/specs/decidesk-notifications :: REQ-ACN-002 Preference-aware in-app notices are sent as decidiq",
+					"openspec/specs/decidesk-notifications :: REQ-MRD-002 A reminder before the submission deadline"
+				]
 			},
 			"reachedOn": "Personal settings, Decidiq notifications: Meeting scheduled, Meeting reminder and reminder times; the bell or email by the chosen delivery",
 			"provider": "decidiq",
@@ -8403,6 +8437,7 @@
 				"owner": "ConductionNL/decidiq",
 				"change": "seed-profiles",
 				"requirement": [
+					"openspec/changes/capability-rows-get-requirements/specs/first-time-setup :: The setup wizard guides an administrator through a fresh installation",
 					"openspec/specs/first-time-setup :: Each example data card loads itself",
 					"openspec/specs/first-time-setup :: Setup status reports every manifest step"
 				]
@@ -9022,7 +9057,8 @@
 				"change": "openregister/search-accent-insensitive",
 				"requirement": [
 					"openregister:openspec/changes/search-quality-operators-and-facets/specs/zoeken-filteren :: The search term accepts boolean operators and wildcards (REQ-SQF-002)",
-					"openregister:openspec/changes/search-accent-insensitive/specs/zoeken-filteren :: Object search ignores accents where the database supports it"
+					"openregister:openspec/changes/search-accent-insensitive/specs/zoeken-filteren :: Object search ignores accents where the database supports it",
+					"openregister:openspec/specs/zoeken-filteren :: Search result highlighting"
 				]
 			},
 			"reachedOn": "Nextcloud unified search bar; the search box on each index page",
@@ -10483,7 +10519,8 @@
 			"screen": {
 				"canvas": "design-system",
 				"board": [
-					"DcPersoon"
+					"DcPersoon",
+					"portaliq/PtStemgedrag"
 				]
 			},
 			"source": "coverage-2026-10-30"
