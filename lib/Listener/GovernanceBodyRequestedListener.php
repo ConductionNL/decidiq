@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -42,7 +42,7 @@ use Throwable;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class GovernanceBodyRequestedListener implements IEventListener {
 
@@ -67,7 +67,7 @@ class GovernanceBodyRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof GovernanceBodyRequestedEvent === false) {

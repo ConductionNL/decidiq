@@ -50,7 +50,7 @@ use RuntimeException;
 /**
  * Lists the example sets this app ships and imports the one an operator picked.
  *
- * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md
+ * @spec openspec/specs/seed-profiles/spec.md
  */
 class SeedProfileService {
 	/**
@@ -118,7 +118,7 @@ class SeedProfileService {
 	 *
 	 * @return array<int, array{id: string, label: string, description: string, objectCount: integer, icon: string}> The sets.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-list-example-sets
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-list-example-sets
 	 */
 	public function listProfiles(): array {
 		$profiles = [];
@@ -161,7 +161,7 @@ class SeedProfileService {
 	 *
 	 * @return array<int, array{id: string, label: string, description: string, objectCount: integer, icon: string}> The answers.
 	 *
-	 * @spec openspec/changes/example-set-cards/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
+	 * @spec openspec/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
 	 */
 	public function listChoices(): array {
 		$choices = [
@@ -185,7 +185,7 @@ class SeedProfileService {
 	 *
 	 * @return boolean True when the id is importable.
 	 *
-	 * @spec openspec/changes/example-set-cards/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
+	 * @spec openspec/specs/example-set-cards/spec.md#requirement-the-wizard-offers-the-sets-the-app-ships
 	 */
 	public function isKnown(string $profileId): bool {
 		if ($profileId === self::GENERATED_PROFILE) {
@@ -217,7 +217,7 @@ class SeedProfileService {
 	 *
 	 * @throws RuntimeException When the id is unknown or OpenRegister is absent.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-import-one-example-set
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-import-one-example-set
 	 */
 	public function install(string $profileId): array {
 		if ($profileId === self::GENERATED_PROFILE) {

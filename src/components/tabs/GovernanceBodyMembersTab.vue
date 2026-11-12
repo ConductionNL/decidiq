@@ -18,7 +18,7 @@
 
  All dialogs live in src/modals/ (ADR-004 modal isolation).
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--members" data-testid="body-members-tab">
@@ -314,7 +314,7 @@ export default {
 		 * memberships, not Participant rows").
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async refresh() {
@@ -457,7 +457,7 @@ export default {
 		 * nulling a governanceBody pointer.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async confirmRemove() {

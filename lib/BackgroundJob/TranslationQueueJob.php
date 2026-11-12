@@ -12,7 +12,7 @@
  * @category BackgroundJob
  * @package  OCA\Decidiq\BackgroundJob
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -36,7 +36,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Hourly TimedJob that drains the translation queue.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 class TranslationQueueJob extends TimedJob {
 
@@ -73,7 +73,7 @@ class TranslationQueueJob extends TimedJob {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @SuppressWarnings(PHPMD.UnusedFormalParameter) $argument is mandated by the
 	 * abstract OCP\BackgroundJob\Job::run() signature; this job is scheduled with

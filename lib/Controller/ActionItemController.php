@@ -110,7 +110,7 @@ class ActionItemController extends Controller {
 	 *   gated on the collaborator naming OpenRegister's ObjectService, and the
 	 *   enforcement here lives in TaskService instead.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	#[NoAdminRequired]
 	public function update(string $uid): JSONResponse {
@@ -143,7 +143,7 @@ class ActionItemController extends Controller {
 	 *   TaskService.php:126-132 to 'principals/users/' . $user->getUID(). A uid the
 	 *   acting user does not own simply does not resolve, and the method answers 404.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	#[NoAdminRequired]
 	public function destroy(string $uid): JSONResponse {

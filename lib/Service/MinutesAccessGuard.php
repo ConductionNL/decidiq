@@ -77,7 +77,7 @@ class MinutesAccessGuard {
 	 *
 	 * @return JSONResponse|null Null if authorised, a 401/403 JSONResponse otherwise.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function requireChairOrAdmin(string $minutesId): ?JSONResponse {

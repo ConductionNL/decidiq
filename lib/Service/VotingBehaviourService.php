@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 
 declare(strict_types=1);
@@ -39,7 +39,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  * to a governance-body), and votes are linked to a round and a participant via
  * their relations array — there are no scalar foreign-key fields.
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
 class VotingBehaviourService {
 
@@ -67,7 +67,7 @@ class VotingBehaviourService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -152,7 +152,7 @@ class VotingBehaviourService {
 	 * @return array<string,mixed> Statistics array with totalRounds, participated, participationRate,
 	 *                             votesFor, votesAgainst, votesAbstain, proxiesGiven, proxiesReceived
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	public function getStats(string $participantId, string $governanceBodyId): array {
 		$closedRounds = $this->closedRoundsForBody(governanceBodyId: $governanceBodyId);
@@ -239,7 +239,7 @@ class VotingBehaviourService {
 	 *
 	 * @return array<int, array<string,mixed>> The closed rounds.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function closedRoundsForBody(string $governanceBodyId): array {
 		$objectService = $this->objectService();
@@ -282,7 +282,7 @@ class VotingBehaviourService {
 	 *
 	 * @return array<int, array<string,mixed>> The closed rounds.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function closedRoundsForMotion(string $motionId): array {
 		$objectService = $this->objectService();
@@ -314,7 +314,7 @@ class VotingBehaviourService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function accumulateRound(array &$tally, string $roundId, string $participantId): void {
 		$votes = $this->participantVotes(roundId: $roundId, participantId: $participantId);
@@ -342,7 +342,7 @@ class VotingBehaviourService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function accumulateVote(array &$tally, array $vote): void {
 		$countKey = match (($vote['value'] ?? null)) {
@@ -372,7 +372,7 @@ class VotingBehaviourService {
 	 *
 	 * @return array<int, array<string,mixed>> The ballots.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function participantVotes(string $roundId, string $participantId): array {
 		$objectService = $this->objectService();
@@ -398,7 +398,7 @@ class VotingBehaviourService {
 	 *
 	 * @return int The number of proxies received.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function proxiesReceived(string $roundId, string $participantId): int {
 		$objectService = $this->objectService();
@@ -432,7 +432,7 @@ class VotingBehaviourService {
 	 *
 	 * @return bool True when the participant is the delegator.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function namesDelegator(mixed $relations, string $participantId): bool {
 		foreach (($relations ?? []) as $rel) {

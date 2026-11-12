@@ -14,7 +14,7 @@
 
  v1 is forward-only — editing the card in Deck does not sync back.
 
- @spec openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md
+ @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
 -->
 <template>
 	<div class="ai-deck-board" data-testid="action-item-deck-board">
@@ -226,19 +226,19 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		register() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.register || 'decidiq'
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		schema() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.decisionSchema || 'decision'
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		lanes() {
 			return LANES.map((key) => ({
 				key,
@@ -247,7 +247,7 @@ export default {
 			}))
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-3 */
 		laneOptions() {
 			return LANES.map((key) => ({
 				id: key,
@@ -260,7 +260,7 @@ export default {
 			return generateUrl('/apps/deck/')
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-1 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-1 */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'deckCardId', 'created', 'updated']
 		},
@@ -289,7 +289,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-3
 		 */
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
@@ -301,7 +301,7 @@ export default {
 		 * (action items are a read-only projection — never the object API).
 		 *
 		 * @param {object} formData The dialog form data.
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-1
 		 */
 		async onConfirm(formData) {
 			try {
@@ -326,7 +326,7 @@ export default {
 		/**
 		 * Delete an action item (VTODO).
 		 *
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-1
 		 */
 		async confirmDelete() {
 			try {
@@ -340,7 +340,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		async sync() {
 			this.syncing = true
 			this.error = ''
@@ -389,7 +389,7 @@ export default {
 		 *
 		 * @param {object} item The action-item row.
 		 * @param {object} opt  The chosen lane option ({id, label}).
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-3
 		 */
 		async moveTo(item, opt) {
 			const newLane = opt && opt.id

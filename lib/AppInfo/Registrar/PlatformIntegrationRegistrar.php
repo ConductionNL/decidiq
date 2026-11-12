@@ -60,7 +60,7 @@ use Psr\Log\LoggerInterface;
  * autowired.
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
- * @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md
+ * @spec openspec/specs/meeting-transcription/spec.md
  */
 class PlatformIntegrationRegistrar {
 	/**

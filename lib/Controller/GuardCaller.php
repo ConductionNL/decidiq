@@ -15,7 +15,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -31,7 +31,7 @@ use OCP\IUserSession;
 /**
  * The uid an authorization guard checks.
  *
- * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
  */
 final class GuardCaller {
 	/**
@@ -52,7 +52,7 @@ final class GuardCaller {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	public function uid(): ?string {
 		$user = $this->userSession->getUser();

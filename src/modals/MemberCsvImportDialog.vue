@@ -14,7 +14,7 @@
  Participant; rows without a matching NC account are still imported but
  flagged for manual linking, unchanged.
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -277,7 +277,7 @@ export default {
 		 * The previewed rows that pass validation, as people to import.
 		 *
 		 * @return {Array<{name: string, email: string, nextcloudUserId: string, role: string}>} The people.
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		importablePeople() {
 			return this.preview
@@ -294,7 +294,7 @@ export default {
 		 * The preview once imported: imported rows read as already a member.
 		 *
 		 * @return {Array<object>} The rows.
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		previewAfterImport() {
 			return this.preview.map((row) =>

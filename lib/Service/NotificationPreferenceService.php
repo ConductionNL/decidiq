@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Service for reading, updating, and consulting NotificationPreference objects.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
  */
 class NotificationPreferenceService {
 
@@ -91,7 +91,7 @@ class NotificationPreferenceService {
 	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -104,7 +104,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return object
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	private function getObjectService(): object {
 		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
@@ -117,7 +117,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function findPreference(string $personId): ?array {
 		try {
@@ -165,7 +165,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function updatePreference(string $personId, array $preferences): array {
 		$existing = $this->findPreference(personId: $personId);
@@ -209,7 +209,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function shouldNotify(string $personId, string $eventType): bool {
 		if (in_array($eventType, self::ALWAYS_ON_EVENTS, true) === true) {

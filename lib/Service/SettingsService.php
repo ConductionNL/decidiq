@@ -37,7 +37,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Service for managing Decidiq application configuration and settings.
  *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
  */
 class SettingsService {
 
@@ -52,8 +52,8 @@ class SettingsService {
 	 *
 	 * @var array<string>
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-3
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */
 	private const CONFIG_KEYS = [
@@ -121,7 +121,7 @@ class SettingsService {
 	 *
 	 * @var array<string,string>
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-3
 	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-mode-001-organisatie-modus-tenant-setting
 	 */
 	private const DEFAULTS = [
@@ -160,7 +160,7 @@ class SettingsService {
 	/**
 	 * Check whether OpenRegister is installed and available.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-1.3
 	 *
 	 * @return bool
 	 */
@@ -179,9 +179,9 @@ class SettingsService {
 	 * and do not require additional settings keys — the frontend resolves them from the
 	 * static OBJECT_TYPES map after confirming OpenRegister is available.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-3.1
 	 *
 	 * @return array<string,mixed>
 	 */
@@ -208,7 +208,7 @@ class SettingsService {
 	/**
 	 * The stored value of every readable key, or its default when none is stored.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
 	 *
 	 * @return array<string,string>
 	 */
@@ -235,7 +235,7 @@ class SettingsService {
 	 *
 	 * @param array<string,mixed> $data The data to update
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.2
 	 *
 	 * @return array<string,mixed> The updated settings
 	 */
@@ -256,9 +256,9 @@ class SettingsService {
 	 * version/fragment signature. Use {@see reloadConfiguration()} to force a
 	 * re-import.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-1.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array<string,mixed> Result with success flag, message, and version.
 	 */
@@ -273,9 +273,9 @@ class SettingsService {
 	 * The forcing counterpart of {@see loadConfiguration()}; both delegate to
 	 * the same import routine.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-1.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array<string,mixed> Result with success flag, message, and version.
 	 */
@@ -288,8 +288,8 @@ class SettingsService {
 	 *
 	 * @param bool $force Force re-import even if already configured.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-1.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array<string,mixed> Result with success flag, message, and version.
 	 */
@@ -313,7 +313,7 @@ class SettingsService {
 	 *
 	 * @param bool $force Force re-import even if already configured.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array<string,mixed> Result with success flag, message, and version.
 	 */
@@ -367,8 +367,8 @@ class SettingsService {
 	/**
 	 * Read and decode the monolithic decidesk_register.json.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-1.3
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-1.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
 	 */
@@ -393,7 +393,7 @@ class SettingsService {
 	 *
 	 * @param string $configContent The file content.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array{0: array<string,mixed>, 1: array<string,mixed>|null} [configData, failureResult]
 	 */
@@ -431,7 +431,7 @@ class SettingsService {
 	 *
 	 * @param array<string,mixed> $configData The decoded base configuration.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
 	 */
@@ -454,7 +454,7 @@ class SettingsService {
 	 *
 	 * @return string Absolute path to decidesk_register.json.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 */
 	public static function baseDescriptorPath(): string {
 		return __DIR__ . '/../Settings/decidesk_register.json';
@@ -465,7 +465,7 @@ class SettingsService {
 	 *
 	 * @return string Absolute path to lib/Settings/register.d.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 */
 	public static function fragmentDirectory(): string {
 		return __DIR__ . '/../Settings/register.d';
@@ -487,7 +487,7 @@ class SettingsService {
 	 *
 	 * @throws \JsonException When the base descriptor does not parse.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 */
 	public static function shippedRegisterDescriptor(): array {
 		$base = json_decode(
@@ -511,8 +511,8 @@ class SettingsService {
 	 * @param array<string,mixed> $configData  The merged configuration.
 	 * @param string              $fragmentSig Signature of the merged fragments.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 *
 	 * @return string
 	 */
@@ -535,7 +535,7 @@ class SettingsService {
 	 *
 	 * @param mixed $result What importFromApp returned.
 	 *
-	 * @spec openspec/changes/p1-dashboard-and-navigation/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p1-dashboard-and-navigation/tasks.md#task-2.1
 	 *
 	 * @return array<string,mixed> Result with success flag, message, and version.
 	 */

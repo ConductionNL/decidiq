@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-meeting-management/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -66,7 +66,7 @@ use OCP\IUserSession;
  * This is the approved pattern per ADR-005 for resources governed by
  * OpenRegister's own RBAC instead of Nextcloud group membership.
  *
- * @spec openspec/changes/p2-meeting-management/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-2.1
  */
 class MeetingController extends Controller {
 	/**
@@ -107,7 +107,7 @@ class MeetingController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.3
 	 *
 	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
 	 *

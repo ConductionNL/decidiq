@@ -13,7 +13,7 @@
  A withdrawn decision is on none of the seven steps, so the bar says so in
  words instead of marking a step.
 
- @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+ @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
 -->
 <template>
 	<nav
@@ -64,7 +64,7 @@ export default {
 		 * The seven states, each done, current or upcoming.
 		 *
 		 * @return {Array<{state: string, status: string}>} The steps.
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
 		 */
 		steps() {
 			return buildTimeline(this.objectData?.lifecycle || '')
@@ -74,7 +74,7 @@ export default {
 		 * Whether the decision left the route by being withdrawn.
 		 *
 		 * @return {boolean} True for a withdrawn decision.
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
 		 */
 		withdrawn() {
 			return this.objectData?.lifecycle === 'withdrawn'
@@ -87,7 +87,7 @@ export default {
 		 *
 		 * @param {string} state The lifecycle state.
 		 * @return {string} Its label, or the state itself when it has none.
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
 		 */
 		stepLabel(state) {
 			return STATE_LABELS[state] || state

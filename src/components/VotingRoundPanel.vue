@@ -4,7 +4,7 @@
 <!--
  VotingRoundPanel component — embedded in MotionDetail and AmendmentDetail.
  Shows the current open voting round, vote casting, live tally, proxy controls, and results.
- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6
+ @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6
 -->
 <template>
 	<CnDetailCard :title="t('decidiq', 'Voting round')">
@@ -14,7 +14,7 @@
 		</p>
 
 		<!-- No round yet — chair can open one -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 -->
+		<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3 -->
 		<template v-else-if="!currentRound">
 			<p class="decidiq-empty">
 				{{ t('decidiq', 'No active voting round.') }}
@@ -210,7 +210,7 @@
 		<!-- Active or closed round -->
 		<template v-else>
 			<!-- Show-of-hands entry (chair/secretary when round is open) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.6 -->
 			<div
 				v-if="isRoundOpen && currentRound.votingMethod === 'show-of-hands'"
 				class="decidiq-show-of-hands">
@@ -242,7 +242,7 @@
 			</div>
 
 			<!-- Vote casting buttons -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 -->
 			<!-- Ranked ballot (REQ-PRF-002, issue #1419) -->
 			<!-- @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting -->
 			<template v-if="isRoundOpen && isRankedRound && !voteCast">
@@ -303,7 +303,7 @@
 			</p>
 
 			<!-- Live tally (chair/secretary see full tally; members see only total count) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 -->
 			<div v-if="isRoundOpen" class="decidiq-tally">
 				<p>
 					{{
@@ -336,7 +336,7 @@
 			</div>
 
 			<!-- Proxy management — proxy grant/revoke is enforced by the backend -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-7 -->
 			<div class="decidiq-proxy">
 				<NcButton
 					v-if="!activeProxy"
@@ -394,7 +394,7 @@
 				@close="showRecordVotes = false" />
 
 			<!-- Close round button (chair/secretary) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.4 -->
 			<NcButton
 				v-if="isRoundOpen && isChairOrSecretary"
 				variant="error"
@@ -425,7 +425,7 @@
 			</div>
 
 			<!-- Result display (closed rounds) -->
-			<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 -->
+			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.5 -->
 			<div v-if="!isRoundOpen && currentRound.result" class="decidiq-result">
 				<p>
 					<strong>{{ t('decidiq', 'Result:') }}</strong>
@@ -701,7 +701,7 @@ export default {
 			])
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
 		roundId() {
 			if (!this.currentRound) return null
 			return this.currentRound.id || this.currentRound.uuid || null
@@ -722,7 +722,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
 		isRoundOpen() {
 			if (!this.currentRound) return false
 			if (!this.currentRound.openedAt) return false
@@ -731,7 +731,7 @@ export default {
 			return true
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 */
 		tallyTotal() {
 			if (!this.currentRound) return 0
 			return (
@@ -822,7 +822,7 @@ export default {
 			)
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.5 */
 		oriStatusLabel() {
 			const labels = {
 				published: this.t('decidiq', 'Published to ORI'),
@@ -856,7 +856,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.2 */
+	/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		this.loadPermissions()
 		await this.fetchCurrentRound()
@@ -920,7 +920,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
 		async fetchCurrentRound() {
 			this.loading = true
 			try {
@@ -983,7 +983,7 @@ export default {
 		 *
 		 * @param {string} action cast, close, tally, proxy or publish.
 		 * @return {string} The URL.
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3
 		 */
 		roundEndpoint(action) {
 			return OC.generateUrl(
@@ -993,7 +993,7 @@ export default {
 
 		/**
 		 * @param value
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.1
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1
 		 */
 		async castVote(value) {
 			this.castVoteError = null
@@ -1018,7 +1018,7 @@ export default {
 		 * else show the server's reason.
 		 *
 		 * @param {Response} resp The cast response.
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3
 		 */
 		async afterCast(resp) {
 			if (resp.ok) {
@@ -1031,7 +1031,7 @@ export default {
 				data.message || this.t('decidiq', 'Failed to cast vote')
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.3 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3 */
 		async openRound() {
 			this.openingRound = true
 			this.openRoundError = null
@@ -1164,7 +1164,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.4 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.4 */
 		async closeRound() {
 			this.confirmCloseRound = false
 			try {
@@ -1239,7 +1239,7 @@ export default {
 			this.revoteOfRoundId = null
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.6 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.6 */
 		async saveShowOfHands() {
 			try {
 				const resp = await fetch(
@@ -1258,7 +1258,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-7.1 */
 		async grantProxy() {
 			try {
 				const resp = await fetch(
@@ -1277,7 +1277,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-7.2 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-7.2 */
 		async revokeProxy() {
 			try {
 				const resp = await fetch(
@@ -1292,7 +1292,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-6.5 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.5 */
 		async publishToOri() {
 			try {
 				const resp = await fetch(

@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -38,7 +38,7 @@ use OCP\Migration\IRepairStep;
 /**
  * Retired no-op: legacy task/delegation → VTODO migration is a per-user follow-up.
  *
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
  */
 class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	/**
@@ -46,7 +46,7 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	 *
 	 * @return string The repair step name.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
 	 */
 	public function getName(): string {
 		return 'Migrate legacy Decidiq Task/Delegation objects to Deck-leaf VTODO action items (deferred to per-user follow-up)';
@@ -61,7 +61,7 @@ class MigrateActionItemsToDeckLeaf implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.1
 	 */
 	public function run(IOutput $output): void {
 		$output->info(

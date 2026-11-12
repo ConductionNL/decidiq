@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -46,7 +46,7 @@ use OCP\IUserSession;
  * JSONResponse when it is not, so callers can `if ($denied !== null) return
  * $denied;` — fail-closed by construction.
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 class AgendaAuthorizationGuard {
 	/**
@@ -57,7 +57,7 @@ class AgendaAuthorizationGuard {
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -72,7 +72,7 @@ class AgendaAuthorizationGuard {
 	 *
 	 * @return JSONResponse|null Null if authenticated, 401 JSONResponse if not.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function requireUser(): ?JSONResponse {
 		if ($this->userSession->getUser() === null) {
@@ -89,7 +89,7 @@ class AgendaAuthorizationGuard {
 	 *
 	 * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function requireChairOrAdmin(string $meetingId): ?JSONResponse {
 		$user = $this->userSession->getUser();
@@ -130,7 +130,7 @@ class AgendaAuthorizationGuard {
 	 *
 	 * @return JSONResponse|null Null if authorised, 401/403/404 JSONResponse if not.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function requireChairOrAdminForAgendaItem(string $agendaItemId): ?JSONResponse {
 		// Resolve the meeting for authorization; 404 if item does not exist.

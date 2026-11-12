@@ -7,7 +7,7 @@
  date, status and an Overdue badge. Rows come from
  src/utils/planningCycleSteps.js; a row opens the step's own page.
 
- @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 -->
 <template>
 	<div class="cycle-steps" data-testid="planning-cycle-steps-tab">
@@ -98,7 +98,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps */
+		/** @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps */
 		rows() {
 			return stepRows(this.steps, new Date())
 		},
@@ -107,7 +107,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps */
+			/** @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps */
 			handler() {
 				this.refresh()
 			},
@@ -119,7 +119,7 @@ export default {
 		 * Load the cycle's steps.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+		 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 		 */
 		async refresh() {
 			if (!this.objectId) return
@@ -141,7 +141,7 @@ export default {
 		/**
 		 * @param {string} status A step status.
 		 * @return {string} Its label.
-		 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+		 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 		 */
 		statusLabel(status) {
 			return (
@@ -158,7 +158,7 @@ export default {
 		/**
 		 * @param {string} value A date (YYYY-MM-DD).
 		 * @return {string} The local date, or ''.
-		 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+		 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 		 */
 		formatDate(value) {
 			if (!value) return ''

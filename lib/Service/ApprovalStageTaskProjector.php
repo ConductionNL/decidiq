@@ -39,7 +39,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -53,7 +53,7 @@ use Throwable;
 /**
  * Keeps the OR task inbox agreeing with a subject's approval stages.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class ApprovalStageTaskProjector {
 
@@ -107,7 +107,7 @@ class ApprovalStageTaskProjector {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function sync(string $subject, array $stages): void {
 		foreach ($stages as $stage) {

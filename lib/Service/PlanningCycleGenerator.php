@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -33,7 +33,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Builds the step payloads of a planning cycle from its template.
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 class PlanningCycleGenerator {
 
@@ -59,7 +59,7 @@ class PlanningCycleGenerator {
 	 *
 	 * @return array<int, array<string, mixed>> One planning-cycle-step payload per template step
 	 *
-	 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+	 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 	 */
 	public function stepsFor(string $cycleId, int $year, array $template): array {
 		$steps = [];
@@ -179,7 +179,7 @@ class PlanningCycleGenerator {
 	 *
 	 * @return string|null The date (YYYY-MM-DD)
 	 *
-	 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+	 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 	 */
 	public function resolveDate(mixed $monthDay, int $year): ?string {
 		if (is_string($monthDay) === false || preg_match('/^(\d{1,2})-(\d{1,2})$/', trim($monthDay), $match) !== 1) {

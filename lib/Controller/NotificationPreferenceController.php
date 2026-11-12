@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7.2
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -37,7 +37,7 @@ use OCP\IUserSession;
 /**
  * Controller for own NotificationPreference (read/update).
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7.2
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.2
  */
 class NotificationPreferenceController extends Controller {
 	/**
@@ -48,7 +48,7 @@ class NotificationPreferenceController extends Controller {
 	 * @param IUserSession $userSession Current user session
 	 * @param NotificationPreferenceRequestValidator $validator Update-payload validator
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.2
 	 */
 	public function __construct(
 		IRequest $request,

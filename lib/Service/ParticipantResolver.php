@@ -42,7 +42,7 @@ use Psr\Log\LoggerInterface;
  * Every call that previously filtered participants by the non-existent
  * `@self.relations.meeting` filter is routed through this service instead.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2
  */
 class ParticipantResolver {
 	/**
@@ -75,7 +75,7 @@ class ParticipantResolver {
 	 *
 	 * @return string|null The governance-body UUID or null
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2
 	 */
 	public function resolveGovernanceBodyId(string $meetingId): ?string {
 		$objectService = $this->objectService();
@@ -136,7 +136,7 @@ class ParticipantResolver {
 	 *
 	 * @return array<int, array<string, mixed>> Serialised participant objects
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2
 	 */
 	public function resolveMeetingParticipants(string $meetingId): array {
 		$governanceBodyId = $this->resolveGovernanceBodyId(meetingId: $meetingId);
@@ -227,7 +227,7 @@ class ParticipantResolver {
 	 *
 	 * @return bool True when the user is a participant in this meeting
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2
 	 */
 	public function isParticipant(string $meetingId, string $nextcloudUid): bool {
 		foreach ($this->resolveMeetingParticipants(meetingId: $meetingId) as $p) {
@@ -256,7 +256,7 @@ class ParticipantResolver {
 	 *
 	 * @return bool True when the user holds at least one of the given roles
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2
 	 */
 	public function hasRole(string $meetingId, string $nextcloudUid, array $roles): bool {
 		foreach ($this->resolveMeetingParticipants(meetingId: $meetingId) as $p) {

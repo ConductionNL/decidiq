@@ -59,9 +59,9 @@ use OCP\Util;
  * constructor signatures; only bindings the container cannot infer are
  * declared at all.
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class Application extends App implements IBootstrap {
 	public const APP_ID = 'decidiq';
@@ -82,9 +82,9 @@ class Application extends App implements IBootstrap {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function register(IRegistrationContext $context): void {
 
@@ -118,21 +118,21 @@ class Application extends App implements IBootstrap {
 		// per-request inside each action via
 		// $this->userSession->getUser()?->getUID(), so that the shared instance
 		// never caches a null uid from an early unauthenticated bootstrap.
-		// @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1.
+		// @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1.
 		// @spec openspec/specs/decision-management/spec.md
 		//
 		// TaskService / DelegationService and their controllers were retired in
 		// migrate-action-items-to-deck-leaf (ADR-022); WorkspaceService and
 		// WorkspaceController in migrate-workspaces-to-collectives-leaf.
-		// @spec openspec/changes/migrate-action-items-to-deck-leaf/tasks.md#task-4.1.
-		// @spec openspec/changes/migrate-workspaces-to-collectives-leaf/tasks.md#task-4.1.
+		// @spec openspec/changes/archive/2026-06-10-migrate-action-items-to-deck-leaf/tasks.md#task-4.1.
+		// @spec openspec/changes/archive/2026-06-12-migrate-workspaces-to-collectives-leaf/tasks.md#task-4.1.
 		//
 		// The MigrateCommentsToTalkLeaf / MigrateActionItemsToDeckLeaf repair
 		// steps are registered via appinfo/info.xml <repair-steps>;
 		// IRegistrationContext has no registerRepairStep() method, and their
 		// constructor dependencies are autowired when Nextcloud instantiates
 		// them.
-		// @spec openspec/changes/migrate-comments-to-talk-leaf/tasks.md#task-2.1.
+		// @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1.
 		// @spec openspec/specs/user-settings/spec.md
 		// Both registrars below carry the bindings described above.
 		(new CrossAppEventRegistrar())->register(context: $context);
@@ -173,9 +173,9 @@ class Application extends App implements IBootstrap {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 *
 	 * @SuppressWarnings(PHPMD.StaticAccess) OCP\Util exposes script and style
 	 * registration (addInitScript/addScript/addStyle) as STATIC methods only —

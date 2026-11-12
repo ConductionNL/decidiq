@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -41,7 +41,7 @@ use OCP\EventDispatcher\Event;
  * after dispatch — the same request/response-over-the-bus pattern
  * DecisionRequestedEvent uses.
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class GovernanceBodyRequestedEvent extends Event {
 
@@ -87,7 +87,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 * documents. Collapsing these into an array would move the contract from the
 	 * signature into an undocumented key set.
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function __construct(
 		private readonly string $sourceApp,
@@ -110,7 +110,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The app id
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getSourceApp(): string {
 		return $this->sourceApp;
@@ -122,7 +122,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The external reference
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getExternalReference(): string {
 		return $this->externalReference;
@@ -134,7 +134,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The name
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getName(): string {
 		return $this->name;
@@ -146,7 +146,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The bodyType
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getBodyType(): string {
 		return $this->bodyType;
@@ -158,7 +158,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The domain
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getDomain(): string {
 		return $this->domain;
@@ -170,7 +170,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return boolean The active flag
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function isActive(): bool {
 		return $this->active;
@@ -182,7 +182,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return array<string, mixed> The attribute map
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getAttributes(): array {
 		return $this->attributes;
@@ -194,7 +194,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return array<int, array<string, mixed>> The members
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getMembers(): array {
 		return $this->members;
@@ -206,7 +206,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The actor id
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getActorId(): string {
 		return $this->actorId;
@@ -218,7 +218,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The correlation id
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getCorrelationId(): string {
 		return $this->correlationId;
@@ -230,7 +230,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return string The id, or an empty string when unhandled
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getGovernanceBodyId(): string {
 		return ($this->governanceBodyId ?? '');
@@ -244,7 +244,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function setGovernanceBodyId(string $governanceBodyId): void {
 		$this->governanceBodyId = $governanceBodyId;
@@ -256,7 +256,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return boolean The created flag
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function isCreated(): bool {
 		return $this->created;
@@ -270,7 +270,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function setCreated(bool $created): void {
 		$this->created = $created;
@@ -282,7 +282,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return boolean The handled flag
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function isHandled(): bool {
 		return $this->handled;
@@ -296,7 +296,7 @@ class GovernanceBodyRequestedEvent extends Event {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function setHandled(bool $handled): void {
 		$this->handled = $handled;

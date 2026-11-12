@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -38,7 +38,7 @@ use OCP\IUserSession;
 /**
  * Controller for motion co-authoring endpoints.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
  */
 class MotionCoauthorController extends Controller {
 	/**
@@ -49,7 +49,7 @@ class MotionCoauthorController extends Controller {
 	 * @param IUserSession $userSession Current user session
 	 * @param IGroupManager $groupManager Group manager (for admin checks)
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	public function __construct(
 		IRequest $request,
@@ -73,7 +73,7 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	public function addCoauthor(string $id): JSONResponse {
 		$user = $this->userSession->getUser();
@@ -115,7 +115,7 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	public function removeCoauthor(string $id, string $personId): JSONResponse {
 		$user = $this->userSession->getUser();
@@ -150,7 +150,7 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	public function updateText(string $id): JSONResponse {
 		$user = $this->userSession->getUser();
@@ -200,7 +200,7 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	public function history(string $id): JSONResponse {
 		$user = $this->userSession->getUser();
@@ -227,7 +227,7 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * @return string|null The uid to check, or null to skip the check
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	private function accessUid(string $callerUid): ?string {
 		if ($this->groupManager->isAdmin($callerUid) === true) {
@@ -245,7 +245,7 @@ class MotionCoauthorController extends Controller {
 	 *
 	 * @return JSONResponse The answer
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-9.3
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.3
 	 */
 	private function serviceAnswer(callable $call, int $runtimeStatus): JSONResponse {
 		try {

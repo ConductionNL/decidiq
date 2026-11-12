@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -34,7 +34,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Multilingual minutes reconciliation service.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 class MultilingualReconciliationService {
 
@@ -83,7 +83,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param ITranslationAdapter $adapter Adapter instance
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return void
 	 */
@@ -102,7 +102,7 @@ class MultilingualReconciliationService {
 	 * @param string $sourceLocale ISO 639-1 of the source content
 	 * @param string[] $targetLocales ISO 639-1 list of locales to translate into
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{success: bool, entries: array<int, array<string, mixed>>, message: string}
 	 */
@@ -127,7 +127,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param array<string, mixed> $request The minutesId, the lower-cased sourceLocale and the raw targetLocales
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{targets?: string[], message?: string}
 	 */
@@ -154,7 +154,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param array<string, mixed> $request The minutesId, the lower-cased sourceLocale and the targets
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<int, array<string, mixed>>|null The entries, or null when OpenRegister is unavailable
 	 */
@@ -179,7 +179,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param string $message The log message for a failure
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return object|null
 	 */
@@ -199,7 +199,7 @@ class MultilingualReconciliationService {
 	 * @param array<string, mixed> $request The minutesId, sourceLocale and the queue time under `now`
 	 * @param string $targetLocale The target locale
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -223,7 +223,7 @@ class MultilingualReconciliationService {
 	 * @param object $objectService Lazy ObjectService
 	 * @param array<string, mixed> $entry The new entry
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed> The stored entry, or the entry as built
 	 */
@@ -253,7 +253,7 @@ class MultilingualReconciliationService {
 	 * @param string[] $targetLocales Raw requested target locales
 	 * @param string $sourceLocale Lower-cased source locale
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return string[]
 	 */
@@ -279,7 +279,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param int $limit Optional max number of entries returned (default 50)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{success: bool, summary: array<string, int>, entries: array<int, array<string, mixed>>, message: string}
 	 */
@@ -305,7 +305,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param array<int, array<string, mixed>> $rows The queue rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, int>
 	 */
@@ -330,7 +330,7 @@ class MultilingualReconciliationService {
 	 *
 	 * @param int $maxEntries Maximum entries processed per call
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{success: bool, processed: int, completed: int, failed: int, message: string}
 	 */
@@ -360,7 +360,7 @@ class MultilingualReconciliationService {
 	 * @param object $objectService Lazy ObjectService
 	 * @param int $maxEntries Maximum entries loaded
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<int, array<string, mixed>>|null
 	 */
@@ -381,7 +381,7 @@ class MultilingualReconciliationService {
 	 * @param object $objectService Lazy ObjectService
 	 * @param array<int, array<string, mixed>> $queued The queued entries
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return int The number of failed entries
 	 */
@@ -402,7 +402,7 @@ class MultilingualReconciliationService {
 	 * @param array{0: int, 1: int} $counts The processed and failed counts
 	 * @param string|null $message The failure message, or null for a run that took place
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array{success: bool, processed: int, completed: int, failed: int, message: string}
 	 */

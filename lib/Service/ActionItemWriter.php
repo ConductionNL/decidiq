@@ -118,7 +118,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed>|null The created VTODO task array, or null on failure.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	public function create(array $item): ?array {
 		try {
@@ -152,7 +152,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed>|null The updated VTODO task array, or null when not found/failed.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	public function update(string $uid, array $changes): ?array {
 		try {
@@ -191,7 +191,7 @@ class ActionItemWriter {
 	 *
 	 * @return bool True when deleted, false when not found/failed.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	public function delete(string $uid): bool {
 		try {
@@ -220,7 +220,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed> The TaskService data array.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function toTaskData(array $item, string $title): array {
 		$data = [
@@ -270,7 +270,7 @@ class ActionItemWriter {
 	 *
 	 * @return string The VTODO STATUS.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function mapStatus(string $taskStatus): string {
 		$map = [
@@ -292,7 +292,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed>|null The task array (with calendarId + id/uri), or null.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	private function locate(string $uid): ?array {
 		$result = $this->taskService->getAllUserTasks(limit: 1000);
@@ -310,7 +310,7 @@ class ActionItemWriter {
 	 *
 	 * @return array{0: int, 1: int}|null [registerId, schemaId], or null when unresolvable.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function resolveIds(): ?array {
 		if ($this->ids !== null) {
@@ -334,7 +334,7 @@ class ActionItemWriter {
 	 *
 	 * @return string A UUID v4 string.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function uuidV4(): string {
 		$bytes = random_bytes(16);

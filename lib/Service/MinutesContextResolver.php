@@ -21,7 +21,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -37,7 +37,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 /**
  * Resolves Minutes, Meeting, GovernanceBody and Participant context from OpenRegister.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
  */
 class MinutesContextResolver {
 
@@ -53,7 +53,7 @@ class MinutesContextResolver {
 	 *
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
@@ -67,7 +67,7 @@ class MinutesContextResolver {
 	 *
 	 * @return array<string,mixed>|null The Minutes data, or null when not found
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function findMinutes(string $minutesId): ?array {
 		return $this->findObject(id: $minutesId, schema: 'minutes');
@@ -82,7 +82,7 @@ class MinutesContextResolver {
 	 *
 	 * @throws MissingObjectException When the Minutes record does not exist
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function requireMinutes(string $minutesId): array {
 		$minutes = $this->findMinutes(minutesId: $minutesId);
@@ -102,7 +102,7 @@ class MinutesContextResolver {
 	 *
 	 * @throws MissingObjectException When the Meeting record does not exist
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function requireMeeting(string $meetingId): array {
 		$meeting = $this->findObject(id: $meetingId, schema: 'meeting');
@@ -120,7 +120,7 @@ class MinutesContextResolver {
 	 *
 	 * @return string|null The linked Meeting ID, or null when there is none
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function linkedMeetingId(array $minutes): ?string {
 		// The Minutes schema declares `meeting` as a property; OpenRegister
@@ -145,7 +145,7 @@ class MinutesContextResolver {
 	 *
 	 * @return array<int,array<string,mixed>> The agenda item records
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	public function agendaItems(string $meetingId): array {
 		$objectService = $this->objectService();
@@ -173,7 +173,7 @@ class MinutesContextResolver {
 	 *
 	 * @return array<string,mixed>|null The object data, or null when not found
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function findObject(string $id, string $schema): ?array {
 		$entity = $this->objectService()->find(id: $id, register: 'decidiq', schema: $schema);
@@ -192,7 +192,7 @@ class MinutesContextResolver {
 	 *
 	 * @return string|null The first related ID, or null when the relation is empty
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function firstRelation(array $object, string $relation): ?string {
 		$related = ($object['relations'][$relation] ?? null);
@@ -216,7 +216,7 @@ class MinutesContextResolver {
 	 *
 	 * @return object The OpenRegister ObjectService instance
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	private function objectService(): object {
 		return $this->objectService;

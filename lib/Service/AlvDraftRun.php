@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -27,7 +27,7 @@ namespace OCA\Decidiq\Service;
  * meeting's agenda items, and how many members there are and are counted as
  * present. Built by ALVMinutesService::generateALVDraft and never handed out.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
  */
 final class AlvDraftRun {
 

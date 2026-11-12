@@ -11,8 +11,8 @@
  * @category Controller
  * @package  OCA\Decidiq\Controller
  *
- * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -41,7 +41,7 @@ use OCP\IUserSession;
  * in x-openregister-aggregations on the Meeting schema and are rendered by
  * the analytics integration leaf (ADR-019, ADR-031).
  *
- * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  */
 class AnalyticsController extends Controller {
 	/**
@@ -51,7 +51,7 @@ class AnalyticsController extends Controller {
 	 * @param ActionItemAnalyticsService $analyticsService The analytics service
 	 * @param IUserSession $userSession The current user session
 	 *
-	 * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
+	 * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -70,7 +70,7 @@ class AnalyticsController extends Controller {
 	 *
 	 * @return JSONResponse Grouped action items
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function getMyItems(): JSONResponse {

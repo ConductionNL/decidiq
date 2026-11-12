@@ -158,7 +158,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return string One of self::READ_ALLOWED, self::READ_DENIED, self::READ_UNRESOLVED
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function resolveOutcomeReadAccess(string $decisionId, string $callerUid): string {
 		if ($decisionId === '' || $callerUid === '') {

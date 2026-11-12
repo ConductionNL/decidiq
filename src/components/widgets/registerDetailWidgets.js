@@ -27,7 +27,7 @@
 // and the three widget components (see its own docblock for why) so that
 // importing THIS module for its pure exports never touches those imports.
 //
-// @spec openspec/changes/register-detail-optimisation/design.md#d4-declarative-vs-imperative-decision-adr-031
+// @spec openspec/changes/archive/2026-08-19-register-detail-optimisation/design.md#d4-declarative-vs-imperative-decision-adr-031
 
 /**
  * Parse a value that's meant to be a date, tolerant of null/invalid input.

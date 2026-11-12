@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -43,7 +43,7 @@ use Psr\Log\LoggerInterface;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+ * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
 class PlanningCycleCreatedListener implements IEventListener {
 
@@ -80,7 +80,7 @@ class PlanningCycleCreatedListener implements IEventListener {
 	 *     shipped templates hold six to eight). Deferred, the controller who just
 	 *     created the cycle would open its page and see no steps until cron ran.
 	 *
-	 * @spec openspec/changes/planning-cycle-generate-from-template/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
+	 * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
 	 */
 	public function handle(Event $event): void {
 		if (($event instanceof ObjectCreatedEvent) === false) {

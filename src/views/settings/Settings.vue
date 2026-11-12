@@ -3,7 +3,7 @@
 
 <!--
  Admin settings — includes ORI endpoint and email voting toggle.
- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+ @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10
 -->
 <template>
 	<!-- One wrapper around the sections: nextcloud-vue 2.83 draws sections
@@ -132,7 +132,7 @@
 		</CnSettingsSection>
 
 		<!-- ORI publication settings -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 -->
+		<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.1 -->
 		<!-- The id is the anchor lib/Settings/connections.json links to (adopt-connection-registry). -->
 		<CnSettingsSection
 			id="section-ori"
@@ -159,7 +159,7 @@
 		</CnSettingsSection>
 
 		<!-- Email voting toggle -->
-		<!-- @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2 -->
+		<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.2 -->
 		<CnSettingsSection
 			id="section-email-voting"
 			:name="t('decidiq', 'Email voting')"
@@ -402,7 +402,7 @@ export default {
 		 * (nextcloud-vue 2.83 switch `values`), saved on its own.
 		 *
 		 * @return {object} The switch-rows widget content.
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.2
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.2
 		 */
 		emailVotingContent() {
 			return {
@@ -421,7 +421,7 @@ export default {
 		 * The register field, saved on its own.
 		 *
 		 * @return {object} The settings-form widget content.
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10
 		 */
 		registerContent() {
 			return {
@@ -464,7 +464,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
+	/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10 */
 	created() {
 		const settingsStore = useSettingsStore()
 		const settings = settingsStore.settings || {}
@@ -531,7 +531,7 @@ export default {
 			this.savingParticipation = false
 		},
 
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10.1 */
 		async saveOri() {
 			this.savingOri = true
 			const settingsStore = useSettingsStore()
