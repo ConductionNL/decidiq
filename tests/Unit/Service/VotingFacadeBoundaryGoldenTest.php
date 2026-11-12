@@ -297,7 +297,12 @@ class VotingFacadeBoundaryGoldenTest extends TestCase {
 			userSession: $session,
 			guard: $this->createMock(VotingRoundGuard::class),
 			openHandler: new VotingOpenRequestHandler(votingService: $service),
-			proxyService: new ProxyDelegationService(container: $container, logger: $logger, objectService: $this->createMock(ObjectServiceInterface::class), appConfig: $this->createMock(IAppConfig::class)),
+			proxyService: new ProxyDelegationService(
+				container: $container,
+				logger: $logger,
+				objectService: $this->createMock(originalClassName: ObjectServiceInterface::class),
+				appConfig: $this->createMock(originalClassName: IAppConfig::class),
+			),
 			errors: new VotingErrorResponder(logger: $logger),
 		);
 	}//end controller()

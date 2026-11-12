@@ -309,7 +309,7 @@ class VotingOpenSubjectScopeTest extends TestCase {
 				container: $container,
 				logger: $logger,
 				objectService: $this->createMock(ObjectServiceInterface::class),
-				appConfig: $this->createMock(IAppConfig::class),
+				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: $logger),
 		);

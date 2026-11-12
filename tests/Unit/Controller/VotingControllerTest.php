@@ -147,7 +147,7 @@ class VotingControllerTest extends TestCase {
 				container: $container,
 				logger: $this->logger,
 				objectService: $this->createMock(ObjectServiceInterface::class),
-				appConfig: $this->createMock(IAppConfig::class),
+				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: $this->logger),
 		);

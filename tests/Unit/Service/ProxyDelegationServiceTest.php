@@ -65,15 +65,15 @@ class ProxyDelegationServiceTest extends TestCase {
 	 */
 	protected function setUp(): void {
 		parent::setUp();
-		$container = $this->createMock(ContainerInterface::class);
-		$this->objectService = $this->createMock(ObjectServiceInterface::class);
+		$container = $this->createMock(originalClassName: ContainerInterface::class);
+		$this->objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
 		$container->method('get')->willReturn($this->objectService);
-		$this->appConfig = $this->createMock(IAppConfig::class);
+		$this->appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$this->appConfig->method('getValueInt')->willReturnArgument(2);
 
 		$this->service = new ProxyDelegationService(
 			container: $container,
-			logger: $this->createMock(LoggerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			objectService: $this->objectService,
 			appConfig: $this->appConfig,
 		);
@@ -88,7 +88,7 @@ class ProxyDelegationServiceTest extends TestCase {
 	 * @return ObjectEntity&MockObject
 	 */
 	private function entity(array $data): ObjectEntity&MockObject {
-		$entity = $this->createMock(ObjectEntity::class);
+		$entity = $this->createMock(originalClassName: ObjectEntity::class);
 		$entity->method('jsonSerialize')->willReturn($data);
 		return $entity;
 	}//end entity()
@@ -103,8 +103,8 @@ class ProxyDelegationServiceTest extends TestCase {
 	public function testGrantProxyRejectsSelfDelegation(): void {
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('Een deelnemer kan geen volmacht aan zichzelf verlenen');
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'Een deelnemer kan geen volmacht aan zichzelf verlenen');
 
 		$this->service->grantProxy('round-uuid', 'same-uuid', 'same-uuid');
 
@@ -119,12 +119,12 @@ class ProxyDelegationServiceTest extends TestCase {
 	 */
 	public function testGrantProxyRejectsObserverRole(): void {
 		$this->objectService->method('find')->willReturn(
-			$this->entity(['displayName' => 'Observer X', 'role' => 'observer'])
+			$this->entity(data: ['displayName' => 'Observer X', 'role' => 'observer'])
 		);
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage("Deelnemer met rol 'observer' kan geen volmacht ontvangen");
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: "Deelnemer met rol 'observer' kan geen volmacht ontvangen");
 
 		$this->service->grantProxy('round-uuid', 'granter-uuid', 'delegate-uuid');
 
@@ -139,12 +139,12 @@ class ProxyDelegationServiceTest extends TestCase {
 	 */
 	public function testRevokeProxyRefusedOnOpenedRound(): void {
 		$this->objectService->method('find')->willReturn(
-			$this->entity(['id' => 'round-uuid', 'openedAt' => '2026-06-15T10:00:00+00:00', 'notes' => []])
+			$this->entity(data: ['id' => 'round-uuid', 'openedAt' => '2026-06-15T10:00:00+00:00', 'notes' => []])
 		);
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('Stemronde is al geopend');
+		$this->expectException(exception: \RuntimeException::class);
+		$this->expectExceptionMessage(message: 'Stemronde is al geopend');
 
 		$this->service->revokeProxy('round-uuid', 'granter-uuid');
 
@@ -172,7 +172,7 @@ class ProxyDelegationServiceTest extends TestCase {
 			'body' => json_encode(['fromParticipantId' => 'other-grantor', 'toParticipantId' => 'other-holder', 'votingRoundId' => 'round-uuid']),
 		];
 
-		return $this->entity(['id' => 'round-uuid', 'notes' => $notes]);
+		return $this->entity(data: ['id' => 'round-uuid', 'notes' => $notes]);
 	}//end roundWithProxies()
 
 	/**
@@ -183,9 +183,15 @@ class ProxyDelegationServiceTest extends TestCase {
 	 * @return void
 	 */
 	private function stubFind(ObjectEntity&MockObject $round): void {
-		$delegate = $this->entity(['role' => 'member']);
+		$delegate = $this->entity(data: ['role' => 'member']);
 		$this->objectService->method('find')->willReturnCallback(
-			static fn (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema): mixed => ($schema === 'voting-round') ? $round : $delegate
+			static function (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema) use ($round, $delegate): ObjectEntity {
+				if ($schema === 'voting-round') {
+					return $round;
+				}
+
+				return $delegate;
+			}
 		);
 	}//end stubFind()
 
@@ -200,8 +206,8 @@ class ProxyDelegationServiceTest extends TestCase {
 		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a', 'grantor-b']));
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('Maximaal aantal volmachten bereikt: deze deelnemer heeft al 2 van de 2 toegestane volmachten');
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: 'Maximaal aantal volmachten bereikt: deze deelnemer heeft al 2 van de 2 toegestane volmachten');
 
 		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
 
@@ -217,7 +223,7 @@ class ProxyDelegationServiceTest extends TestCase {
 	public function testGrantProxyStoredWhenHolderBelowCap(): void {
 		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a']));
 		$saved = null;
-		$stored = $this->entity([]);
+		$stored = $this->entity(data: []);
 		$this->objectService->expects($this->once())->method('saveObject')->willReturnCallback(
 			static function (array $object) use (&$saved, $stored): ObjectEntity {
 				$saved = $object;
@@ -227,8 +233,8 @@ class ProxyDelegationServiceTest extends TestCase {
 
 		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
 
-		$this->assertCount(4, $saved['notes']);
-		$this->assertSame('grantor-c', json_decode($saved['notes'][3]['body'], true)['fromParticipantId']);
+		$this->assertCount(expectedCount: 4, haystack: $saved['notes']);
+		$this->assertSame(expected: 'grantor-c', actual: json_decode($saved['notes'][3]['body'], true)['fromParticipantId']);
 
 	}//end testGrantProxyStoredWhenHolderBelowCap()
 
@@ -240,21 +246,21 @@ class ProxyDelegationServiceTest extends TestCase {
 	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
 	 */
 	public function testGrantProxyUsesConfiguredCap(): void {
-		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$appConfig->expects($this->once())->method('getValueInt')
 			->with('decidiq', 'max_proxies_per_holder', 2)
 			->willReturn(1);
 		$service = new ProxyDelegationService(
-			container: $this->createMock(ContainerInterface::class),
-			logger: $this->createMock(LoggerInterface::class),
+			container: $this->createMock(originalClassName: ContainerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			objectService: $this->objectService,
 			appConfig: $appConfig,
 		);
 		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a']));
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('1 van de 1 toegestane volmachten');
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: '1 van de 1 toegestane volmachten');
 
 		$service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
 
@@ -268,19 +274,19 @@ class ProxyDelegationServiceTest extends TestCase {
 	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
 	 */
 	public function testGrantProxyFallsBackToDefaultForInvalidCap(): void {
-		$appConfig = $this->createMock(IAppConfig::class);
+		$appConfig = $this->createMock(originalClassName: IAppConfig::class);
 		$appConfig->method('getValueInt')->willReturn(0);
 		$service = new ProxyDelegationService(
-			container: $this->createMock(ContainerInterface::class),
-			logger: $this->createMock(LoggerInterface::class),
+			container: $this->createMock(originalClassName: ContainerInterface::class),
+			logger: $this->createMock(originalClassName: LoggerInterface::class),
 			objectService: $this->objectService,
 			appConfig: $appConfig,
 		);
 		$this->stubFind(round: $this->roundWithProxies(holder: 'delegate-uuid', grantors: ['grantor-a', 'grantor-b']));
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\InvalidArgumentException::class);
-		$this->expectExceptionMessage('2 van de 2 toegestane volmachten');
+		$this->expectException(exception: \InvalidArgumentException::class);
+		$this->expectExceptionMessage(message: '2 van de 2 toegestane volmachten');
 
 		$service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
 
@@ -309,14 +315,20 @@ class ProxyDelegationServiceTest extends TestCase {
 	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
 	 */
 	public function testGrantProxyRefusedWhenRoundMissing(): void {
-		$delegate = $this->entity(['role' => 'member']);
+		$delegate = $this->entity(data: ['role' => 'member']);
 		$this->objectService->method('find')->willReturnCallback(
-			static fn (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema): mixed => ($schema === 'voting-round') ? null : $delegate
+			static function (mixed $id, mixed $extend, mixed $files, mixed $register, mixed $schema) use ($delegate): ?ObjectEntity {
+				if ($schema === 'voting-round') {
+					return null;
+				}
+
+				return $delegate;
+			}
 		);
 		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->expectException(\RuntimeException::class);
-		$this->expectExceptionMessage('VotingRound round-uuid not found');
+		$this->expectException(exception: \RuntimeException::class);
+		$this->expectExceptionMessage(message: 'VotingRound round-uuid not found');
 
 		$this->service->grantProxy(votingRoundId: 'round-uuid', fromParticipantId: 'grantor-c', toParticipantId: 'delegate-uuid');
 
