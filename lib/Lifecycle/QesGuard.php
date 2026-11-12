@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Lifecycle;
 
 use OCA\Decidiq\Service\IEIDASSignatureService;
+use OCA\Decidiq\Service\RowArrayNormaliser;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -231,15 +232,7 @@ class QesGuard {
 	 * @return array<string, mixed> The property map, empty when unusable
 	 */
 	private function toArray(mixed $row): array {
-		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-			return (array)$row->jsonSerialize();
-		}
-
-		if (is_array($row) === true) {
-			return $row;
-		}
-
-		return [];
+		return (new RowArrayNormaliser())->toArray(row: $row);
 	}//end toArray()
 
 	/**
