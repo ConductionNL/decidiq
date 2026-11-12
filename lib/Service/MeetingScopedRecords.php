@@ -122,15 +122,7 @@ final class MeetingScopedRecords {
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
 	public function refId(mixed $ref): string {
-		if (is_string($ref) === true) {
-			return $ref;
-		}
-
-		if (is_array($ref) === true) {
-			return (string)($ref['id'] ?? $ref['uuid'] ?? '');
-		}
-
-		return '';
+		return (new ReferenceId())->referencedId(ref: $ref);
 	}//end refId()
 
 	/**
