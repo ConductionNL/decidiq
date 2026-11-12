@@ -39,7 +39,7 @@ use OCP\IUserSession;
  * REST controller for proxy votes.
  *
  * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
- * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
  */
 class ProxyVoteController extends Controller {
 	use GovernanceControllerTrait;
@@ -68,7 +68,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function resolveCallerUid(): ?string {
 		return (new GuardCaller(userSession: $this->userSession, groupManager: $this->groupManager))->uid();
@@ -86,7 +86,7 @@ class ProxyVoteController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-2
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
 		return (new ForbiddenResult(result: $result))->response()

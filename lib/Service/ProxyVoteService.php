@@ -102,7 +102,7 @@ class ProxyVoteService {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-1
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
 		$this->objectService->setRegister('decidiq');
@@ -128,7 +128,7 @@ class ProxyVoteService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-1
 	 */
 	private function isChairOrClerk(string $meetingId, string $uid): bool {
 		return $this->participantResolver->hasRole(
@@ -190,7 +190,7 @@ class ProxyVoteService {
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 */
 	private function isAuthorizedForTransition(array $proxy, string $callerUid): bool {
@@ -290,7 +290,7 @@ class ProxyVoteService {
 	 *                               mutation.
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
@@ -390,7 +390,7 @@ class ProxyVoteService {
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization check
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
 	 */
@@ -406,7 +406,7 @@ class ProxyVoteService {
 	 * @param string|null $callerUid Nextcloud UID of the caller; null bypasses the authorization check
 	 *
 	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-3
 	 *
 	 * @return array{success: bool, proxy: array|null, message: string}
 	 */

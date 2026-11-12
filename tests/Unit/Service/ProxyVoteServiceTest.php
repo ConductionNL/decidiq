@@ -365,7 +365,7 @@ class ProxyVoteServiceTest extends TestCase {
 	/**
 	 * suspend()/revoke() allow the proxy's grantor or holder to transition it.
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */
@@ -396,7 +396,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 * suspend()/revoke() reject an unrelated authenticated user (IDOR guard),
 	 * leaving the proxy's status unchanged.
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */
@@ -428,7 +428,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 * suspend()/revoke() allow a chair/clerk of the meeting to transition
 	 * a proxy they are not a party to.
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */

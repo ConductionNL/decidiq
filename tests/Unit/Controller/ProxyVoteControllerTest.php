@@ -212,7 +212,7 @@ class ProxyVoteControllerTest extends TestCase {
 	/**
 	 * suspend() maps a Forbidden: service message to 403 (unrelated-caller IDOR guard).
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */
