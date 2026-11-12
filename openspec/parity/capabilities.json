@@ -6336,7 +6336,7 @@
 		{
 			"id": "pub-07",
 			"area": "publication",
-			"name": "Lift a confidentiality restriction automatically when it expires.",
+			"name": "Put the lifting of a confidentiality restriction on the agenda before its end date, so the body decides on it.",
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
@@ -6344,7 +6344,9 @@
 				"evidence": "no job or listener changes a restriction's state: lib/BackgroundJob has no confidentiality job, lifecycle in register.d/83 has no lapsed state and no time trigger; the only scheduled rule is the ratification reminder. embargo-geheimhouding REQ-EMB-003 forbids any automatic change.",
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
-				"change": "confidentiality-term-and-lapse"
+				"change": "confidentiality-term-and-lapse",
+				"requirement": "openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-022 The planned end date puts the lifting on the agenda",
+				"note": "decision 392 (12 Nov): reworded to the spec; the body decides on lifting, the date never changes the restriction. Before: Lift a confidentiality restriction automatically when it expires."
 			},
 			"reachedOn": "nothing reaches it: no job or trigger lifts a restriction, and there is no expiry-date field to lift on",
 			"provider": "decidiq",
