@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+# SPDX-License-Identifier: EUPL-1.2
+
 """Statically validate an example-set fragment (openregister PR #4603 format) against
 the schema definitions in this app's register files, without an instance.
 
@@ -242,7 +245,7 @@ def literal_identifiers(raw_value, path, problems, where):
                 problems.append('%s: %s holds e-mail %s outside @zuiddrecht.example' % (where, path, mail))
 
 
-def main():
+def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument('--fragment', required=True)
     ap.add_argument('--cast', required=True)
@@ -251,98 +254,146 @@ def main():
     ap.add_argument('--app', default=None)
     ap.add_argument('--register', action='append', default=[], help='register slug this app owns (repeatable); default: every register the files declare')
     ap.add_argument('--no-fragments', action='store_true')
-    args = ap.parse_args()
+    return ap.parse_args()
 
-    schemas, cfg = merged_schemas(args.settings, args.base.split(','), not args.no_fragments)
-    registers = args.register or list(cfg.get('components', {}).get('registers', {}).keys())
-    reg_schemas = {}
-    for slug, reg in cfg.get('components', {}).get('registers', {}).items():
-        reg_schemas[reg.get('slug', slug)] = set(reg.get('schemas', []))
-    cast, entries, organisations = cast_entries(args.cast)
-    fragment = json.load(open(args.fragment, encoding='utf-8'))
-    app = args.app or os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(args.fragment))))))
-    problems = []
-    warnings = []
-    if 'cast' in fragment:
-        problems.append('the fragment carries a cast; only openregister may')
-    keys = set()
-    ctx = {'cast': entries, 'objects': {}, 'lookups': {}, 'organisations': organisations}
-    counts = {}
-    for i, obj in enumerate(fragment.get('objects', [])):
-        key = obj.get('key', '')
-        where = '%s: object "%s"' % (os.path.basename(args.fragment), key)
-        if not key or not obj.get('register') or not obj.get('schema') or not isinstance(obj.get('data'), dict):
-            problems.append('object %d needs a key, a register, a schema and data' % i)
-            continue
-        if key in keys:
-            problems.append('%s: key used twice' % where)
-        keys.add(key)
-        literal_identifiers(obj['data'], 'data', problems, where)
-        gaps = []
-        ctx['lookups'] = {}
-        for name, lookup in (obj.get('lookups') or {}).items():
-            if not lookup.get('schema') or not lookup.get('where'):
-                problems.append('%s: lookup %s needs a schema and a where' % (where, name))
-            fill(lookup.get('where', {}), ctx, gaps)
-            ctx['lookups'][name] = stand_in('lookup', key + '/' + name)
-        data = fill(obj['data'], ctx, gaps)
-        for g in gaps:
-            problems.append('%s: placeholder %s does not resolve' % (where, g))
-        ctx['objects'][key] = dict(data, id=stand_in(app, key), uuid=stand_in(app, key))
-        schema = schemas.get(obj['schema'])
-        if obj['register'] in registers and schema is None:
-            problems.append('%s: schema %s is not declared in %s' % (where, obj['schema'], args.base))
-            continue
-        if schema is None:
-            problems.append('%s: register %s is not this app\'s; not validated here' % (where, obj['register']))
-            continue
-        known = reg_schemas.get(obj['register'])
-        if known and obj['schema'] not in known and not any(schemas.get(s, {}).get('slug') == obj['schema'] for s in known):
-            warnings.append('%s: schema %s is declared but not listed in register %s; the loader resolves it by slug, confirm with --check on an instance' % (where, obj['schema'], obj['register']))
-        js = to_jsonschema({k: schema[k] for k in ('type', 'properties', 'required') if k in schema})
-        js.setdefault('type', 'object')
-        for err in sorted(jsonschema.Draft202012Validator(js, format_checker=checker).iter_errors(data), key=str):
-            problems.append('%s: %s at %s' % (where, err.message, '/'.join(map(str, err.absolute_path)) or '(root)'))
-        undeclared = sorted(set(data) - set(schema.get('properties', {})))
-        if undeclared:
-            problems.append('%s: keys the schema does not declare (the read-back proof would exit 2): %s' % (where, ', '.join(undeclared)))
-        counts[(obj['register'], obj['schema'])] = counts.get((obj['register'], obj['schema']), 0) + 1
+
+class Run:
+    """What one validation run knows and has found so far."""
+
+    def __init__(self, args, schemas, cfg, entries, organisations, app):
+        self.args = args
+        self.schemas = schemas
+        self.registers = args.register or list(cfg.get('components', {}).get('registers', {}).keys())
+        self.reg_schemas = {}
+        for slug, reg in cfg.get('components', {}).get('registers', {}).items():
+            self.reg_schemas[reg.get('slug', slug)] = set(reg.get('schemas', []))
+        self.entries = entries
+        self.app = app
+        self.problems = []
+        self.warnings = []
+        self.keys = set()
+        self.ctx = {'cast': entries, 'objects': {}, 'lookups': {}, 'organisations': organisations}
+        self.counts = {}
+
+
+def filled_data(run, obj, key, where):
+    """The object's data with its lookups and placeholders resolved, recorded for later objects."""
+    gaps = []
+    run.ctx['lookups'] = {}
+    for name, lookup in (obj.get('lookups') or {}).items():
+        if not lookup.get('schema') or not lookup.get('where'):
+            run.problems.append('%s: lookup %s needs a schema and a where' % (where, name))
+        fill(lookup.get('where', {}), run.ctx, gaps)
+        run.ctx['lookups'][name] = stand_in('lookup', key + '/' + name)
+    data = fill(obj['data'], run.ctx, gaps)
+    for g in gaps:
+        run.problems.append('%s: placeholder %s does not resolve' % (where, g))
+    run.ctx['objects'][key] = dict(data, id=stand_in(run.app, key), uuid=stand_in(run.app, key))
+    return data
+
+
+def object_schema(run, obj, where):
+    """The merged schema the object is validated against, or None (with the reason recorded)."""
+    schema = run.schemas.get(obj['schema'])
+    if obj['register'] in run.registers and schema is None:
+        run.problems.append('%s: schema %s is not declared in %s' % (where, obj['schema'], run.args.base))
+        return None
+    if schema is None:
+        run.problems.append('%s: register %s is not this app\'s; not validated here' % (where, obj['register']))
+        return None
+    known = run.reg_schemas.get(obj['register'])
+    if known and obj['schema'] not in known and not any(run.schemas.get(s, {}).get('slug') == obj['schema'] for s in known):
+        run.warnings.append('%s: schema %s is declared but not listed in register %s; the loader resolves it by slug, confirm with --check on an instance' % (where, obj['schema'], obj['register']))
+    return schema
+
+
+def validate_data(run, data, schema, where):
+    """Validate filled data against its schema: jsonschema errors and undeclared keys."""
+    js = to_jsonschema({k: schema[k] for k in ('type', 'properties', 'required') if k in schema})
+    js.setdefault('type', 'object')
+    for err in sorted(jsonschema.Draft202012Validator(js, format_checker=checker).iter_errors(data), key=str):
+        run.problems.append('%s: %s at %s' % (where, err.message, '/'.join(map(str, err.absolute_path)) or '(root)'))
+    undeclared = sorted(set(data) - set(schema.get('properties', {})))
+    if undeclared:
+        run.problems.append('%s: keys the schema does not declare (the read-back proof would exit 2): %s' % (where, ', '.join(undeclared)))
+
+
+def check_object(run, i, obj):
+    key = obj.get('key', '')
+    where = '%s: object "%s"' % (os.path.basename(run.args.fragment), key)
+    if not key or not obj.get('register') or not obj.get('schema') or not isinstance(obj.get('data'), dict):
+        run.problems.append('object %d needs a key, a register, a schema and data' % i)
+        return
+    if key in run.keys:
+        run.problems.append('%s: key used twice' % where)
+    run.keys.add(key)
+    literal_identifiers(obj['data'], 'data', run.problems, where)
+    data = filled_data(run, obj, key, where)
+    schema = object_schema(run, obj, where)
+    if schema is None:
+        return
+    validate_data(run, data, schema, where)
+    run.counts[(obj['register'], obj['schema'])] = run.counts.get((obj['register'], obj['schema']), 0) + 1
+
+
+def check_app_config(run, fragment):
     for index, entry in enumerate(fragment.get('appConfig', [])):
         where = 'appConfig %d' % index
         if not isinstance(entry, dict):
-            problems.append('%s is not an object' % where)
+            run.problems.append('%s is not an object' % where)
             continue
-        if entry.get('app', app) != app:
-            problems.append('%s sets config of app %s; a fragment sets only its own app' % (where, entry.get('app')))
+        if entry.get('app', run.app) != run.app:
+            run.problems.append('%s sets config of app %s; a fragment sets only its own app' % (where, entry.get('app')))
         generate = entry.get('generate') is True
         if not isinstance(entry.get('key'), str) or entry['key'] == '' or (not generate and not isinstance(entry.get('value'), (str, int, float, bool))):
-            problems.append('%s needs a key and a value, or generate: true' % where)
+            run.problems.append('%s needs a key and a value, or generate: true' % where)
             continue
         if generate:
             continue
         gaps = []
-        value = fill(entry['value'], ctx, gaps)
+        value = fill(entry['value'], run.ctx, gaps)
         for g in gaps:
-            problems.append('%s (%s): placeholder %s does not resolve' % (where, entry['key'], g))
+            run.problems.append('%s (%s): placeholder %s does not resolve' % (where, entry['key'], g))
         print('       appConfig %s = %s' % (entry['key'], value))
+
+
+def check_groups(run, fragment):
     for group in fragment.get('groups', []):
         if not group.get('group'):
-            problems.append('a group entry has no gid')
+            run.problems.append('a group entry has no gid')
         if group.get('group') == 'admin':
-            problems.append('group admin: a set never adds anyone to Nextcloud administrators')
+            run.problems.append('group admin: a set never adds anyone to Nextcloud administrators')
         for m in group.get('members', []):
-            if not entries.get(m, {}).get('uid'):
-                problems.append('group %s: %s is not a cast person with an account' % (group.get('group'), m))
-    for (reg, sch), n in sorted(counts.items()):
-        print('%5d  %s %s' % (n, reg, sch))
-    print('%5d  objects, %d groups' % (sum(counts.values()), len(fragment.get('groups', []))))
-    for w in sorted(set(warnings)):
-        print('WARNING', w)
-    for p in problems:
-        print('REFUSED', p)
-    print('CLEAN' if not problems else '%d problem(s)' % len(problems))
-    return 0 if not problems else 1
+            if not run.entries.get(m, {}).get('uid'):
+                run.problems.append('group %s: %s is not a cast person with an account' % (group.get('group'), m))
 
+
+def report(run, fragment):
+    for (reg, sch), n in sorted(run.counts.items()):
+        print('%5d  %s %s' % (n, reg, sch))
+    print('%5d  objects, %d groups' % (sum(run.counts.values()), len(fragment.get('groups', []))))
+    for w in sorted(set(run.warnings)):
+        print('WARNING', w)
+    for p in run.problems:
+        print('REFUSED', p)
+    print('CLEAN' if not run.problems else '%d problem(s)' % len(run.problems))
+    return 0 if not run.problems else 1
+
+
+def main():
+    args = parse_args()
+    schemas, cfg = merged_schemas(args.settings, args.base.split(','), not args.no_fragments)
+    cast, entries, organisations = cast_entries(args.cast)
+    fragment = json.load(open(args.fragment, encoding='utf-8'))
+    app = args.app or os.path.basename(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(args.fragment))))))
+    run = Run(args, schemas, cfg, entries, organisations, app)
+    if 'cast' in fragment:
+        run.problems.append('the fragment carries a cast; only openregister may')
+    for i, obj in enumerate(fragment.get('objects', [])):
+        check_object(run, i, obj)
+    check_app_config(run, fragment)
+    check_groups(run, fragment)
+    return report(run, fragment)
 
 if __name__ == '__main__':
     sys.exit(main())
