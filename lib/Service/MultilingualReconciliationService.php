@@ -452,17 +452,6 @@ class MultilingualReconciliationService {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function normalize(mixed $rows): array {
-		$out = [];
-		foreach ((array)$rows as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = (array)$row->jsonSerialize();
-			}
-
-			if (is_array($row) === true) {
-				$out[] = $row;
-			}
-		}
-
-		return $out;
+		return (new RowListNormaliser())->rows(rows: $rows);
 	}//end normalize()
 }//end class
