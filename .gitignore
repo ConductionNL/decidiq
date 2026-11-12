@@ -173,15 +173,14 @@ test-results/
 # Build and test transcripts written at the repo ROOT by local tooling. These
 # were tracked, so every local build produced a commit-shaped diff, and every
 # such commit triggered the full Code Quality suite — 34 jobs deciding a
-# changed log file. Root-anchored on purpose: .claude/skills/*/examples/*.log
-# are gate FIXTURES, not artefacts, and must stay tracked.
+# changed log file.
 /*.log
 /changed.tsv
 
-# Claude Code's per-machine settings — permissions and local overrides, never
-# shared. It has to sit AFTER the `!**/*.json` rescue above, which otherwise
-# re-includes it and makes a machine-local file committable.
-/.claude/settings.local.json
+# Claude Code's local directory: per-machine settings and worktrees, never
+# shared. Ignoring the directory, not single files, keeps the `!**/*.json`
+# rescue above from re-including a machine-local settings file.
+/.claude/
 
 # WCAG scan output (platform-accessibility-audit-report): generated per run
 tests/axe/report.json
