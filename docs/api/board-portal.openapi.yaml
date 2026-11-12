@@ -609,16 +609,6 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/ProxyVote" }
-    post:
-      tags: [ProxyVotes]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/ProxyVoteRegister" }
-      responses:
-        "201":
-          description: Registered
 
   /api/proxies/{id}/suspend:
     parameters:
@@ -974,16 +964,6 @@ components:
         validFrom: { type: string, format: date-time }
         validUntil: { type: string, format: date-time, nullable: true }
         suspended: { type: boolean }
-
-    ProxyVoteRegister:
-      type: object
-      properties:
-        principalMemberId: { type: string }
-        proxyMemberId: { type: string }
-        scope: { type: string }
-        validFrom: { type: string, format: date-time }
-        validUntil: { type: string, format: date-time, nullable: true }
-      required: [principalMemberId, proxyMemberId, scope]
 
     GovernanceReport:
       type: object

@@ -3,7 +3,8 @@
 /**
  * Decidiq Proxy Vote Controller
  *
- * REST surface for proxy registration, listing, suspension and revocation.
+ * REST surface for proxy listing, suspension and revocation. Proxies are
+ * granted per voting round through `VotingController::proxy()`.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -91,47 +92,6 @@ class ProxyVoteController extends Controller {
 		return (new ForbiddenResult(result: $result))->response()
 			?? $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
 	}//end respondFromAuthorizedResult()
-
-	/**
-	 * Register a proxy.
-	 *
-	 * @NoAdminRequired
-	 *
-	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
-	 *
-	 * @return JSONResponse
-	 */
-	#[NoAdminRequired]
-	public function register(): JSONResponse {
-		$auth = $this->requireUserOr401(session: $this->userSession);
-		if ($auth !== null) {
-			return $auth;
-		}
-
-		$meetingId = (string)$this->request->getParam('meetingId', '');
-		$grantorId = (string)$this->request->getParam('grantorId', '');
-		$holderId = (string)$this->request->getParam('holderId', '');
-		if ($meetingId === '' || $grantorId === '' || $holderId === '') {
-			return new JSONResponse(
-				['message' => "Missing required parameter 'meetingId', 'grantorId' or 'holderId'."],
-				Http::STATUS_UNPROCESSABLE_ENTITY
-			);
-		}
-
-		$extra = [
-			'scope' => (string)$this->request->getParam('scope', 'all-resolutions'),
-			'expiresAt' => (string)$this->request->getParam('expiresAt', ''),
-		];
-
-		$callerUid = $this->resolveCallerUid();
-
-		return $this->respondFromAuthorizedResult(
-			result: $this->proxyService->register($meetingId, $grantorId, $holderId, $extra, $callerUid),
-			payloadKey: 'proxy',
-			successCode: Http::STATUS_CREATED
-		);
-
-	}//end register()
 
 	/**
 	 * List proxies for the requested meeting.

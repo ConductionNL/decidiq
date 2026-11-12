@@ -4507,15 +4507,15 @@
 			"decidiq": "partial",
 			"built": {
 				"state": "decided-no",
-				"evidence": "lib/Service/ProxyVoteService.php:292 register() enforces max_proxies_per_holder (default 2, :87/:94) but sits behind POST /api/proxies, which no frontend calls; the UI's proxy path (ProxyDelegationService::grantProxy) and the generic proxy-authorization create have no cap; chair sees proxies in the MeetingDetail proxy-authorizations list with signature/countersign status",
+				"evidence": "No proxy path enforces a per-holder cap: the only cap (ProxyVoteService::register(), max_proxies_per_holder) sat behind POST /api/proxies, which no frontend called, and was removed with that endpoint on 2026-11-12 (decision 399); the UI's proxy path (ProxyDelegationService::grantProxy) and the generic proxy-authorization create have no cap; chair sees proxies in the MeetingDetail proxy-authorizations list with signature/countersign status",
 				"owner": "ConductionNL/decidiq"
 			},
-			"reachedOn": "MeetingDetail (/meetings/:id) proxy authorizations list (check); limit only on API: POST /api/proxies",
+			"reachedOn": "MeetingDetail (/meetings/:id) proxy authorizations list (check); no per-holder limit anywhere",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "proxy-voting",
 			"featureConfidence": "high",
-			"note": "The chair can review the meeting's proxies. The per-holder limit exists only on an API path the UI does not use. Missing half decided no on 2026-09-28: No competitor rated yes, no demand row, outside the core area (bodies, planning). The built half stays as the evidence describes; reversible.",
+			"note": "The chair can review the meeting's proxies. The per-holder limit lived only on POST /api/proxies, an API path the UI did not use, and went with it on 2026-11-12 (decision 399). Missing half decided no on 2026-09-28: No competitor rated yes, no demand row, outside the core area (bodies, planning). The built half stays as the evidence describes; reversible.",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",
