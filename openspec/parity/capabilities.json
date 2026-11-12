@@ -4504,18 +4504,22 @@
 			"area": "voting",
 			"name": "Limit how many proxies one member may hold, and let the chair check them.",
 			"origin": "code",
-			"decidiq": "partial",
+			"decidiq": "yes",
 			"built": {
-				"state": "decided-no",
-				"evidence": "No proxy path enforces a per-holder cap: the only cap (ProxyVoteService::register(), max_proxies_per_holder) sat behind POST /api/proxies, which no frontend called, and was removed with that endpoint on 2026-11-12 (decision 399); the UI's proxy path (ProxyDelegationService::grantProxy) and the generic proxy-authorization create have no cap; chair sees proxies in the MeetingDetail proxy-authorizations list with signature/countersign status",
-				"owner": "ConductionNL/decidiq"
+				"state": "built",
+				"evidence": "lib/Service/ProxyDelegationService.php:153 grantProxy() (POST /api/voting-rounds/{id}/proxy, the voting panel's proxy path) calls assertBelowProxyCap() before the proxy note is saved: :189 counts the distinct grantors whose proxy on the round names the holder and refuses with a 400 once the cap is reached; :231 maxProxiesPerHolder() reads app config decidiq/max_proxies_per_holder, falling back to 2 for values below 1 or a failed lookup; a round that cannot be read refuses the grant (fail closed). tests/Unit/Service/ProxyDelegationServiceTest.php:199-323 (default cap, below cap, configured cap, invalid cap, repeated grantor, missing round; three fail with the guard removed). The cap counts per voting round, the unit a proxy is granted for on this path; a proxy-authorization row created through the generic object API is not capped. Chair sees proxies in the MeetingDetail proxy-authorizations list (src/manifest.json:644) with signature/countersign status",
+				"owner": "ConductionNL/decidiq",
+				"spec": "openspec/specs/voting-system",
+				"requirement": [
+					"openspec/specs/voting-system :: Proxy Voting"
+				]
 			},
-			"reachedOn": "MeetingDetail (/meetings/:id) proxy authorizations list (check); no per-holder limit anywhere",
+			"reachedOn": "MeetingDetail (/meetings/:id) proxy authorizations list (check); voting panel proxy grant refuses a holder at the cap",
 			"provider": "decidiq",
 			"providerHow": "read-from-code",
 			"feature": "proxy-voting",
 			"featureConfidence": "high",
-			"note": "The chair can review the meeting's proxies. The per-holder limit lived only on POST /api/proxies, an API path the UI did not use, and went with it on 2026-11-12 (decision 399). Missing half decided no on 2026-09-28: No competitor rated yes, no demand row, outside the core area (bodies, planning). The built half stays as the evidence describes; reversible.",
+			"note": "The chair can review the meeting's proxies, and a proxy grant in a voting round is refused once the holder holds the configured maximum (decidiq/max_proxies_per_holder, default 2). The cap moved from the removed POST /api/proxies path to the grant path the UI uses (decisions 399 and 401, 2026-11-12).",
 			"notubiz": "unknown",
 			"ibabs": "unknown",
 			"go-raadsinformatie": "unknown",

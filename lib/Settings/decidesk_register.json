@@ -1576,7 +1576,7 @@
         "icon": "AccountArrowRightOutline",
         "version": "0.1.0",
         "title": "BoardProxy",
-        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. This is the row ProxyVoteService writes through /api/proxies and the row the per-holder proxy cap counts; the signed-document side of a volmacht lives on ProxyAuthorization.",
+        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. Retired: proxy rows now live on ProxyAuthorization (fragment 67), and a proxy granted in a voting round is stored on that round, where the per-holder proxy cap counts it.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:BoardProxy",
