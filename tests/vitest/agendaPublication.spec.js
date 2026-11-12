@@ -46,8 +46,13 @@ describe('MeetingAgendaTab', () => {
 			source.indexOf('data-testid="agenda-publish"'),
 		)
 		expect(button).toMatch(/v-if="canManage"/)
-		expect(source).toMatch(/publishAgendaPath\(this\.objectId\)/)
-		expect(source).toMatch(/method: 'POST'/)
+		expect(source).toMatch(/postJson\(publishAgendaPath\(this\.objectId\)\)/)
+		expect(
+			readFileSync(
+				resolve(here, '../../src/components/tabs/jsonRequests.js'),
+				'utf8',
+			),
+		).toMatch(/method: 'POST'/)
 	})
 
 	it('shows the published date after publishing', () => {
