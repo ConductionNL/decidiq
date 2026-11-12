@@ -8501,7 +8501,8 @@
 				"state": "specified",
 				"evidence": "src/manifest.json:609 (MeetingDetail), :935 (MotionDetail), :1051 (MinutesDetail) and other detail pages carry a sidebar 'History' tab (widget type audit, CnAuditTrailTab) showing OpenRegister's per-object audit trail; lib/Service/AuditLogService.php:157 append() adds decidiq's own action entries; no page lists actions across all records, and files attached in Nextcloud Files are logged by Nextcloud Activity, not here",
 				"owner": "ConductionNL/openregister",
-				"change": "openregister/audit-log-page"
+				"change": "openregister/audit-log-page",
+				"requirement": "openregister:openspec/changes/audit-log-page/specs/audit-trail-immutable :: An instance-wide audit list with filters"
 			},
 			"reachedOn": "Each detail page (meeting, motion, minutes, decision, agenda item), sidebar History tab",
 			"provider": "openregister",
@@ -8776,7 +8777,8 @@
 				"state": "specified",
 				"evidence": "lib/Search/DecidiqSearchProvider.php:59 SCHEMAS decision and meeting, :157 search() passes the plain term to OpenRegister findAll 'search' with LIMIT_PER_SCHEMA 5 (:69); index pages use OpenRegister's list search; grep -rniE 'boolean operator|highlight|unaccent' lib/Search src: no search-related hit (only UI highlight comments), so no query syntax or result highlighting in decidiq; document contents in Nextcloud Files are not searched by decidiq",
 				"owner": "ConductionNL/openregister",
-				"change": "openregister/search-accent-insensitive"
+				"change": "openregister/search-accent-insensitive",
+				"requirement": "openregister:openspec/changes/search-quality-operators-and-facets/specs/zoeken-filteren :: The search term accepts boolean operators and wildcards (REQ-SQF-002)"
 			},
 			"reachedOn": "Nextcloud unified search bar; the search box on each index page",
 			"provider": "openregister",
@@ -9579,7 +9581,7 @@
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/app-navigation",
 				"requirement": [
-					"openspec/specs/app-navigation :: REQ-RMN-002 \u2014 Keep the Motions page and routes reachable for deep links",
+					"openspec/specs/app-navigation :: REQ-RMN-002 — Keep the Motions page and routes reachable for deep links",
 					"openspec/specs/app-navigation :: REQ-NAV-003 Router uses history mode with flat named routes"
 				]
 			},
