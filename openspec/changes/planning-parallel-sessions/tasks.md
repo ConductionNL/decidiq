@@ -41,6 +41,14 @@
 - [x] Implement (after `live-public-livestream`)
 - [x] Test
 
+### Task 5: Each session keeps its own recording and subtitles
+- **spec_ref**: `openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles`
+- **files**: `lib/Service/MeetingBroadcastService.php`, `lib/Service/BroadcastCaptionService.php`, `tests/Unit/Service/MeetingBroadcastServiceTest.php`
+- **acceptance_criteria**:
+  - GIVEN two sessions of one evening, each with a broadcast WHEN read THEN each broadcast carries its own recording and subtitle track and none of the other session's
+- [ ] Implement
+- [ ] Test
+
 ## Verification
 
 - `composer check:strict` and `npm run lint` once before push.

@@ -1212,7 +1212,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/decidesk_register.json:527 GovernanceBody schema, :553 bodyType enum (legislative, association, corporate-board, supervisory-board, executive-board, advisory-body, works-council, shared-body, faction, ...); src/manifest.json:431 GovernanceBodies index (columns name, bodyType, domain, termEnd) and :454 GovernanceBodyDetail",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/governance-bodies"
+				"spec": "openspec/specs/governance-bodies",
+				"requirement": "openspec/specs/governance-bodies :: REQ-GBD-013 Faction is a GovernanceBody discriminator, not a parallel schema; openspec/specs/governance-bodies :: REQ-GBD-012 Corporate board is the universal governance-body (mode=corp)"
 			},
 			"reachedOn": "GovernanceBodies index (/governance-bodies, menu 'Organisation') and GovernanceBodyDetail (/governance-bodies/:id)",
 			"provider": "decidiq",
@@ -1252,7 +1253,8 @@
 				"evidence": "src/modals/MemberAddDialog.vue Member from date -> Membership.startDate (src/utils/bodyMembership.js startOfDay); src/components/tabs/GovernanceBodyMembersTab.vue From column, Past members switch lists ended memberships with From and To (memberRowsFor); Remove from body keeps the start date",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-bodies-membership-terms-contacts-and-factions",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/governance-bodies :: REQ-BMT-001 A membership records from when to when; openspec/specs/participant-crud :: Create a participant"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id) Members widget: Add member (Member from), Past members switch",
 			"provider": "decidiq",
@@ -1290,7 +1292,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/MemberImportController.php:70-71 groups() + groupMembers() via lib/Service/MemberImportService.php:70,94 (IGroupManager); appinfo/routes.php:84-86; src/modals/MemberGroupImportDialog.vue:185,219 fetches groups/members, :256-276 creates Person+Membership per user; button in src/components/tabs/GovernanceBodyMembersTab.vue:37-44",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-admin-settings-v1"
+				"change": "2026-06-12-admin-settings-v1",
+				"requirement": "openspec/specs/admin-settings :: Member Import"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Members widget, 'Import members' > 'Import from Nextcloud group'",
 			"provider": "decidiq",
@@ -1325,7 +1328,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/register.d/70-configurable-types.json PositionType (name, seats, termDurationMonths) and PositionHold (membership, position, startDate, endDate, holdType); src/manifest.d/configurable-types.json PositionTypes/PositionHolds index+detail; src/manifest.json:478-479 body-position-holders and body-positions object-lists on GovernanceBodyDetail",
 				"owner": "ConductionNL/decidiq",
-				"change": "configurable-types-domain-model"
+				"change": "configurable-types-domain-model",
+				"requirement": "openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model :: REQ-CTM-005 Positions belong to a gremium's configuration; openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model :: REQ-CTM-006 A membership may hold a position, for a duration, with a type"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id) 'Positions' and 'Position holders' lists; PositionTypes (/position-types) and PositionHolds (/position-holds) in the settings gear",
 			"provider": "decidiq",
@@ -1361,7 +1365,8 @@
 				"evidence": "src/manifest.d/member-profile.json PersonDetail /people/:id (data About; PersonMembershipsTab photo or initials, current and earlier memberships with body, role, party, portfolio; object-list ancillary-position); lib/Settings/register.d/114-member-profile.json membership.portfolio; GovernanceBodyMembersTab links names to the profile; ParticipantProfileLink on ParticipantDetail. Tests: tests/Unit/Settings/MemberProfileRegisterTest.php, tests/vitest/memberProfile.spec.js, tests/e2e/member-profile-and-voting-record.spec.ts",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-10-01-bodies-member-profile-and-voting-record",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/person-and-membership :: REQ-MPR-001 Every person has a profile page; openspec/specs/person-and-membership :: REQ-MPR-002 A membership carries the member's portfolio"
 			},
 			"reachedOn": "a body's Members widget links each name to /people/:id; the participant page offers Open profile",
 			"provider": "decidiq",
@@ -1397,7 +1402,8 @@
 				"evidence": "lib/Settings/register.d/106-membership-faction.json Membership.faction; MemberAddDialog Faction select (factionsOf: sub-bodies of type faction); Members widget Faction column, a faction page lists council memberships naming it; GovernanceBodyDetail widget body-workspace (collectives integration, src/manifest.json)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-bodies-membership-terms-contacts-and-factions",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/governance-bodies :: REQ-BMT-003 Members belong to a faction with its own workspace"
 			},
 			"reachedOn": "GovernanceBodyDetail Members widget Faction column and Add member Faction select; a faction body page lists its members and the Workspace widget",
 			"provider": "decidiq",
@@ -1435,7 +1441,8 @@
 				"state": "building",
 				"evidence": "src/manifest.json:478 body-position-holders sorted by endDate asc with columns termNumber and 'Until'; lib/Settings/register.d/70-configurable-types.json PositionHold startDate/endDate/termNumber, PositionType termDurationMonths/maxConsecutiveTerms; lib/Settings/register.d/80-retire-the-unbuilt-rooster.json retires RoosterVanAftreden ('generator RoosterService was never written')",
 				"owner": "ConductionNL/decidiq",
-				"change": "bodies-term-of-office-and-step-down"
+				"change": "bodies-term-of-office-and-step-down",
+				"requirement": "openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies :: REQ-TOS-001 A member's term is entered when the member is added; openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies :: REQ-TOS-002 The step-down schedule lists every term that ends, soonest first"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), 'Position holders' list sorted by end date",
 			"provider": "decidiq",
@@ -1470,7 +1477,8 @@
 				"state": "building",
 				"evidence": "lib/Settings/register.d/88-member-onboarding-in-plain-words.json MemberOnboarding/MemberOffboarding with steps[] checklist and lifecycle; src/manifest.d/member-onboarding.json MemberOnboarding/MemberOffboarding index+detail (generic data widget); no PHP service executes steps (grep 'onboarding' in lib/Service, lib/Listener: none); completion guard and created-notification only as x-openregister-lifecycle/x-openregister-notifications declarations",
 				"owner": "ConductionNL/decidiq",
-				"change": "bodies-onboarding-checklist-walkthrough"
+				"change": "bodies-onboarding-checklist-walkthrough",
+				"requirement": "openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding :: REQ-MOBW-001 The secretary walks a member through the checklist; openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding :: REQ-MOBW-002 Installation and exit steps change the membership"
 			},
 			"reachedOn": "MemberOnboarding (/member-onboarding) and MemberOffboarding (/member-offboarding), nested under 'Organisation' in the menu",
 			"provider": "decidiq",
@@ -1505,7 +1513,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json AncillaryPosition (organisation, role, remunerated, reviewedAt, lifecycle) and DeclaredGift (giver, estimatedValue, decision); src/manifest.d/interests-and-integrity.json MyDeclarations (/my-declarations), AncillaryPositions, DeclaredGifts index+detail; src/manifest.json:480-481 body-ancillary-positions and body-gifts on GovernanceBodyDetail",
 				"owner": "ConductionNL/decidiq",
-				"change": "interests-and-integrity"
+				"change": "interests-and-integrity",
+				"requirement": "openspec/changes/interests-and-integrity/specs/interests-and-integrity :: REQ-INT-001 Nevenfunctie schema on OpenRegister; openspec/changes/interests-and-integrity/specs/interests-and-integrity :: REQ-INT-005 Geschenk schema on OpenRegister; openspec/changes/interests-and-integrity/specs/interests-and-integrity :: REQ-INT-008 Annual review rappel is a declarative notification"
 			},
 			"reachedOn": "MyDeclarations (/my-declarations, settings gear), AncillaryPositions (/ancillary-positions) and DeclaredGifts (/declared-gifts) under 'Organisation', plus lists on GovernanceBodyDetail",
 			"provider": "decidiq",
@@ -1544,7 +1553,8 @@
 				"evidence": "lib/Service/RecusalGuard.php assertNotRecused() called from VoteCastingService::castVote() refuses the ballot of a member recused (recused-from-vote or recused-from-discussion) on the round's motion, amendment, parent motion or agenda item, naming the declaration; POST /api/conflicts without membershipId declares for the logged-in member, recuseFromVote stores recused-from-vote; src/components/tabs/ConflictsTab.vue + src/dialogs/ConflictDeclareDialog.vue on MotionDetail and AgendaItemDetail; VotingRoundPanel eligible count leaves recused members out (src/utils/conflicts.js)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-bodies-conflict-of-interest-recusal",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/conflict-of-interest :: REQ-COIR-001 Declare a conflict of interest from the page; openspec/specs/conflict-of-interest :: REQ-COIR-002 A recused member cannot vote on the matter"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) and AgendaItemDetail (/agenda-items/:id) Conflicts of interest widget; POST /api/voting-rounds/{id}/cast refuses a recused member",
 			"provider": "decidiq",
@@ -1583,7 +1593,8 @@
 				"evidence": "Built in change bodies-board-composition-skills-and-diversity: board-competence and member-competence schemas (lib/Settings/register.d/116-board-composition.json), guarded writes (MemberCompetenceController + CompetenceConfirmationGuard), skills matrix and gaps (src/utils/boardComposition.js skillsMatrix/competenceGaps, GovernanceBodyCompositionTab.vue). Unit + vitest green; the Playwright run on the seeded board is still owed, so not yet built.",
 				"owner": "ConductionNL/decidiq",
 				"change": "bodies-board-composition-skills-and-diversity",
-				"readOn": "2026-10-02"
+				"readOn": "2026-10-02",
+				"requirement": "openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies :: REQ-BCS-003 The skills matrix shows where the body falls short"
 			},
 			"reachedOn": "nothing reaches it: no skills matrix; the nearest thing is a free question in the board self-evaluation (GovernanceBodyEvaluationsTab)",
 			"provider": "decidiq",
@@ -1619,7 +1630,8 @@
 				"evidence": "Built in change bodies-board-composition-skills-and-diversity: governance-body.diversityTargets (116-board-composition.json), composition figures, age bands and target results (src/utils/boardComposition.js compositionFigures/ageBand/targetResults) on GovernanceBodyCompositionTab.vue, no names per value. vitest green; the Playwright run on the seeded board is still owed, so not yet built.",
 				"owner": "ConductionNL/decidiq",
 				"change": "bodies-board-composition-skills-and-diversity",
-				"readOn": "2026-10-02"
+				"readOn": "2026-10-02",
+				"requirement": "openspec/changes/bodies-board-composition-skills-and-diversity/specs/governance-bodies :: REQ-BCS-004 The body sees its composition figures against its own targets"
 			},
 			"reachedOn": "nothing reaches it: gender is stored on Person, no figures are computed or shown",
 			"provider": "decidiq",
@@ -1688,11 +1700,13 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
-				"state": "built",
-				"evidence": "lib/Service/VotingRoundOpener.php openVotingRound() resolves the meeting's body when the request names none and passes it to VotingRoundPreflight (body process template votingRule); checkQuorum() through lib/Service/MeetingRuleSource.php and lib/Service/BodyQuorum.php: Meeting.quorumRequired, else GovernanceBody.quorum, else GovernanceBody.quorumRule over the body's members, present or proxy; src/components/VotingRoundPanel.vue rule selects default to The body's rule and send null (src/utils/votingPermissions.js chosenRules)",
+				"state": "planned",
+				"evidence": "lib/Service/VotingRoundOpener.php openVotingRound() resolves the meeting's body when the request names none and passes it to VotingRoundPreflight (body process template votingRule); checkQuorum() through lib/Service/MeetingRuleSource.php and lib/Service/BodyQuorum.php: Meeting.quorumRequired, else GovernanceBody.quorum, else GovernanceBody.quorumRule over the body's members, present or proxy; src/components/VotingRoundPanel.vue rule selects default to The body's rule and send null (src/utils/votingPermissions.js chosenRules) Missing (12 Nov 2026): quorum and majority come from the body, but the body cannot limit its meetings' voting methods (no allowed-methods field on GovernanceBody, VotingRoundPreflight checks only threshold, abstention and tie-break); planned in capability-rows-get-requirements task 3.",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-rules-from-body-and-type",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/meeting-management :: A body limits which voting methods its meetings may use",
+				"plan": "openspec/changes/capability-rows-get-requirements"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id) sets quorum, quorum rule and process template; the Voting round widget on a motion or amendment opens rounds that follow them",
 			"provider": "decidiq",
@@ -1731,7 +1745,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json setup wizard steps 'example-set' (optionsSource profiles) and 'load-example-set'; lib/Controller/SetupController.php:114-122 status lists profiles, :301-330 loadExampleSet() calls SeedProfileService::install(); lib/Settings/profiles/{municipality,association,corporate,works-council}.json",
 				"owner": "ConductionNL/decidiq",
-				"change": "seed-profiles"
+				"change": "seed-profiles",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/example-set-cards :: The setup wizard offers a ready set for each kind of organisation"
 			},
 			"reachedOn": "First-run setup wizard, step 'Which kind of organisation is this for?' then 'Load the example data'",
 			"provider": "decidiq",
@@ -1767,7 +1782,8 @@
 				"evidence": "src/modals/ContactDetailsDialog.vue lists, adds and removes ContactDetail (email, phone, mobile, address, website) for a member (row action Contact details) or the body (Contact details button); member rows show email and phone (contactSummary)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-bodies-membership-terms-contacts-and-factions",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/governance-bodies :: REQ-BMT-002 Contact details for members and bodies; openspec/specs/governance-bodies :: REQ-GBD-010 ContactDetail schema (popolo:ContactDetail)"
 			},
 			"reachedOn": "GovernanceBodyDetail Members widget: row action Contact details, Contact details button for the body",
 			"provider": "decidiq",
@@ -1882,7 +1898,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json:546 MeetingsCalendar page (/meetings/calendar, component MeetingCalendarView); src/views/meetings/MeetingCalendarView.vue month grid placing meetings by scheduledDate, fetch via src/services/dashboardData.js getMeetings (:119); toggle src/views/meetings/MeetingViewToggle.vue as actionsComponent on the Meetings index",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/activity-calendar"
+				"spec": "openspec/specs/activity-calendar",
+				"requirement": "openspec/specs/activity-calendar :: REQ-ACAL-003 The calendar asks the server for the visible month"
 			},
 			"reachedOn": "Meetings index (/meetings) Table/Calendar toggle, MeetingsCalendar (/meetings/calendar)",
 			"provider": "decidiq",
@@ -1917,7 +1934,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/MeetingController.php:225 createSeries(), appinfo/routes.php:149 POST /api/meetings/{id}/series; lib/Service/MeetingSeriesService.php:62 FREQUENCIES daily/weekly/monthly, :116 expandPattern(); src/components/tabs/MeetingSeriesTab.vue:246-247 calls the route",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/meeting-series"
+				"spec": "openspec/specs/meeting-series",
+				"requirement": "openspec/specs/meeting-series :: REQ-MSR-001 Create a recurring meeting series"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), 'Recurring series' widget (MeetingSeriesTab)",
 			"provider": "decidiq",
@@ -1956,7 +1974,8 @@
 				"state": "specified",
 				"evidence": "lib/Service/AgendaService.php:150-151 calls OpenRegister CalendarEventService::updateMeetingEvent() only behind method_exists() and only from publishAgenda(), which no frontend calls (grep 'api/agendas' under src/: none); a local openregister checkout has no updateMeetingEvent (grep); no ICS/CalDAV code in lib/; MeetingIntegrations (src/manifest.json:628) has deck/talk/files/notes but no calendar widget",
 				"owner": "ConductionNL/openregister",
-				"change": "platform-microsoft-365-calendar-and-teams"
+				"change": "platform-microsoft-365-calendar-and-teams",
+				"requirement": "openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-001 A meeting's dates reach openregister's calendar feed; openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-003 A member subscribes from the personal settings"
 			},
 			"reachedOn": "nothing reaches it: no calendar sync or ICS export; the only hook is a guarded call to an OpenRegister method that does not exist",
 			"provider": "decidiq",
@@ -1992,7 +2011,8 @@
 				"evidence": "lib/Service/AgendaService.php publishAgenda() invites every active participant through NotificationPreferenceService::dispatch() (event agendaChanged, their delivery choice) with lib/Service/AgendaInvitation.php: date, place and numbered agenda items, and by email a meeting.ics calendar file (IMailer::createAttachment)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-agenda-publish-and-invite-members",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/agenda-publication :: REQ-APIM-001 Publishing the agenda invites the members"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Agenda widget: Publish agenda; members get the invitation in the bell and, by their delivery choice, by email with a calendar file",
 			"provider": "decidiq",
@@ -2028,7 +2048,8 @@
 				"evidence": "lib/Service/MeetingReminderService.php (hourly lib/BackgroundJob/MeetingReminderJob.php, appinfo/info.xml) reminds the meeting's members once, 48 hours before Meeting.submissionDeadline (deadlineReminderSentAt, lib/Settings/register.d/101-meeting-reminders.json), through NotificationPreferenceService (meetingReminder switch, delivery choice); lib/Notification/Notifier.php submission_deadline names the meeting and the deadline",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-reminders-before-deadlines",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/decidesk-notifications :: REQ-MRD-002 A reminder before the submission deadline"
 			},
 			"reachedOn": "The member's bell or email: The submission deadline of <meeting> is coming up, linking MeetingDetail (/meetings/:id)",
 			"provider": "decidiq",
@@ -2063,7 +2084,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/register.d/86-the-last-two-dutch-names.json:6 PlannedAgendaItem (subject, governanceBody, plannedPeriod, expectedType, lifecycle, shiftHistory, realisedAgendaItem); src/manifest.d/termijnagenda.json PlannedAgenda (/planned-agenda) index + PlannedAgendaDetail; menu relocated under 'Tasks & Commitments' by src/menu-layout.json",
 				"owner": "ConductionNL/decidiq",
-				"change": "termijnagenda"
+				"change": "termijnagenda",
+				"requirement": "openspec/changes/termijnagenda/specs/termijnagenda-register :: REQ-LTA-001 TermijnagendaItem schema on OpenRegister; openspec/changes/termijnagenda/specs/termijnagenda-register :: REQ-LTA-002 Planned period at month or quarter granularity"
 			},
 			"reachedOn": "PlannedAgenda (/planned-agenda), under 'Tasks & Commitments' in the menu",
 			"provider": "decidiq",
@@ -2099,7 +2121,8 @@
 				"evidence": "src/components/tabs/MeetingVideoCallTab.vue on MeetingDetail (src/manifest.json meeting-video-call) creates or links the room through OpenRegister's Talk integration (/api/objects/decidiq/meeting/{id}/talk, .../talk/new), invites the body's members through Talk's participants API, and shows Join video call (/call/{token}); src/utils/videoCall.js hasVideoCall hides it for in-person meetings",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-video-call",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/digital-meetings-and-recurrence :: REQ-MVC-001 A digital or hybrid meeting has its video call"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Video call widget on a digital or hybrid meeting: Join video call, and Create video call / Link room for the chair or secretary",
 			"provider": "decidiq",
@@ -2135,7 +2158,8 @@
 				"evidence": "lib/Settings/register.d/103-meeting-attendance.json MeetingAttendance (slug meeting-attendance: meeting, participant, status present/absent/excused/proxy, arrivedAt, leftAt); src/components/tabs/MeetingParticipantsTab.vue lists the body's members plus guests with this meeting's status, row actions Mark present/absent/sent apologies/represented by proxy and Everyone present (src/utils/meetingAttendance.js); lib/Service/MeetingAttendanceReader.php feeds MeetingRuleSource::quorumMet and MeetingCostService; src/manifest.json meet-absent and meet-by-attendance count meeting-attendance records",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-attendance-per-meeting",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/meeting-attendees :: REQ-MAT-004 Track attendance status; openspec/specs/meeting-attendees :: REQ-MAPM-001 Attendance is recorded per meeting"
 			},
 			"reachedOn": "Meetings index (/meetings) -> MeetingDetail Participants widget (status per row, Everyone present); Reports > Meetings (/reports/meetings)",
 			"provider": "decidiq",
@@ -2171,7 +2195,8 @@
 				"evidence": "lib/Service/MeetingService.php stamps meetingCost on the close step, which the Stage widget now calls (src/components/tabs/MeetingStageTab.vue); lib/Service/MeetingCostService.php counts the members of the meeting's body marked present (the roster when attendance was not taken) instead of a meeting filter Participant does not declare; the cost shows in the Stage and Outcome widgets and the body efficiency widget",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-stage-buttons-and-cost",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/meeting-workflow :: REQ-MSB-002 Closing a meeting records its cost"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Stage widget after Close meeting: Meeting cost; Outcome widget meetingCost; GovernanceBodyDetail efficiency widget cost trend",
 			"provider": "decidiq",
@@ -2210,7 +2235,8 @@
 				"evidence": "lib/Listener/MeetingDefaultsListener.php on ObjectCreatingEvent (meeting, subscribed in lib/AppInfo/Registrar/ObjectListenerRegistrar.php) fills governanceBody, quorumRequired (defaultQuorum, else body quorum), endDate (scheduledDate + defaultDurationMinutes) and lifecycle (initialLifecycle) through setModifiedData; lib/Service/MeetingRuleSource.php meetingTypeThreshold() gives the type's defaultVoteThreshold to a round before the body's template",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-rules-from-body-and-type",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/meeting-management :: REQ-MRB-001 A new meeting takes its type and body defaults"
 			},
 			"reachedOn": "MeetingTypes (/meeting-types) in the settings gear; a meeting created with a type shows the type's end time, quorum and first stage on MeetingDetail (/meetings/:id)",
 			"provider": "decidiq",
@@ -2246,7 +2272,8 @@
 				"evidence": "lib/Service/PlanningCycleGenerator.php + lib/Listener/PlanningCycleCreatedListener.php (a cycle created with a template gets one step per template step, dates resolved in the cycle year, once); src/components/tabs/PlanningCycleStepsTab.vue on PlanningCycleDetail (steps in order with an Overdue badge); tests/Unit/Listener/PlanningCycleCreatedListenerTest.php, tests/vitest/planningCycleSteps.spec.js",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-10-09-planning-cycle-generate-from-template",
-				"readOn": "2026-10-09"
+				"readOn": "2026-10-09",
+				"requirement": "openspec/specs/planning-cycle :: REQ-PCG-001 A cycle made from a template gets its steps"
 			},
 			"reachedOn": "PlanningCycles (/planning-cycles), under 'Tasks & Commitments' in the menu",
 			"provider": "decidiq",
@@ -2281,7 +2308,8 @@
 				"state": "built",
 				"evidence": "lib/Listener/MeetingFolderListener.php:102 calls lib/Service/MeetingFolderService.php ensureMeetingFolders() on every meeting create, registered in lib/AppInfo/Registrar/ObjectListenerRegistrar.php:102-108; MeetingFolderService.php:36-44 notes folders live in OpenRegister app storage and visibility follows the register's sharing; MeetingDetail meeting-files integration widget (src/manifest.json:578); package link opens /apps/files (src/components/tabs/MeetingAgendaTab.vue:243-249)",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-nc-platform-integration-v1"
+				"change": "2026-06-12-nc-platform-integration-v1",
+				"requirement": "openspec/specs/nextcloud-integration :: Files Integration"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Documents widget and the 'Open package folder' link after assembling a package",
 			"provider": "decidiq",
@@ -2317,7 +2345,8 @@
 				"evidence": "src/dialogs/AgendaCopyDialog.vue + MeetingAgendaTab addCopies() (src/utils/agendaCopy.js itemsFromMeeting); lib/Service/MeetingSeriesService.php copyAgenda() via lib/Service/AgendaItemCopier.php",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-agenda-templates-and-copy",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/agenda-builder :: Copy the whole agenda of an earlier meeting"
 			},
 			"reachedOn": "MeetingDetail Agenda widget -> Add from template or meeting -> From an earlier meeting; meeting series generation",
 			"provider": "decidiq",
@@ -2353,7 +2382,8 @@
 				"evidence": "lib/Controller/MeetingController.php transitions() GET /api/meetings/{id}/transitions answers the stage and the steps MeetingService::availableActionsFor() allows (state machine, domain rules, chair-only gate), none for a caller who is not chair or secretary; lifecycle() POST refuses such a caller with 403; src/components/tabs/MeetingStageTab.vue on MeetingDetail shows one button per offered step (src/utils/meetingStages.js); Meetings index excludeFields lifecycle and lib/Settings/register.d/99-meeting-starts-as-draft.json default draft",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-meeting-stage-buttons-and-cost",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/meeting-workflow :: REQ-MWF-001 Meeting lifecycle states; openspec/specs/meeting-workflow :: REQ-MSB-001 The chair moves a meeting through its stages"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Stage widget: Convene meeting, Open meeting, Pause, Resume, Adjourn, Close meeting for the chair or secretary; a new meeting starts as draft",
 			"provider": "decidiq",
@@ -2392,7 +2422,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/MeetingAgendaTab.vue:205-233 lists agenda items sorted by orderNumber (:300) with nesting under parentItem, add/edit/delete via CnFormDialog (:425-470); lib/Settings/decidesk_register.json:1292 AgendaItem.orderNumber, :1325 parentItem",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/agenda-builder"
+				"spec": "openspec/specs/agenda-builder",
+				"requirement": "openspec/specs/agenda-builder :: REQ-BLD-001 Agenda items are ordered by orderNumber ascending"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget (MeetingAgendaTab)",
 			"provider": "decidiq",
@@ -2431,7 +2462,8 @@
 				"evidence": "src/components/tabs/MeetingAgendaTab.vue:132 drag handle per row and :351-357 Move up / Move down row actions, shown only when GET /api/meetings/{meetingId}/my-roles (appinfo/routes.php:151, lib/Controller/MeetingController.php:315) answers chair, secretary or admin; :619 persistOrder() saves through PUT /api/agendas/{meetingId}/reorder; src/services/agendaRules.js moveAgendaItem()/dropAgendaItem() keep sub-items with their parent",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-agenda-meeting-page-item-tools",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/agenda-management :: REQ-AMP-002 A chair or secretary reorders the agenda on the meeting page; openspec/specs/agenda-management :: Agenda Ordering and Structure"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Agenda widget: drag a row or use Move up / Move down (chair, secretary or admin); LiveMeeting builder unchanged",
 			"provider": "decidiq",
@@ -2467,7 +2499,8 @@
 				"evidence": "src/components/tabs/MeetingAgendaTab.vue:345 Open row action routes to AgendaItemDetail (/agenda-items/:id, src/manifest.json:821), whose agenda-files widget attaches documents per item",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-agenda-meeting-page-item-tools",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/agenda-management :: REQ-AMP-003 Every agenda row opens its item page; openspec/specs/agenda-management :: Agenda Item Creation"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Agenda widget, row action Open, then AgendaItemDetail (/agenda-items/:id) Documents widget",
 			"provider": "openregister",
@@ -2506,7 +2539,8 @@
 				"evidence": "lib/Settings/register.d/104-agenda-templates.json AgendaTemplate (slug agenda-template) + MeetingType.defaultAgendaTemplate; src/dialogs/AgendaCopyDialog.vue from MeetingAgendaTab (Add from template or meeting, Save as template); src/utils/agendaCopy.js itemsFromTemplate/templateFromItems; src/manifest.d/agenda-templates.json list and detail pages",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-agenda-templates-and-copy",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/agenda-builder :: REQ-ATC-001 Start an agenda from a template"
 			},
 			"reachedOn": "MeetingDetail Agenda widget -> Add from template or meeting -> From a template; Save as template; Settings > Agenda templates (/agenda-templates)",
 			"provider": "decidiq",
@@ -2542,7 +2576,8 @@
 				"evidence": "src/components/tabs/MeetingAgendaTab.vue Publish agenda (chair, secretary, admin) calls POST /api/agendas/{meetingId}/publish (src/utils/agendaPublication.js) and shows Agenda published on; lib/Service/AgendaService.php publishAgenda() records agendaVersion, agendaPublishedAt and convocationSentAt (lib/Settings/register.d/100-convocation-sent-at.json); lib/Service/PublicationEligibilityService.php then admits a public meeting's agenda, and the Publication widget (PublicationActionsTab) offers Publish",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-agenda-publish-and-invite-members",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/agenda-publication :: REQ-APIM-001 Publishing the agenda invites the members; openspec/specs/agenda-publication :: REQ-APIM-002 A published agenda of a public meeting can go public"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Agenda widget: Publish agenda; Publication widget: Publish for a public meeting once the agenda was published",
 			"provider": "opencatalogi",
@@ -2608,7 +2643,8 @@
 				"evidence": "lib/Settings/register.d/98-agenda-formalities.json isFormality, formalityOutcome, adoptedAt on AgendaItem; lib/Service/AgendaService.php setFormality() behind PUT /api/agendas/{meetingId}/items/{itemId}/formality (chair/secretary) and processHamerstukken() records adopted-without-debate and adoptedAt; src/components/tabs/MeetingAgendaTab.vue Mark as formality / Discuss this item and Formality column; src/views/LiveMeeting.vue adopts pending formalities (src/utils/formalities.js)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-agenda-formalities-hamerstukken",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/agenda-live-management :: REQ-AFH-001 Formalities are marked and adopted together; openspec/specs/agenda-live-management :: REQ-LIV-003 Consent agenda items (hamerstukken) are batch-adopted"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Agenda widget: Mark as formality; LiveMeeting (/meetings/:id/live): Adopt consent agenda",
 			"provider": "decidiq",
@@ -2683,7 +2719,8 @@
 				"state": "building",
 				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json ConfidentialityRestriction (scope 'item', targetAgendaItem, ground, lifecycle imposed/ratified/dissolved); src/manifest.d/embargo-geheimhouding.json ConfidentialityRestrictions/ConfidentialityGrounds pages; no service applies it (grep 'confidentiality-restriction', 'ConfidentialityRestriction', 'geheimhouding' in lib/Service, lib/Listener, lib/Controller: none); the AgendaItem.confidentiality classifier the description refers to is not declared on AgendaItem",
 				"owner": "ConductionNL/decidiq",
-				"change": "agenda-item-confidential-papers"
+				"change": "agenda-item-confidential-papers",
+				"requirement": "openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality :: REQ-ACP-001 An agenda item and each paper say whether they are public; openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality :: REQ-ACP-002 Only authorised readers can read a non-public item and its papers"
 			},
 			"reachedOn": "ConfidentialityRestrictions (/confidentiality-restrictions), under 'Registers' in the menu",
 			"provider": "decidiq",
@@ -2790,7 +2827,8 @@
 				"state": "specified",
 				"evidence": "No offline/service-worker/PWA code in src/ (grep 'offline', 'serviceWorker', 'PWA'); openspec/changes/meeting-pack-board-book/proposal.md:29 plans delivering a compiled pack into each attendee's Files for offline sync via Nextcloud clients; not built",
 				"owner": "ConductionNL/decidiq",
-				"change": "meeting-pack-board-book"
+				"change": "meeting-pack-board-book",
+				"requirement": "openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book :: REQ-006 Offline delivery into attendees' own Files"
 			},
 			"reachedOn": "nothing reaches it: no offline mode; only a planned per-attendee pack delivery",
 			"provider": "decidiq",
@@ -2826,7 +2864,8 @@
 				"evidence": "src/utils/incomingDocuments.js (incoming = AgendaItemType.incomingDocument, register.d/122-incoming-documents.json; seeded Ingekomen stuk + Raadsinformatiebrief flagged); MeetingRoutedDocumentsTab reads the meeting's agenda items of an incoming type; dashboard widget src/views/dashboard/widgets/IncomingDocumentsWidget.vue (Dashboard slot widget-incoming-documents) lists those without a meeting with Put on agenda (src/dialogs/PutOnAgendaDialog.vue); tests/vitest/incomingDocuments.spec.js; Playwright tests/e2e/incoming-documents.spec.ts owed live",
 				"owner": "ConductionNL/decidiq",
 				"change": "agenda-incoming-documents-list",
-				"readOn": "2026-10-05"
+				"readOn": "2026-10-05",
+				"requirement": "openspec/changes/agenda-incoming-documents-list/specs/agenda-management :: REQ-AIDL-001 Incoming documents reach the agenda"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Agenda widget, add item with an 'incoming document' type",
 			"provider": "decidiq",
@@ -2894,7 +2933,8 @@
 				"state": "specified",
 				"evidence": "openspec/changes/document-accessibility-check/ (proposal, design, tasks, specs) describes a PDF accessibility scan and publication gate; no code in lib/ or src/ (grep 'accessibility-check', 'pdf/ua')",
 				"owner": "ConductionNL/decidiq",
-				"change": "document-accessibility-check"
+				"change": "document-accessibility-check",
+				"requirement": "openspec/changes/document-accessibility-check/specs/document-accessibility-check :: REQ-001 Heuristic accessibility scan of uploaded PDF documents; openspec/changes/document-accessibility-check/specs/document-accessibility-check :: REQ-003 Publication gate on failing documents with recorded override"
 			},
 			"reachedOn": "nothing reaches it: only an openspec change",
 			"provider": "decidiq",
@@ -2930,7 +2970,8 @@
 				"evidence": "Built in change agenda-ai-paper-summaries: paper-summary schema with a review lifecycle and a member read rule (shown only) (lib/Settings/register.d/119-paper-summaries.json), PaperSummaryService + PaperSummaryController (POST /api/agenda-items/{id}/paper-summaries, GET /api/paper-summaries/availability; secretariat only, refused outside a confidentiality restriction's circle, 422 for a paper not on the item, 503 without a TaskProcessing provider), PaperText (OpenRegister text extraction, long papers summarised in parts), PaperSummaryTaskListener (the AI answer lands as draft, a failure as failed) and the Summaries of the papers widget on AgendaItemDetail (src/components/tabs/AgendaPaperSummariesTab.vue). PHPUnit and vitest green; the Newman read-rule run and the Playwright run (tests/e2e/paper-summaries.spec.ts) are still owed, so not yet built. This row: Summarise on a paper of the item (TextToTextSummary).",
 				"owner": "ConductionNL/decidiq",
 				"change": "agenda-ai-paper-summaries",
-				"readOn": "2026-10-03"
+				"readOn": "2026-10-03",
+				"requirement": "openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-002 A clerk asks for a summary or a comparison of a paper; openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-004 The AI result lands as a draft, and long papers are summarised in parts"
 			},
 			"reachedOn": "nothing reaches it: no AI summary of meeting papers",
 			"provider": "decidiq",
@@ -2966,7 +3007,8 @@
 				"evidence": "lib/Settings/register.d/105-live-meeting-current-item.json Meeting.currentAgendaItem; PUT /api/agendas/{meetingId}/current-item (AgendaController::currentItem, chair/secretary/admin; AgendaService::setCurrentItem); src/views/LiveMeeting.vue activateItem() saves it, every screen re-reads the meeting every 5 s and follows it; chair controls from GET my-roles",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/agenda-live-management :: REQ-LSC-001 Everyone follows the current item; openspec/specs/agenda-live-management :: REQ-LIV-004 Live agenda shows which item is currently being discussed"
 			},
 			"reachedOn": "LiveMeeting page (/meetings/:id/live), Open live meeting on MeetingDetail; the chair Activate item is followed on every live screen",
 			"provider": "decidiq",
@@ -3062,7 +3104,8 @@
 				"evidence": "src/components/liveMeeting/MeetingScreen.vue, shown by the live page at /meetings/:id/live?view=screen (Room screen button); shows the meeting, the current item and 'Voting is open' while a round on the item or its motion is open (src/utils/liveMeeting.js openRoundFor)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/agenda-live-management :: REQ-LSC-002 A room screen shows the current item and vote"
 			},
 			"reachedOn": "Room screen button on the live page opens /meetings/:id/live?view=screen",
 			"provider": "decidiq",
@@ -3098,7 +3141,8 @@
 				"evidence": "src/dialogs/LiveDecisionDialog.vue (Record decision on the live page, chair/secretary/admin) posts title, text, outcome, decisionType and the current agendaItem to POST /api/meetings/{id}/live-decisions; lib/Service/LiveDecisionService.php decisionFor() writes meeting, agendaItem, decisionType, validated against the Decision schema in tests/Unit/Service/LiveMeetingSharedCurrentItemTest.php",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/agenda-live-management :: REQ-LSC-003 A decision is recorded when it is taken"
 			},
 			"reachedOn": "Record decision button on the live page, current item",
 			"provider": "decidiq",
@@ -3137,7 +3181,8 @@
 				"evidence": "Built in change live-public-livestream: meeting-broadcast schema with a declared lifecycle (planned, testing, live, paused, ended) and a public read rule once publicationDate passed (lib/Settings/register.d/120-meeting-broadcast.json), the streaming service as an integriq connection (lib/Settings/connections.json, StreamingClient), MeetingBroadcastService and BroadcastController (nine routes, chair or secretary only), BroadcastCaptionService (subtitles from the aligned transcript over the public windows, released as a read-only link), the Broadcast widget on MeetingDetail (src/components/tabs/MeetingBroadcastTab.vue) and the anonymous publicBroadcasts portal collection. PHPUnit and vitest green; the Newman anonymous-read run and the Playwright run (tests/e2e/meeting-broadcast.spec.ts) are still owed, so not yet built. This row: go live, pause for a closed session, resume, stop; residents watch through the portal.",
 				"owner": "ConductionNL/decidiq",
 				"change": "live-public-livestream",
-				"readOn": "2026-10-05"
+				"readOn": "2026-10-05",
+				"requirement": "openspec/changes/live-public-livestream/specs/meeting-broadcast :: REQ-LSTR-003 Going live needs a public meeting and a connected streaming service; openspec/changes/live-public-livestream/specs/meeting-broadcast :: REQ-LSTR-008 Residents see live and recent broadcasts through portaliq"
 			},
 			"reachedOn": "nothing reaches it: no streaming feature",
 			"provider": "decidiq",
@@ -3203,7 +3248,8 @@
 				"evidence": "src/components/tabs/MeetingTranscriptionTab.vue plays the recording (audio or video) from GET /api/transcripts/{transcriptId}/recording (RecordingController::play, Range 206 via lib/Service/RecordingRange.php, any meeting participant via TranscriptionStaffGuard::forTranscriptListener); Play from here on each agenda item heading seeks to its earliest aligned segment (src/utils/recordingJump.js itemStartTimes)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-live-recording-jump-to-item",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/meeting-transcription :: REQ-LRJ-001 Jump to an item in the recording"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Transcription widget: player above the transcript, Play from here on each agenda item heading",
 			"provider": "decidiq",
@@ -3241,7 +3287,8 @@
 				"state": "built",
 				"evidence": "lib/Service/TranscriptionService.php:256 process() runs OCP\\SpeechToText\\ISpeechToTextManager over the attached source; src/components/tabs/MeetingTranscriptionTab.vue:520 calls POST /api/transcripts/{id}/transcribe; routes appinfo/routes.php:128-132",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-meeting-transcription-ai-minutes"
+				"change": "2026-06-15-meeting-transcription-ai-minutes",
+				"requirement": "openspec/specs/meeting-transcription :: Asynchronous transcription via the SpeechToText provider abstraction"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Transcription widget (MeetingTranscriptionTab)",
 			"provider": "decidiq",
@@ -3280,7 +3327,8 @@
 				"evidence": "Built in change live-public-livestream: meeting-broadcast schema with a declared lifecycle (planned, testing, live, paused, ended) and a public read rule once publicationDate passed (lib/Settings/register.d/120-meeting-broadcast.json), the streaming service as an integriq connection (lib/Settings/connections.json, StreamingClient), MeetingBroadcastService and BroadcastController (nine routes, chair or secretary only), BroadcastCaptionService (subtitles from the aligned transcript over the public windows, released as a read-only link), the Broadcast widget on MeetingDetail (src/components/tabs/MeetingBroadcastTab.vue) and the anonymous publicBroadcasts portal collection. PHPUnit and vitest green; the Newman anonymous-read run and the Playwright run (tests/e2e/meeting-broadcast.spec.ts) are still owed, so not yet built. This row: Make subtitles and Release subtitles (captions-<language>.vtt, public windows only, no speaker labels).",
 				"owner": "ConductionNL/decidiq",
 				"change": "live-public-livestream",
-				"readOn": "2026-10-05"
+				"readOn": "2026-10-05",
+				"requirement": "openspec/changes/live-public-livestream/specs/meeting-broadcast :: REQ-LSTR-006 Subtitles for the recording come from the aligned transcript and cover only the public windows; openspec/changes/live-public-livestream/specs/meeting-broadcast :: REQ-LSTR-007 A caption track is public only after the clerk releases it"
 			},
 			"reachedOn": "nothing reaches it: no subtitle output",
 			"provider": "decidiq",
@@ -3316,7 +3364,8 @@
 				"evidence": "src/components/liveMeeting/SpeakerQueuePanel.vue logs speeches and 'Question raised' with the current agendaItem (src/utils/liveMeeting.js engagementBody) and lists 'Contributions on this item' from GET /api/engagement?meeting= (contributionsOn)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-live-meeting-shared-current-item",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/agenda-live-management :: REQ-LSC-004 Speeches and questions are logged per item"
 			},
 			"reachedOn": "Speaker queue on the live page: Question raised, Contributions on this item",
 			"provider": "decidiq",
@@ -3425,7 +3474,8 @@
 				"state": "built",
 				"evidence": "lib/BackgroundJob/TranscriptRetentionJob.php:111 run() deletes recording and/or transcript file per body policy (keep|delete-recording|delete-both, default 30 days after minutes approval); registered appinfo/info.xml:130; policy set via src/components/tabs/GovernanceBodyRetentionTab.vue -> PUT /api/governance-bodies/{id}/retention-config",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-meeting-transcription-ai-minutes"
+				"change": "2026-06-15-meeting-transcription-ai-minutes",
+				"requirement": "openspec/specs/meeting-transcription :: Confidentiality and retention of recordings and transcripts"
 			},
 			"reachedOn": "GovernanceBodyDetail, 'Recording retention' widget (src/manifest.json:476); deletion runs as a daily background job",
 			"provider": "decidiq",
@@ -3463,7 +3513,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/AgendaMotionsTab.vue:198-199 creates a decision with decisionType 'motion' and agendaItem = the agenda item; mounted as widget agenda-motions on AgendaItemDetail (src/manifest.json:821); Motions index (src/manifest.json:853) create via DecisionFormDialog",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/motion-management"
+				"spec": "openspec/specs/motion-management",
+				"requirement": "openspec/specs/motion-amendment :: Motion Submission; openspec/specs/conflict-of-interest :: REQ-COI-003 Motion is linked to a decision agenda item"
 			},
 			"reachedOn": "AgendaItemDetail (/agenda-items/:id), Motions widget 'Add motion'; Motions index (/motions) create",
 			"provider": "decidiq",
@@ -3500,10 +3551,12 @@
 			"origin": "code",
 			"decidiq": "yes",
 			"built": {
-				"state": "built",
-				"evidence": "src/components/tabs/MotionAmendmentsTab.vue:210 creates decisionType 'amendment' with amends = the motion; widget motion-amendments on MotionDetail (src/manifest.json:899); AmendmentDetail page src/manifest.json:961",
+				"state": "planned",
+				"evidence": "src/components/tabs/MotionAmendmentsTab.vue:210 creates decisionType 'amendment' with amends = the motion; widget motion-amendments on MotionDetail (src/manifest.json:899); AmendmentDetail page src/manifest.json:961 Missing (12 Nov 2026): MotionAmendmentsTab keys amendments on parentMotion and sits only on MotionDetail, so a proposal that is not a motion cannot be amended; planned in capability-rows-get-requirements task 4.",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/amendment-workflow"
+				"spec": "openspec/specs/amendment-workflow",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/motion-amendment :: An amendment can target a proposal as well as a motion",
+				"plan": "openspec/changes/capability-rows-get-requirements"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), Amendments widget 'Submit amendment'; AmendmentDetail (/amendments/:id)",
 			"provider": "decidiq",
@@ -3541,7 +3594,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/AmendmentDiffTab.vue resolves amendment proposedText and parent motion text via `amends`; src/components/AmendmentDiffView.vue:69 diffWords() (src/utils/textDiff.js) renders <ins>/<del> word diff",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/amendment-diff"
+				"spec": "openspec/specs/amendment-diff",
+				"requirement": "openspec/specs/amendment-diff :: REQ-AMD-DIFF-001 AmendmentDetail shows a \"Vergelijken\" tab with inline diff of original and amended text"
 			},
 			"reachedOn": "AmendmentDetail (/amendments/:id), 'Text changes' widget leading the page",
 			"provider": "decidiq",
@@ -3636,7 +3690,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/MotionAmendmentOrderTab.vue:109 suggest() (most far-reaching first via textDiff.changeMagnitude) and :293 POST /api/motions/{id}/amendment-order; lib/Service/AmendmentOrderService.php:115 assertOrdering() refuses a round out of order",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-13-motion-amendment-v1"
+				"change": "2026-06-13-motion-amendment-v1",
+				"requirement": "openspec/specs/motion-amendment :: Amendment Voting Order"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting order' widget",
 			"provider": "decidiq",
@@ -3702,7 +3757,8 @@
 				"evidence": "lib/Service/MotionStages.php forCaller() offers the chair or secretary of the motion's meeting every step of MotionLifecycleTransitioner::MOTION_TRANSITIONS (Decided split into adopted and rejected) and the submitter (object owner) Withdraw, behind GET /api/motions/{id}/transitions; MotionController::transition() lets the submitter withdraw (isOwnWithdrawal); src/components/tabs/MotionStageTab.vue on MotionDetail posts the step; Motions index shows lifecycle and outcome columns, both facetable (register.d/102) for the stage and result filters",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-motions-stages-and-themes",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/motion-management :: REQ-MOT-002 Motion lifecycle transitions are controlled by role; openspec/specs/motion-status-management :: REQ-MST-001 Move a motion through its stages on its page; openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-004 Closing a roll call round computes the result from the recorded votes"
 			},
 			"reachedOn": "Motions index (/motions) -> MotionDetail Stage widget; stage and result filters in the Motions list sidebar",
 			"provider": "decidiq",
@@ -3862,7 +3918,8 @@
 				"state": "specified",
 				"evidence": "DecisionDetail (src/manifest.json:1158) widgets decision-commitments (object-list governance-commitment filter relatedMotion=@objectId) and decision-actions (ActionItemsSurface, action items keyed on decision); Toezegging schema has deadline+lifecycle (register.d/45-toezeggingen-ingekomen-stukken.json)",
 				"owner": "ConductionNL/decidiq",
-				"change": "followup-implementation-progress"
+				"change": "followup-implementation-progress",
+				"requirement": "openspec/changes/followup-implementation-progress/specs/decision-management :: REQ-FUP-001 An adopted decision takes dated progress updates; openspec/changes/followup-implementation-progress/specs/decision-management :: REQ-FUP-002 The decision shows its current implementation status"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id) for the motion: Commitments and Action items widgets; not on MotionDetail",
 			"provider": "decidiq",
@@ -3928,7 +3985,8 @@
 				"evidence": "lib/Settings/register.d/102-motion-stages-and-themes.json Theme schema (name, description) and Decision.themes (array of theme names, facetable); src/manifest.d/motion-themes.json Themes list and detail pages in the settings foldout; src/dialogs/DecisionFormDialog.vue offers the configured theme names as choices (src/utils/motionStages.js withThemeVocabulary); Motions index themes column and facet filter",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-motions-stages-and-themes",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/motion-status-management :: REQ-MST-002 Tag motions by theme and filter"
 			},
 			"reachedOn": "Settings foldout -> Themes (/themes); motion form Themes picker; Motions index (/motions) themes column and sidebar filter",
 			"provider": "decidiq",
@@ -3963,7 +4021,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ExportBundleService.php export() format pdf: per decision a text page through FilinqPdf::fromHtml(), then its attachments from OpenRegister FileService::getFiles(), handed in list order to filinq DocumentMergeService merge() (queue() when shouldQueue() says so) with bookmarks on, into 'Decidiq exports'; src/manifest.json Motions bulkActions export-bundle -> src/modals/ExportBundleModal.vue; tests/Unit/Service/ExportBundleServiceTest.php",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-09-29-motions-export-with-attachments"
+				"change": "2026-09-29-motions-export-with-attachments",
+				"requirement": "openspec/specs/motion-management :: REQ-MXP-001 Motions export as one PDF with their attachments"
 			},
 			"reachedOn": "nothing reaches it: no motion PDF export",
 			"provider": "decidiq",
@@ -3999,7 +4058,8 @@
 				"evidence": "lib/Controller/VotingController.php:463 permissions() (GET /api/meetings/{meetingId}/voting-permissions) answers canOpen/canClose/canEnterTally/canCastChairVote through VotingRoundGuard; :340 tally() and publish() check the role in the round's own meeting; src/components/VotingRoundPanel.vue:772 loadPermissions() and :640 isChairOrSecretary() read that answer instead of settingsStore.isAdmin, and openRound() sends subjectType; src/manifest.json:979 AmendmentDetail widget amend-voting-round -> src/components/tabs/AmendmentVotingRoundTab.vue mounts the panel with subjectType amendment and the parent motion's meeting",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-voting-chair-close-and-amendment-rounds",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/voting-round-management :: REQ-VRM-001 Chair opens a VotingRound for a Motion in lifecycle voting; openspec/specs/voting-round-management :: REQ-VRM-004 Chair closes a VotingRound and the result is calculated automatically; openspec/specs/voting-round-management :: REQ-VCR-004 A chair opens and closes a vote on an amendment from the amendment page"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) and AmendmentDetail (/amendments/:id), 'Voting round' widget; controls shown to the meeting's chair and secretary",
 			"provider": "decidiq",
@@ -4038,7 +4098,8 @@
 				"state": "built",
 				"evidence": "src/components/VotingRoundPanel.vue For/Against/Abstain buttons -> POST /api/voting-rounds/{id}/cast; lib/Controller/VotingController.php:134 cast() resolves the participant from the session user (VotingService.php:107 resolveParticipantUuid) and calls VotingService::castVote (:195)",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/vote-casting"
+				"spec": "openspec/specs/vote-casting",
+				"requirement": "openspec/specs/vote-casting :: REQ-VCT-001 Participant casts a vote in an open VotingRound"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget vote buttons",
 			"provider": "decidiq",
@@ -4074,7 +4135,8 @@
 				"evidence": "lib/Service/VoteBreakdownService.php forRound() reads each ballot's voter from its relations (structured or flattened), names them and takes the faction from Participant.party, counts per faction, totals only for a secret round; lib/Controller/VoteBreakdownController.php GET /api/voting-rounds/{id}/breakdown; src/components/tabs/MotionVotesTab.vue lists each member's vote by name with faction and a per-faction table per round; src/components/tabs/MeetingVotesTab.vue Per faction column; src/utils/voteBreakdown.js",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-voting-results-by-faction-and-member",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/motion-and-voting :: REQ-VRF-001 Results per faction and per member"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) Votes widget; MeetingDetail (/meetings/:id) Votes widget, Per faction column",
 			"provider": "decidiq",
@@ -4112,7 +4174,8 @@
 				"state": "built",
 				"evidence": "src/components/VotingRoundPanel.vue:58 'Secret ballot' checkbox sent as isSecret on open; lib/Service/VoteBallotFactory.php voteRelations() omits the participant relation for secret rounds and stores an HMAC voterToken (VoterTokenSecret) for dedup",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/secret-ballot"
+				"spec": "openspec/specs/secret-ballot",
+				"requirement": "openspec/specs/secret-ballot :: REQ-SBL-001 Secret VotingRound masks individual Vote data at the API level; openspec/specs/secret-ballot :: REQ-SBL-002 Secret ballot UI hides per-participant vote table"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Open voting round dialog",
 			"provider": "decidiq",
@@ -4147,7 +4210,8 @@
 				"state": "building",
 				"evidence": "lib/Service/VoteBallotFactory.php voteRelations() links the participant on non-secret ballots; VotingRound.votingMethod enum (decidesk_register.json) has no roll-call method; src/components/tabs/MotionVotesTab.vue:207 voter names read a non-existent caster field",
 				"owner": "ConductionNL/decidiq",
-				"change": "voting-named-paper-vote-entry"
+				"change": "voting-named-paper-vote-entry",
+				"requirement": "openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-001 A chair opens a roll call round whose votes are recorded by name; openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-002 The chair or secretary records each member's choice"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget (open ballot)",
 			"provider": "decidiq",
@@ -4215,7 +4279,8 @@
 				"state": "specified",
 				"evidence": "'ranked-choice' appears only in the VotingRound.votingMethod enum (decidesk_register.json); VotingRoundPanel.vue open dialog offers for-against-abstain/show-of-hands/weighted only; grep ranked in lib/Service: only BudgetVotingService ranking proposals by votesFor",
 				"owner": "ConductionNL/decidiq",
-				"change": "voting-ranked-preference-ballot"
+				"change": "voting-ranked-preference-ballot",
+				"requirement": "openspec/specs/preferential-ballot :: REQ-PRF-002 Members rank candidates in order of preference when voting"
 			},
 			"reachedOn": "nothing reaches it: no preference ballot",
 			"provider": "decidiq",
@@ -4253,7 +4318,8 @@
 				"state": "built",
 				"evidence": "src/components/VotingRoundPanel.vue voteThreshold/abstentionHandling/tieBreakRule selectors on open; lib/Service/VotingResultCalculator.php compute(): simple-majority, two-thirds, three-quarters, unanimous; called from VotingRoundResults::tally on close",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-voting-rules-v1"
+				"change": "2026-06-12-voting-rules-v1",
+				"requirement": "openspec/specs/voting-system :: Qualified Majority and Voting Rules"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Open voting round dialog",
 			"provider": "decidiq",
@@ -4378,7 +4444,8 @@
 				"state": "built",
 				"evidence": "lib/Service/VotingService.php closeRound() -> VotingRoundResults::tally() counts ballots and applies VotingResultCalculator::compute(); lib/Service/VotingRoundOpener.php:106 checkQuorum() refuses to open below quorumRequired",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/voting-round-management"
+				"spec": "openspec/specs/voting-round-management",
+				"requirement": "openspec/specs/voting-round-management :: REQ-VRM-002 Quorum is verified before a VotingRound can be opened; openspec/specs/voting-round-management :: REQ-VRM-004 Chair closes a VotingRound and the result is calculated automatically; openspec/specs/voting-system :: Qualified Majority and Voting Rules"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget: result shown after close",
 			"provider": "decidiq",
@@ -4503,7 +4570,8 @@
 				"state": "specified",
 				"evidence": "grep written resolution/buiten vergadering/circular resolution in lib/, src/, openspec/specs: none; voting rounds require a linked meeting (VotingRoundPanel disables open without meetingId); approval-route threshold class lib/Service/ApprovalThresholdCalculator.php is self-declared unreachable",
 				"owner": "ConductionNL/decidiq",
-				"change": "voting-written-resolution"
+				"change": "voting-written-resolution",
+				"requirement": "openspec/changes/voting-written-resolution/specs/written-resolution :: REQ-WRS-001 The chair or secretary of a body puts a decision to the body in writing; openspec/changes/voting-written-resolution/specs/written-resolution :: REQ-WRS-003 The result is counted against the whole electorate"
 			},
 			"reachedOn": "nothing reaches it: no written-consent procedure",
 			"provider": "decidiq",
@@ -4606,7 +4674,8 @@
 				"evidence": "src/components/tabs/MinutesActionsTab.vue Draft from the meeting -> POST /api/minutes/{id}/generate-draft (MinutesGenerationService::generateDraft, meeting id from the minutes reference) -> saved into Minutes.content; lib/Service/MinutesDraftRenderer.php attendanceSection() from meeting-attendance records (MeetingAttendanceReader)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-minutes-draft-and-send",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/p2-minutes-and-decisions :: REQ-MDS-001 Draft minutes from the meeting"
 			},
 			"reachedOn": "Minutes index (/minutes) -> MinutesDetail Draft and send widget: Draft from the meeting",
 			"provider": "decidiq",
@@ -4642,7 +4711,8 @@
 				"evidence": "src/components/tabs/MeetingTranscriptionTab.vue useAsMinutes() writes minutesFromAiDraft() (src/utils/minutesDraft.js: kept sections as content, summaries as itemNotes) into the meeting's draft Minutes, creating them when absent; MinutesDraftService generates the sections",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-minutes-draft-and-send",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/meeting-transcription :: AI-assisted draft minutes generation; openspec/specs/p2-minutes-and-decisions :: REQ-MDS-002 Use the AI draft as the minutes"
 			},
 			"reachedOn": "MeetingDetail Transcription widget -> Generate draft minutes -> Use as minutes",
 			"provider": "decidiq",
@@ -4681,7 +4751,8 @@
 				"evidence": "src/manifest.json:1043 MinutesDetail widget minutes-item-notes -> src/components/tabs/MinutesItemNotesTab.vue mounts src/components/minutesEditor/MinutesPanel.vue for the minutes' meeting with minutesId (MinutesPanel.vue:240 pickMinutesRecord), editable in draft and read-only after; LiveMeeting also reachable from MeetingAgendaTab.vue:31 Open live meeting",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-agenda-meeting-page-item-tools",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/resolution-minutes :: REQ-AMP-005 The minutes page carries the per-item minutes editor; openspec/specs/resolution-minutes :: Real-Time Minute Taking"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id) widget 'Minutes per agenda item'; LiveMeeting via Open live meeting on the meeting page",
 			"provider": "decidiq",
@@ -4716,7 +4787,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/MinutesApprovalTab.vue:356 POST /minutes/{id}/submit-for-approval, :402 POST /minutes/{id}/corrections, :422 PUT /minutes/{id}/corrections/{correctionId}, :359 POST /minutes/{id}/transition (approve), :382 reject; backend lib/Service/MinutesWorkflowService.php:118 submitForApproval(), lib/Controller/MinutesCorrectionController.php, lib/Service/MinutesGenerationService.php:173 transition() with sequential lifecycle map, :288 reject().",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-minutes-ui-v1"
+				"change": "2026-06-12-minutes-ui-v1",
+				"requirement": "openspec/specs/resolution-minutes :: Minutes Approval Workflow"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Approval widget (MinutesApprovalTab)",
 			"provider": "decidiq",
@@ -4781,7 +4853,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/MinutesDocumentTab.vue:262 POST /minutes/{id}/generate-document with format -> lib/Service/MinutesDocumentService.php:113 generate(); PDF via lib/Support/FilinqPdf.php:97 fromHtml() (filinq PdfService), stored in the meeting folder; falls back to markdown with a note when filinq is absent (MinutesDocumentService.php:225-228).",
 				"owner": "ConductionNL/filinq",
-				"change": "2026-06-12-minutes-ui-v1"
+				"change": "2026-06-12-minutes-ui-v1",
+				"requirement": "openspec/specs/resolution-minutes :: Minutes Document Generation"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget (MinutesDocumentTab), generate document with format choice",
 			"provider": "filinq",
@@ -4817,7 +4890,8 @@
 				"evidence": "src/components/tabs/MinutesActionsTab.vue Send to members -> POST /api/minutes/{id}/distribute -> ALVMinutesService::distribute(): members via ParticipantResolver::resolveMeetingParticipants, notice minutes_available through NotificationPreferenceService (event decisionPublished), rendered by lib/Notification/Notifier.php",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-minutes-draft-and-send",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/p2-minutes-and-decisions :: REQ-MDS-003 Send approved minutes to the members"
 			},
 			"reachedOn": "MinutesDetail Draft and send widget: Send to members (approved, signed or published minutes)",
 			"provider": "decidiq",
@@ -4852,7 +4926,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json MeetingDetail widget meeting-decisions -> src/components/tabs/MeetingDecisionsTab.vue:129 fetchCollection('decision',{meeting}) lists and creates decisions for the meeting; Decision.meeting added in lib/Settings/register.d/67-model-debt-cleanup.json. Decisions index /decisions for the cross-meeting list.",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/decision-management"
+				"spec": "openspec/specs/decision-management",
+				"requirement": "openspec/specs/p2-minutes-and-decisions-core-t1 :: REQ-ADL-001 Generate a decision list from voting results"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id), Decisions widget (MeetingDecisionsTab); Decisions index (/decisions)",
 			"provider": "decidiq",
@@ -4952,7 +5027,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/RelatedDecisionsTab.vue:162 RELATION_TYPES supersedes/repeals/amends/implements/refersTo, saveObject at :367/:402, incoming relations shown as 'Superseded by'/'Repealed by' (:257); Decision schema properties supersedes/repeals in lib/Settings/decidesk_register.json.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-14-decision-relations"
+				"change": "2026-06-14-decision-relations",
+				"requirement": "openspec/specs/decision-management :: Typed decision-to-decision modification relations; openspec/specs/decision-management :: Derived effective status"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Related decisions widget (RelatedDecisionsTab)",
 			"provider": "decidiq",
@@ -5047,10 +5123,12 @@
 			"origin": "code",
 			"decidiq": "partial",
 			"built": {
-				"state": "built",
-				"evidence": "src/components/tabs/MinutesDocumentTab.vue:280 POST /meetings/{meetingId}/proof-package -> lib/Service/ProofPackageService.php:91 assemble(): convocation, quorum snapshot with participants, vote tally and decision texts, SHA-256 over canonical JSON (:125), stored in the meeting folder.",
+				"state": "planned",
+				"evidence": "src/components/tabs/MinutesDocumentTab.vue:280 POST /meetings/{meetingId}/proof-package -> lib/Service/ProofPackageService.php:91 assemble(): convocation, quorum snapshot with participants, vote tally and decision texts, SHA-256 over canonical JSON (:125), stored in the meeting folder. Missing (12 Nov 2026): ProofPackageService::assemble() bundles convocation, quorum snapshot, vote tally and decision texts, but not the minutes or the signatures; planned in capability-rows-get-requirements task 2.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-minutes-ui-v1"
+				"change": "2026-06-12-minutes-ui-v1",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/resolution-minutes :: A meeting's evidence is bundled into one proof package",
+				"plan": "openspec/changes/capability-rows-get-requirements"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget, proof package button (data-testid minutes-proof-package)",
 			"provider": "decidiq",
@@ -5086,7 +5164,8 @@
 				"evidence": "lib/Search/DecidiqSearchProvider.php:62 SCHEMAS decision, meeting and minutes; :187 findAll with register and schema in filters under the caller's read rules; :256 links to /decisions/:id, /meetings/:id and /minutes/:id; minutes subline shows lifecycle and approval date",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-minutes-in-unified-search",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/nextcloud-integration :: Search Integration; openspec/specs/nextcloud-integration :: REQ-MUS-001 Minutes appear in Nextcloud's unified search"
 			},
 			"reachedOn": "Nextcloud unified search bar, section 'Decidiq governance': decisions, meetings and minutes",
 			"provider": "nextcloud",
@@ -5222,7 +5301,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json Dashboard widget my-action-items (line 256, slot :426 MyActionItemsWidget) -> src/views/dashboard/widgets/MyActionItemsWidget.vue:108-120 getActionItems({assignee: current uid, taskStatus: ['open','in-progress']}), overdue badge :48.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-decidesk-dashboard-v2-widgets"
+				"change": "2026-06-12-decidesk-dashboard-v2-widgets",
+				"requirement": "openspec/specs/dashboard :: My Action Items Widget"
 			},
 			"reachedOn": "Dashboard (/), My action items widget",
 			"provider": "decidiq",
@@ -5287,7 +5367,8 @@
 				"state": "built",
 				"evidence": "src/manifest.d/toezeggingen-ingekomen-stukken.json pages Commitments (/commitments) and CommitmentDetail (/commitments/:id), menu entry Commitments; schema Commitment in lib/Settings/register.d/84-commitment-in-plain-words.json with madeBy, directedTo, deadline, lifecycle (open, in-execution, disposed, lapsed), settlementNotes, settlementEvidence; also listed on DecisionDetail widget decision-commitments.",
 				"owner": "ConductionNL/decidiq",
-				"change": "toezeggingen-ingekomen-stukken"
+				"change": "toezeggingen-ingekomen-stukken",
+				"requirement": "openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register :: REQ-001 Toezegging schema on OpenRegister; openspec/changes/toezeggingen-ingekomen-stukken/specs/toezeggingen-register :: REQ-002 Lifecycle is declarative with four states"
 			},
 			"reachedOn": "Commitments index (/commitments) and CommitmentDetail (/commitments/:id); Commitments widget on DecisionDetail",
 			"provider": "decidiq",
@@ -5327,7 +5408,8 @@
 				"evidence": "lib/Controller/OriController.php RESOURCE_MAP commitments -> governance-commitment, public from publicationDate (narrowToPublicVisibility, OriSerializer::isPayloadLive); lib/Service/OriSerializer.php COMMITMENT_FIELD_RULES allow-list (text, status, deadline, progress date+note, settlement_notes, motion, published_at); register.d/107-commitment-progress.json Commitment.progress; POST /api/commitments/{id}/progress (CommitmentController, chair/secretary of the meeting via MeetingRoleGate); CommitmentDetail Progress widget (CommitmentProgressTab.vue)",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-followup-public-progress",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/ori-api :: REQ-FPP-001 The public sees commitment and motion progress"
 			},
 			"reachedOn": "GET /api/ori/v1/commitments and /api/ori/v1/commitments/{id} (public, from the publication date); CommitmentDetail (/commitments/:id) Progress widget: What happened, Add progress; motion status on GET /api/ori/v1/motions",
 			"provider": "decidiq",
@@ -5392,7 +5474,8 @@
 				"state": "built",
 				"evidence": "src/views/dashboard/widgets/widgetLogic.js:223 isOverdue() (past due and not completed/cancelled); OverdueActionsKpiWidget.vue:57 count with error variant (manifest.json dashboard slot :418); MyActionItemsWidget.vue:48 overdue badge per row.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-12-decidesk-dashboard-v2-widgets"
+				"change": "2026-06-12-decidesk-dashboard-v2-widgets",
+				"requirement": "openspec/specs/dashboard :: My Action Items Widget; openspec/specs/dashboard :: Overdue Actions KPI Widget"
 			},
 			"reachedOn": "Dashboard (/), Open action items KPI and My action items widget",
 			"provider": "decidiq",
@@ -5431,7 +5514,8 @@
 				"evidence": "Built half: src/manifest.d/organisation-goals.json Goals (/goals) and GoalDetail (/goals/:id); governance-commitment.goal (register.d/84), action-item.goal (decidesk_register.json:2980), planned-agenda-item.goal (register.d/86:262). Missing: the decision schema has no goal property (base decidesk_register.json and every decision fragment); register.d/66-organisation-goals.json aggregations still count the retired toezegging schema (84 sets it active:false), so commitment progress reads 0; the rates are materialise-on-save calculations, so they go stale when a contribution changes.",
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
-				"change": "goals-linked-to-decisions"
+				"change": "goals-linked-to-decisions",
+				"requirement": "openspec/changes/goals-linked-to-decisions/specs/organisation-goals :: REQ-010 A decision can name the goal it serves; openspec/changes/goals-linked-to-decisions/specs/organisation-goals :: REQ-012 Goal progress counts the live schemas and reads as counts"
 			},
 			"reachedOn": "Goals index (/goals) and GoalDetail (/goals/:id)",
 			"provider": "decidiq",
@@ -5466,7 +5550,8 @@
 				"state": "specified",
 				"evidence": "DecisionDetail Lifecycle widget (DecisionLifecycleTab) moves a decision to 'enacted' (lib/Lifecycle/DecisionTransitionGuard.php:133); per-decision action items with status lanes open/in-progress/done (src/services/deckProjection.js LANES, DecisionActionItemsTab). No implementation-progress or percentage field on Decision (property list in lib/Settings/decidesk_register.json).",
 				"owner": "ConductionNL/decidiq",
-				"change": "followup-implementation-progress"
+				"change": "followup-implementation-progress",
+				"requirement": "openspec/changes/followup-implementation-progress/specs/decision-management :: REQ-FUP-001 An adopted decision takes dated progress updates"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Lifecycle and Action items widgets",
 			"provider": "decidiq",
@@ -5504,7 +5589,8 @@
 				"state": "building",
 				"evidence": "lib/Service/ApprovalRouteService.php:354 instantiate() and :483 record(), lib/Service/ApprovalRouteAdvancer.php, ApprovalThresholdCalculator; started via routes.php:58 POST /api/approval-routes/instantiate or lib/Listener/ApprovalRouteRequestedListener.php:84 (registered lib/AppInfo/Registrar/CrossAppEventRegistrar.php:83). Frontend: src/integrations/approvalChainLink.js:237 holdRoute() is exported but called by no component; CnApprovalChainWidget.vue:306 recordAction() lets the actor approve/reject. Inside decidiq, src/components/tabs/DecisionRouteTab.vue is read-only and no decidiq screen starts a route (src/dialogs/DecisionFormDialog.vue has no route step).",
 				"owner": "ConductionNL/decidiq",
-				"change": "approval-routes-on-flow-user-tasks"
+				"change": "approval-routes-on-flow-user-tasks",
+				"requirement": "openspec/changes/routes-send-proposal-along-route/specs/approval-routes :: REQ-RSPR-001 A proposal is sent along a route from its page; openspec/specs/approval-routes :: REQ-AR-005 Recording an action advances the route"
 			},
 			"reachedOn": "Acting on a step: another app's detail page through the decidiq-approval-chain integration leaf (src/integrations/registerApprovalChainLeaf.js, CnApprovalChainWidget records actions); starting a route: API only: POST /api/approval-routes/instantiate or ApprovalRouteRequestedEvent from another app",
 			"provider": "decidiq",
@@ -5602,7 +5688,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/DecisionRouteTab.vue:419 fetches the decision's decision-stage rows and renders the timeline with current stage and 'N of M stages decided'; for documents in other apps lib/Listener/RegisterApprovalChainLeafListener.php:58 LEAF_ID decidiq-approval-chain, SURFACES :106 (detail-page, single-entity, dashboards), registered in lib/AppInfo/Registrar/IntegrationLeafRegistrar.php:90, JS half src/integrations/registerApprovalChainLeaf.js (CnApprovalChainTab timeline).",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-14-decision-route-and-stages"
+				"change": "2026-06-14-decision-route-and-stages",
+				"requirement": "openspec/specs/decision-route :: Route timeline view on the decision detail"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id), Route widget (DecisionRouteTab); another app's detail page through the decidiq-approval-chain integration leaf (src/integrations/registerApprovalChainLeaf.js, CnApprovalChainWidget records actions)",
 			"provider": "decidiq",
@@ -5743,7 +5830,8 @@
 				"state": "built",
 				"evidence": "Consultation and ConsultationResponse schemas in lib/Settings/register.d/79-one-consultation-schema.json (audienceBody, binding, deadline, relatedDecision; response position/text/processing), pages src/manifest.d/consultations.json GovernanceConsultations (/governance-consultations) and responses; DecisionDetail widgets decision-consultations and decision-consultation-responses. No PHP under lib/ reads governance-consultation (grep), so nothing sends the request or blocks a decision without the advice.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-09-28-advisory-opinion-workflow"
+				"change": "2026-09-28-advisory-opinion-workflow",
+				"requirement": "openspec/changes/one-consultation-schema/specs/one-consultation-schema :: A decision shows the advice asked of an advisory body and the answer"
 			},
 			"reachedOn": "Consultations index (/governance-consultations) and detail; Consultations and Consultation responses widgets on DecisionDetail",
 			"provider": "decidiq",
@@ -5782,7 +5870,8 @@
 				"state": "specified",
 				"evidence": "src/manifest.d/works-council-consultation.json WorksCouncilConsultations (/works-council-consultations) and detail; schema ConsultationRequest in lib/Settings/register.d/47-works-council-consultation.json with worArticle, receivedDate, requestedResponseDate, suspensionTo, response and decision fields; lifecycle and notifications are x-openregister declarations; no PHP under lib/ computes WOR terms (grep consultation-request: none). Also on DecisionDetail widget decision-wor-consultations.",
 				"owner": "ConductionNL/decidiq",
-				"change": "works-council-consultation"
+				"change": "works-council-consultation",
+				"requirement": "openspec/changes/works-council-consultation/specs/works-council-consultation :: REQ-WCC-002 Statutory flow is a declarative lifecycle; openspec/changes/works-council-consultation/specs/works-council-consultation :: REQ-WCC-006 Bestuurder decision recording and art. 25 lid 6 opschortingstermijn; openspec/changes/works-council-consultation/specs/works-council-consultation :: REQ-WCC-007 Deadline tracking with declarative rappels"
 			},
 			"reachedOn": "Works-council consultations index (/works-council-consultations) and detail; Works council widget on DecisionDetail",
 			"provider": "decidiq",
@@ -5934,7 +6023,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/IntegrationController.php:155 createDecision(), :236 getOutcome(), :321 subscribe() (routes.php:291-293 /api/v1/decisions, /{id}/outcome, /{id}/subscriptions) over lib/Service/DecisionIntegrationService.php:135/333/446; event path lib/Listener/DecisionRequestedListener.php:83 (registered CrossAppEventRegistrar.php:67); host-app UI via the decisions leaf src/integrations/registerDecisionsLeaf.js / CnDecisionsTab with src/integrations/decisionLink.js:103 createHostDecision(); leaf registered lib/Listener/RegisterDecisionsLeafListener.php.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-14-decidesk-contract-decision-hub"
+				"change": "2026-06-14-decidesk-contract-decision-hub",
+				"requirement": "openspec/specs/decidesk-contract-decision-hub :: REQ-DCDH-002 Generic create-decision integration endpoint; openspec/specs/decidesk-contract-decision-hub :: REQ-DCDH-003 Queryable outcome envelope"
 			},
 			"reachedOn": "API: POST /api/v1/decisions and GET /api/v1/decisions/{id}/outcome; in other apps the decidiq decisions integration leaf on their detail pages",
 			"provider": "decidiq",
@@ -5969,7 +6059,8 @@
 				"state": "built",
 				"evidence": "src/manifest.d/governing-documents-register.json GoverningDocuments (/governing-documents), GoverningDocumentDetail with version-timeline widget (:164, src/components/widgets/RegisterVersionTimelineWidget.vue registered registerDetailWidgets.js:262) and GoverningDocumentVersieDetail; schemas GoverningDocument / GoverningDocumentVersie in lib/Settings/register.d/55-governing-documents-register.json (versionNumber, effectiveDate, expiryDate, deed).",
 				"owner": "ConductionNL/decidiq",
-				"change": "governing-documents-register"
+				"change": "governing-documents-register",
+				"requirement": "openspec/changes/governing-documents-register/specs/governing-documents-register :: REQ-GDR-001 GoverningDocument schema; openspec/changes/governing-documents-register/specs/governing-documents-register :: REQ-GDR-002 GoverningDocumentVersie traced to its enacting decision"
 			},
 			"reachedOn": "Governing documents index (/governing-documents), detail with version timeline, version detail (/governing-document-versies/:id)",
 			"provider": "decidiq",
@@ -6035,7 +6126,8 @@
 				"evidence": "lib/Service/PublicationPayloadService.php buildAgendaPayload() lists the public items with their papers (AgendaPapers::publish via OpenRegister FileService::publishFile, confidential-labelled files skipped) and leaves out every item under an imposed or ratified confidentiality-restriction (AgendaPapers::restrictedItemIds, system context, fails closed with ConfidentialityUnreadableException -> 503); resolveAgendaItems() now passes register/schema inside filters; PublicationService keeps publishedPapers on the record and unpublishes them on withdraw; register.d/108-publication-papers.json PublicationPayload.documentType + papers, PublicationRecord.publishedPapers",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-publication-papers-and-search",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/agenda-publication :: REQ-APIM-002 A published agenda of a public meeting can go public; openspec/specs/agenda-publication :: REQ-PPS-001 Public papers are published with the agenda; openspec/specs/activity-calendar :: REQ-ACAL-004 Staff publish a public meeting to the residents' calendar"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Publication tab: Publish puts the agenda with its public papers in the body's OpenCatalogi catalog; citizens read and download them there",
 			"provider": "decidiq",
@@ -6073,7 +6165,8 @@
 				"state": "built",
 				"evidence": "lib/Service/PublicationService.php:105 publish(), :201 withdraw() (sets depublicationDate, retracts OpenCatalogi publication, requires reason, audit entry), :272 rectify() (new version + withdraw old); appinfo/routes.php:49-51; src/components/tabs/PublicationActionsTab.vue:78,85 withdraw/rectify buttons opening PublicationWithdrawModal / PublicationRectifyModal",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-publish-decisions-via-opencatalogi"
+				"change": "2026-06-15-publish-decisions-via-opencatalogi",
+				"requirement": "openspec/specs/public-publication :: Publication eligibility gates; openspec/specs/public-publication :: Withdraw and rectify"
 			},
 			"reachedOn": "DecisionDetail (/decisions/:id) Publication tab (DecisionPublicationTab -> PublicationActionsTab), Withdraw and Rectify actions",
 			"provider": "decidiq",
@@ -6147,7 +6240,8 @@
 				"state": "built",
 				"evidence": "lib/Service/VotingRoundCloser.php:93 close() -> :112 publishOri() -> lib/Service/OriPublicationService.php:130 publish() POSTs JSON-LD VoteAction (totals, result) with optional bearer secret, stamps oriPublishedAt; endpoint key ori_endpoint set in src/views/settings/Settings.vue:180; src/components/VotingRoundPanel.vue:772 POST /voting-rounds/{id}/close, :939 /publish",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-05-11-p2-motion-and-voting"
+				"change": "2026-05-11-p2-motion-and-voting",
+				"requirement": "openspec/specs/voting-result-publication :: REQ-RES-002 Results are published to the ORI API on demand; openspec/specs/roll-call-publication :: REQ-RCP-001 Chair can close, publish, and anonymise a roll-call VotingRound in one atomic action"
 			},
 			"reachedOn": "Automatic on closing a round in VotingRoundPanel (Motion voting tab); endpoint configured in the admin settings page",
 			"provider": "decidiq",
@@ -6213,7 +6307,8 @@
 				"evidence": "lib/Settings/register.d/83-confidentiality-in-plain-words.json:6 ConfidentialityRestriction with scope, targets, ground ($ref confidentiality-ground), imposedBy/imposedByBody/imposedAt, ratification fields; src/manifest.d/embargo-geheimhouding.json:23,70 index and detail with a three-stage timeline. No end date: liftingDate (:260) is the date it was lifted, liftingConditions (:269) free text; no link to the imposing decision.",
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
-				"change": "confidentiality-term-and-lapse"
+				"change": "confidentiality-term-and-lapse",
+				"requirement": "openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-020 A restriction records its imposing decision and planned end date; openspec/specs/embargo-geheimhouding :: REQ-EMB-011 Confidentiality ground resolves with legacy citation on GeheimhoudingDetail"
 			},
 			"reachedOn": "ConfidentialityRestrictions (/confidentiality-restrictions) index and detail; ConfidentialityGrounds (/confidentiality-grounds)",
 			"provider": "decidiq",
@@ -6241,7 +6336,7 @@
 		{
 			"id": "pub-07",
 			"area": "publication",
-			"name": "Lift a confidentiality restriction automatically when it expires.",
+			"name": "Put the lifting of a confidentiality restriction on the agenda before its end date, so the body decides on it.",
 			"origin": "code",
 			"decidiq": "no",
 			"built": {
@@ -6249,7 +6344,9 @@
 				"evidence": "no job or listener changes a restriction's state: lib/BackgroundJob has no confidentiality job, lifecycle in register.d/83 has no lapsed state and no time trigger; the only scheduled rule is the ratification reminder. embargo-geheimhouding REQ-EMB-003 forbids any automatic change.",
 				"owner": "ConductionNL/decidiq",
 				"readOn": "2026-10-08",
-				"change": "confidentiality-term-and-lapse"
+				"change": "confidentiality-term-and-lapse",
+				"requirement": "openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding :: REQ-EMB-022 The planned end date puts the lifting on the agenda",
+				"note": "decision 392 (12 Nov): reworded to the spec; the body decides on lifting, the date never changes the restriction. Before: Lift a confidentiality restriction automatically when it expires."
 			},
 			"reachedOn": "nothing reaches it: no job or trigger lifts a restriction, and there is no expiry-date field to lift on",
 			"provider": "decidiq",
@@ -6315,7 +6412,8 @@
 				"evidence": "decidiq's half, all tasks of the archived change done: lib/Service/PublicationPayloadService.php:212 buildAgendaPayload() adds the papers of the public agenda items (:224 AgendaPapers::publish(), confidential items left out) and :97 sets documentType on every payload; lib/Settings/register.d/108-publication-papers.json:21-27 makes documentType, bodyName and meetingDate facetable; lib/Service/OpenCatalogiPublisher.php:72 publish() hands the payload to the configured OpenCatalogi catalog. The public search page and its filters are OpenCatalogi's and were not read here.",
 				"owner": "ConductionNL/opencatalogi",
 				"change": "2026-09-29-publication-papers-and-search",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/agenda-publication :: REQ-PPS-001 Public papers are published with the agenda"
 			},
 			"reachedOn": "OpenCatalogi's public catalog search (outside decidiq); decidiq has no public search page",
 			"provider": "opencatalogi",
@@ -6386,7 +6484,8 @@
 				"state": "specified",
 				"evidence": "openspec/changes/records-management-archiving/proposal.md (ArchivalDossier, MDTO via OpenRegister, e-depot transfer); grep ArchivalDossier/MDTO/e-depot in lib/src finds only a forward reference in lib/Settings/register.d/51-raadsinformatiebrieven.json:176",
 				"owner": "ConductionNL/decidiq",
-				"change": "records-management-archiving"
+				"change": "records-management-archiving",
+				"requirement": "openspec/changes/records-management-archiving/specs/records-management-archiving :: REQ-RMA-002 Dossier-level MDTO via OpenRegister; openspec/changes/records-management-archiving/specs/records-management-archiving :: REQ-RMA-004 Transfer via OpenRegister transfer lists and e-depot"
 			},
 			"reachedOn": "nothing reaches it: change is specified only",
 			"provider": "openregister",
@@ -6482,7 +6581,8 @@
 				"evidence": "API half built by the archived change (all tasks done): lib/Controller/OriController.php:71-72 sends ORI votes and voteevents to lib/Service/OriVotePublicationRule.php, which lists a vote only when its round is closed and not secret, the decision is published, and the body has publishVotingRecords true (:281); ?voter= narrows to one person. lib/Service/OriPersonPublicationRule.php:85 serves the anonymous persons resource (change 2026-10-02-ori-public-persons). The in-app record is vot-18 (lib/Controller/VotingRecordController.php:77, PersonVotingRecordTab on /people/:id), which needs a Nextcloud login. Missing: no public page shows a member's voting record to a citizen, and the anonymous counts after the change were never measured on an instance.",
 				"owner": "ConductionNL/decidiq",
 				"change": "portal-voting-record-and-confidential-papers",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/ori-api :: REQ-MPR-006 The public ORI API returns public votes with their voter; openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution :: REQ-PSH-001 decidiq offers each public member's voting record to the portal without a session"
 			},
 			"reachedOn": "anonymous GET /api/ori/v1/votes?voter=<person> (machine-readable); no public page",
 			"provider": "decidiq",
@@ -6518,7 +6618,8 @@
 				"evidence": "lib/Service/FullExportService.php build(): one JSON per shipped schema (paged findAll, system context), files of meeting/agenda-item/decision under files/<type>/<id>/, manifest.json with counts, relations, skipped and missingFiles; lib/BackgroundJob/FullExportJob.php notifies full_export_ready with the download link; lib/Controller/FullExportController.php POST/GET /api/export/full and GET /api/export/full/{name} (AuthorizedAdminSetting); src/views/settings/FullExportSettings.vue Export all data",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-29-platform-full-data-export",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/openregister-integration :: REQ-PFE-001 An administrator exports all data"
 			},
 			"reachedOn": "Administration settings > decidiq: Export all data; the notification links to the download; the panel links to the newest export",
 			"provider": "decidiq",
@@ -6613,7 +6714,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ReactionIntakeService.php:169 resolveModerationStatus() (anonymous always pending, policy-driven otherwise), :202 approveReaction(), :289 rejectReaction() with reason; src/components/tabs/ConsultationReactionsTab.vue:73 approve/reject; src/manifest.d/citizen-participation.json:220 ModerationQueue page, :133 consult-moderation tab",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-citizen-participation"
+				"change": "2026-06-15-citizen-participation",
+				"requirement": "openspec/specs/citizen-participation :: Reaction moderation queue"
 			},
 			"reachedOn": "Moderation queue (/moderation-queue, menu) and the Moderation queue tab on ConsultationDetail (/consultations/:id)",
 			"provider": "decidiq",
@@ -6648,7 +6750,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ParticipationPublicationService.php:143 publishConsultationResults() (PII-free summary + staff response, sets publicationDate); lib/Controller/ParticipationController.php:277; src/views/participation/ParticipationPage.vue:200 imports publishConsultationResults",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-citizen-participation"
+				"change": "2026-06-15-citizen-participation",
+				"requirement": "openspec/specs/citizen-participation :: Result publication via OpenCatalogi and the RBAC published-predicate"
 			},
 			"reachedOn": "Participation page (/participation), staff Publish results action on a closed consultation",
 			"provider": "decidiq",
@@ -6683,7 +6786,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ParticipationLifecycleService.php:64 BUDGET_TRANSITIONS draft->submission->voting->tallying->closed; lib/Service/BudgetVotingService.php:120 submitProposal(); lib/Controller/ParticipationBudgetController.php:133 submitProposal, :172 validateProposal; src/views/participation/ParticipationPage.vue:337 submitProposal(); src/manifest.d/citizen-participation.json:155,189 BudgetRounds pages",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-citizen-participation"
+				"change": "2026-06-15-citizen-participation",
+				"requirement": "openspec/specs/citizen-participation :: Participatory budget round lifecycle; openspec/specs/citizen-participation :: Budget proposal submission and validation"
 			},
 			"reachedOn": "Participation page (/participation) budget round section; BudgetRounds (/budget-rounds) index and detail",
 			"provider": "decidiq",
@@ -6718,7 +6822,8 @@
 				"state": "built",
 				"evidence": "lib/Service/BudgetVotingService.php:243 castAdvisoryVote() with window guard (round in voting, before votingDeadline) -> lib/Service/AdvisoryVoteService.php:97 applyAdvisoryTally() (one vote per voter, 409 on duplicate); src/views/participation/ParticipationPage.vue:362 castAdvisoryVote()",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-15-citizen-participation"
+				"change": "2026-06-15-citizen-participation",
+				"requirement": "openspec/specs/citizen-participation :: Advisory citizen voting on budget proposals"
 			},
 			"reachedOn": "Participation page (/participation), vote buttons on validated proposals during the voting phase",
 			"provider": "decidiq",
@@ -6753,7 +6858,8 @@
 				"state": "built",
 				"evidence": "lib/Settings/decidesk_register.json:553 GovernanceBody.bodyType enum includes 'citizen-panel', :618/:624 termStart/termEnd; Participant joinedAt/leftAt; lib/Settings/register.d/70-configurable-types.json PositionHold startDate/endDate; src/manifest.json GovernanceBodies /governance-bodies index + detail",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/p3-citizen-participation"
+				"spec": "openspec/specs/p3-citizen-participation",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/p3-citizen-participation :: Staff set up a citizen panel with fixed members and a term"
 			},
 			"reachedOn": "GovernanceBodies (/governance-bodies) index and detail, body type citizen-panel",
 			"provider": "decidiq",
@@ -6788,7 +6894,8 @@
 				"state": "specified",
 				"evidence": "lib/Settings/decidesk_register.json:3742 CitizenVote.motionId exists as a field, but the only citizen vote path is lib/Service/AdvisoryVoteService.php:97 applyAdvisoryTally() on a BudgetProposal; grep motionId in lib finds no citizen-vote writer",
 				"owner": "ConductionNL/decidiq",
-				"change": "participation-citizen-advisory-vote-on-motions"
+				"change": "participation-citizen-advisory-vote-on-motions",
+				"requirement": "openspec/specs/p3-citizen-participation :: Authenticated citizen vote casting; openspec/changes/participation-citizen-advisory-vote-on-motions/specs/citizen-participation :: REQ-CAV-002 A verified resident gives one advisory vote while it is open"
 			},
 			"reachedOn": "nothing reaches it: advisory citizen votes exist only for budget proposals",
 			"provider": "decidiq",
@@ -6823,7 +6930,8 @@
 				"state": "specified",
 				"evidence": "openspec/changes/inspreekrecht-plenair/ (proposal, design, specs, tasks); grep inspreek/speaking/spreekrecht in lib/Settings and src/manifest finds only speakingDuration (participant statistic) and transcript speaker labels",
 				"owner": "ConductionNL/decidiq",
-				"change": "inspreekrecht-plenair"
+				"change": "inspreekrecht-plenair",
+				"requirement": "openspec/changes/inspreekrecht-plenair/specs/inspraak-register :: REQ-INS-001 Generalized inspraak-aanmelding schema on OpenRegister"
 			},
 			"reachedOn": "nothing reaches it: change specified only, no schema or page",
 			"provider": "decidiq",
@@ -6959,7 +7067,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json Dashboard page (route /) slots :416-426: ActiveDecisionsKpiWidget, UpcomingMeetingsKpiWidget, UpcomingMeetingsListWidget (widget id :241), PendingVotesListWidget, MyActionItemsWidget (:256), OverdueActionsKpiWidget, RecentDecisionsWidget; components in src/views/dashboard/widgets/.",
 				"owner": "ConductionNL/decidiq",
-				"spec": "openspec/specs/app-dashboard"
+				"spec": "openspec/specs/app-dashboard",
+				"requirement": "openspec/specs/dashboard :: Upcoming Meetings Widget; openspec/specs/dashboard :: Active Decisions KPI Widget; openspec/specs/dashboard :: My Action Items Widget"
 			},
 			"reachedOn": "Dashboard (/)",
 			"provider": "decidiq",
@@ -6994,7 +7103,8 @@
 				"state": "specified",
 				"evidence": "src/manifest.json DecisionsReport (/reports/decisions): stat and donut widgets over the decision schema (dec-adopted, dec-by-outcome, dec-by-type, dec-by-lifecycle, dec-recent); all filters are scalar equality with no date range or body filter (page _note: 'Every filter is scalar equality, the only kind OpenRegister's aggregation endpoint can evaluate').",
 				"owner": "ConductionNL/decidiq",
-				"change": "insight-decisions-report-by-period-and-body"
+				"change": "insight-decisions-report-by-period-and-body",
+				"requirement": "openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard :: REQ-DRP-002 Every figure on the Decisions report follows the chosen period; openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard :: REQ-DRP-003 The Decisions report can be cut per body"
 			},
 			"reachedOn": "Reports (/reports) > Decisions report (/reports/decisions)",
 			"provider": "decidiq",
@@ -7030,7 +7140,8 @@
 				"evidence": "src/manifest.json VotingReport (/reports/voting): rounds held, adopted and tied, rounds by result and by method, how votes fell (vote.value), most recent rounds; MeetingsReport (/reports/meetings): scheduled and closed meetings, recorded absences (meeting-attendance status absent), by stage, by mode, attendance by status. Both are cards on Reports (/reports, footer entry ReportsMenu). Aggregation by OpenRegister.",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/reports",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/reports :: REQ-RPT-002 The voting report counts rounds and votes; openspec/specs/reports :: REQ-RPT-003 The meetings report shows attendance"
 			},
 			"reachedOn": "Reports (/reports) > Voting report (/reports/voting) and Meetings report (/reports/meetings)",
 			"provider": "decidiq",
@@ -7125,7 +7236,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/GovernanceBodyEvaluationsTab.vue (GovernanceBodyDetail widget body-evaluations): 'Respond anonymously' (:85, EvaluationRespondModal), close (:90), publish results (:96), generate report (:105), small-group suppression (:130); src/services/boardEvaluationApi.js -> routes.php:215-218; lib/Service/BoardEvaluationResponseService.php:148 submitResponse() with HMAC voter-token anonymity; BoardEvaluationScoreService, BoardEvaluationReportService.php:76.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-07-07-board-self-evaluation"
+				"change": "2026-07-07-board-self-evaluation",
+				"requirement": "openspec/specs/board-self-evaluation :: REQ-EVAL-003 Responses are anonymous and untraceable to the member; openspec/specs/board-self-evaluation :: REQ-EVAL-004 Per-dimension and overall board-effectiveness scores"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Self-evaluation widget",
 			"provider": "decidiq",
@@ -7163,7 +7275,8 @@
 				"state": "built",
 				"evidence": "src/components/tabs/GovernanceBodyEfficiencyTab.vue (GovernanceBodyDetail widget body-efficiency, slot manifest.json:460) using src/utils/meetingAnalytics.js:79 meetingDurationStats, :137 agendaCompletionRate, :158 speakingDistribution, :225 agendaItemCostBreakdown, :266 timeAllocationAccuracy. Live timing via src/components/liveMeeting/AgendaItemTimer.vue on the LiveMeeting page.",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-13-meeting-efficiency-v1"
+				"change": "2026-06-13-meeting-efficiency-v1",
+				"requirement": "openspec/specs/meeting-efficiency :: Agenda Item Timer; openspec/specs/meeting-efficiency :: Meeting Analytics Dashboard"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Efficiency widget",
 			"provider": "decidiq",
@@ -7352,7 +7465,8 @@
 				"state": "built",
 				"evidence": "lib/Dashboard/DecidiqDashboardWidget.php:53 implements IAPIWidgetV2, registered lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:180; getItemsV2() returns two items: pending votes count and the next meeting (lib/Service/DashboardWidgetService.php:211 resolveNextMeeting() picks the single soonest scheduled meeting the user takes part in).",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-06-13-dashboard-iwidget-v1"
+				"change": "2026-06-13-dashboard-iwidget-v1",
+				"requirement": "openspec/specs/dashboard :: Nextcloud Dashboard Widget Integration"
 			},
 			"reachedOn": "Nextcloud Dashboard, 'Decidiq' widget",
 			"provider": "nextcloud",
@@ -7387,7 +7501,8 @@
 				"state": "built",
 				"evidence": "src/manifest.d/vve-alv-pack.json AuditStatements (/audit-statements) and AuditStatementDetail over audit-statement (lib/Settings/register.d/75-generic-audit-statement.json); MeetingDetail widget meeting-audit-statements -> src/components/tabs/MeetingAuditStatementTab.vue (visibility by body configuration, auditStatementVisibility.js).",
 				"owner": "ConductionNL/decidiq",
-				"change": "generic-audit-statement"
+				"change": "generic-audit-statement",
+				"requirement": "openspec/changes/generic-audit-statement/specs/generic-audit-statement :: An audit statement fits any audit committee"
 			},
 			"reachedOn": "Audit statements index (/audit-statements) and detail; Audit statements widget on MeetingDetail",
 			"provider": "decidiq",
@@ -7459,7 +7574,8 @@
 				"evidence": "portaliq's half is built (change archived, all tasks done): portaliq appinfo/routes.php:295-296 and lib/Controller/BrokerSessionController.php:98 start() and :141 callback() sign a resident in with DigiD, eHerkenning or eIDAS through integriq's broker, beside the generic OIDC route of lib/Controller/SessionController.php:284. decidiq's half is not: lib/Portal/PortalContributionProvider.php:18 still describes DigiD/eHerkenning as deferred, its portal collections scope on the default subject at trust low, and no decidiq paper is offered to a portal session at a raised trust level.",
 				"owner": "ConductionNL/portaliq",
 				"readOn": "2026-10-07",
-				"change": "portal-voting-record-and-confidential-papers"
+				"change": "portal-voting-record-and-confidential-papers",
+				"requirement": "openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution :: REQ-PSH-003 Confidential papers reach only a named reader at the declared trust level"
 			},
 			"reachedOn": "portaliq's OIDC broker login (/portal/api/session/oidc/start) when the organisation fronts it with its own OIDC identity provider; no decidiq-specific DigiD gate on confidential papers",
 			"provider": "portaliq",
@@ -7495,7 +7611,8 @@
 				"evidence": "lib/Service/RoleGroupMapping.php (role to group mapping; rewrite() adds mapped groups to the register-level baseline and every schema authorization block on import, SettingsService::importConfiguration), lib/Controller/RoleRightsController.php (GET/PUT /api/settings/role-rights, admin only), src/views/settings/RoleRightsSettings.vue (Rights per record type on the admin settings page)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-30-platform-role-rights-per-record-type",
-				"readOn": "2026-09-30"
+				"readOn": "2026-09-30",
+				"requirement": "openspec/specs/authorization-via-or-rbac :: REQ-PRR-001 Administrators see and map rights per record type; openspec/specs/authorization-via-or-rbac :: REQ-RBAC-007 A schema block that narrows reads restates the writes the app needs"
 			},
 			"reachedOn": "No admin page to set it: rules are fixed in the register JSON and in code; users feel it as refused actions",
 			"provider": "openregister",
@@ -7639,7 +7756,8 @@
 				"state": "built",
 				"evidence": "LICENSE (EUPL v1.2); appinfo/info.xml:62 <licence>EUPL-1.2</licence>; composer.json:4 and package.json:4 license EUPL-1.2; publiccode.yml:50",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-07-07-info-licence-eupl"
+				"change": "2026-07-07-info-licence-eupl",
+				"requirement": "openspec/specs/app-foundation :: App-Store licence metadata matches the repository licence"
 			},
 			"reachedOn": "Public GitHub repository ConductionNL/decidiq",
 			"provider": "decidiq",
@@ -7778,7 +7896,8 @@
 				"evidence": "src/manifest.json:884 AgendaItemDetail widget agenda-case (src/components/tabs/AgendaItemCaseTab.vue:51 opens src/modals/CaseDocumentsModal.vue) links an item to its case and fetches the case's documents onto it; appinfo/routes.php:48-53 case-system routes to lib/Controller/CaseSystemController.php; lib/Service/CaseDocumentService.php:122 fetch() stores each document once; lib/Service/CaseSystemClient.php:222 call() reaches the source linked to the case-system connection (lib/Settings/connections.json) through integriq's CallService, which answers it over the ZGW APIs or StUF-ZKN (cross-repo: ConductionNL/integriq lib/Service/CaseSystem/ZgwCaseSystem.php and ConductionNL/integriq lib/Service/StufZkn/StufZknClient.php, both on integriq development 2026-10-30) or in mock mode. Without a linked source the widget shows no actions (409 from the API). Nextcloud Files stays the manual route (meeting, item and decision Documents widgets).",
 				"owner": "nextcloud/server",
 				"change": "2026-09-30-platform-case-system-document-exchange",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/case-system-exchange :: REQ-CSDX-003 The griffier fetches case documents onto the item, once each"
 			},
 			"reachedOn": "AgendaItemDetail (/agenda-items/:id) Case widget > Fetch documents, once an administrator links an integriq source to decidiq's case-system connection",
 			"provider": "nextcloud",
@@ -7816,7 +7935,8 @@
 				"state": "specified",
 				"evidence": "grep microsoft/outlook/teams/graph/m365 across lib and src: no hits; meetings and action items use Nextcloud CalDAV, Talk, Deck and Mail leaves only",
 				"owner": "ConductionNL/decidiq",
-				"change": "platform-microsoft-365-calendar-and-teams"
+				"change": "platform-microsoft-365-calendar-and-teams",
+				"requirement": "openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-003 A member subscribes from the personal settings; openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-004 A digital or hybrid meeting can carry a Teams meeting; openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work :: REQ-M365-005 Members join the Teams meeting from decidiq"
 			},
 			"reachedOn": "nothing reaches it: no Microsoft 365 integration",
 			"provider": "decidiq",
@@ -7851,7 +7971,8 @@
 				"state": "built",
 				"evidence": "lib/Controller/ApiController.php:64 RESOURCE_MAP (governance-bodies, persons, meetings, motions, voting-rounds, votes, agenda-items, minutes, decisions, action-items), :168 index(), :246 show(), :103 RESOURCE_WRITABLE (one writable resource), scope map :120; appinfo/routes.php:263-264,314-315; full CRUD also through OpenRegister's /apps/openregister/api/objects/decidiq/<schema>",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-05-11-p4-integration"
+				"change": "2026-05-11-p4-integration",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/p4-integration :: Records can be created and changed through the REST API"
 			},
 			"reachedOn": "API only: /apps/decidiq/api/v1/{resource} and OpenRegister's objects API",
 			"provider": "decidiq",
@@ -7886,7 +8007,8 @@
 				"state": "built",
 				"evidence": "src/manifest.d/connection-registry.json ConnectionRegistry page /settings/integrations (permission admin, requiresApp integriq) listing integriq app_connection rows with status, status message, last checked; lib/Settings/connections.json declarations; lib/Service/ConnectionReportService.php reports which eIDAS/translation implementation is bound; lib/BackgroundJob/ConnectionReportJob.php registered in appinfo/info.xml",
 				"owner": "ConductionNL/integriq",
-				"change": "adopt-connection-registry"
+				"change": "adopt-connection-registry",
+				"requirement": "openspec/specs/admin-settings :: REQ-ADM-CONN-002 Decidiq reports which signing and translation services answer; openspec/specs/admin-settings :: REQ-ADM-CONN-003 An admin reads decidiq's connections on an Integrations page"
 			},
 			"reachedOn": "Integrations (/settings/integrations), admin gear menu, only when integriq is installed",
 			"provider": "integriq",
@@ -7921,7 +8043,8 @@
 				"state": "built",
 				"evidence": "src/**/*.vue: every hex colour sits inside a var(--...) fallback (0 bare hex values), about 299 var(--color...) uses; src/integrations/CnDecisionsWidget.vue:25 'Nextcloud CSS variables only so the nldesign overrides apply'; lib/Support/FleetAppId.php:73 thematiq/nldesign",
 				"owner": "ConductionNL/thematiq",
-				"spec": "openspec/specs/nl-design-theming"
+				"spec": "openspec/specs/nl-design-theming",
+				"requirement": "openspec/specs/nl-design-theming :: REQ-THM-001 All colours use Nextcloud CSS custom properties; openspec/specs/nl-design-theming :: REQ-THM-002 NL Design System token mapping file"
 			},
 			"reachedOn": "Whole app, themed by thematiq (NL Design System) or Nextcloud theming",
 			"provider": "thematiq",
@@ -7956,7 +8079,8 @@
 				"state": "built",
 				"evidence": "appinfo/info.xml:587 <provider>DecidiqProvider</provider> plus GovernanceSetting/GovernanceFilter; lib/Activity/DecidiqProvider.php:109 parse() subjects decision_recorded, decision_published, meeting_transition, vote_initiated, resolution_adopted; publishers lib/Service/MeetingService.php:361, DecisionPublicationService.php:310, LiveDecisionService.php:126, VotingOpenedNotifier.php:96",
 				"owner": "nextcloud/server",
-				"change": "2026-06-12-nc-platform-integration-v1"
+				"change": "2026-06-12-nc-platform-integration-v1",
+				"requirement": "openspec/specs/nextcloud-integration :: Activity Integration"
 			},
 			"reachedOn": "Nextcloud Activity app, Governance filter",
 			"provider": "nextcloud",
@@ -7992,7 +8116,8 @@
 				"evidence": "lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:105 registerSearchProvider(DecidiqSearchProvider); lib/Search/DecidiqSearchProvider.php:62 SCHEMAS decision, meeting, minutes; :187 register and schema passed in filters (fixed 2026-09-28: they were top-level keys findAll ignores); :256 path links",
 				"owner": "nextcloud/server",
 				"readOn": "2026-09-28",
-				"change": "2026-06-12-nc-platform-integration-v1"
+				"change": "2026-06-12-nc-platform-integration-v1",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/nextcloud-integration :: Meetings appear in Nextcloud's unified search"
 			},
 			"reachedOn": "Nextcloud unified search bar",
 			"provider": "nextcloud",
@@ -8063,7 +8188,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json:3 setup steps welcome, example-set choice, load-example-set, done (rendered by CnAppRoot on first run, reopenable from src/views/settings/AdminRoot.vue:35-42); lib/Controller/SetupController.php:114 status(), :147 saveConfig(), :257 runAction() load-example-set",
 				"owner": "ConductionNL/decidiq",
-				"change": "seed-profiles"
+				"change": "seed-profiles",
+				"requirement": "openspec/specs/first-time-setup :: Each example data card loads itself; openspec/specs/first-time-setup :: Setup status reports every manifest step"
 			},
 			"reachedOn": "First-run wizard on opening the app; re-run from the admin settings page",
 			"provider": "decidiq",
@@ -8103,7 +8229,8 @@
 				"evidence": "lib/Settings/register.d/109-activity-calendar.json MeetingType.audiences (council, executive, joint-arrangement, residents, staff), PublicationRecord.sourceType activity, PublicationPayload.location/audiences; src/utils/activityCalendar.js calendarParams (visible grid scheduledDate range, type ids per audience, governanceBody) used by src/views/meetings/MeetingCalendarView.vue load() with Audience and Body NcSelect filters kept in the route query; PublicationEligibilityService::assertActivityEligible + PublicationPayloadService::buildActivityPayload; AgendaPublicationTab 'Publish to the public calendar'; lib/Portal/PortalContributionProvider.php anonymous publicCalendar collection; tests/Unit/Service/ActivityPublicationTest.php, tests/Unit/Controller/PublicationActivityTest.php, tests/vitest/meetingCalendarLoad.spec.js",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-planning-activity-calendar-by-audience",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/activity-calendar :: REQ-ACAL-001 A kind of meeting declares its audiences; openspec/specs/activity-calendar :: REQ-ACAL-002 The calendar filters by audience and by body"
 			},
 			"reachedOn": "Meetings index (/meetings) Table/Calendar toggle, MeetingsCalendar (/meetings/calendar)",
 			"provider": "decidiq",
@@ -8140,7 +8267,8 @@
 				"evidence": "Built in change planning-parallel-sessions: Meeting.parentMeeting and Meeting.room (lib/Settings/register.d/121-parallel-sessions.json), ParallelSessionListener on meeting creates and updates (no nesting, no own parent, inside the evening's times, the evening's body, mode and publicity on a new session), the Sessions widget on MeetingDetail with one column per session and Add session (src/components/tabs/MeetingSessionsTab.vue), the calendar grouping sessions inside their evening (src/views/meetings/MeetingCalendarView.vue, src/utils/meetingSessions.js), parentMeeting as a facet of the meetings list, and eveningTitle on each session's broadcast and in the publicBroadcasts portal collection. Each session keeps its own agenda, minutes, recording and subtitles because it is a meeting. PHPUnit and vitest green; the Playwright run (tests/e2e/parallel-sessions.spec.ts) is still owed, so not yet built.",
 				"owner": "ConductionNL/decidiq",
 				"change": "planning-parallel-sessions",
-				"readOn": "2026-10-05"
+				"readOn": "2026-10-05",
+				"requirement": "openspec/changes/planning-parallel-sessions/specs/meeting-management :: REQ-PPS-005 Each parallel session keeps its own recording and subtitles"
 			},
 			"reachedOn": "MeetingDetail of an evening, widget Sessions; Meetings calendar; the Meetings list facet Evening",
 			"provider": "decidiq",
@@ -8176,7 +8304,8 @@
 				"state": "built",
 				"evidence": "lib/Service/PublicationEventRecorder.php (agenda published or changed, paper added, decision/agenda/minutes published; called from AgendaService::publishAgenda/notifyAgendaChanged, PublicationService::publish, OfficePaperAddedListener), lib/Service/PublicationDigestService.php (immediate after 15 minutes, daily 07:00, weekly Monday 07:00; read check per member; published-only for residents), lib/BackgroundJob/PublicationDigestJob.php, src/components/userSettings/SubscriptionsSection.vue",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-09-30-publication-subscriptions-and-daily-digest"
+				"change": "2026-09-30-publication-subscriptions-and-daily-digest",
+				"requirement": "openspec/specs/public-publication :: REQ-PSD-001 Anyone can subscribe per body and kind, and choose how often; openspec/specs/public-publication :: REQ-PSD-002 Agendas, papers, decisions and minutes are recorded as events; openspec/specs/public-publication :: REQ-PSD-003 Subscribers receive matching events immediately, daily or weekly"
 			},
 			"reachedOn": "nothing reaches it: no subscription to agendas or documents; User settings (/user-settings) only toggles per-event notifications",
 			"provider": "decidiq",
@@ -8212,7 +8341,8 @@
 				"state": "built",
 				"evidence": "lib/Service/ExportBundleService.php export(): the selected ids, or every decision matching the list filter and search read from the route query (src/utils/exportBundle.js filterFromQuery), up to 500, as a ZIP with one folder per decision (decision.html plus its attachments) or one PDF; POST /api/exports/decision-bundle; Motions and Decisions lists carry the bulk action; tests/Unit/Service/ExportBundleServiceTest.php, tests/vitest/exportBundle.spec.js",
 				"owner": "ConductionNL/decidiq",
-				"change": "2026-09-29-motions-export-with-attachments"
+				"change": "2026-09-29-motions-export-with-attachments",
+				"requirement": "openspec/specs/motion-management :: REQ-MXP-002 A selection or a filtered set exports as a ZIP of its documents"
 			},
 			"reachedOn": "Motions (/motions), Decisions (/decisions) and other index pages, select rows then the mass Export action",
 			"provider": "decidiq",
@@ -8252,7 +8382,8 @@
 				"evidence": "lib/Settings/register.d/110-document-metadata-fields.json DocumentType (name, description, fields in the AgendaItemType.fields shape, appliesTo meeting/agenda-item, active) and DigitalDocument fileId/meeting/agendaItem/type/typeFields; Document types page in the settings gear (src/manifest.d/configurable-types.json DocumentTypes); src/components/tabs/DocumentMetadataTab.vue Document details widget on MeetingDetail and AgendaItemDetail with src/modals/DocumentMetadataModal.vue (types filtered by appliesTo, fields rendered by AgendaItemTypeFields.vue), logic in src/utils/documentMetadata.js; lib/Listener/DocumentTypeFieldsGuardListener.php refuses an empty required field and a second record for one file on create and update; tests/Unit/Listener/DocumentTypeFieldsGuardListenerTest.php, tests/vitest/documentMetadata.spec.js",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-platform-document-metadata-fields",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/document-metadata-fields :: REQ-DMF-001 An administrator declares document types and their fields"
 			},
 			"reachedOn": "AgendaItemTypes (/agenda-item-types) in the settings gear to declare the fields; MeetingDetail Agenda widget (add or edit an item) and AgendaItemDetail (/agenda-items/:id) Type-specific fields widget to fill them in",
 			"provider": "decidiq",
@@ -8292,7 +8423,8 @@
 				"evidence": "lib/Listener/OfficePaperAddedListener.php (NodeCreatedEvent/NodeWrittenEvent on an Office file in a meeting or agenda item folder queues lib/BackgroundJob/ConvertPaperToPdfJob.php, registered by lib/AppInfo/Registrar/FilesEventRegistrar.php from CrossAppEventRegistrar); the job converts through filinq's PdfConversionService and records paperRenditions (lib/Settings/register.d/111-office-papers-to-pdf.json on AgendaItem and Meeting); lib/Service/PaperRenditionFilter.php makes MeetingPackageService bundle the PDF; src/components/tabs/AgendaPaperRenditionsTab.vue Papers as PDF widget with Try again (POST /api/papers/{schema}/{objectId}/{fileId}/convert, lib/Controller/PaperConversionController.php); admin switch convert_office_papers in src/views/settings/OfficePaperSettings.vue; tests: OfficePaperAddedListenerTest, ConvertPaperToPdfJobTest, PaperRenditionFilterTest, PaperConversionControllerTest, FilesEventRegistrarTest, SettingsServiceTest, tests/vitest/paperRenditions.spec.js",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-30-agenda-office-files-to-pdf",
-				"readOn": "2026-09-30"
+				"readOn": "2026-09-30",
+				"requirement": "openspec/specs/agenda-management :: REQ-OPDF-001 An Office paper added to a meeting or agenda item is converted to PDF"
 			},
 			"reachedOn": "an Office file added to the Documents of an agenda item (/agenda-items/:id) or meeting is converted; the Papers as PDF widget on AgendaItemDetail and MeetingDetail shows it; the switch sits on the decidiq admin settings page",
 			"provider": "decidiq",
@@ -8332,7 +8464,8 @@
 				"state": "specified",
 				"evidence": "lib/BackgroundJob/TranscriptRetentionJob.php:154 enforceForTranscript() deletes meeting recordings and raw transcripts once the body's retention window after minutes approval has passed, :398 appendAudit() records each deletion in the meeting's audit trail; job registered appinfo/info.xml:130; policy set per body in the Recording retention widget (src/manifest.json:476, PUT /api/governance-bodies/{id}/retention-config); grep -rliE 'destruct|vernietig|selectielijst|e-depot' lib src: nothing for other documents",
 				"owner": "ConductionNL/decidiq",
-				"change": "records-management-archiving"
+				"change": "records-management-archiving",
+				"requirement": "openspec/changes/records-management-archiving/specs/records-management-archiving :: REQ-RMA-005 Destruction via OpenRegister destruction lists; openspec/changes/records-management-archiving/specs/records-management-archiving :: REQ-RMA-006 Vernietigingsverklaring rendering; openspec/changes/records-management-archiving/specs/records-management-archiving :: REQ-RMA-004 Transfer via OpenRegister transfer lists and e-depot"
 			},
 			"reachedOn": "GovernanceBodyDetail (/governance-bodies/:id), Recording retention widget; deletion runs in the daily background job",
 			"provider": "decidiq",
@@ -8368,7 +8501,8 @@
 				"state": "specified",
 				"evidence": "src/manifest.json:609 (MeetingDetail), :935 (MotionDetail), :1051 (MinutesDetail) and other detail pages carry a sidebar 'History' tab (widget type audit, CnAuditTrailTab) showing OpenRegister's per-object audit trail; lib/Service/AuditLogService.php:157 append() adds decidiq's own action entries; no page lists actions across all records, and files attached in Nextcloud Files are logged by Nextcloud Activity, not here",
 				"owner": "ConductionNL/openregister",
-				"change": "openregister/audit-log-page"
+				"change": "openregister/audit-log-page",
+				"requirement": "openregister:openspec/changes/audit-log-page/specs/audit-trail-immutable :: An instance-wide audit list with filters"
 			},
 			"reachedOn": "Each detail page (meeting, motion, minutes, decision, agenda item), sidebar History tab",
 			"provider": "openregister",
@@ -8481,7 +8615,8 @@
 				"evidence": "lib/Service/CaseSystemClient.php (the case-system connection's linked integriq source, five operations over CallService), lib/Service/CaseDocumentService.php link/listDocuments/fetch (a document fetched once), lib/Controller/CaseSystemController.php (409 without a source, chair or secretary only), AgendaItemCaseTab + CaseDocumentsModal; integriq's zgw-zaken template and ZGW/StUF-ZKN mapping drafted to integriq (for-ruben/integriq-case-system-operations.md)",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-30-platform-case-system-document-exchange",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/case-system-exchange :: REQ-CSDX-003 The griffier fetches case documents onto the item, once each; openspec/specs/case-system-exchange :: REQ-CSDX-005 The meeting file goes back to the case system after approval"
 			},
 			"reachedOn": "AgendaItemDetail Case widget (fetch) and MeetingDetail Case system widget (send, Send again), once an integriq source is linked to the case-system connection",
 			"provider": "decidiq",
@@ -8522,7 +8657,8 @@
 				"evidence": "lib/Settings/register.d/96-technical-questions-to-officials.json fieldType user; lib/Settings/profiles/municipality.json type-technische-vraag fields assignedTo (user) and answerDeadline (date); src/components/AgendaItemTypeFields.vue person picker; lib/Listener/TechnicalQuestionListener.php tells the official on assignment and the asker on answer (registered in lib/AppInfo/Registrar/ObjectListenerRegistrar.php); src/components/tabs/MeetingTechnicalQuestionsTab.vue lists a meeting's questions as open, answered or overdue on MeetingDetail",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-motions-technical-questions-to-officials",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/motion-management :: REQ-MTQ-001 Technical questions go to an official with a deadline"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Agenda widget, add an item of type 'Technische vraag' under a letter",
 			"provider": "decidiq",
@@ -8559,7 +8695,8 @@
 				"evidence": "lib/Service/SigningRoundService.php send() sorts the record's signers on order and sends them through lib/Service/EIDASSignatureService.php initializeSigningRequest() (subjectType, signingOrder sequential) to the integriq eidas-qes source; collect() stores the signed document in the record's files via OpenRegister FileService::addFile() and links it as signedCopy; lib/BackgroundJob/SignedCopyCollectorJob.php collects every 15 minutes; lib/Controller/SigningController.php POST /api/signing/{minutes|decision-list|motion}/{id}/send|collect behind the body's signatory scope; src/components/tabs/MinutesSignersTab.vue orders signers and has Send for signature on MinutesDetail, MotionSignersTab on MotionDetail, DecisionListSignersTab on MeetingDetail; lib/Settings/register.d/97-signing-order-and-signed-copy.json",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-29-signing-external-service-with-order",
-				"readOn": "2026-09-29"
+				"readOn": "2026-09-29",
+				"requirement": "openspec/specs/p2-minutes-and-decisions-core-t3 :: REQ-SES-001 Send for signature in a chosen order and store the signed copy"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id) Signers widget, MotionDetail (/motions/:id) Signers widget and MeetingDetail (/meetings/:id) Signing the decision list widget: add signers, Move up/Move down, Send for signature",
 			"provider": "integriq",
@@ -8600,7 +8737,8 @@
 				"evidence": "lib/Service/ApprovalStageActivator.php withAbsenceSubstitute(): a stage that goes live for somebody inside their absence period (NotificationPreferenceService::getActiveDelegate(), set as delegate, Absent from and Absent until in src/components/userSettings/DelegationSection.vue) names the delegate as substituteActor; lib/Service/ApprovalStageGuard.php isStagesSubstitute() lets that substitute sign; plus the part-way ask of lib/Service/ApprovalStageLapseService.php:168",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-routes-absence-substitute",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/decision-route :: REQ-RAS-001 A substitute approves while someone is away; openspec/specs/decision-route :: REQ-RAS-002 The server lets a step's substitute act"
 			},
 			"reachedOn": "Parafering card (approval chain leaf) on a host object with no route yet: Start review with 'Also ask the substitute'; the substitute acts through the same card; notification delegate on User settings (/user-settings)",
 			"provider": "decidiq",
@@ -8639,7 +8777,8 @@
 				"state": "specified",
 				"evidence": "lib/Search/DecidiqSearchProvider.php:59 SCHEMAS decision and meeting, :157 search() passes the plain term to OpenRegister findAll 'search' with LIMIT_PER_SCHEMA 5 (:69); index pages use OpenRegister's list search; grep -rniE 'boolean operator|highlight|unaccent' lib/Search src: no search-related hit (only UI highlight comments), so no query syntax or result highlighting in decidiq; document contents in Nextcloud Files are not searched by decidiq",
 				"owner": "ConductionNL/openregister",
-				"change": "openregister/search-accent-insensitive"
+				"change": "openregister/search-accent-insensitive",
+				"requirement": "openregister:openspec/changes/search-quality-operators-and-facets/specs/zoeken-filteren :: The search term accepts boolean operators and wildcards (REQ-SQF-002)"
 			},
 			"reachedOn": "Nextcloud unified search bar; the search box on each index page",
 			"provider": "openregister",
@@ -8675,7 +8814,8 @@
 				"state": "specified",
 				"evidence": "lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem properties (subject, plannedPeriod, governanceBody, owner, lifecycle, shiftHistory, origin and realised links) have no parent item or track; grep -n 'parent|track' in that file: only AuthorityDelegation.parentAllocation (:542); src/manifest.d/termijnagenda.json:35-42 flat list columns",
 				"owner": "ConductionNL/decidiq",
-				"change": "planning-long-term-agenda-tracks-and-report"
+				"change": "planning-long-term-agenda-tracks-and-report",
+				"requirement": "openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-001 A long-term agenda item can be a track under a topic"
 			},
 			"reachedOn": "nothing reaches it: the long-term agenda is a flat list",
 			"provider": "decidiq",
@@ -8711,7 +8851,8 @@
 				"state": "specified",
 				"evidence": "src/manifest.d/termijnagenda.json:28-34 quick filters by status, :40 ownerType column (facetable), :46 showMassExport true for export of the selected rows; lib/Settings/register.d/86-the-last-two-dutch-names.json PlannedAgendaItem.owner (the portfolio holder, a Person reference) is not facetable and not a column; no author field",
 				"owner": "ConductionNL/decidiq",
-				"change": "planning-long-term-agenda-tracks-and-report"
+				"change": "planning-long-term-agenda-tracks-and-report",
+				"requirement": "openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-003 The list filters by portfolio holder and by author; openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register :: REQ-LTAT-004 The filtered list downloads as a formatted report"
 			},
 			"reachedOn": "Long-term agenda (/planned-agenda), quick filters, facets and the mass Export action",
 			"provider": "decidiq",
@@ -8903,7 +9044,8 @@
 				"evidence": "Built in change live-public-livestream: meeting-broadcast schema with a declared lifecycle (planned, testing, live, paused, ended) and a public read rule once publicationDate passed (lib/Settings/register.d/120-meeting-broadcast.json), the streaming service as an integriq connection (lib/Settings/connections.json, StreamingClient), MeetingBroadcastService and BroadcastController (nine routes, chair or secretary only), BroadcastCaptionService (subtitles from the aligned transcript over the public windows, released as a read-only link), the Broadcast widget on MeetingDetail (src/components/tabs/MeetingBroadcastTab.vue) and the anonymous publicBroadcasts portal collection. PHPUnit and vitest green; the Newman anonymous-read run and the Playwright run (tests/e2e/meeting-broadcast.spec.ts) are still owed, so not yet built. This row: the staff-only test broadcast and its recorded result.",
 				"owner": "ConductionNL/decidiq",
 				"change": "live-public-livestream",
-				"readOn": "2026-10-05"
+				"readOn": "2026-10-05",
+				"requirement": "openspec/changes/live-public-livestream/specs/meeting-broadcast :: REQ-LSTR-002 The clerk runs a test broadcast that only staff can see"
 			},
 			"reachedOn": "nothing reaches it: no broadcast",
 			"provider": "decidiq",
@@ -8940,7 +9082,8 @@
 				"evidence": "lib/Service/DecisionListService.php (Besluitenlijst.pdf on approved and signed, via MinutesApprovedListener), lib/Service/MeetingFileService.php (agenda, item documents, decisions, decision list, minutes, proof package, confidentiality flag and ground), lib/Service/CaseSystemExchangeService.php + SendMeetingFileJob (item decisions to the item's case, the whole file to one meeting case, a line per document, Send again for failed lines only), MeetingCaseSystemTab, admin switch case_system_send_on_approval",
 				"owner": "ConductionNL/decidiq",
 				"change": "openspec/changes/archive/2026-09-30-platform-case-system-document-exchange",
-				"readOn": "2026-09-30"
+				"readOn": "2026-09-30",
+				"requirement": "openspec/specs/case-system-exchange :: REQ-CSDX-004 Approving the minutes produces a decision list document; openspec/specs/case-system-exchange :: REQ-CSDX-005 The meeting file goes back to the case system after approval"
 			},
 			"reachedOn": "MinutesDetail (/minutes/:id), Documents widget, proof package and generate document buttons; MeetingDetail Agenda widget 'Assemble meeting package'",
 			"provider": "decidiq",
@@ -8979,7 +9122,8 @@
 				"state": "specified",
 				"evidence": "grep -rniE '\"(theme|thema|topic|dossier)\"|themePage|topicPage' lib/Settings src/manifest.json src/manifest.d: no theme schema or page; decidiq has no public pages, and the public publication page is portaliq's: at portaliq development e6eb380ed5, src/site/components/PublicationDetailBlock.vue:38-90 draws every field as a label and a value (:38 `<dl class=\"pq-detail__fields\" data-testid=\"publication-detail-fields\">`, :40 `v-for=\"field in fields\"`, :44 `<strong>{{ field.label }}:</strong>`) and an array as plain list items (:57 `<!-- An array is a list, one item per line. -->`, :61-62 `<li v-for=\"(item, index) in field.value\" :key=\"index\">{{ item }}`), so there is no timeline; the nearest staff view is GoalDetail (src/manifest.d/organisation-goals.json:62-63, data and Related widgets, no timeline)",
 				"owner": "ConductionNL/portaliq",
-				"change": "publication-theme-pages"
+				"change": "publication-theme-pages",
+				"requirement": "openspec/changes/publication-theme-pages/specs/public-publication :: REQ-THP-001 The griffie gathers a long-running topic in a theme; openspec/changes/publication-theme-pages/specs/public-publication :: REQ-THP-002 A theme shows a timeline of what belongs to it; openspec/changes/publication-theme-pages/specs/public-publication :: REQ-THP-003 A published theme carries only published items"
 			},
 			"reachedOn": "nothing reaches it: no theme page; staff can link decisions to a goal on GoalDetail (/goals/:id)",
 			"provider": "decidiq",
@@ -9047,7 +9191,8 @@
 				"evidence": "lib/Settings/register.d/94-motion-submission-window.json Meeting.submissionOpensAt; lib/Listener/SubmissionDeadlineListener.php:170 checkSubmission() refuses a motion or amendment outside the window through lib/Listener/SubmissionWindow.php:127 refusal() (before the opening time, with a message naming it, or after the deadline); SubmissionDeadlineListener.php:117 refuses a meeting whose window is inverted (SubmissionWindow.php:108 isInverted()), subscribed for meeting creates and updates at lib/AppInfo/Registrar/ObjectListenerRegistrar.php:165; src/manifest.json MeetingDetail meeting-planning includes submissionOpensAt",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-motions-submission-window",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/motion-amendment :: REQ-SUBW-001 A meeting can open submission at a set time; openspec/specs/motion-amendment :: REQ-SUBW-002 A motion or amendment submitted before the window opens is refused; openspec/specs/motion-amendment :: Motion Submission"
 			},
 			"reachedOn": "MeetingDetail (/meetings/:id) Planning widget and meeting form: Submission opens and Submission deadline; enforced when a motion or amendment is created",
 			"provider": "decidiq",
@@ -9139,7 +9284,8 @@
 				"state": "specified",
 				"evidence": "src/components/VotingRoundPanel.vue:50 'Show of hands' voting method, :859 posts totals to /api/voting-rounds/{id}/tally -> lib/Controller/VotingController.php:327 tally() (chair or secretary) saves only votesFor, votesAgainst and votesAbstain via saveShowOfHandsTally; no endpoint records a choice per named member afterwards",
 				"owner": "ConductionNL/decidiq",
-				"change": "voting-named-paper-vote-entry"
+				"change": "voting-named-paper-vote-entry",
+				"requirement": "openspec/changes/voting-named-paper-vote-entry/specs/vote-casting :: REQ-NPV-002 The chair or secretary records each member's choice"
 			},
 			"reachedOn": "MotionDetail (/motions/:id), 'Voting round' widget, Show of hands method, tally entry by chair or secretary",
 			"provider": "decidiq",
@@ -9204,7 +9350,8 @@
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/amendment-diff",
 				"change": "motion-change-recommendations",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/changes/motion-change-recommendations/specs/motion-amendment :: REQ-MCR-002 A recommendation names its lines, its passage and its new wording; openspec/changes/motion-change-recommendations/specs/motion-amendment :: REQ-MCR-003 The chair or secretary accepts a recommendation into the text without a vote; openspec/changes/motion-change-recommendations/specs/motion-amendment :: REQ-MCR-004 A rejected recommendation changes nothing"
 			},
 			"reachedOn": "MotionDetail (/motions/:id) Amendments widget, AmendmentDetail (/amendments/:id) Text changes widget",
 			"provider": "decidiq",
@@ -9242,7 +9389,8 @@
 				"evidence": "lib/Service/VotingRoundCloser.php:542 on an adopted amendment calls applyAmendment(); lib/Service/MotionAmendmentService.php:451 hands it to lib/Service/AmendmentTextMerger.php:62, which replaces the amendment's targetPassage with its proposedText (or replaces the whole wording when no passage is given), keeps the first wording in originalText and appends a before/after entry to amendmentHistory (lib/Settings/register.d/91-an-adopted-amendment-changes-the-motion-text.json); proven by tests/Unit/Service/MotionServiceTest.php testApplyAmendmentReplacesTheTargetPassage and testSecondAmendmentKeepsTheOriginalAndExtendsTheHistory (#1394)",
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/motion-amendment",
-				"readOn": "2026-10-07"
+				"readOn": "2026-10-07",
+				"requirement": "openspec/specs/motion-amendment :: REQ-AMT-001 An adopted amendment changes the motion text"
 			},
 			"reachedOn": "Automatic when a voting round adopts an amendment (MotionDetail Voting round widget); result visible in the motion text on MotionDetail",
 			"provider": "decidiq",
@@ -9367,7 +9515,8 @@
 				"evidence": "Built in change bodies-substitute-mandate-swap: mandate-substitution schema and Participant.seatNumber (lib/Settings/register.d/118-substitute-mandate-swap.json), MandateSubstitutionService + MandateSubstitutionController (seats read, start, end; refused during an open vote, for a non-presiding caller and against the seat plan), SubstitutionResolver consulted by VoteCastGuard, MeetingRuleSource::quorumMet and VotingRoundPreflight::splitPresetParticipants, and the Seats panel on the live meeting page (src/components/liveMeeting/SeatsPanel.vue, src/modals/MandateSwapModal.vue). PHPUnit and vitest green; the Newman start/end run and the Playwright run (tests/e2e/workflows/substitute-mandate-swap.spec.ts) are still owed, so not yet built.",
 				"owner": "ConductionNL/decidiq",
 				"change": "bodies-substitute-mandate-swap",
-				"readOn": "2026-10-03"
+				"readOn": "2026-10-03",
+				"requirement": "openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees :: REQ-MSW-001 The chair or secretary swaps a member for a substitute during a meeting"
 			},
 			"reachedOn": "nothing reaches it: an acting position hold can be added on GovernanceBodyDetail, without any swap during a meeting",
 			"provider": "decidiq",
@@ -9432,7 +9581,7 @@
 				"owner": "ConductionNL/decidiq",
 				"spec": "openspec/specs/app-navigation",
 				"requirement": [
-					"openspec/specs/app-navigation :: REQ-RMN-002 \u2014 Keep the Motions page and routes reachable for deep links",
+					"openspec/specs/app-navigation :: REQ-RMN-002 — Keep the Motions page and routes reachable for deep links",
 					"openspec/specs/app-navigation :: REQ-NAV-003 Router uses history mode with flat named routes"
 				]
 			},
@@ -9469,7 +9618,8 @@
 				"evidence": "lib/Listener/AgendaItemChangeListener.php:86 -> lib/Service/AgendaService.php notifyAgendaChanged(), :466 at most one notice per member per five minutes (Meeting.agendaNoticeSentAt, register.d/95-agenda-change-notices.json), :613 notifyParticipants() dispatches through NotificationPreferenceService under agendaChanged to the participant's nextcloudUserId; lib/Service/NotificationPreferenceService.php:464 sendInApp() sends a decidiq notification through IManager; lib/Notification/Notifier.php:49 renders it, registered at lib/AppInfo/Registrar/PlatformIntegrationRegistrar.php:81; toggle 'Agenda published or changed' in src/components/userSettings/NotificationPreferencesSection.vue",
 				"owner": "ConductionNL/decidiq",
 				"change": "2026-09-28-agenda-change-notices-reach-members",
-				"readOn": "2026-09-28"
+				"readOn": "2026-09-28",
+				"requirement": "openspec/specs/decidesk-notifications :: REQ-ACN-001 Every notice decidiq sends can be shown; openspec/specs/decidesk-notifications :: REQ-ACN-003 Agenda notices follow the member's delivery choice"
 			},
 			"reachedOn": "Automatic when an agenda item is added, edited, moved or withdrawn on a meeting whose agenda was published; delivered in the bell, by email or both per the member's notification settings (toggle 'Agenda published or changed')",
 			"provider": "decidiq",
@@ -9506,7 +9656,8 @@
 				"evidence": "Built in change agenda-ai-paper-summaries: paper-summary schema with a review lifecycle and a member read rule (shown only) (lib/Settings/register.d/119-paper-summaries.json), PaperSummaryService + PaperSummaryController (POST /api/agenda-items/{id}/paper-summaries, GET /api/paper-summaries/availability; secretariat only, refused outside a confidentiality restriction's circle, 422 for a paper not on the item, 503 without a TaskProcessing provider), PaperText (OpenRegister text extraction, long papers summarised in parts), PaperSummaryTaskListener (the AI answer lands as draft, a failure as failed) and the Summaries of the papers widget on AgendaItemDetail (src/components/tabs/AgendaPaperSummariesTab.vue). PHPUnit and vitest green; the Newman read-rule run and the Playwright run (tests/e2e/paper-summaries.spec.ts) are still owed, so not yet built. This row: a clerk edits a draft, shows it to members (labelled AI-generated, checked by the clerk with the date) or hides it.",
 				"owner": "ConductionNL/decidiq",
 				"change": "agenda-ai-paper-summaries",
-				"readOn": "2026-10-03"
+				"readOn": "2026-10-03",
+				"requirement": "openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-005 Members see a summary only after a clerk shows it; openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-001 An AI summary is a record with a review status"
 			},
 			"reachedOn": "nothing reaches it: no AI summaries exist to review",
 			"provider": "decidiq",
@@ -9579,7 +9730,8 @@
 				"state": "specified",
 				"evidence": "grep -rli 'watermark' lib src: no hits; papers are plain Nextcloud files in the meeting folder (matrix row pla-13); lib/Service/MeetingPackageService.php assembles packages without marking them",
 				"owner": "ConductionNL/decidiq",
-				"change": "agenda-paper-watermark"
+				"change": "agenda-paper-watermark",
+				"requirement": "openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark :: REQ-WMK-002 A paper opened through decidiq carries the reader's name and the date; openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark :: REQ-WMK-003 The meeting package is stamped for the person who takes it"
 			},
 			"reachedOn": "nothing reaches it",
 			"provider": "decidiq",
@@ -9770,7 +9922,8 @@
 				"state": "specified",
 				"evidence": "grep -rliE 'conference system|microphone|delegate system|bosch|televic|speakerSystem' lib src: only an icon name (lib/Settings/decidesk_register.json:3279 'Microphone') and the video-conference link field (:937); the room display endpoint GET /api/voting-rounds/{id}/public-state is API only (liv-04)",
 				"owner": "ConductionNL/decidiq",
-				"change": "live-room-conference-system-link"
+				"change": "live-room-conference-system-link",
+				"requirement": "openspec/changes/live-room-conference-system-link/specs/room-system-link :: REQ-RCSL-007 The room system receives the agenda, the speakers and the vote results"
 			},
 			"reachedOn": "nothing reaches it",
 			"provider": "decidiq",
@@ -9844,7 +9997,8 @@
 				"evidence": "Built in change agenda-ai-paper-summaries: paper-summary schema with a review lifecycle and a member read rule (shown only) (lib/Settings/register.d/119-paper-summaries.json), PaperSummaryService + PaperSummaryController (POST /api/agenda-items/{id}/paper-summaries, GET /api/paper-summaries/availability; secretariat only, refused outside a confidentiality restriction's circle, 422 for a paper not on the item, 503 without a TaskProcessing provider), PaperText (OpenRegister text extraction, long papers summarised in parts), PaperSummaryTaskListener (the AI answer lands as draft, a failure as failed) and the Summaries of the papers widget on AgendaItemDetail (src/components/tabs/AgendaPaperSummariesTab.vue). PHPUnit and vitest green; the Newman read-rule run and the Playwright run (tests/e2e/paper-summaries.spec.ts) are still owed, so not yet built. This row: Compare with on a paper of the item (TextToText with a comparison instruction over both papers).",
 				"owner": "ConductionNL/decidiq",
 				"change": "agenda-ai-paper-summaries",
-				"readOn": "2026-10-03"
+				"readOn": "2026-10-03",
+				"requirement": "openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-002 A clerk asks for a summary or a comparison of a paper; openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries :: REQ-APS-004 The AI result lands as a draft, and long papers are summarised in parts"
 			},
 			"reachedOn": "nothing reaches it: only AmendmentDetail (/amendments/:id) shows a plain text diff of an amendment",
 			"provider": "decidiq",
@@ -9915,7 +10069,8 @@
 				"state": "built",
 				"evidence": "src/manifest.json:714 DecisionIntegrations widget di-email (type integration, integrationId email) on the decision's integrations page; the registry hides it when the Mail app is absent (src/manifest.json:731 _note); legacy EmailLink objects migrated by 2026-06-10-migrate-email-links-to-email-leaf",
 				"change": "2026-06-10-migrate-email-links-to-email-leaf",
-				"spec": "openspec/specs/email-linking-via-email-leaf"
+				"spec": "openspec/specs/email-linking-via-email-leaf",
+				"requirement": "openspec/changes/capability-rows-get-requirements/specs/email-linking-via-email-leaf :: A linked email can be read on the decision"
 			},
 			"feature": "app-integrations",
 			"notubiz": "unknown",
