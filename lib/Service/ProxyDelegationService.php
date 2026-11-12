@@ -33,7 +33,6 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -230,7 +229,7 @@ class ProxyDelegationService {
 	 */
 	private function maxProxiesPerHolder(): int {
 		try {
-			$value = $this->appConfig->getValueInt(Application::APP_ID, self::MAX_PROXIES_CONFIG_KEY, self::MAX_PROXIES_DEFAULT);
+			$value = $this->appConfig->getValueInt('decidiq', self::MAX_PROXIES_CONFIG_KEY, self::MAX_PROXIES_DEFAULT);
 			if ($value >= 1) {
 				return $value;
 			}
