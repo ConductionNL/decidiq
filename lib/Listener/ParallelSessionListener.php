@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Service\DateValueParser;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -325,16 +326,7 @@ class ParallelSessionListener implements IEventListener {
 	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-001-an-evening-holds-parallel-sessions-and-each-session-is-a-meeting
 	 */
 	private function moment(mixed $value): ?DateTimeImmutable {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Throwable) {
-			return null;
-		}
-
+		return (new DateValueParser())->parse(value: $value);
 	}//end moment()
 
 	/**
