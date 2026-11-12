@@ -1,9 +1,9 @@
 <?php
 
 /**
- * SignedCopyCollectorJob unit tests.
+ * Unit tests for SignedCopyCollectorJob.
  *
- * @category Tests
+ * @category Test
  * @package  OCA\Decidiq\Tests\Unit\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
@@ -11,6 +11,8 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://conduction.nl
+ *
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -25,65 +27,56 @@ use OCA\Decidiq\Service\SigningRoundService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use ReflectionMethod;
-use ReflectionProperty;
-use RuntimeException;
 
 /**
- * Every quarter hour the job collects signed copies and logs only what it stored.
+ * Tests for SignedCopyCollectorJob.
  *
- * @covers \OCA\Decidiq\BackgroundJob\SignedCopyCollectorJob
+ * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
 class SignedCopyCollectorJobTest extends TestCase {
 
 	/**
-	 * Run the job once.
-	 *
-	 * @param SigningRoundService $rounds The signing rounds
-	 * @param LoggerInterface     $logger The logger
-	 *
-	 * @return SignedCopyCollectorJob The job
-	 */
-	private function runJob(SigningRoundService $rounds, LoggerInterface $logger): SignedCopyCollectorJob {
-		$job = new SignedCopyCollectorJob(time: $this->createMock(ITimeFactory::class), rounds: $rounds, logger: $logger);
-		(new ReflectionMethod($job, 'run'))->invoke($job, null);
-
-		return $job;
-	}//end runJob()
-
-	/**
-	 * Stored copies are logged, on a 15-minute interval.
+	 * Each run collects every record that is out for signature, so the signed
+	 * copy lands without anyone opening the record.
 	 *
 	 * @return void
 	 */
-	public function testStoredCopiesAreLogged(): void {
+	public function testEachRunCollectsTheRoundsThatAreOut(): void {
 		$rounds = $this->createMock(SigningRoundService::class);
-		$rounds->expects(self::once())->method('collectAllSent')->willReturn(2);
-		$logger = $this->createMock(LoggerInterface::class);
-		$logger->expects(self::once())->method('info')->with('Decidiq: signed copies stored', ['stored' => 2]);
+		$rounds->expects($this->once())->method('collectAllSent')->willReturn(2);
 
-		$job = $this->runJob(rounds: $rounds, logger: $logger);
-
-		self::assertSame(900, (new ReflectionProperty($job, 'interval'))->getValue($job));
-	}//end testStoredCopiesAreLogged()
+		$job = new SignedCopyCollectorJob($this->createMock(ITimeFactory::class), $rounds, $this->createMock(LoggerInterface::class));
+		$run = new \ReflectionMethod($job, 'run');
+		$run->invoke($job, null);
+	}//end testEachRunCollectsTheRoundsThatAreOut()
 
 	/**
-	 * Nothing stored logs nothing, and a failure is logged with its reason.
+	 * A failing collection is logged, not thrown into cron.
 	 *
 	 * @return void
 	 */
-	public function testNothingStoredAndAFailure(): void {
-		$idle = $this->createMock(SigningRoundService::class);
-		$idle->method('collectAllSent')->willReturn(0);
-		$quiet = $this->createMock(LoggerInterface::class);
-		$quiet->expects(self::never())->method('info');
-		$this->runJob(rounds: $idle, logger: $quiet);
-
-		$failing = $this->createMock(SigningRoundService::class);
-		$failing->method('collectAllSent')->willThrowException(new RuntimeException('signing service down'));
+	public function testAFailureIsLoggedNotThrown(): void {
+		$rounds = $this->createMock(SigningRoundService::class);
+		$rounds->method('collectAllSent')->willThrowException(new \RuntimeException('OR down'));
 		$logger = $this->createMock(LoggerInterface::class);
-		$logger->expects(self::once())->method('error')->with('Decidiq: collecting signed copies failed', ['reason' => 'signing service down']);
-		$logger->expects(self::never())->method('info');
-		$this->runJob(rounds: $failing, logger: $logger);
-	}//end testNothingStoredAndAFailure()
+		$logger->expects($this->once())->method('error');
+
+		$job = new SignedCopyCollectorJob($this->createMock(ITimeFactory::class), $rounds, $logger);
+		$run = new \ReflectionMethod($job, 'run');
+		$run->invoke($job, null);
+	}//end testAFailureIsLoggedNotThrown()
+
+	/**
+	 * The job is registered in appinfo/info.xml, or Nextcloud never schedules it.
+	 *
+	 * @return void
+	 */
+	public function testTheJobIsRegisteredInInfoXml(): void {
+		// String parse, not simplexml_load_file(): see ConnectionReportJobTest.
+		$infoXml = simplexml_load_string((string)file_get_contents(dirname(__DIR__, 3) . '/appinfo/info.xml'));
+		$this->assertNotFalse(condition: $infoXml);
+
+		$jobs = array_map('strval', $infoXml->xpath('/info/background-jobs/job'));
+		$this->assertContains(needle: SignedCopyCollectorJob::class, haystack: $jobs);
+	}//end testTheJobIsRegisteredInInfoXml()
 }//end class

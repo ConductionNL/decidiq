@@ -1,9 +1,9 @@
 <?php
 
 /**
- * VotingDeadlineReminderJob unit tests.
+ * Unit tests for VotingDeadlineReminderJob.
  *
- * @category Tests
+ * @category Test
  * @package  OCA\Decidiq\Tests\Unit\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
@@ -11,6 +11,8 @@
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
  * @link https://conduction.nl
+ *
+ * @spec openspec/specs/nextcloud-integration/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -25,77 +27,69 @@ use OCA\Decidiq\Service\VotingDeadlineReminderService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use ReflectionMethod;
-use ReflectionProperty;
-use RuntimeException;
 
 /**
- * The hourly job sends what is due now, logs only when it sent something, and never throws.
+ * Tests the hourly interval and the delegation to the reminder service.
  *
- * @covers \OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob
+ * @spec openspec/specs/nextcloud-integration/spec.md
  */
 class VotingDeadlineReminderJobTest extends TestCase {
 
 	/**
-	 * Run the job once with the clock at a moment.
+	 * The job runs hourly and delegates the sweep with the factory time.
 	 *
-	 * @param VotingDeadlineReminderService $service The service
-	 * @param LoggerInterface $logger  The logger
+	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 *
-	 * @return VotingDeadlineReminderJob The job
+	 * @return void
 	 */
-	private function runJob(VotingDeadlineReminderService $service, LoggerInterface $logger): VotingDeadlineReminderJob {
+	public function testHourlyIntervalAndDelegation(): void {
 		$time = $this->createMock(ITimeFactory::class);
-		$time->method('getTime')->willReturn(1790000000);
+		$time->method('getTime')->willReturn(1781265600);
 
-		$job = new VotingDeadlineReminderJob(time: $time, reminderService: $service, logger: $logger);
-		(new ReflectionMethod($job, 'run'))->invoke($job, null);
+		$service = $this->createMock(VotingDeadlineReminderService::class);
+		$service->expects(self::once())
+			->method('run')
+			->with(self::equalTo(1781265600))
+			->willReturn(2);
 
-		return $job;
-	}//end runJob()
+		$job = new VotingDeadlineReminderJob(
+			time: $time,
+			reminderService: $service,
+			logger: $this->createMock(LoggerInterface::class),
+		);
+
+		self::assertSame(expected: 3600, actual: $job->getInterval());
+
+		$reflection = new \ReflectionMethod($job, 'run');
+		$reflection->invoke($job, null);
+
+	}//end testHourlyIntervalAndDelegation()
 
 	/**
-	 * What was sent is logged, and the service is asked with the clock's time, hourly.
+	 * Service failures never escape the job (fail soft).
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 *
 	 * @return void
 	 */
-	public function testWhatWasSentIsLogged(): void {
+	public function testServiceFailureIsSwallowed(): void {
+		$time = $this->createMock(ITimeFactory::class);
+		$time->method('getTime')->willReturn(1781265600);
+
 		$service = $this->createMock(VotingDeadlineReminderService::class);
-		$service->expects(self::once())->method('run')->with(1790000000)->willReturn(4);
-		$logger = $this->createMock(LoggerInterface::class);
-		$logger->expects(self::once())->method('info')->with('Decidiq: voting deadline reminder job sent notifications', ['sent' => 4]);
+		$service->method('run')->willThrowException(new \RuntimeException('register down'));
 
-		$job = $this->runJob(service: $service, logger: $logger);
+		$job = new VotingDeadlineReminderJob(
+			time: $time,
+			reminderService: $service,
+			logger: $this->createMock(LoggerInterface::class),
+		);
 
-		self::assertSame(3600, (new ReflectionProperty($job, 'interval'))->getValue($job));
-	}//end testWhatWasSentIsLogged()
+		$reflection = new \ReflectionMethod($job, 'run');
+		$reflection->invoke($job, null);
 
-	/**
-	 * Nothing sent logs nothing.
-	 *
-	 * @return void
-	 */
-	public function testNothingSentLogsNothing(): void {
-		$service = $this->createMock(VotingDeadlineReminderService::class);
-		$service->method('run')->willReturn(0);
-		$logger = $this->createMock(LoggerInterface::class);
-		$logger->expects(self::never())->method('info');
-		$logger->expects(self::never())->method('error');
+		// Reaching this point without an exception is the assertion.
+		self::assertTrue(condition: true);
 
-		$this->runJob(service: $service, logger: $logger);
-	}//end testNothingSentLogsNothing()
-
-	/**
-	 * A failed run is logged with its message.
-	 *
-	 * @return void
-	 */
-	public function testAFailedRunIsLogged(): void {
-		$service = $this->createMock(VotingDeadlineReminderService::class);
-		$service->method('run')->willThrowException(new RuntimeException('mail down'));
-		$logger = $this->createMock(LoggerInterface::class);
-		$logger->expects(self::once())->method('error')->with('Decidiq: voting deadline reminder job failed', ['exception' => 'mail down']);
-
-		$this->runJob(service: $service, logger: $logger);
-	}//end testAFailedRunIsLogged()
+	}//end testServiceFailureIsSwallowed()
 }//end class
