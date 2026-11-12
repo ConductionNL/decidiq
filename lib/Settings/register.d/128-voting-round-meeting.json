@@ -1,0 +1,25 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, decision 403. A voting round names the meeting it was opened in, so a rule that holds per meeting can find every round of that meeting. The per-holder proxy cap (decidiq/max_proxies_per_holder) counts a holder's proxies across all rounds of the meeting, as the voting-system spec says; a round without a meeting is counted on its own.",
+  "components": {
+    "schemas": {
+      "VotingRound": {
+        "slug": "voting-round",
+        "version": "0.4.0",
+        "properties": {
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "meeting",
+            "nullable": true,
+            "description": "The meeting this voting round was opened in.",
+            "x-notes": "Set by VotingRoundOpener from the meeting the round is opened for, and never changed afterwards. Empty on rounds opened before the field existed; ProxyDelegationService then counts the proxy cap on the round alone."
+          }
+        }
+      }
+    }
+  }
+}
