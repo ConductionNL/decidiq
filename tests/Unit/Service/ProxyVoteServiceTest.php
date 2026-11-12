@@ -499,12 +499,12 @@ class ProxyVoteServiceTest extends TestCase {
 	public function testForMeetingReportsFailureWhenRowsCannotBeRead(): void {
 		$rows = [['id' => 'p-1', 'meeting' => 'm-1', 'proxyStatus' => 'active']];
 		$saved = [];
-		$svc = $this->makeService($rows, $saved, findAllFail: true);
+		$svc = $this->makeService(rows: $rows, saved: $saved, findAllFail: true);
 
-		$result = $svc->forMeeting('m-1');
+		$result = $svc->forMeeting(meetingId: 'm-1');
 
-		$this->assertFalse($result['success']);
-		$this->assertSame(0, $result['count']);
+		$this->assertFalse(condition: $result['success']);
+		$this->assertSame(expected: 0, actual: $result['count']);
 
 	}//end testForMeetingReportsFailureWhenRowsCannotBeRead()
 

@@ -261,11 +261,11 @@ class ProxyVoteControllerTest extends TestCase {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
 		foreach ($routes['routes'] as $route) {
 			$isPostOnProxies = ($route['url'] === '/api/proxies' && ($route['verb'] ?? 'GET') === 'POST');
-			$this->assertFalse($isPostOnProxies, 'POST /api/proxies must not be routed');
-			$this->assertNotSame('proxyVote#register', $route['name']);
+			$this->assertFalse(condition: $isPostOnProxies, message: 'POST /api/proxies must not be routed');
+			$this->assertNotSame(expected: 'proxyVote#register', actual: $route['name']);
 		}
 
-		$this->assertFalse(method_exists(ProxyVoteController::class, 'register'));
+		$this->assertFalse(condition: method_exists(ProxyVoteController::class, 'register'));
 
 	}//end testNoRouteRegistersAProxy()
 }//end class
