@@ -4,7 +4,7 @@
  *
  * The word under each tile of the amendment, decision and meeting step bars.
  *
- * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+ * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
  */
 
 export const stepBarWordsMixin = {
@@ -15,7 +15,7 @@ export const stepBarWordsMixin = {
 		 *
 		 * @param {string} status `done`, `current` or `upcoming`.
 		 * @return {string} The translated word.
-		 * @spec openspec/changes/simple-decision-page/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
+		 * @spec openspec/specs/decision-management/spec.md#requirement-req-sdp-003-a-step-bar-shows-where-the-decision-stands
 		 */
 		stateWord(status) {
 			if (status === 'done') {

@@ -110,7 +110,7 @@ export function ensureRelationType(type) {
  *
  * @param {object} membership A Membership object
  * @return {boolean} True when the membership has no endDate
- * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/specs/admin-settings/spec.md
  */
 export function isActiveMembership(membership) {
 	return !membership?.endDate
@@ -127,7 +127,7 @@ export function isActiveMembership(membership) {
  * @param {object} membership A Membership object
  * @param {object|null} [person] The Membership's Person, or null/undefined if unresolved
  * @return {object} A denormalised display row
- * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/specs/admin-settings/spec.md
  */
 export function buildMemberRow(membership, person) {
 	return {
@@ -155,7 +155,7 @@ export function buildMemberRow(membership, person) {
  * @param {Array<object>} memberships Membership objects
  * @param {Object<string, object>} [personsById] Person objects keyed by id
  * @return {Array<object>} Active membership rows, joined to their Person
- * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/specs/admin-settings/spec.md
  */
 export function buildMemberRows(memberships, personsById = {}) {
 	return (memberships || [])
@@ -174,7 +174,7 @@ export function buildMemberRows(memberships, personsById = {}) {
  * @param {string} [fields.email] Email (Person.email)
  * @param {string} [fields.nextcloudUserId] Nextcloud UID (Person.nextcloudUserId)
  * @return {object} Person creation payload
- * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/specs/admin-settings/spec.md
  */
 export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
 	const payload = { name: (name || '').trim() }
@@ -210,8 +210,8 @@ const OPTIONAL_MEMBERSHIP_FIELDS = ['party', 'startDate', 'faction', 'onBehalfOf
  * @param {string} [fields.faction] Membership.faction (faction body UUID)
  * @param {string} [fields.onBehalfOf] Membership.onBehalfOf (participating body UUID, shared bodies only)
  * @return {object} Membership creation/update payload
- * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/admin-settings/spec.md
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function buildMembershipPayload({
 	personId,
@@ -246,7 +246,7 @@ export function buildMembershipPayload({
  * @param {object} personStore Registered object-store instance for type 'person' (fetchCollection/saveObject)
  * @param {object} fields See buildPersonPayload
  * @return {Promise<object|null>} The matched or newly created Person, or null on failure
- * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ * @spec openspec/specs/admin-settings/spec.md
  */
 export async function resolveOrCreatePerson(personStore, fields) {
 	const email = (fields.email || '').trim()

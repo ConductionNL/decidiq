@@ -13,7 +13,7 @@
  * Pure functions, no Vue and no fetch, so the bar and its spec read one
  * implementation.
  *
- * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
+ * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
  */
 
 /** The five steps, in order. */
@@ -39,7 +39,7 @@ export const AMENDMENT_VOTE_STEPS = ['deliberating', 'voting']
  *
  * @param {string} lifecycle The amendment's state.
  * @return {Array<{state: string, status: string}>} The steps.
- * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
+ * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-003-a-step-bar-shows-where-the-amendment-stands
  */
 export function buildAmendmentSteps(lifecycle) {
 	const at = AMENDMENT_STEPS.indexOf(lifecycle)
@@ -65,7 +65,7 @@ export function buildAmendmentSteps(lifecycle) {
  * @param {string} lifecycle The amendment's state.
  * @param {string} [outcome] The recorded result of the vote.
  * @return {string} `who`, `vote`, `adopted`, `rejected` or ''.
- * @spec openspec/changes/simple-amendment-page/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
+ * @spec openspec/specs/amendment-workflow/spec.md#requirement-req-sap-004-the-page-says-who-takes-the-next-step-and-where
  */
 export function amendmentNote(lifecycle, outcome) {
 	if (AMENDMENT_HEADER_STEPS.includes(lifecycle)) {

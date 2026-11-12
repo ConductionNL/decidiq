@@ -7,7 +7,7 @@
  * participation dialog writes, ending a participation, and the seats each
  * organisation has filled with members sitting on its behalf.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 
 import { startOfDay } from './bodyMembership.js'
@@ -19,7 +19,7 @@ import { startOfDay } from './bodyMembership.js'
  *
  * @return {boolean} True for bodyType shared-body.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function isSharedBody(body) {
 	return body?.bodyType === 'shared-body'
@@ -48,7 +48,7 @@ function isAfter(value, now) {
  *
  * @return {boolean} True while the organisation takes part.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function isActiveParticipation(participation, now = new Date()) {
 	return !participation?.exitDate || isAfter(participation.exitDate, now)
@@ -96,7 +96,7 @@ function numberOrNull(value) {
  *
  * @return {object} The payload.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function buildParticipationPayload(fields) {
 	const payload = {
@@ -140,7 +140,7 @@ function optionalParticipationFields(fields) {
  *
  * @return {object} The payload.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function endParticipationPayload(participation, now = new Date()) {
 	return buildParticipationPayload({
@@ -182,7 +182,7 @@ function bodyName(bodiesById, id) {
  *
  * @return {Array<object>} The rows.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function participationRows(
 	participations,
@@ -274,7 +274,7 @@ function activeFirstByName(a, b) {
  *
  * @return {Array<{id: string, label: string}>} Select options.
  *
- * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
 export function onBehalfOfOptions(participations, bodiesById, now = new Date()) {
 	const seen = new Set()

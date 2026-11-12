@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 
 declare(strict_types=1);
@@ -31,7 +31,7 @@ namespace OCA\Decidiq\Service;
 /**
  * A person's seat on a body, in one role.
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 final class RosterSeat {
 	/**

@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
  * proxies to compute whether quorum is met. Threshold defaults to the body's
  * `quorumRule` (e.g. "simple-majority" = ceil(n/2)).
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
  */
 class QuorumVerificationService {
 
@@ -64,7 +64,7 @@ class QuorumVerificationService {
 	 *
 	 * @param string $meetingId UUID of the board meeting
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array{total: int, present: int, threshold: int, met: bool}
 	 */
@@ -110,7 +110,7 @@ class QuorumVerificationService {
 	 *
 	 * @param string $meetingId UUID of the board meeting
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array{}|array{total: int, threshold: int, members: array<int, array{boardMemberKoppeling: string, status: string}>}
 	 */
@@ -144,7 +144,7 @@ class QuorumVerificationService {
 	 *
 	 * @param string $meetingId UUID of the board meeting
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array{meeting: array<string, mixed>, boardId: string, members: mixed}|null
 	 */
@@ -187,7 +187,7 @@ class QuorumVerificationService {
 	 *
 	 * @param array<string, mixed> $meetingData Meeting object data
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array<string, string> Board-member uuid => attendance mode
 	 */
@@ -214,7 +214,7 @@ class QuorumVerificationService {
 	 * @param string $boardId Board uuid the meeting belongs to
 	 * @param array<string, string> $attendanceMap Board-member uuid => attendance mode
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.4
 	 *
 	 * @return array<int, array{boardMemberKoppeling: string, status: string}>
 	 */

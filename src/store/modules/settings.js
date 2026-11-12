@@ -16,7 +16,7 @@ export const useSettingsStore = defineStore('settings', {
 	},
 
 	actions: {
-		/** @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10 */
 		async fetchSettings() {
 			this.loading = true
 			try {
@@ -43,7 +43,7 @@ export const useSettingsStore = defineStore('settings', {
 
 		/**
 		 * @param settings
-		 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-10
+		 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-10
 		 */
 		async saveSettings(settings) {
 			this.loading = true

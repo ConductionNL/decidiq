@@ -8,7 +8,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-6
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -36,7 +36,7 @@ use Throwable;
  * the approval rule itself: which roles are asked to approve, and what they are
  * told.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-6
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-6
  */
 class MinutesService {
 

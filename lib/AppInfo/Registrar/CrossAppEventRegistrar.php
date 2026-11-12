@@ -98,7 +98,7 @@ class CrossAppEventRegistrar {
 	 * @return void
 	 *
 	 * @spec openspec/specs/approval-route-events/spec.md
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function register(IRegistrationContext $context): void {
 		foreach (self::COMMANDS as $event => $listener) {
@@ -110,7 +110,7 @@ class CrossAppEventRegistrar {
 		// OpenRegister's flow engine asks decidiq for its nodes, and a flow
 		// decision's conclusion wakes the run that asked. Its own registrar,
 		// guarded on the engine, so decidiq boots without OpenRegister.
-		// @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+		// @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 		(new FlowNodeRegistrar())->register(context: $context);
 
 		// Nextcloud Files events: an Office paper added to a meeting or agenda
@@ -141,7 +141,7 @@ class CrossAppEventRegistrar {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function registerTaskDecisionListener(IRegistrationContext $context): void {
 		$event = 'OCA\OpenRegister\Event\TaskTerminalEvent';

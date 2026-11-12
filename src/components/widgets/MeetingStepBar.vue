@@ -17,8 +17,8 @@
  answer the Stage block draws its buttons from) and says so before anybody
  presses. No answer, no line: it never guesses a role.
 
- @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
- @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+ @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+ @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
 -->
 <template>
 	<nav
@@ -99,7 +99,7 @@ export default {
 		 * The meeting's state.
 		 *
 		 * @return {string} The lifecycle, or '' while the meeting loads.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		lifecycle() {
 			return this.objectData?.lifecycle || ''
@@ -109,7 +109,7 @@ export default {
 		 * The four steps, each done, current or upcoming.
 		 *
 		 * @return {Array<{state: string, status: string}>} The steps.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		steps() {
 			return buildMeetingSteps(this.lifecycle)
@@ -119,7 +119,7 @@ export default {
 		 * The break a meeting in session is in, in words.
 		 *
 		 * @return {string} The sentence, or '' for a meeting that is not on a break.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		breakNote() {
 			if (this.lifecycle === 'paused') {
@@ -135,7 +135,7 @@ export default {
 		 * true on an answer: without one the bar says nothing.
 		 *
 		 * @return {boolean} True when the line about the chair and the secretary shows.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
 		 */
 		refused() {
 			return (
@@ -148,13 +148,13 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
+			/** @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
 			handler() {
 				this.loadOffered()
 			},
 		},
 
-		/** @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
+		/** @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step */
 		lifecycle() {
 			this.loadOffered()
 		},
@@ -166,7 +166,7 @@ export default {
 		 *
 		 * @param {string} state The lifecycle state.
 		 * @return {string} Its label, or the state itself when it has none.
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
 		 */
 		stepLabel(state) {
 			return MEETING_STATE_LABELS[state] || state
@@ -178,7 +178,7 @@ export default {
 		 * null, so no line about roles shows.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+		 * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
 		 */
 		async loadOffered() {
 			this.offered = null

@@ -12,7 +12,7 @@
  user create a draft with the meeting reference pre-filled, and
  deep-links each row to MinutesDetail for full editing.
 
- @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-notulen-authoring-tab
+ @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-notulen-authoring-tab
 -->
 <template>
 	<div class="decidiq-tab decidiq-tab--minutes" data-testid="meeting-minutes-tab">
@@ -84,7 +84,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		columns() {
 			return [
 				{ key: 'title', label: this.t('decidiq', 'Title') },
@@ -94,7 +94,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		lifecycleColors() {
 			return {
 				draft: 'primary',
@@ -109,7 +109,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+			/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 			handler() {
 				this.refresh()
 			},
@@ -117,7 +117,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -137,7 +137,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-minutes-pre-fills-the-meeting-reference */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-creating-minutes-pre-fills-the-meeting-reference */
 		async createMinutes() {
 			if (!this.objectId || this.creating) return
 			this.creating = true
@@ -165,7 +165,7 @@ export default {
 		 * Navigate to the MinutesDetail page for a row.
 		 *
 		 * @param {object} row Minutes row (must carry `id` or `uuid`).
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-minutes-scoped-to-the-current-meeting
 		 */
 		openDetail(row) {
 			const id = row && (row.id || row.uuid)

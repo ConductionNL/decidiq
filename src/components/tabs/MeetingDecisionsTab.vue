@@ -13,7 +13,7 @@
  meeting reference pre-filled, and deep-links each row to
  DecisionDetail.
 
- @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-besluiten-authoring-tab
+ @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#requirement-per-meeting-besluiten-authoring-tab
 -->
 <template>
 	<div
@@ -87,7 +87,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		columns() {
 			return [
 				{ key: 'title', label: this.t('decidiq', 'Title') },
@@ -97,7 +97,7 @@ export default {
 			]
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		outcomeColors() {
 			return {
 				adopted: 'success',
@@ -111,7 +111,7 @@ export default {
 	watch: {
 		objectId: {
 			immediate: true,
-			/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+			/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 			handler() {
 				this.refresh()
 			},
@@ -119,7 +119,7 @@ export default {
 	},
 
 	methods: {
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting */
 		async refresh() {
 			if (!this.objectId) return
 			this.loading = true
@@ -139,7 +139,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-creating-a-decision-pre-fills-the-meeting-reference */
+		/** @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-creating-a-decision-pre-fills-the-meeting-reference */
 		async createDecision() {
 			if (!this.objectId || this.creating) return
 			this.creating = true
@@ -165,7 +165,7 @@ export default {
 		 * Navigate to the DecisionDetail page for a row.
 		 *
 		 * @param {object} row Decision row (must carry `id` or `uuid`).
-		 * @spec openspec/changes/refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting
+		 * @spec openspec/changes/archive/2026-06-10-refactor-decidesk-ia-alignment/specs.md#scenario-listing-decisions-scoped-to-the-current-meeting
 		 */
 		openDetail(row) {
 			const id = row && (row.id || row.uuid)

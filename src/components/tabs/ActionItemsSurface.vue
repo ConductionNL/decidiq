@@ -10,7 +10,7 @@
  `action-item` VTODO projection and write through the same VTODO endpoints,
  so create/edit/delete keep working with or without Deck (REQ-AI-DECK-009).
 
- @spec openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md
+ @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
 -->
 <template>
 	<div class="action-items-surface" data-testid="action-items-surface">

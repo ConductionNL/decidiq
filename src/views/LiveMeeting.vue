@@ -2,11 +2,11 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4
- @spec openspec/changes/p2-agenda-management/tasks.md#task-4.5
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.2
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4
+ @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.5
 -->
 <template>
 	<div
@@ -304,7 +304,7 @@ const BOB_STAGES = [
 const BOB_FINAL = 'completed'
 
 /**
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
  */
 export default {
 	name: 'LiveMeeting',
@@ -365,7 +365,7 @@ export default {
 		// LiveMeeting copied data into local state in fetchData(),
 		// which made the page non-reactive to live updates: the plugin
 		// updated the store cache but the local copy never re-read.
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
 		},
@@ -380,7 +380,7 @@ export default {
 		 * where OpenRegister materialised the link into `@self.relations` but the
 		 * scalar property was not round-tripped.
 		 *
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1
 		 */
 		allItems() {
 			const collection = this.objectStore.collections?.['agenda-item'] ?? []
@@ -451,7 +451,7 @@ export default {
 			return runsTheMeeting(this.myRoles)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3 */
 		bobStages() {
 			return BOB_STAGES.map((s) => ({
 				...s,
@@ -459,19 +459,19 @@ export default {
 			}))
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4 */
 		hamerstukken() {
 			return pendingFormalities(this.allItems)
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		regularItems() {
 			return this.allItems
 				.filter((i) => !isPendingFormality(i))
 				.sort((a, b) => (a.orderNumber ?? 0) - (b.orderNumber ?? 0))
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.2 */
 		activeItem() {
 			return this.allItems.find((i) => i.id === this.activeItemId) ?? null
 		},
@@ -508,7 +508,7 @@ export default {
 		},
 	},
 
-	/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+	/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 	async created() {
 		await this.fetchData()
 
@@ -565,7 +565,7 @@ export default {
 	methods: {
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		currentBobStageIndex(item) {
 			const status = item?.status ?? 'beeldvorming'
@@ -575,7 +575,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		canAdvanceBob(item) {
 			return item?.status !== BOB_FINAL && item?.itemType !== 'informational'
@@ -583,7 +583,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.2
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.2
 		 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
 		 */
 		async activateItem(item) {
@@ -651,7 +651,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.3
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.3
 		 */
 		async advanceBobPhase(item) {
 			this.advancingBob = true
@@ -679,7 +679,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4 */
 		async processHamerstukken() {
 			this.processingHamerstukken = true
 			this.confirmHamerstukken = false
@@ -709,7 +709,7 @@ export default {
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/p2-agenda-management/tasks.md#task-4.4
+		 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.4
 		 */
 		async removeFromHamerstukken(item) {
 			try {
@@ -734,7 +734,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		async fetchData() {
 			// Trigger initial fetches to populate the shared store cache.
 			// We deliberately don't assign results to local state — the
@@ -798,7 +798,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/p2-agenda-management/tasks.md#task-4.1 */
+		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		async refreshItems() {
 			try {
 				// Same dialect as fetchData() — see the note there on why the

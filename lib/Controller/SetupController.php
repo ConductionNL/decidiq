@@ -108,7 +108,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse The status document.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	#[AuthorizedAdminSetting(AdminSettings::class)]
 	public function status(): JSONResponse {
@@ -141,7 +141,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse `{ success, config }`.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
 	 */
 	#[AuthorizedAdminSetting(AdminSettings::class)]
 	public function saveConfig(): JSONResponse {
@@ -186,7 +186,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse|null The 400 refusal, or null.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
 	 */
 	private function refuseSubmittedSets(array $submitted): ?JSONResponse {
 		foreach ($submitted as $candidate) {
@@ -215,7 +215,7 @@ class SetupController extends Controller {
 	 *
 	 * @return list<string> The ids.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
 	 */
 	private static function distinctProfiles(array $submitted): array {
 		$profileIds = [];
@@ -242,7 +242,7 @@ class SetupController extends Controller {
 	 *
 	 * @return list<string> The ids to store.
 	 *
-	 * @spec openspec/changes/seed-profiles/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
+	 * @spec openspec/specs/seed-profiles/spec.md#requirement-record-the-chosen-example-set
 	 */
 	private function withoutNoneBesideASet(array $profileIds): array {
 		if (count($profileIds) > 1) {
@@ -331,7 +331,7 @@ class SetupController extends Controller {
 	 * @return string|null The posted id, empty when the body held no scalar,
 	 *                     or null when nothing was posted.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function postedProfile(): ?string {
 		$posted = $this->request->getParam('dataset');
@@ -355,7 +355,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse|null The refusal, or null when the set is selectable.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function refuseUnknownSet(string $profileId): ?JSONResponse {
 		if ($profileId !== '' && $this->isSelectableProfile(profileId: $profileId) === true) {
@@ -384,7 +384,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse `{ success, message }`.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function loadExampleSet(): JSONResponse {
 		$profileIds = $this->pickedProfiles();
@@ -424,7 +424,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse `{ success, message }`.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function recordNoExampleData(): JSONResponse {
 		$this->appConfig->setValueString(Application::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
@@ -447,7 +447,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse `{ success, message }`.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function importExampleSets(array $profileIds): JSONResponse {
 		$objects  = 0;
@@ -486,7 +486,7 @@ class SetupController extends Controller {
 	 *
 	 * @return JSONResponse `{ success: false, message }` with status 500.
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function importFailure(\Throwable $error, array $imported): JSONResponse {
 		$partial = '';
@@ -514,7 +514,7 @@ class SetupController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/wizard-dataset-card-load/specs/first-time-setup/spec.md
+	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function storeLoadedPicks(array $imported): void {
 		$picks = array_values(

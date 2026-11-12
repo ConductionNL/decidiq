@@ -9,7 +9,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -41,7 +41,7 @@ use Throwable;
  * what counts as an ALV, what quorum means, and when minutes may be
  * distributed.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
  */
 class ALVMinutesService {
 	/**
@@ -111,7 +111,7 @@ TEMPLATE;
 	 * @param NotificationPreferenceService $preferences Delivers each notice through the member's own preferences
 	 * @param IFactory $l10nFactory Translates the notice
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
 	 */
 	public function __construct(
 		private LoggerInterface $logger,
@@ -139,7 +139,7 @@ TEMPLATE;
 	 * @throws MissingObjectException If Minutes or Meeting not found
 	 * @throws Exception If meeting is not ALV type
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	public function generateALVDraft(string $minutesId): array {
 		try {
@@ -190,7 +190,7 @@ TEMPLATE;
 	 * @throws MissingObjectException If Minutes not found
 	 * @throws Exception If lifecycle is not approved, signed or published (403)
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-003-send-approved-minutes-to-the-members
 	 */
 	public function distribute(string $minutesId): int {
@@ -333,7 +333,7 @@ TEMPLATE;
 	 *
 	 * @throws Exception When the meeting is not an ALV (HTTP 422)
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	private function assertAlvMeeting(array $meeting): void {
 		$meetingType = strtolower((string)($meeting['meetingType'] ?? ''));
@@ -355,7 +355,7 @@ TEMPLATE;
 	 *
 	 * @throws Exception When the lifecycle is not approved or signed (HTTP 403)
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	private function assertDistributable(array $minutes): void {
 		$lifecycle = ($minutes['lifecycle'] ?? null);
@@ -380,7 +380,7 @@ TEMPLATE;
 	 *
 	 * @return int The present count
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	private function presentCount(int $memberCount, array $meeting): int {
 		if (empty($meeting['quorumRequired']) === true) {
@@ -397,7 +397,7 @@ TEMPLATE;
 	 *
 	 * @return string The rendered ALV minutes text
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	private function renderAlvTemplate(AlvDraftRun $run): string {
 		return str_replace(self::ALV_PLACEHOLDERS, $this->alvReplacements(run: $run), self::ALV_TEMPLATE);
@@ -416,7 +416,7 @@ TEMPLATE;
 	 *
 	 * @return list<string> The replacements.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3.1
 	 */
 	private function alvReplacements(AlvDraftRun $run): array {
 		return [

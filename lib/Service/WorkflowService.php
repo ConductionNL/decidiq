@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.1
  */
 
 declare(strict_types=1);
@@ -26,7 +26,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Service for managing meeting workflow transitions per governance domain.
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.1
  */
 class WorkflowService {
 
@@ -90,7 +90,7 @@ class WorkflowService {
 	/**
 	 * Constructor for WorkflowService.
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.1
 	 */
 	public function __construct() {
 	}//end __construct()
@@ -110,7 +110,7 @@ class WorkflowService {
 	 * @param string $domain The governance domain (legislative|association|corporate|operations|citizen)
 	 * @param array<string, mixed>|null $policyOverride Optional template-derived workflow that replaces the domain lookup
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.1
 	 * @spec openspec/specs/process-configuration/spec.md
 	 *
 	 * @return array<string, mixed> The workflow configuration
@@ -136,7 +136,7 @@ class WorkflowService {
 	 * @param string $toState The target lifecycle state
 	 * @param array<string, mixed>|null $policyOverride Optional template-derived workflow (process-configuration)
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.2
 	 * @spec openspec/specs/process-configuration/spec.md
 	 *
 	 * @return bool True if the transition is permitted by domain rules (does NOT imply chair auth satisfied)
@@ -164,7 +164,7 @@ class WorkflowService {
 	 * @param string $domain The governance domain
 	 * @param array<string, mixed>|null $policyOverride Optional template-derived workflow (process-configuration)
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.4
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.4
 	 * @spec openspec/specs/process-configuration/spec.md
 	 *
 	 * @return bool True if quorum must be enforced
@@ -182,7 +182,7 @@ class WorkflowService {
 	 * @param string $to The target state
 	 * @param array<string, mixed>|null $policyOverride Optional template-derived workflow (process-configuration)
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.1
 	 * @spec openspec/specs/process-configuration/spec.md
 	 *
 	 * @return bool True if the transition requires chair authorization

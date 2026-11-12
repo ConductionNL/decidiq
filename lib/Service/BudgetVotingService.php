@@ -238,7 +238,7 @@ class BudgetVotingService {
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
 	 */
 	public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {
 		$objectService = $this->objectService();

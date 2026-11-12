@@ -10,8 +10,8 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -38,7 +38,7 @@ use Psr\Log\LoggerInterface;
  * list that the generic leaf cannot compute from raw OR data (it requires NC
  * UID → Participant UUID resolution, a domain-specific lookup step).
  *
- * @spec openspec/changes/migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
+ * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  */
 class ActionItemAnalyticsService {
 	/**
@@ -47,7 +47,7 @@ class ActionItemAnalyticsService {
 	 * @param LoggerInterface $logger The logger
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function __construct(
 		private LoggerInterface $logger,
@@ -71,7 +71,7 @@ class ActionItemAnalyticsService {
 	 *
 	 * @return array<string, array<array>> Grouped array with keys 'overdue', 'thisWeek', 'later'
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
 	 */
 	public function getMyItems(string $nextcloudUid): array {
 		try {
@@ -90,7 +90,7 @@ class ActionItemAnalyticsService {
 	 *
 	 * @return array<string, array<array>> Grouped array with keys 'overdue', 'thisWeek', 'later'
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
 	 */
 	private function groupedItemsOf(string $nextcloudUid): array {
 		$today = new DateTime();
@@ -121,7 +121,7 @@ class ActionItemAnalyticsService {
 	 *
 	 * @return string|null The participant's uuid (or id), null when there is none.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
 	 */
 	private function participantIdOf(string $nextcloudUid): ?string {
 		$this->objectService->setRegister('decidiq');
@@ -143,7 +143,7 @@ class ActionItemAnalyticsService {
 	 *
 	 * @return array<int, mixed> The item entities.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
 	 */
 	private function openItemsOf(string $participantId): array {
 		$params = [
@@ -167,7 +167,7 @@ class ActionItemAnalyticsService {
 	 *
 	 * @return string overdue|thisWeek|later
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
 	 */
 	private function urgencyOf(array $item, DateTime $today): string {
 		if (empty($item['dueDate']) === true) {
@@ -191,7 +191,7 @@ class ActionItemAnalyticsService {
 	 *
 	 * @return array<string, array<array>> The groups.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1.1
 	 */
 	private static function emptyGroups(): array {
 		return [

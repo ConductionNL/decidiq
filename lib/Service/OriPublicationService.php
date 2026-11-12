@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -39,7 +39,7 @@ use Throwable;
  * Stateless service that sends voting round results to the ORI 1.0 API endpoint
  * as JSON-LD. Publication is skipped silently when no endpoint is configured.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
  */
 class OriPublicationService {
 	/**
@@ -51,7 +51,7 @@ class OriPublicationService {
 	 * @param LoggerInterface $logger Logger interface
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -65,7 +65,7 @@ class OriPublicationService {
 	/**
 	 * Get the configured ORI endpoint URL.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
 	 *
 	 * @return string|null The URL or null if not configured
 	 */
@@ -123,7 +123,7 @@ class OriPublicationService {
 	 *
 	 * @param string $votingRoundId UUID of the VotingRound to publish
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.1
 	 *
 	 * @return void
 	 */
@@ -225,7 +225,7 @@ class OriPublicationService {
 	 * @param string $votingRoundId UUID of the VotingRound
 	 * @param array<string,mixed> $roundData VotingRound object data
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.1
 	 *
 	 * @return array<string,mixed> JSON-LD payload
 	 */
@@ -260,7 +260,7 @@ class OriPublicationService {
 	 *
 	 * @param string $votingRoundId UUID of the VotingRound
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.1
 	 *
 	 * @return string 'not_configured' | 'published' | 'pending'
 	 */

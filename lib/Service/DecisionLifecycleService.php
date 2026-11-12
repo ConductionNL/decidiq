@@ -377,7 +377,7 @@ class DecisionLifecycleService {
 	 * @param DecisionTransitionRun $run      The transition: the state being entered, meeting, domain and policy override
 	 *
 	 * @spec openspec/specs/decision-management/spec.md
-	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
+	 * @spec openspec/specs/decision-management/spec.md#requirement-the-enact-transition-rejects-an-unpairable-candidatesposts-mismatch
 	 *
 	 * @return string|null Rejection message, or null when the state may be entered
 	 */
@@ -693,7 +693,7 @@ class DecisionLifecycleService {
 	 * @param array<string, mixed> $decision Decision object array (post-transition)
 	 * @param string $decisionId UUID of the enacted decision
 	 *
-	 * @spec openspec/changes/appointment-decision-type-membership/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
+	 * @spec openspec/specs/decision-management/spec.md#requirement-appointment-adoption-materializes-membership-records
 	 *
 	 * @return void
 	 */

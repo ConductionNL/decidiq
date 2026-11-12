@@ -270,7 +270,7 @@ class MotionAmendmentService {
 	 * @param string $motionId UUID of the parent Motion
 	 * @param string $newAmendmentId UUID of the newly submitted Amendment
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 *
 	 * @return void
@@ -408,7 +408,7 @@ class MotionAmendmentService {
 	 * @param string $motionId UUID of the parent Motion
 	 * @param string $amendmentId UUID of the Amendment to apply
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1.1
 	 *
 	 * @return void
 	 */

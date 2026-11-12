@@ -17,7 +17,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
  */
 
 declare(strict_types=1);
@@ -35,7 +35,7 @@ use OCP\IRequest;
  * Shared answers of the controllers that serve cross-origin JSON: the CORS
  * header triple, the error envelope and the empty preflight answer.
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
  */
 abstract class CorsJsonController extends Controller {
 
@@ -60,7 +60,7 @@ abstract class CorsJsonController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	protected function preflightResponse(): JSONResponse {
 		$response = new JSONResponse([], Http::STATUS_OK);
@@ -77,7 +77,7 @@ abstract class CorsJsonController extends Controller {
 	 *
 	 * @return JSONResponse The decorated error response
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.2
 	 */
 	protected function errorResponse(string $message, int $status): JSONResponse {
 		$response = new JSONResponse(['message' => $message, 'code' => $status], $status);
@@ -93,8 +93,8 @@ abstract class CorsJsonController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-	 * @spec openspec/changes/p4-integration/tasks.md#task-10.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-10.4
 	 */
 	protected function applyCorsHeaders(JSONResponse $response): void {
 		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');

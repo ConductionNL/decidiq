@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md
+ * @spec openspec/specs/motion-amendment/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -33,7 +33,7 @@ namespace OCA\Decidiq\Listener;
  * SubmissionDeadlineListener reads the meeting and applies these; keeping them
  * apart keeps the listener to routing and lookups.
  *
- * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md
+ * @spec openspec/specs/motion-amendment/spec.md
  */
 class SubmissionWindow {
 
@@ -63,7 +63,7 @@ class SubmissionWindow {
 	 *
 	 * @param mixed $value The stored value
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-001-a-meeting-can-open-submission-at-a-set-time
 	 *
 	 * @return int|null The timestamp, or null when empty or unparseable
 	 */
@@ -85,7 +85,7 @@ class SubmissionWindow {
 	 *
 	 * @param array<string, mixed> $meeting Meeting payload
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return array{opensAt: int|null, deadline: int|null}
 	 */
@@ -101,7 +101,7 @@ class SubmissionWindow {
 	 *
 	 * @param array<string, mixed> $meeting Meeting payload being saved
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-003-a-window-that-opens-after-it-closes-is-refused
 	 *
 	 * @return bool True when both times are set and the opening is not before the deadline
 	 */
@@ -120,7 +120,7 @@ class SubmissionWindow {
 	 * @param array{opensAt: int|null, deadline: int|null} $window The meeting's window
 	 * @param int                                           $now    The submission moment
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return array<string, string>|null The errors for the event, or null
 	 */

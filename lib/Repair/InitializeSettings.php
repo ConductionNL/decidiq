@@ -16,8 +16,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -36,8 +36,8 @@ use Psr\Log\LoggerInterface;
 /**
  * Repair step that initializes Decidiq configuration via SettingsService.
  *
- * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.1
  */
 class InitializeSettings implements IRepairStep {
 	/**
@@ -61,9 +61,9 @@ class InitializeSettings implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getName(): string {
 		return 'Initialize Decidiq register and schemas via ConfigurationService';
@@ -76,9 +76,9 @@ class InitializeSettings implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function run(IOutput $output): void {
 		$output->info('Initializing Decidiq configuration...');
@@ -105,7 +105,7 @@ class InitializeSettings implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
 	 */
 	private function ensureVoterTokenSecret(IOutput $output): void {
 		// Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
@@ -153,7 +153,7 @@ class InitializeSettings implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
 	 */
 	private function importConfiguration(IOutput $output): void {
 		try {

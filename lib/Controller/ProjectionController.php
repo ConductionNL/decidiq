@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
  */
 
 declare(strict_types=1);
@@ -36,7 +36,7 @@ use OCP\IRequest;
 /**
  * Public projection controller (no authentication required).
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
  */
 class ProjectionController extends Controller {
 	/**
@@ -47,7 +47,7 @@ class ProjectionController extends Controller {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
 	 */
 	public function __construct(
 		IRequest $request,
@@ -72,7 +72,7 @@ class ProjectionController extends Controller {
 	 *
 	 * @return JSONResponse The public-state array or error
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-2
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]

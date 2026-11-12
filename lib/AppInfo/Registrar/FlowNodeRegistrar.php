@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+ * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -36,7 +36,7 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
 /**
  * Registers the flow node listener and the conclusion wake, when the engine exists.
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+ * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
  */
 class FlowNodeRegistrar {
 
@@ -47,7 +47,7 @@ class FlowNodeRegistrar {
 	 *                            engine's node-registration event. A parameter so a test
 	 *                            can name an absent class and prove the guard.
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function __construct(
 		private readonly string $engineEvent = RegisterFlowNodesEvent::class,
@@ -72,7 +72,7 @@ class FlowNodeRegistrar {
 	 * the autoloader yet during register(), and there is no container here to
 	 * inject an adapter from.
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function register(IRegistrationContext $context): void {
 		OpenRegisterAutoloader::register();

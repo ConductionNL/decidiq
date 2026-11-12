@@ -38,7 +38,7 @@
  * @link https://conduction.nl
  *
  * @spec openspec/specs/approval-routes/spec.md
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -52,7 +52,7 @@ use RuntimeException;
  * Instantiates approval routes and advances them.
  *
  * @spec openspec/specs/approval-routes/spec.md
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects) The engine owns every route
  *   rule (REQ-ARE-004 forbids a second engine), so the mandate directory and
@@ -390,7 +390,7 @@ class ApprovalRouteService {
 	 *         declares a silence this principal may not set.
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-015)
 	 */
 	public function instantiate(
@@ -550,7 +550,7 @@ class ApprovalRouteService {
 	 * @throws RuntimeException When the action is refused.
 	 *
 	 * @spec openspec/specs/approval-routes/spec.md
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function record(array $action): array {
 		$subject = (string)($action['subject'] ?? '');

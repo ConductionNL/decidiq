@@ -33,8 +33,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
- * @spec openspec/changes/unified-decision-templates/migration.md
+ * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/migration.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -55,7 +55,7 @@ use Throwable;
  * onto the unified DecisionTemplate schema (non-destructive; sources are
  * never modified or deleted).
  *
- * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
  */
 class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 
@@ -94,7 +94,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 * @param ContainerInterface $container DI container (lazy-loads OR ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
 	 */
 	public function __construct(
 		private readonly SettingsService $settingsService,
@@ -108,7 +108,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
 	 */
 	public function getName(): string {
 		return 'Migrate legacy Decidiq ProcessTemplate/VveDecisionTemplate objects to the unified DecisionTemplate schema';
@@ -134,8 +134,8 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
-	 * @spec openspec/changes/unified-decision-templates/migration.md
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/migration.md
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -183,7 +183,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$this->mappingObjectService = $objectService;
@@ -229,7 +229,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return array<string,bool> Keys of the form '<sourceSchema>|<sourceUuid>'.
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
 	 */
 	private function buildMigratedIndex(object $objectService): array {
 		$index = [];
@@ -394,8 +394,8 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
-	 * @spec openspec/changes/unified-decision-templates/migration.md
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/migration.md
 	 */
 	private function migrateSchema(
 		object $objectService,
@@ -489,7 +489,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return array<string,mixed> The decision-template payload.
 	 *
-	 * @spec openspec/changes/unified-decision-templates/migration.md
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/migration.md
 	 */
 	private function mapProcessTemplate(array $source, string $uuid): array {
 		$payload = [
@@ -542,7 +542,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return array<string, mixed> The policy with body refs resolved.
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md
 	 */
 	private function resolveUrgencyPolicyRefs(array $policy): array {
 		$ref = (string)($policy['ratifyingBody'] ?? '');
@@ -627,7 +627,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return array<string,mixed> The decision-template payload.
 	 *
-	 * @spec openspec/changes/unified-decision-templates/migration.md
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/migration.md
 	 */
 	private function mapVveDecisionTemplate(array $source, string $uuid): array {
 		$payload = [
@@ -666,7 +666,7 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	 *
 	 * @return array<string,mixed>|null The object array, or null when unusable.
 	 *
-	 * @spec openspec/changes/unified-decision-templates/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
 	 */
 	private function toArray(mixed $entity): ?array {
 		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {

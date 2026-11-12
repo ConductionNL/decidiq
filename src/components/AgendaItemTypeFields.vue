@@ -10,7 +10,7 @@
  so the parent decides when to save. The field logic lives in
  src/utils/agendaItemTypeFields.js, where it is unit tested.
 
- @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ @spec openspec/specs/questions-as-agenda-items/spec.md
 -->
 <template>
 	<fieldset
@@ -108,12 +108,12 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		inputs() {
 			return typeFieldInputs(this.type)
 		},
 
-		/** @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md */
+		/** @spec openspec/specs/questions-as-agenda-items/spec.md */
 		current() {
 			return this.modelValue || {}
 		},
@@ -123,7 +123,7 @@ export default {
 		/**
 		 * @param {object} input The input definition.
 		 * @return {string} The caption, with a marker for a required field.
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		caption(input) {
 			return input.required ? `${input.label} *` : input.label
@@ -132,7 +132,7 @@ export default {
 		/**
 		 * @param {object} input The input definition.
 		 * @return {string} The stored value as text for a text-like control.
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		text(input) {
 			const value = this.current[input.key]
@@ -142,7 +142,7 @@ export default {
 		/**
 		 * @param {object} input The input definition.
 		 * @return {string} The HTML input type.
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		inputType(input) {
 			if (input.input === 'number') return 'number'
@@ -187,7 +187,7 @@ export default {
 		/**
 		 * @param {object} input The input definition.
 		 * @param {unknown} raw The value the control produced.
-		 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+		 * @spec openspec/specs/questions-as-agenda-items/spec.md
 		 */
 		write(input, raw) {
 			this.$emit(

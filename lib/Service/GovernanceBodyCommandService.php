@@ -22,7 +22,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 
 declare(strict_types=1);
@@ -38,7 +38,7 @@ use RuntimeException;
  * migration in the producing app is re-runnable by construction, and a partial
  * run is completed by the next one rather than duplicated by it.
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class GovernanceBodyCommandService {
 
@@ -114,7 +114,7 @@ class GovernanceBodyCommandService {
 	 *
 	 * @throws RuntimeException When the command is incomplete or a write fails.
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function upsert(
 		string $sourceApp,

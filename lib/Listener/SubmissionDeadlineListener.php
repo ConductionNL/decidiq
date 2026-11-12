@@ -163,7 +163,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @param ObjectCreatingEvent  $event The creating event
 	 * @param array<string, mixed> $row   The decision payload being created
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */

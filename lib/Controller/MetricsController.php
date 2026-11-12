@@ -29,7 +29,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.1
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 

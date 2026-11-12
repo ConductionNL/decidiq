@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -62,7 +62,7 @@ use Psr\Log\LoggerInterface;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  */
 class DecisionStateRequestedListener implements IEventListener {
 
@@ -93,7 +93,7 @@ class DecisionStateRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof DecisionStateRequestedEvent === false) {
@@ -144,7 +144,7 @@ class DecisionStateRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	private function answerRead(DecisionStateRequestedEvent $event, string $decisionId): void {
 		if ($this->isPermittedRead(event: $event, decisionId: $decisionId) === false) {
@@ -169,7 +169,7 @@ class DecisionStateRequestedListener implements IEventListener {
 	 *
 	 * @return bool True when the read is allowed.
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	private function isPermittedRead(DecisionStateRequestedEvent $event, string $decisionId): bool {
 		$access = $this->authorizationGuard->resolveOutcomeReadAccess(
@@ -203,7 +203,7 @@ class DecisionStateRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	private function deliverEnvelope(DecisionStateRequestedEvent $event, string $decisionId): void {
 		$envelope = $this->integrationService->getOutcomeEnvelope(decisionId: $decisionId);

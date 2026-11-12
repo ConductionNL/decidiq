@@ -15,8 +15,8 @@
  A shared body also asks on behalf of which participating organisation
  the member sits (bodies-shared-body-participations, bod-13).
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
- @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ @spec openspec/specs/admin-settings/spec.md
+ @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 -->
 <template>
 	<NcDialog
@@ -151,7 +151,7 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md */
+		/** @spec openspec/specs/admin-settings/spec.md */
 		roleOptions() {
 			const labels = {
 				chair: this.t('decidiq', 'Chair'),
@@ -195,7 +195,7 @@ export default {
 		 * field stays hidden.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		async loadOnBehalfOf() {
 			try {
@@ -242,7 +242,7 @@ export default {
 		 * (design.md Decision 1's match-or-create step, client-side).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
 		 */
 		async link() {

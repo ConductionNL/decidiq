@@ -7,7 +7,7 @@
  through the object store; the payload is built and schema-checked in
  src/utils/bodyParticipations.js.
 
- @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 -->
 <template>
 	<NcDialog
@@ -137,7 +137,7 @@ export default {
 		 * Save the participation and tell the widget to reload.
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/bodies-shared-body-participations/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
 		async save() {
 			if (!this.selectedParticipant) {

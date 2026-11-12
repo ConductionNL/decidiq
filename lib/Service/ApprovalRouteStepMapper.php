@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ namespace OCA\Decidiq\Service;
 /**
  * Shapes route steps into stage fields.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class ApprovalRouteStepMapper {
 
@@ -44,7 +44,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $route The route.
 	 *
 	 * @return array<int, array<string, mixed>> The steps.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function orderedSteps(array $route): array {
 		$steps = ($route['steps'] ?? []);
@@ -85,7 +85,7 @@ class ApprovalRouteStepMapper {
 	 *
 	 * @return int The sequence.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function sequenceOf(array $step, int $index): int {
 		$order = (int)($step['order'] ?? 0);
@@ -102,7 +102,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string Either `person` or `body`.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function decisionMakerType(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') === 'body') {
@@ -123,7 +123,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string The person, or ''.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assignedPerson(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') !== 'person') {
@@ -139,7 +139,7 @@ class ApprovalRouteStepMapper {
 	 * @param array<string, mixed> $step The route step.
 	 *
 	 * @return string The body, or ''.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assignedBody(array $step): string {
 		if ((string)($step['actorType'] ?? 'role') !== 'body') {
@@ -170,7 +170,7 @@ class ApprovalRouteStepMapper {
 	 * @param int $sequence The stage's sequence.
 	 *
 	 * @return string A non-empty label.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function labelOf(array $step, int $sequence): string {
 		$label = trim((string)($step['label'] ?? ''));
@@ -192,7 +192,7 @@ class ApprovalRouteStepMapper {
 	 * @param int $firstSequence The route's first (lowest) sequence.
 	 *
 	 * @return string Either `active` or `pending`.
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function initialStatus(int $sequence, int $firstSequence): string {
 		if ($sequence === $firstSequence) {

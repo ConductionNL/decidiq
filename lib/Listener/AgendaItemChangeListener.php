@@ -19,7 +19,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,7 +44,7 @@ use Psr\Log\LoggerInterface;
  *
  * @template-implements IEventListener<Event>
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
  */
 class AgendaItemChangeListener implements IEventListener {
 
@@ -84,7 +84,7 @@ class AgendaItemChangeListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
 	 */
 	public function handle(Event $event): void {

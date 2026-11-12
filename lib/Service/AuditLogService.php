@@ -30,7 +30,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -60,7 +60,7 @@ use Psr\Log\LoggerInterface;
  * success=false, and callers on governance paths surface that. It never
  * pretends a row was written.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 class AuditLogService {
 
@@ -171,7 +171,7 @@ class AuditLogService {
 	 * @param string[] $objectUids List of object UUIDs the action touched
 	 * @param array $payload Optional extra structured detail; stored in the entry context
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{success: bool, entry: array|null, message: string}
 	 */
@@ -294,7 +294,7 @@ class AuditLogService {
 	 * @param string|null $entryUuid Optional entry UUID to stop at; null verifies the
 	 *                               entire chain.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{valid: bool, checked: int, tampered: array<int, string>}
 	 */
@@ -345,7 +345,7 @@ class AuditLogService {
 	 * @param string $endDate Inclusive end (ISO-8601)
 	 * @param string $format 'json' (default) or 'csv'
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{success: bool, format: string, body: string, count: int}
 	 */
@@ -372,7 +372,7 @@ class AuditLogService {
 	 *
 	 * @param array<string, mixed> $filters Filter criteria (actor / action / startDate / endDate / objectUuid / limit / offset)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{success: bool, entries: array, count: int}
 	 */
@@ -431,7 +431,7 @@ class AuditLogService {
 	 * @param array<string, mixed> $row A single mapped audit row
 	 * @param array<string, mixed> $filters Filter criteria
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return bool
 	 */
@@ -455,7 +455,7 @@ class AuditLogService {
 	 * @param array<string, mixed> $row A single mapped audit row
 	 * @param array<string, mixed> $filters Filter criteria
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return bool
 	 */
@@ -484,7 +484,7 @@ class AuditLogService {
 	 * @param array<string, mixed> $row A single mapped audit row
 	 * @param array<string, mixed> $filters Filter criteria
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return bool
 	 */
