@@ -63,6 +63,20 @@ class ExportBundleNoticeJobTest extends TestCase {
 	private array $removed = [];
 
 	/**
+	 * The objects the notifications were about: [type, id].
+	 *
+	 * @var list<array{0:string,1:string}>
+	 */
+	private array $objects = [];
+
+	/**
+	 * The argument to run the job with; the default export when null.
+	 *
+	 * @var mixed
+	 */
+	private mixed $argument = null;
+
+	/**
 	 * Run the job once against a merge job in $status.
 	 *
 	 * @param array<string,mixed>|null $mergeJob filinq's job, null when the store is missing.
@@ -118,9 +132,14 @@ class ExportBundleNoticeJobTest extends TestCase {
 		$notifications->method('createNotification')->willReturnCallback(function (): INotification {
 			$n = $this->createMock(INotification::class);
 			$state = new \ArrayObject();
-			foreach (['setApp', 'setDateTime', 'setObject'] as $m) {
+			foreach (['setApp', 'setDateTime'] as $m) {
 				$n->method($m)->willReturnSelf();
 			}
+
+			$n->method('setObject')->willReturnCallback(function (string $type, string $id) use ($n): INotification {
+				$this->objects[] = [$type, $id];
+				return $n;
+			});
 
 			$n->method('setUser')->willReturnCallback(function (string $u) use ($n, $state): INotification {
 				$state['user'] = $u;
@@ -150,7 +169,7 @@ class ExportBundleNoticeJobTest extends TestCase {
 		);
 
 		$run = new ReflectionMethod($job, 'run');
-		$run->invoke($job, ['mergeJob' => 'job-2', 'uid' => 'griffier', 'name' => 'Motions 2026-10-20.pdf', 'pages' => [11, 12], 'attempt' => $attempt]);
+		$run->invoke($job, ($this->argument ?? ['mergeJob' => 'job-2', 'uid' => 'griffier', 'name' => 'Motions 2026-10-20.pdf', 'pages' => [11, 12], 'attempt' => $attempt]));
 	}//end runWith()
 
 	/**
@@ -192,4 +211,57 @@ class ExportBundleNoticeJobTest extends TestCase {
 		self::assertSame(['export_bundle_failed', 'export_bundle_failed'], array_column($this->sent, 0));
 		self::assertSame([], $this->added);
 	}//end testAFailedOrStuckMergeEndsInTheFailedNotice()
+	/**
+	 * The notice is about the merged file when there is one, else the export's name.
+	 *
+	 * @return void
+	 */
+	public function testTheNoticeIsAboutTheFileOrElseTheName(): void {
+		$this->runWith(['status' => 'done', 'resultFileId' => 777]);
+		$this->runWith(['status' => 'done']);
+		$this->runWith(['status' => 'failed', 'resultFileId' => 5]);
+
+		self::assertSame(
+			[['export-bundle', '777'], ['export-bundle', 'Motions 2026-10-20.pdf'], ['export-bundle', 'Motions 2026-10-20.pdf']],
+			$this->objects
+		);
+		self::assertSame(
+			[
+				['export_bundle_ready', ['title' => 'Motions 2026-10-20.pdf', 'fileId' => '777'], 'griffier'],
+				['export_bundle_ready', ['title' => 'Motions 2026-10-20.pdf', 'fileId' => ''], 'griffier'],
+				['export_bundle_failed', ['title' => 'Motions 2026-10-20.pdf', 'fileId' => ''], 'griffier'],
+			],
+			$this->sent
+		);
+	}//end testTheNoticeIsAboutTheFileOrElseTheName()
+
+	/**
+	 * A missing merge job is not waited for; a waiting one is re-added with every key kept.
+	 *
+	 * @return void
+	 */
+	public function testAMissingJobFailsAndAWaitingOneKeepsItsArgument(): void {
+		$this->runWith(null);
+		self::assertSame(['export_bundle_failed'], array_column($this->sent, 0));
+
+		$this->argument = ['mergeJob' => 'job-2', 'uid' => 'griffier', 'extra' => 'kept'];
+		$this->runWith(['status' => 'queued']);
+		self::assertSame([[ExportBundleNoticeJob::class, ['mergeJob' => 'job-2', 'uid' => 'griffier', 'extra' => 'kept', 'attempt' => 1]]], $this->added);
+	}//end testAMissingJobFailsAndAWaitingOneKeepsItsArgument()
+
+	/**
+	 * An argument that is not an array, or names no user, does nothing at all.
+	 *
+	 * @return void
+	 */
+	public function testAnArgumentWithoutAUserDoesNothing(): void {
+		$this->argument = 'job-2';
+		$this->runWith(['status' => 'done']);
+		$this->argument = ['mergeJob' => 'job-2', 'uid' => '', 'pages' => [1]];
+		$this->runWith(['status' => 'done']);
+
+		self::assertSame([], $this->sent);
+		self::assertSame([], $this->removed);
+		self::assertSame([], $this->added);
+	}//end testAnArgumentWithoutAUserDoesNothing()
 }//end class
