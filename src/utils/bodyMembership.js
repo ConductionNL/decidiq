@@ -25,16 +25,30 @@ import {
  */
 export function startOfDay(value) {
 	if (!value) return ''
-	if (value instanceof Date) {
-		return new Date(
-			value.getFullYear(),
-			value.getMonth(),
-			value.getDate(),
-		).toISOString()
-	}
+	const day = value instanceof Date ? localDay(value) : parsedDay(value)
+	return day ? day.toISOString() : ''
+}
+
+/**
+ * The local midnight of a picked Date.
+ *
+ * @param {Date} value The picked date.
+ * @return {Date} Midnight of that day.
+ */
+function localDay(value) {
+	return new Date(value.getFullYear(), value.getMonth(), value.getDate())
+}
+
+/**
+ * The local midnight of a YYYY-MM-DD string, or null when a part is missing.
+ *
+ * @param {string} value The picked date.
+ * @return {Date|null} Midnight of that day.
+ */
+function parsedDay(value) {
 	const [year, month, day] = String(value).split('-').map(Number)
-	if (!year || !month || !day) return ''
-	return new Date(year, month - 1, day).toISOString()
+	if (!year || !month || !day) return null
+	return new Date(year, month - 1, day)
 }
 
 /**
