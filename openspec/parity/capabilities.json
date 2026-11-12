@@ -10483,6 +10483,48 @@
 				]
 			},
 			"source": "coverage-2026-10-30"
+		},
+		{
+			"id": "plt-34",
+			"area": "platform",
+			"name": "Bring meetings, papers, votes and decisions over from Notubiz or iBabs, and keep both in step while the switch runs.",
+			"origin": "own-change",
+			"decidiq": "no",
+			"built": {
+				"state": "specified",
+				"owner": "ConductionNL/integriq",
+				"evidence": "Not built: no Notubiz or iBabs adapter in decidiq or integriq. Specified in openspec/changes/notubiz-ibabs-griffie-koppeling (written for openconnector, now integriq).",
+				"change": "openspec/changes/notubiz-ibabs-griffie-koppeling",
+				"plan": [
+					"openspec/changes/notubiz-ibabs-griffie-koppeling"
+				],
+				"requirement": [
+					"openspec/changes/notubiz-ibabs-griffie-koppeling/specs/notubiz-ibabs-griffie-koppeling :: REQ-NIK-001 — Full initial import per provider",
+					"openspec/changes/notubiz-ibabs-griffie-koppeling/specs/notubiz-ibabs-griffie-koppeling :: REQ-NIK-002 — Incremental pull every 15 minutes"
+				]
+			},
+			"reachedOn": "nothing",
+			"provider": "integriq",
+			"providerHow": "read-from-code",
+			"feature": "app-integrations",
+			"featureConfidence": "medium",
+			"note": "Row added under decision 399 (12 Nov 2026) for the open change notubiz-ibabs-griffie-koppeling: the exit path from the two griffie systems most municipalities run. The adapters are integriq connections; decidiq receives the objects.",
+			"screen": {
+				"board": null,
+				"reason": "no decidiq screen: the import runs as integriq connections and synchronisations"
+			},
+			"notubiz": "unknown",
+			"ibabs": "unknown",
+			"go-raadsinformatie": "unknown",
+			"diligent-boards": "unknown",
+			"openslides": "unknown",
+			"evidence": {
+				"notubiz": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"ibabs": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"go-raadsinformatie": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"diligent-boards": "not checked: row added for an open change under decision 399 (12 Nov 2026)",
+				"openslides": "not checked: row added for an open change under decision 399 (12 Nov 2026)"
+			}
 		}
 	],
 	"pending": [],
