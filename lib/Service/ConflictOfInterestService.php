@@ -225,7 +225,7 @@ class ConflictOfInterestService {
 			// admin); the schema's own authorization block declares only read/list
 			// (decidesk_register.json), so this consumer declares, per the
 			// ObjectServiceInterface RBAC contract, that authorization already ran
-			// (same convention as ProxyVoteService::register()).
+			// (same convention as ProxyVoteService::transition()).
 			$saved = $this->objectService->saveObject(
 				object: $row,
 				register: 'decidiq',

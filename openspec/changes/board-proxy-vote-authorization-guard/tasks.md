@@ -1,5 +1,7 @@
 # Tasks: board-proxy-vote-authorization-guard
 
+> 2026-11-12 (decision 399): REQ-BPV-001 is superseded by removing `POST /api/proxies` (`proxyVote#register`), which nothing called; proxies are granted per voting round through `voting#proxy`. Task 2 is closed by that removal, not implemented.
+
 ## Implementation Tasks
 
 ### Task 1: Resolve chair/clerk authority for a GovernanceBody
@@ -10,9 +12,9 @@
     chair/clerk role on that meeting's GovernanceBody (reuse the existing role-resolution helper
     already used by `LiveMeetingController::requireChairOrAdmin()` / participant resolution
     service rather than writing a second implementation)
-- [ ] Add a private `isChairOrClerk(string $meetingId, string $uid): bool` helper (or reuse
+- [x] Add a private `isChairOrClerk(string $meetingId, string $uid): bool` helper (or reuse
       `ParticipantResolver` if it already exposes role lookup) to `ProxyVoteService`.
-- [ ] Test: chair/clerk/regular-member/non-member classifications for a fixture meeting.
+- [x] Test: chair/clerk/regular-member/non-member classifications for a fixture meeting.
 
 ### Task 2: Authorize `register()`
 - **spec_ref**: `openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy`
@@ -24,12 +26,12 @@
     `$accessUid = null` admin-bypass convention)
   - GIVEN caller is none of the above THEN `register()` returns `{success: false}` and the
     controller responds `403 Forbidden` with a static message (no stack trace, no internal detail)
-- [ ] Add `?string $callerUid` param to `ProxyVoteService::register()`; reject before the existing
-      validation when the caller fails the check above.
-- [ ] Update `ProxyVoteController::register()` to resolve `$callerUid` (null on admin, per the
-      `MotionCoauthorController` pattern) from `IUserSession` + `IGroupManager` and pass it through.
-- [ ] Test: self-grantor allowed; chair-on-behalf-of-another-member allowed; unrelated member
-      rejected 403; admin allowed.
+- [x] ~~Add `?string $callerUid` param to `ProxyVoteService::register()`; reject before the existing
+      validation when the caller fails the check above.~~ Superseded.
+- [x] ~~Update `ProxyVoteController::register()` to resolve `$callerUid` (null on admin, per the
+      `MotionCoauthorController` pattern) from `IUserSession` + `IGroupManager` and pass it through.~~ Superseded.
+- [x] ~~Test: self-grantor allowed; chair-on-behalf-of-another-member allowed; unrelated member
+      rejected 403; admin allowed.~~ Superseded: the register route and method are removed.
 
 ### Task 3: Authorize `transition()` (`suspend()` / `revoke()`)
 - **spec_ref**: `openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it`
@@ -41,11 +43,11 @@
     transition proceeds
   - GIVEN caller is unrelated to the proxy THEN `transition()` returns `{success: false}` and the
     controller responds `403 Forbidden`
-- [ ] Add `?string $callerUid` param to `transition()`/`suspend()`/`revoke()`; look up the proxy
+- [x] Add `?string $callerUid` param to `transition()`/`suspend()`/`revoke()`; look up the proxy
       first (already done for the `find()` call), then authorize before mutating.
-- [ ] Update `ProxyVoteController::suspend()`/`revoke()` to resolve and forward `$callerUid` the
+- [x] Update `ProxyVoteController::suspend()`/`revoke()` to resolve and forward `$callerUid` the
       same way as Task 2.
-- [ ] Test: grantor revokes own proxy — allowed; holder suspends — allowed; unrelated
+- [x] Test: grantor revokes own proxy — allowed; holder suspends — allowed; unrelated
       authenticated user attempts suspend/revoke — 403; admin allowed.
 
 ### Task 4: Regression + Newman coverage

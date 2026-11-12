@@ -77,104 +77,6 @@ class ProxyVoteControllerTest extends TestCase {
 	}//end makeController()
 
 	/**
-	 * register requires authentication.
-	 *
-	 * @return void
-	 */
-	public function testRegisterRequiresAuth(): void {
-		$service = $this->createMock(ProxyVoteService::class);
-		$controller = $this->makeController($service, authenticated: false);
-
-		$response = $controller->register();
-		$this->assertSame(Http::STATUS_UNAUTHORIZED, $response->getStatus());
-
-	}//end testRegisterRequiresAuth()
-
-	/**
-	 * register rejects missing fields.
-	 *
-	 * @return void
-	 */
-	public function testRegisterRejectsMissingFields(): void {
-		$service = $this->createMock(ProxyVoteService::class);
-		$controller = $this->makeController($service, requestParams: ['meetingId' => 'm-1']);
-
-		$response = $controller->register();
-		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
-
-	}//end testRegisterRejectsMissingFields()
-
-	/**
-	 * register returns 201 on success.
-	 *
-	 * @return void
-	 */
-	public function testRegisterReturns201OnSuccess(): void {
-		$service = $this->createMock(ProxyVoteService::class);
-		$service->expects($this->once())->method('register')
-			->with('m-1', 'g-1', 'h-1', $this->anything(), 'alice')
-			->willReturn(['success' => true, 'proxy' => ['id' => 'p-1'], 'message' => 'ok']);
-
-		$controller = $this->makeController(
-			$service,
-			requestParams: ['meetingId' => 'm-1', 'grantorId' => 'g-1', 'holderId' => 'h-1']
-		);
-
-		$response = $controller->register();
-		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
-
-	}//end testRegisterReturns201OnSuccess()
-
-	/**
-	 * register forwards a null callerUid for admin callers (admin bypass).
-	 *
-	 * @return void
-	 */
-	public function testRegisterForwardsNullCallerUidForAdmin(): void {
-		$service = $this->createMock(ProxyVoteService::class);
-		$service->expects($this->once())->method('register')
-			->with('m-1', 'g-1', 'h-1', $this->anything(), null)
-			->willReturn(['success' => true, 'proxy' => ['id' => 'p-1'], 'message' => 'ok']);
-
-		$controller = $this->makeController(
-			$service,
-			requestParams: ['meetingId' => 'm-1', 'grantorId' => 'g-1', 'holderId' => 'h-1'],
-			isAdmin: true
-		);
-
-		$response = $controller->register();
-		$this->assertSame(Http::STATUS_CREATED, $response->getStatus());
-
-	}//end testRegisterForwardsNullCallerUidForAdmin()
-
-	/**
-	 * register() maps a Forbidden: service message to 403, not the generic 422.
-	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
-	 *
-	 * @return void
-	 */
-	public function testRegisterMapsForbiddenMessageTo403(): void {
-		$service = $this->createMock(ProxyVoteService::class);
-		$service->method('register')->willReturn(
-			[
-				'success' => false,
-				'proxy' => null,
-				'message' => 'Forbidden: only the grantor, a chair/clerk of the meeting, or an admin may register this proxy.',
-			]
-		);
-
-		$controller = $this->makeController(
-			$service,
-			requestParams: ['meetingId' => 'm-1', 'grantorId' => 'g-1', 'holderId' => 'h-1']
-		);
-
-		$response = $controller->register();
-		$this->assertSame(Http::STATUS_FORBIDDEN, $response->getStatus());
-
-	}//end testRegisterMapsForbiddenMessageTo403()
-
-	/**
 	 * index requires meetingId.
 	 *
 	 * @return void
@@ -348,4 +250,22 @@ class ProxyVoteControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_OK, $response->getStatus());
 
 	}//end testRevokeDelegates()
+
+	/**
+	 * Proxies are granted per voting round, so the app routes no
+	 * `POST /api/proxies` and the controller has no register action.
+	 *
+	 * @return void
+	 */
+	public function testNoRouteRegistersAProxy(): void {
+		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		foreach ($routes['routes'] as $route) {
+			$isPostOnProxies = ($route['url'] === '/api/proxies' && ($route['verb'] ?? 'GET') === 'POST');
+			$this->assertFalse($isPostOnProxies, 'POST /api/proxies must not be routed');
+			$this->assertNotSame('proxyVote#register', $route['name']);
+		}
+
+		$this->assertFalse(method_exists(ProxyVoteController::class, 'register'));
+
+	}//end testNoRouteRegistersAProxy()
 }//end class

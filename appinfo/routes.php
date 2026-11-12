@@ -290,7 +290,6 @@ $extra = [
         ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
 
         // Proxy voting (task-5.1).
-        ['name' => 'proxyVote#register', 'url' => '/api/proxies',               'verb' => 'POST'],
         ['name' => 'proxyVote#index',    'url' => '/api/proxies',               'verb' => 'GET'],
         ['name' => 'proxyVote#suspend',  'url' => '/api/proxies/{id}/suspend',  'verb' => 'PUT'],
         ['name' => 'proxyVote#revoke',   'url' => '/api/proxies/{id}',          'verb' => 'DELETE'],

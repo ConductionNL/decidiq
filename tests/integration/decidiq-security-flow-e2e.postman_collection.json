@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "a6a7bfcf-9a5f-4be4-817c-86dc00e136d1",
 		"name": "Decidiq Security-Flow e2e Coverage (security-flow-e2e-coverage)",
-		"description": "Newman/Postman real-HTTP e2e coverage for four security-relevant endpoint groups that were previously exercised only by PHPUnit tests instantiating the controller directly (bypassing router/SecurityMiddleware/CSRF/session auth): proxy-vote delegation (register/revoke + the board-proxy-vote-authorization-guard IDOR check), eIDAS QES signing-endpoint reachability + auth posture, and governance-report / regulator-export reachability. Per the gate-19 split, API/contract correctness lives in Newman; Playwright drives the UI only (feedback_playwright-ui-only-newman-api) \u2014 this collection is that Newman-side coverage, not a Playwright spec.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. No-auth requests target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them, matching decidiq.postman_collection.json's convention.\n\nSelf-contained and idempotent: folder 1 seeds and tears down its own two non-admin probe users + one participant. Folders 2-3 need no fixtures beyond the existing adminUser/adminPass.\n\n@spec openspec/changes/security-flow-e2e-coverage/specs/security-sensitive-e2e-coverage/spec.md",
+		"description": "Newman/Postman real-HTTP e2e coverage for four security-relevant endpoint groups that were previously exercised only by PHPUnit tests instantiating the controller directly (bypassing router/SecurityMiddleware/CSRF/session auth): proxy-vote revocation (the board-proxy-vote-authorization-guard IDOR check, plus proof that no POST /api/proxies is routed), eIDAS QES signing-endpoint reachability + auth posture, and governance-report / regulator-export reachability. Per the gate-19 split, API/contract correctness lives in Newman; Playwright drives the UI only (feedback_playwright-ui-only-newman-api) — this collection is that Newman-side coverage, not a Playwright spec.\n\nAUTH MODEL: collection auth is noauth; every authenticated request carries an EXPLICIT basic-auth block plus 'OCS-APIRequest: true'. No-auth requests target {{noAuthBase}} (127.0.0.1) so the host-scoped NC session cookie established by authed localhost requests never leaks to them, matching decidiq.postman_collection.json's convention.\n\nSelf-contained and idempotent: folder 1 seeds and tears down its own two non-admin probe users + one participant. Folders 2-3 need no fixtures beyond the existing adminUser/adminPass.\n\n@spec openspec/changes/security-flow-e2e-coverage/specs/security-sensitive-e2e-coverage/spec.md",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -70,11 +70,15 @@
 			"value": ""
 		},
 		{
-			"key": "sfecHolderParticipantId",
+			"key": "sfecMeetingId",
 			"value": ""
 		},
 		{
-			"key": "sfecMeetingId",
+			"key": "sfecGrantorPersonId",
+			"value": ""
+		},
+		{
+			"key": "sfecHolderPersonId",
 			"value": ""
 		},
 		{
@@ -85,7 +89,7 @@
 	"item": [
 		{
 			"name": "1. Proxy-vote authorization guard",
-			"description": "REQ-SFEC-001: real-HTTP e2e for board-proxy-vote-authorization-guard, driven through the actual /api/proxies* routes + Nextcloud auth middleware (not a direct controller call). Self-contained: seeds its own two non-admin probe users + one participant, tears both users and the participant down at the end.",
+			"description": "REQ-SFEC-001: real-HTTP e2e for board-proxy-vote-authorization-guard, driven through the actual /api/proxies/{id} routes + Nextcloud auth middleware (not a direct controller call). Self-contained: seeds its own two non-admin probe users, their participants and persons, and the proxy row (there is no proxy registration endpoint: proxies are granted per voting round), and tears all of them down at the end.",
 			"item": [
 				{
 					"name": "Create grantor probe user",
@@ -320,77 +324,7 @@
 					]
 				},
 				{
-					"name": "Seed holder participant (for the proxy's holder side)",
-					"description": "REQ-SFEC-001 / model-debt-cleanup-code Decision 3: ProxyVoteService::register() resolves BOTH grantorId and holderId through ParticipantToPersonMembershipResolver, which loads the Participant row by id and fails closed (422) when it does not exist. A placeholder string here is not a Participant, so the crosswalk cannot resolve it — seed a real (unlinked-to-any-NC-account) Participant instead, matching how the grantor side is seeded above.",
-					"request": {
-						"method": "POST",
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "{{adminUser}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{adminPass}}",
-									"type": "string"
-								}
-							]
-						},
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "OCS-APIRequest",
-								"value": "true"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"displayName\": \"SFEC Holder\",\n  \"name\": \"SFEC Holder\",\n  \"role\": \"member\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"openregister",
-								"api",
-								"objects",
-								"decidiq",
-								"participant"
-							]
-						}
-					},
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									"pm.test('Setup: holder participant created (201)', () => pm.response.to.have.status(201));",
-									"const b = pm.response.json();",
-									"const id = (b['@self'] && b['@self'].id) || b.id;",
-									"pm.expect(id, 'holder participant id captured').to.be.a('string');",
-									"pm.collectionVariables.set('sfecHolderParticipantId', id);"
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Seed meeting (for the proxy registration)",
+					"name": "Seed meeting (for the proxy row)",
 					"description": "The proxy-authorization schema's `meeting` property is `format: uuid` (fragment 63-member-proxy-authorization.json, unchanged by model-debt-cleanup-code) — OpenRegister rejects a non-uuid value at save with 'Property meeting should match format uuid'. The prior fixture used a free-text placeholder because the OLD board-proxy row's `meetingIntegration` field carried no format constraint; the new schema does, so a real seeded Meeting is required.",
 					"request": {
 						"method": "POST",
@@ -460,7 +394,7 @@
 					]
 				},
 				{
-					"name": "Register proxy as grantor (happy: 201)",
+					"name": "Seed grantor person (linked to grantor probe user)",
 					"request": {
 						"method": "POST",
 						"auth": {
@@ -468,12 +402,12 @@
 							"basic": [
 								{
 									"key": "username",
-									"value": "{{sfecGrantorUser}}",
+									"value": "{{adminUser}}",
 									"type": "string"
 								},
 								{
 									"key": "password",
-									"value": "{{sfecGrantorPass}}",
+									"value": "{{adminPass}}",
 									"type": "string"
 								}
 							]
@@ -494,19 +428,21 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"meetingId\": \"{{sfecMeetingId}}\",\n  \"grantorId\": \"{{sfecParticipantId}}\",\n  \"holderId\": \"{{sfecHolderParticipantId}}\"\n}"
+							"raw": "{\n  \"name\": \"SFEC Grantor\",\n  \"nextcloudUserId\": \"{{sfecGrantorUser}}\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/decidiq/api/proxies",
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
 								"index.php",
 								"apps",
-								"decidiq",
+								"openregister",
 								"api",
-								"proxies"
+								"objects",
+								"decidiq",
+								"person"
 							]
 						}
 					},
@@ -516,9 +452,147 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('Register as self-grantor: 201', () => pm.response.to.have.status(201));",
+									"pm.test('Setup: grantor person created (201)', () => pm.response.to.have.status(201));",
 									"const b = pm.response.json();",
-									"const id = b.id || b.uuid || (b['@self'] && b['@self'].id);",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'grantor person id captured').to.be.a('string');",
+									"pm.collectionVariables.set('sfecGrantorPersonId', id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Seed holder person",
+					"request": {
+						"method": "POST",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"SFEC Holder\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"person"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: holder person created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id, 'holder person id captured').to.be.a('string');",
+									"pm.collectionVariables.set('sfecHolderPersonId', id);"
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Seed proxy row as admin (grantor -> holder)",
+					"request": {
+						"method": "POST",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"meeting\": \"{{sfecMeetingId}}\",\n  \"grantor\": \"{{sfecGrantorPersonId}}\",\n  \"holder\": \"{{sfecHolderPersonId}}\",\n  \"proxyStatus\": \"pending-approval\",\n  \"signatureStatus\": \"unsigned\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"proxy-authorization"
+							]
+						}
+					},
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Setup: proxy created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
 									"pm.expect(id, 'proxy id captured').to.be.a('string');",
 									"pm.collectionVariables.set('sfecProxyId', id);"
 								]
@@ -591,7 +665,7 @@
 					]
 				},
 				{
-					"name": "Register proxy as unrelated user is rejected (authz: 403)",
+					"name": "POST /api/proxies is not routed (405)",
 					"request": {
 						"method": "POST",
 						"auth": {
@@ -647,7 +721,7 @@
 							"script": {
 								"type": "text/javascript",
 								"exec": [
-									"pm.test('Register on behalf of an unrelated grantor: 403', () => pm.response.to.have.status(403));"
+									"pm.test('No proxy registration endpoint: 405', () => pm.response.to.have.status(405));"
 								]
 							}
 						}
@@ -768,6 +842,147 @@
 					]
 				},
 				{
+					"name": "Delete proxy row",
+					"request": {
+						"method": "DELETE",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/proxy-authorization/{{sfecProxyId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"proxy-authorization",
+								"{{sfecProxyId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete grantor person",
+					"request": {
+						"method": "DELETE",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person/{{sfecGrantorPersonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"person",
+								"{{sfecGrantorPersonId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete holder person",
+					"request": {
+						"method": "DELETE",
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"header": [
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/person/{{sfecHolderPersonId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"person",
+								"{{sfecHolderPersonId}}"
+							]
+						}
+					}
+				},
+				{
 					"name": "Delete grantor participant",
 					"request": {
 						"method": "DELETE",
@@ -810,53 +1025,6 @@
 								"decidiq",
 								"participant",
 								"{{sfecParticipantId}}"
-							]
-						}
-					}
-				},
-				{
-					"name": "Delete holder participant",
-					"request": {
-						"method": "DELETE",
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "{{adminUser}}",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "{{adminPass}}",
-									"type": "string"
-								}
-							]
-						},
-						"header": [
-							{
-								"key": "OCS-APIRequest",
-								"value": "true"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/participant/{{sfecHolderParticipantId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"index.php",
-								"apps",
-								"openregister",
-								"api",
-								"objects",
-								"decidiq",
-								"participant",
-								"{{sfecHolderParticipantId}}"
 							]
 						}
 					}
