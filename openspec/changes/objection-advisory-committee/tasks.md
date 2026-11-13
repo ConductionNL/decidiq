@@ -11,8 +11,9 @@
   - GIVEN the descriptions of `quorum` and `quorumRule` WHEN read THEN each names the other and states which question it answers; the same for `external` and `independenceStatus`
   - GIVEN a create setting `quorum: 1` WHEN saved THEN validation rejects it
   - GIVEN `required` on both schemas WHEN compared to before THEN it is unchanged — every new field is optional, so no existing object becomes invalid
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: the fields in `lib/Settings/decidesk_register.json`, `tests/Unit/Settings/ObjectionAdvisoryCommitteeFieldsTest.php`.
 
 ### Task 2: A scoped write path for governance bodies on the cross-app API
 - **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-005-governance-bodies-are-writable-through-the-cross-app-api`
@@ -22,8 +23,9 @@
   - GIVEN a caller with only the read scope WHEN it POSTs THEN the request is refused and nothing is created
   - GIVEN the same caller WHEN it POSTs to any other resource THEN the request is refused
   - GIVEN the existing GET routes WHEN exercised THEN their behaviour is unchanged
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: `ApiController::create()/update()` for `governance-bodies` only (`RESOURCE_WRITABLE`), authorised by OpenRegister RBAC as the acting user; the docblock records why not a scope (SCOPE_MAP enforces nothing).
 
 ### Task 3: Seed one objection advisory committee and surface the fields
 - **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-006-the-new-fields-are-seeded-and-surfaced`
@@ -32,8 +34,9 @@
   - GIVEN a fresh install WHEN seeded THEN a body exists with `bodyType: advisory-body`, `statutoryBasis` naming Awb 7:13, `quorum >= 2`, `active: true`, and a `jurisdiction`
   - GIVEN the governance-body detail page WHEN rendered THEN the four new fields appear
   - GIVEN a body with an unset `quorum` WHEN rendered THEN it shows as unset, never as `0`
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: the committee seed in `lib/Settings/profiles/municipality.json` (Awb 7:13, quorum 3, active, jurisdiction); `body-data` on GovernanceBodyDetail shows every field.
 
 ### Task 4: Tests
 - **spec_ref**: all requirements
@@ -42,8 +45,9 @@
   - GIVEN the register JSON WHEN a test reads it THEN the four GovernanceBody fields and the Membership field are present with the specced types, defaults and constraints
   - GIVEN `quorum` WHEN inspected THEN it has NO default — a test asserts the absence, because a default of 0 would read as "no members needed"
   - GIVEN the write path WHEN exercised without the scope THEN a test proves it refuses
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: `ObjectionAdvisoryCommitteeFieldsTest` (fields, no default on quorum, additive), `ApiControllerWriteTest` (write path).
 
 ### Task 5: The objection flow as configuration
 - **spec_ref**: `openspec/changes/objection-advisory-committee/specs/objection-advisory-committee/spec.md#requirement-req-oac-008-an-objection-runs-as-a-decision-through-its-configured-route`
@@ -53,4 +57,5 @@
   - GIVEN an objection recorded against a decision WHEN its page opens THEN the steps, the current step and the term show as DcBezwaar draws them
   - GIVEN `grep -rniE 'bezwaar|objection' lib/Service` WHEN run after this task THEN no new class or method is named after objections
 - [ ] Implement
+  - Done: the configuration half. `lib/Settings/register.d/132-decision-type-term-period.json` adds `termPeriod` (ISO 8601 duration) and `termStartsAt` to the decision type; the municipality example set seeds the `bezwaar-decision` type (P12W from the end of the objection period) and its default route `bezwaar-standaard` with the five steps (intake with admissibility, hearing, the committee's advice, decision, sending), the seeded advisory committee as adviser; `ObjectionRouteConfigurationTest`. Open: computing the term on the decision page and showing the steps on `DecisionDetail`, and `tests/e2e/objection-route.spec.ts`.
 - [ ] Test
