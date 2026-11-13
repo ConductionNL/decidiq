@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
+use OCA\Decidiq\Listener\GoverningDocumentVersionGuardListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
@@ -85,6 +86,11 @@ final class SaveGuardSubscriptions {
 		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
 		// a decision of a type is recorded only by the body the type names as
 		// competent, on create and on update.
+		// Governing-document versions (governing-documents-register, REQ-GDR-002/004):
+		// an amendment names its enacting decision, numbers are unique per
+		// document, and a version is put in effect only after the latest one.
+		['event' => ObjectCreatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => GoverningDocumentVersionGuardListener::class, 'schemas' => ['governing-document-versie']],
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 	];

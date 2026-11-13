@@ -31,8 +31,10 @@
   - GIVEN a latest sealed version at 2022-01-01 WHEN sealing a new version dated 2021-06-01 THEN activation is refused (ordering guard)
   - GIVEN a document with a sealed version WHEN an amendment version is created without `vastgesteldDoor` THEN it is rejected; GIVEN a document with no versions WHEN a constitutive version omits `vastgesteldDoor` THEN it is accepted (REQ-GDR-002)
   - GIVEN the GET in-force endpoint WHEN called with a malformed date THEN a validation error is returned; the route carries explicit auth attributes and a per-object guard
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+      DONE: `lib/Service/GoverningDocumentConsolidationService.php` (in-force resolution, activation-ordering guard, conditional trace rule, unique version numbers), enforced on every version save by `lib/Listener/GoverningDocumentVersionGuardListener.php` (subscribed in `SaveGuardSubscriptions` for `governing-document-versie` creates and updates); `GET /api/governing-documents/{id}/in-force` in `lib/Controller/GoverningDocumentController.php` (`#[NoAdminRequired]`, the document read with the caller's rights first, strict `YYYY-MM-DD`), routed in `appinfo/routes.php` and documented in `openapi.json`. Signed-in members only: the anonymous read of an `isPublic` document belongs to Task 6.
+- [x] Test
+      `tests/Unit/Service/GoverningDocumentConsolidationServiceTest.php`, `tests/Unit/Listener/GoverningDocumentVersionGuardListenerTest.php`, `tests/Unit/Controller/GoverningDocumentControllerTest.php`.
 
 ### Task 4: List/detail pages + version timeline (manifest fragment)
 - **spec_ref**: `openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages`

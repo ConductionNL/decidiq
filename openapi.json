@@ -112,6 +112,10 @@
             "description": "REST controller for governance reports."
         },
         {
+            "name": "governing-document",
+            "description": "In-force resolution of a governing document."
+        },
+        {
             "name": "guest-invitation",
             "description": "Guest invitations for ad hoc meetings."
         },
@@ -2151,6 +2155,61 @@
                     },
                     "422": {
                         "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
+        "/governing-documents/{id}/in-force": {
+            "get": {
+                "operationId": "governing-document-in-force",
+                "summary": "The version of a governing document in force on a date.",
+                "description": "The version of a governing document in force on a date: the version put in effect latest on or before the date, unless it expired by then; `version` is null when none is in force. The document is looked up with the user's own rights, and a document they cannot see answers 404 before any version is read. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "governing-document"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governing document UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "required": false,
+                        "description": "The date, YYYY-MM-DD; today when omitted.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
