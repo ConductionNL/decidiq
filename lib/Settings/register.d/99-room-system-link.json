@@ -1,0 +1,198 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change live-room-conference-system-link (REQ-RCSL-002 to REQ-RCSL-005, matrix row liv-22). The file is named 99- so it merges after every fragment that sets the Participant or Vote version (fragments merge in sorted name order). A member's seat in the chamber's conference and voting system is recorded on the participant (roomSeat). What the room system sends comes in as a RoomSystemMessage, an inbox only the integriq synchronisation group may create in; decidiq's RoomSystemMessageListener resolves the seat and applies a speech through EngagementService and a vote through VoteCastingService, so every voting rule stays in decidiq. Vote gains castVia, the channel a ballot came through. The synchronisation user reads meeting, agenda-item and participant through the register's own read rule (authenticated); no grant is added for that.",
+  "components": {
+    "registers": {
+      "decidiq": {
+        "schemas": [
+          "room-system-message"
+        ]
+      }
+    },
+    "schemas": {
+      "Participant": {
+        "slug": "participant",
+        "version": "0.5.0",
+        "properties": {
+          "roomSeat": {
+            "title": "Seat in the room system",
+            "type": "string",
+            "nullable": true,
+            "description": "The delegate unit id the chamber's conference and voting system sends for this member's seat, such as 12.",
+            "example": "12",
+            "x-notes": "Matched exactly against RoomSystemMessage.seat by RoomSystemMessageService, among the participants of the meeting's governance body. Empty for a member without a seat."
+          }
+        }
+      },
+      "Vote": {
+        "slug": "vote",
+        "version": "0.4.0",
+        "properties": {
+          "castVia": {
+            "title": "Cast through",
+            "type": "string",
+            "nullable": true,
+            "description": "The channel the ballot came through.",
+            "enum": [
+              "app",
+              "email",
+              "room-system"
+            ],
+            "x-enum-labels": {
+              "app": "Decidiq",
+              "email": "Email",
+              "room-system": "Room system"
+            },
+            "x-notes": "room-system is set by RoomSystemMessageService after VoteCastingService::castVote() saved the ballot of a desk vote."
+          }
+        }
+      },
+      "RoomSystemMessage": {
+        "slug": "room-system-message",
+        "icon": "Microphone",
+        "version": "1.0.0",
+        "title": "Room system message",
+        "description": "A speaker marking or a desk vote the chamber's conference and voting system sent, and whether decidiq applied it.",
+        "type": "object",
+        "_authorizationNote": "Only the integriq synchronisation group creates messages; staff read them. Nobody updates or deletes through the object API: decidiq's RoomSystemMessageService writes status, rejectReason and participant in system context, after the listener (on create) or the chair or secretary (apply again) started it. A schema block replaces the register block whole, so the write actions left out stay closed.",
+        "authorization": {
+          "create": [
+            "integriq-synchronisation"
+          ],
+          "read": [
+            "decidiq-secretariat",
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ],
+          "list": [
+            "decidiq-secretariat",
+            "decidiq-administrators",
+            "decidesk-administrators"
+          ]
+        },
+        "x-openregister": {
+          "schemaType": "schema:Action",
+          "active": true,
+          "hardDelete": false,
+          "searchable": false
+        },
+        "required": [
+          "meeting",
+          "kind",
+          "seat",
+          "externalId"
+        ],
+        "properties": {
+          "meeting": {
+            "title": "Meeting",
+            "type": "string",
+            "format": "uuid",
+            "facetable": true,
+            "$ref": "Meeting",
+            "description": "The meeting in the room."
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string",
+            "facetable": true,
+            "enum": [
+              "speech",
+              "vote"
+            ],
+            "x-enum-labels": {
+              "speech": "Speech",
+              "vote": "Vote"
+            },
+            "description": "A speaker marking or a desk vote."
+          },
+          "seat": {
+            "title": "Seat",
+            "type": "string",
+            "description": "The delegate unit id as the room system sends it.",
+            "example": "12"
+          },
+          "agendaItem": {
+            "title": "Agenda item",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "agenda-item",
+            "description": "The agenda item a speech was on."
+          },
+          "votingRound": {
+            "title": "Voting round",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "voting-round",
+            "description": "The round a vote is for."
+          },
+          "value": {
+            "title": "Vote",
+            "type": "string",
+            "nullable": true,
+            "enum": [
+              "for",
+              "against",
+              "abstain"
+            ],
+            "description": "The vote from the desk."
+          },
+          "startedAt": {
+            "title": "Microphone on",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the speaker's microphone went on, as the room system sends it."
+          },
+          "endedAt": {
+            "title": "Microphone off",
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "When the speaker's microphone went off."
+          },
+          "externalId": {
+            "title": "Room system message id",
+            "type": "string",
+            "description": "The room system's own id for this message; one message per id is applied in a meeting.",
+            "example": "mvi-8812"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "facetable": true,
+            "enum": [
+              "received",
+              "applied",
+              "rejected"
+            ],
+            "x-enum-labels": {
+              "received": "Received",
+              "applied": "Applied",
+              "rejected": "Rejected"
+            },
+            "default": "received",
+            "description": "Whether decidiq applied the message."
+          },
+          "rejectReason": {
+            "title": "Reason",
+            "type": "string",
+            "nullable": true,
+            "description": "Why the message was not applied, in plain words for the clerk."
+          },
+          "participant": {
+            "title": "Member",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "$ref": "participant",
+            "description": "The member the seat resolved to, written when the message is applied."
+          }
+        }
+      }
+    }
+  }
+}

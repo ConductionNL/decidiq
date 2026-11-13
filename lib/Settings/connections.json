@@ -41,6 +41,14 @@
             "order": 50,
             "sourceTemplate": "streaming",
             "unconfiguredMessage": "No streaming service is connected, so meetings cannot be broadcast. Link a source to this connection to test, start and stop a broadcast from the meeting page."
+        },
+        {
+            "key": "room-system",
+            "title": "Room system",
+            "description": "The chamber's conference and voting system: the agenda and the seat list go to the room, speaker markings and desk votes come back and pass through decidiq's own voting rules.",
+            "order": 60,
+            "sourceTemplate": "room-system",
+            "unconfiguredMessage": "No room system is connected. Link a source to this connection to receive speaker markings and desk votes from the chamber."
         }
     ]
 }
