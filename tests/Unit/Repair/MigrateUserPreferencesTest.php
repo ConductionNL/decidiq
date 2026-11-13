@@ -279,4 +279,73 @@ class MigrateUserPreferencesTest extends TestCase {
 
 	}//end testAnUnreadableUserWalkIsSurvivable()
 
+	/**
+	 * A user whose keys cannot be enumerated is skipped and logged; the next
+	 * user is still migrated and counted.
+	 *
+	 * @return void
+	 */
+	public function testAnUnreadableKeyListSkipsOnlyThatUser(): void {
+		$config = $this->createMock(originalClassName: IUserConfig::class);
+		$config->method('getKeys')->willReturnCallback(
+			static function (string $uid, string $app): array {
+				if ($uid === 'alice') {
+					throw new RuntimeException('keys unreadable');
+				}
+
+				return ['pref_view'];
+			}
+		);
+		$config->method('getValueString')->willReturnCallback(
+			static fn (string $uid, string $app, string $key, string $default = ''): string => ($app === 'decidesk' ? 'grid' : $default)
+		);
+		$config->expects($this->once())
+			->method('setValueString')
+			->with('bob', 'decidiq', 'pref_view', 'grid')
+			->willReturn(true);
+
+		$userManager = $this->createMock(originalClassName: IUserManager::class);
+		$alice = $this->user('alice');
+		$bob = $this->user('bob');
+		$userManager->method('callForSeenUsers')->willReturnCallback(
+			static function (callable $cb) use ($alice, $bob): void {
+				$cb($alice);
+				$cb($bob);
+			}
+		);
+
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('warning')
+			->with(
+				'Decidiq: could not enumerate decidesk preference keys for one user; skipping that user',
+				['exception' => 'keys unreadable']
+			);
+
+		$output = $this->createMock(originalClassName: IOutput::class);
+		$output->expects($this->never())->method('warning');
+		$output->expects($this->once())
+			->method('info')
+			->with('MigrateUserPreferences: migrated 1 preference(s); 0 already set under decidiq.');
+
+		(new MigrateUserPreferences($config, $userManager, $logger))->run($output);
+
+	}//end testAnUnreadableKeyListSkipsOnlyThatUser()
+
+	/**
+	 * The step reports its label.
+	 *
+	 * @return void
+	 */
+	public function testGetName(): void {
+		$step = new MigrateUserPreferences(
+			$this->createMock(originalClassName: IUserConfig::class),
+			$this->createMock(originalClassName: IUserManager::class),
+			$this->createMock(originalClassName: LoggerInterface::class)
+		);
+
+		self::assertSame('Copy Decidiq per-user preferences from the decidesk app id', $step->getName());
+
+	}//end testGetName()
+
 }//end class
