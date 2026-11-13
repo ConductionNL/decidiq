@@ -215,6 +215,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @throws InvalidArgumentException When item is informational or already at final phase
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
 	 */
 	public function advanceBobPhase(string $agendaItemId): void {
 		$item = $this->objectService->find($agendaItemId);
@@ -226,8 +227,10 @@ class AgendaService implements AgendaServiceInterface {
 
 		// Uses patchObject, not saveObject: a uuid-bearing save is a FULL REPLACE
 		// that OpenRegister validates whole, so a status-only payload 400s on
-		// the required title, itemType and orderNumber it omits.
-		$this->patchItem(itemId: $agendaItemId, data: ['status' => $nextStatus]);
+		// the required title, itemType and orderNumber it omits. A phase-only
+		// payload, likewise.
+		// The phase is the declared `phase` (REQ-LIV-010); `status` was never declared.
+		$this->patchItem(itemId: $agendaItemId, data: ['phase' => $nextStatus]);
 
 		$this->logger->info(
 			'BOB phase advanced for agenda item {id}: {from} to {to}',

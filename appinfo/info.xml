@@ -473,6 +473,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
                 emptied, so an admin with automation pointing at one keeps a working group.
             -->
             <step>OCA\Decidiq\Repair\MigrateGovernanceGroupNames</step>
+            <!--
+                After InitializeSettings imports the register (129-agenda-item-phase.json must
+                already have declared AgendaItem.phase). Copies a phase still held in the
+                undeclared `status` into `phase` with a phase-only patch; an item that already has
+                a phase is skipped, so a second run changes nothing. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Repair\MoveAgendaItemStatusToPhase</step>
         </post-migration>
         <install>
             <!--

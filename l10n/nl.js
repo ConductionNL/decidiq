@@ -3754,7 +3754,12 @@ OC.L10N.register(
         "What the voting group is for.": "Waarvoor de stemgroep dient.",
         "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
         "The people in the group.": "De personen in de groep.",
-        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde."
+        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
+        "An informational item has no phase.": "Een informerend agendapunt heeft geen fase.",
+        "Could not load the phase": "De fase kon niet worden geladen",
+        "Phase of this agenda item": "Fase van dit agendapunt",
+        "Phase": "Fase",
+        "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.": "Waar een bespreek- of besluitpunt staat: voorstel, beeldvorming, oordeelsvorming, besluitvorming of afgerond. Leeg betekent beeldvorming. Een informerend agendapunt heeft geen fase. De voorzitter zet het door op het scherm van de live vergadering."
     },
     "nplurals=2; plural=(n != 1);"
 )

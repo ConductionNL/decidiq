@@ -3336,7 +3336,12 @@ OC.L10N.register(
         "What the voting group is for.": "What the voting group is for.",
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
-        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens."
+        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
+        "An informational item has no phase.": "An informational item has no phase.",
+        "Could not load the phase": "Could not load the phase",
+        "Phase of this agenda item": "Phase of this agenda item",
+        "Phase": "Phase",
+        "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.": "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen."
     },
     "nplurals=2; plural=(n != 1);"
 )

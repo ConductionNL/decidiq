@@ -97,7 +97,7 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 		$this->objects->method('find')->willReturn($item);
 		$this->objects->expects($this->once())->method('patchObject')->with(
 			objectId: 'ai-1',
-			data: ['status' => 'oordeelsvorming'],
+			data: ['phase' => 'oordeelsvorming'],
 			register: 'decidiq',
 			schema: 'agenda-item',
 		);
@@ -108,6 +108,66 @@ class AgendaServicePhaseAndOrderTest extends TestCase {
 
 		$this->service->advanceBobPhase('ai-1');
 	}//end testAnItemWithoutStatusAdvancesFromBeeldvorming()
+
+	/**
+	 * The declared phase wins over a legacy status, and the next phase is
+	 * written to `phase` alone (REQ-LIV-010).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 */
+	public function testTheDeclaredPhaseWinsOverALegacyStatus(): void {
+		$item = $this->createMock(ObjectEntity::class);
+		$item->method('getObject')->willReturn(['itemType' => 'decision', 'phase' => 'oordeelsvorming', 'status' => 'beeldvorming']);
+		$this->objects->method('find')->willReturn($item);
+		$this->objects->expects($this->once())->method('patchObject')->with(
+			objectId: 'ai-1',
+			data: ['phase' => 'besluitvorming'],
+			register: 'decidiq',
+			schema: 'agenda-item',
+		);
+
+		$this->service->advanceBobPhase('ai-1');
+	}//end testTheDeclaredPhaseWinsOverALegacyStatus()
+
+	/**
+	 * An item from before the upgrade, whose phase is still in `status`,
+	 * advances from that phase.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-phase-is-declared/specs/agenda-live-management/spec.md#requirement-req-liv-010-the-agenda-item-declares-its-phase
+	 */
+	public function testALegacyStatusPhaseStillAdvances(): void {
+		$item = $this->createMock(ObjectEntity::class);
+		$item->method('getObject')->willReturn(['itemType' => 'decision', 'status' => 'besluitvorming']);
+		$this->objects->method('find')->willReturn($item);
+		$this->objects->expects($this->once())->method('patchObject')->with(
+			objectId: 'ai-1',
+			data: ['phase' => 'completed'],
+			register: 'decidiq',
+			schema: 'agenda-item',
+		);
+
+		$this->service->advanceBobPhase('ai-1');
+	}//end testALegacyStatusPhaseStillAdvances()
+
+	/**
+	 * A completed item cannot be advanced, and nothing is written.
+	 *
+	 * @return void
+	 */
+	public function testACompletedPhaseIsFinal(): void {
+		$item = $this->createMock(ObjectEntity::class);
+		$item->method('getObject')->willReturn(['itemType' => 'decision', 'phase' => 'completed']);
+		$this->objects->method('find')->willReturn($item);
+		$this->objects->expects($this->never())->method('patchObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage("already at final phase 'completed'");
+		$this->service->advanceBobPhase('ai-1');
+	}//end testACompletedPhaseIsFinal()
 
 	/**
 	 * While a reorder writes its items the service says it is suppressing item notices, and not after.
