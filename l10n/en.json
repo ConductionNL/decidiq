@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Who may vote",
+        "All members of the body": "All members of the body",
+        "Left out because they are no longer active members: {names}": "Left out because they are no longer active members: {names}",
         "sign-off route": "sign-off route",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d for, %2$d against, %3$d abstained",

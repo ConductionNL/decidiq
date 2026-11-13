@@ -3,6 +3,9 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "Who may vote": "Wie mag stemmen",
+        "All members of the body": "Alle leden van het orgaan",
+        "Left out because they are no longer active members: {names}": "Weggelaten omdat zij geen actief lid meer zijn: {names}",
         "sign-off route": "paraferingsroute",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d voor, %2$d tegen, %3$d onthouden",

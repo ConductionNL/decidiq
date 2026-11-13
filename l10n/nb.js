@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Hvem som kan stemme",
+        "All members of the body": "Alle medlemmer av organet",
+        "Left out because they are no longer active members: {names}": "Utelatt fordi de ikke lenger er aktive medlemmer: {names}",
         "sign-off route": "godkjenningsløp",
         "#": "#",
         "+ Action item": "+ Oppgavepunkt",
