@@ -38,6 +38,7 @@ import BodyParticipationsTab from './components/tabs/BodyParticipationsTab.vue'
 import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import DecisionApprovalTab from './components/tabs/DecisionApprovalTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 // Public-publication tabs (publish-decisions-via-opencatalogi): publish /
 // withdraw / rectify actions on the decision, meeting (agenda), and minutes
@@ -439,6 +440,8 @@ export default {
 	MeetingStepBar: page(MeetingStepBar),
 	// And the step bar of the simple amendment page (simple-amendment-page).
 	AmendmentStepBar: page(AmendmentStepBar),
+	// The decision's approval route, and sending it along one (routes-send-proposal-along-route).
+	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),

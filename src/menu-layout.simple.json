@@ -867,6 +867,9 @@
 					"decision-related": {
 						"type": "RelatedDecisionsTab"
 					},
+					"decision-approval": {
+						"type": "DecisionApprovalTab"
+					},
 					"decision-route": {
 						"type": "DecisionRouteTab"
 					},
@@ -1064,6 +1067,10 @@
 						"icon": "ScaleBalance",
 						"content": {
 							"sections": [
+								{
+									"label": "Approval route",
+									"widgetId": "decision-approval"
+								},
 								{
 									"label": "Route",
 									"widgetId": "decision-route"
