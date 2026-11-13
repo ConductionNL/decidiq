@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\AppInfo;
 
 use OCA\Decidiq\AppInfo\Registrar\AppHostRegistrar;
-use OCA\Decidiq\AppInfo\Registrar\DomainServiceRegistrar;
+use OCA\Decidiq\Service\Registrar\DomainServiceRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\OpenRegisterContractRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar;
 use OCA\Decidiq\Kernel\AppIdentity;
@@ -32,7 +32,6 @@ use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Listener\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Middleware\ApiContractMiddleware;
-use OCA\Decidiq\Service\ContractBindings;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -51,7 +50,7 @@ use OCP\Util;
  *
  *   - {@see AppHostRegistrar}            AppHost boilerplate adoption (ADR-040 / ADR-022).
  *   - {@see CrossAppEventRegistrar}      inbound cross-app command listeners (ADR-041).
- *   - {@see DomainServiceRegistrar}      MCP tools, eIDAS, translation.
+ *   - {@see DomainServiceRegistrar}      MCP tools, eIDAS, translation, contract bindings.
  *   - {@see PlatformIntegrationRegistrar} search, object-write guards, dashboard widget.
  *   - {@see IntegrationLeafRegistrar}    server-side half of the OR integration leaves (ADR-066).
  *   - {@see ObjectListenerRegistrar}     boot()-time filtered object-lifecycle subscriptions.
@@ -144,10 +143,6 @@ class Application extends App implements IBootstrap {
 		// Both registrars below carry the bindings described above.
 		(new CrossAppEventRegistrar())->register(context: $context);
 		(new DomainServiceRegistrar())->register(context: $context);
-
-		// Every Kernel contract that a caller type-hints resolves to its Service
-		// implementation.
-		(new ContractBindings())->register(context: $context);
 
 		// @spec openspec/specs/decision-management/spec.md
 		// Board portal Phase 2 services (audit log, conflict of interest,
