@@ -33,7 +33,7 @@ namespace OCA\Decidiq\Controller;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\MinutesAccessGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
@@ -68,7 +68,7 @@ class MinutesCorrectionController extends Controller {
 		private readonly ObjectServiceInterface $objectService,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 

@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\DecisionTypeRegistry;
 use OCP\IAppConfig;
 use OCP\Migration\IOutput;
@@ -78,7 +78,7 @@ class SeedDecisionTypes implements IRepairStep {
 	 */
 	public function run(IOutput $output): void {
 		$existing = $this->appConfig->getValueArray(
-			Application::APP_ID,
+			AppIdentity::APP_ID,
 			DecisionTypeRegistry::CONFIG_KEY,
 			[]
 		);
@@ -91,7 +91,7 @@ class SeedDecisionTypes implements IRepairStep {
 		}
 
 		$this->appConfig->setValueArray(
-			Application::APP_ID,
+			AppIdentity::APP_ID,
 			DecisionTypeRegistry::CONFIG_KEY,
 			DecisionTypeRegistry::DEFAULT_TYPES
 		);

@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -50,7 +50,7 @@ class PreferencesController extends Controller {
 		private readonly IUserConfig $userConfig,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -79,7 +79,7 @@ class PreferencesController extends Controller {
 
 		$value = $this->userConfig->getValueString(
 			userId: $user->getUID(),
-			app: Application::APP_ID,
+			app: AppIdentity::APP_ID,
 			key: 'pref_' . $safeKey,
 			default: ''
 		);
@@ -120,7 +120,7 @@ class PreferencesController extends Controller {
 		if ($value === '') {
 			$this->userConfig->deleteUserConfig(
 				userId: $user->getUID(),
-				app: Application::APP_ID,
+				app: AppIdentity::APP_ID,
 				key: 'pref_' . $safeKey
 			);
 
@@ -129,7 +129,7 @@ class PreferencesController extends Controller {
 
 		$this->userConfig->setValueString(
 			userId: $user->getUID(),
-			app: Application::APP_ID,
+			app: AppIdentity::APP_ID,
 			key: 'pref_' . $safeKey,
 			value: $value
 		);

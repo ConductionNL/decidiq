@@ -26,10 +26,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\CompetenceRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\MemberCompetenceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -64,7 +64,7 @@ class MemberCompetenceController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

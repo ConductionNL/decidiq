@@ -27,7 +27,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -365,10 +365,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function pseudonymousId(string $consultationId, string $seed): string {
-		$secret = $this->appConfig->getValueString(Application::APP_ID, 'participation_pseudonym_secret', '');
+		$secret = $this->appConfig->getValueString(AppIdentity::APP_ID, 'participation_pseudonym_secret', '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString(Application::APP_ID, 'participation_pseudonym_secret', $secret);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, 'participation_pseudonym_secret', $secret);
 		}
 
 		return 'anon-' . hash_hmac('sha256', $consultationId . ':' . $seed, $secret);

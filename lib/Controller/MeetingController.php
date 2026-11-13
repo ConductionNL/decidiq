@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\MeetingPackageService;
 use OCA\Decidiq\Service\MeetingRoleGate;
 use OCA\Decidiq\Service\MeetingSeriesService;
@@ -91,7 +91,7 @@ class MeetingController extends Controller {
 		private readonly MeetingRoleGate $roleGate,
 		private readonly ProofPackageService $proofPackageService,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

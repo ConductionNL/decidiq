@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\RoleGroupMapping;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\Decidiq\Settings\AdminSettings;
@@ -63,7 +63,7 @@ class RoleRightsController extends Controller {
 		private readonly IAppConfig $appConfig,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -102,7 +102,7 @@ class RoleRightsController extends Controller {
 		}
 
 		$this->appConfig->setValueString(
-			Application::APP_ID,
+			AppIdentity::APP_ID,
 			RoleGroupMapping::CONFIG_KEY,
 			(string) json_encode($clean)
 		);

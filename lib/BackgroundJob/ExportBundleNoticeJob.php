@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTime;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ExportBundleWriter;
 use OCA\Decidiq\Support\FleetAppId;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -144,7 +144,7 @@ class ExportBundleNoticeJob extends QueuedJob {
 		[$subject, $fileId] = $this->subjectAndFileOf(job: $job);
 
 		$notification = $this->notifications->createNotification();
-		$notification->setApp(Application::APP_ID)
+		$notification->setApp(AppIdentity::APP_ID)
 			->setUser((string)$argument['uid'])
 			->setDateTime(new DateTime())
 			->setObject('export-bundle', $this->objectIdOf(fileId: $fileId, name: $name))

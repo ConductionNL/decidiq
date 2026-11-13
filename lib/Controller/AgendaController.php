@@ -27,8 +27,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\NotFoundException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\AgendaAuthorizationGuard;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\CurrentAgendaItemService;
@@ -72,7 +72,7 @@ class AgendaController extends Controller {
 		private readonly AgendaAuthorizationGuard $guard,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

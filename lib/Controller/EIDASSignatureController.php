@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\GovernanceScopeGuard;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCP\AppFramework\Controller;
@@ -59,7 +59,7 @@ class EIDASSignatureController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly GovernanceScopeGuard $scopeGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

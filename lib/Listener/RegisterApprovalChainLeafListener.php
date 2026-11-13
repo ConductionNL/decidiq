@@ -30,7 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Service\Integration\LeafAvailability;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
 use OCA\OpenRegister\Service\Integration\LeafIdentity;
@@ -132,7 +132,7 @@ class RegisterApprovalChainLeafListener extends AbstractRenderLeafListener {
 				group: self::GROUP,
 			),
 			kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
-			availability: new LeafAvailability(requiredApp: Application::APP_ID),
+			availability: new LeafAvailability(requiredApp: AppIdentity::APP_ID),
 			rendering: new LeafRendering(
 				...$optional,
 				surfaces: self::SURFACES,

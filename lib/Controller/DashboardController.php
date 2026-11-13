@@ -38,7 +38,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -74,7 +74,7 @@ class DashboardController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly IAppConfig $appConfig,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -146,7 +146,7 @@ class DashboardController extends Controller {
 	 */
 	protected function menuStructure(): string {
 		return (new MenuStructure())->normalise(
-			stored: $this->appConfig->getValueString(Application::APP_ID, MenuStructure::KEY, '')
+			stored: $this->appConfig->getValueString(AppIdentity::APP_ID, MenuStructure::KEY, '')
 		);
 	}//end menuStructure()
 }//end class

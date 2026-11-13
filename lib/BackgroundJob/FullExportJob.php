@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTime;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\FullExportService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
@@ -90,7 +90,7 @@ class FullExportJob extends QueuedJob {
 		}
 
 		$notification = $this->notifications->createNotification();
-		$notification->setApp(Application::APP_ID)
+		$notification->setApp(AppIdentity::APP_ID)
 			->setUser($uid)
 			->setDateTime(new DateTime())
 			->setObject('export', $objectId)

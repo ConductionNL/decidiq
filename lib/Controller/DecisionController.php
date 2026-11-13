@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\DecisionLifecycleService;
 use OCA\Decidiq\Service\DecisionPublicationService;
 use OCA\Decidiq\Settings\AdminSettings;
@@ -75,7 +75,7 @@ class DecisionController extends Controller {
 		LoggerInterface $logger,
 		private DecisionLifecycleService $lifecycleService,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
 
 	}//end __construct()

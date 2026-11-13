@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\MotionService;
 use OCA\Decidiq\Service\MotionStages;
 use OCA\Decidiq\Service\ParticipantResolver;
@@ -68,7 +68,7 @@ class MotionController extends Controller {
 		private readonly ParticipantResolver $participantResolver,
 		private readonly MotionStages $motionStages,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -188,7 +188,7 @@ class MotionController extends Controller {
 	 * @return bool True when the user holds global chair authority
 	 */
 	private function hasGlobalChairAuthority(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}

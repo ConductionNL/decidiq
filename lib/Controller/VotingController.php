@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\OriPublicationService;
 use OCA\Decidiq\Service\ProxyDelegationService;
 use OCA\Decidiq\Service\VoteCast;
@@ -75,7 +75,7 @@ class VotingController extends Controller {
 		private readonly ProxyDelegationService $proxyService,
 		private readonly VotingErrorResponder $errors,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 

@@ -26,10 +26,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
 use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\DossierDisposition;
@@ -70,7 +70,7 @@ class DossierDispositionController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

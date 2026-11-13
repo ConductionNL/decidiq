@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ApprovalPrincipal;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCA\Decidiq\Service\ApprovalRouteService;
@@ -70,7 +70,7 @@ class ApprovalRouteController extends Controller {
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -111,7 +111,7 @@ class ApprovalRouteController extends Controller {
 			// gets the reason rather than a generic failure.
 			$this->logger->warning(
 				'Decidiq: could not instantiate an approval route',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
@@ -237,7 +237,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: an approval action was refused',
-				['app' => Application::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
@@ -291,7 +291,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: could not answer a clearance question',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}

@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -70,7 +70,7 @@ class OriPublicationService {
 	 * @return string|null The URL or null if not configured
 	 */
 	private function getEndpoint(): ?string {
-		$endpoint = $this->appConfig->getValueString(Application::APP_ID, 'ori_endpoint', '');
+		$endpoint = $this->appConfig->getValueString(AppIdentity::APP_ID, 'ori_endpoint', '');
 		if (empty($endpoint) === false) {
 			return $endpoint;
 		}
@@ -184,7 +184,7 @@ class OriPublicationService {
 				'Accept' => 'application/json',
 			];
 
-			$bearerSecret = $this->appConfig->getValueString(Application::APP_ID, 'ori_bearer_secret', '');
+			$bearerSecret = $this->appConfig->getValueString(AppIdentity::APP_ID, 'ori_bearer_secret', '');
 			if ($bearerSecret !== '') {
 				$headers['Authorization'] = 'Bearer ' . $bearerSecret;
 			}
