@@ -12,8 +12,8 @@
  * class stops accumulating a class reference for every registration it makes
  * (PHPMD CouplingBetweenObjects); the imports move with the registrations.
  *
- * @category AppInfo
- * @package  OCA\Decidiq\AppInfo\Registrar
+ * @category Service
+ * @package  OCA\Decidiq\Service\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -30,9 +30,10 @@
 // SPDX-License-Identifier: EUPL-1.2
 declare(strict_types=1);
 
-namespace OCA\Decidiq\AppInfo\Registrar;
+namespace OCA\Decidiq\Service\Registrar;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Service\ContractBindings;
 use OCA\Decidiq\Service\EIDASSignatureService;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCA\Decidiq\Service\ITranslationAdapter;
@@ -75,6 +76,10 @@ class DomainServiceRegistrar {
 		$this->registerMcpToolProvider(context: $context);
 		$this->registerEidasBindings(context: $context);
 		$this->registerTranslationAdapter(context: $context);
+
+		// Every Kernel contract that a caller type-hints resolves to its Service
+		// implementation.
+		(new ContractBindings())->register(context: $context);
 
 	}//end register()
 
