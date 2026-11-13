@@ -3754,7 +3754,26 @@ OC.L10N.register(
         "What the voting group is for.": "Waarvoor de stemgroep dient.",
         "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
         "The people in the group.": "De personen in de groep.",
-        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde."
+        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
+        "Sent to the body with the proposal": "Met het voorstel naar het orgaan",
+        "If the body does not ratify it, the confidentiality lapses.": "Bekrachtigt het orgaan niet, dan vervalt de geheimhouding.",
+        "Lifting needs a decision of the body.": "Opheffen kan alleen met een besluit van het orgaan.",
+        "by {date}": "uiterlijk {date}",
+        "Imposing decision": "Besluit tot oplegging",
+        "The decision that imposed the confidentiality.": "Het besluit waarmee de geheimhouding is opgelegd.",
+        "Lift by": "Uiterlijk opheffen op",
+        "The latest date by which the confidentiality should be lifted.": "De datum waarop de geheimhouding uiterlijk moet zijn opgeheven.",
+        "Sent to the body on": "Naar het orgaan gestuurd op",
+        "When the restricted papers went to the ratifying body.": "Wanneer de geheime stukken naar het bekrachtigende orgaan gingen.",
+        "Sent with agenda item": "Meegestuurd met agendapunt",
+        "The agenda item the restricted papers went to the ratifying body with.": "Het agendapunt waarmee de geheime stukken naar het bekrachtigende orgaan gingen.",
+        "Lapsed on": "Vervallen op",
+        "When the confidentiality lapsed because the ratifying body did not ratify it.": "Wanneer de geheimhouding verviel omdat het bekrachtigende orgaan haar niet bekrachtigde.",
+        "Lapsed at meeting": "Vervallen in vergadering",
+        "The meeting that closed without ratifying the confidentiality.": "De vergadering die sloot zonder de geheimhouding te bekrachtigen.",
+        "Ratification outcome": "Uitkomst bekrachtiging",
+        "What the body did with a confidentiality put to it for ratification.": "Wat het orgaan deed met een geheimhouding die het ter bekrachtiging kreeg.",
+        "Not ratified": "Niet bekrachtigd"
     },
     "nplurals=2; plural=(n != 1);"
 )

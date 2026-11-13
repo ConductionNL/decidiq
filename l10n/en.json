@@ -3338,7 +3338,26 @@
         "What the voting group is for.": "What the voting group is for.",
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
-        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens."
+        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
+        "Sent to the body with the proposal": "Sent to the body with the proposal",
+        "If the body does not ratify it, the confidentiality lapses.": "If the body does not ratify it, the confidentiality lapses.",
+        "Lifting needs a decision of the body.": "Lifting needs a decision of the body.",
+        "by {date}": "by {date}",
+        "Imposing decision": "Imposing decision",
+        "The decision that imposed the confidentiality.": "The decision that imposed the confidentiality.",
+        "Lift by": "Lift by",
+        "The latest date by which the confidentiality should be lifted.": "The latest date by which the confidentiality should be lifted.",
+        "Sent to the body on": "Sent to the body on",
+        "When the restricted papers went to the ratifying body.": "When the restricted papers went to the ratifying body.",
+        "Sent with agenda item": "Sent with agenda item",
+        "The agenda item the restricted papers went to the ratifying body with.": "The agenda item the restricted papers went to the ratifying body with.",
+        "Lapsed on": "Lapsed on",
+        "When the confidentiality lapsed because the ratifying body did not ratify it.": "When the confidentiality lapsed because the ratifying body did not ratify it.",
+        "Lapsed at meeting": "Lapsed at meeting",
+        "The meeting that closed without ratifying the confidentiality.": "The meeting that closed without ratifying the confidentiality.",
+        "Ratification outcome": "Ratification outcome",
+        "What the body did with a confidentiality put to it for ratification.": "What the body did with a confidentiality put to it for ratification.",
+        "Not ratified": "Not ratified"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

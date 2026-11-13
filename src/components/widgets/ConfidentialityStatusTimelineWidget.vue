@@ -57,7 +57,7 @@
 					<div class="cn-confidentiality-timeline__body">
 						<div class="cn-confidentiality-timeline__line1">
 							<span class="cn-confidentiality-timeline__label">{{
-								stageLabel(stage.key)
+								stageLabel(stage.lapsed ? 'lapsed' : stage.key)
 							}}</span>
 							<span
 								v-if="stage.overdue"
@@ -88,6 +88,36 @@
 								class="cn-confidentiality-timeline__detail"
 								>{{ imposedByBodyLabel }}</span
 							>
+							<NcButton
+								v-if="stage.decisionId"
+								variant="tertiary"
+								data-testid="confidentiality-imposing-decision-link"
+								@click="openRoute(decisionRoute, stage.decisionId)">
+								{{
+									imposingDecisionLabel
+									|| t('decidiq', 'View decision')
+								}}
+							</NcButton>
+						</template>
+
+						<template v-else-if="stage.key === 'sent'">
+							<span
+								v-if="stage.date"
+								class="cn-confidentiality-timeline__date"
+								>{{ formatDate(stage.date) }}</span
+							>
+							<NcButton
+								v-if="stage.agendaItemId"
+								variant="tertiary"
+								data-testid="confidentiality-sent-agenda-link"
+								@click="
+									openRoute(agendaItemRoute, stage.agendaItemId)
+								">
+								{{
+									sentWithAgendaItemLabel
+									|| t('decidiq', 'View agenda item')
+								}}
+							</NcButton>
 						</template>
 
 						<template v-else-if="stage.key === 'ratification'">
@@ -104,6 +134,22 @@
 								v-if="stage.populated && stage.date"
 								class="cn-confidentiality-timeline__date">
 								{{ formatDateTime(stage.date) }}
+							</span>
+							<span
+								v-if="stage.lapsed && lapsedAtMeetingLabel"
+								class="cn-confidentiality-timeline__detail"
+								data-testid="confidentiality-lapsed-meeting">
+								{{ lapsedAtMeetingLabel }}
+							</span>
+							<span
+								v-if="stage.pending"
+								class="cn-confidentiality-timeline__detail">
+								{{
+									t(
+										'decidiq',
+										'If the body does not ratify it, the confidentiality lapses.',
+									)
+								}}
 							</span>
 							<NcButton
 								v-if="stage.decisionId"
@@ -146,10 +192,21 @@
 								}}
 							</NcButton>
 							<span
-								v-if="stage.conditions"
+								v-if="stage.conditions || stage.liftBy"
 								class="cn-confidentiality-timeline__detail"
-								>{{ stage.conditions }}</span
+								data-testid="confidentiality-lifting-conditions"
+								>{{ liftingLine(stage) }}</span
 							>
+							<span
+								v-if="stage.pending"
+								class="cn-confidentiality-timeline__detail">
+								{{
+									t(
+										'decidiq',
+										'Lifting needs a decision of the body.',
+									)
+								}}
+							</span>
 						</template>
 					</div>
 				</li>
@@ -244,6 +301,24 @@ const LABEL_LINKS = [
 		schema: 'decision',
 		labelField: 'title',
 	},
+	{
+		field: 'imposingDecision',
+		key: 'imposingDecisionLabel',
+		schema: 'decision',
+		labelField: 'title',
+	},
+	{
+		field: 'sentWithAgendaItem',
+		key: 'sentWithAgendaItemLabel',
+		schema: 'agenda-item',
+		labelField: 'title',
+	},
+	{
+		field: 'lapsedAtMeeting',
+		key: 'lapsedAtMeetingLabel',
+		schema: 'meeting',
+		labelField: 'title',
+	},
 ]
 
 /** Target scope → { field, schema, labelField, route }. Document has no decidiq detail route (see design.md deviation note). */
@@ -306,6 +381,9 @@ export default {
 			ratificationAgendaItemLabel: '',
 			dissolutionDecisionLabel: '',
 			imposedByBodyLabel: '',
+			imposingDecisionLabel: '',
+			sentWithAgendaItemLabel: '',
+			lapsedAtMeetingLabel: '',
 		}
 	},
 
@@ -431,10 +509,27 @@ export default {
 		stageLabel(key) {
 			const labels = {
 				imposed: t('decidiq', 'Imposed'),
+				sent: t('decidiq', 'Sent to the body with the proposal'),
 				ratification: t('decidiq', 'Ratification'),
+				lapsed: t('decidiq', 'Lapsed'),
 				dissolution: t('decidiq', 'Dissolution'),
 			}
 			return labels[key] || key
+		},
+
+		/**
+		 * The lifting conditions followed by "by <liftBy>" (REQ-EMB-020).
+		 *
+		 * @param {object} stage The dissolution stage.
+		 * @return {string}
+		 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
+		 */
+		liftingLine(stage) {
+			if (!stage.liftBy) return stage.conditions || ''
+			const by = t('decidiq', 'by {date}', {
+				date: this.formatDate(stage.liftBy),
+			})
+			return stage.conditions ? `${stage.conditions}, ${by}` : by
 		},
 
 		/**

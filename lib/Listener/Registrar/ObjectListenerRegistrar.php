@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\ConfidentialityLapseListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
@@ -170,6 +171,17 @@ class ObjectListenerRegistrar {
 			listener: MinutesApprovedListener::class,
 			registers: null,
 			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
+		);
+
+		// Confidentiality lapse (confidentiality-term-and-lapse, REQ-EMB-021):
+		// a meeting that closes without ratifying, or a clerk recording "not
+		// ratified" on the item, lapses the restriction put to the body.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: ConfidentialityLapseListener::class,
+			registers: null,
+			schemas: [ConfidentialityLapseListener::SCHEMA_MEETING, ConfidentialityLapseListener::SCHEMA_AGENDA_ITEM]
 		);
 
 		// Before-save guards (SaveGuardSubscriptions): submission deadline,

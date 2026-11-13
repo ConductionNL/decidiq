@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 228,
+			"objectCount": 230,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -1419,6 +1419,44 @@
 						"imposedAt": "2026-06-08T10:00:00Z",
 						"lifecycle": "imposed",
 						"ratificationDeadline": "2026-09-30"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "confidentiality-restriction"
+						},
+						"slug": "geheimhouding-onderbouwing-tarieven-grondexploitatie",
+						"scope": "document",
+						"targetDocument": "00000000-0000-0000-0000-000000000000",
+						"ground": "grond-raadsstukken",
+						"imposedBy": "executive-board",
+						"imposedByBody": "college-van-b-en-w-amsterdam",
+						"imposedAt": "2026-09-10T10:00:00+02:00",
+						"lifecycle": "imposed",
+						"ratificationDeadline": "2026-10-15",
+						"sentToBodyAt": "2026-09-24T10:00:00+02:00",
+						"liftingConditions": "Na gunning van de grondexploitatie",
+						"liftBy": "2027-07-01"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "confidentiality-restriction"
+						},
+						"slug": "geheimhouding-bijlage-aankoop-pand-vervallen",
+						"scope": "document",
+						"targetDocument": "00000000-0000-0000-0000-000000000000",
+						"ground": "grond-raadsstukken",
+						"imposedBy": "executive-board",
+						"imposedByBody": "college-van-b-en-w-amsterdam",
+						"imposedAt": "2025-03-20T10:00:00+01:00",
+						"lifecycle": "lapsed",
+						"ratificationDeadline": "2025-04-10",
+						"lapsedAt": "2025-04-10T23:15:00+02:00",
+						"lapsedAtMeeting": "raadsvergadering-2025-04-10",
+						"liftingConditions": "Na de notariële overdracht van het pand"
 					}
 				],
 				"conflict-of-interest": [

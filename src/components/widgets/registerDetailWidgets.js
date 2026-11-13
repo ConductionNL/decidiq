@@ -118,22 +118,33 @@ export function findChildren(all, parentField, currentId) {
 }
 
 /**
- * Build a `geheimhouding` record's fixed three-stage timeline (design D3):
- * imposed → ratification (bekrachtiging) → dissolution. Each stage:
+ * Build a `geheimhouding` record's fixed four-step timeline (board
+ * DcGeheimhouding, confidentiality-term-and-lapse REQ-EMB-023): imposed →
+ * sent to the body → ratification (bekrachtiging, or lapsed) → dissolution.
+ * Each stage:
  * `{ key, populated, pending, overdue, date, ... }`. A stage with no
  * relevant fields set renders `pending: true` (never omitted, REQ-EMB-010)
  * so the reader sees the full expected sequence. The ratification stage is
  * `overdue` only while `lifecycle === 'imposed'` (an already-ratified or
  * dissolved record is never "overdue" regardless of its stored deadline)
- * and the deadline has passed with no ratification recorded yet.
+ * and the deadline has passed with no ratification recorded yet. A lapsed
+ * record shows the ratification step concluded with `lapsed: true` and the
+ * meeting it lapsed at; the dissolution step carries `liftBy` and is
+ * overdue once that day passed while the restriction still holds.
  *
  * @param {object} record The geheimhouding object.
  * @param {number} [now] Epoch ms "now" (injectable for deterministic tests).
- * @return {Array<object>} The three ordered stage descriptors.
+ * @return {Array<object>} The four ordered stage descriptors.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
  */
 export function buildConfidentialityStages(record, now = Date.now()) {
 	const r = record || {}
-	return [imposedStage(r), ratificationStage(r, now), dissolutionStage(r)]
+	return [
+		imposedStage(r),
+		sentStage(r),
+		ratificationStage(r, now),
+		dissolutionStage(r, now),
+	]
 }
 
 /**
@@ -149,6 +160,28 @@ function imposedStage(r) {
 		pending: !r.imposedAt,
 		overdue: false,
 		date: r.imposedAt || null,
+		decisionId: r.imposingDecision || null,
+	}
+}
+
+/**
+ * The confidentiality timeline's "sent to the body" stage: when and with
+ * which agenda item the restricted papers went to the ratifying body
+ * (confidentiality-term-and-lapse, REQ-EMB-020). Planned until recorded.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {object} The stage descriptor.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ */
+function sentStage(r) {
+	const populated = Boolean(r.sentToBodyAt)
+	return {
+		key: 'sent',
+		populated,
+		pending: !populated,
+		overdue: false,
+		date: r.sentToBodyAt || null,
+		agendaItemId: r.sentWithAgendaItem || null,
 	}
 }
 
@@ -188,16 +221,19 @@ function isRatificationOverdue(r, now) {
  * @return {object} The stage descriptor.
  */
 function ratificationStage(r, now) {
-	const populated = isRatified(r)
+	const lapsed = r.lifecycle === 'lapsed'
+	const populated = lapsed || isRatified(r)
 	return {
 		key: 'ratification',
 		populated,
 		pending: !populated,
-		overdue: isRatificationOverdue(r, now),
-		date: r.ratificationDate || null,
+		overdue: !lapsed && isRatificationOverdue(r, now),
+		lapsed,
+		date: lapsed ? r.lapsedAt || null : r.ratificationDate || null,
 		deadline: r.ratificationDeadline || null,
 		decisionId: r.ratificationDecision || null,
 		agendaItemId: r.ratificationAgendaItem || null,
+		meetingId: lapsed ? r.lapsedAtMeeting || null : null,
 	}
 }
 
@@ -205,19 +241,40 @@ function ratificationStage(r, now) {
  * The confidentiality timeline's dissolution stage.
  *
  * @param {object} r The geheimhouding object.
+ * @param now
  * @return {object} The stage descriptor.
  */
-function dissolutionStage(r) {
+function dissolutionStage(r, now) {
 	const populated = Boolean(r.liftingDate || r.dissolutionDecision)
 	return {
 		key: 'dissolution',
 		populated,
 		pending: !populated,
-		overdue: false,
+		overdue: isLiftingOverdue(r, now, populated),
 		date: r.liftingDate || null,
 		decisionId: r.dissolutionDecision || null,
 		conditions: r.liftingConditions || null,
+		liftBy: r.liftBy || null,
 	}
+}
+
+/**
+ * Whether the planned lifting is overdue: the restriction still holds
+ * (imposed or ratified), nothing lifted it, and its liftBy day has passed.
+ * Shown only; the state never changes on the date (REQ-EMB-022).
+ *
+ * @param {object} r The geheimhouding object.
+ * @param {number} now Epoch ms "now".
+ * @param {boolean} lifted Whether a lifting is recorded.
+ * @return {boolean} True when overdue.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda
+ */
+export function isLiftingOverdue(r, now, lifted = false) {
+	if (lifted || !['imposed', 'ratified'].includes(r?.lifecycle)) return false
+	const liftBy = toTime(r.liftBy)
+	if (Number.isNaN(liftBy)) return false
+	// liftBy is a whole day: overdue from the day after it.
+	return liftBy + 24 * 60 * 60 * 1000 <= now
 }
 
 /**
