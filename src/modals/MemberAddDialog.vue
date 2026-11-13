@@ -15,8 +15,13 @@
  A shared body also asks on behalf of which participating organisation
  the member sits (bodies-shared-body-participations, bod-13).
 
+ The form asks the member's term: "Termijn begint", defaulting to the start
+ of the body's current term, and "Termijn eindigt", both stored on the
+ Membership (bodies-term-of-office-and-step-down, bod-07).
+
  @spec openspec/specs/admin-settings/spec.md
  @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-001-a-members-term-is-entered-when-the-member-is-added
 -->
 <template>
 	<NcDialog
@@ -57,7 +62,13 @@
 					v-model="startDate"
 					type="date"
 					data-testid="member-add-start"
-					:label="t('decidiq', 'Member from')" />
+					:label="t('decidiq', 'Term start date')" />
+				<NcDateTimePickerNative
+					id="member-add-end"
+					v-model="endDate"
+					type="date"
+					data-testid="member-add-end"
+					:label="t('decidiq', 'Term end date')" />
 				<NcSelect
 					v-if="factionOptions.length"
 					v-model="selectedFaction"
@@ -116,6 +127,7 @@ import {
 import { factionsOf, startOfDay } from '../utils/bodyMembership.js'
 import { isSharedBody, onBehalfOfOptions } from '../utils/bodyParticipations.js'
 import { DEFAULT_ROLE, MEMBER_ROLES } from '../utils/memberImport.js'
+import { defaultTermStart, membershipTerm } from '../utils/stepDownSchedule.js'
 
 export default {
 	name: 'MemberAddDialog',
@@ -139,8 +151,11 @@ export default {
 			email: '',
 			party: '',
 			selectedRole: null,
-			// Member from: today unless the clerk picks another day.
+			// Term start: the body's current term start (set once the body
+			// loads), today until then or when the body has none.
 			startDate: new Date(),
+			// Term end: empty unless the clerk enters the end of the term.
+			endDate: null,
 			factionOptions: [],
 			selectedFaction: null,
 			onBehalfOfOptions: [],
@@ -185,25 +200,41 @@ export default {
 		} catch {
 			this.factionOptions = []
 		}
-		await this.loadOnBehalfOf()
+		const body = await this.loadBody()
+		this.startDate = defaultTermStart(body)
+		await this.loadOnBehalfOf(body)
 	},
 
 	methods: {
+		/**
+		 * The body the member is added to; null when it cannot be read.
+		 *
+		 * @return {Promise<object|null>}
+		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-001-a-members-term-is-entered-when-the-member-is-added
+		 */
+		async loadBody() {
+			try {
+				return await ensureRelationType('governance-body').fetchObject(
+					'governance-body',
+					String(this.bodyId),
+				)
+			} catch {
+				return null
+			}
+		},
+
 		/**
 		 * On a shared body, load the participating organisations the new
 		 * member can sit on behalf of. Other bodies get no options, so the
 		 * field stays hidden.
 		 *
+		 * @param {object|null} body The body the member is added to.
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
 		 */
-		async loadOnBehalfOf() {
+		async loadOnBehalfOf(body) {
 			try {
 				const bodyStore = ensureRelationType('governance-body')
-				const body = await bodyStore.fetchObject(
-					'governance-body',
-					String(this.bodyId),
-				)
 				if (!isSharedBody(body)) {
 					this.onBehalfOfOptions = []
 					return
@@ -244,10 +275,22 @@ export default {
 		 * @return {Promise<void>}
 		 * @spec openspec/specs/admin-settings/spec.md
 		 * @spec openspec/specs/governance-bodies/spec.md#requirement-req-bmt-001-a-membership-records-from-when-to-when
+		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-001-a-members-term-is-entered-when-the-member-is-added
 		 */
 		async link() {
 			const trimmedName = this.name.trim()
 			if (!trimmedName) {
+				return
+			}
+			const term = membershipTerm(
+				startOfDay(this.startDate),
+				startOfDay(this.endDate),
+			)
+			if (!term.valid) {
+				this.error = this.t(
+					'decidiq',
+					'The term cannot end before it begins.',
+				)
 				return
 			}
 			this.linking = true
@@ -272,7 +315,8 @@ export default {
 						governanceBodyId: this.bodyId,
 						role: this.selectedRole?.id || DEFAULT_ROLE,
 						party: this.party.trim(),
-						startDate: startOfDay(this.startDate),
+						startDate: term.startDate,
+						endDate: term.endDate,
 						faction: this.selectedFaction?.id || '',
 						onBehalfOf: this.selectedOnBehalfOf?.id || '',
 					}),

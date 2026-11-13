@@ -2853,6 +2853,9 @@
 					},
 					"body-participating-orgs": {
 						"type": "BodyParticipationsTab"
+					},
+					"body-step-down-schedule": {
+						"type": "StepDownScheduleWidget"
 					}
 				}
 			},
@@ -2921,6 +2924,11 @@
 								{
 									"widgetId": "body-positions",
 									"label": "Positions",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-step-down-schedule",
+									"label": "Step-down schedule",
 									"overflow": true
 								},
 								{

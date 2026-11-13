@@ -95,6 +95,7 @@ import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
+import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
@@ -257,6 +258,9 @@ export default {
 	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
 	// Participating organisations of a shared body (bodies-shared-body-participations, bod-13).
 	BodyParticipationsTab: page(BodyParticipationsTab),
+	// Step-down schedule of a body (bodies-term-of-office-and-step-down, bod-07).
+	// @custom-widget-ratchet exclude the step-down schedule unions two schemas (memberships and position holds) into one list sorted by end date, which one object-list cannot do
+	StepDownScheduleWidget: page(StepDownScheduleWidget),
 	// Steps of a planning cycle in order (planning-cycle-generate-from-template, pla-12).
 	PlanningCycleStepsTab: page(PlanningCycleStepsTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
