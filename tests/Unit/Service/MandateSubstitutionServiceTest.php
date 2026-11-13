@@ -50,6 +50,7 @@ use PHPUnit\Framework\TestCase;
  * @uses   \OCA\Decidiq\Service\SubstitutionResolver
  * @uses   \OCA\Decidiq\Service\MeetingRoleGate
  * @uses \OCA\Decidiq\Service\MeetingScopedRecords
+ * @uses \OCA\Decidiq\Service\ReferenceId
  */
 class MandateSubstitutionServiceTest extends TestCase {
 

@@ -51,6 +51,7 @@ use Stringable;
  * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
  * @uses   \OCA\Decidiq\Service\TranslationQueueEntryProcessor
  * @uses   \OCA\Decidiq\Support\FleetAppId
+ * @uses   \OCA\Decidiq\Service\RowListNormaliser
  */
 class TranslationQueueGoldenTest extends TestCase {
 

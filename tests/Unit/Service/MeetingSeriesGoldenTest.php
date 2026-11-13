@@ -50,6 +50,7 @@ use Stringable;
  * @covers \OCA\Decidiq\Service\MeetingSeriesService
  * @uses   \OCA\Decidiq\Service\AgendaItemCopier
  * @uses   \OCA\Decidiq\Service\MeetingSeriesWriter
+ * @uses   \OCA\Decidiq\Service\ReferenceId
  */
 class MeetingSeriesGoldenTest extends TestCase {
 

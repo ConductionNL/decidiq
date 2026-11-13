@@ -76,6 +76,7 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\RankedBallotRules
  * @uses   \OCA\Decidiq\Service\BordaCount
  * @uses \OCA\Decidiq\Service\MeetingScopedRecords
+ * @uses \OCA\Decidiq\Service\ReferenceId
  */
 class VoteCastGoldenTest extends TestCase {
 	use VotingFacadeCalls;
