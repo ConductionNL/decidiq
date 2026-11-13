@@ -14,8 +14,8 @@
  * controllers are the door for EXTERNAL callers; they refuse a request with no
  * signed-in user, which is exactly the state an in-process migration runs in.
  *
- * @category AppInfo
- * @package  OCA\Decidiq\AppInfo\Registrar
+ * @category Listener
+ * @package  OCA\Decidiq\Listener\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -31,7 +31,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidiq\AppInfo\Registrar;
+namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Event\ApprovalActionRequestedEvent;
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
