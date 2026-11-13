@@ -583,40 +583,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			$decidedAt = gmdate('Y-m-d\TH:i:s\Z');
 
 			foreach ($results as $stage) {
-				$current = $this->toObjectArray(entity: $stage);
-
-				$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
-				if ($stageId === '') {
-					continue;
-				}
-
-				$patch = [
-					'outcome' => 'adopted',
-					'decidedAt' => $decidedAt,
-					'status' => 'decided',
-				];
-				if ($signingReference !== null) {
-					$patch['signingReference'] = $signingReference;
-				}
-
-				$this->objectService->saveObject(
-					object: array_merge($current, $patch),
-					register: 'decidiq',
-					schema: 'decision-stage',
-					uuid: $stageId
-				);
-
-				$this->auditLogService->append(
-					actor: 'system',
-					action: 'signature',
-					objectUids: [$minutesId, $stageId],
-					payload: [
-						'phase' => 'resolve-signature-stage',
-						'stageId' => $stageId,
-						'decidedAt' => $decidedAt,
-					]
-				);
-			}//end foreach
+				$this->decideStage(stage: $stage, signing: ['minutesId' => $minutesId, 'signingReference' => $signingReference, 'decidedAt' => $decidedAt]);
+			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: failed to resolve method=signature DecisionStage after finalizeMinutes',
@@ -625,6 +593,52 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		}//end try
 
 	}//end resolveSignatureStage()
+
+	/**
+	 * Mark one signature stage adopted and decided, and audit it.
+	 *
+	 * @param mixed                $stage   The DecisionStage as found.
+	 * @param array<string, mixed> $signing minutesId, signingReference (or null) and decidedAt.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
+	 */
+	private function decideStage(mixed $stage, array $signing): void {
+		$current = $this->toObjectArray(entity: $stage);
+
+		$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
+		if ($stageId === '') {
+			return;
+		}
+
+		$patch = [
+			'outcome' => 'adopted',
+			'decidedAt' => $signing['decidedAt'],
+			'status' => 'decided',
+		];
+		if ($signing['signingReference'] !== null) {
+			$patch['signingReference'] = $signing['signingReference'];
+		}
+
+		$this->objectService->saveObject(
+			object: array_merge($current, $patch),
+			register: 'decidiq',
+			schema: 'decision-stage',
+			uuid: $stageId
+		);
+
+		$this->auditLogService->append(
+			actor: 'system',
+			action: 'signature',
+			objectUids: [$signing['minutesId'], $stageId],
+			payload: [
+				'phase' => 'resolve-signature-stage',
+				'stageId' => $stageId,
+				'decidedAt' => $signing['decidedAt'],
+			]
+		);
+	}//end decideStage()
 
 	/**
 	 * Compose a docudesk signingRequest via the ADR-019 integration registry
