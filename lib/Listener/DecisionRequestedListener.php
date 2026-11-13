@@ -31,7 +31,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\DecisionRequestedEvent;
-use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -62,11 +62,11 @@ class DecisionRequestedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param DecisionIntegrationService $integrationService The reused create-decision service
+	 * @param DecisionIntegrationServiceInterface $integrationService The reused create-decision service
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
-		private readonly DecisionIntegrationService $integrationService,
+		private readonly DecisionIntegrationServiceInterface $integrationService,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

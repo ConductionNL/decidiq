@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -44,7 +45,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
-class VotingRoundGuard {
+class VotingRoundGuard implements VotingRoundGuardInterface {
 	/**
 	 * Constructor for VotingRoundGuard.
 	 *

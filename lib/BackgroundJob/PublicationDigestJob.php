@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\PublicationDigestService;
+use OCA\Decidiq\Kernel\Contracts\PublicationDigestServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -52,14 +52,14 @@ class PublicationDigestJob extends TimedJob {
 	 * Construct the job.
 	 *
 	 * @param ITimeFactory             $time    Nextcloud time factory
-	 * @param PublicationDigestService $digest  The digest service
+	 * @param PublicationDigestServiceInterface $digest  The digest service
 	 * @param LoggerInterface          $logger  PSR-3 logger
 	 *
 	 * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly PublicationDigestService $digest,
+		private readonly PublicationDigestServiceInterface $digest,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

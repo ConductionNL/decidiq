@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Repair;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\DecisionTypeRegistry;
+use OCA\Decidiq\Kernel\Contracts\DecisionTypeRegistryInterface;
 use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -38,7 +38,7 @@ use OCP\Migration\IRepairStep;
  * Idempotent and non-destructive: a stored vocabulary is NEVER overwritten,
  * whatever it holds. An administrator who removed a type on purpose keeps
  * that removal across every later upgrade; a later release that grows
- * DecisionTypeRegistry::DEFAULT_TYPES only reaches fresh installs. That
+ * DecisionTypeRegistryInterface::DEFAULT_TYPES only reaches fresh installs. That
  * asymmetry is the point of the change: after the first seed the store is
  * the only authority, and code stops deciding the vocabulary.
  *
@@ -79,7 +79,7 @@ class SeedDecisionTypes implements IRepairStep {
 	public function run(IOutput $output): void {
 		$existing = $this->appConfig->getValueArray(
 			AppIdentity::APP_ID,
-			DecisionTypeRegistry::CONFIG_KEY,
+			DecisionTypeRegistryInterface::CONFIG_KEY,
 			[]
 		);
 
@@ -92,12 +92,12 @@ class SeedDecisionTypes implements IRepairStep {
 
 		$this->appConfig->setValueArray(
 			AppIdentity::APP_ID,
-			DecisionTypeRegistry::CONFIG_KEY,
-			DecisionTypeRegistry::DEFAULT_TYPES
+			DecisionTypeRegistryInterface::CONFIG_KEY,
+			DecisionTypeRegistryInterface::DEFAULT_TYPES
 		);
 
 		$output->info(
-			'Seeded ' . count(DecisionTypeRegistry::DEFAULT_TYPES) . ' decision types into the decision_types app setting.'
+			'Seeded ' . count(DecisionTypeRegistryInterface::DEFAULT_TYPES) . ' decision types into the decision_types app setting.'
 		);
 	}//end run()
 }//end class

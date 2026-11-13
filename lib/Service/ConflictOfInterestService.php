@@ -45,6 +45,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -55,7 +56,7 @@ use RuntimeException;
  *
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
  */
-class ConflictOfInterestService {
+class ConflictOfInterestService implements ConflictOfInterestServiceInterface {
 
 	/**
 	 * Allowed declaration-type enum values.

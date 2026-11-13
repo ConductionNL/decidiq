@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\PublicationConfigServiceInterface;
 use OCP\IAppConfig;
 
 /**
@@ -35,7 +36,7 @@ use OCP\IAppConfig;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationConfigService {
+class PublicationConfigService implements PublicationConfigServiceInterface {
 	/**
 	 * IAppConfig key the publication configuration blob is stored under.
 	 *

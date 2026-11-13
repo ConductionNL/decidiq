@@ -46,6 +46,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use Psr\Log\LoggerInterface;
@@ -56,7 +57,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-002-signatory-authorization-is-an-openregister-rbac-rule-not-an-app-local-service
  */
-class GovernanceScopeGuard {
+class GovernanceScopeGuard implements GovernanceScopeGuardInterface {
 
 	/**
 	 * Scope suffix for the chair scope (chair/chairman only).

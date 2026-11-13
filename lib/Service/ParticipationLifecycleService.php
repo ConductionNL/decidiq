@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
+use OCA\Decidiq\Kernel\Contracts\ParticipationLifecycleServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -42,7 +43,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ParticipationLifecycleService {
+class ParticipationLifecycleService implements ParticipationLifecycleServiceInterface {
 
 	/**
 	 * Legal consultation status transitions (source => allowed targets).

@@ -32,6 +32,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationResponseServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -41,7 +42,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
-class BoardEvaluationResponseService {
+class BoardEvaluationResponseService implements BoardEvaluationResponseServiceInterface {
 
 	/**
 	 * App-config key holding the HMAC secret. Deliberately the SAME key

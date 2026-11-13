@@ -30,12 +30,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PlanningCycleGeneratorInterface;
+
 /**
  * Builds the step payloads of a planning cycle from its template.
  *
  * @spec openspec/specs/planning-cycle/spec.md#requirement-req-pcg-001-a-cycle-made-from-a-template-gets-its-steps
  */
-class PlanningCycleGenerator {
+class PlanningCycleGenerator implements PlanningCycleGeneratorInterface {
 
 	/**
 	 * Template defaults (MM-DD) and the step date field each resolves into.

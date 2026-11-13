@@ -29,9 +29,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\AgendaService;
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\SystemWhenNobodySignedIn;
+use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -64,15 +64,15 @@ class AgendaItemChangeListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param AgendaService            $agendaService  Records the version and notifies
-	 * @param ListenerSchemaResolver   $schemaResolver Resolves the entity's schema slug
-	 * @param SystemWhenNobodySignedIn $system         Runs the notice as the system from cron or occ
+	 * @param AgendaServiceInterface            $agendaService  Records the version and notifies
+	 * @param ListenerSchemaResolverInterface   $schemaResolver Resolves the entity's schema slug
+	 * @param SystemWhenNobodySignedInInterface $system         Runs the notice as the system from cron or occ
 	 * @param LoggerInterface          $logger         Logger
 	 */
 	public function __construct(
-		private readonly AgendaService $agendaService,
-		private readonly ListenerSchemaResolver $schemaResolver,
-		private readonly SystemWhenNobodySignedIn $system,
+		private readonly AgendaServiceInterface $agendaService,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
+		private readonly SystemWhenNobodySignedInInterface $system,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

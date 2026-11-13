@@ -32,6 +32,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\MotionCoauthorServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-9.2
  */
-class MotionCoauthorService {
+class MotionCoauthorService implements MotionCoauthorServiceInterface {
 	/**
 	 * The refusal a caller gets for a motion they may not modify, or that does not exist.
 	 */

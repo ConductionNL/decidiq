@@ -51,6 +51,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageLapseServiceInterface;
 use OCP\IL10N;
 use Psr\Log\LoggerInterface;
 
@@ -59,7 +60,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/approval-routes/spec.md (REQ-AR-017)
  */
-class ApprovalStageLapseService {
+class ApprovalStageLapseService implements ApprovalStageLapseServiceInterface {
 	/**
 	 * The stage schema.
 	 *

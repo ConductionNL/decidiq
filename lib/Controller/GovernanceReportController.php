@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\GovernanceReportingService;
+use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -51,13 +51,13 @@ class GovernanceReportController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param GovernanceReportingService $reportingService Reporting service
+	 * @param GovernanceReportingServiceInterface $reportingService Reporting service
 	 * @param IUserSession $userSession User session
 	 * @param IGroupManager $groupManager Group manager
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly GovernanceReportingService $reportingService,
+		private readonly GovernanceReportingServiceInterface $reportingService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {

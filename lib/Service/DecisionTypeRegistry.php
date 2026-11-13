@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionTypeRegistryInterface;
 use OCP\IAppConfig;
 
 /**
@@ -52,43 +53,7 @@ use OCP\IAppConfig;
  *
  * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
  */
-class DecisionTypeRegistry {
-
-	/**
-	 * App-config key holding the decisionType vocabulary as a JSON array.
-	 *
-	 * @var string
-	 */
-	public const CONFIG_KEY = 'decision_types';
-
-	/**
-	 * The shipped decision-type seed.
-	 *
-	 * This is the bootstrap vocabulary, not a validation home: it is written
-	 * into app config once by the SeedDecisionTypes repair step and consulted
-	 * at runtime only while that row is still absent. It carries every type a
-	 * fleet caller sends today: dossiq raises `contract-renewal`,
-	 * `report-adoption`, `advice`, `bezwaar-decision` and `woo-decision`;
-	 * stackiq raises `contract` and `contract-renewal`. The parity test
-	 * (DecisionIntegrationServiceTest) pins that coverage.
-	 *
-	 * @var list<string>
-	 */
-	public const DEFAULT_TYPES = [
-		'motion',
-		'amendment',
-		'resolution',
-		'contract',
-		'contract-renewal',
-		'report-adoption',
-		'appointment',
-		'management-point',
-		'policy',
-		'meeting-outcome',
-		'advice',
-		'bezwaar-decision',
-		'woo-decision',
-	];
+class DecisionTypeRegistry implements DecisionTypeRegistryInterface {
 
 	/**
 	 * Constructor.

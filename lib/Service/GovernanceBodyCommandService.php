@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
 use RuntimeException;
 
 /**
@@ -40,7 +41,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/governance-body-events/spec.md
  */
-class GovernanceBodyCommandService {
+class GovernanceBodyCommandService implements GovernanceBodyCommandServiceInterface {
 
 	/**
 	 * Schema slug of the body.

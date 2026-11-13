@@ -30,8 +30,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\PlanningCycleGenerator;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\PlanningCycleGeneratorInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCP\EventDispatcher\Event;
@@ -56,14 +56,14 @@ class PlanningCycleCreatedListener implements IEventListener {
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService  Reads the template, writes the steps
-	 * @param PlanningCycleGenerator $generator      Builds the step payloads
-	 * @param ListenerSchemaResolver $schemaResolver Resolves the entity's schema slug
+	 * @param PlanningCycleGeneratorInterface $generator      Builds the step payloads
+	 * @param ListenerSchemaResolverInterface $schemaResolver Resolves the entity's schema slug
 	 * @param LoggerInterface        $logger         Logger
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly PlanningCycleGenerator $generator,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly PlanningCycleGeneratorInterface $generator,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

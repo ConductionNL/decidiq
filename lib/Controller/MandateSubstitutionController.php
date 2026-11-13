@@ -31,7 +31,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\MandateSubstitutionService;
+use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -50,14 +50,14 @@ class MandateSubstitutionController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest                   $request       The request
-	 * @param MandateSubstitutionService $substitutions Starts, ends and reads
+	 * @param MandateSubstitutionServiceInterface $substitutions Starts, ends and reads
 	 * @param IUserSession               $userSession   The caller
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MandateSubstitutionService $substitutions,
+		private readonly MandateSubstitutionServiceInterface $substitutions,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);

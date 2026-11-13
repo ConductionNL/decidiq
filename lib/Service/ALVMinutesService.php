@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 
 use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\ALVMinutesServiceInterface;
 use OCP\L10N\IFactory;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-3
  */
-class ALVMinutesService {
+class ALVMinutesService implements ALVMinutesServiceInterface {
 	/**
 	 * The placeholders of the ALV template, in the order their values are built.
 	 *

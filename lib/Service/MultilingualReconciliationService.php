@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\MultilingualReconciliationServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -36,7 +37,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
-class MultilingualReconciliationService {
+class MultilingualReconciliationService implements MultilingualReconciliationServiceInterface {
 
 	/**
 	 * Schema storing queued translation requests.

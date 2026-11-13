@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\ProofPackageServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -45,7 +46,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class ProofPackageService {
+class ProofPackageService implements ProofPackageServiceInterface {
 
 	/**
 	 * Attendance statuses counted as present for the quorum snapshot.

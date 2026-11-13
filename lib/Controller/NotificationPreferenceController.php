@@ -26,8 +26,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\NotificationPreferenceRequestValidator;
-use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceRequestValidatorInterface;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -44,17 +44,17 @@ class NotificationPreferenceController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param NotificationPreferenceService $preferenceService Preference service
+	 * @param NotificationPreferenceServiceInterface $preferenceService Preference service
 	 * @param IUserSession $userSession Current user session
-	 * @param NotificationPreferenceRequestValidator $validator Update-payload validator
+	 * @param NotificationPreferenceRequestValidatorInterface $validator Update-payload validator
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly NotificationPreferenceService $preferenceService,
+		private readonly NotificationPreferenceServiceInterface $preferenceService,
 		private readonly IUserSession $userSession,
-		private readonly NotificationPreferenceRequestValidator $validator,
+		private readonly NotificationPreferenceRequestValidatorInterface $validator,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()

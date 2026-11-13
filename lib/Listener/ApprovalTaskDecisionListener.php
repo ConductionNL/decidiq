@@ -41,9 +41,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
-use OCA\Decidiq\Service\ApprovalRouteService;
-use OCA\Decidiq\Service\ApprovalStageTaskProjector;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -71,13 +71,13 @@ class ApprovalTaskDecisionListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param ApprovalRouteService $engine The route engine every rule lives in.
-	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
+	 * @param ApprovalRouteServiceInterface $engine The route engine every rule lives in.
+	 * @param ApprovalRouteConclusionAnnouncerInterface $announcer The one door a conclusion leaves by.
 	 * @param LoggerInterface $logger The logger.
 	 */
 	public function __construct(
-		private readonly ApprovalRouteService $engine,
-		private readonly ApprovalRouteConclusionAnnouncer $announcer,
+		private readonly ApprovalRouteServiceInterface $engine,
+		private readonly ApprovalRouteConclusionAnnouncerInterface $announcer,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -231,7 +231,7 @@ class ApprovalTaskDecisionListener implements IEventListener {
 	 * @return bool
 	 */
 	private function isCompletedProjection(object $task): bool {
-		return $this->read(object: $task, getter: 'getTemplateId') === ApprovalStageTaskProjector::TEMPLATE_ID
+		return $this->read(object: $task, getter: 'getTemplateId') === ApprovalStageTaskProjectorInterface::TEMPLATE_ID
 			&& $this->read(object: $task, getter: 'getState') === 'completed';
 	}//end isCompletedProjection()
 

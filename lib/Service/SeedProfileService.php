@@ -42,6 +42,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\SeedProfileServiceInterface;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -52,7 +53,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/seed-profiles/spec.md
  */
-class SeedProfileService {
+class SeedProfileService implements SeedProfileServiceInterface {
 	/**
 	 * App-relative directory holding the example-set descriptors.
 	 *
@@ -79,17 +80,6 @@ class SeedProfileService {
 	 * @var string
 	 */
 	public const GENERATED_PROFILE = 'generated';
-
-	/**
-	 * The answer that means "plant nothing".
-	 *
-	 * 🔴 NOT THE ABSENCE OF AN ANSWER. An operator who declines has FINISHED the
-	 * step; a step that can never be marked done reopens the wizard over every
-	 * page (nextcloud-vue#806).
-	 *
-	 * @var string
-	 */
-	public const NONE_PROFILE = 'none';
 
 	/**
 	 * Constructor.

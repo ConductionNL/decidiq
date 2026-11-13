@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryServiceInterface;
 use OCA\Decidiq\Listener\PaperSummaryTaskListener;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\TaskProcessing\IManager;
@@ -46,7 +47,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-002-a-clerk-asks-for-a-summary-or-a-comparison-of-a-paper
  */
-class PaperSummaryService {
+class PaperSummaryService implements PaperSummaryServiceInterface {
 
 	/**
 	 * The app id the tasks are scheduled under.

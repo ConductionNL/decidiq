@@ -29,8 +29,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\GovernanceRoleScopeProjector;
-use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Kernel\Contracts\GovernanceRoleScopeProjectorInterface;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -70,13 +70,13 @@ class GovernanceRoleProjectionListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param GovernanceRoleScopeProjector $projector      Scope projector
-	 * @param ListenerSchemaResolver       $schemaResolver Turns the entity's schema id into its slug
+	 * @param GovernanceRoleScopeProjectorInterface $projector      Scope projector
+	 * @param ListenerSchemaResolverInterface       $schemaResolver Turns the entity's schema id into its slug
 	 * @param LoggerInterface              $logger         Diagnostic logger
 	 */
 	public function __construct(
-		private readonly GovernanceRoleScopeProjector $projector,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly GovernanceRoleScopeProjectorInterface $projector,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

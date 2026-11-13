@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\MotionCoauthorService;
+use OCA\Decidiq\Kernel\Contracts\MotionCoauthorServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -45,7 +45,7 @@ class MotionCoauthorController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param MotionCoauthorService $coauthorService Co-author service
+	 * @param MotionCoauthorServiceInterface $coauthorService Co-author service
 	 * @param IUserSession $userSession Current user session
 	 * @param IGroupManager $groupManager Group manager (for admin checks)
 	 *
@@ -53,7 +53,7 @@ class MotionCoauthorController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MotionCoauthorService $coauthorService,
+		private readonly MotionCoauthorServiceInterface $coauthorService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {

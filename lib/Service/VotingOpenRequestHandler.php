@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 
@@ -36,7 +37,7 @@ use OCP\AppFramework\Http\JSONResponse;
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class VotingOpenRequestHandler {
+class VotingOpenRequestHandler implements VotingOpenRequestHandlerInterface {
 
 	/**
 	 * Request parsing + validation for opening a voting round.

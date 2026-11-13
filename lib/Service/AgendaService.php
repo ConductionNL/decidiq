@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\NotFoundException;
+use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -43,7 +44,7 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1
  * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
  */
-class AgendaService {
+class AgendaService implements AgendaServiceInterface {
 
 	/**
 	 * Tag identifying consent agenda items.

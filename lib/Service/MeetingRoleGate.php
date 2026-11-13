@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\MeetingRoleGateInterface;
 use OCP\IGroupManager;
 
 /**
@@ -39,7 +40,7 @@ use OCP\IGroupManager;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MeetingRoleGate {
+class MeetingRoleGate implements MeetingRoleGateInterface {
 
 	/**
 	 * Meeting roles that count as "presiding" for guarded meeting actions.

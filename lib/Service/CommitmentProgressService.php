@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\CommitmentProgressServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -36,7 +37,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-002-the-clerk-adds-a-progress-entry
  */
-class CommitmentProgressService {
+class CommitmentProgressService implements CommitmentProgressServiceInterface {
 
 	/**
 	 * The longest note an entry may carry.

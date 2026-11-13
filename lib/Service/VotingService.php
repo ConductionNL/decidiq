@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
 use RuntimeException;
 
 /**
@@ -37,7 +38,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/voting-system/spec.md
  */
-class VotingService {
+class VotingService implements VotingServiceInterface {
 
 	/**
 	 * Configurable majority thresholds (mirrors Resolution.voteThreshold).

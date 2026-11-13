@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleGraph;
@@ -46,7 +47,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-class ProcessTemplateService {
+class ProcessTemplateService implements ProcessTemplateServiceInterface {
 
 	/**
 	 * Recognised guard tokens a transition may declare. An unknown token is a

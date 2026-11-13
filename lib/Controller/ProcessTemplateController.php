@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\ProcessTemplateService;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -48,14 +48,14 @@ class ProcessTemplateController extends Controller {
 	 * Constructor for ProcessTemplateController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param ProcessTemplateService $templateService The process-template service
+	 * @param ProcessTemplateServiceInterface $templateService The process-template service
 	 * @param LoggerInterface $logger The logger
 	 *
 	 * @spec openspec/specs/process-configuration/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ProcessTemplateService $templateService,
+		private readonly ProcessTemplateServiceInterface $templateService,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);

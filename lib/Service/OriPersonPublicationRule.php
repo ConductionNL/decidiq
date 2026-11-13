@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\OriPersonPublicationRuleInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -42,7 +43,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-ori-007-the-public-ori-api-names-public-role-holders-only
  */
-class OriPersonPublicationRule {
+class OriPersonPublicationRule implements OriPersonPublicationRuleInterface {
 
 	/**
 	 * How many people or memberships one collection request reads.

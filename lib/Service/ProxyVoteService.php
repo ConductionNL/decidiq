@@ -48,6 +48,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ProxyVoteServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -57,7 +58,7 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
-class ProxyVoteService {
+class ProxyVoteService implements ProxyVoteServiceInterface {
 
 	/**
 	 * Allowed proxy status values.

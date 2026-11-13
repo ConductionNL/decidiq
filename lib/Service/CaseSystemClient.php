@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\Contracts\CaseSystemClientInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
@@ -40,16 +41,11 @@ use Throwable;
  *
  * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-001-the-case-system-is-an-integriq-connection
  */
-class CaseSystemClient {
+class CaseSystemClient implements CaseSystemClientInterface {
 	/**
 	 * The connection key decidiq declares.
 	 */
 	public const CONNECTION_KEY = 'case-system';
-
-	/**
-	 * The refusal every case action gives while no source is linked.
-	 */
-	public const NOT_CONNECTED = 'No case system is connected';
 
 	/**
 	 * Finds the linked source and reads call statuses.

@@ -47,7 +47,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use DateTimeImmutable;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\App\IAppManager;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -98,7 +98,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService $settingsService Detects OpenRegister availability.
+	 * @param SettingsServiceInterface $settingsService Detects OpenRegister availability.
 	 * @param ContainerInterface $container DI container (lazy-loads OR + Talk services).
 	 * @param LoggerInterface $logger Logger.
 	 * @param IAppManager $appManager Checks whether the Talk app is installed.
@@ -106,7 +106,7 @@ class MigrateCommentsToTalkLeaf implements IRepairStep {
 	 * @spec openspec/changes/archive/2026-06-10-migrate-comments-to-talk-leaf/tasks.md#task-2.1
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly IAppManager $appManager,

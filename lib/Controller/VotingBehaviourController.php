@@ -25,7 +25,7 @@ namespace OCA\Decidiq\Controller;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\VotingBehaviourService;
+use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Contract\RegisterSlugResolverInterface;
 use OCP\AppFramework\Controller;
@@ -60,7 +60,7 @@ class VotingBehaviourController extends Controller {
 	 * Constructor for VotingBehaviourController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingBehaviourService $behaviourService The voting behaviour service
+	 * @param VotingBehaviourServiceInterface $behaviourService The voting behaviour service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager The group manager
 	 * @param ObjectServiceInterface $objectService OpenRegister object service for participant lookup
@@ -75,7 +75,7 @@ class VotingBehaviourController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingBehaviourService $behaviourService,
+		private readonly VotingBehaviourServiceInterface $behaviourService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly ObjectServiceInterface $objectService,

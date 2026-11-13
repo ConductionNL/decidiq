@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Log\LoggerInterface;
@@ -41,19 +42,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
  */
-class SigningRoundService {
-
-	/**
-	 * What can be signed, and the schema that holds it. A decision list is
-	 * the meeting's list of decisions, so it is signed from the meeting.
-	 *
-	 * @var array<string, string>
-	 */
-	public const SUBJECTS = [
-		'minutes' => 'minutes',
-		'decision-list' => 'meeting',
-		'motion' => 'decision',
-	];
+class SigningRoundService implements SigningRoundServiceInterface {
 
 	/**
 	 * Constructor.

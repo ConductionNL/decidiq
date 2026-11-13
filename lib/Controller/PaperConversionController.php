@@ -24,7 +24,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\AgendaAuthorizationGuard;
+use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -48,7 +48,7 @@ class PaperConversionController extends Controller {
 	 *
 	 * @param IRequest                 $request       The request.
 	 * @param ObjectServiceInterface   $objectService The OpenRegister object service.
-	 * @param AgendaAuthorizationGuard $guard         Chair, secretary or admin of a meeting.
+	 * @param AgendaAuthorizationGuardInterface $guard         Chair, secretary or admin of a meeting.
 	 * @param IJobList                 $jobList       The background job list.
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-002-a-failed-or-impossible-conversion-is-visible-and-the-original-stays
@@ -56,7 +56,7 @@ class PaperConversionController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly ObjectServiceInterface $objectService,
-		private readonly AgendaAuthorizationGuard $guard,
+		private readonly AgendaAuthorizationGuardInterface $guard,
 		private readonly IJobList $jobList,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);

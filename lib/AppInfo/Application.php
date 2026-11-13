@@ -32,6 +32,7 @@ use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Listener\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Middleware\ApiContractMiddleware;
+use OCA\Decidiq\Service\ContractBindings;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -143,6 +144,10 @@ class Application extends App implements IBootstrap {
 		// Both registrars below carry the bindings described above.
 		(new CrossAppEventRegistrar())->register(context: $context);
 		(new DomainServiceRegistrar())->register(context: $context);
+
+		// Every Kernel contract that a caller type-hints resolves to its Service
+		// implementation.
+		(new ContractBindings())->register(context: $context);
 
 		// @spec openspec/specs/decision-management/spec.md
 		// Board portal Phase 2 services (audit log, conflict of interest,

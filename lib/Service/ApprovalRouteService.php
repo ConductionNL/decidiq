@@ -46,6 +46,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
 use RuntimeException;
 
 /**
@@ -58,7 +59,7 @@ use RuntimeException;
  *   rule (REQ-ARE-004 forbids a second engine), so the mandate directory and
  *   the task projector attach here rather than growing a sibling.
  */
-class ApprovalRouteService {
+class ApprovalRouteService implements ApprovalRouteServiceInterface {
 	/**
 	 * Where the stage rows move when an action lands.
 	 *
@@ -493,7 +494,6 @@ class ApprovalRouteService {
 			'route' => $run->routeId,
 		];
 	}//end stageObject()
-
 
 	/**
 	 * Resolve the actor rule of every stage that is already live.

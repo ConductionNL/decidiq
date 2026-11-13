@@ -29,8 +29,8 @@ use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\PublicationService;
-use OCA\Decidiq\Service\PublicationStaffGuard;
+use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationStaffGuardInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -79,15 +79,15 @@ class PublicationController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param PublicationService $publicationService The publication orchestrator.
-	 * @param PublicationStaffGuard $staffGuard Per-object staff authority.
+	 * @param PublicationServiceInterface $publicationService The publication orchestrator.
+	 * @param PublicationStaffGuardInterface $staffGuard Per-object staff authority.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PublicationService $publicationService,
-		private readonly PublicationStaffGuard $staffGuard,
+		private readonly PublicationServiceInterface $publicationService,
+		private readonly PublicationStaffGuardInterface $staffGuard,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -305,7 +305,7 @@ class PublicationController extends Controller {
 	 */
 	private function requireStaffForSource(string $sourceType, string $sourceId): ?JSONResponse {
 		$outcome = $this->staffGuard->checkSource(sourceType: $sourceType, sourceId: $sourceId);
-		if ($outcome === PublicationStaffGuard::ALLOWED) {
+		if ($outcome === PublicationStaffGuardInterface::ALLOWED) {
 			return null;
 		}
 
@@ -327,11 +327,11 @@ class PublicationController extends Controller {
 	 */
 	private function requireStaffForRecord(string $recordId): ?JSONResponse {
 		$outcome = $this->staffGuard->checkRecord(recordId: $recordId);
-		if ($outcome === PublicationStaffGuard::ALLOWED) {
+		if ($outcome === PublicationStaffGuardInterface::ALLOWED) {
 			return null;
 		}
 
-		if ($outcome === PublicationStaffGuard::RECORD_NOT_FOUND) {
+		if ($outcome === PublicationStaffGuardInterface::RECORD_NOT_FOUND) {
 			return new JSONResponse(['message' => 'Publication record not found.'], Http::STATUS_NOT_FOUND);
 		}
 

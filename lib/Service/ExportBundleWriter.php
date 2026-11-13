@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\BackgroundJob\ExportBundleNoticeJob;
 use OCA\Decidiq\Exception\ExportBundleException;
+use OCA\Decidiq\Kernel\Contracts\ExportBundleWriterInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\Decidiq\Support\OpenRegisterFiles;
 use OCP\AppFramework\Http;
@@ -45,7 +46,7 @@ use ZipArchive;
  *
  * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
  */
-class ExportBundleWriter {
+class ExportBundleWriter implements ExportBundleWriterInterface {
 	/**
 	 * Above this many estimated pages filinq merges in the background.
 	 */

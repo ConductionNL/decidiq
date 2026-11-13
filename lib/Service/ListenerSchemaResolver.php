@@ -69,6 +69,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -79,7 +80,7 @@ use Throwable;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class ListenerSchemaResolver {
+class ListenerSchemaResolver implements ListenerSchemaResolverInterface {
 
 	/**
 	 * FQCN of OpenRegister's schema mapper.

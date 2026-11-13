@@ -26,6 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
+
 /**
  * Keyed read of one governance body and its roster.
  *
@@ -35,7 +37,7 @@ namespace OCA\Decidiq\Service;
  *
  * @spec openspec/specs/governance-body-events/spec.md#requirement-req-gbe-007-a-consumer-reads-its-governance-body-back-through-a-typed-event
  */
-class GovernanceBodyQueryService {
+class GovernanceBodyQueryService implements GovernanceBodyQueryServiceInterface {
 
 	private const SCHEMA_BODY = 'governance-body';
 

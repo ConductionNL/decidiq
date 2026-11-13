@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\MeetingPackageServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -47,7 +48,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/agenda-management/spec.md
  */
-class MeetingPackageService {
+class MeetingPackageService implements MeetingPackageServiceInterface {
 
 	/**
 	 * Name of the package subfolder created under the meeting folder.

@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingFolderServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -52,13 +52,13 @@ class MeetingFolderListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param MeetingFolderService $folderService Meeting folder service
-	 * @param ListenerSchemaResolver $schemaResolver Resolves the entity's schema slug
+	 * @param MeetingFolderServiceInterface $folderService Meeting folder service
+	 * @param ListenerSchemaResolverInterface $schemaResolver Resolves the entity's schema slug
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
-		private readonly MeetingFolderService $folderService,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly MeetingFolderServiceInterface $folderService,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

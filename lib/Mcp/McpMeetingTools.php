@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidiq\Service\MeetingService;
+use OCA\Decidiq\Kernel\Contracts\MeetingServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -59,7 +59,7 @@ class McpMeetingTools {
 	/**
 	 * Constructor for the McpMeetingTools.
 	 *
-	 * @param MeetingService $meetingService The meeting service driving lifecycle transitions
+	 * @param MeetingServiceInterface $meetingService The meeting service driving lifecycle transitions
 	 * @param LoggerInterface $logger The PSR-3 logger
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 * @param McpMeetingGate $gate Loads meetings and enforces per-object authorisation
@@ -69,7 +69,7 @@ class McpMeetingTools {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly MeetingService $meetingService,
+		private readonly MeetingServiceInterface $meetingService,
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly McpMeetingGate $gate,

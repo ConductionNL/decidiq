@@ -44,12 +44,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionStageLabelRepairInterface;
+
 /**
  * Backfills derived labels onto stages stored with a NULL label. Idempotent.
  *
  * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class DecisionStageLabelRepair {
+class DecisionStageLabelRepair implements DecisionStageLabelRepairInterface {
 
 	/**
 	 * Constructor.

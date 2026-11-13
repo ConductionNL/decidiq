@@ -23,6 +23,7 @@ namespace OCA\Decidiq\Service;
 
 use Exception;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\LiveDecisionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -35,7 +36,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  */
-class LiveDecisionService {
+class LiveDecisionService implements LiveDecisionServiceInterface {
 	/**
 	 * Constructor.
 	 *

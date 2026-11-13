@@ -29,13 +29,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\OriPublicationService;
-use OCA\Decidiq\Service\ProxyDelegationService;
+use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ProxyDelegationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingErrorResponderInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
 use OCA\Decidiq\Service\VoteCast;
-use OCA\Decidiq\Service\VotingErrorResponder;
-use OCA\Decidiq\Service\VotingOpenRequestHandler;
-use OCA\Decidiq\Service\VotingRoundGuard;
-use OCA\Decidiq\Service\VotingService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -53,13 +53,13 @@ class VotingController extends Controller {
 	 * Constructor for VotingController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingService $votingService The voting service
-	 * @param OriPublicationService $oriService The ORI publication service
+	 * @param VotingServiceInterface $votingService The voting service
+	 * @param OriPublicationServiceInterface $oriService The ORI publication service
 	 * @param IUserSession $userSession The user session
-	 * @param VotingRoundGuard $guard Per-meeting authorisation guard
-	 * @param VotingOpenRequestHandler $openHandler Open-a-round request handling
-	 * @param ProxyDelegationService $proxyService Proxy (volmacht) grant / revoke
-	 * @param VotingErrorResponder $errors Exception-to-status mapping
+	 * @param VotingRoundGuardInterface $guard Per-meeting authorisation guard
+	 * @param VotingOpenRequestHandlerInterface $openHandler Open-a-round request handling
+	 * @param ProxyDelegationServiceInterface $proxyService Proxy (volmacht) grant / revoke
+	 * @param VotingErrorResponderInterface $errors Exception-to-status mapping
 	 *
 	 * @return void
 	 *
@@ -67,13 +67,13 @@ class VotingController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingService $votingService,
-		private readonly OriPublicationService $oriService,
+		private readonly VotingServiceInterface $votingService,
+		private readonly OriPublicationServiceInterface $oriService,
 		private readonly IUserSession $userSession,
-		private readonly VotingRoundGuard $guard,
-		private readonly VotingOpenRequestHandler $openHandler,
-		private readonly ProxyDelegationService $proxyService,
-		private readonly VotingErrorResponder $errors,
+		private readonly VotingRoundGuardInterface $guard,
+		private readonly VotingOpenRequestHandlerInterface $openHandler,
+		private readonly ProxyDelegationServiceInterface $proxyService,
+		private readonly VotingErrorResponderInterface $errors,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 

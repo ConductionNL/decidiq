@@ -28,7 +28,7 @@ namespace OCA\Decidiq\Controller;
 
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\CommitmentProgressService;
+use OCA\Decidiq\Kernel\Contracts\CommitmentProgressServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -50,7 +50,7 @@ class CommitmentController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest                  $request     The request
-	 * @param CommitmentProgressService $progress    Progress entries and who may add them
+	 * @param CommitmentProgressServiceInterface $progress    Progress entries and who may add them
 	 * @param IUserSession              $userSession The session
 	 * @param LoggerInterface           $logger      The logger
 	 *
@@ -58,7 +58,7 @@ class CommitmentController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly CommitmentProgressService $progress,
+		private readonly CommitmentProgressServiceInterface $progress,
 		private readonly IUserSession $userSession,
 		private readonly LoggerInterface $logger,
 	) {

@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -126,7 +126,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService        $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface        $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface     $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface        $logger          Records what was migrated.
 	 * @param AgendaItemTypeResolver $types           Resolves the configurable kind each row becomes.
@@ -134,7 +134,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AgendaItemTypeResolver $types,

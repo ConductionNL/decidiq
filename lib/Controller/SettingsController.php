@@ -24,9 +24,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\ConnectionReportService;
-use OCA\Decidiq\Service\PublicationConfigService;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationConfigServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -46,19 +46,19 @@ class SettingsController extends Controller {
 	 * Constructor for the SettingsController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param SettingsService $settingsService The settings service
+	 * @param SettingsServiceInterface $settingsService The settings service
 	 * @param IUserSession $userSession The user session
-	 * @param PublicationConfigService $publicationConfig The publication configuration service
-	 * @param ConnectionReportService|null $connectionReports Sends integriq the connection events after a save
+	 * @param PublicationConfigServiceInterface $publicationConfig The publication configuration service
+	 * @param ConnectionReportServiceInterface|null $connectionReports Sends integriq the connection events after a save
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private SettingsService $settingsService,
+		private SettingsServiceInterface $settingsService,
 		private IUserSession $userSession,
-		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
-		private ?ConnectionReportService $connectionReports = null,
+		private PublicationConfigServiceInterface $publicationConfig,
+		private ?ConnectionReportServiceInterface $connectionReports = null,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()

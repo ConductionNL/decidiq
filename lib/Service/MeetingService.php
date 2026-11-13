@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingServiceInterface;
 use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -44,7 +45,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.3
  */
-class MeetingService {
+class MeetingService implements MeetingServiceInterface {
 
 	/**
 	 * Valid lifecycle transitions keyed by action name.

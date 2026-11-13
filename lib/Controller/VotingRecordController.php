@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\VotingRecordService;
+use OCA\Decidiq\Kernel\Contracts\VotingRecordServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
@@ -49,12 +49,12 @@ class VotingRecordController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest            $request     HTTP request
-	 * @param VotingRecordService $records     Reads the record
+	 * @param VotingRecordServiceInterface $records     Reads the record
 	 * @param IUserSession        $userSession User session
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingRecordService $records,
+		private readonly VotingRecordServiceInterface $records,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);

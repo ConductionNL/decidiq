@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationPublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use OCP\IAppConfig;
@@ -52,7 +53,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ParticipationPublicationService {
+class ParticipationPublicationService implements ParticipationPublicationServiceInterface {
 	/**
 	 * This app's id, used below as the `oc_appconfig` namespace.
 	 *
