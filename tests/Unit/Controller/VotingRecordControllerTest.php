@@ -35,6 +35,8 @@ use PHPUnit\Framework\TestCase;
  * Tests for VotingRecordController.
  *
  * @covers \OCA\Decidiq\Controller\VotingRecordController
+ * @uses \OCA\Decidiq\Middleware\Support\ApiPathAliases
+ * @uses \OCA\Decidiq\Middleware\Support\StandardProtocolPaths
  *
  * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
  */

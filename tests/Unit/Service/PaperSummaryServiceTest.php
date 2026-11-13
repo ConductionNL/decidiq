@@ -60,6 +60,8 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\PaperSummaryAccess
  * @uses   \OCA\Decidiq\Service\PaperText
  * @uses   \OCA\Decidiq\Exception\PaperSummaryRefusedException
+ * @uses   \OCA\Decidiq\Middleware\Support\ApiPathAliases
+ * @uses   \OCA\Decidiq\Middleware\Support\StandardProtocolPaths
  */
 class PaperSummaryServiceTest extends TestCase {
 
