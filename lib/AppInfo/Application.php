@@ -24,13 +24,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\AppInfo;
 
 use OCA\Decidiq\AppInfo\Registrar\AppHostRegistrar;
-use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\DomainServiceRegistrar;
-use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
-use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\OpenRegisterContractRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar;
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
+use OCA\Decidiq\Listener\Registrar\IntegrationLeafRegistrar;
+use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Middleware\ApiContractMiddleware;
 use OCA\Decidiq\Service\ContractBindings;
 use OCP\AppFramework\App;

@@ -7,8 +7,8 @@
  * run when a decision it asked for concludes. Guarded: without OpenRegister's
  * flow engine nothing is registered and decidiq boots as before.
  *
- * @category AppInfo
- * @package  OCA\Decidiq\AppInfo\Registrar
+ * @category Listener
+ * @package  OCA\Decidiq\Listener\Registrar
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidiq\AppInfo\Registrar;
+namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\AppInfo\OpenRegisterAutoloader;
 use OCA\Decidiq\Event\DecisionConcludedEvent;

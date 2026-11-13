@@ -16,7 +16,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
+use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Event\GovernanceBodyStateRequestedEvent;
 use OCA\Decidiq\Listener\GovernanceBodyStateRequestedListener;
 use OCA\Decidiq\Service\GovernanceBodyQueryService;
