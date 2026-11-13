@@ -121,13 +121,8 @@ class RegulatorExportService {
 			return $this->failure(message: $rejection);
 		}
 
-		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: RegulatorExportService unable to resolve ObjectService',
-				['exception' => $e->getMessage()]
-			);
+		$objectService = $this->resolveObjectService();
+		if ($objectService === null) {
 			return $this->failure(message: 'OpenRegister is unavailable.');
 		}
 
@@ -156,7 +151,7 @@ class RegulatorExportService {
 		$checksum = hash('sha256', $body);
 		$filename = sprintf('decidiq-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
 
-		$exportRecord = [
+		$draft = [
 			'boardIntegration' => $boardId,
 			'scope' => $scope,
 			'format' => $format,
@@ -166,7 +161,55 @@ class RegulatorExportService {
 			'generatedAt' => $generatedAt,
 			'generatedBy' => $actor,
 		];
+		$exportRecord = $this->persistExportRecord(objectService: $objectService, exportRecord: $draft);
 
+		$this->auditExport(actor: $actor, boardId: $boardId, draft: $draft, saved: $exportRecord);
+
+		return [
+			'success' => true,
+			'export' => $exportRecord,
+			'body' => $body,
+			'contentType' => $contentType,
+			'filename' => $filename,
+			'message' => 'Export generated.',
+		];
+
+	}//end generate()
+
+	/**
+	 * Resolve OpenRegister's ObjectService from the container.
+	 *
+	 * @return object|null The ObjectService, or null (logged) when it cannot be resolved
+	 *
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
+	 */
+	private function resolveObjectService(): ?object {
+		try {
+			return $this->container->get('OCA\OpenRegister\Service\ObjectService');
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidiq: RegulatorExportService unable to resolve ObjectService',
+				['exception' => $e->getMessage()]
+			);
+			return null;
+		}
+
+	}//end resolveObjectService()
+
+	/**
+	 * Persist the export record, returning the saved form.
+	 *
+	 * A persist failure is non-fatal: it is logged and the unsaved record is
+	 * returned, so the export body still reaches the caller.
+	 *
+	 * @param object $objectService OpenRegister ObjectService
+	 * @param array<string, mixed> $exportRecord The record to save
+	 *
+	 * @return array<string, mixed> The saved record, or the input when saving failed
+	 *
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
+	 */
+	private function persistExportRecord(object $objectService, array $exportRecord): array {
 		try {
 			$saved = $objectService->saveObject(
 				object: $exportRecord,
@@ -184,30 +227,40 @@ class RegulatorExportService {
 			);
 		}
 
-		$auditId = (string)($exportRecord['id'] ?? $checksum);
+		return $exportRecord;
+
+	}//end persistExportRecord()
+
+	/**
+	 * Record the export as material access in the audit log.
+	 *
+	 * The export is named by its saved id, or by its checksum when it was not
+	 * persisted; the payload describes the export as generated.
+	 *
+	 * @param string $actor Acting user UID
+	 * @param string $boardId Board UUID
+	 * @param array<string, mixed> $draft The export record as generated
+	 * @param array<string, mixed> $saved The record persistExportRecord() returned
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
+	 */
+	private function auditExport(string $actor, string $boardId, array $draft, array $saved): void {
 		$this->auditLogService->append(
 			actor: $actor,
 			action: 'material-access',
-			objectUids: [$boardId, $auditId],
+			objectUids: [$boardId, (string)($saved['id'] ?? $draft['sha256'])],
 			payload: [
 				'kind' => 'regulator-export',
-				'scope' => $scope,
-				'format' => $format,
-				'recordCount' => count($rows),
-				'sha256' => $checksum,
+				'scope' => $draft['scope'],
+				'format' => $draft['format'],
+				'recordCount' => $draft['recordCount'],
+				'sha256' => $draft['sha256'],
 			]
 		);
 
-		return [
-			'success' => true,
-			'export' => $exportRecord,
-			'body' => $body,
-			'contentType' => $contentType,
-			'filename' => $filename,
-			'message' => 'Export generated.',
-		];
-
-	}//end generate()
+	}//end auditExport()
 
 	/**
 	 * Validate the generate() request triple.
