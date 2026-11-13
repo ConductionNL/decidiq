@@ -13,8 +13,8 @@
   - GIVEN the schema WHEN inspected THEN it carries `x-openregister-aggregations` (per-body/period status counts) and `x-openregister-notifications` (created + status==fail notifies the uploader) — no imperative dispatch (gate 18)
   - GIVEN `publication-record` WHEN inspected THEN it has the additive `accessibilityOverride` object (reason, actor, overriddenAt, reports[])
   - Schema references use slugs, not PascalCase (gates 28/30/51/52 pass)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Seed data for the new schema and the override example
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period`
@@ -36,8 +36,8 @@
   - GIVEN a malformed or >25 MB file WHEN scanned THEN status `not-scanned` with `parse-failure`/`too-large` finding and no uncaught exception (fail-closed, never `pass`)
   - GIVEN a non-PDF attachment WHEN scanned THEN `not-scanned` with a size/type sanity note only
   - Report upsert supersedes the previous report for the same fileId via ObjectService (all fields carried forward — PUT semantics)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: Admin settings + scan-on-upload background job
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning`

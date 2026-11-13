@@ -93,6 +93,9 @@ class SettingsService implements SettingsServiceInterface {
 		// 'true' makes a motion forwarded to another body wait for that body's
 		// chair (MotionForwardingService).
 		'motion_forwarding_requires_approval',
+		// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+		// off|warn|block: how the document accessibility gate treats a publication.
+		'accessibility_enforcement_mode',
 		// Which structure the app shows (simple-structure-profile). A key that
 		// is not on this list is dropped by updateSettings() while the write
 		// still answers success.
@@ -132,6 +135,7 @@ class SettingsService implements SettingsServiceInterface {
 		'organisatie_modus' => 'gov',
 		'convert_office_papers' => 'true',
 		'motion_forwarding_requires_approval' => 'false',
+		'accessibility_enforcement_mode' => 'warn',
 	];
 
 	/**
