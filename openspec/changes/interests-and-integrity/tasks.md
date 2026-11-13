@@ -57,8 +57,8 @@
 - **acceptance_criteria**:
   - GIVEN a participant with active nevenfuncties WHEN they open "Belangenverstrengeling melden" (REQ-COI-001) THEN their own nevenfuncties are listed with subject-keyword matches highlighted, and the COI note mechanism itself is unchanged
   - GIVEN the chair's COI summary panel (REQ-COI-002) WHEN a declaring participant has registered nevenfuncties THEN their entry links to the register; no auto-declaration, blocking, or scoring occurs anywhere
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`src/utils/ancillaryContext.js`, `src/dialogs/ConflictDeclareDialog.vue`, `src/components/tabs/ConflictsTab.vue`; the chair link goes to the member's profile, which lists her other positions)
+- [x] Test (`tests/vitest/ancillaryContext.spec.js`)
 
 ### Task 7: E2E coverage — Playwright scenarios for declarations, publication, and integrity flows
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md`
