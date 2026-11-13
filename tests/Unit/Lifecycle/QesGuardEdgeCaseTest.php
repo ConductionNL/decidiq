@@ -184,4 +184,31 @@ class QesGuardEdgeCaseTest extends TestCase {
 		$this->assertSame(['m-1'], $result['missing']);
 		$this->assertSame([], $result['invalid']);
 	}
+
+	/**
+	 * A resolution the store does not know has no minutes, so every signer is
+	 * missing and the minutes are never searched.
+	 *
+	 * @return void
+	 */
+	public function testAnUnknownResolutionHasNoSignatures(): void {
+		$this->objectService->expects($this->once())
+			->method('find')
+			->with('res-404', $this->anything(), $this->anything(), 'decidiq', 'decision')
+			->willReturn(null);
+		$this->objectService->expects($this->never())->method('findAll');
+		$this->signatures->expects($this->never())->method('validateCertificateChain');
+
+		$result = $this->guard->canConclude('res-404', ['m-1', 'm-2']);
+
+		$this->assertSame(
+			[
+				'allowed' => false,
+				'reason' => 'Resolution cannot be adopted — missing QES signatures: m-1, m-2.',
+				'missing' => ['m-1', 'm-2'],
+				'invalid' => [],
+			],
+			$result
+		);
+	}
 }

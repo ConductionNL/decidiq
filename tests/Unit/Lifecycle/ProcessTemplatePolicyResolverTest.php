@@ -141,4 +141,32 @@ class ProcessTemplatePolicyResolverTest extends TestCase {
 		$this->assertNull($this->resolver->resolveVotingRule(['name' => 'no-rule']));
 
 	}//end testResolveVotingRule()
+
+	/**
+	 * Malformed transitions contribute no chair-only edge, while well-formed
+	 * ones are still collected by flag or by guard token, in declared order.
+	 *
+	 * @return void
+	 */
+	public function testMalformedTransitionsAreSkipped(): void {
+		$policy = $this->resolver->resolve(
+			[
+				'stateMachine' => [
+					'transitions' => [
+						'not-an-array',
+						['to' => 'adopted', 'chairOnly' => true],
+						['from' => '', 'to' => 'adopted', 'chairOnly' => true],
+						['from' => 'draft', 'to' => 7, 'chairOnly' => true],
+						['from' => 'draft', 'to' => 'tabled', 'guards' => ['chair_only']],
+						['from' => 'tabled', 'to' => 'voting'],
+						['from' => 'voting', 'to' => 'adopted', 'chairOnly' => true],
+						['from' => 'voting', 'to' => 'rejected', 'chairOnly' => 'yes'],
+					],
+				],
+			]
+		);
+
+		$this->assertSame(['draft:tabled', 'voting:adopted'], $policy['chairOnlyTransitions']);
+
+	}//end testMalformedTransitionsAreSkipped()
 }//end class
