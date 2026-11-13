@@ -100,25 +100,7 @@ class ProofPackageService {
 
 		$meeting = $meetingEntity->jsonSerialize();
 
-		$agendaItems = $this->fetchRelated(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
-		$votingRounds = $this->fetchRelated(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
-		$decisions = $this->fetchRelated(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		$package = [
-			'meeting' => [
-				'id' => ($meeting['id'] ?? ($meeting['@self']['id'] ?? $meetingId)),
-				'title' => (string)($meeting['title'] ?? ''),
-				'meetingType' => (string)($meeting['meetingType'] ?? ''),
-				'scheduledDate' => (string)($meeting['scheduledDate'] ?? ''),
-				'location' => (string)($meeting['location'] ?? ''),
-				'lifecycle' => (string)($meeting['lifecycle'] ?? ''),
-			],
-			'convocation' => $this->buildConvocation(meeting: $meeting, agendaItems: $agendaItems),
-			'quorum' => $this->buildQuorumSnapshot(meeting: $meeting, participants: $participants),
-			'votes' => $this->buildVotesTally(votingRounds: $votingRounds),
-			'decisions' => $this->buildDecisionTexts(decisions: $decisions),
-		];
+		$package = $this->buildPackage(objectService: $objectService, meeting: $meeting, meetingId: $meetingId);
 
 		$generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 		$canonical = $this->canonicalJson(data: $package);
@@ -136,6 +118,60 @@ class ProofPackageService {
 			'generatedBy' => $generatedBy,
 		];
 
+		$files = $this->writePackageFiles(meeting: $meeting, envelope: $envelope);
+
+		return [
+			'files' => $files,
+			'sha256' => $sha256,
+			'generatedAt' => $generatedAt,
+		];
+
+	}//end assemble()
+
+	/**
+	 * Gather the evidence members of the proof package for a meeting.
+	 *
+	 * @param object $objectService OpenRegister ObjectService
+	 * @param array<string, mixed> $meeting Serialized meeting
+	 * @param string $meetingId UUID of the meeting
+	 *
+	 * @return array<string, mixed> Keys: meeting, convocation, quorum, votes, decisions
+	 */
+	private function buildPackage(object $objectService, array $meeting, string $meetingId): array {
+		$agendaItems = $this->fetchRelated(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
+		$votingRounds = $this->fetchRelated(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
+		$decisions = $this->fetchRelated(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
+		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
+
+		return [
+			'meeting' => [
+				'id' => ($meeting['id'] ?? ($meeting['@self']['id'] ?? $meetingId)),
+				'title' => (string)($meeting['title'] ?? ''),
+				'meetingType' => (string)($meeting['meetingType'] ?? ''),
+				'scheduledDate' => (string)($meeting['scheduledDate'] ?? ''),
+				'location' => (string)($meeting['location'] ?? ''),
+				'lifecycle' => (string)($meeting['lifecycle'] ?? ''),
+			],
+			'convocation' => $this->buildConvocation(meeting: $meeting, agendaItems: $agendaItems),
+			'quorum' => $this->buildQuorumSnapshot(meeting: $meeting, participants: $participants),
+			'votes' => $this->buildVotesTally(votingRounds: $votingRounds),
+			'decisions' => $this->buildDecisionTexts(decisions: $decisions),
+		];
+
+	}//end buildPackage()
+
+	/**
+	 * Write the sealed envelope as a JSON file and a Markdown rendering into
+	 * the meeting's Minutes folder.
+	 *
+	 * @param array<string, mixed> $meeting Serialized meeting
+	 * @param array<string, mixed> $envelope The sealed envelope
+	 *
+	 * @throws RuntimeException When encoding fails (500) or the Files backend is unavailable (503)
+	 *
+	 * @return string[] The JSON path, then the Markdown path
+	 */
+	private function writePackageFiles(array $meeting, array $envelope): array {
 		$stamp = (new DateTimeImmutable())->format('Y-m-d Hi');
 		$baseName = 'Proof package ' . $stamp;
 
@@ -165,13 +201,9 @@ class ProofPackageService {
 			);
 		}
 
-		return [
-			'files' => [$jsonPath, $mdPath],
-			'sha256' => $sha256,
-			'generatedAt' => $generatedAt,
-		];
+		return [$jsonPath, $mdPath];
 
-	}//end assemble()
+	}//end writePackageFiles()
 
 	/**
 	 * Build the convocation record — honest about unrecorded notice data.
