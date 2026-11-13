@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob;
+use OCA\Decidiq\Kernel\Contracts\ParticipationLifecycleServiceInterface;
 use OCA\Decidiq\Service\ParticipationLifecycleService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -90,7 +91,7 @@ class ConsultationAutoCloseRunTest extends TestCase {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
 			function (string $id) use ($objectService, $lifecycle, $broken) {
-				if ($id === ParticipationLifecycleService::class) {
+				if ($id === ParticipationLifecycleServiceInterface::class) {
 					if ($broken === true) {
 						throw new RuntimeException('no lifecycle');
 					}

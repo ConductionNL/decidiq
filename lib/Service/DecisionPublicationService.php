@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\Activity\DecidiqProvider;
+use OCA\Decidiq\Kernel\Contracts\DecidiqProviderInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use Psr\Container\ContainerInterface;
@@ -361,7 +361,7 @@ class DecisionPublicationService {
 		try {
 			$this->container->get(ActivityPublisherService::class)->publishGovernanceEvent(
 				activity: [
-					'subject' => DecidiqProvider::SUBJECT_DECISION_PUBLISHED,
+					'subject' => DecidiqProviderInterface::SUBJECT_DECISION_PUBLISHED,
 					'title' => $title,
 					'status' => 'public',
 					'objectType' => 'decision',

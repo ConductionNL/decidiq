@@ -221,7 +221,7 @@ class TranscriptRetentionJobTest extends TestCase {
 				return match ($id) {
 					'OCA\OpenRegister\Service\ObjectService' => $objectService,
 					'OCA\OpenRegister\Service\FileService' => $fileService,
-					\OCA\Decidiq\Service\AuditLogService::class => $audit,
+					\OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface::class => $audit,
 					default => throw new \RuntimeException('unexpected ' . $id),
 				};
 			}

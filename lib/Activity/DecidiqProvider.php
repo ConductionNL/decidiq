@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Activity;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecidiqProviderInterface;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\Activity\IProvider;
@@ -43,7 +44,7 @@ use OCP\L10N\IFactory;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecidiqProvider implements IProvider {
+class DecidiqProvider implements IProvider, DecidiqProviderInterface {
 
 	/**
 	 * Subject identifier: a decision was recorded in a live meeting.
@@ -51,13 +52,6 @@ class DecidiqProvider implements IProvider {
 	 * @var string
 	 */
 	public const SUBJECT_DECISION_RECORDED = 'decision_recorded';
-
-	/**
-	 * Subject identifier: a decision status changed to published.
-	 *
-	 * @var string
-	 */
-	public const SUBJECT_DECISION_PUBLISHED = 'decision_published';
 
 	/**
 	 * Subject identifier: a meeting lifecycle transition completed.

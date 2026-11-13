@@ -59,4 +59,18 @@ interface PublicationConfigServiceInterface {
 	 * @return array<string,mixed> The normalised, persisted config.
 	 */
 	public function save(array $config): array;
+
+	/**
+	 * Valid per-type publication policy values.
+	 *
+	 * @var string[]
+	 */
+	public const POLICIES = ['manual-only', 'prompt-on-transition'];
+
+	/**
+	 * Valid attendance-rendering policy values for minutes payloads.
+	 *
+	 * @var string[]
+	 */
+	public const ATTENDANCE_POLICIES = ['counts', 'role-holders'];
 }//end interface

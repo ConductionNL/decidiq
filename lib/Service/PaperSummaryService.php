@@ -34,7 +34,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Kernel\Contracts\PaperSummaryServiceInterface;
-use OCA\Decidiq\Listener\PaperSummaryTaskListener;
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryTaskListenerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\TaskProcessing\IManager;
 use OCP\TaskProcessing\Task;
@@ -158,7 +158,7 @@ class PaperSummaryService implements PaperSummaryServiceInterface {
 
 		[$input, $chunked] = $this->taskInput(files: $files, titles: $titles, uid: $uid);
 		$uuid = $this->uuid();
-		$task = new Task(self::TASK_TYPES[$kind], ['input' => $input], self::APP_ID, $uid, PaperSummaryTaskListener::CUSTOM_ID_PREFIX . $uuid);
+		$task = new Task(self::TASK_TYPES[$kind], ['input' => $input], self::APP_ID, $uid, PaperSummaryTaskListenerInterface::CUSTOM_ID_PREFIX . $uuid);
 		try {
 			$this->taskManager->scheduleTask($task);
 		} catch (\Throwable $e) {

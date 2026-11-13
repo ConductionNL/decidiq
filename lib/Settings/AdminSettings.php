@@ -82,8 +82,8 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState(
 			'publicationPolicies',
 			[
-				'policies' => \OCA\Decidiq\Service\PublicationConfigService::POLICIES,
-				'attendance' => \OCA\Decidiq\Service\PublicationConfigService::ATTENDANCE_POLICIES,
+				'policies' => PublicationConfigServiceInterface::POLICIES,
+				'attendance' => PublicationConfigServiceInterface::ATTENDANCE_POLICIES,
 			]
 		);
 
