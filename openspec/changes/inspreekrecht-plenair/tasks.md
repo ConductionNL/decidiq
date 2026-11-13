@@ -9,8 +9,8 @@
   - GIVEN the fragment is loaded WHEN the register imports THEN `inspraak-aanmelding` and `inspraak-beleid` schemas exist with all specced fields, property titles, and `x-schema-org` annotations, and no existing schema is modified (fragment number 64 exactly; 40–63/65 untouched)
   - GIVEN the lifecycle declaration WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with exactly the REQ-CVG-009 status enum (`aangemeld → goedgekeurd|afgewezen`, `goedgekeurd → gesproken|niet-verschenen`, terminals as specced), and `x-openregister-notifications` declares created/status-change triggers with nl+en subjects and no imperative dispatch anywhere (gate-18)
   - GIVEN schema RBAC WHEN a non-griffie user attempts a moderation transition or a post-approval edit of `contactgegevens`/`onderwerp` THEN OR refuses it, while griffie writes to `bijdrageTekst`/`transcriptSegment` on a goedgekeurd object succeed
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Coordination amendment — commissievergaderingen adopts the canonical schema
 - **spec_ref**: `openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-001-generalized-inspraak-aanmelding-schema-on-openregister` (single-canonical-definition scenario), `openspec/changes/inspreekrecht-plenair/design.md#d1-one-canonical-schema-in-fragment-64-the-commissie-change-adopts-it-extend-dont-fork`
@@ -27,8 +27,8 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 2 inspraak-beleid objects (per-agendapunt/voornaam and vergadering/aantal) and 4 aanmeldingen (gesproken-with-bijdrage+transcript-placeholder, goedgekeurd, aangemeld, afgewezen-with-reason) exist per the design tables, with only nil-UUID placeholders for unresolved refs
   - GIVEN the seeded raadsvergadering WHEN opened THEN the goedgekeurd inspreker renders as a speaking slot and the aangemeld one as pending, so moderation, agenda rendering, and queue preload are demoable on install (ADR-016)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: InspraakService + controller — policy-enforcing registration, moderation, referral
 - **spec_ref**: `openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-004-registration-api-enforces-policy-and-closes-at-the-deadline` (+ REQ-INS-005)
@@ -37,8 +37,8 @@
   - GIVEN a registration WHEN the body has no beleid object, `inspraakMogelijk` is false, the niveau/agendaItem combination is wrong, or `meeting.start − aanmeldDeadlineUren` has passed THEN it is refused server-side with a specific message and no object is created; WHEN the griffier uses the explicit override THEN it is created and auditable
   - GIVEN moderation WHEN approving THEN spreektijd defaults from `standaardSpreektijdMinuten` and volgorde is set; WHEN rejecting without `afwijzingsReden` THEN refused; WHEN referring THEN meeting/agendaItem are re-targeted, status stays `aangemeld`, and the registrant is notified
   - GIVEN the endpoints WHEN gated THEN every method declares its auth posture with per-object guards (route-auth/no-admin-idor/semantic-auth gates pass) and no CRUD pass-through wrappers exist (redundant-controller gate)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 5: Agenda rendering — internal speaking slots and anonymised public projection
 - **spec_ref**: `openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda` (+ REQ-INS-008)

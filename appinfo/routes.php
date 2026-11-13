@@ -196,6 +196,12 @@ $extra = [
         ['name' => 'broadcast#captions',        'url' => '/api/meeting-broadcasts/{id}/captions',                    'verb' => 'POST'],
         ['name' => 'broadcast#releaseCaptions', 'url' => '/api/meeting-broadcasts/{id}/captions/{language}/release', 'verb' => 'POST'],
 
+        // inspreekrecht-plenair (REQ-INS-004/005): register to speak, and the secretariat's moderation.
+        ['name' => 'speakingRequest#create',  'url' => '/api/speaking-requests',               'verb' => 'POST'],
+        ['name' => 'speakingRequest#approve', 'url' => '/api/speaking-requests/{id}/approve',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#reject',  'url' => '/api/speaking-requests/{id}/reject',   'verb' => 'POST'],
+        ['name' => 'speakingRequest#refer',   'url' => '/api/speaking-requests/{id}/refer',    'verb' => 'POST'],
+
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],
         ['name' => 'agenda#revise',              'url' => '/api/agendas/{meetingId}/revise',       'verb' => 'PUT'],

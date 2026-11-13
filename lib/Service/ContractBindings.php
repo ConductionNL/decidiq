@@ -76,6 +76,7 @@ use OCA\Decidiq\Kernel\Contracts\MailVoteReplyProcessorInterface;
 use OCA\Decidiq\Kernel\Contracts\MailVoteSignerInterface;
 use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingBroadcastServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SpeakingRequestServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingFolderServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingPackageServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
@@ -223,6 +224,7 @@ final class ContractBindings {
 		MailVoteSignerInterface::class => MailVoteSigner::class,
 		MandateSubstitutionServiceInterface::class => MandateSubstitutionService::class,
 		MeetingBroadcastServiceInterface::class => MeetingBroadcastService::class,
+		SpeakingRequestServiceInterface::class => SpeakingRequestService::class,
 		MeetingFolderServiceInterface::class => MeetingFolderService::class,
 		MeetingPackageServiceInterface::class => MeetingPackageService::class,
 		MeetingReminderServiceInterface::class => MeetingReminderService::class,
