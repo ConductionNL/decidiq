@@ -90,6 +90,9 @@ class PublicationPayloadService {
 			case 'activity':
 				$payload = $this->buildActivityPayload(source: $source, version: $version);
 				break;
+			case 'theme':
+				$payload = $this->buildThemePayload(source: $source, version: $version);
+				break;
 			default:
 				throw new InvalidArgumentException('Unknown publication source type: ' . $sourceType);
 		}
@@ -252,6 +255,40 @@ class PublicationPayloadService {
 		];
 
 	}//end buildAgendaPayload()
+
+	/**
+	 * The public payload of a theme: its text and a timeline of only the linked
+	 * items that are published themselves, each with its publication.
+	 *
+	 * @param array<string,mixed> $source  Theme object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function buildThemePayload(array $source, int $version): array {
+		return [
+			'oriType' => 'Dossier',
+			'schemaOrgType' => 'CreativeWork',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'introduction' => (string)($source['introduction'] ?? ''),
+			'blocks' => $this->themeTimeline()->blocksOf(blocks: ($source['blocks'] ?? [])),
+			'status' => (string)($source['status'] ?? 'active'),
+			'bodyName' => $this->resolveBodyName(source: $source),
+			'timeline' => $this->themeTimeline()->publishedEntries(theme: $source),
+		];
+	}//end buildThemePayload()
+
+	/**
+	 * The theme timeline builder, resolved from the container on first use.
+	 *
+	 * @return ThemeTimelineBuilder
+	 */
+	private function themeTimeline(): ThemeTimelineBuilder {
+		return $this->container->get(ThemeTimelineBuilder::class);
+	}//end themeTimeline()
 
 	/**
 	 * Build a calendar entry for a public meeting: when, what, who organises

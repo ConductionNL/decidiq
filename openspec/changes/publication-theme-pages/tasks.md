@@ -28,8 +28,8 @@
   - GIVEN a public theme with three published and two unpublished linked items WHEN published THEN the payload's timeline holds three entries, each with its publication link, and is readable anonymously
   - GIVEN a theme not marked public WHEN publishing is asked THEN it is refused
   - GIVEN a theme whose items are all unpublished WHEN publishing is asked THEN it is refused with a reason
-- [ ] Implement
-- [ ] Test (red first: `assertEligible('theme', ...)` throws "Unknown publication source type" today)
+- [x] Implement
+- [x] Test (red first: `assertEligible('theme', ...)` throws "Unknown publication source type" today)
 
 ### Task 4: Keep published themes current
 - **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-004-an-active-published-theme-stays-current`
