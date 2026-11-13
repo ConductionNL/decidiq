@@ -176,7 +176,7 @@ npm run stylelint       # CSS linting
 ### Test coverage
 
 <!-- coverage:start -->
-Measured test coverage: 80.9% of statements (PHP 80.3% of 25,608 statements, JavaScript 85.5% of 3,006 statements), at commit `b6dd270` on 2026-11-12. The figures come from [`coverage-summary.json`](coverage-summary.json); refresh them with `composer coverage:publish`.
+Measured test coverage: 82.9% of statements (PHP 82.4% of 25,507 statements, JavaScript 87.5% of 3,042 statements), at commit `ee910c65` on 2026-11-13. The figures come from [`coverage-summary.json`](coverage-summary.json); refresh them with `composer coverage:publish`.
 <!-- coverage:end -->
 
 ### Enable locally

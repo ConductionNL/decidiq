@@ -53,7 +53,51 @@ function stagesUrl() {
  */
 export function objId(row) {
 	if (!row) return ''
-	return String(row.id || (row['@self'] && row['@self'].id) || row.uuid || '')
+	return String(row.id || selfId(row) || row.uuid || '')
+}
+
+/**
+ * The id OpenRegister puts in a row's `@self` block, when it has one.
+ *
+ * @param {object} row An object row.
+ * @return {string|undefined} The id.
+ */
+function selfId(row) {
+	return row['@self'] && row['@self'].id
+}
+
+/**
+ * The rows of an OpenRegister list answer, bare or under `results`.
+ *
+ * @param {object} res The axios response.
+ * @return {object[]} The rows, or `[]` for any other shape.
+ */
+function resultRows(res) {
+	const data = res && res.data
+	if (Array.isArray(data)) return data
+	return data && Array.isArray(data.results) ? data.results : []
+}
+
+/**
+ * Orders stages by their step number, a stage without one first.
+ *
+ * @param {object} a A stage.
+ * @param {object} b Another stage.
+ * @return {number} The comparison.
+ */
+function bySequence(a, b) {
+	return Number(a.sequence || 0) - Number(b.sequence || 0)
+}
+
+/**
+ * Orders actions oldest first, an undated action first.
+ *
+ * @param {object} a An action.
+ * @param {object} b Another action.
+ * @return {number} The comparison.
+ */
+function byRecordedAt(a, b) {
+	return String(a.recordedAt || '').localeCompare(String(b.recordedAt || ''))
 }
 
 /**
@@ -69,15 +113,7 @@ export async function listStages(subjectId, limit = 100) {
 	const res = await axios.get(stagesUrl(), {
 		params: { decision: subjectId, _limit: limit },
 	})
-	const data = res && res.data
-	const rows = Array.isArray(data)
-		? data
-		: data && Array.isArray(data.results)
-			? data.results
-			: []
-	return rows
-		.slice()
-		.sort((a, b) => Number(a.sequence || 0) - Number(b.sequence || 0))
+	return resultRows(res).slice().sort(bySequence)
 }
 
 /**
@@ -110,17 +146,7 @@ export async function listActions(subjectId, limit = 200) {
 	const res = await axios.get(actionsUrl(), {
 		params: { subject: subjectId, _limit: limit },
 	})
-	const data = res && res.data
-	const rows = Array.isArray(data)
-		? data
-		: data && Array.isArray(data.results)
-			? data.results
-			: []
-	return rows
-		.slice()
-		.sort((a, b) =>
-			String(a.recordedAt || '').localeCompare(String(b.recordedAt || '')),
-		)
+	return resultRows(res).slice().sort(byRecordedAt)
 }
 
 /**
@@ -166,12 +192,33 @@ export function liveStage(stages) {
  * @return {boolean} True when it renders overdue.
  */
 export function isOverdue(stage, now) {
-	if (!stage || String(stage.status || '') !== 'active') return false
-	const dueAt = String(stage.dueAt || '')
-	if (!dueAt) return false
-	const due = new Date(dueAt)
-	if (Number.isNaN(due.getTime())) return false
+	if (!isActiveStage(stage)) return false
+	const due = dueDate(stage)
+	if (due === null) return false
 	return due < (now || new Date())
+}
+
+/**
+ * Whether a stage is the one the route is waiting on.
+ *
+ * @param {object|null} stage The stage.
+ * @return {boolean} True when it is active.
+ */
+function isActiveStage(stage) {
+	return Boolean(stage) && String(stage.status || '') === 'active'
+}
+
+/**
+ * A stage's due date, or null when it has none or it does not parse.
+ *
+ * @param {object} stage The stage.
+ * @return {Date|null} The due date.
+ */
+function dueDate(stage) {
+	const dueAt = String(stage.dueAt || '')
+	if (!dueAt) return null
+	const due = new Date(dueAt)
+	return Number.isNaN(due.getTime()) ? null : due
 }
 
 /**
@@ -399,13 +446,7 @@ export async function listMandates(uid, today = new Date()) {
 		generateUrl('/apps/openregister/api/objects/decidiq/bevoegdheidstoedeling'),
 		{ params: { delegatePerson: uid, status: 'effective', _limit: 50 } },
 	)
-	const data = res && res.data
-	const rows = Array.isArray(data)
-		? data
-		: data && Array.isArray(data.results)
-			? data.results
-			: []
-	return usableMandates(rows, uid, today)
+	return usableMandates(resultRows(res), uid, today)
 }
 
 /**

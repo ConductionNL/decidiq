@@ -51,6 +51,8 @@ use Stringable;
  * @covers \OCA\Decidiq\Service\MeetingCostService
  * @uses   \OCA\Decidiq\Service\MeetingAttendanceReader
  * @uses   \OCA\Decidiq\Service\MeetingAttendeeTally
+ * @uses \OCA\Decidiq\Service\MeetingScopedRecords
+ * @uses \OCA\Decidiq\Service\ReferenceId
  */
 class MeetingCostGoldenTest extends TestCase {
 

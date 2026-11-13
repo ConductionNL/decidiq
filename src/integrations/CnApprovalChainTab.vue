@@ -99,6 +99,87 @@ import {
 } from './approvalChainLink.js'
 
 /**
+ * The outcomes a refused or sent-back step carries.
+ *
+ * @type {Set<string>}
+ */
+const REFUSED_OUTCOMES = new Set(['rejected', 'returned'])
+
+/**
+ * What an action by a person says: the verb, who did it, and for whom when
+ * they acted on someone's behalf.
+ *
+ * @param {string} verb The verb.
+ * @param {object} action The action.
+ * @return {string} The line.
+ */
+function actedLabel(verb, action) {
+	const actor = String(action.actor || '')
+	const onBehalfOf = String(action.onBehalfOf || '')
+	if (onBehalfOf !== '') {
+		return t('decidiq', '{verb} by {actor}, on behalf of {onBehalfOf}', {
+			verb,
+			actor,
+			onBehalfOf,
+		})
+	}
+	return t('decidiq', '{verb} by {actor}', { verb, actor })
+}
+
+/**
+ * The assignee, with the substitute named when one stands in.
+ *
+ * @param {string} actor The assignee.
+ * @param {object} stage The stage.
+ * @return {string} The line.
+ */
+function withSubstitute(actor, stage) {
+	const substitute = String(stage.substituteActor || '')
+	if (substitute === '') {
+		return actor
+	}
+	return t('decidiq', '{actor}, with {substitute} standing in', {
+		actor,
+		substitute,
+	})
+}
+
+/**
+ * The badge label of the step the route waits on.
+ *
+ * @param {object} stage The active stage.
+ * @return {string} The label.
+ */
+function activeLabel(stage) {
+	return isOverdue(stage) ? t('decidiq', 'Term passed') : t('decidiq', 'Waiting')
+}
+
+/**
+ * The badge label of a step no longer waiting: its outcome, or its status
+ * when it recorded none.
+ *
+ * @param {object} stage The stage.
+ * @param {string} status Its status.
+ * @return {string} The label.
+ */
+function settledLabel(stage, status) {
+	return String(stage.outcome || '') || status
+}
+
+/**
+ * The badge variant of a finished step, by its outcome.
+ *
+ * @param {string} outcome The outcome, or ''.
+ * @return {string} The variant.
+ */
+function outcomeVariant(outcome) {
+	if (outcome === '') {
+		return 'neutral'
+	}
+	return REFUSED_OUTCOMES.has(outcome) ? 'error' : 'success'
+}
+
+/**
  * CnApprovalChainTab — the full timeline of a host object's sign-off route.
  */
 export default {
@@ -218,16 +299,7 @@ export default {
 			if (verb === 'lapsed') {
 				return t('decidiq', 'No answer within the term')
 			}
-			const actor = String(action.actor || '')
-			const onBehalfOf = String(action.onBehalfOf || '')
-			if (onBehalfOf !== '') {
-				return t('decidiq', '{verb} by {actor}, on behalf of {onBehalfOf}', {
-					verb,
-					actor,
-					onBehalfOf,
-				})
-			}
-			return t('decidiq', '{verb} by {actor}', { verb, actor })
+			return actedLabel(verb, action)
 		},
 
 		/**
@@ -275,13 +347,7 @@ export default {
 			if (actor === '') {
 				return t('decidiq', 'Nobody assigned')
 			}
-			if (String(stage.substituteActor || '') !== '') {
-				return t('decidiq', '{actor}, with {substitute} standing in', {
-					actor,
-					substitute: String(stage.substituteActor),
-				})
-			}
-			return actor
+			return withSubstitute(actor, stage)
 		},
 
 		/**
@@ -323,20 +389,13 @@ export default {
 		 */
 		statusLabel(stage) {
 			const status = String(stage.status || '')
-			const outcome = String(stage.outcome || '')
-			if (status === 'active' && isOverdue(stage)) {
-				return t('decidiq', 'Term passed')
-			}
 			if (status === 'active') {
-				return t('decidiq', 'Waiting')
+				return activeLabel(stage)
 			}
 			if (status === 'pending') {
 				return t('decidiq', 'Not yet asked')
 			}
-			if (outcome !== '') {
-				return outcome
-			}
-			return status
+			return settledLabel(stage, status)
 		},
 
 		/**
@@ -347,18 +406,10 @@ export default {
 		 * @spec openspec/changes/document-approval-chain-leaf/specs/approval-routes/spec.md (REQ-AR-010)
 		 */
 		variantOf(stage) {
-			const status = String(stage.status || '')
-			const outcome = String(stage.outcome || '')
-			if (status === 'active') {
+			if (String(stage.status || '') === 'active') {
 				return isOverdue(stage) ? 'error' : 'info'
 			}
-			if (outcome === 'rejected' || outcome === 'returned') {
-				return 'error'
-			}
-			if (outcome !== '') {
-				return 'success'
-			}
-			return 'neutral'
+			return outcomeVariant(String(stage.outcome || ''))
 		},
 	},
 }

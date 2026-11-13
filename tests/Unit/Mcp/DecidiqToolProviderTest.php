@@ -30,7 +30,10 @@ namespace OCA\Decidiq\Tests\Unit\Mcp;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
 use OCA\Decidiq\Mcp\McpActionItemTools;
+use OCA\Decidiq\Mcp\McpArgumentValidator;
+use OCA\Decidiq\Mcp\McpMeetingGate;
 use OCA\Decidiq\Mcp\McpMeetingTools;
+use OCA\Decidiq\Mcp\McpSourceFormatter;
 use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -155,6 +158,15 @@ class DecidiqToolProviderTest extends TestCase {
 			'logger' => $this->logger,
 			'participantResolver' => $this->participantResolver,
 			'objectService' => $this->objectService,
+		];
+		$formatter = new McpSourceFormatter();
+		$validator = new McpArgumentValidator(formatter: $formatter);
+		$shared    = [
+			'logger'        => $shared['logger'],
+			'objectService' => $shared['objectService'],
+			'gate'          => new McpMeetingGate(...$shared, formatter: $formatter, validator: $validator),
+			'formatter'     => $formatter,
+			'validator'     => $validator,
 		];
 		$this->provider = new DecidiqToolProvider(
 			actionItemTools: new McpActionItemTools(...$shared, container: $this->container),

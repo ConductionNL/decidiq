@@ -2062,6 +2062,135 @@
             }
         ]
     },
+    "enact-many-posts-not-appointment": {
+        "returns": {
+            "success": true,
+            "decision": {
+                "id": "d-posts-plain",
+                "lifecycle": "enacted",
+                "candidates": [
+                    {
+                        "person": "person-1"
+                    },
+                    {
+                        "person": {
+                            "id": "person-2"
+                        }
+                    },
+                    {
+                        "externalName": "Extern Lid"
+                    }
+                ],
+                "targetPosts": [
+                    "post-1",
+                    "post-2"
+                ],
+                "outcome": "adopted",
+                "decisionDate": "2026-06-12",
+                "enactedAt": "<atom>"
+            },
+            "message": "Decision transitioned to 'enacted'."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-posts-plain",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "id": "d-posts-plain",
+                        "lifecycle": "enacted",
+                        "candidates": [
+                            {
+                                "person": "person-1"
+                            },
+                            {
+                                "person": {
+                                    "id": "person-2"
+                                }
+                            },
+                            {
+                                "externalName": "Extern Lid"
+                            }
+                        ],
+                        "targetPosts": [
+                            "post-1",
+                            "post-2"
+                        ],
+                        "outcome": "adopted",
+                        "decisionDate": "2026-06-12",
+                        "enactedAt": "<atom>"
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": "d-posts-plain"
+                }
+            },
+            {
+                "save": {
+                    "object": {
+                        "title": "",
+                        "fullText": "",
+                        "legalBasis": "",
+                        "status": "adopted",
+                        "adoptionDate": "2026-06-12",
+                        "effectiveDate": "<atom>",
+                        "background": "Generated from enacted decision d-posts-plain."
+                    },
+                    "register": "decidiq",
+                    "schema": "decision",
+                    "uuid": null
+                }
+            },
+            {
+                "audit": {
+                    "actor": "chair-uid",
+                    "action": "decision-transition",
+                    "objectUids": [
+                        "d-posts-plain"
+                    ],
+                    "payload": {
+                        "transition": "enact",
+                        "from": "decided",
+                        "to": "enacted",
+                        "comment": "Stemming open"
+                    }
+                }
+            },
+            {
+                "log": [
+                    "info",
+                    "Decidiq: decision lifecycle transitioned",
+                    {
+                        "id": "d-posts-plain",
+                        "action": "enact",
+                        "from": "decided",
+                        "to": "enacted"
+                    }
+                ]
+            }
+        ]
+    },
+    "enact-without-decision-date": {
+        "returns": {
+            "success": false,
+            "decision": null,
+            "message": "A decision cannot enter 'enacted' without a recorded result. Missing or invalid: decisionDate."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "d-decided-nodate",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            }
+        ]
+    },
     "archive-enacted": {
         "returns": {
             "success": true,

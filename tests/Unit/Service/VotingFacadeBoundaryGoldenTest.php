@@ -48,6 +48,7 @@ use OCA\Decidiq\Service\VotingRoundRequest;
 use OCA\Decidiq\Service\VotingRoundResults;
 use OCA\Decidiq\Service\VotingService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\IAppConfig;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -296,7 +297,12 @@ class VotingFacadeBoundaryGoldenTest extends TestCase {
 			userSession: $session,
 			guard: $this->createMock(VotingRoundGuard::class),
 			openHandler: new VotingOpenRequestHandler(votingService: $service),
-			proxyService: new ProxyDelegationService(container: $container, logger: $logger, objectService: $this->createMock(ObjectServiceInterface::class)),
+			proxyService: new ProxyDelegationService(
+				container: $container,
+				logger: $logger,
+				objectService: $this->createMock(originalClassName: ObjectServiceInterface::class),
+				appConfig: $this->createMock(originalClassName: IAppConfig::class),
+			),
 			errors: new VotingErrorResponder(logger: $logger),
 		);
 	}//end controller()

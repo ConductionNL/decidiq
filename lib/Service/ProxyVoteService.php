@@ -105,16 +105,7 @@ class ProxyVoteService {
 	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/tasks.md#task-1
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidiq');
-		$this->objectService->setSchema('participant');
-		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
-
-		foreach ($entities as $participantEntity) {
-			$participant = $participantEntity->jsonSerialize();
-			return ($participant['uuid'] ?? $participant['id'] ?? null);
-		}
-
-		return null;
+		return (new ParticipantUuidLookup(objectService: $this->objectService))->forNextcloudUser(nextcloudUid: $nextcloudUid);
 	}//end resolveParticipantUuid()
 
 	/**

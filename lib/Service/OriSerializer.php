@@ -30,7 +30,6 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use Throwable;
 
 /**
  * ORI 1.4 JSON-LD serialization for Decidiq register objects.
@@ -408,15 +407,6 @@ class OriSerializer {
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function parseDate(mixed $value): ?DateTimeImmutable {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Throwable) {
-			return null;
-		}
-
+		return (new DateValueParser())->parse(value: $value);
 	}//end parseDate()
 }//end class

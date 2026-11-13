@@ -303,14 +303,6 @@ class QuorumVerificationService {
 	 * @return array<string, mixed>
 	 */
 	private function toArray(mixed $row): array {
-		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-			return (array)$row->jsonSerialize();
-		}
-
-		if (is_array($row) === true) {
-			return $row;
-		}
-
-		return [];
+		return (new RowArrayNormaliser())->toArray(row: $row);
 	}//end toArray()
 }//end class

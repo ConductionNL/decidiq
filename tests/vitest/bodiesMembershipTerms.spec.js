@@ -182,3 +182,19 @@ describe('members belong to a faction with its own workspace (REQ-BMT-003)', () 
 		)
 	})
 })
+
+describe('startOfDay edges, pinned before the parse was split', () => {
+	it('answers empty for nothing picked or an incomplete date', () => {
+		expect(startOfDay('')).toBe('')
+		expect(startOfDay(null)).toBe('')
+		expect(startOfDay('2026-03')).toBe('')
+		expect(startOfDay('2026-00-04')).toBe('')
+	})
+
+	it('reads a picked day as local midnight, from a string or a Date', () => {
+		expect(startOfDay('2026-03-01')).toBe(new Date(2026, 2, 1).toISOString())
+		expect(startOfDay(new Date(2026, 2, 1, 15, 30))).toBe(
+			new Date(2026, 2, 1).toISOString(),
+		)
+	})
+})

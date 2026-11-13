@@ -161,6 +161,7 @@ class VotingPermissionsTest extends TestCase {
 				container: $container,
 				logger: new NullLogger(),
 				objectService: $this->createMock(ObjectServiceInterface::class),
+				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: new NullLogger()),
 		);

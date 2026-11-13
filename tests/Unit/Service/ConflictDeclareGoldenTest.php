@@ -58,6 +58,8 @@ use Stringable;
  * @covers \OCA\Decidiq\Service\ConflictOfInterestService
  * @covers \OCA\Decidiq\Controller\ConflictOfInterestController
  * @uses   \OCA\Decidiq\Service\ConflictDeclaration
+ * @uses \OCA\Decidiq\Controller\ForbiddenResult
+ * @uses \OCA\Decidiq\Controller\GuardCaller
  */
 class ConflictDeclareGoldenTest extends TestCase {
 

@@ -28,10 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Mcp;
 
 use OCA\Decidiq\Service\MeetingService;
-use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
-use OCP\IGroupManager;
-use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
 
@@ -60,58 +57,25 @@ class McpMeetingTools {
 	];
 
 	/**
-	 * Shapes tool results and source descriptors.
-	 *
-	 * @var McpSourceFormatter
-	 */
-	private readonly McpSourceFormatter $formatter;
-
-	/**
-	 * Validates the LLM-supplied tool arguments.
-	 *
-	 * @var McpArgumentValidator
-	 */
-	private readonly McpArgumentValidator $validator;
-
-	/**
-	 * Loads meetings and enforces per-object authorisation.
-	 *
-	 * @var McpMeetingGate
-	 */
-	private readonly McpMeetingGate $gate;
-
-	/**
 	 * Constructor for the McpMeetingTools.
 	 *
 	 * @param MeetingService $meetingService The meeting service driving lifecycle transitions
-	 * @param IUserSession $userSession The current user session
-	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param McpMeetingGate $gate Loads meetings and enforces per-object authorisation
+	 * @param McpSourceFormatter $formatter Builds the citation payloads and error envelopes
+	 * @param McpArgumentValidator $validator Validates the LLM-supplied tool arguments
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		private readonly MeetingService $meetingService,
-		IUserSession $userSession,
-		IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
-		ParticipantResolver $participantResolver,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly McpMeetingGate $gate,
+		private readonly McpSourceFormatter $formatter,
+		private readonly McpArgumentValidator $validator,
 	) {
-		$this->formatter = new McpSourceFormatter();
-		$this->validator = new McpArgumentValidator(formatter: $this->formatter);
-		$this->gate = new McpMeetingGate(
-			objectService: $objectService,
-			userSession: $userSession,
-			groupManager: $groupManager,
-			logger: $logger,
-			participantResolver: $participantResolver,
-			formatter: $this->formatter,
-			validator: $this->validator,
-		);
-
 	}//end __construct()
 
 	/**

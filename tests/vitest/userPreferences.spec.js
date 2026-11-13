@@ -213,3 +213,36 @@ describe('display preference fetch/save envelopes', () => {
 		expect(JSON.parse(options.body)).toEqual({ value: 'DD-MM-YYYY' })
 	})
 })
+
+describe('formatDate and display preference edges, pinned before the split', () => {
+	it('formats a Date as given and an unknown format by locale', () => {
+		const date = new Date(2026, 0, 9, 8, 0)
+		expect(formatDate(date, 'DD-MM-YYYY')).toBe('09-01-2026')
+		expect(formatDate(date, 'dd/mm')).toBe(date.toLocaleDateString())
+		expect(formatDate(date, null)).toBe(date.toLocaleDateString())
+		expect(formatDate(new Date('x'), 'YYYY-MM-DD')).toBe('')
+		expect(formatDate(null)).toBe('')
+	})
+
+	it('answers empty for a key without a default, failing or unset', async () => {
+		mockFetchOnce({ ok: false, status: 404, json: {} })
+		await expect(fetchDisplayPreference('no-such-key')).resolves.toBe('')
+		mockFetchOnce({ json: {} })
+		await expect(fetchDisplayPreference('no-such-key')).resolves.toBe('')
+		mockFetchOnce({ json: { value: '' } })
+		await expect(fetchDisplayPreference('default-view')).resolves.toBe('')
+	})
+
+	it('falls back to the default when the body is not JSON', async () => {
+		globalThis.fetch = vi.fn().mockResolvedValueOnce({
+			ok: true,
+			status: 200,
+			json: async () => {
+				throw new Error('not json')
+			},
+		})
+		await expect(fetchDisplayPreference('default-view')).resolves.toBe(
+			'dashboard',
+		)
+	})
+})

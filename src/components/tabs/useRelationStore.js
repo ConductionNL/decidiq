@@ -137,9 +137,35 @@ export function buildMemberRow(membership, person) {
 		role: membership.role || '',
 		party: membership.party || '',
 		votingWeight: membership.votingWeight,
+		...membershipTerm(membership),
+		faction: membership.faction || '',
+		...personColumns(person, membership),
+	}
+}
+
+/**
+ * The dates a membership runs from and to, null when not set.
+ *
+ * @param {object} membership A Membership object
+ * @return {{startDate: string|null, endDate: string|null}} The term
+ */
+function membershipTerm(membership) {
+	return {
 		startDate: membership.startDate || null,
 		endDate: membership.endDate || null,
-		faction: membership.faction || '',
+	}
+}
+
+/**
+ * The Person's columns of a member row, falling back to the raw Person id
+ * for the name when the Person is unresolved.
+ *
+ * @param {object|null} [person] The Membership's Person
+ * @param {object} membership The Membership object
+ * @return {{displayName: string, email: string, nextcloudUserId: string}} The columns
+ */
+function personColumns(person, membership) {
+	return {
 		displayName: person?.name || membership.person || '',
 		email: person?.email || '',
 		nextcloudUserId: person?.nextcloudUserId || '',
@@ -196,6 +222,22 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
 const OPTIONAL_MEMBERSHIP_FIELDS = ['party', 'startDate', 'faction', 'onBehalfOf']
 
 /**
+ * Copy the optional Membership properties that are set onto a payload, in
+ * payload order.
+ *
+ * @param {object} payload The payload being built
+ * @param {object} fields The Membership fields given
+ * @return {void}
+ */
+function copySetOptionalFields(payload, fields) {
+	for (const key of OPTIONAL_MEMBERSHIP_FIELDS) {
+		if (fields[key]) {
+			payload[key] = fields[key]
+		}
+	}
+}
+
+/**
  * Build a Membership creation/update payload, omitting empty optional
  * properties.
  *
@@ -213,27 +255,32 @@ const OPTIONAL_MEMBERSHIP_FIELDS = ['party', 'startDate', 'faction', 'onBehalfOf
  * @spec openspec/specs/admin-settings/spec.md
  * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
  */
-export function buildMembershipPayload({
-	personId,
-	governanceBodyId,
-	role,
-	votingWeight,
-	id,
-	...optional
-}) {
-	const payload = { person: personId, governanceBody: governanceBodyId, role }
-	for (const key of OPTIONAL_MEMBERSHIP_FIELDS) {
-		if (optional[key]) {
-			payload[key] = optional[key]
-		}
+export function buildMembershipPayload(fields) {
+	const payload = {
+		person: fields.personId,
+		governanceBody: fields.governanceBodyId,
+		role: fields.role,
 	}
-	if (votingWeight !== null && votingWeight !== undefined) {
-		payload.votingWeight = votingWeight
-	}
-	if (id) {
-		payload.id = id
-	}
+	copySetOptionalFields(payload, fields)
+	copyWeightAndId(payload, fields)
 	return payload
+}
+
+/**
+ * Copy the voting weight (when given, zero included) and the id of an
+ * existing Membership onto a payload.
+ *
+ * @param {object} payload The payload being built
+ * @param {object} fields The Membership fields given
+ * @return {void}
+ */
+function copyWeightAndId(payload, fields) {
+	if (fields.votingWeight !== null && fields.votingWeight !== undefined) {
+		payload.votingWeight = fields.votingWeight
+	}
+	if (fields.id) {
+		payload.id = fields.id
+	}
 }
 
 /**

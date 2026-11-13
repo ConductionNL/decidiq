@@ -32,6 +32,7 @@ use RuntimeException;
 /**
  * @covers \OCA\Decidiq\Controller\ExportBundleController
  * @uses   \OCA\Decidiq\Exception\ExportBundleException
+ * @uses \OCA\Decidiq\Service\ExportRequest
  *
  * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
  */

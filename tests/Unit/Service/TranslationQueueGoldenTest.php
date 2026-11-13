@@ -23,7 +23,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
@@ -51,6 +51,7 @@ use Stringable;
  * @uses   \OCA\Decidiq\Service\LogTranslationAdapter
  * @uses   \OCA\Decidiq\Service\TranslationQueueEntryProcessor
  * @uses   \OCA\Decidiq\Support\FleetAppId
+ * @uses   \OCA\Decidiq\Service\RowListNormaliser
  */
 class TranslationQueueGoldenTest extends TestCase {
 
