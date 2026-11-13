@@ -55,6 +55,7 @@ use ZipArchive;
  * @covers \OCA\Decidiq\Exception\ExportBundleException
  * @uses   \OCA\Decidiq\Support\FilinqPdf
  * @uses   \OCA\Decidiq\Support\FleetAppId
+ * @uses \OCA\Decidiq\Service\ExportRequest
  *
  * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
  */
