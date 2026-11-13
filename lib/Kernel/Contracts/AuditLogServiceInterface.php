@@ -80,4 +80,28 @@ interface AuditLogServiceInterface {
 	 * @return array{valid: bool, checked: int, tampered: array<int, string>}
 	 */
 	public function verify(?string $entryUuid = null): array;
+
+	/**
+	 * Append a new entry to the audit log.
+	 *
+	 * Resolves the first referenced object uid to its OR ObjectEntity and
+	 * writes one `decidiq.audit.{action}` entry onto it through
+	 * AuditTrailMapper::createAuditTrailEntry(). The decidiq context (actor,
+	 * the full uid list, the payload) is carried in the entry's `changed`
+	 * column; hash chaining and sealing are the platform's.
+	 *
+	 * LOUD on failure: an unavailable audit surface, an unknown action or a
+	 * uid list in which nothing resolves produces an error log plus
+	 * success=false — never a silently absent row.
+	 *
+	 * @param string $actor Nextcloud UID of the acting user (or 'system')
+	 * @param string $action One of self::ACTIONS
+	 * @param string[] $objectUids List of object UUIDs the action touched
+	 * @param array $payload Optional extra structured detail; stored in the entry context
+	 *
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
+	 *
+	 * @return array{success: bool, entry: array|null, message: string}
+	 */
+	public function append(string $actor, string $action, array $objectUids, array $payload = []): array;
 }//end interface

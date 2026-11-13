@@ -45,20 +45,6 @@ class PublicationConfigService implements PublicationConfigServiceInterface {
 	public const CONFIG_KEY = 'publication_config';
 
 	/**
-	 * Valid per-type publication policy values.
-	 *
-	 * @var string[]
-	 */
-	public const POLICIES = ['manual-only', 'prompt-on-transition'];
-
-	/**
-	 * Valid attendance-rendering policy values for minutes payloads.
-	 *
-	 * @var string[]
-	 */
-	public const ATTENDANCE_POLICIES = ['counts', 'role-holders'];
-
-	/**
 	 * Constructor.
 	 *
 	 * @param IAppConfig $appConfig App configuration store.

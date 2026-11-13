@@ -677,7 +677,7 @@ class DecidiqToolProviderTest extends TestCase {
 		// OpenRegister is no longer resolved through it (ADR-083).
 		$this->container->method('get')->willReturnCallback(
 			function (string $id) use ($writerMock) {
-				if ($id === \OCA\Decidiq\Service\ActionItemWriter::class) {
+				if ($id === \OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface::class) {
 					return $writerMock;
 				}
 

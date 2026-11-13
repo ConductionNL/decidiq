@@ -26,6 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
+use OCA\Decidiq\Kernel\Contracts\ParticipationLifecycleServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
@@ -108,7 +109,7 @@ class ConsultationAutoCloseJob extends TimedJob {
 	private function startRun(): ?ConsultationCloseRun {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-			$lifecycleService = $this->container->get(\OCA\Decidiq\Service\ParticipationLifecycleService::class);
+			$lifecycleService = $this->container->get(ParticipationLifecycleServiceInterface::class);
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq ConsultationAutoCloseJob: dependencies unavailable, skipping.',

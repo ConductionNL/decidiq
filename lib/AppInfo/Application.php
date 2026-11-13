@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\AppInfo;
 
 use OCA\Decidiq\AppInfo\Registrar\AppHostRegistrar;
+use OCA\Decidiq\Lifecycle\LifecycleContractBindings;
 use OCA\Decidiq\Service\Registrar\DomainServiceRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\OpenRegisterContractRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar;
@@ -143,6 +144,7 @@ class Application extends App implements IBootstrap {
 		// Both registrars below carry the bindings described above.
 		(new CrossAppEventRegistrar())->register(context: $context);
 		(new DomainServiceRegistrar())->register(context: $context);
+		(new LifecycleContractBindings())->register(context: $context);
 
 		// @spec openspec/specs/decision-management/spec.md
 		// Board portal Phase 2 services (audit log, conflict of interest,

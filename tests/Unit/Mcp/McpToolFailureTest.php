@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Mcp;
 
+use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\Decidiq\Mcp\McpActionItemTools;
 use OCA\Decidiq\Mcp\McpArgumentValidator;
 use OCA\Decidiq\Mcp\McpMeetingGate;
@@ -192,7 +193,7 @@ class McpToolFailureTest extends TestCase {
 	public function testAddActionItemHidesTheFailure(): void {
 		$this->meetingExists();
 		$this->container->method('get')
-			->with(ActionItemWriter::class)
+			->with(ActionItemWriterInterface::class)
 			->willThrowException(new RuntimeException('secret detail'));
 		$this->logger->expects($this->once())
 			->method('error')

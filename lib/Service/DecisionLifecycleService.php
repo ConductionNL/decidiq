@@ -30,7 +30,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\DecisionConcludedEvent;
 use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
-use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidiq\Kernel\Contracts\DecisionTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -78,7 +78,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 * Constructor for DecisionLifecycleService.
 	 *
 	 * @param LoggerInterface $logger The logger
-	 * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
+	 * @param DecisionTransitionGuardInterface $transitionGuard Pure transition map + per-domain policy guard
 	 * @param AuditLogService $auditLogService Hash-chained append-only audit log
 	 * @param ProcessTemplateService $templateService Resolves a body's process-template policy override (process-configuration)
 	 * @param DecisionIntegrationService $integrationService Builds the cross-app outcome envelope for concluded delegated decisions
@@ -87,7 +87,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly DecisionTransitionGuard $transitionGuard,
+		private readonly DecisionTransitionGuardInterface $transitionGuard,
 		private readonly AuditLogService $auditLogService,
 		private readonly ProcessTemplateService $templateService,
 		private readonly DecisionIntegrationService $integrationService,
@@ -121,7 +121,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 					'lifecycle' => null,
 					'domain' => null,
 					'actions' => [],
-					'states' => DecisionTransitionGuard::STATES,
+					'states' => DecisionTransitionGuardInterface::STATES,
 					'message' => "Decision '$decisionId' not found.",
 				];
 			}
@@ -161,7 +161,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 				'lifecycle' => $lifecycle,
 				'domain' => $domain,
 				'actions' => $actions,
-				'states' => DecisionTransitionGuard::STATES,
+				'states' => DecisionTransitionGuardInterface::STATES,
 				'message' => 'OK',
 			];
 		} catch (\Throwable $e) {
@@ -174,7 +174,7 @@ class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 				'lifecycle' => null,
 				'domain' => null,
 				'actions' => [],
-				'states' => DecisionTransitionGuard::STATES,
+				'states' => DecisionTransitionGuardInterface::STATES,
 				'message' => 'Failed to resolve available transitions.',
 			];
 		}//end try

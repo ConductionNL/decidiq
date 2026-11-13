@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryTaskListenerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -44,12 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md#requirement-req-aps-004-the-ai-result-lands-as-a-draft-and-long-papers-are-summarised-in-parts
  */
-class PaperSummaryTaskListener implements IEventListener {
-
-	/**
-	 * The custom id prefix PaperSummaryService gives its tasks.
-	 */
-	public const CUSTOM_ID_PREFIX = 'paper-summary:';
+class PaperSummaryTaskListener implements IEventListener, PaperSummaryTaskListenerInterface {
 
 	/**
 	 * The app id the tasks are scheduled under.
