@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
+use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
@@ -75,5 +76,12 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Implementation progress (followup-implementation-progress,
+		// REQ-FUP-001): only an adopted decision takes progress updates.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => ImplementationUpdateListener::class,
+			'schemas'  => [ImplementationUpdateListener::SCHEMA_UPDATE],
+		],
 	];
 }//end class
