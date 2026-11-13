@@ -10,6 +10,7 @@
   - GIVEN the schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with `gepland → verschoven ⟲ → gerealiseerd | vervallen` and terminal states final, `vervallen` requires `redenVervallen`, ownerType `portefeuillehouder` requires an `owner` Person reference, and `plannedPeriod` rejects anything but `YYYY-Qn`/`YYYY-MM`
   - GIVEN the schema WHEN inspected THEN `x-openregister-notifications` declares the scheduled period-arrival rappel (owner + griffie, nl+en subjects, never for terminal/realised items) and no imperative dispatch exists anywhere
   - GIVEN an item with `publicatiedatum` in the past WHEN read anonymously via the OR predicate surface THEN it is returned live (including shift history); without the predicate it is not
+- **status**: built except two rules. The fragment, the lifecycle, the rappel and the publication predicate exist. But `owner` being required for `ownerType: portefeuillehouder`, and `reasonExpired` being required on entering `lapsed`, are documented in the property descriptions as UI rules, and OpenRegister does not reject a save that breaks them. No dialog enforces them yet either (tasks 4 and 5). Left open until one of the two enforces them.
 - [ ] Implement
 - [ ] Test
 
@@ -19,8 +20,9 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 5 termijnagenda items exist per the design table (one `verschoven` with a populated shift history, one `vervallen` with reason, mixed expectedType/ownerType, origin links via nil-UUID placeholders, four published) linked to seeded governance-body/meeting/person objects
   - GIVEN the seeded data WHEN the dashboard and board render THEN at least one item is overdue-open so the KPI is non-zero and the shifted card is demoable on install (ADR-016 testability)
-- [ ] Implement
-- [ ] Test
+- **status**: built. The five items live in the municipality example set (`lib/Settings/profiles/municipality.json`, `planned-agenda-item`), not in the fragment: the `seed-profiles` change moved every seed object out of `register.d`. One postponed item with a shift-history entry, one lapsed, four with a publication date, and `Herziening parkeerbeleid binnenstad` (2026-Q2, postponed) is overdue.
+- [x] Implement
+- [x] Test
 
 ### Task 3: Manifest fragment — index page, detail page, menu, CSV export
 - **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-007-list-view-and-csv-export` (+ REQ-LTA-006 detail rendering)
@@ -28,8 +30,9 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the Termijnagenda index renders with columns onderwerp/governanceBody/plannedPeriod/expectedType/owner/lifecycle and quick filters on body, lifecycle, expectedType, and period (schema referenced by slug `termijnagenda-item`, never PascalCase)
   - GIVEN a detail page WHEN opened THEN shift history, origin links (toezegging/motie/decision), and realisation links render as navigable references, and CSV export works via the mass-export dialog including shift count and reason fields
-- [ ] Implement
-- [ ] Test
+- **status**: built in `src/manifest.d/termijnagenda.json` (`PlannedAgenda` index with mass export, `PlannedAgendaDetail` with data, documents and related widgets). The schema is `planned-agenda-item` since `86-the-last-two-dutch-names`. The index shows `ownerType` rather than the owner, and governance body, expected type and period filter through the facets, with lifecycle as the quick filter.
+- [x] Implement
+- [x] Test
 
 ### Task 4: Board view — per-body period columns with drag-to-reschedule and mandatory-reason dialog
 - **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule` (+ REQ-LTA-004)
