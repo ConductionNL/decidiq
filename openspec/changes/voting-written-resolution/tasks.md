@@ -9,8 +9,8 @@
   - GIVEN `vote` WHEN read THEN `value` allows `objection` and a `membership` relation is declared
   - GIVEN the corporate example set WHEN imported THEN the written decision, its round and three answers exist, and the three seeded board persons carry a user id
   - Verification: `RegisterJsonTest` red first, then green
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: Open a written round on a decision
 
@@ -74,3 +74,8 @@
   - Verification: Playwright with three seeded users: secretary opens, two answer for, third answers for, the page shows adopted; red first (no widget)
 - [ ] Implement
 - [ ] Test
+
+## Build notes
+
+- Task 1: `lib/Settings/register.d/132-written-resolution.json` declares on `voting-round` `procedure` (default `in-meeting`), `decision` (the subject of a written round, design D1), `governanceBody`, `electorate`, `electorateUserIds`, `writtenRule` (default `unanimous`) and `closedReason`, and on `vote` `objection` and a `membership` relation. The fragments merge enums as a union, so `RankedPreferenceBallotRegisterTest` now asserts its values are contained rather than the exact list. `profiles/corporate.json` seeds the written decision, its round, three `for` answers and `nextcloudUserId` on the three board persons, set to their person slugs: the e2e of task 6 creates users with those ids. `RegisterJsonTest::testAVotingRoundCanBeHeldInWriting` and `testTheCompanyBoardSetHoldsAWrittenResolution`, red first.
+- Task 4 (counting only): `VotingResultCalculator::computeWritten()` counts against the whole electorate under `unanimous` and `threshold`, rejects on an objection, ignores answers from outside the electorate, and returns the close reason (`objection`, `all-answered`, `outcome-settled`, or none while the round stays open). `tests/Unit/Service/WrittenRoundResultTest.php` covers the scenarios of REQ-WRS-003 and REQ-WRS-004. Wiring it into the cast path and the closer (settle check after a save, `subjectOf()` learning `decision`, the decision's `decisionDate`) is still open, so task 4 stays unticked.
