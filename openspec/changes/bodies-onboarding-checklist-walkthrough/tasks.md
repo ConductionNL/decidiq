@@ -8,16 +8,16 @@
 - **acceptance_criteria**:
   - step update and lifecycle
   - 403 for a plain member
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 2: Membership side effects
 - **spec_ref**: `openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-002-installation-and-exit-steps-change-the-membership`
 - **files**: `lib/Service/OnboardingChecklistService.php`
 - **acceptance_criteria**:
   - membership created and end-dated, validated against the membership schema
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
 
 ### Task 3: Checklist widget on both detail pages
 - **spec_ref**: `openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist`

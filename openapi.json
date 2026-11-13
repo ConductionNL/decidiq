@@ -7132,6 +7132,101 @@
                     }
                 }
             }
+        },
+        "/onboarding/{kind}/{id}/steps/{index}": {
+            "put": {
+                "operationId": "onboarding-update-step",
+                "summary": "Mark one checklist step of a member onboarding or offboarding completed or skipped",
+                "description": "Mark one checklist step of a member onboarding or offboarding completed or skipped. Completing the installation step creates the membership; completing the end step end-dates it. Needs the body's secretary, chair or vice-chair, or an administrator.",
+                "tags": [
+                    "onboarding"
+                ],
+                "parameters": [
+                    {
+                        "name": "kind",
+                        "in": "path",
+                        "required": true,
+                        "description": "onboarding or offboarding.",
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "onboarding",
+                                "offboarding"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the record.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "index",
+                        "in": "path",
+                        "required": true,
+                        "description": "Position of the step in the checklist.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "status"
+                                ],
+                                "properties": {
+                                    "status": {
+                                        "type": "string",
+                                        "enum": [
+                                            "completed",
+                                            "skipped"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The onboarding or offboarding as saved.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
         }
     },
     "components": {
