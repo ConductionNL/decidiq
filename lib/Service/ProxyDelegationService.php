@@ -118,20 +118,7 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 
 		$objectService = $this->objectService();
 
-		$toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidiq', schema: 'participant');
-		$toParticipant = null;
-		if ($toParticipantEntity !== null) {
-			$toParticipant = $toParticipantEntity->jsonSerialize();
-		}
-
-		if ($toParticipant !== null) {
-			$role = strtolower($toParticipant['role'] ?? '');
-			if (in_array($role, self::NON_VOTING_ROLES, true) === true) {
-				throw new InvalidArgumentException(
-					"Deelnemer met rol '{$role}' kan geen volmacht ontvangen"
-				);
-			}
-		}
+		$toParticipant = $this->eligibleDelegate(objectService: $objectService, toParticipantId: $toParticipantId);
 
 		$proxyRecord = [
 			'fromParticipantId' => $fromParticipantId,
@@ -172,6 +159,36 @@ class ProxyDelegationService implements ProxyDelegationServiceInterface {
 		}
 
 	}//end grantProxy()
+
+	/**
+	 * The receiving participant, or null when it does not exist. Refused when its
+	 * role cannot vote.
+	 *
+	 * @param object $objectService   OpenRegister's object service.
+	 * @param string $toParticipantId The participant receiving the proxy.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @throws InvalidArgumentException When the participant's role cannot vote.
+	 *
+	 * @spec openspec/specs/voting-system/spec.md#requirement-proxy-voting
+	 */
+	private function eligibleDelegate(object $objectService, string $toParticipantId): ?array {
+		$toParticipantEntity = $objectService->find(id: $toParticipantId, register: 'decidiq', schema: 'participant');
+		if ($toParticipantEntity === null) {
+			return null;
+		}
+
+		$toParticipant = $toParticipantEntity->jsonSerialize();
+		$role = strtolower($toParticipant['role'] ?? '');
+		if (in_array($role, self::NON_VOTING_ROLES, true) === true) {
+			throw new InvalidArgumentException(
+				"Deelnemer met rol '{$role}' kan geen volmacht ontvangen"
+			);
+		}
+
+		return $toParticipant;
+	}//end eligibleDelegate()
 
 	/**
 	 * Refuse the grant when the holder already holds the maximum number of proxies.
