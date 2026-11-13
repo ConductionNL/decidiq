@@ -220,6 +220,10 @@
             "description": "Declarative store search and install for AppHost-adopting apps."
         },
         {
+            "name": "teams-meeting",
+            "description": "The Microsoft Teams meeting of a digital or hybrid meeting."
+        },
+        {
             "name": "transcription",
             "description": "Controller for meeting-transcription actions."
         },
@@ -3201,6 +3205,82 @@
                 ],
                 "responses": {
                     "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/teams-meeting": {
+            "get": {
+                "operationId": "teams-meeting-status",
+                "summary": "Whether Microsoft 365 is connected, and the meeting's Teams meeting",
+                "description": "Whether Microsoft 365 is connected, and the meeting's Teams meeting. GET /api/meetings/{meetingId}/teams-meeting. Access control: chair or secretary of the meeting (guard on meetingId). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "teams-meeting"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "teams-meeting-create",
+                "summary": "Create the Teams meeting through the linked Microsoft 365 source",
+                "description": "Create the Teams meeting through the linked Microsoft 365 source. POST /api/meetings/{meetingId}/teams-meeting. Only a digital or hybrid meeting without a Teams meeting gets one; 409 without a linked source, 502 when Microsoft 365 refuses. Access control: chair or secretary of the meeting (guard on meetingId). Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "teams-meeting"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
                         "description": "The request succeeded.",
                         "headers": {
                             "API-Version": {

@@ -130,6 +130,7 @@ use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionQueueInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\TeamsMeetingServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\TranscriptRepositoryInterface;
 use OCA\Decidiq\Kernel\Contracts\VoteBreakdownServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
@@ -274,6 +275,7 @@ final class ContractBindings {
 		SigningRoundServiceInterface::class => SigningRoundService::class,
 		SubjectClearanceServiceInterface::class => SubjectClearanceService::class,
 		SystemWhenNobodySignedInInterface::class => SystemWhenNobodySignedIn::class,
+		TeamsMeetingServiceInterface::class => TeamsMeetingService::class,
 		TranscriptRepositoryInterface::class => TranscriptRepository::class,
 		TranscriptionQueueInterface::class => TranscriptionQueue::class,
 		TranscriptionServiceInterface::class => TranscriptionService::class,

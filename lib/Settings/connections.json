@@ -41,6 +41,14 @@
             "order": 50,
             "sourceTemplate": "streaming",
             "unconfiguredMessage": "No streaming service is connected, so meetings cannot be broadcast. Link a source to this connection to test, start and stop a broadcast from the meeting page."
+        },
+        {
+            "key": "microsoft-365",
+            "title": "Microsoft 365",
+            "description": "Teams meetings created for digital and hybrid meetings, in the organisation's Microsoft 365.",
+            "order": 60,
+            "sourceTemplate": "microsoft-365",
+            "unconfiguredMessage": "No Microsoft 365 service is connected, so decidiq cannot create Teams meetings. A Teams join address can still be pasted on the meeting. Link a source to this connection to create Teams meetings from the meeting page."
         }
     ]
 }

@@ -185,6 +185,9 @@ $extra = [
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
+        // platform-microsoft-365-calendar-and-teams (REQ-M365-004): the Teams meeting of a digital or hybrid meeting.
+        ['name' => 'teams_meeting#status', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'GET'],
+        ['name' => 'teams_meeting#create', 'url' => '/api/meetings/{meetingId}/teams-meeting', 'verb' => 'POST'],
         // live-public-livestream (REQ-LSTR-002 to REQ-LSTR-004): test, go live, pause, resume and stop a meeting's broadcast.
         ['name' => 'broadcast#status',     'url' => '/api/meetings/{meetingId}/broadcast',       'verb' => 'GET'],
         ['name' => 'broadcast#test',       'url' => '/api/meetings/{meetingId}/broadcast/test',  'verb' => 'POST'],

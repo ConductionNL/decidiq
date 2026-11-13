@@ -1,0 +1,70 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change platform-microsoft-365-calendar-and-teams (REQ-M365-001, REQ-M365-004). A meeting declares its dates for OpenRegister's calendar feed, so a member who subscribes once in Outlook or on a phone sees every meeting, moved or cancelled, at the next refresh. teamsMeeting holds the Teams meeting of a digital or hybrid meeting, apart from location so a hybrid meeting keeps the room's address there.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.14.0",
+        "configuration": {
+          "calendarProvider": {
+            "enabled": true,
+            "dtstart": "scheduledDate",
+            "dtend": "endDate",
+            "titleTemplate": "{title}",
+            "locationField": "location",
+            "dates": {
+              "scheduledDate": {
+                "kind": "appointment",
+                "endProperty": "endDate",
+                "durationMinutes": 120,
+                "summaryTemplate": "{title}"
+              }
+            }
+          }
+        },
+        "properties": {
+          "teamsMeeting": {
+            "title": "Teams meeting",
+            "description": "The Microsoft Teams meeting members join for a digital or hybrid meeting.",
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "joinUrl": {
+                "title": "Teams join address",
+                "description": "The address members open to join. It must start with https://teams.microsoft.com/.",
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://teams\\.microsoft\\.com/"
+              },
+              "externalId": {
+                "title": "Teams meeting id",
+                "description": "The id Microsoft 365 gave the meeting when decidiq created it.",
+                "type": "string",
+                "nullable": true
+              },
+              "createdBy": {
+                "title": "Created by",
+                "description": "Who created or pasted the Teams meeting.",
+                "type": "string",
+                "nullable": true
+              },
+              "createdAt": {
+                "title": "Created at",
+                "description": "When the Teams meeting was created or pasted.",
+                "type": "string",
+                "format": "date-time",
+                "nullable": true
+              }
+            },
+            "required": [
+              "joinUrl"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -153,7 +153,7 @@ class ConnectionsDeclarationTest extends TestCase {
 		$keys = array_column($this->declaration()['connections'], 'key');
 
 		$this->assertSame(expected: array_values(array_unique($keys)), actual: $keys);
-		$this->assertSame(expected: ['ori', 'eidas', 'translation', 'case-system', 'streaming'], actual: $keys);
+		$this->assertSame(expected: ['ori', 'eidas', 'translation', 'case-system', 'streaming', 'microsoft-365'], actual: $keys);
 	}//end testTheKeysAreUniqueAndTheOnesDecidiqReports()
 
 	/**

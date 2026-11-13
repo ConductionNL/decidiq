@@ -8,7 +8,7 @@
 - **acceptance_criteria**:
   - GIVEN the fragment imported on the dev instance WHEN a token is minted over `meeting` and the feed read THEN the seeded meetings appear as VEVENTs with start, end and location (Newman, red before the fragment and green after)
   - GIVEN a moved meeting WHEN the feed is read again THEN only the new date is present (Newman)
-- [ ] Implement
+- [x] Implement
 - [ ] Test
 
 ### Task 2: Remove the dead calendar call
@@ -18,8 +18,8 @@
   - GIVEN the tree WHEN `git grep updateMeetingEvent lib` runs THEN no hit
   - GIVEN `AgendaServiceTest` WHEN it publishes an agenda THEN the version is recorded without a calendar double
   - GIVEN hydra gate `stub-scan` WHEN it runs THEN no unused injected dependency is reported for AgendaService
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: The calendar subscription section
 - **spec_ref**: `openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-003-a-member-subscribes-from-the-personal-settings`
