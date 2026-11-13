@@ -1,0 +1,56 @@
+{
+  "x-openregister": {
+    "_note": "planning-long-term-agenda-tracks-and-report task 1 (REQ-LTAT-001): a planned agenda item can be a track under a topic, one level deep (PlannedAgendaTrackGuardListener refuses deeper nesting on save). The topic counts its tracks through declared aggregations. A fragment per ADR-037; PlannedAgendaItem moves to 0.2.0 so an existing install re-imports the schema. Schemas only, no seed objects."
+  },
+  "components": {
+    "schemas": {
+      "PlannedAgendaItem": {
+        "slug": "planned-agenda-item",
+        "version": "0.2.0",
+        "properties": {
+          "parentItem": {
+            "title": "Topic",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "planned-agenda-item",
+            "nullable": true,
+            "facetable": true,
+            "description": "The topic this item is a track of, another planned agenda item. Empty for a topic or a standalone item. One level deep: a track cannot have tracks of its own, and an item with tracks cannot become a track."
+          },
+          "trackCount": {
+            "title": "Tracks",
+            "type": "integer",
+            "nullable": true,
+            "description": "How many tracks name this item as their topic. Materialised by OpenRegister from x-openregister-aggregations. Never written by decidiq."
+          },
+          "openTrackCount": {
+            "title": "Open tracks",
+            "type": "integer",
+            "nullable": true,
+            "description": "How many of this item's tracks are still planned or postponed. Materialised by OpenRegister from x-openregister-aggregations. Never written by decidiq."
+          }
+        },
+        "x-openregister-aggregations": {
+          "trackCount": {
+            "metric": "count",
+            "schema": "PlannedAgendaItem",
+            "filter": {
+              "parentItem": "@self.id"
+            }
+          },
+          "openTrackCount": {
+            "metric": "count",
+            "schema": "PlannedAgendaItem",
+            "filter": {
+              "parentItem": "@self.id",
+              "lifecycle": [
+                "planned",
+                "postponed"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

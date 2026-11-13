@@ -33,6 +33,7 @@ use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
+use OCA\Decidiq\Listener\PlannedAgendaTrackGuardListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
@@ -87,5 +88,9 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Long-term agenda tracks (planning-long-term-agenda-tracks-and-report,
+		// REQ-LTAT-002): a track sits under a topic, one level deep.
+		['event' => ObjectCreatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
 	];
 }//end class

@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN a topic with two open tracks WHEN read THEN `openTrackCount` is 2 (Newman against the seeded profile)
   - GIVEN a track realised WHEN the topic is read THEN `openTrackCount` is 1
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (Newman against the seeded profile: needs a live instance; the profile seed for the topic and tracks is not added yet)
 
 ### Task 2: One level, on save
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-002-tracks-are-one-level-deep`
@@ -17,8 +17,8 @@
 - **acceptance_criteria**:
   - GIVEN the real `ObjectCreatingEvent` with a parent that is a track WHEN handled THEN refused with the topic named (PHPUnit, red then green)
   - GIVEN an item with tracks WHEN it gets a parent THEN refused; GIVEN a self reference THEN refused
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: The tracks widget and the topics filter
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-001-a-long-term-agenda-item-can-be-a-track-under-a-topic`
