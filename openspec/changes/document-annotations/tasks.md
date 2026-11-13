@@ -9,8 +9,9 @@
   - GIVEN the register JSON WHEN imported THEN an `Annotation` schema (slug `annotation`, `hardDelete: false`, property titles, relation properties `document`/`agendaItem`/`meeting`) exists with the four seed objects from design.md (`hl-bestemmingsplan-bouwhoogte`, `note-begroting-dekking`, `draw-situatietekening-kruising`, `note-notulen-actiepunt-griffie`)
   - GIVEN the seeds WHEN inspected THEN authors use only the nil UUID placeholder and `fileId: 0`, and no existing schema's required fields changed
   - GIVEN the register gates (28/30/51/52, schema-property-titles, relation-dialect) WHEN run THEN they pass
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: the schema is the fragment `lib/Settings/register.d/132-document-annotations.json` (ADR-037), not an edit of `decidesk_register.json`, and the seeds are in `lib/Settings/profiles/municipality.json` (a fragment declares no objects). Its read rule admits administrators and, for members, only their own annotations (`author` = `$userId`); writes are omitted, so the object API denies them to members and task 2's endpoints write behind their guard. The seeds bind to agenda items and meetings the municipality set already seeds; only one document is seeded, and its slug is too long for a reference, so no seed names a document. Tested by `tests/Unit/Settings/AnnotationRegisterTest.php`.
 
 ### Task 2: AnnotationController CRUD with server-side visibility enforcement
 - **spec_ref**: `openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-002-visibility-is-private-by-default-and-enforced-server-side`

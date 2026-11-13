@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 228,
+			"objectCount": 232,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -4800,6 +4800,137 @@
 						"scheduledDate": "2025-04-10T19:30:00Z",
 						"lifecycle": "planned",
 						"liveCaptions": "off"
+					}
+				],
+				"annotation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "hl-bestemmingsplan-bouwhoogte",
+						"annotationType": "highlight",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 3,
+						"quads": [
+							[
+								0.12,
+								0.41,
+								0.71,
+								0.41,
+								0.71,
+								0.44,
+								0.12,
+								0.44
+							]
+						],
+						"quote": "maximale bouwhoogte van 12 meter",
+						"bodyText": "Strijdig met eerdere toezegging aan omwonenden?",
+						"color": "yellow",
+						"visibility": "private",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "commissie-ruimte-2026-11-03-punt-2",
+						"meeting": "commissie-ruimte-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "note-begroting-dekking",
+						"annotationType": "sticky-note",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 2,
+						"point": {
+							"x": 0.82,
+							"y": 0.18
+						},
+						"bodyText": "Navragen bij wethouder: dekking uit de algemene reserve?",
+						"color": "blue",
+						"visibility": "faction",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "begroting-2026-bespreking"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "draw-situatietekening-kruising",
+						"annotationType": "drawing",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 5,
+						"path": [
+							[
+								0.3,
+								0.52
+							],
+							[
+								0.36,
+								0.48
+							],
+							[
+								0.44,
+								0.47
+							],
+							[
+								0.5,
+								0.51
+							],
+							[
+								0.48,
+								0.58
+							],
+							[
+								0.39,
+								0.61
+							],
+							[
+								0.31,
+								0.58
+							],
+							[
+								0.3,
+								0.52
+							]
+						],
+						"bodyText": "Kruising Stationsweg: zichtlijnen controleren",
+						"color": "red",
+						"visibility": "private",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "vaststelling-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "note-notulen-actiepunt-griffie",
+						"annotationType": "sticky-note",
+						"fileId": 0,
+						"fileVersion": "seed-v2",
+						"versionLabel": "v2",
+						"page": 1,
+						"point": {
+							"x": 0.75,
+							"y": 0.1
+						},
+						"bodyText": "Actiepunt griffie: raadsbrief vóór 1 mei versturen",
+						"color": "green",
+						"visibility": "body",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "notulen-2024-12-18"
 					}
 				]
 			}
