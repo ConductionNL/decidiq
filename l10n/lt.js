@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Žingsnis {step} iš {total}",
         "Still to do: stage {seq} ({maker})": "Dar liko: etapas {seq} ({maker})",
         "Stop": "Sustabdyti",
-        "Store": "Saugoti",
         "Subject description": "Objekto aprašymas",
         "Submission phase": "Pateikimo etapas",
         "Submission window (hours)": "Pateikimo laikotarpis (valandomis)",

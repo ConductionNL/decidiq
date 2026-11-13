@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Solis {step} no {total}",
         "Still to do: stage {seq} ({maker})": "Vēl jāizdara: posms {seq} ({maker})",
         "Stop": "Apturēt",
-        "Store": "Saglabāt",
         "Subject description": "Temata apraksts",
         "Submission phase": "Iesniegšanas posms",
         "Submission window (hours)": "Iesniegšanas laiks (stundās)",

@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Βήμα {step} από {total}",
         "Still to do: stage {seq} ({maker})": "Απομένει: στάδιο {seq} ({maker})",
         "Stop": "Διακοπή",
-        "Store": "Αποθήκευση",
         "Subject description": "Περιγραφή θέματος",
         "Submission phase": "Φάση υποβολής",
         "Submission window (hours)": "Παράθυρο υποβολής (ώρες)",

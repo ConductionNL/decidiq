@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Nach ze maachen: Phas {seq} ({maker})",
         "Stop": "Stoppen",
         "Stop {name}": "{name} stoppen",
-        "Store": "Späicheren",
         "Sub-item title": "Titel vum Ënnerpunkt",
         "Sub-item: {title}": "Ënnerpunkt: {title}",
         "Sub-items of {title}": "Ënnerpunkte vun {title}",

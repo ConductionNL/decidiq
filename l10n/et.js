@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Samm {step}/{total}",
         "Still to do: stage {seq} ({maker})": "Veel teha: etapp {seq} ({maker})",
         "Stop": "Peata",
-        "Store": "Salvesta",
         "Subject description": "Teema kirjeldus",
         "Submission phase": "Esitamise faas",
         "Submission window (hours)": "Esitamise aken (tundides)",

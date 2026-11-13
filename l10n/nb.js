@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Trinn {step} av {total}",
         "Still to do: stage {seq} ({maker})": "Gjenstår: fase {seq} ({maker})",
         "Stop": "Stopp",
-        "Store": "Lagre",
         "Subject description": "Beskrivelse av emne",
         "Submission phase": "Innsendingsfase",
         "Submission window (hours)": "Innsendingsvindu (timer)",

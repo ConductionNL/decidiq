@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Уште за правење: фаза {seq} ({maker})",
         "Stop": "Запри",
         "Stop {name}": "Запри {name}",
-        "Store": "Зачувај",
         "Sub-item title": "Наслов на подточката",
         "Sub-item: {title}": "Подточка: {title}",
         "Sub-items of {title}": "Подточки на {title}",

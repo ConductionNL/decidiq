@@ -2097,7 +2097,6 @@ OC.L10N.register(
         "Still to do: stage {seq} ({maker})": "Pendent: fase {seq} ({maker})",
         "Stop": "Atura",
         "Stop {name}": "Atura {name}",
-        "Store": "Desa",
         "Sub-item title": "Títol del subpunt",
         "Sub-item: {title}": "Subpunt: {title}",
         "Sub-items of {title}": "Subpunts de {title}",

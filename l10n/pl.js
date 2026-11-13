@@ -2600,7 +2600,6 @@ OC.L10N.register(
         "Step {step} of {total}": "Krok {step} z {total}",
         "Still to do: stage {seq} ({maker})": "Pozostało: etap {seq} ({maker})",
         "Stop": "Zatrzymaj",
-        "Store": "Zapisz",
         "Subject description": "Opis przedmiotu",
         "Submission phase": "Faza zgłoszeń",
         "Submission window (hours)": "Okno zgłoszeń (godziny)",
