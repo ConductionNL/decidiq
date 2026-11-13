@@ -9,8 +9,9 @@
   - GIVEN the `vote` schema WHEN read THEN it declares `entryMode` (enum `cast`, `recorded`, default `cast`) and `recordedBy`, each with a `title`
   - GIVEN the municipality example set WHEN imported THEN the roll-call round and its three recorded votes exist
   - Verification: `RegisterJsonTest` case written red first, then green
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  > Fragment `lib/Settings/register.d/132-named-paper-vote-entry.json` (VotingRound 0.5.0, Vote 0.4.0); the municipality set carries the roll call and its three recorded votes (objectCount 232). Test: `tests/Unit/NamedPaperVoteRegisterTest.php`.
 
 ### Task 2: Record named votes on a roll call round
 
@@ -21,8 +22,9 @@
   - GIVEN the same list posted twice with one value changed WHEN the round is read THEN it still holds three votes, one of them changed
   - GIVEN the round then closes WHEN its totals are read THEN they match the recorded votes (REQ-NPV-004)
   - Verification: PHPUnit red-then-green; a Newman request that records and closes on a seeded round
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  > `POST /api/voting-rounds/{id}/recorded-votes` → `VotingService::recordNamedVotes()` → `RecordedVoteWriter`. PHPUnit: `RecordedVoteWriterTest`, `VotingRecordVotesControllerTest`. The Newman request is not added in this pass. REQ-NPV-004 needs no code: the tally already counts vote objects.
 
 ### Task 3: Refuse a wrong list as a whole
 
@@ -34,8 +36,9 @@
   - GIVEN a secret round, a closed round or a non roll-call round WHEN posted THEN the request is refused and nothing is written
   - GIVEN a caller without a presiding role in the round's meeting WHEN posted THEN 403
   - Verification: one PHPUnit case per refusal, each asserting the write count is zero
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  > One case per refusal in `RecordedVoteWriterTest`, each asserting zero writes; 403 in `VotingRecordVotesControllerTest`.
 
 ### Task 4: Closing keeps a show-of-hands result
 
@@ -45,8 +48,9 @@
   - GIVEN a show-of-hands round with saved totals 14, 9, 2 WHEN it closes THEN the totals are unchanged and the result is `adopted`
   - GIVEN a for-against-abstain round WHEN it closes THEN it is still counted from its votes
   - Verification: the show-of-hands close case is written first and fails on today's code (totals become zero, result `invalid`), then passes
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  > `VotingRoundResults::tally()` keeps the stored totals of a show-of-hands round. Test: `tests/Unit/Service/VotingRoundShowOfHandsCloseTest.php` (fails without the branch).
 
 ### Task 5: The entry sheet on the voting round panel
 

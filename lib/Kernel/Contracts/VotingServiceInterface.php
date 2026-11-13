@@ -147,4 +147,20 @@ interface VotingServiceInterface {
 	 * @spec openspec/specs/motion-amendment/spec.md
 	 */
 	public function saveShowOfHandsTally(string $votingRoundId, int $votesFor, int $votesAgainst, int $votesAbstain): array;
+
+	/**
+	 * Record the members' choices on an open roll call round, or refuse the list as a whole.
+	 *
+	 * @param string                           $votingRoundId The round.
+	 * @param array<int, array<string, mixed>> $entries       `{participantId, value}` per member.
+	 * @param string|null                      $heldAt        When the vote was held, ISO 8601.
+	 * @param string                           $recordedBy    The caller's user id.
+	 *
+	 * @return array{votingRoundId: string, recorded: int}
+	 *
+	 * @throws \OCA\Decidiq\Exception\RecordedVotesRefusedException When the round or any entry is wrong.
+	 *
+	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+	 */
+	public function recordNamedVotes(string $votingRoundId, array $entries, ?string $heldAt, string $recordedBy): array;
 }//end interface

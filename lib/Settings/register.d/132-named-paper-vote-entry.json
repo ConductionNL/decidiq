@@ -1,0 +1,48 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - voting-named-paper-vote-entry. Patches VotingRound and Vote by key union. A round can be a roll call whose votes the chair or secretary records by name, and a vote says whether the member cast it or the clerk recorded it, and who recorded it. See openspec/changes/voting-named-paper-vote-entry, REQ-NPV-001 and REQ-NPV-002.",
+  "components": {
+    "schemas": {
+      "VotingRound": {
+        "slug": "voting-round",
+        "version": "0.5.0",
+        "description": "Patched by voting-named-paper-vote-entry: a roll call round whose votes are recorded by name.",
+        "properties": {
+          "votingMethod": {
+            "title": "Voting method",
+            "enum": [
+              "roll-call"
+            ],
+            "description": "Widened with `roll-call`: the members vote in the room and the chair or secretary records each member's choice by name. Fragments union list values, so this ADDS to the enum rather than replacing it (REQ-NPV-001)."
+          }
+        }
+      },
+      "Vote": {
+        "slug": "vote",
+        "version": "0.4.0",
+        "description": "Patched by voting-named-paper-vote-entry: whether the member cast the vote or the clerk recorded it.",
+        "properties": {
+          "entryMode": {
+            "title": "Entry mode",
+            "type": "string",
+            "enum": [
+              "cast",
+              "recorded"
+            ],
+            "default": "cast",
+            "example": "recorded",
+            "description": "`cast` when the member voted from their own account, `recorded` when the chair or secretary wrote down the member's choice in a roll call. Defaults to `cast`, so every stored vote keeps meaning what it meant (REQ-NPV-002)."
+          },
+          "recordedBy": {
+            "title": "Recorded by",
+            "type": "string",
+            "example": "griffier",
+            "description": "The Nextcloud user id of the chair or secretary who recorded this vote. Empty on a vote the member cast themselves (REQ-NPV-002)."
+          }
+        }
+      }
+    }
+  }
+}
