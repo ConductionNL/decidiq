@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\BoardEvaluationAccessGuard;
 use OCA\Decidiq\Service\BoardEvaluationReportService;
 use OCA\Decidiq\Service\BoardEvaluationResponseService;
@@ -69,7 +69,7 @@ class BoardEvaluationController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly BoardEvaluationAccessGuard $accessGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\EngagementService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCP\AppFramework\Controller;
@@ -63,7 +63,7 @@ class EngagementController extends Controller {
 		private readonly ContainerInterface $container,
 		private readonly ParticipantResolver $participantResolver,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

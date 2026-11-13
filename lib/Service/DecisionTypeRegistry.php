@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IAppConfig;
 
 /**
@@ -113,7 +113,7 @@ class DecisionTypeRegistry {
 	 * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
 	 */
 	public function getTypes(): array {
-		$stored = $this->appConfig->getValueArray(Application::APP_ID, self::CONFIG_KEY, []);
+		$stored = $this->appConfig->getValueArray(AppIdentity::APP_ID, self::CONFIG_KEY, []);
 
 		$types = [];
 		foreach ($stored as $type) {
@@ -172,7 +172,7 @@ class DecisionTypeRegistry {
 			throw new InvalidArgumentException('Keep at least one decision type.');
 		}
 
-		$this->appConfig->setValueArray(Application::APP_ID, self::CONFIG_KEY, $clean);
+		$this->appConfig->setValueArray(AppIdentity::APP_ID, self::CONFIG_KEY, $clean);
 
 		return $clean;
 

@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Middleware;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Middleware\Support\ApiPathAliases;
 use OCA\Decidiq\Middleware\Support\StandardProtocolPaths;
 use OCP\App\IAppManager;
@@ -145,7 +145,7 @@ class ApiContractMiddleware extends Middleware {
 			return $response;
 		}
 
-		$response->addHeader(name: 'API-Version', value: $this->appManager->getAppVersion(appId: Application::APP_ID));
+		$response->addHeader(name: 'API-Version', value: $this->appManager->getAppVersion(appId: AppIdentity::APP_ID));
 		$this->announceSuccessor(response: $response);
 		// Only the versioned surface is new; an unversioned path keeps its error body and content type.
 		if ($response instanceof JSONResponse

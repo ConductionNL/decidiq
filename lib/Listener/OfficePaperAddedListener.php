@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
 use OCA\Decidiq\Service\PublicationEventRecorder;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -153,7 +153,7 @@ class OfficePaperAddedListener implements IEventListener {
 			return false;
 		}
 
-		return self::isSwitchedOn(value: $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, 'true'));
+		return self::isSwitchedOn(value: $this->appConfig->getValueString(AppIdentity::APP_ID, self::CONFIG_KEY, 'true'));
 	}//end converts()
 
 	/**

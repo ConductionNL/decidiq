@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -172,7 +172,7 @@ class VotingRoundGuard {
 	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function isGloballyAuthorized(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 
 		if ($chairGroup !== '') {
 			return $this->groupManager->isInGroup($uid, $chairGroup);

@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\ExportBundleException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ExportBundleService;
 use OCA\Decidiq\Service\ExportRequest;
 use OCP\AppFramework\Controller;
@@ -54,7 +54,7 @@ class ExportBundleController extends Controller {
 		private readonly ExportBundleService $exports,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

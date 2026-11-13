@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -192,7 +192,7 @@ class PublicationDigestComposer {
 			return '';
 		}
 
-		$base = $this->urlGenerator->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page');
+		$base = $this->urlGenerator->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page');
 		return rtrim($base, '/') . '/' . $path;
 	}//end link()
 

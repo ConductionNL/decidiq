@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IAppConfig;
 
 /**
@@ -77,7 +77,7 @@ class PublicationConfigService {
 	 * @return array<string,mixed> Map of bodyId => body config.
 	 */
 	public function getAll(): array {
-		$raw = $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '');
+		$raw = $this->appConfig->getValueString(AppIdentity::APP_ID, self::CONFIG_KEY, '');
 		if ($raw === '') {
 			return [];
 		}
@@ -188,7 +188,7 @@ class PublicationConfigService {
 			$encoded = '{}';
 		}
 
-		$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $encoded);
+		$this->appConfig->setValueString(AppIdentity::APP_ID, self::CONFIG_KEY, $encoded);
 
 		return $clean;
 	}//end save()

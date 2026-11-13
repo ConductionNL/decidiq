@@ -73,7 +73,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\Config\IUserConfig;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -191,12 +191,12 @@ class MigrateUserPreferences implements IRepairStep {
 				return 'skipped';
 			}
 
-			$existing = $this->userConfig->getValueString($userId, Application::APP_ID, $key, '');
+			$existing = $this->userConfig->getValueString($userId, AppIdentity::APP_ID, $key, '');
 			if ($existing !== '') {
 				return 'present';
 			}
 
-			$this->userConfig->setValueString($userId, Application::APP_ID, $key, $old);
+			$this->userConfig->setValueString($userId, AppIdentity::APP_ID, $key, $old);
 			return 'migrated';
 		} catch (Throwable $e) {
 			$this->logger->warning(

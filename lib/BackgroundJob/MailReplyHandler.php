@@ -36,7 +36,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\MailVoteReplyProcessor;
 use OCA\Decidiq\Service\MailVoteSigner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -152,7 +152,7 @@ class MailReplyHandler extends TimedJob {
 	 * the parent contract.
 	 */
 	protected function run(mixed $argument): void {
-		$emailVotingEnabled = $this->appConfig->getValueString(Application::APP_ID, 'email_voting_enabled', '0');
+		$emailVotingEnabled = $this->appConfig->getValueString(AppIdentity::APP_ID, 'email_voting_enabled', '0');
 		if ($emailVotingEnabled !== '1') {
 			return;
 		}

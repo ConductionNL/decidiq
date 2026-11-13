@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\CaseSystemExchangeService;
 use OCA\Decidiq\Service\DecisionListService;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
@@ -97,7 +97,7 @@ class MinutesApprovedListener implements IEventListener {
 			$this->logger->warning('Decidiq: the decision list could not be rendered', ['meeting' => $meetingId, 'exception' => $e->getMessage()]);
 		}
 
-		if ($minutes['lifecycle'] === 'approved' && $this->appConfig->getValueString(Application::APP_ID, self::SEND_ON_APPROVAL, '') === 'true') {
+		if ($minutes['lifecycle'] === 'approved' && $this->appConfig->getValueString(AppIdentity::APP_ID, self::SEND_ON_APPROVAL, '') === 'true') {
 			$this->sendOnApproval(meetingId: $meetingId);
 		}
 	}//end handle()

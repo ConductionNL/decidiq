@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\CaseSystemException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\CaseDocumentService;
 use OCA\Decidiq\Service\CaseExchangeRecords;
 use OCA\Decidiq\Service\CaseSystemClient;
@@ -65,7 +65,7 @@ class CaseSystemController extends Controller {
 		private readonly TranscriptionStaffGuard $guard,
 		private readonly ObjectServiceInterface $objectService,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

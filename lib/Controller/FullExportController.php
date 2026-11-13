@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\BackgroundJob\FullExportJob;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\FullExportService;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
@@ -60,7 +60,7 @@ class FullExportController extends Controller {
 		private readonly IJobList $jobList,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

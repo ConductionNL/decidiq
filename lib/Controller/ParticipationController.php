@@ -29,7 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\ParticipationLifecycleService;
 use OCA\Decidiq\Service\ParticipationPublicationService;
 use OCA\Decidiq\Service\ParticipationResponder;
@@ -76,7 +76,7 @@ class ParticipationController extends Controller {
 		private readonly ParticipationPublicationService $publicationService,
 		private readonly ParticipationResponder $responder,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 

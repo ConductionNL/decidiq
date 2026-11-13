@@ -29,7 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTime;
 use DateTimeImmutable;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IURLGenerator;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
@@ -582,7 +582,7 @@ class NotificationPreferenceService {
 		try {
 			$manager = $this->container->get(INotificationManager::class);
 			$notification = $manager->createNotification();
-			$notification->setApp(Application::APP_ID)
+			$notification->setApp(AppIdentity::APP_ID)
 				->setUser($recipientId)
 				->setDateTime(new DateTime())
 				->setObject((string)($inApp['objectType'] ?? 'decidiq'), (string)($inApp['objectId'] ?? $recipientId))
@@ -662,7 +662,7 @@ class NotificationPreferenceService {
 			return $message;
 		}
 
-		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page');
+		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page');
 		return $message . "\n\n" . rtrim($base, '/') . '/' . ltrim($deepLink, '/');
 	}//end withLink()
 }//end class

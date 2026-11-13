@@ -29,8 +29,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use Closure;
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\BroadcastCaptionService;
 use OCA\Decidiq\Service\MeetingBroadcastService;
 use OCA\Decidiq\Service\TranscriptionStaffGuard;
@@ -69,7 +69,7 @@ class BroadcastController extends Controller {
 		private readonly TranscriptionStaffGuard $guard,
 		private readonly BroadcastCaptionService $captions,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

@@ -41,7 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -244,15 +244,15 @@ class SeedProfileService {
 		}
 
 		$this->configurationService()->importFromApp(
-			appId: Application::APP_ID . '.profile.' . $profileId,
+			appId: AppIdentity::APP_ID . '.profile.' . $profileId,
 			data: $data,
-			version: $this->appManager->getAppVersion(Application::APP_ID),
+			version: $this->appManager->getAppVersion(AppIdentity::APP_ID),
 			force: true
 		);
 
 		$this->logger->info(
 			'[SeedProfileService] imported example set "' . $profileId . '": ' . $objects . ' object(s).',
-			['app' => Application::APP_ID]
+			['app' => AppIdentity::APP_ID]
 		);
 
 		return [
@@ -268,7 +268,7 @@ class SeedProfileService {
 	 * @return array<int, string> The paths, sorted.
 	 */
 	private function descriptorFiles(): array {
-		$dir = ($this->appManager->getAppPath(Application::APP_ID) . self::PROFILE_DIR);
+		$dir = ($this->appManager->getAppPath(AppIdentity::APP_ID) . self::PROFILE_DIR);
 		if (is_dir($dir) === false) {
 			return [];
 		}

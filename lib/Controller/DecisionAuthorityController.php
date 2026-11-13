@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Service\DecisionAuthority;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -61,7 +61,7 @@ class DecisionAuthorityController extends Controller {
 		private readonly IUserSession $userSession,
 		private readonly DecisionAuthority $authority,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

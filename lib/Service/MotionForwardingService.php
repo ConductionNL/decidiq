@@ -29,7 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -132,7 +132,7 @@ class MotionForwardingService {
 		// Send notification if approval is required.
 		// Stored as a string by SettingsService; reading it as a bool would
 		// conflict with the stored type.
-		$requiresApproval = $appConfig->getValueString(Application::APP_ID, 'motion_forwarding_requires_approval', 'false');
+		$requiresApproval = $appConfig->getValueString(AppIdentity::APP_ID, 'motion_forwarding_requires_approval', 'false');
 		if (in_array(strtolower(trim($requiresApproval)), ['true', '1'], true) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,

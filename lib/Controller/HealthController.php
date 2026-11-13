@@ -40,7 +40,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -136,7 +136,7 @@ class HealthController extends CorsJsonController {
 		if ($body === null) {
 			$body = [
 				'status' => 'degraded',
-				'version' => $this->appConfig->getValueString(Application::APP_ID, 'installed_version', ''),
+				'version' => $this->appConfig->getValueString(AppIdentity::APP_ID, 'installed_version', ''),
 				'openregister' => 'unavailable',
 				'httpStatus' => Http::STATUS_OK,
 			];
