@@ -246,19 +246,10 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 
 		$out = [];
 		foreach ($rows as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = (array)$row->jsonSerialize();
+			$row = $this->asRow(row: $row);
+			if ($this->matchesMeeting(row: $row, match: ['meeting' => $meetingId, 'status' => $status]) === true) {
+				$out[] = $row;
 			}
-
-			if (is_array($row) === false || ($row['meeting'] ?? null) !== $meetingId) {
-				continue;
-			}
-
-			if ($status !== null && ($row['proxyStatus'] ?? '') !== $status) {
-				continue;
-			}
-
-			$out[] = $row;
 		}
 
 		return [
@@ -268,6 +259,41 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 		];
 
 	}//end forMeeting()
+
+	/**
+	 * An entity as its array; anything else unchanged.
+	 *
+	 * @param mixed $row A findAll() row.
+	 *
+	 * @return mixed
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function asRow(mixed $row): mixed {
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			return (array)$row->jsonSerialize();
+		}
+
+		return $row;
+	}//end asRow()
+
+	/**
+	 * Whether a row is a proxy of the meeting, in the status asked for (any when null).
+	 *
+	 * @param mixed                $row   The row.
+	 * @param array<string, mixed> $match meeting and status (or null).
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function matchesMeeting(mixed $row, array $match): bool {
+		if (is_array($row) === false || ($row['meeting'] ?? null) !== $match['meeting']) {
+			return false;
+		}
+
+		return $match['status'] === null || ($row['proxyStatus'] ?? '') === $match['status'];
+	}//end matchesMeeting()
 
 	/**
 	 * Transition a proxy to a new status. Mirrors the change to the audit
