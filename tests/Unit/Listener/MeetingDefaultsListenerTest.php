@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Service\SettingsService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;

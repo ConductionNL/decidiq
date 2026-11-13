@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\AppInfo;
 
-use OCA\Decidiq\AppInfo\Registrar\CrossAppEventRegistrar;
+use OCA\Decidiq\Listener\Registrar\CrossAppEventRegistrar;
 use OCA\Decidiq\Listener\OfficePaperAddedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Files\Events\Node\NodeCreatedEvent;
