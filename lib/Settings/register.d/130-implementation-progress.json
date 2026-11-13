@@ -109,6 +109,7 @@
 			},
 			"Decision": {
 				"slug": "decision",
+				"version": "1.8.0",
 				"properties": {
 					"implementationStatus": {
 						"title": "Implementation status",
