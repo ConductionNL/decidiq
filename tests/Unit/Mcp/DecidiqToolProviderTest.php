@@ -1290,6 +1290,48 @@ class DecidiqToolProviderTest extends TestCase {
 	}//end testSignedIn_listOpenActionItems_all_keepsOwnMeetings()
 
 	/**
+	 * Items linked through the relations array are scoped by their meeting
+	 * relation: a relation to an own meeting is kept; one to another meeting,
+	 * one without an id and items without any meeting relation are dropped.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedIn_listOpenActionItems_all_readsTheRelationsArray(): void {
+		$this->setCurrentUser(uid: 'mia');
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) {
+				$filters = $config['filters'];
+				if ($filters['schema'] === 'participant') {
+					return [['id' => 'p-mia', 'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']]]];
+				}
+
+				if ($filters['schema'] === 'meeting') {
+					return [['id' => 'm-own']];
+				}
+
+				return [
+					[
+						'uuid' => 'ai-own',
+						'title' => 'Own',
+						'relations' => ['not a relation', ['schema' => 'motion', 'id' => 'm-own'], ['schema' => 'meeting', 'id' => 'm-own']],
+					],
+					['uuid' => 'ai-other', 'title' => 'Other', 'relations' => [['schema' => 'meeting', 'id' => 'm-other']]],
+					['uuid' => 'ai-no-id', 'title' => 'No id', 'relations' => [['schema' => 'meeting'], ['schema' => 'meeting', 'id' => 'm-own']]],
+					['uuid' => 'ai-none', 'title' => 'None', 'relations' => [['schema' => 'motion', 'id' => 'm-own']]],
+				];
+			}
+		);
+
+		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'all']);
+
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: ['Own'], actual: array_column($result['items'], 'title'));
+
+	}//end testSignedIn_listOpenActionItems_all_readsTheRelationsArray()
+
+	/**
 	 * A signed-in non-admin still sees exactly the meetings of their own governance bodies.
 	 *
 	 * @return void
