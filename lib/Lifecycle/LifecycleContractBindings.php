@@ -39,11 +39,21 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
  * @link     https://github.com/ConductionNL/decidiq
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  *
  * @spec exclude Structural composition, no functional requirement.
  */
 final class LifecycleContractBindings {
+
+	/**
+	 * Contract => the class that implements it.
+	 *
+	 * @var array<class-string, class-string>
+	 */
+	private const BINDINGS = [
+		DecisionTransitionGuardInterface::class => DecisionTransitionGuard::class,
+		MeetingTransitionGuardInterface::class => MeetingTransitionGuard::class,
+		ProcessTemplatePolicyResolverInterface::class => ProcessTemplatePolicyResolver::class,
+	];
 
 	/**
 	 * Alias every contract to its implementation.
@@ -55,8 +65,8 @@ final class LifecycleContractBindings {
 	 * @spec exclude Structural composition, no functional requirement.
 	 */
 	public function register(IRegistrationContext $context): void {
-		$context->registerServiceAlias(DecisionTransitionGuardInterface::class, DecisionTransitionGuard::class);
-		$context->registerServiceAlias(MeetingTransitionGuardInterface::class, MeetingTransitionGuard::class);
-		$context->registerServiceAlias(ProcessTemplatePolicyResolverInterface::class, ProcessTemplatePolicyResolver::class);
+		foreach (self::BINDINGS as $contract => $implementation) {
+			$context->registerServiceAlias($contract, $implementation);
+		}
 	}//end register()
 }//end class
