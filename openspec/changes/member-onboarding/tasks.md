@@ -10,8 +10,9 @@
   - GIVEN both schemas WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with `gestart → in-uitvoering → afgerond | vervallen` (terminals final) and `x-openregister-notifications` declares created + due-soon + overdue triggers (nl+en subjects) with no imperative dispatch anywhere
   - GIVEN a step with `verplicht: true` WHEN its status is set to `overgeslagen` THEN validation rejects it; GIVEN a traject with an open mandatory step WHEN `afgerond` is attempted THEN the transition is refused naming the open steps
   - GIVEN a traject with two open steps WHEN one step is completed THEN the other step's status and note are unchanged (full-array PUT-semantic carry-forward proven by test)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: `lib/Settings/register.d/59-member-onboarding.json`, renamed to MemberOnboarding/MemberOffboarding by `88-member-onboarding-in-plain-words.json` (lifecycle started → in-execution → completed | lapsed, notifications declared).
 
 ### Task 2: Seed data — realistic trajecten for both schemas
 - **spec_ref**: `openspec/changes/member-onboarding/design.md#seed-data`
@@ -19,8 +20,9 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 3 onboarding trajecten (in-uitvoering with one overdue step, gestart with due-soon steps, afgerond association-domain with a skipped optional step) and 2 offboarding trajecten (in-uitvoering blocked on groepen-intrekken, afgerond with exit confirmation) exist per the design tables, linked to seeded persons/bodies/meetings with nil-UUID placeholders only for unresolvable refs
   - GIVEN the seeds WHEN the dashboard renders THEN the batch `raadswisseling-2026`, the overdue KPI, and the per-status widgets are demoable on install
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: 3 onboarding and 2 offboarding seeds in `lib/Settings/profiles/municipality.json`.
 
 ### Task 3: Manifest fragment — index/detail pages + menu for both trajecten
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-012-list-and-detail-pages`
@@ -28,8 +30,9 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN Onboarding and Offboarding index pages render with the specced columns (person, body, role/reden, trigger, lifecycle, step progress) and quick filters (lifecycle, trigger, body, batch), schema refs by slug `onboarding-traject` / `offboarding-traject`, never PascalCase
   - GIVEN a traject detail page WHEN opened THEN the checklist renders per-step status/dueDate/actions, linked person/body/meeting are navigable relations, and the audit-trail sidebar is present
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: `src/manifest.d/member-onboarding.json` (two index pages with lifecycle/trigger quick filters, two detail pages, two menu entries).
 
 ### Task 4: Dashboard widgets — trajecten per status + overdue-steps KPI
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-011-griffie-progress-dashboard`
@@ -37,8 +40,9 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN per-status traject counts and the overdue-steps KPI come from declarative source aggregations (no imperative counting endpoint) and each widget routes to the pre-filtered index
   - GIVEN the widget filter DSL lacks a relative-now or array-predicate token for the overdue cut WHEN implementing THEN the documented fallback applies (count non-terminal trajecten and cut overdue on the pre-filtered index — never a silently wrong count) and the resolution is recorded in the PR
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `onboarding-open` and `offboarding-open` stat tiles (count of unfinished records, `lifecycle in [started, in-execution]`, each routing to its index pre-filtered to the same set) and the `member-pathways-by-status` block (one scalar count per state per schema) on the Dashboard, placed in both the full and the simple layout; Dutch labels in `l10n/nl.json`. Overdue cut: the widget filter DSL has no array predicate over `steps[].dueDate`, so the documented fallback applies: the tiles count unfinished records and never claim to count overdue steps; the overdue steps show per record on the pre-filtered index. `tests/vitest/memberPathwayWidgets.spec.js`.
 
 ### Task 5: Provisioning service — account linkage, group assignment, fail-closed revocation
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning` (+ REQ-MOB-008)
