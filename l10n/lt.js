@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Neeilinis susirinkimas",
         "Committee meeting": "Komiteto posėdis",
         "Public hearing": "Viešasis svarstymas",
-        "General assembly": "Visuotinis susirinkimas"
+        "General assembly": "Visuotinis susirinkimas",
+        "Members' ancillary positions": "Narių papildomos pareigos"
     },
     "nplurals=2; plural=(n != 1);"
 )

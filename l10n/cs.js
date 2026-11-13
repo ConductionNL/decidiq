@@ -3321,7 +3321,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Mimořádná schůze",
         "Committee meeting": "Schůze výboru",
         "Public hearing": "Veřejné slyšení",
-        "General assembly": "Valná hromada"
+        "General assembly": "Valná hromada",
+        "Members' ancillary positions": "Vedlejší funkce členů"
     },
     "nplurals=2; plural=(n != 1);"
 )

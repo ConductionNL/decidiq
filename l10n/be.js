@@ -3321,7 +3321,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Пазачарговае пасяджэнне",
         "Committee meeting": "Пасяджэнне камісіі",
         "Public hearing": "Публічныя слуханні",
-        "General assembly": "Агульны сход"
+        "General assembly": "Агульны сход",
+        "Members' ancillary positions": "Пабочныя пасады членаў"
     },
     "nplurals=2; plural=(n != 1);"
 )

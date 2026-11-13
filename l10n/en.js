@@ -3336,7 +3336,8 @@ OC.L10N.register(
         "What the voting group is for.": "What the voting group is for.",
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
-        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens."
+        "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
+        "Members' ancillary positions": "Members' ancillary positions"
     },
     "nplurals=2; plural=(n != 1);"
 )

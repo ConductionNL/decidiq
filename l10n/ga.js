@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Cruinniú urghnách",
         "Committee meeting": "Cruinniú coiste",
         "Public hearing": "Éisteacht phoiblí",
-        "General assembly": "Comhthionól ginearálta"
+        "General assembly": "Comhthionól ginearálta",
+        "Members' ancillary positions": "Poist choimhdeacha na gcomhaltaí"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3351,7 +3351,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Izvanredni sastanak",
         "Committee meeting": "Sastanak povjerenstva",
         "Public hearing": "Javno saslušanje",
-        "General assembly": "Glavna skupština"
+        "General assembly": "Glavna skupština",
+        "Members' ancillary positions": "Sporedne funkcije članova"
     },
     "nplurals=2; plural=(n != 1);"
 )

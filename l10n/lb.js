@@ -3321,7 +3321,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ausseruerdentlech Sëtzung",
         "Committee meeting": "Kommissiounssëtzung",
         "Public hearing": "Ëffentlech Hearing",
-        "General assembly": "Generalversammlung"
+        "General assembly": "Generalversammlung",
+        "Members' ancillary positions": "Niewefunktioune vun de Memberen"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3754,7 +3754,8 @@ OC.L10N.register(
         "What the voting group is for.": "Waarvoor de stemgroep dient.",
         "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
         "The people in the group.": "De personen in de groep.",
-        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde."
+        "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
+        "Members' ancillary positions": "Nevenfuncties van leden"
     },
     "nplurals=2; plural=(n != 1);"
 )

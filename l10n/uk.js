@@ -3321,7 +3321,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Позачергове засідання",
         "Committee meeting": "Засідання комісії",
         "Public hearing": "Громадські слухання",
-        "General assembly": "Загальні збори"
+        "General assembly": "Загальні збори",
+        "Members' ancillary positions": "Побічні посади членів"
     },
     "nplurals=2; plural=(n != 1);"
 )
