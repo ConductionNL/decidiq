@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MailVoteSignerInterface;
 use OCP\IAppConfig;
 
 /**
@@ -39,7 +40,7 @@ use OCP\IAppConfig;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  */
-class MailVoteSigner {
+class MailVoteSigner implements MailVoteSignerInterface {
 
 	/**
 	 * HMAC algorithm used for _mail entry signatures.

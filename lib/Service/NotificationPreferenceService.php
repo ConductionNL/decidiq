@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 use DateTime;
 use DateTimeImmutable;
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCP\IURLGenerator;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
@@ -40,7 +41,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
  */
-class NotificationPreferenceService {
+class NotificationPreferenceService implements NotificationPreferenceServiceInterface {
 
 	/**
 	 * Default preferences when no record exists for a person.

@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\DecisionConcludedEvent;
+use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
 use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -53,7 +54,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/decision-management/spec.md
  */
-class DecisionLifecycleService {
+class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	/**
 	 * Terminal-outcome lifecycle states that conclude a delegated decision.
 	 *

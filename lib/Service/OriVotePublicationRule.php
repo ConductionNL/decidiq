@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\OriVotePublicationRuleInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -42,7 +43,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */
-class OriVotePublicationRule {
+class OriVotePublicationRule implements OriVotePublicationRuleInterface {
 
 	/**
 	 * How many ballots or rounds one collection request reads.

@@ -25,8 +25,8 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\BackgroundJob\ConvertPaperToPdfJob;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\ListenerSchemaResolver;
-use OCA\Decidiq\Service\PublicationEventRecorder;
+use OCA\Decidiq\Kernel\Contracts\ListenerSchemaResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicationEventRecorderInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\BackgroundJob\IJobList;
 use OCP\EventDispatcher\Event;
@@ -79,9 +79,9 @@ class OfficePaperAddedListener implements IEventListener {
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service.
 	 * @param IJobList               $jobList       The background job list.
 	 * @param IAppConfig             $appConfig     The app config.
-	 * @param ListenerSchemaResolver $schemaResolver Reads an object's schema slug.
+	 * @param ListenerSchemaResolverInterface $schemaResolver Reads an object's schema slug.
 	 * @param LoggerInterface        $logger        The logger.
-	 * @param PublicationEventRecorder $eventRecorder Reports a new paper to subscribers.
+	 * @param PublicationEventRecorderInterface $eventRecorder Reports a new paper to subscribers.
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-001-an-office-paper-added-to-a-meeting-or-agenda-item-is-converted-to-pdf
 	 */
@@ -89,9 +89,9 @@ class OfficePaperAddedListener implements IEventListener {
 		private readonly ObjectServiceInterface $objectService,
 		private readonly IJobList $jobList,
 		private readonly IAppConfig $appConfig,
-		private readonly ListenerSchemaResolver $schemaResolver,
+		private readonly ListenerSchemaResolverInterface $schemaResolver,
 		private readonly LoggerInterface $logger,
-		private readonly PublicationEventRecorder $eventRecorder,
+		private readonly PublicationEventRecorderInterface $eventRecorder,
 	) {
 	}//end __construct()
 

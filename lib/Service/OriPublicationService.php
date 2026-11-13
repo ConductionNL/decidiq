@@ -27,6 +27,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -41,7 +42,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
  */
-class OriPublicationService {
+class OriPublicationService implements OriPublicationServiceInterface {
 	/**
 	 * Construct the OriPublicationService.
 	 *

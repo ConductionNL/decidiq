@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\PublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\App\IAppManager;
 use Psr\Log\LoggerInterface;
@@ -48,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationService {
+class PublicationService implements PublicationServiceInterface {
 
 	/**
 	 * OpenRegister persistence gateway for the publication flow.

@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\VotingService;
+use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -43,7 +43,7 @@ class ProjectionController extends Controller {
 	 * Constructor for ProjectionController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingService $votingService The voting service
+	 * @param VotingServiceInterface $votingService The voting service
 	 *
 	 * @return void
 	 *
@@ -51,7 +51,7 @@ class ProjectionController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingService $votingService,
+		private readonly VotingServiceInterface $votingService,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 

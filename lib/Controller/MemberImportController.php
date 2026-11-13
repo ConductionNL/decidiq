@@ -25,7 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\MemberImportService;
+use OCA\Decidiq\Kernel\Contracts\MemberImportServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -49,11 +49,11 @@ class MemberImportController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request object.
-	 * @param MemberImportService $memberImportService The member import service.
+	 * @param MemberImportServiceInterface $memberImportService The member import service.
 	 */
 	public function __construct(
 		IRequest $request,
-		private MemberImportService $memberImportService,
+		private MemberImportServiceInterface $memberImportService,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()

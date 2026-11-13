@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -55,13 +55,13 @@ class AuditLogController extends Controller {
 	 * Constructor for AuditLogController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param AuditLogService $auditLogService The audit log service
+	 * @param AuditLogServiceInterface $auditLogService The audit log service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager NC group manager (admin check)
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AuditLogService $auditLogService,
+		private readonly AuditLogServiceInterface $auditLogService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {

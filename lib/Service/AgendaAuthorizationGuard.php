@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -48,7 +49,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
-class AgendaAuthorizationGuard {
+class AgendaAuthorizationGuard implements AgendaAuthorizationGuardInterface {
 	/**
 	 * Construct the AgendaAuthorizationGuard.
 	 *

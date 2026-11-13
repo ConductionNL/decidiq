@@ -28,7 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
 use OCA\Decidiq\Service\IEIDASSignatureService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -51,13 +51,13 @@ class EIDASSignatureController extends Controller {
 	 * @param IRequest $request HTTP request
 	 * @param IEIDASSignatureService $signatureService eIDAS adapter
 	 * @param IUserSession $userSession User session
-	 * @param GovernanceScopeGuard $scopeGuard Consumes the OR-projected signatory scope (R-4)
+	 * @param GovernanceScopeGuardInterface $scopeGuard Consumes the OR-projected signatory scope (R-4)
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IEIDASSignatureService $signatureService,
 		private readonly IUserSession $userSession,
-		private readonly GovernanceScopeGuard $scopeGuard,
+		private readonly GovernanceScopeGuardInterface $scopeGuard,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()

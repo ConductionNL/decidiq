@@ -25,7 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\DecisionConcludedEvent;
-use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use OCA\OpenRegister\Db\FlowRun;
 use OCA\OpenRegister\Db\FlowRunMapper;
 use OCA\OpenRegister\Service\Flow\FlowResumeState;
@@ -60,7 +60,7 @@ class FlowDecisionConcludedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param FlowDecisionService $decisions Reads the run reference back
+	 * @param FlowDecisionServiceInterface $decisions Reads the run reference back
 	 * @param FlowRunMapper $runs Finds the run
 	 * @param FlowRunSignalService $signals OpenRegister's guarded signal seam
 	 * @param LoggerInterface $logger Logger
@@ -68,7 +68,7 @@ class FlowDecisionConcludedListener implements IEventListener {
 	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
 	 */
 	public function __construct(
-		private readonly FlowDecisionService $decisions,
+		private readonly FlowDecisionServiceInterface $decisions,
 		private readonly FlowRunMapper $runs,
 		private readonly FlowRunSignalService $signals,
 		private readonly LoggerInterface $logger,
@@ -89,7 +89,7 @@ class FlowDecisionConcludedListener implements IEventListener {
 			return;
 		}
 
-		if ($event->getSourceApp() !== FlowDecisionService::SOURCE_APP) {
+		if ($event->getSourceApp() !== FlowDecisionServiceInterface::SOURCE_APP) {
 			return;
 		}
 

@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\DecisionLifecycleService;
+use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
 use OCA\Decidiq\Service\DecisionPublicationService;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
@@ -63,7 +63,7 @@ class DecisionController extends Controller {
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param LoggerInterface $logger The logger (handed to the publication service)
-	 * @param DecisionLifecycleService $lifecycleService Guarded decision state machine
+	 * @param DecisionLifecycleServiceInterface $lifecycleService Guarded decision state machine
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-6.2
 	 */
@@ -73,7 +73,7 @@ class DecisionController extends Controller {
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
 		LoggerInterface $logger,
-		private DecisionLifecycleService $lifecycleService,
+		private DecisionLifecycleServiceInterface $lifecycleService,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);

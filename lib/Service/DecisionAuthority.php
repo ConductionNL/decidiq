@@ -34,6 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionAuthorityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-the-decisions-leaf-says-whether-the-drafter-may-take-the-decision
  */
-class DecisionAuthority {
+class DecisionAuthority implements DecisionAuthorityInterface {
 
 	/**
 	 * Schema slug of the allocation rows the check answers with.

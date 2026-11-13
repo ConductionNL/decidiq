@@ -27,12 +27,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\RecordingRangeInterface;
+
 /**
  * One byte range of a file, as a player asks for it.
  *
  * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
  */
-class RecordingRange {
+class RecordingRange implements RecordingRangeInterface {
 	/**
 	 * The byte range a Range header asks for.
 	 *

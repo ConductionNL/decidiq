@@ -28,7 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\MultilingualReconciliationService;
+use OCA\Decidiq\Kernel\Contracts\MultilingualReconciliationServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -54,12 +54,12 @@ class TranslationQueueJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory $time Nextcloud time factory
-	 * @param MultilingualReconciliationService $reconciler Reconciliation service
+	 * @param MultilingualReconciliationServiceInterface $reconciler Reconciliation service
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly MultilingualReconciliationService $reconciler,
+		private readonly MultilingualReconciliationServiceInterface $reconciler,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

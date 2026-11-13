@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\SystemWhenNobodySignedInInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserSession;
 
@@ -37,7 +38,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
  */
-class SystemWhenNobodySignedIn {
+class SystemWhenNobodySignedIn implements SystemWhenNobodySignedInInterface {
 
 	/**
 	 * Constructor.

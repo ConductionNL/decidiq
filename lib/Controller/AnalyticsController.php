@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\ActionItemAnalyticsService;
+use OCA\Decidiq\Kernel\Contracts\ActionItemAnalyticsServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -48,14 +48,14 @@ class AnalyticsController extends Controller {
 	 * Constructor for AnalyticsController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param ActionItemAnalyticsService $analyticsService The analytics service
+	 * @param ActionItemAnalyticsServiceInterface $analyticsService The analytics service
 	 * @param IUserSession $userSession The current user session
 	 *
 	 * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private ActionItemAnalyticsService $analyticsService,
+		private ActionItemAnalyticsServiceInterface $analyticsService,
 		private IUserSession $userSession,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);

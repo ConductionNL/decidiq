@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\OpenRegister\Db\RegisterMapper;
 use OCA\OpenRegister\Db\SchemaMapper;
 use OCA\OpenRegister\Service\TaskService;
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
-class ActionItemWriter {
+class ActionItemWriter implements ActionItemWriterInterface {
 
 	/**
 	 * The Decidiq register slug.

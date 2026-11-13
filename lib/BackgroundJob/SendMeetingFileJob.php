@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\CaseSystemExchangeService;
+use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
@@ -40,14 +40,14 @@ class SendMeetingFileJob extends QueuedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory              $time     Clock.
-	 * @param CaseSystemExchangeService $exchange The exchange.
+	 * @param CaseSystemExchangeServiceInterface $exchange The exchange.
 	 * @param LoggerInterface           $logger   Logger.
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-005-the-meeting-file-goes-back-to-the-case-system-after-approval
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly CaseSystemExchangeService $exchange,
+		private readonly CaseSystemExchangeServiceInterface $exchange,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

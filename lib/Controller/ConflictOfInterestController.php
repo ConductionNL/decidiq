@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\Decidiq\Service\ConflictDeclaration;
-use OCA\Decidiq\Service\ConflictOfInterestService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,13 +46,13 @@ class ConflictOfInterestController extends Controller {
 	 * Constructor for ConflictOfInterestController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param ConflictOfInterestService $conflictService The conflict service
+	 * @param ConflictOfInterestServiceInterface $conflictService The conflict service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager Group manager (for admin bypass on the authorization guard)
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConflictOfInterestService $conflictService,
+		private readonly ConflictOfInterestServiceInterface $conflictService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {

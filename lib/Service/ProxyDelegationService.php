@@ -33,6 +33,7 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\ProxyDelegationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -47,7 +48,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.1
  */
-class ProxyDelegationService {
+class ProxyDelegationService implements ProxyDelegationServiceInterface {
 	/**
 	 * Participant roles that may never receive a proxy.
 	 *

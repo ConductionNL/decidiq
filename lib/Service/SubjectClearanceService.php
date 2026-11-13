@@ -41,12 +41,14 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\SubjectClearanceServiceInterface;
+
 /**
  * Answers whether a subject's required routes have all concluded.
  *
  * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
  */
-final class SubjectClearanceService {
+final class SubjectClearanceService implements SubjectClearanceServiceInterface {
 	/**
 	 * The stage statuses that mean a route is still going.
 	 *

@@ -27,8 +27,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
-use OCA\Decidiq\Service\ApprovalRouteCommandService;
-use OCA\Decidiq\Service\ApprovalRouteService;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
 use OCA\Decidiq\Service\HeldRouteRequest;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
@@ -47,15 +47,15 @@ class ApprovalRouteRequestedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param ApprovalRouteCommandService $commandService The idempotent upsert engine.
+	 * @param ApprovalRouteCommandServiceInterface $commandService The idempotent upsert engine.
 	 * @param LoggerInterface             $logger         Logger.
-	 * @param ApprovalRouteService        $engine         The route engine, for a
+	 * @param ApprovalRouteServiceInterface        $engine         The route engine, for a
 	 *        route held from named people rather than from a template.
 	 */
 	public function __construct(
-		private readonly ApprovalRouteCommandService $commandService,
+		private readonly ApprovalRouteCommandServiceInterface $commandService,
 		private readonly LoggerInterface $logger,
-		private readonly ApprovalRouteService $engine,
+		private readonly ApprovalRouteServiceInterface $engine,
 	) {
 	}//end __construct()
 

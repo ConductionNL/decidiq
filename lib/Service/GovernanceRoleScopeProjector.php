@@ -36,6 +36,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\GovernanceRoleScopeProjectorInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroup;
 use OCP\IGroupManager;
@@ -48,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
  */
-class GovernanceRoleScopeProjector {
+class GovernanceRoleScopeProjector implements GovernanceRoleScopeProjectorInterface {
 
 	/**
 	 * Roles that grant chair scope membership.

@@ -35,8 +35,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\DecisionStateRequestedEvent;
-use OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard;
-use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -69,13 +69,13 @@ class DecisionStateRequestedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param DecisionIntegrationService $integrationService The reused envelope derivation
-	 * @param DecisionIntegrationAuthorizationGuard $authorizationGuard The reused outcome-read rule (REQ-DCDH-101)
+	 * @param DecisionIntegrationServiceInterface $integrationService The reused envelope derivation
+	 * @param DecisionIntegrationAuthorizationGuardInterface $authorizationGuard The reused outcome-read rule (REQ-DCDH-101)
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
-		private readonly DecisionIntegrationService $integrationService,
-		private readonly DecisionIntegrationAuthorizationGuard $authorizationGuard,
+		private readonly DecisionIntegrationServiceInterface $integrationService,
+		private readonly DecisionIntegrationAuthorizationGuardInterface $authorizationGuard,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -177,7 +177,7 @@ class DecisionStateRequestedListener implements IEventListener {
 			callerUid: trim($event->getActorId())
 		);
 
-		if ($access === DecisionIntegrationAuthorizationGuard::READ_UNRESOLVED) {
+		if ($access === DecisionIntegrationAuthorizationGuardInterface::READ_UNRESOLVED) {
 			$this->logger->warning(
 				'Decidiq: could not resolve a Decision for a state read; leaving it unanswered',
 				$this->readContext(event: $event, decisionId: $decisionId)
@@ -185,7 +185,7 @@ class DecisionStateRequestedListener implements IEventListener {
 			return false;
 		}
 
-		if ($access !== DecisionIntegrationAuthorizationGuard::READ_ALLOWED) {
+		if ($access !== DecisionIntegrationAuthorizationGuardInterface::READ_ALLOWED) {
 			$this->logger->warning('Decidiq: refused a decision-state read', $this->readContext(event: $event, decisionId: $decisionId));
 			$event->setHandled(true);
 			return false;

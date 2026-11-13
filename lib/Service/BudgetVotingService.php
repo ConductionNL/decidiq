@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
+use OCA\Decidiq\Kernel\Contracts\BudgetVotingServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -42,7 +43,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class BudgetVotingService {
+class BudgetVotingService implements BudgetVotingServiceInterface {
 	/**
 	 * Constructor for BudgetVotingService.
 	 *

@@ -34,6 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -43,22 +44,7 @@ use Throwable;
  *
  * @spec openspec/specs/flow-request-decision/spec.md
  */
-class FlowDecisionService {
-
-	/**
-	 * The provenance a flow-raised decision carries as its `sourceApp`.
-	 *
-	 * FROZEN once decisions exist. `FlowDecisionConcludedListener` wakes a run
-	 * only for a conclusion carrying this value, and decidiq's idempotency key
-	 * includes it, so renaming it orphans every in-flight flow decision from
-	 * its wake (the heartbeat would still recover them, a heartbeat later).
-	 *
-	 * Distinct from `procest`, the value dossiq's delegation stamps, so dossiq's
-	 * conclusion listener never projects a flow decision into a ZGW besluit.
-	 *
-	 * @var string
-	 */
-	public const SOURCE_APP = 'decidiq-flow';
+class FlowDecisionService implements FlowDecisionServiceInterface {
 
 	/**
 	 * The prefix of the external reference a flow decision carries:
@@ -69,47 +55,11 @@ class FlowDecisionService {
 	private const RUN_REFERENCE_PREFIX = 'flow-run:';
 
 	/**
-	 * The read could not be answered: OpenRegister unavailable, or the lookup
-	 * failed. NEVER "there is no such decision".
-	 *
-	 * @var string
-	 */
-	public const STATE_UNREADABLE = 'unreadable';
-
-	/**
-	 * The decision exists and the identity named may not read it.
-	 *
-	 * @var string
-	 */
-	public const STATE_REFUSED = 'refused';
-
-	/**
-	 * The read was allowed and no decision carries that id.
-	 *
-	 * @var string
-	 */
-	public const STATE_GONE = 'gone';
-
-	/**
 	 * The decision exists and has not been concluded.
 	 *
 	 * @var string
 	 */
 	public const STATE_OPEN = 'open';
-
-	/**
-	 * The decision was concluded with an outcome: `approved` or `rejected`.
-	 *
-	 * @var string
-	 */
-	public const STATE_DECIDED = 'decided';
-
-	/**
-	 * The decision reached a terminal state carrying no answer.
-	 *
-	 * @var string
-	 */
-	public const STATE_WITHDRAWN = 'withdrawn';
 
 	/**
 	 * Constructor.

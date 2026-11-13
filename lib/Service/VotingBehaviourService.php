@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Contract\RegisterSlugResolverInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -41,7 +42,7 @@ use OCP\AppFramework\Db\DoesNotExistException;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
  */
-class VotingBehaviourService {
+class VotingBehaviourService implements VotingBehaviourServiceInterface {
 
 	/**
 	 * The canonical slug of the register this service reads.

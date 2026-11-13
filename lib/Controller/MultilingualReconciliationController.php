@@ -26,7 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\MultilingualReconciliationService;
+use OCA\Decidiq\Kernel\Contracts\MultilingualReconciliationServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -49,13 +49,13 @@ class MultilingualReconciliationController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param MultilingualReconciliationService $reconciler Reconciliation service
+	 * @param MultilingualReconciliationServiceInterface $reconciler Reconciliation service
 	 * @param IUserSession $userSession User session
 	 * @param IGroupManager $groupManager Group manager
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MultilingualReconciliationService $reconciler,
+		private readonly MultilingualReconciliationServiceInterface $reconciler,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {

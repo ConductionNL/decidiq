@@ -31,6 +31,7 @@ use DateInterval;
 use DateTimeImmutable;
 use Generator;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\MeetingSeriesServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -45,7 +46,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/meeting-management/spec.md
  */
-class MeetingSeriesService {
+class MeetingSeriesService implements MeetingSeriesServiceInterface {
 
 	/**
 	 * Hard cap on the number of generated instances (REQ-MSR-001-S3).

@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\MotionServiceInterface;
 use OCA\Decidiq\Lifecycle\MotionLifecycleTransitioner;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IUserManager;
@@ -40,7 +41,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-1
  */
-class MotionService {
+class MotionService implements MotionServiceInterface {
 
 	/**
 	 * The amendment side of a motion.

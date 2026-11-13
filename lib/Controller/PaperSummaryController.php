@@ -30,7 +30,7 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Exception\PaperSummaryRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\PaperSummaryService;
+use OCA\Decidiq\Kernel\Contracts\PaperSummaryServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,13 +48,13 @@ class PaperSummaryController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest            $request   The request
-	 * @param PaperSummaryService $summaries Checks, schedules and saves
+	 * @param PaperSummaryServiceInterface $summaries Checks, schedules and saves
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly PaperSummaryService $summaries,
+		private readonly PaperSummaryServiceInterface $summaries,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()

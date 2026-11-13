@@ -29,10 +29,10 @@ namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\MinutesDraftService;
-use OCA\Decidiq\Service\TranscriptionQueue;
-use OCA\Decidiq\Service\TranscriptionService;
-use OCA\Decidiq\Service\TranscriptionStaffGuard;
+use OCA\Decidiq\Kernel\Contracts\MinutesDraftServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionQueueInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -54,19 +54,19 @@ class TranscriptionController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request.
-	 * @param TranscriptionService $transcriptionService Transcription orchestration.
-	 * @param MinutesDraftService $minutesDraftService AI draft generation.
-	 * @param TranscriptionStaffGuard $staffGuard Per-object staff authorization.
-	 * @param TranscriptionQueue $queue Asynchronous transcription hand-off.
+	 * @param TranscriptionServiceInterface $transcriptionService Transcription orchestration.
+	 * @param MinutesDraftServiceInterface $minutesDraftService AI draft generation.
+	 * @param TranscriptionStaffGuardInterface $staffGuard Per-object staff authorization.
+	 * @param TranscriptionQueueInterface $queue Asynchronous transcription hand-off.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly TranscriptionService $transcriptionService,
-		private readonly MinutesDraftService $minutesDraftService,
-		private readonly TranscriptionStaffGuard $staffGuard,
-		private readonly TranscriptionQueue $queue,
+		private readonly TranscriptionServiceInterface $transcriptionService,
+		private readonly MinutesDraftServiceInterface $minutesDraftService,
+		private readonly TranscriptionStaffGuardInterface $staffGuard,
+		private readonly TranscriptionQueueInterface $queue,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 

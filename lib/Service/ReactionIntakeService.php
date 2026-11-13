@@ -28,6 +28,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ReactionIntakeServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ use Throwable;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ReactionIntakeService {
+class ReactionIntakeService implements ReactionIntakeServiceInterface {
 
 	/**
 	 * Maximum reaction body length in bytes (server-side payload cap).

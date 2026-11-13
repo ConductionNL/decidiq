@@ -29,15 +29,15 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\SeedProfileServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
-use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AuthorizedAdminSetting;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
 use OCP\IRequest;
 use Psr\Log\LoggerInterface;
-use OCA\Decidiq\Service\SeedProfileService;
 
 /**
  * First-time setup wizard endpoints.
@@ -85,7 +85,7 @@ class SetupController extends Controller {
 	 * @param IRequest           $request      The request.
 	 * @param IAppConfig         $appConfig    Records the operator's answer.
 	 * @param LoggerInterface    $logger       Records a failed import.
-	 * @param SeedProfileService $seedProfiles Lists and imports the example sets.
+	 * @param SeedProfileServiceInterface $seedProfiles Lists and imports the example sets.
 	 *
 	 * @return void
 	 */
@@ -93,7 +93,7 @@ class SetupController extends Controller {
 		IRequest $request,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
-		private readonly SeedProfileService $seedProfiles,
+		private readonly SeedProfileServiceInterface $seedProfiles,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
@@ -247,7 +247,7 @@ class SetupController extends Controller {
 	private function withoutNoneBesideASet(array $profileIds): array {
 		if (count($profileIds) > 1) {
 			return array_values(
-				array_filter($profileIds, static fn (string $id): bool => $id !== SeedProfileService::NONE_PROFILE)
+				array_filter($profileIds, static fn (string $id): bool => $id !== SeedProfileServiceInterface::NONE_PROFILE)
 			);
 		}
 
@@ -282,7 +282,7 @@ class SetupController extends Controller {
 	 * @return boolean True when it names a set, or declines one.
 	 */
 	private function isSelectableProfile(string $profileId): bool {
-		if ($profileId === SeedProfileService::NONE_PROFILE) {
+		if ($profileId === SeedProfileServiceInterface::NONE_PROFILE) {
 			return true;
 		}
 
@@ -312,7 +312,7 @@ class SetupController extends Controller {
 		// Skipping IS choosing none, so it records that choice as well as the
 		// decision: an older runbook may read either key.
 		if ($actionId === 'skip-example-set') {
-			$this->appConfig->setValueString(AppIdentity::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, self::PROFILE_KEY, SeedProfileServiceInterface::NONE_PROFILE);
 			$this->appConfig->setValueString(AppIdentity::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
 
 			return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
@@ -411,7 +411,7 @@ class SetupController extends Controller {
 			);
 		}
 
-		if ($profileIds === [SeedProfileService::NONE_PROFILE]) {
+		if ($profileIds === [SeedProfileServiceInterface::NONE_PROFILE]) {
 			return $this->recordNoExampleData();
 		}
 
@@ -427,7 +427,7 @@ class SetupController extends Controller {
 	 * @spec openspec/specs/first-time-setup/spec.md
 	 */
 	private function recordNoExampleData(): JSONResponse {
-		$this->appConfig->setValueString(AppIdentity::APP_ID, self::PROFILE_KEY, SeedProfileService::NONE_PROFILE);
+		$this->appConfig->setValueString(AppIdentity::APP_ID, self::PROFILE_KEY, SeedProfileServiceInterface::NONE_PROFILE);
 		$this->appConfig->setValueString(AppIdentity::APP_ID, self::DEMO_DECIDED_KEY, 'skipped');
 
 		return new JSONResponse(data: ['success' => true, 'message' => 'No example data was loaded.']);
@@ -520,7 +520,7 @@ class SetupController extends Controller {
 		$picks = array_values(
 			array_filter(
 				array_unique(array_merge($this->pickedProfiles(), $imported)),
-				static fn (string $id): bool => $id !== SeedProfileService::NONE_PROFILE
+				static fn (string $id): bool => $id !== SeedProfileServiceInterface::NONE_PROFILE
 			)
 		);
 		$this->appConfig->setValueString(AppIdentity::APP_ID, self::PROFILE_KEY, implode(',', $picks));

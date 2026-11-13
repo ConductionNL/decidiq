@@ -42,6 +42,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeInterface;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
+use OCA\Decidiq\Kernel\Contracts\BroadcastCaptionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Constants;
@@ -55,7 +56,7 @@ use OCP\Share\IShare;
  *
  * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-006-subtitles-for-the-recording-come-from-the-aligned-transcript-and-cover-only-the-public-windows
  */
-class BroadcastCaptionService {
+class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 	/**
 	 * The meeting subfolder the caption files go to.
 	 */

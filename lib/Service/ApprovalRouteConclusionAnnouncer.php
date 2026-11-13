@@ -42,6 +42,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\ApprovalRouteConcludedEvent;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -51,7 +52,7 @@ use Throwable;
  *
  * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalRouteConclusionAnnouncer {
+class ApprovalRouteConclusionAnnouncer implements ApprovalRouteConclusionAnnouncerInterface {
 
 	/**
 	 * Constructor.

@@ -51,8 +51,8 @@ namespace OCA\Decidiq\Portal;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\Service\PublicMeetingRecords;
-use OCA\Decidiq\Service\PublicVotingRecords;
+use OCA\Decidiq\Kernel\Contracts\PublicMeetingRecordsInterface;
+use OCA\Decidiq\Kernel\Contracts\PublicVotingRecordsInterface;
 use OCP\L10N\IFactory;
 
 /**
@@ -345,16 +345,16 @@ class PortalContributionProvider {
 	 * portaliq and without a container (amendment A1).
 	 *
 	 * @param IFactory|null             $l10nFactory    Puts the labels in the reader's language (PortalLabelTranslator).
-	 * @param PublicVotingRecords|null  $votingRecords  The public members and their votes (memberVotingRecords).
-	 * @param PublicMeetingRecords|null $meetingRecords The published meetings and decisions.
+	 * @param PublicVotingRecordsInterface|null  $votingRecords  The public members and their votes (memberVotingRecords).
+	 * @param PublicMeetingRecordsInterface|null $meetingRecords The published meetings and decisions.
 	 *
 	 * @spec openspec/specs/portal-contribution/spec.md
 	 * @spec openspec/specs/portal-contribution/spec.md
 	 */
 	public function __construct(
 		private readonly ?IFactory $l10nFactory=null,
-		private readonly ?PublicVotingRecords $votingRecords=null,
-		private readonly ?PublicMeetingRecords $meetingRecords=null,
+		private readonly ?PublicVotingRecordsInterface $votingRecords=null,
+		private readonly ?PublicMeetingRecordsInterface $meetingRecords=null,
 	) {
 	}//end __construct()
 

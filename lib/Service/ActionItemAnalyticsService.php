@@ -25,6 +25,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTime;
+use OCA\Decidiq\Kernel\Contracts\ActionItemAnalyticsServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -40,7 +41,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-06-10-migrate-engagement-analytics-to-analytics-leaf/tasks.md#task-3.2
  */
-class ActionItemAnalyticsService {
+class ActionItemAnalyticsService implements ActionItemAnalyticsServiceInterface {
 	/**
 	 * Constructor.
 	 *

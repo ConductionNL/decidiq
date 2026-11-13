@@ -29,7 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Migration;
 
 use Closure;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use Psr\Container\ContainerInterface;
 use Throwable;
@@ -43,11 +43,11 @@ final class SystemMigrationRunner {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Tells whether OpenRegister is available
+	 * @param SettingsServiceInterface    $settingsService Tells whether OpenRegister is available
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 	) {
 	}//end __construct()

@@ -34,10 +34,10 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\BudgetVotingService;
-use OCA\Decidiq\Service\ParticipationLifecycleService;
-use OCA\Decidiq\Service\ParticipationPublicationService;
-use OCA\Decidiq\Service\ParticipationResponder;
+use OCA\Decidiq\Kernel\Contracts\BudgetVotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationLifecycleServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationPublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationResponderInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -58,10 +58,10 @@ class ParticipationBudgetController extends Controller {
 	 * Constructor for ParticipationBudgetController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param ParticipationLifecycleService $lifecycleService Lifecycle transitions
-	 * @param BudgetVotingService $budgetService Proposals + advisory voting
-	 * @param ParticipationPublicationService $publicationService Result publication
-	 * @param ParticipationResponder $responder Guard + response mapping
+	 * @param ParticipationLifecycleServiceInterface $lifecycleService Lifecycle transitions
+	 * @param BudgetVotingServiceInterface $budgetService Proposals + advisory voting
+	 * @param ParticipationPublicationServiceInterface $publicationService Result publication
+	 * @param ParticipationResponderInterface $responder Guard + response mapping
 	 *
 	 * @return void
 	 *
@@ -69,10 +69,10 @@ class ParticipationBudgetController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ParticipationLifecycleService $lifecycleService,
-		private readonly BudgetVotingService $budgetService,
-		private readonly ParticipationPublicationService $publicationService,
-		private readonly ParticipationResponder $responder,
+		private readonly ParticipationLifecycleServiceInterface $lifecycleService,
+		private readonly BudgetVotingServiceInterface $budgetService,
+		private readonly ParticipationPublicationServiceInterface $publicationService,
+		private readonly ParticipationResponderInterface $responder,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 

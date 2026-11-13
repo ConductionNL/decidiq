@@ -42,6 +42,7 @@ namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\ParticipationValidationException;
 use OCA\Decidiq\Exception\ParticipationWindowClosedException;
+use OCA\Decidiq\Kernel\Contracts\ParticipationResponderInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 
@@ -50,7 +51,7 @@ use OCP\AppFramework\Http\JSONResponse;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ParticipationResponder {
+class ParticipationResponder implements ParticipationResponderInterface {
 	/**
 	 * Constructor for ParticipationResponder.
 	 *

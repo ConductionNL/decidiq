@@ -31,9 +31,9 @@ namespace OCA\Decidiq\Controller;
 use Closure;
 use OCA\Decidiq\Exception\BroadcastRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\BroadcastCaptionService;
-use OCA\Decidiq\Service\MeetingBroadcastService;
-use OCA\Decidiq\Service\TranscriptionStaffGuard;
+use OCA\Decidiq\Kernel\Contracts\BroadcastCaptionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingBroadcastServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -57,17 +57,17 @@ class BroadcastController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest                $request    The request
-	 * @param MeetingBroadcastService $broadcasts Runs the broadcast
-	 * @param TranscriptionStaffGuard $guard      Chair, secretary or admin of the meeting
-	 * @param BroadcastCaptionService $captions   Makes and releases the subtitles
+	 * @param MeetingBroadcastServiceInterface $broadcasts Runs the broadcast
+	 * @param TranscriptionStaffGuardInterface $guard      Chair, secretary or admin of the meeting
+	 * @param BroadcastCaptionServiceInterface $captions   Makes and releases the subtitles
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MeetingBroadcastService $broadcasts,
-		private readonly TranscriptionStaffGuard $guard,
-		private readonly BroadcastCaptionService $captions,
+		private readonly MeetingBroadcastServiceInterface $broadcasts,
+		private readonly TranscriptionStaffGuardInterface $guard,
+		private readonly BroadcastCaptionServiceInterface $captions,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()

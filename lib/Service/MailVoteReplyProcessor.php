@@ -32,6 +32,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTime;
+use OCA\Decidiq\Kernel\Contracts\MailVoteReplyProcessorInterface;
 use OCP\Notification\IManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -42,7 +43,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.2
  */
-class MailVoteReplyProcessor {
+class MailVoteReplyProcessor implements MailVoteReplyProcessorInterface {
 
 	/**
 	 * Recognised vote keywords mapped to canonical values.

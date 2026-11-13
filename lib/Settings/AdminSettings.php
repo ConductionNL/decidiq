@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Settings;
 
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\PublicationConfigService;
+use OCA\Decidiq\Kernel\Contracts\PublicationConfigServiceInterface;
 use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -49,13 +49,13 @@ class AdminSettings implements IDelegatedSettings {
 	 *
 	 * @param IAppManager $appManager The app manager.
 	 * @param IInitialState $initialState The initial state service.
-	 * @param PublicationConfigService $publicationConfig The publication configuration service.
+	 * @param PublicationConfigServiceInterface $publicationConfig The publication configuration service.
 	 * @param IAppConfig $appConfig App config, read for the structure setting.
 	 */
 	public function __construct(
 		private IAppManager $appManager,
 		private IInitialState $initialState,
-		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
+		private PublicationConfigServiceInterface $publicationConfig,
 		private IAppConfig $appConfig,
 	) {
 	}//end __construct()

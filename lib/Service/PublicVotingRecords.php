@@ -29,6 +29,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicVotingRecordsInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\L10N\IFactory;
@@ -44,7 +45,7 @@ use OCP\L10N\IFactory;
  *
  * @spec openspec/changes/portal-voting-record-and-confidential-papers/specs/portal-contribution/spec.md#requirement-req-psh-001-decidiq-offers-each-public-members-voting-record-to-the-portal-without-a-session
  */
-class PublicVotingRecords {
+class PublicVotingRecords implements PublicVotingRecordsInterface {
 
 	/**
 	 * The register every object lives in.

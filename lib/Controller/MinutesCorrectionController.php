@@ -34,7 +34,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
 use OCA\Decidiq\Kernel\AppIdentity;
-use OCA\Decidiq\Service\MinutesAccessGuard;
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Db\DoesNotExistException;
@@ -54,7 +54,7 @@ class MinutesCorrectionController extends Controller {
 	 * Constructor for MinutesCorrectionController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param MinutesAccessGuard $accessGuard Per-object minutes authorisation
+	 * @param MinutesAccessGuardInterface $accessGuard Per-object minutes authorisation
 	 * @param ObjectServiceInterface $objectService OR object service
 	 * @param IUserSession $userSession The current user session
 	 *
@@ -64,7 +64,7 @@ class MinutesCorrectionController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MinutesAccessGuard $accessGuard,
+		private readonly MinutesAccessGuardInterface $accessGuard,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly IUserSession $userSession,
 	) {
