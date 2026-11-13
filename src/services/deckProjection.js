@@ -240,24 +240,10 @@ export async function projectActionItems({
 		persistCardId
 		|| ((uid, cardId) => updateActionItem(uid, { deckCardId: cardId }))
 	const target = await resolveTarget(schema)
+	const objectPath = deckObjectPath(register, schema, objectId)
+	const linkedCardIds = await fetchLinkedCardIds(objectPath)
 
-	// Cards already linked to this object — used to confirm a stored
-	// deckCardId is still valid (not unlinked/deleted out-of-band).
-	let linkedCardIds = new Set()
-	try {
-		const { data } = await axios.get(
-			generateUrl(
-				`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck`,
-			),
-		)
-		linkedCardIds = new Set((data?.results || []).map((c) => Number(c.cardId)))
-	} catch (e) {
-		// No existing links (or list failed) — treat as none linked yet.
-	}
-
-	let created = 0
-	let skipped = 0
-	const errors = []
+	const result = { created: 0, skipped: 0, errors: [] }
 
 	for (const item of items) {
 		const uid = itemUid(item)
@@ -265,43 +251,106 @@ export async function projectActionItems({
 
 		const existing = Number(item.deckCardId || 0)
 		if (existing && linkedCardIds.has(existing)) {
-			skipped++
+			result.skipped++
 			continue
 		}
 
-		const lane = statusToLane(item.taskStatus)
-		const stackId = target.laneStacks[lane] || target.fallbackStackId
-
-		try {
-			const body = {
-				boardId: target.boardId,
-				stackId,
-				title: String(item.title || 'Action item'),
-				description: `Decidiq action item (${uid})`,
-			}
-			if (item.dueDate) body.duedate = String(item.dueDate)
-
-			const { data } = await axios.post(
-				generateUrl(
-					`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck/new`,
-				),
-				body,
-			)
-			const cardId = Number(data?.cardId || 0)
-			if (cardId) {
-				await writeBack(uid, cardId)
-				linkedCardIds.add(cardId)
-				created++
-			} else {
-				errors.push({ uid, error: 'No card id returned' })
-			}
-		} catch (e) {
-			errors.push({
-				uid,
-				error: e?.response?.data?.error || e?.message || 'Projection failed',
-			})
+		const error = await projectOneItem({
+			item,
+			uid,
+			target,
+			objectPath,
+			linkedCardIds,
+			writeBack,
+		})
+		if (error) {
+			result.errors.push(error)
+		} else {
+			result.created++
 		}
 	}
 
-	return { created, skipped, errors }
+	return result
+}
+
+/**
+ * The OpenRegister path of an object's Deck leaf.
+ *
+ * @param {string} register Register slug or id.
+ * @param {string} schema   Schema slug or id.
+ * @param {string} objectId Object id (uuid).
+ * @return {string} `${orBase}/objects/<register>/<schema>/<objectId>/deck`.
+ */
+function deckObjectPath(register, schema, objectId) {
+	return `${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck`
+}
+
+/**
+ * Cards already linked to the object, used to confirm a stored deckCardId is
+ * still valid (not unlinked/deleted out-of-band).
+ *
+ * @param {string} objectPath The object's Deck-leaf path.
+ * @return {Promise<Set<number>>} The linked card ids; empty when listing fails.
+ */
+async function fetchLinkedCardIds(objectPath) {
+	try {
+		const { data } = await axios.get(generateUrl(objectPath))
+		return new Set((data?.results || []).map((c) => Number(c.cardId)))
+	} catch (e) {
+		// No existing links (or list failed) — treat as none linked yet.
+		return new Set()
+	}
+}
+
+/**
+ * The create-card payload for one action item.
+ *
+ * @param {object} item   The action-item row.
+ * @param {string} uid    Its VTODO uid.
+ * @param {object} target The resolved board/stack target.
+ * @return {object} The request body.
+ */
+function buildCardBody(item, uid, target) {
+	const lane = statusToLane(item.taskStatus)
+	const body = {
+		boardId: target.boardId,
+		stackId: target.laneStacks[lane] || target.fallbackStackId,
+		title: String(item.title || 'Action item'),
+		description: `Decidiq action item (${uid})`,
+	}
+	if (item.dueDate) body.duedate = String(item.dueDate)
+	return body
+}
+
+/**
+ * Create the Deck card for one action item and write its id back.
+ *
+ * @param {object}      params               Parameters.
+ * @param {object}      params.item          The action-item row.
+ * @param {string}      params.uid           Its VTODO uid.
+ * @param {object}      params.target        The resolved board/stack target.
+ * @param {string}      params.objectPath    The object's Deck-leaf path.
+ * @param {Set<number>} params.linkedCardIds Linked card ids; the new id is added.
+ * @param {(uid: string, cardId: number) => Promise<unknown>} params.writeBack Persists the card id onto the VTODO.
+ * @return {Promise<object|null>} An `{uid, error}` entry, or null on success.
+ */
+async function projectOneItem({ item, uid, target, objectPath, linkedCardIds, writeBack }) {
+	try {
+		const { data } = await axios.post(
+			generateUrl(`${objectPath}/new`),
+			buildCardBody(item, uid, target),
+		)
+		const cardId = Number(data?.cardId || 0)
+		if (!cardId) {
+			return { uid, error: 'No card id returned' }
+		}
+		await writeBack(uid, cardId)
+		linkedCardIds.add(cardId)
+		return null
+	} catch (e) {
+		return {
+			uid,
+			error: e?.response?.data?.error || e?.message || 'Projection failed',
+		}
+	}
 }

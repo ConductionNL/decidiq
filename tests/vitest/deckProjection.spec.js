@@ -208,4 +208,78 @@ describe('projectActionItems', () => {
 		expect(res.created).toBe(1)
 		expect(res.errors).toEqual([{ uid: 'u1', error: 'boom' }])
 	})
+	it('skips items without a uid, sends duedate and the default title, and writes no id when none is returned', async () => {
+		wireLeaf()
+		post.mockReset()
+		post.mockImplementationOnce(() => Promise.resolve({ data: {} }))
+			.mockImplementation(() => Promise.resolve({ data: { cardId: 300 } }))
+		const persistCardId = vi.fn().mockResolvedValue({})
+		const items = [
+			{ title: 'No uid', taskStatus: 'open' },
+			{ uuid: 'u1', taskStatus: 'open' },
+			{ uuid: 'u2', title: 'Due', taskStatus: 'done', dueDate: '2026-12-01' },
+		]
+		const res = await projectActionItems({
+			register: 'decidiq',
+			schema: 'decision',
+			objectId: 'obj 1',
+			items,
+			persistCardId,
+		})
+		expect(res).toEqual({
+			created: 1,
+			skipped: 0,
+			errors: [{ uid: 'u1', error: 'No card id returned' }],
+		})
+		expect(post).toHaveBeenCalledTimes(2)
+		expect(post.mock.calls[0][0]).toContain('/objects/decidiq/decision/obj%201/deck/new')
+		expect(post.mock.calls[0][1]).toEqual({
+			boardId: 5,
+			stackId: 11,
+			title: 'Action item',
+			description: 'Decidiq action item (u1)',
+		})
+		expect(post.mock.calls[1][1]).toEqual({
+			boardId: 5,
+			stackId: 13,
+			title: 'Due',
+			description: 'Decidiq action item (u2)',
+			duedate: '2026-12-01',
+		})
+		expect(persistCardId).toHaveBeenCalledTimes(1)
+		expect(persistCardId).toHaveBeenCalledWith('u2', 300)
+	})
+
+	it('treats a failing link listing as nothing linked and falls back to the message', async () => {
+		wireLeaf()
+		const baseGet = get.getMockImplementation()
+		get.mockImplementation((url) =>
+			url.endsWith('/deck') ? Promise.reject(new Error('down')) : baseGet(url),
+		)
+		post.mockReset()
+		post.mockImplementationOnce(() => Promise.reject(new Error('network')))
+			.mockImplementationOnce(() => Promise.reject({}))
+			.mockImplementation(() => Promise.resolve({ data: { cardId: 400 } }))
+		const persistCardId = vi.fn().mockResolvedValue({})
+		const items = [
+			{ uuid: 'u1', title: 'A', taskStatus: 'open' },
+			{ uuid: 'u2', title: 'B', taskStatus: 'open' },
+			{ uuid: 'u3', title: 'C', taskStatus: 'open', deckCardId: 100 },
+		]
+		const res = await projectActionItems({
+			register: 'decidiq',
+			schema: 'decision',
+			objectId: 'obj-1',
+			items,
+			persistCardId,
+		})
+		expect(res).toEqual({
+			created: 1,
+			skipped: 0,
+			errors: [
+				{ uid: 'u1', error: 'network' },
+				{ uid: 'u2', error: 'Projection failed' },
+			],
+		})
+	})
 })
