@@ -288,11 +288,7 @@ class ProxyVoteService {
 	 */
 	public function transition(string $proxyId, string $newStatus, string $actor, ?string $callerUid = null): array {
 		if (in_array($newStatus, self::STATUSES, true) === false) {
-			return [
-				'success' => false,
-				'proxy' => null,
-				'message' => 'Unknown proxy status: ' . $newStatus,
-			];
+			return $this->transitionFailure(message: 'Unknown proxy status: ' . $newStatus);
 		}
 
 		try {
@@ -302,11 +298,7 @@ class ProxyVoteService {
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
-				return [
-					'success' => false,
-					'proxy' => null,
-					'message' => 'Proxy not found.',
-				];
+				return $this->transitionFailure(message: 'Proxy not found.');
 			}
 
 			// `getObject(): array` is on ObjectEntityInterface — the
@@ -314,11 +306,9 @@ class ProxyVoteService {
 			$current = $entity->getObject();
 
 			if ($callerUid !== null && $this->isAuthorizedForTransition(proxy: $current, callerUid: $callerUid) === false) {
-				return [
-					'success' => false,
-					'proxy' => null,
-					'message' => 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.',
-				];
+				return $this->transitionFailure(
+					message: 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.'
+				);
 			}
 
 			$previousStatus = (string)($current['proxyStatus'] ?? '');
@@ -345,11 +335,7 @@ class ProxyVoteService {
 				'Decidiq: ProxyVoteService::transition failed',
 				['exception' => $e->getMessage(), 'proxyId' => $proxyId]
 			);
-			return [
-				'success' => false,
-				'proxy' => null,
-				'message' => 'Failed to transition proxy.',
-			];
+			return $this->transitionFailure(message: 'Failed to transition proxy.');
 		}//end try
 
 		// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could never
@@ -372,6 +358,22 @@ class ProxyVoteService {
 		];
 
 	}//end transition()
+
+	/**
+	 * Build the failure result of transition().
+	 *
+	 * @param string $message Failure message
+	 *
+	 * @return array{success: false, proxy: null, message: string}
+	 */
+	private function transitionFailure(string $message): array {
+		return [
+			'success' => false,
+			'proxy' => null,
+			'message' => $message,
+		];
+
+	}//end transitionFailure()
 
 	/**
 	 * Convenience: suspend a proxy (e.g. grantor joins remotely).
