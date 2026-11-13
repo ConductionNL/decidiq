@@ -472,7 +472,8 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 		}
 
 		// Persist the callback URL on the Decision object (declarative delivery
-		// is then handled by x-openregister-notifications outcomeEmitted trigger).
+		// is then handled by the x-openregister-notifications outcomeDecided,
+		// outcomeEnacted and outcomeWithdrawn rules).
 		$updated = $this->toArray(value: $entity);
 		$updated['outcomeCallbackUrl'] = $callbackUrl;
 
