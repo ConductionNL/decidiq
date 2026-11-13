@@ -47,6 +47,7 @@ use Stringable;
  *
  * @covers \OCA\Decidiq\Service\GovernanceReportingService
  * @uses   \OCA\Decidiq\Service\CsvCell
+ * @uses   \OCA\Decidiq\Service\RowListNormaliser
  */
 class GovernanceReportingGoldenTest extends TestCase {
 

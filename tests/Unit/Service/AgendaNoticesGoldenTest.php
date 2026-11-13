@@ -56,6 +56,7 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\AgendaInvitation
  * @uses   \OCA\Decidiq\Service\AgendaNotices
  * @uses   \OCA\Decidiq\Exception\NotFoundException
+ * @uses   \OCA\Decidiq\Service\DateValueParser
  */
 class AgendaNoticesGoldenTest extends TestCase {
 
