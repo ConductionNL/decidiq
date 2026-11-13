@@ -30,6 +30,7 @@ use OCA\Decidiq\AppInfo\Registrar\IntegrationLeafRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\OpenRegisterContractRegistrar;
 use OCA\Decidiq\AppInfo\Registrar\PlatformIntegrationRegistrar;
+use OCA\Decidiq\Middleware\ApiContractMiddleware;
 use OCP\AppFramework\App;
 use OCP\AppFramework\Bootstrap\IBootContext;
 use OCP\AppFramework\Bootstrap\IBootstrap;
@@ -87,6 +88,10 @@ class Application extends App implements IBootstrap {
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function register(IRegistrationContext $context): void {
+		// The API contract (version header, deprecation of unversioned paths,
+		// problem details). Registered first: Nextcloud runs afterController in
+		// reverse order, so it sees the final response of every other middleware.
+		$context->registerMiddleware(class: ApiContractMiddleware::class);
 
 		// OpenRegister's published contracts (ADR-084): ObjectServiceInterface and
 		// RegisterSlugResolverInterface, both bound as lazy aliases so an instance

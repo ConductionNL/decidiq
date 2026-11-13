@@ -877,6 +877,13 @@ class MeetingControllerTest extends TestCase {
 	 */
 	public function testTransitionsRouteIsRegistered(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$found = array_filter(
 			$routes['routes'],
 			static fn (array $r): bool => $r['name'] === 'meeting#transitions'
