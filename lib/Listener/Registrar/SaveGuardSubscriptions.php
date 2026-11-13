@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\DecisionDecidingBodyListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
@@ -75,5 +76,10 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Deciding body (insight-decisions-report-by-period-and-body,
+		// REQ-DRP-001): a decision saved with a meeting and no deciding body
+		// gets the meeting's governance body, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
 	];
 }//end class

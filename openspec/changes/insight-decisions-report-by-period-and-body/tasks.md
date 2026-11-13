@@ -9,8 +9,8 @@
   - GIVEN a decision created from a council meeting WHEN saved THEN `decidingBody` is the council's uuid
   - GIVEN a decision with a body set by hand WHEN its meeting changes THEN the hand-set body stays
   - GIVEN existing decisions with a meeting WHEN the repair step runs THEN each gets its meeting's body, and running it twice changes nothing
-- [ ] Implement
-- [ ] Test (real OpenRegister events)
+- [x] Implement (`lib/Settings/register.d/131-decisions-report-cut.json` (92 was taken), `lib/Listener/DecisionDecidingBodyListener.php` registered through `SaveGuardSubscriptions`, `lib/Repair/FillDecisionDecidingBody.php` in `<post-migration>`)
+- [x] Test (`tests/Unit/Listener/DecisionDecidingBodyListenerTest.php`, on OpenRegister's event classes)
 
 ### Task 2: The aggregation endpoint takes the period
 - **spec_ref**: `openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-002-every-figure-on-the-decisions-report-follows-the-chosen-period`

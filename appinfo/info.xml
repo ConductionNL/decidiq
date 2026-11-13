@@ -234,6 +234,13 @@ Vrij en open source onder de EUPL-1.2-licentie.
             <step>OCA\Decidiq\Repair\MigrateSchemaApplicationId</step>
             <step>OCA\Decidiq\Repair\InitializeSettings</step>
             <!--
+                insight-decisions-report-by-period-and-body (REQ-DRP-001): after
+                InitializeSettings imports the decidingBody property, existing decisions
+                with a meeting get that meeting's body once. Idempotent: a decision that
+                already names a body is left alone. A fresh install has no decisions.
+            -->
+            <step>OCA\Decidiq\Repair\FillDecisionDecidingBody</step>
+            <!--
                 After InitializeSettings imports the register. The schema edit
                 changes the DECLARATION; every row already written still holds
                 the Dutch string, and a filter on the new value returns null
