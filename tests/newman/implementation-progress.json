@@ -1,0 +1,795 @@
+{
+	"info": {
+		"name": "Decidiq Implementation Progress",
+		"description": "followup-implementation-progress (tasks 1, 2 and 5). Seeds an adopted motion with an implementation update 100 days old and a rejected motion, checks that the newest update sets the motion's implementation status and that a rejected motion takes no update (422), and, in the second folder, that OpenRegister's scheduled notification run told the secretariat \"No progress reported: <title>\".\n\nThe scheduled rule fires from OpenRegister's background job, which no HTTP call can start. Run it in two passes:\n\n  newman run tests/newman/implementation-progress.json --folder Seed --export-environment /tmp/ip.json\n  docker exec -u www-data nextcloud php cron.php\n  newman run tests/newman/implementation-progress.json -e /tmp/ip.json --folder Reminder --folder Teardown\n\nsecretariatUser must be a member of decidiq-secretariat.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"item": [
+		{
+			"name": "Seed",
+			"item": [
+				{
+					"name": "Seed adopted motion, decided 120 days ago",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);",
+									"pm.environment.set('decisionDate', daysAgo(120));",
+									"pm.environment.set('motionTitle', 'Newman motie meer groen in de wijk ' + Date.now());"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('adopted motion created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"const id = (b['@self'] && b['@self'].id) || b.id;",
+									"pm.expect(id).to.be.a('string');",
+									"pm.environment.set('motionId', id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"decision"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"{{motionTitle}}\",\n  \"text\": \"Newman: the implementation of this motion is followed up.\",\n  \"lifecycle\": \"decided\",\n  \"outcome\": \"adopted\",\n  \"decisionDate\": \"{{decisionDate}}\"\n}"
+						}
+					}
+				},
+				{
+					"name": "Update dated 100 days ago, on track",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);",
+									"pm.environment.set('reportedOn', daysAgo(100));"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('update accepted (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"pm.environment.set('updateId', (b['@self'] && b['@self'].id) || b.id);",
+									"pm.test('the server set reportedBy', () => pm.expect(b.reportedBy).to.eql(pm.environment.get('adminUser') || 'admin'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"implementation-update"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decision\": \"{{motionId}}\",\n  \"reportedOn\": \"{{reportedOn}}\",\n  \"status\": \"on-track\",\n  \"percentComplete\": 30,\n  \"text\": \"Plan van aanpak vastgesteld door het college\"\n}"
+						}
+					}
+				},
+				{
+					"name": "A back-dated update does not replace the status",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"const daysAgo = (n) => new Date(Date.now() - n * 86400000).toISOString().slice(0, 10);",
+									"pm.environment.set('olderOn', daysAgo(110));"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('back-dated update accepted (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"pm.environment.set('olderUpdateId', (b['@self'] && b['@self'].id) || b.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"implementation-update"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decision\": \"{{motionId}}\",\n  \"reportedOn\": \"{{olderOn}}\",\n  \"status\": \"delayed\",\n  \"text\": \"Back-dated report\"\n}"
+						}
+					}
+				},
+				{
+					"name": "The motion reads the newest status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('200', () => pm.response.to.have.status(200));",
+									"const b = pm.response.json();",
+									"pm.test('status from the newest update', () => pm.expect(b.implementationStatus).to.eql('on-track'));",
+									"pm.test('date from the newest update', () => pm.expect(String(b.implementationStatusDate).slice(0, 10)).to.eql(pm.environment.get('reportedOn')));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{motionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"decision",
+								"{{motionId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Seed rejected motion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('rejected motion created (201)', () => pm.response.to.have.status(201));",
+									"const b = pm.response.json();",
+									"pm.environment.set('rejectedId', (b['@self'] && b['@self'].id) || b.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"decision"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decisionType\": \"motion\",\n  \"title\": \"Newman rejected motion\",\n  \"text\": \"Newman.\",\n  \"lifecycle\": \"decided\",\n  \"outcome\": \"rejected\"\n}"
+						}
+					}
+				},
+				{
+					"name": "A rejected motion takes no update (422)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('refused with 422', () => pm.response.to.have.status(422));",
+									"pm.test('names the rule', () => pm.expect(pm.response.text().toLowerCase()).to.include('adopted'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"implementation-update"
+							]
+						},
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"decision\": \"{{rejectedId}}\",\n  \"reportedOn\": \"{{reportedOn}}\",\n  \"status\": \"on-track\",\n  \"text\": \"Should be refused\"\n}"
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Reminder",
+			"item": [
+				{
+					"name": "The secretariat was told: No progress reported",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('200', () => pm.response.to.have.status(200));",
+									"const body = pm.response.json();",
+									"const rows = Array.isArray(body) ? body : (body.results || []);",
+									"const title = pm.environment.get('motionTitle');",
+									"const hit = rows.find((row) => JSON.stringify(row).includes(title));",
+									"pm.test('a notification names the silent motion', () => pm.expect(hit, 'run cron between the Seed and Reminder passes').to.not.be.undefined);",
+									"pm.test('it is the no-progress reminder', () => pm.expect(JSON.stringify(hit)).to.match(/No progress reported|Geen voortgang gemeld/));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{secretariatUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{secretariatPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/notification-history",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"notification-history"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Teardown",
+			"item": [
+				{
+					"name": "Delete the updates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update/{{updateId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"implementation-update",
+								"{{updateId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete the back-dated update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/implementation-update/{{olderUpdateId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"implementation-update",
+								"{{olderUpdateId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete the adopted motion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{motionId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"decision",
+								"{{motionId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "Delete the rejected motion",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "{{adminUser}}",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "{{adminPass}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "OCS-APIRequest",
+								"value": "true"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{rejectedId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"index.php",
+								"apps",
+								"openregister",
+								"api",
+								"objects",
+								"decidiq",
+								"decision",
+								"{{rejectedId}}"
+							]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "adminUser",
+			"value": "admin"
+		},
+		{
+			"key": "adminPass",
+			"value": "admin"
+		},
+		{
+			"key": "secretariatUser",
+			"value": "griffier"
+		},
+		{
+			"key": "secretariatPass",
+			"value": "griffier"
+		}
+	]
+}

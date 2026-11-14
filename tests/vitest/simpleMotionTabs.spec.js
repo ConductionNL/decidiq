@@ -132,6 +132,8 @@ describe('the motion page in the simple structure', () => {
 			'Signers',
 			'Voting order',
 			'Stage',
+			// followup-implementation-progress: on an adopted motion only.
+			'Implementation',
 		])
 	})
 

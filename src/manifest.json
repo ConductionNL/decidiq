@@ -982,12 +982,22 @@
 				"filter": {
 					"decisionType": "motion"
 				},
+				"quickFilters": [
+					{ "label": "All proposals", "filter": {}, "default": true },
+					{ "label": "Not started", "filter": { "implementationStatus": "not-started" } },
+					{ "label": "On track", "filter": { "implementationStatus": "on-track" } },
+					{ "label": "Delayed", "filter": { "implementationStatus": "delayed" } },
+					{ "label": "Implemented", "filter": { "implementationStatus": "completed" } },
+					{ "label": "Not implemented", "filter": { "implementationStatus": "will-not-be-implemented" } }
+				],
+				"_implementationFilterNote": "followup-implementation-progress REQ-FUP-003: implementationStatus is a stored field the server sets from the newest implementation update, so it filters server-side like decisionType. The page filter (decisionType motion) still applies, as it does for the simple structure's Motions views.",
 				"columns": [
 					"title",
 					"motionType",
 					"proposer",
 					"lifecycle",
 					"outcome",
+					"implementationStatus",
 					"themes",
 					"submittedAt"
 				],
@@ -1037,7 +1047,7 @@
 				"schema": "decision",
 				"_note": "Motion — a deliberative proposal (a Decision of decisionType=motion): proposer, motion type, proposed text, lifecycle, co-signers, submission date. The decision schema is a 42-field polymorphic supertype shared with Decision/Amendment; the data widget scopes to `content.include` of the 9 motion-relevant fields (ADR-062 rule 3) so decision-only fields (legalBasis, publishedAt, resolutionNumber, contract offer/order/product, etc.) that never apply to decisionType=motion don't clip the cell. Bespoke deliberation layout: motion details/text lead 8-wide with a Documents leaf right for the tabled text and annexes; the Amendments proposed against it (MotionAmendmentsTab — decisions keyed on `parentMotion`) render full-width because processing amendments is the core motion workflow; the Votes result (MotionVotesTab, read-only post-ballot aggregate) sits below, followed by the chair's amendment Voting order and the Voting round mechanics (procedural, so placed lowest). Discussion/Talk lives on the dedicated MotionIntegrations surface. Sidebar is audit-trail only.",
 				"widgets": [
-					{ "id": "motion-data", "type": "data", "title": "Motion", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["title", "text", "proposedText", "motionType", "proposer", "coSigners", "lifecycle", "themes", "submittedAt", "votingOrder"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false } } } },
+					{ "id": "motion-data", "type": "data", "title": "Motion", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["title", "text", "proposedText", "motionType", "proposer", "coSigners", "lifecycle", "themes", "submittedAt", "votingOrder", "implementationStatus", "implementationStatusDate"], "overrides": { "lifecycle": { "editable": false }, "submittedAt": { "editable": false }, "implementationStatus": { "editable": false }, "implementationStatusDate": { "editable": false } } } },
 					{ "id": "motion-stage", "type": "custom", "component": "MotionStageTab", "title": "Stage", "icon": "Timeline", "_note": "motions-stages-and-themes (mot-08): the motion's stage and result, and one button per step the server offers the caller: every step of the motion lifecycle for the chair or secretary of its meeting, Withdraw for the member who submitted it (GET /api/motions/{id}/transitions, POST /api/motions/{id}/transition)." },
 					{ "id": "motion-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "motion-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
@@ -1046,7 +1056,8 @@
 					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" },
 					{ "id": "motion-citizen-advice", "type": "custom", "component": "MotionCitizenAdviceTab", "title": "Advisory vote by residents", "icon": "AccountVoice" },
 					{ "id": "motion-signers", "type": "custom", "component": "MotionSignersTab", "title": "Signers", "icon": "FileSign" },
-					{ "id": "motion-conflicts", "type": "custom", "component": "MotionConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this motion and on its agenda item; a member declares here and may keep herself out of the vote." }
+					{ "id": "motion-conflicts", "type": "custom", "component": "MotionConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this motion and on its agenda item; a member declares here and may keep herself out of the vote." },
+					{ "id": "motion-implementation", "type": "object-list", "title": "Implementation", "icon": "ProgressCheck", "_note": "followup-implementation-progress REQ-FUP-001: the dated progress updates of this adopted decision, newest first. The schema grants create to the secretariat and administrators only, so a council member reads the list without Add update; the server refuses an update on a decision that is not adopted.", "content": { "register": "decidiq", "schema": "implementation-update", "filter": { "decision": "@objectId" }, "sort": { "field": "reportedOn", "dir": "desc" }, "columns": [{ "key": "reportedOn", "label": "Date", "widget": "date" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "percentComplete", "label": "Percent complete" }, { "key": "text", "label": "Progress" }], "limit": 25, "allowCreate": true, "emptyText": "No progress reported yet." }}
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "motion-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
@@ -1058,7 +1069,8 @@
 					{ "id": "6", "widgetId": "motion-voting-round", "gridX": 6, "gridY": 19, "gridWidth": 6, "gridHeight": 5 },
 					{ "id": "7", "widgetId": "motion-citizen-advice", "gridX": 6, "gridY": 24, "gridWidth": 6, "gridHeight": 4 },
 					{ "id": "8", "widgetId": "motion-signers", "gridX": 0, "gridY": 24, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 28, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "9", "widgetId": "motion-conflicts", "gridX": 0, "gridY": 28, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "11", "widgetId": "motion-implementation", "gridX": 0, "gridY": 32, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -1234,6 +1246,36 @@
 						},
 						"page": "Motions",
 						"route": "Motions"
+					},
+					{
+						"label": "Not started",
+						"filter": {
+							"implementationStatus": "not-started"
+						}
+					},
+					{
+						"label": "On track",
+						"filter": {
+							"implementationStatus": "on-track"
+						}
+					},
+					{
+						"label": "Delayed",
+						"filter": {
+							"implementationStatus": "delayed"
+						}
+					},
+					{
+						"label": "Implemented",
+						"filter": {
+							"implementationStatus": "completed"
+						}
+					},
+					{
+						"label": "Not implemented",
+						"filter": {
+							"implementationStatus": "will-not-be-implemented"
+						}
 					}
 				],
 				"_motionsFilterNote": "REQ-RMN-003 — Motions is one decisionType of the unified Decision supertype (ADR-005), not a sibling concept. This quick-filter surfaces Motions AS a filtered view of Decisions (decisionType=motion, a STORED/queryable field merged server-side into the OpenRegister fetch — no client-side derivation, unlike effectiveStatus per the _inForceFilterNote). The retained Motions index page (pages[] id `Motions`, route /motions) carries the same filter plus motion-specific columns/tabs; the `page`/`route` hints let the strip deep-link there. The standalone top-level Motions menu leaf was retired (REQ-RMN-001) so Motions is reachable through its parent Decisions surface rather than as a peer top-level item.",
@@ -1251,6 +1293,11 @@
 					{
 						"key": "outcome",
 						"label": "Outcome",
+						"widget": "badge"
+					},
+					{
+						"key": "implementationStatus",
+						"label": "Implementation",
 						"widget": "badge"
 					},
 					{
@@ -1330,7 +1377,7 @@
 				"_note": "Decision — the core governance dossier (title, text, outcome, decision date, legal basis, lifecycle, publication state, effectiveStatus). The 42-field decision schema is split field-scoped (ADR-062 rule 3) into Content (title/text/proposedText/fullText/background/proposer/co-signers/resolution — WHAT was decided) and Governance (decisionDate/outcome/publication/lifecycle/enactedAt/voting mechanics/adoption+effective dates — the process STATE the dossier is in); fields already shown by dedicated tabs (amends/supersedes/repeals/route/offer/order/product, sourceApp/subject*/externalReference system fields) stay excluded from both. Bespoke dossier layout: Content leads 8-wide with the Lifecycle state machine (DecisionLifecycleTab — the guarded transition buttons that advance the decision) right, because moving a decision through its states is the primary action; Governance sits below Content with a Documents leaf beside it; the Action items it spawns (ActionItemsSurface — the Deck-board projection of children keyed on `decision`, ADR-019/ADR-002) render full-width, then Related decisions (RelatedDecisionsTab — the supersedes/repeals graph driving the computed effectiveStatus banner) and Route share a row, followed by the lower-frequency Voting results and Publication surfaces. Email linking lives on the dedicated DecisionIntegrations surface (schema declares no comms linkedType). Sidebar is audit-trail only. decision-facet-composition adds 8 reverse-lookup `object-list` widgets below the existing 9, grouped in 3 rows by domain (consultations: public/member/WOR; opinions+participation: advisory opinions/zienswijzerondes/zienswijzen; outcomes: commitments/confidentiality) so opening a decision surfaces everything that already references it via `decision`/`relatedDecision`/`relatedMotion`/`targetDecision` on six sibling schemas, closing the reverse-lookup gap `constituency-consultation`'s own manifest fragment deferred. Confidentiality is read-only (`allowCreate:false` — a restriction is imposed through the confidentiality register's own flow, not from here).",
 				"widgets": [
 					{ "id": "decision-content", "type": "data", "title": "Content", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["decisionType", "title", "text", "proposedText", "fullText", "background", "motionType", "proposer", "coSigners", "resolutionNumber", "resolutionType", "legalBasis", "targetBody", "targetPosts", "targetRole", "candidates", "nominatingParty", "appointedMemberships"] } },
-					{ "id": "decision-governance", "type": "data", "title": "Governance", "icon": "ScaleBalance", "content": { "columns": 2, "include": ["decisionDate", "outcome", "isPublished", "publishedAt", "lifecycle", "enactedAt", "submittedAt", "citizenVotingAllowed", "citizenVotingMethod", "votingOrder", "voteType", "voteThreshold", "adoptionDate", "effectiveDate"], "overrides": { "publishedAt": { "editable": false }, "lifecycle": { "editable": false }, "enactedAt": { "editable": false }, "submittedAt": { "editable": false } } } },
+					{ "id": "decision-governance", "type": "data", "title": "Governance", "icon": "ScaleBalance", "content": { "columns": 2, "include": ["decisionDate", "outcome", "isPublished", "publishedAt", "lifecycle", "enactedAt", "submittedAt", "citizenVotingAllowed", "citizenVotingMethod", "votingOrder", "voteType", "voteThreshold", "adoptionDate", "effectiveDate", "implementationStatus", "implementationStatusDate"], "overrides": { "publishedAt": { "editable": false }, "lifecycle": { "editable": false }, "enactedAt": { "editable": false }, "submittedAt": { "editable": false }, "implementationStatus": { "editable": false }, "implementationStatusDate": { "editable": false } } } },
 					{ "id": "decision-lifecycle", "type": "custom", "component": "DecisionLifecycleTab", "title": "Lifecycle", "icon": "Timeline" },
 					{ "id": "decision-actions", "type": "custom", "component": "ActionItemsSurface", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "decision-related", "type": "custom", "component": "RelatedDecisionsTab", "title": "Related decisions", "icon": "LinkVariant" },
@@ -1344,7 +1391,8 @@
 					{ "id": "decision-wor-consultations", "type": "object-list", "title": "Works council (WOR)", "icon": "HandshakeOutline", "content": { "register": "decidiq", "schema": "consultation-request", "filter": { "relatedDecision": "@objectId" }, "sort": { "field": "receivedDate", "dir": "desc" }, "columns": [ { "key": "subject", "label": "Subject", "widget": "link" }, { "key": "type", "label": "Type", "widget": "badge" }, { "key": "receivedDate", "label": "Received", "widget": "date" }, { "key": "requestedResponseDate", "label": "Requested response", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "viewAllRoute": "WorksCouncilConsultations", "viewAllQuery": { "relatedDecision": "@objectId" }, "emptyText": "No works-council consultation requests reference this decision yet.", "rowRoute": "WorksCouncilConsultationDetail" } },
 					{ "id": "decision-consultation-responses", "type": "object-list", "title": "Consultation responses", "icon": "CommentCheckOutline", "content": { "register": "decidiq", "schema": "governance-consultation-response", "filter": { "relatedDecision": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "position", "label": "Position", "widget": "badge" }, { "key": "text", "label": "Response" }, { "key": "processing", "label": "Processing", "widget": "badge" }, { "key": "status", "label": "Status", "widget": "badge" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "GovernanceConsultationResponses", "viewAllQuery": { "relatedDecision": "@objectId" }, "emptyText": "No responses were recorded for this decision." } },
 					{ "id": "decision-commitments", "type": "object-list", "title": "Commitments", "icon": "ClipboardCheckOutline", "content": { "register": "decidiq", "schema": "governance-commitment", "filter": { "relatedMotion": "@objectId" }, "sort": { "field": "deadline", "dir": "desc" }, "columns": [ { "key": "text", "label": "Commitment", "widget": "link" }, { "key": "madeBy", "label": "Made by" }, { "key": "deadline", "label": "Deadline", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "viewAllRoute": "Commitments", "viewAllQuery": { "relatedMotion": "@objectId" }, "emptyText": "This motion has produced no commitments yet.", "rowRoute": "CommitmentDetail" } },
-					{ "id": "decision-confidentiality", "type": "object-list", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "register": "decidiq", "schema": "confidentiality-restriction", "filter": { "targetDecision": "@objectId" }, "sort": { "field": "imposedAt", "dir": "desc" }, "columns": [ { "key": "ground", "label": "Ground", "widget": "link" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "ratificationDeadline", "label": "Ratification deadline", "widget": "date" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "ConfidentialityRestrictions", "viewAllQuery": { "targetDecision": "@objectId" }, "emptyText": "This decision has no confidentiality restriction.", "rowRoute": "ConfidentialityRestrictionDetail" } }
+					{ "id": "decision-confidentiality", "type": "object-list", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "register": "decidiq", "schema": "confidentiality-restriction", "filter": { "targetDecision": "@objectId" }, "sort": { "field": "imposedAt", "dir": "desc" }, "columns": [ { "key": "ground", "label": "Ground", "widget": "link" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "ratificationDeadline", "label": "Ratification deadline", "widget": "date" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "ConfidentialityRestrictions", "viewAllQuery": { "targetDecision": "@objectId" }, "emptyText": "This decision has no confidentiality restriction.", "rowRoute": "ConfidentialityRestrictionDetail" } },
+					{ "id": "decision-implementation", "type": "object-list", "title": "Implementation", "icon": "ProgressCheck", "_note": "followup-implementation-progress REQ-FUP-001: the dated progress updates of this adopted decision, newest first. The schema grants create to the secretariat and administrators only, so a council member reads the list without Add update; the server refuses an update on a decision that is not adopted.", "content": { "register": "decidiq", "schema": "implementation-update", "filter": { "decision": "@objectId" }, "sort": { "field": "reportedOn", "dir": "desc" }, "columns": [{ "key": "reportedOn", "label": "Date", "widget": "date" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "percentComplete", "label": "Percent complete" }, { "key": "text", "label": "Progress" }], "limit": 25, "allowCreate": true, "emptyText": "No progress reported yet." }}
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "decision-content", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -1362,7 +1410,8 @@
 					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
 					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "19", "widgetId": "decision-implementation", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

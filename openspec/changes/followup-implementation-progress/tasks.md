@@ -28,7 +28,7 @@
   - GIVEN an adopted motion WHEN the griffier opens the motion page THEN the Implementation widget lists its updates newest first with Add update
   - GIVEN a council member WHEN he opens it THEN he reads the updates without Add update
   - GIVEN `tests/validate-manifest.js` WHEN run THEN it passes
-- [ ] Implement
+- [x] Implement
 - [ ] Test (Playwright adds an update and sees the status change)
 
 ### Task 4: Lists show and filter the status
@@ -36,7 +36,7 @@
 - **files**: `src/manifest.json` (`Motions`, `Decisions`)
 - **acceptance_criteria**:
   - GIVEN three adopted motions, one delayed WHEN the griffier filters Motions on delayed THEN one row remains
-- [ ] Implement
+- [x] Implement
 - [ ] Test (Playwright)
 
 ### Task 5: The silence reminder reaches the secretariat
@@ -44,7 +44,7 @@
 - **files**: `tests/newman/implementation-progress.json`
 - **acceptance_criteria**:
   - GIVEN an adopted motion with its last update 100 days ago WHEN OpenRegister's scheduled notification run fires THEN members of the secretariat get "No progress reported" with the motion title
-- [ ] Implement
+- [x] Implement
 - [ ] Test (Newman against a seeded instance; this is the only proof the declared rule fires)
 
 ## Verification
