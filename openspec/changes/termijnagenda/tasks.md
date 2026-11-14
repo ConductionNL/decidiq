@@ -10,9 +10,9 @@
   - GIVEN the schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with `gepland → verschoven ⟲ → gerealiseerd | vervallen` and terminal states final, `vervallen` requires `redenVervallen`, ownerType `portefeuillehouder` requires an `owner` Person reference, and `plannedPeriod` rejects anything but `YYYY-Qn`/`YYYY-MM`
   - GIVEN the schema WHEN inspected THEN `x-openregister-notifications` declares the scheduled period-arrival rappel (owner + griffie, nl+en subjects, never for terminal/realised items) and no imperative dispatch exists anywhere
   - GIVEN an item with `publicatiedatum` in the past WHEN read anonymously via the OR predicate surface THEN it is returned live (including shift history); without the predicate it is not
-- **status**: built except two rules. The fragment, the lifecycle, the rappel and the publication predicate exist. But `owner` being required for `ownerType: portfolio-holder`, and `reasonExpired` being required on entering `lapsed`, are documented in the property descriptions as UI rules, and OpenRegister does not reject a save that breaks them. No dialog enforces them yet either (tasks 4 and 5). Since the task-5 dialogs, the lapse reason is enforced on every UI path (the dialog and `buildLapse`). The owner rule is shown as a warning on the detail page only, and OpenRegister still accepts such a save, so this task stays open for that rule.
-- [ ] Implement
-- [ ] Test
+- **status**: built. The fragment, the lifecycle, the rappel and the publication predicate exist. The two value-dependent rules, which a schema `required` list cannot express, are enforced on save by `PlannedAgendaItemRulesGuardListener` (subscribed in `SaveGuardSubscriptions` to creates and updates of `planned-agenda-item` and the superseded `termijnagenda-item`): a `portfolio-holder` owner type without an `owner` person is refused, and so is an item entering `lapsed` without `reasonExpired`. The dialogs keep their own checks. Unit tests: `tests/Unit/Listener/PlannedAgendaItemRulesGuardListenerTest.php`.
+- [x] Implement
+- [x] Test
 
 ### Task 2: Seed data — realistic Dutch municipal termijnagenda objects
 - **spec_ref**: `openspec/changes/termijnagenda/design.md#seed-data`
