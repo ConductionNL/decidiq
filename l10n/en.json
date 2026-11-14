@@ -3342,7 +3342,18 @@
         "Your registered other positions": "Your registered other positions",
         "Matches the subject": "Matches the subject",
         "Registered other positions": "Registered other positions",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Other positions without a current review": "Other positions without a current review",
+        "positions": "positions",
+        "Declaration status per member": "Declaration status per member",
+        "For guidance only: computed from the memberships and other positions registered for the chosen body.": "For guidance only: computed from the memberships and other positions registered for the chosen body.",
+        "Choose a governance body": "Choose a governance body",
+        "This body has no active members.": "This body has no active members.",
+        "No declaration registered": "No declaration registered",
+        "Up to date": "Up to date",
+        "Review older than 12 months": "Review older than 12 months",
+        "The governance bodies could not be loaded.": "The governance bodies could not be loaded.",
+        "The declaration status could not be loaded.": "The declaration status could not be loaded."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

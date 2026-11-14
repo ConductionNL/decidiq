@@ -48,8 +48,8 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN the "Nevenfuncties zonder actuele review" stat widget counts non-terminal nevenfuncties with reviews older than 12 months via a declarative source aggregation and deep-links to the pre-filtered index; if the filter DSL lacks a relative-date token the documented design fallback is applied (never a silently wrong count)
   - GIVEN a body with members lacking any (or any reviewed) declaration WHEN the griffie opens the compliance panel on the Nevenfuncties index THEN those members are marked from a client-side join of two standard OR list queries (memberships × nevenfuncties), labeled assistive, with no backend endpoint added
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 6: Assistive nevenfuncties context on the COI dialog and chair panel
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces`

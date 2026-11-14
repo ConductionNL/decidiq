@@ -3760,7 +3760,18 @@
         "Your registered other positions": "Uw geregistreerde nevenfuncties",
         "Matches the subject": "Past bij het onderwerp",
         "Registered other positions": "Geregistreerde nevenfuncties",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "Other positions without a current review": "Nevenfuncties zonder actuele review",
+        "positions": "functies",
+        "Declaration status per member": "Opgavestatus per lid",
+        "For guidance only: computed from the memberships and other positions registered for the chosen body.": "Alleen ter ondersteuning: berekend uit de lidmaatschappen en nevenfuncties die voor het gekozen orgaan zijn geregistreerd.",
+        "Choose a governance body": "Kies een bestuursorgaan",
+        "This body has no active members.": "Dit orgaan heeft geen actieve leden.",
+        "No declaration registered": "Geen opgave geregistreerd",
+        "Up to date": "Actueel",
+        "Review older than 12 months": "Review ouder dan 12 maanden",
+        "The governance bodies could not be loaded.": "De bestuursorganen konden niet worden geladen.",
+        "The declaration status could not be loaded.": "De opgavestatus kon niet worden geladen."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
