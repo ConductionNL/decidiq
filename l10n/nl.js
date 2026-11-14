@@ -3831,7 +3831,25 @@ OC.L10N.register(
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "Add to theme": "Aan thema toevoegen",
+        "Choose a theme…": "Kies een thema…",
+        "Could not add it to the theme": "Kon het niet aan het thema toevoegen",
+        "Could not load the themes": "Kon de thema's niet laden",
+        "Could not load the timeline": "Kon de tijdlijn niet laden",
+        "No date": "Geen datum",
+        "Not part of a theme.": "Hoort bij geen thema.",
+        "Not published": "Niet gepubliceerd",
+        "Nothing is linked to this theme yet.": "Er is nog niets aan dit thema gekoppeld.",
+        "The theme was not changed.": "Het thema is niet gewijzigd.",
+        "The themes could not be read.": "De thema's konden niet worden gelezen.",
+        "The timeline could not be read.": "De tijdlijn kon niet worden gelezen.",
+        "There is no theme to add this to yet. Create one under Theme pages.": "Er is nog geen thema om dit aan toe te voegen. Maak er een aan onder Themapagina's.",
+        "Theme pages": "Themapagina's",
+        "Timeline": "Tijdlijn",
+        "Linked items": "Gekoppelde onderdelen",
+        "Responsible body": "Verantwoordelijk orgaan",
+        "Concluded": "Afgerond"
     },
     "nplurals=2; plural=(n != 1);"
 )

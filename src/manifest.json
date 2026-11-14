@@ -950,7 +950,8 @@
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
 					{ "id": "agenda-conflicts", "type": "custom", "component": "AgendaItemConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this agenda item; a member declares here and may keep herself out of the vote on it and its motions." },
-					{ "id": "agenda-paper-summaries", "type": "custom", "component": "AgendaPaperSummariesTab", "title": "Summaries of the papers", "icon": "TextBoxSearchOutline", "_note": "agenda-ai-paper-summaries (age-16 age-20 plt-27): a clerk asks the AI for a summary of a paper or a comparison of two, corrects the draft and shows it to members; members read shown ones only, labelled as AI-generated with the clerk who checked it. Without an AI provider the actions are left out." }
+					{ "id": "agenda-paper-summaries", "type": "custom", "component": "AgendaPaperSummariesTab", "title": "Summaries of the papers", "icon": "TextBoxSearchOutline", "_note": "agenda-ai-paper-summaries (age-16 age-20 plt-27): a clerk asks the AI for a summary of a paper or a comparison of two, corrects the draft and shows it to members; members read shown ones only, labelled as AI-generated with the clerk who checked it. Without an AI provider the actions are left out." },
+					{ "id": "agenda-themes", "type": "custom", "component": "AgendaItemThemesTab", "title": "Themes", "icon": "BookOpenVariantOutline", "_note": "publication-theme-pages (REQ-THP-001): the theme pages this item belongs to, and Add to theme." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "agenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -961,7 +962,8 @@
 					{ "id": "5", "widgetId": "agenda-conflicts", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "6", "widgetId": "agenda-document-details", "gridX": 0, "gridY": 21, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "7", "widgetId": "agenda-paper-renditions", "gridX": 0, "gridY": 26, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 6 }
+					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "10", "widgetId": "agenda-themes", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -1344,7 +1346,8 @@
 				"widget-decision-approval": "DecisionApprovalTab",
 				"widget-decision-route": "DecisionRouteTab",
 				"widget-decision-voting": "DecisionVotingTab",
-				"widget-decision-publication": "DecisionPublicationTab"
+				"widget-decision-publication": "DecisionPublicationTab",
+				"widget-decision-themes": "DecisionThemesTab"
 			},
 			"title": "Decision",
 			"config": {
@@ -1367,7 +1370,8 @@
 					{ "id": "decision-wor-consultations", "type": "object-list", "title": "Works council (WOR)", "icon": "HandshakeOutline", "content": { "register": "decidiq", "schema": "consultation-request", "filter": { "relatedDecision": "@objectId" }, "sort": { "field": "receivedDate", "dir": "desc" }, "columns": [ { "key": "subject", "label": "Subject", "widget": "link" }, { "key": "type", "label": "Type", "widget": "badge" }, { "key": "receivedDate", "label": "Received", "widget": "date" }, { "key": "requestedResponseDate", "label": "Requested response", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "viewAllRoute": "WorksCouncilConsultations", "viewAllQuery": { "relatedDecision": "@objectId" }, "emptyText": "No works-council consultation requests reference this decision yet.", "rowRoute": "WorksCouncilConsultationDetail" } },
 					{ "id": "decision-consultation-responses", "type": "object-list", "title": "Consultation responses", "icon": "CommentCheckOutline", "content": { "register": "decidiq", "schema": "governance-consultation-response", "filter": { "relatedDecision": "@objectId" }, "sort": { "field": "submittedAt", "dir": "desc" }, "columns": [ { "key": "position", "label": "Position", "widget": "badge" }, { "key": "text", "label": "Response" }, { "key": "processing", "label": "Processing", "widget": "badge" }, { "key": "status", "label": "Status", "widget": "badge" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "GovernanceConsultationResponses", "viewAllQuery": { "relatedDecision": "@objectId" }, "emptyText": "No responses were recorded for this decision." } },
 					{ "id": "decision-commitments", "type": "object-list", "title": "Commitments", "icon": "ClipboardCheckOutline", "content": { "register": "decidiq", "schema": "governance-commitment", "filter": { "relatedMotion": "@objectId" }, "sort": { "field": "deadline", "dir": "desc" }, "columns": [ { "key": "text", "label": "Commitment", "widget": "link" }, { "key": "madeBy", "label": "Made by" }, { "key": "deadline", "label": "Deadline", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "viewAllRoute": "Commitments", "viewAllQuery": { "relatedMotion": "@objectId" }, "emptyText": "This motion has produced no commitments yet.", "rowRoute": "CommitmentDetail" } },
-					{ "id": "decision-confidentiality", "type": "object-list", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "register": "decidiq", "schema": "confidentiality-restriction", "filter": { "targetDecision": "@objectId" }, "sort": { "field": "imposedAt", "dir": "desc" }, "columns": [ { "key": "ground", "label": "Ground", "widget": "link" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "ratificationDeadline", "label": "Ratification deadline", "widget": "date" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "ConfidentialityRestrictions", "viewAllQuery": { "targetDecision": "@objectId" }, "emptyText": "This decision has no confidentiality restriction.", "rowRoute": "ConfidentialityRestrictionDetail" } }
+					{ "id": "decision-confidentiality", "type": "object-list", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "register": "decidiq", "schema": "confidentiality-restriction", "filter": { "targetDecision": "@objectId" }, "sort": { "field": "imposedAt", "dir": "desc" }, "columns": [ { "key": "ground", "label": "Ground", "widget": "link" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "ratificationDeadline", "label": "Ratification deadline", "widget": "date" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "ConfidentialityRestrictions", "viewAllQuery": { "targetDecision": "@objectId" }, "emptyText": "This decision has no confidentiality restriction.", "rowRoute": "ConfidentialityRestrictionDetail" } },
+					{ "id": "decision-themes", "type": "custom", "component": "DecisionThemesTab", "title": "Themes", "icon": "BookOpenVariantOutline", "_note": "publication-theme-pages (REQ-THP-001): the theme pages this decision belongs to, and Add to theme." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "decision-content", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
@@ -1385,7 +1389,8 @@
 					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
 					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "19", "widgetId": "decision-themes", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,

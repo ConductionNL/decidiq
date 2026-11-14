@@ -25,6 +25,7 @@
 		"PlannedAgenda",
 		"PlanningCycles",
 		"ProxyAuthorizations",
+		"TopicThemes",
 		"UrgentDecisions",
 		"WorksCouncilConsultations"
 	],
@@ -267,6 +268,13 @@
 						"icon": "Gavel",
 						"handler": "navigate",
 						"route": "UrgentDecisions"
+					},
+					{
+						"id": "open-theme-pages",
+						"label": "Theme pages",
+						"icon": "BookOpenVariantOutline",
+						"handler": "navigate",
+						"route": "TopicThemes"
 					}
 				],
 				"columns": [
@@ -878,6 +886,9 @@
 					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
+					},
+					"decision-themes": {
+						"type": "DecisionThemesTab"
 					}
 				}
 			},
@@ -1122,6 +1133,10 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "decision-confidentiality"
+								},
+								{
+									"label": "Themes",
+									"widgetId": "decision-themes"
 								}
 							]
 						}
@@ -3151,7 +3166,8 @@
 						}
 					},
 					"agenda-conflicts",
-					"agenda-paper-summaries"
+					"agenda-paper-summaries",
+					"agenda-themes"
 				],
 				"layout": [
 					{
@@ -3187,6 +3203,9 @@
 					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"
+					},
+					"agenda-themes": {
+						"type": "AgendaItemThemesTab"
 					}
 				}
 			},

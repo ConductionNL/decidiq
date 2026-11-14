@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 230,
+			"objectCount": 235,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -709,6 +709,20 @@
 						"orderNumber": 2,
 						"estimatedDuration": 45,
 						"meeting": "commissie-samenleving-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "agenda-item"
+						},
+						"slug": "agendapunt-kredietaanvraag-zwembad",
+						"title": "Kredietaanvraag nieuw zwembad De Hoge Dijk",
+						"itemType": "decision",
+						"orderNumber": 6,
+						"estimatedDuration": 45,
+						"description": "Raadsvoorstel voor het voorbereidingskrediet van het nieuwe zwembad De Hoge Dijk.",
+						"meeting": "raadsvergadering-2025-04-10"
 					}
 				],
 				"agenda-item-type": [
@@ -1789,6 +1803,25 @@
 						"citizenAdviceFor": 3,
 						"citizenAdviceAgainst": 1,
 						"citizenAdviceAbstain": 1
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "motie-duurzaam-zwembad",
+						"decisionType": "motion",
+						"title": "Motie duurzaam zwembad",
+						"text": "De raad verzoekt het college het nieuwe zwembad De Hoge Dijk energieneutraal te ontwerpen en de meerkosten in het bouwbesluit op te nemen.",
+						"motionType": "motion",
+						"proposer": "Roos de Vries",
+						"lifecycle": "decided",
+						"outcome": "adopted",
+						"isPublished": "public",
+						"submittedAt": "2025-04-10T19:15:00Z",
+						"decisionDate": "2025-04-10T21:20:00Z",
+						"meeting": "raadsvergadering-2025-04-10"
 					}
 				],
 				"decision-stage": [
@@ -2484,6 +2517,21 @@
 						"lifecycle": "in-execution",
 						"goal": "goal-amsterdam-klimaatneutraal-2050",
 						"publicationDate": "2026-02-10T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-zwembad-energieplan",
+						"text": "Wethouder Van Dijk zegt toe de raad vóór 1 december het energieplan voor zwembad De Hoge Dijk toe te sturen.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-04-10",
+						"agendaItem": "agendapunt-kredietaanvraag-zwembad",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-12-01",
+						"lifecycle": "open"
 					}
 				],
 				"governance-consultation": [
@@ -3754,6 +3802,22 @@
 						"shiftHistory": [],
 						"reasonExpired": "Opgegaan in de bredere herziening van de legesverordening",
 						"publicationDate": "2026-06-20T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-bouwbesluit-zwembad",
+						"subject": "Bouwbesluit zwembad De Hoge Dijk",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q1",
+						"expectedType": "council-proposal",
+						"ownerType": "executive-board",
+						"notes": "Volgt op het voorbereidingskrediet en de motie duurzaam zwembad.",
+						"lifecycle": "planned",
+						"shiftHistory": []
 					}
 				],
 				"planning-cycle": [
@@ -4838,6 +4902,46 @@
 						"pageCount": 58,
 						"skipped": [
 							"04 - Kadernota begroting 2026/begroting-detail.xlsx (non-PDF attachment)"
+						]
+					}
+				],
+				"governance-theme": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-theme"
+						},
+						"slug": "thema-nieuw-zwembad-de-hoge-dijk",
+						"title": "Nieuw zwembad De Hoge Dijk",
+						"introduction": "De gemeente bouwt een nieuw zwembad bij De Hoge Dijk. Hier vindt u wat de raad erover besprak en besloot, en wat nog komt.",
+						"blocks": [
+							{
+								"heading": "Waarom een nieuw zwembad",
+								"body": "Het huidige bad is aan het einde van zijn levensduur. De raad koos in 2025 voor nieuwbouw op een nieuwe locatie."
+							},
+							{
+								"heading": "Wat er nog komt",
+								"body": "Het bouwbesluit staat gepland voor het eerste kwartaal van 2027."
+							}
+						],
+						"status": "active",
+						"isPublic": true,
+						"governanceBody": "gemeenteraad-amsterdam",
+						"meetings": [
+							"raadsvergadering-2025-04-10"
+						],
+						"agendaItems": [
+							"agendapunt-kredietaanvraag-zwembad"
+						],
+						"decisions": [
+							"motie-duurzaam-zwembad"
+						],
+						"commitments": [
+							"toezegging-zwembad-energieplan"
+						],
+						"plannedAgendaItems": [
+							"lta-bouwbesluit-zwembad"
 						]
 					}
 				]

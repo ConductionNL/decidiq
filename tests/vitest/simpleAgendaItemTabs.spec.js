@@ -22,7 +22,8 @@ const STRIP = 'agenda-panels'
 const VISIBLE = ['Overview', 'Papers', 'Motions', 'Case']
 const VISIBLE_NL = ['Overzicht', 'Stukken', 'Moties', 'Zaak']
 const OVERFLOW = []
-const SIDE = ['agenda-side-facts', 'agenda-conflicts', 'agenda-paper-summaries']
+// publication-theme-pages added the theme pages this item belongs to.
+const SIDE = ['agenda-side-facts', 'agenda-conflicts', 'agenda-paper-summaries', 'agenda-themes']
 const FACTS_LEAD = 'itemType'
 
 const ROOT = path.resolve(__dirname, '../..')

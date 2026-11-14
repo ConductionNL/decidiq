@@ -9,7 +9,7 @@
   - GIVEN the register WHEN imported THEN `governance-theme` exists and `PublicationRecord.sourceType` accepts `theme`
   - GIVEN a decision page WHEN the griffier chooses Add to theme and picks the swimming pool theme THEN the decision appears on the theme page
   - GIVEN the manifest and modal-isolation gates WHEN run THEN they pass
-- [ ] Implement
+- [x] Implement
 - [ ] Test (Playwright)
 
 ### Task 2: The timeline
@@ -18,8 +18,8 @@
 - **acceptance_criteria**:
   - GIVEN the seeded theme WHEN its timeline is built THEN five entries come out oldest first with the right dates per kind
   - GIVEN the staff timeline WHEN shown THEN entries not yet published are marked as such
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: Publish a theme
 - **spec_ref**: `openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items`

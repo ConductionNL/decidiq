@@ -224,6 +224,10 @@
             "description": "Declarative store search and install for AppHost-adopting apps."
         },
         {
+            "name": "theme",
+            "description": "The staff timeline of a theme page."
+        },
+        {
             "name": "transcription",
             "description": "Controller for meeting-transcription actions."
         },
@@ -7299,6 +7303,48 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/themes/{id}/timeline": {
+            "get": {
+                "operationId": "theme-timeline",
+                "summary": "The staff timeline of a theme",
+                "description": "The staff timeline of a theme: every linked meeting, agenda item, decision, commitment and long-term agenda item by its date, oldest first, each marked published or not. A theme the caller may not read answers 404, the same as one that does not exist. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "theme"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The theme UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
                     }
                 }
             }
