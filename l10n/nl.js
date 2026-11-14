@@ -470,6 +470,7 @@ OC.L10N.register(
         "Not saved: {names}": "Niet opgeslagen: {names}",
         "Close voting round? {notVoted} of {total} members have not voted yet.": "Stemronde sluiten? {notVoted} van {total} leden hebben nog niet gestemd.",
         "Closed": "Gesloten",
+        "Cancelled": "Afgelast",
         "Ready for destruction": "Klaar voor vernietiging",
         "Destroyed and transferred": "Vernietigd en overgebracht",
         "Log": "Logboek",

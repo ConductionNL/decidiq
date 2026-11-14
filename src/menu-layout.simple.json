@@ -1628,7 +1628,8 @@
 						"opened": "In session",
 						"paused": "Paused",
 						"adjourned": "Adjourned",
-						"closed": "Closed"
+						"closed": "Closed",
+						"cancelled": "Cancelled"
 					},
 					"colorMap": {
 						"draft": "default",
@@ -1636,7 +1637,8 @@
 						"opened": "success",
 						"paused": "warning",
 						"adjourned": "warning",
-						"closed": "default"
+						"closed": "default",
+						"cancelled": "default"
 					}
 				},
 				"nextStep": {
