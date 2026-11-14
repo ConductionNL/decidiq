@@ -98,6 +98,11 @@ $extra = [
         ['name' => 'actionItem#update',  'url' => '/api/action-items/{uid}', 'verb' => 'PUT',    'requirements' => ['uid' => '[^/]+']],
         ['name' => 'actionItem#destroy', 'url' => '/api/action-items/{uid}', 'verb' => 'DELETE', 'requirements' => ['uid' => '[^/]+']],
 
+        // Member pathways — granting and revoking a member's groups (secretariat of the body).
+        // @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md
+        ['name' => 'onboarding#assignGroups', 'url' => '/api/member-onboardings/{id}/assign-groups', 'verb' => 'POST'],
+        ['name' => 'onboarding#revokeGroups', 'url' => '/api/member-offboardings/{id}/revoke-groups', 'verb' => 'POST'],
+
         // Member import (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/admin-settings/spec.md
         ['name' => 'memberImport#groups',       'url' => '/api/member-import/groups',                   'verb' => 'GET'],

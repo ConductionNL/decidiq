@@ -1,0 +1,33 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change member-onboarding (REQ-MOB-006 / REQ-MOB-008). A governance body names, per role, the Nextcloud groups a member in that role belongs to. Provisioning on an onboarding adds the member to the groups of their role; revocation on an offboarding removes them from every group the body maps, and from no other group. The groups must already exist: provisioning never creates a group. Chair and signatory scopes are not listed here; they follow from the roster through the role-to-scope projection.",
+  "_spec": "openspec/changes/member-onboarding/specs/member-onboarding/spec.md",
+  "components": {
+    "schemas": {
+      "GovernanceBody": {
+        "slug": "governance-body",
+        "properties": {
+          "memberGroups": {
+            "title": "Member groups",
+            "type": "object",
+            "description": "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "member": ["council-members"],
+              "chair": ["council-members", "council-presidium"]
+            },
+            "x-notes": "Keys are the roles of a member onboarding (chair, vice-chair, secretary, treasurer, member, observer, guest). Empty means nothing is mapped: provisioning then refuses with a named error instead of reporting success."
+          }
+        }
+      }
+    }
+  }
+}

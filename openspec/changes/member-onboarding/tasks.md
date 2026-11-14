@@ -52,8 +52,9 @@
   - GIVEN an unresolved mapping or failed group write WHEN provisioning runs THEN the step stays not-completed with a named error — no partial success reported (fail-closed, unit-proven)
   - GIVEN an offboarding groepen-intrekken confirmation WHEN executed THEN mapped groups are removed, the Membership carries endDate = eindeDatum, unrelated groups are untouched, and the traject cannot reach `afgerond` while this step is open
   - GIVEN a non-griffie member WHEN calling the provisioning/revocation endpoints THEN the request is rejected (per-body guard, correct auth attributes — no-admin-idor/semantic-auth gates pass)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `OnboardingProvisioningService` (`provision()` for assign-groups, `revoke()` for revoke-groups) behind `POST /api/member-onboardings/{id}/assign-groups` and `POST /api/member-offboardings/{id}/revoke-groups` in `OnboardingController`. The body-role to group mapping is a new `GovernanceBody.memberGroups` property (fragment 133, role => Nextcloud group ids), so it lives on the body configuration as design D3 proposed. Fail closed: an unmapped role or a missing group refuses before any write; a write that does not hold rolls back the groups the run added and keeps the step open; revocation removes only the body's mapped groups, verifies the member is in none of them, then end-dates the membership on the offboarding's `endDate`. No scope group is written: the role-to-scope projection follows the roster. Access: `PathwayStaffGuard` (administrator, the secretariat role's groups, or the body's secretary on the roster; fails closed on an unreadable roster). Account linkage itself stays the existing Member Import matching. Tests: `OnboardingProvisioningServiceTest` (14), `PathwayStaffGuardTest` (6), `OnboardingControllerTest` (5).
 
 ### Task 6: Induction pack delivery into the member's Files
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files`

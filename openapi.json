@@ -234,6 +234,10 @@
         {
             "name": "voting-record",
             "description": "A person's voting record."
+        },
+        {
+            "name": "member-pathways",
+            "description": "The secretariat's access steps on member onboardings and offboardings."
         }
     ],
     "paths": {
@@ -7196,6 +7200,118 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/member-onboardings/{id}/assign-groups": {
+            "post": {
+                "operationId": "member-pathways-assign-groups",
+                "summary": "Grant a joining member the groups of their role",
+                "description": "Grant a joining member the groups of their role on the body, and complete the assign-groups step with the verified group list. Fails closed: an unmapped role or a missing group refuses before anything is written. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The member onboarding.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The step was completed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "502": {
+                        "description": "A group write did not hold; the step stays open and nothing is reported as done.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/member-offboardings/{id}/revoke-groups": {
+            "post": {
+                "operationId": "member-pathways-revoke-groups",
+                "summary": "Revoke a leaving member's groups",
+                "description": "Remove a leaving member from every group the body maps, end the membership on the offboarding's end date, and complete the revoke-groups step with the verified state. Groups outside the body's mapping are not touched. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The member offboarding.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The step was completed.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "502": {
+                        "description": "A group write did not hold; the step stays open and nothing is reported as done.",
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
                     }
                 }
             }
