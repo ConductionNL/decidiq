@@ -1,0 +1,238 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Speaking rights at meetings (inspreekrecht-plenair) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). DECLARATIVE CORE: the secretariat's cross-meeting overview of speaking requests (pending first through the default quick filter), a request detail page with its contribution, Files leaf and audit trail, and the per-body speaking policies. Schema refs BY SLUG (speaking-request, speaking-policy), never the PascalCase keys. Moderation (approve/reject/refer), the deadline warning and the agenda/queue blocks call /api/speaking-requests/* and /api/meetings/{id}/speaking-* and are imperative Vue still to be wired (tasks 5-7). No menu entries yet: the main menu and the simple structure profile are a fixed design (nav ceiling, structureProfile), so placing these pages there is its own decision; the pages are reachable by route.",
+	"_spec": "openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
+	"menu": [],
+	"pages": [
+		{
+			"id": "SpeakingRequests",
+			"route": "/speaking-requests",
+			"type": "index",
+			"title": "Speaking requests",
+			"_note": "spec: openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
+			"config": {
+				"register": "decidiq",
+				"schema": "speaking-request",
+				"sortKey": "@self.created",
+				"sortOrder": "asc",
+				"_note": "Cross-meeting overview for the secretariat. The default quick filter shows pending (registered) requests first; the others split by outcome. The lifecycle and late-registration columns render as badges (icon + text, never colour alone). A row opens the request detail.",
+				"quickFilterMode": "dropdown",
+				"quickFilterMultiple": false,
+				"quickFilters": [
+					{
+						"label": "Pending",
+						"filter": {
+							"lifecycle": "registered"
+						},
+						"default": true
+					},
+					{
+						"label": "Approved",
+						"filter": {
+							"lifecycle": "approved"
+						}
+					},
+					{
+						"label": "Rejected",
+						"filter": {
+							"lifecycle": "rejected"
+						}
+					},
+					{
+						"label": "Spoke",
+						"filter": {
+							"lifecycle": "spoke"
+						}
+					},
+					{
+						"label": "No-show",
+						"filter": {
+							"lifecycle": "no-show"
+						}
+					},
+					{
+						"label": "All",
+						"filter": {}
+					}
+				],
+				"columns": [
+					{
+						"key": "meeting",
+						"label": "Meeting",
+						"widget": "link"
+					},
+					{
+						"key": "agendaItem",
+						"label": "Agenda item"
+					},
+					{
+						"key": "governanceBody",
+						"label": "Body"
+					},
+					{
+						"key": "lifecycle",
+						"label": "Status",
+						"widget": "badge"
+					},
+					{
+						"key": "allottedMinutes",
+						"label": "Minutes"
+					},
+					{
+						"key": "position",
+						"label": "Order"
+					},
+					{
+						"key": "registeredAfterDeadline",
+						"label": "After the deadline",
+						"widget": "badge"
+					}
+				],
+				"actions": [
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "EyeOutline",
+						"handler": "navigate",
+						"route": "SpeakingRequestDetail",
+						"primary": true
+					}
+				],
+				"actionToggles": {
+					"showAdd": false
+				},
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "SpeakingRequestDetail",
+			"route": "/speaking-requests/:id",
+			"type": "detail",
+			"title": "Speaking request",
+			"_note": "spec: openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage",
+			"config": {
+				"register": "decidiq",
+				"schema": "speaking-request",
+				"_note": "The request with its topic, outcome, written contribution and transcript segment; the meeting and agenda item render as resolved references in the Related widget. The Files leaf holds attachments to the contribution; the audit trail is a sidebar tab.",
+				"widgets": [
+					{
+						"id": "request-data",
+						"type": "data",
+						"title": "Speaking request",
+						"icon": "AccountVoice",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "request-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Contribution files",
+						"icon": "FolderOutline"
+					},
+					{
+						"id": "request-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
+				],
+				"layout": [
+					{
+						"id": "1",
+						"widgetId": "request-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "request-files",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 6
+					},
+					{
+						"id": "3",
+						"widgetId": "request-related",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 3
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "SpeakingPolicies",
+			"route": "/speaking-policies",
+			"type": "index",
+			"title": "Speaking policies",
+			"_note": "spec: openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-003-per-body-inspraak-policy-schema",
+			"config": {
+				"register": "decidiq",
+				"schema": "speaking-policy",
+				"_note": "One policy per governance body: whether it offers speaking rights, the registration deadline, the default speaking time, the level (per agenda item or per meeting) and the public display. Edited through the schema-driven form.",
+				"columns": [
+					{
+						"key": "governanceBody",
+						"label": "Body",
+						"widget": "link"
+					},
+					{
+						"key": "enabled",
+						"label": "Speaking rights",
+						"widget": "badge"
+					},
+					{
+						"key": "registrationDeadlineHours",
+						"label": "Deadline (hours)"
+					},
+					{
+						"key": "defaultSpeakingMinutes",
+						"label": "Default minutes"
+					},
+					{
+						"key": "level",
+						"label": "Level",
+						"widget": "badge"
+					},
+					{
+						"key": "publicDisplay",
+						"label": "Public display",
+						"widget": "badge"
+					}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

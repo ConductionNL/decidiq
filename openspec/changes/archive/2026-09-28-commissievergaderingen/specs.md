@@ -78,6 +78,8 @@
 
 **GIVEN** een CommissieVergadering staat gepland en burger wil inspreken op specifiek agendapunt
 **WHEN** burger zich aanmeldt via publiek portaal `POST /public-api/commissions/{id}/inspraak`
+> **Amendement (inspreekrecht-plenair, D1):** deze specificatie definieert InspraakAanmelding niet meer zelf. De ene canonieke definitie is `speaking-request` (met `speaking-policy`) in `lib/Settings/register.d/64-inspreekrecht-plenair.json`; commissievergaderingen verwijst ernaar via de generieke `meeting`-verwijzing. Onveranderlijkheid na goedkeuring geldt alleen voor de burgervelden (`contactDetails`, `topic`); `contribution` en `transcriptSegment` blijven door de griffie te vullen. Het register van dit change telt daarmee 7 schemas.
+
 **THEN** wordt InspraakAanmelding aangemaakt met twee veldgroepen:
   - `contactgegevens` (naam, email, telefoon, adres — alleen voor griffie zichtbaar)
   - `onderwerp` (spreker-naam (kan pseudoniem), organisatie, spreektijd-aanvraag — publiek)
@@ -139,4 +141,4 @@
 - `BelangenverstrengelingDeclaratie` per lid-agendapunt combinatie is uniek; create-if-not-exists pattern
 - `CommissieAdvies` kan alleen ontstaan na beraadslaging (CommissieAgendapunt.status: 'behandeld')
 - `Presentielijst` één per CommissieVergadering; wijzigingen via transactie-pattern (versioning)
-- `InspraakAanmelding` onveranderlijk na `status: 'goedgekeurd'`; geen edit-after-approval
+- `InspraakAanmelding` (`speaking-request`): de burgervelden (`contactDetails`, `topic`) zijn onveranderlijk na goedkeuring; `contribution` en `transcriptSegment` blijven door de griffie te vullen (amendement inspreekrecht-plenair)

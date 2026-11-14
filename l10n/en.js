@@ -3365,7 +3365,20 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Speaking requests": "Speaking requests",
+        "Spoke": "Spoke",
+        "No-show": "No-show",
+        "After the deadline": "After the deadline",
+        "View": "View",
+        "Speaking request": "Speaking request",
+        "Contribution files": "Contribution files",
+        "Related": "Related",
+        "Speaking policies": "Speaking policies",
+        "Speaking rights": "Speaking rights",
+        "Deadline (hours)": "Deadline (hours)",
+        "Default minutes": "Default minutes",
+        "Public display": "Public display"
     },
     "nplurals=2; plural=(n != 1);"
 )

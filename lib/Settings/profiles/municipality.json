@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 230,
+			"objectCount": 234,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -4839,6 +4839,99 @@
 						"skipped": [
 							"04 - Kadernota begroting 2026/begroting-detail.xlsx (non-PDF attachment)"
 						]
+					}
+				],
+				"speaking-policy": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-policy"
+						},
+						"slug": "speaking-policy-gemeenteraad-amsterdam",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"enabled": true,
+						"registrationDeadlineHours": 24,
+						"defaultSpeakingMinutes": 5,
+						"level": "agenda-item",
+						"publicDisplay": "first-name"
+					}
+				],
+				"speaking-request": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-request"
+						},
+						"slug": "speaking-request-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15",
+						"agendaItem": "vaststelling-omgevingsvisie",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"topic": {
+							"speakerName": "Mw. Jansen",
+							"topicText": "Herinrichting dorpsplein in de omgevingsvisie",
+							"requestedMinutes": 5
+						},
+						"contactDetails": {
+							"name": "Marieke Jansen",
+							"email": "m.jansen@example.org",
+							"phone": "06-12345678",
+							"address": "Dorpsstraat 12, 1011 AB Amsterdam"
+						},
+						"lifecycle": "spoke",
+						"allottedMinutes": 5,
+						"position": 1,
+						"contribution": "Namens de buurt vraag ik aandacht voor het dorpsplein: houd het autovrij op marktdagen en plant de bomen terug die bij de herinrichting verdwijnen."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-request"
+						},
+						"slug": "speaking-request-kap-eikenlaan",
+						"meeting": "commissie-ruimte-2026-11-03",
+						"agendaItem": "commissie-ruimte-2026-11-03-punt-1",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"topic": {
+							"speakerName": "Dhr. De Boer (namens Bewonerscomité)",
+							"organisation": "Bewonerscomité Eikenlaan",
+							"topicText": "Voorgenomen kap van 12 eiken",
+							"requestedMinutes": 5
+						},
+						"contactDetails": {
+							"name": "Pieter de Boer",
+							"email": "p.deboer@example.org",
+							"phone": "06-23456789",
+							"address": "Eikenlaan 4, 1012 CD Amsterdam"
+						},
+						"lifecycle": "approved",
+						"allottedMinutes": 4,
+						"position": 2
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "speaking-request"
+						},
+						"slug": "speaking-request-verkeersbesluit-centrum",
+						"meeting": "commissie-ruimte-2026-11-03",
+						"agendaItem": "commissie-ruimte-2026-11-03-punt-2",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"topic": {
+							"speakerName": "A. Visser",
+							"topicText": "Verkeersbesluit centrum",
+							"requestedMinutes": 5
+						},
+						"contactDetails": {
+							"name": "Anna Visser",
+							"email": "a.visser@example.org",
+							"phone": "06-34567890",
+							"address": "Kerkplein 7, 1013 EF Amsterdam"
+						},
+						"lifecycle": "registered"
 					}
 				]
 			}

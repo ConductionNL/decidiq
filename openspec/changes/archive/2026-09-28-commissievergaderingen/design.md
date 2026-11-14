@@ -66,6 +66,8 @@ Wanneer CommissieAgendapunt wordt geopend voor beraadslaging, wordt per Commissi
 
 ### D5: InspraakAanmelding scheidt contactgegevens (intern) van inspraak-onderwerp (publiek)
 
+> **Amendement (inspreekrecht-plenair, D1):** dit change definieert InspraakAanmelding niet meer zelf. De ene canonieke definitie is `speaking-request` (met `speaking-policy`) in `lib/Settings/register.d/64-inspreekrecht-plenair.json`; commissievergaderingen verwijst ernaar via de generieke `meeting`-verwijzing. Onveranderlijkheid na goedkeuring geldt alleen voor de burgervelden (`contactDetails`, `topic`); `contribution` en `transcriptSegment` blijven door de griffie te vullen. Het register van dit change telt daarmee 7 schemas.
+
 InspraakAanmelding heeft twee veldsets: `contactgegevens` (naam, email, telefoon, adres — intern) en `onderwerp` (spreker-naam, organisatie, spreektijd-aanvraag — publiek). Griffie ziet beide; publieke verslaglegging toont alleen onderwerp.
 
 **Alternatieven:** één 'inspraak-bijdrager'-veld met alles gemengd. **Waarom dit:** Privacy (burgers willen niet dat hun adres publiek is); AVG-naleving (intern contact gescheiden van publieke registratie); technische scheiding enforces privacy.
@@ -265,7 +267,7 @@ Commissie heeft `type`-enum (vast, tijdelijk, ad-hoc) en `portefeuille-scope` (a
 
 ## Migration Plan
 
-1. **Add register template:** `lib/Settings/commissievergaderingen_register.json` met 8 schemas en seed data
+1. **Add register template:** `lib/Settings/commissievergaderingen_register.json` met 7 schemas en seed data (InspraakAanmelding is `speaking-request` in fragment 64, zie het amendement bij D5)
 2. **Add migration:** `lib/Migration/CommissionRegistration.php` implementeert `IRepairStep` die `ConfigurationService::importFromApp('commissievergaderingen')` aanroept
 3. **Update Application.php:** Registreer CommissionRegistration in repair-steps
 4. **Add services:** `CommissionService` + `CommissionMeetingService` met CRUD + business logic
