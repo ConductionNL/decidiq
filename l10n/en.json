@@ -3369,7 +3369,13 @@
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
         "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
         "Member groups": "Member groups",
-        "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.": "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave."
+        "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.": "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.",
+        "Induction documents": "Induction documents",
+        "Link": "Link",
+        "The documents and links a joining member of this body receives in their own Files.": "The documents and links a joining member of this body receives in their own Files.",
+        "The name of the document or link.": "The name of the document or link.",
+        "The Nextcloud file to copy.": "The Nextcloud file to copy.",
+        "A web address to include instead of a file.": "A web address to include instead of a file."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

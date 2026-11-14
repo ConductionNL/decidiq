@@ -101,6 +101,7 @@ $extra = [
         // Member pathways — granting and revoking a member's groups (secretariat of the body).
         // @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md
         ['name' => 'onboarding#assignGroups', 'url' => '/api/member-onboardings/{id}/assign-groups', 'verb' => 'POST'],
+        ['name' => 'onboarding#deliverInductionPack', 'url' => '/api/member-onboardings/{id}/induction-pack', 'verb' => 'POST'],
         ['name' => 'onboarding#revokeGroups', 'url' => '/api/member-offboardings/{id}/revoke-groups', 'verb' => 'POST'],
 
         // Member import (admin-only — AuthorizedAdminSetting on every method).

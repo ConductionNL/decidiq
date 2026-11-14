@@ -4,7 +4,8 @@
  * Decidiq Onboarding Controller
  *
  * The secretariat's actions on member onboardings and offboardings that no
- * register dialect can express: granting and revoking groups.
+ * register dialect can express: granting and revoking groups, and
+ * delivering the induction pack.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -27,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Service\InductionPackService;
 use OCA\Decidiq\Service\OnboardingProvisioningService;
 use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwayStaffGuard;
@@ -55,12 +57,14 @@ class OnboardingController extends Controller {
 	 * @param IUserSession                  $userSession  The user session.
 	 * @param PathwayStaffGuard             $guard        Who may manage a body's pathways.
 	 * @param OnboardingProvisioningService $provisioning Granting and revoking groups.
+	 * @param InductionPackService          $inductionPack Delivering the induction documents.
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
 		private readonly PathwayStaffGuard $guard,
 		private readonly OnboardingProvisioningService $provisioning,
+		private readonly InductionPackService $inductionPack,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -102,6 +106,25 @@ class OnboardingController extends Controller {
 
 		return $this->respond(result: $this->provisioning->revoke(offboardingId: $id, actor: $this->uid()));
 	}//end revokeGroups()
+
+	/**
+	 * Deliver the body's induction documents into the joining member's Files.
+	 *
+	 * @param string $id The member onboarding uuid.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files
+	 */
+	#[NoAdminRequired]
+	public function deliverInductionPack(string $id): JSONResponse {
+		$denied = $this->deny(schema: OnboardingProvisioningService::ONBOARDING, id: $id);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		return $this->respond(result: $this->inductionPack->deliver(onboardingId: $id, actor: $this->uid()));
+	}//end deliverInductionPack()
 
 	/**
 	 * The refusal for a caller who may not manage the record's body, or null.

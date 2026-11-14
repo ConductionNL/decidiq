@@ -3794,7 +3794,13 @@
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
         "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
         "Member groups": "Ledengroepen",
-        "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.": "Per rol de Nextcloud-groepen waaraan een lid van dit orgaan wordt toegevoegd bij instroom en waaruit het wordt verwijderd bij uitstroom."
+        "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.": "Per rol de Nextcloud-groepen waaraan een lid van dit orgaan wordt toegevoegd bij instroom en waaruit het wordt verwijderd bij uitstroom.",
+        "Induction documents": "Introductiedocumenten",
+        "Link": "Link",
+        "The documents and links a joining member of this body receives in their own Files.": "De documenten en links die een nieuw lid van dit orgaan in de eigen Bestanden ontvangt.",
+        "The name of the document or link.": "De naam van het document of de link.",
+        "The Nextcloud file to copy.": "Het Nextcloud-bestand dat wordt gekopieerd.",
+        "A web address to include instead of a file.": "Een webadres dat in plaats van een bestand wordt meegegeven."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

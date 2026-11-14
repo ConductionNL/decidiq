@@ -62,8 +62,9 @@
 - **acceptance_criteria**:
   - GIVEN a traject with linked ncAccount and a configured induction set WHEN the introductiepakket step is triggered THEN a folder with the deliverable documents appears in the member's Files (FileService folder-package pattern) and the step completes with the folder as reference
   - GIVEN an undeliverable item WHEN delivery runs THEN remaining items are delivered and the result lists the skipped item (skip-report, never silent); GIVEN no linked ncAccount THEN delivery refuses with a message pointing at the account-koppeling step
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `InductionPackService::deliver()` behind `POST /api/member-onboardings/{id}/induction-pack`. The induction set is a new `GovernanceBody.inductionDocuments` list (fragment 133: title plus a Nextcloud file id or a link). Delivery makes `Welcome - <body>` in the member's own Files, copies each file into it and writes the links into `Links.md`, following the meeting package's folder pattern (an existing folder or file is reused, so a repeated run replaces). A file is read from the confirming user's own Files, so nobody can hand out a document they cannot open. A missing or unreadable item is listed as skipped and the rest still goes; when nothing could be delivered the step stays open. Without a linked account it refuses and points at the account linking step. The step's reference is the folder path. Tests: `InductionPackServiceTest` (6), one more in `OnboardingControllerTest`.
 
 ### Task 7: Raadswisseling batch orchestration — diff, suggestion list, griffie confirm
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import`

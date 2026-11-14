@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Controller;
 
 use OCA\Decidiq\Controller\OnboardingController;
+use OCA\Decidiq\Service\InductionPackService;
 use OCA\Decidiq\Service\OnboardingProvisioningService;
 use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwayStaffGuard;
@@ -66,6 +67,13 @@ class OnboardingControllerTest extends TestCase {
 	private OnboardingProvisioningService&MockObject $provisioning;
 
 	/**
+	 * The induction pack service.
+	 *
+	 * @var InductionPackService&MockObject
+	 */
+	private InductionPackService&MockObject $inductionPack;
+
+	/**
 	 * Build the mocks.
 	 *
 	 * @return void
@@ -73,7 +81,8 @@ class OnboardingControllerTest extends TestCase {
 	protected function setUp(): void {
 		$this->session      = $this->createMock(IUserSession::class);
 		$this->guard        = $this->createMock(PathwayStaffGuard::class);
-		$this->provisioning = $this->createMock(OnboardingProvisioningService::class);
+		$this->provisioning  = $this->createMock(OnboardingProvisioningService::class);
+		$this->inductionPack = $this->createMock(InductionPackService::class);
 	}//end setUp()
 
 	/**
@@ -112,6 +121,26 @@ class OnboardingControllerTest extends TestCase {
 		$this->assertSame(403, $this->controller()->assignGroups(id: 'onb-1')->getStatus());
 		$this->assertSame(403, $this->controller()->revokeGroups(id: 'off-1')->getStatus());
 	}//end testACallerOutsideTheSecretariatIsRefused()
+
+	/**
+	 * A permitted caller delivers the pack; a refused one never reaches it.
+	 *
+	 * @return void
+	 */
+	public function testTheInductionPackIsDeliveredOnlyForAPermittedCaller(): void {
+		$this->signIn(uid: 'griffier');
+		$this->provisioning->method('bodyOf')->with('member-onboarding', 'onb-1')->willReturn('body-1');
+		$this->guard->method('mayManage')->willReturnOnConsecutiveCalls(true, false);
+		$this->inductionPack->expects($this->once())->method('deliver')->with('onb-1', 'griffier')
+			->willReturn(PathwayResult::done(message: 'Delivered 2 item(s) to /Welcome.', details: ['folder' => '/Welcome']));
+
+		$first  = $this->controller()->deliverInductionPack(id: 'onb-1');
+		$second = $this->controller()->deliverInductionPack(id: 'onb-1');
+
+		$this->assertSame(200, $first->getStatus());
+		$this->assertSame('/Welcome', $first->getData()['folder']);
+		$this->assertSame(403, $second->getStatus());
+	}//end testTheInductionPackIsDeliveredOnlyForAPermittedCaller()
 
 	/**
 	 * An unknown record answers 404 without the access check.
@@ -180,6 +209,7 @@ class OnboardingControllerTest extends TestCase {
 			userSession: $this->session,
 			guard: $this->guard,
 			provisioning: $this->provisioning,
+			inductionPack: $this->inductionPack,
 		);
 	}//end controller()
 
