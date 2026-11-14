@@ -35,6 +35,9 @@ use OCA\Decidiq\Kernel\Contracts\VotingErrorResponderInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
+use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Service\VoteCast;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -60,6 +63,7 @@ class VotingController extends Controller {
 	 * @param VotingOpenRequestHandlerInterface $openHandler Open-a-round request handling
 	 * @param ProxyDelegationServiceInterface $proxyService Proxy (volmacht) grant / revoke
 	 * @param VotingErrorResponderInterface $errors Exception-to-status mapping
+	 * @param WrittenRoundServiceInterface $written Rounds held in writing, without a meeting
 	 *
 	 * @return void
 	 *
@@ -74,6 +78,7 @@ class VotingController extends Controller {
 		private readonly VotingOpenRequestHandlerInterface $openHandler,
 		private readonly ProxyDelegationServiceInterface $proxyService,
 		private readonly VotingErrorResponderInterface $errors,
+		private readonly WrittenRoundServiceInterface $written,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
@@ -100,6 +105,12 @@ class VotingController extends Controller {
 	#[NoAdminRequired]
 	public function open(): JSONResponse {
 		$params = $this->request->getParams();
+
+		// A written round has no meeting: its own signatory-scope check runs
+		// in the written opener, never the meeting guard (REQ-WRS-001).
+		if (($params['procedure'] ?? 'in-meeting') === 'written') {
+			return $this->openWritten(params: $params);
+		}
 		$meetingId = ($params['meetingId'] ?? '');
 
 		// Per-meeting chair/secretary check: use the meetingId from the request body if present.
@@ -145,6 +156,12 @@ class VotingController extends Controller {
 			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
 		}
 
+		// A written round answers against its electorate snapshot, never the
+		// meeting participants (REQ-WRS-002).
+		if ($this->written->writtenRound(roundId: $id) !== null) {
+			return $this->answerWritten(id: $id, userId: $nextcloudUid, value: (string)($this->request->getParams()['value'] ?? ''));
+		}
+
 		// Resolve the OpenRegister participant UUID for this Nextcloud user.
 		$participantId = $this->votingService->resolveParticipantUuid($nextcloudUid);
 		if ($participantId === null) {
@@ -174,6 +191,64 @@ class VotingController extends Controller {
 		);
 
 	}//end cast()
+
+	/**
+	 * Open a round held in writing.
+	 *
+	 * @param array<string, mixed> $params The request body.
+	 *
+	 * @return JSONResponse 201 with the round; 401, 403 or 400 with the reason.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 */
+	private function openWritten(array $params): JSONResponse {
+		$userId = $this->userSession->getUser()?->getUID() ?? '';
+		if ($userId === '') {
+			return new JSONResponse(['message' => 'Unauthenticated'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		return $this->writtenResponse(
+			operation: fn (): JSONResponse => new JSONResponse($this->written->open(params: $params, userId: $userId), Http::STATUS_CREATED)
+		);
+	}//end openWritten()
+
+	/**
+	 * Answer a round held in writing.
+	 *
+	 * @param string $id     The round.
+	 * @param string $userId The Nextcloud user answering.
+	 * @param string $value  The answer.
+	 *
+	 * @return JSONResponse 201 with the vote and the round; 403, 404 or 400 with the reason.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 */
+	private function answerWritten(string $id, string $userId, string $value): JSONResponse {
+		return $this->writtenResponse(
+			operation: fn (): JSONResponse => new JSONResponse($this->written->answer(roundId: $id, userId: $userId, value: $value), Http::STATUS_CREATED)
+		);
+	}//end answerWritten()
+
+	/**
+	 * Map the refusals of a written round to their status.
+	 *
+	 * @param callable(): JSONResponse $operation The operation.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-002-each-entitled-member-answers-from-the-decision-page
+	 */
+	private function writtenResponse(callable $operation): JSONResponse {
+		try {
+			return $operation();
+		} catch (AccessDeniedException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_FORBIDDEN);
+		} catch (NotFoundException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_NOT_FOUND);
+		} catch (\InvalidArgumentException | \RuntimeException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
+		}
+	}//end writtenResponse()
 
 	/**
 	 * The value and ranking a cast request carries.

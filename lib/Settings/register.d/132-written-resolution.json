@@ -1,0 +1,115 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change voting-written-resolution (REQ-WRS-001 to REQ-WRS-004, matrix row vot-16). A voting round can be held in writing: without a meeting, on a decision, put by the body's chair or secretary to a snapshot of the body's entitled members, counted against that whole electorate. Every round stored before this fragment keeps procedure in-meeting and means what it meant.",
+  "components": {
+    "schemas": {
+      "VotingRound": {
+        "slug": "voting-round",
+        "version": "0.5.0",
+        "properties": {
+          "procedure": {
+            "title": "Procedure",
+            "type": "string",
+            "description": "How the round is held: in a meeting, or in writing between meetings.",
+            "enum": ["in-meeting", "written"],
+            "default": "in-meeting",
+            "x-notes": "Set when the round opens and never changed. A written round has no meeting; its electorate, not the meeting's quorum, decides who must answer."
+          },
+          "decision": {
+            "title": "Decision",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "decision",
+            "nullable": true,
+            "description": "The decision a written round puts to the body.",
+            "x-notes": "The subject of a written round, next to motion and amendment for a round in a meeting. Set when the round opens and never changed."
+          },
+          "governanceBody": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "governance-body",
+            "nullable": true,
+            "description": "The body a written round is put to.",
+            "x-notes": "Required when procedure is written. The opener must be in the body's signatory scope (chair, vice-chair or secretary)."
+          },
+          "electorate": {
+            "title": "Electorate",
+            "type": "array",
+            "description": "The entitled members a written round was put to, as they were when it opened.",
+            "x-notes": "A snapshot taken at open: every membership of the body active that day whose role is not observer or guest, with the member's Nextcloud user id and voting weight. Never changed afterwards, so somebody who joins the body later does not answer this round.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "membership": {
+                  "title": "Membership",
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "person": {
+                  "title": "Person",
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "userId": {
+                  "title": "Nextcloud user",
+                  "type": "string"
+                },
+                "votingWeight": {
+                  "title": "Voting weight",
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "electorateUserIds": {
+            "title": "Electorate user ids",
+            "type": "array",
+            "description": "The Nextcloud user ids of the electorate, flat, for the notification to the members.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "writtenRule": {
+            "title": "Written rule",
+            "type": "string",
+            "description": "When a written round is adopted: every entitled member answered for, or the for weight meets the round's vote threshold of the whole electorate.",
+            "enum": ["unanimous", "threshold"],
+            "default": "unanimous",
+            "x-notes": "Silence is not consent: under either rule the base is the whole electorate, not the answers received, and an objection rejects the round."
+          },
+          "closedReason": {
+            "title": "Closed reason",
+            "type": "string",
+            "nullable": true,
+            "description": "Why a written round closed: every member answered, the outcome could no longer change, a member objected, or the deadline passed.",
+            "enum": ["all-answered", "outcome-settled", "objection", "deadline"]
+          }
+        }
+      },
+      "Vote": {
+        "slug": "vote",
+        "version": "0.4.0",
+        "properties": {
+          "value": {
+            "title": "Vote",
+            "description": "Vote value",
+            "enum": ["objection"],
+            "x-notes": "objection is \"Discuss this in a meeting\", accepted on a written round only; it rejects the round."
+          },
+          "membership": {
+            "title": "Membership",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "membership",
+            "nullable": true,
+            "description": "The membership a written-round answer was given under.",
+            "x-notes": "On a written round the answer relates to the member's membership instead of a meeting participant."
+          }
+        }
+      }
+    }
+  }
+}
