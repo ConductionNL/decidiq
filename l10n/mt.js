@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Laqgħa straordinarja",
         "Committee meeting": "Laqgħa tal-kumitat",
         "Public hearing": "Seduta pubblika",
-        "General assembly": "Assemblea ġenerali"
+        "General assembly": "Assemblea ġenerali",
+        "Members' ancillary positions": "Karigi anċillari tal-membri"
     },
     "nplurals=2; plural=(n != 1);"
 )

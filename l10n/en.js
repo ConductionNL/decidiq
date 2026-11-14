@@ -1700,6 +1700,7 @@ OC.L10N.register(
         "Possible conflict with another amendment — consult the clerk": "Possible conflict with another amendment — consult the clerk",
         "Post-moderation (auto-approve authenticated)": "Post-moderation (auto-approve authenticated)",
         "Postponed": "Postponed",
+        "Members' ancillary positions": "Members' ancillary positions",
         "Power of attorney": "Power of attorney",
         "Pre-moderation (approve before counting)": "Pre-moderation (approve before counting)",
         "Preferred language for communications": "Preferred language for communications",

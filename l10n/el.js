@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Έκτακτη συνεδρίαση",
         "Committee meeting": "Συνεδρίαση επιτροπής",
         "Public hearing": "Δημόσια ακρόαση",
-        "General assembly": "Γενική συνέλευση"
+        "General assembly": "Γενική συνέλευση",
+        "Members' ancillary positions": "Παρεπόμενες θέσεις των μελών"
     },
     "nplurals=2; plural=(n != 1);"
 )

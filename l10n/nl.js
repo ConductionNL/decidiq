@@ -1909,6 +1909,7 @@ OC.L10N.register(
         "Private": "Privé",
         "Process template": "Processjabloon",
         "Process templates": "Processjablonen",
+        "Members' ancillary positions": "Nevenfuncties van leden",
         "Processed": "Verwerkt",
         "Processing": "Bezig",
         "Processing notes": "Toelichting op de verwerking",
