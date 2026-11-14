@@ -37,6 +37,7 @@ import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab
 import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
 import BodyParticipationsTab from './components/tabs/BodyParticipationsTab.vue'
 import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
+import CommitmentPublicationTab from './components/tabs/CommitmentPublicationTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionApprovalTab from './components/tabs/DecisionApprovalTab.vue'
@@ -92,11 +93,13 @@ import MotionStageTab from './components/tabs/MotionStageTab.vue'
 import MotionTextLinesTab from './components/tabs/MotionTextLinesTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import OnboardingChecklistTab from './components/tabs/OnboardingChecklistTab.vue'
 import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
@@ -300,6 +303,8 @@ export default {
 	MotionStageTab: page(MotionStageTab),
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
+	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
+	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
 	// The case system on the agenda item and meeting pages
 	// (platform-case-system-document-exchange).
@@ -465,6 +470,7 @@ export default {
 	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
+	WrittenResolutionTab: page(WrittenResolutionTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
 
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).
@@ -479,6 +485,7 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	OnboardingChecklistTab: page(OnboardingChecklistTab),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.

@@ -124,6 +124,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline -->
+        <job>OCA\Decidiq\BackgroundJob\WrittenResolutionDeadlineJob</job>
         <!-- @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches -->
         <job>OCA\Decidiq\BackgroundJob\MeetingReminderJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
@@ -141,6 +143,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
              run twice; a stage carries the stamp that says it already lapsed.
              @spec openspec/specs/approval-routes/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ApprovalStageLapseJob</job>
+        <job>OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob</job>
         <!-- signing-external-service-with-order: every fifteen minutes, asks the
              signing service about minutes, decision lists and motions that are
              out for signature and stores the signed copy on the record.
@@ -410,6 +413,17 @@ Vrij en open source onder de EUPL-1.2-licentie.
             -->
             <step>OCA\Decidiq\Migration\MigrateMemberOnboarding</step>
             <!--
+                configurable-types-domain-model task 3.5: after InitializeSettings imports the register
+                (99-participations-are-compositions.json must already have added `migratedFromObject`
+                to GovernanceBodyComposition, or every copied row fails validation on it). Copies
+                body-participation rows onto governance-body-composition as `representation`
+                compositions: sharedBody becomes composite, participant becomes component, and the
+                date-times become the calendar dates the composition stores. Both bodies are resolved
+                to uuids first. Counted: the step reports how many it copied and how many named no
+                body. Identity is the SOURCE object's uuid. Non-destructive.
+            -->
+            <step>OCA\Decidiq\Migration\MigrateParticipationsToCompositions</step>
+            <!--
                 plain-words-for-groups-and-the-installation-step: swearing-in is a council's
                 ceremony; a board signs a deed instead. The stepType enum now says installation, so
                 stored steps have to follow or they hold a value the schema no longer offers. NOT in
@@ -585,6 +599,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <commands>
         <command>OCA\Decidiq\Command\MigrateActionItems</command>
         <command>OCA\Decidiq\Command\ImportFormResponses</command>
+        <command>OCA\Decidiq\Command\ImportOriCommand</command>
     </commands>
 
     <settings>
