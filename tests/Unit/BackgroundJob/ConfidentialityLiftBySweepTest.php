@@ -1,12 +1,12 @@
 <?php
 
 /**
- * Tests for ConfidentialityLiftByService: thirty days before the end date the
+ * Tests for ConfidentialityLiftBySweep: thirty days before the end date the
  * lifting goes on the deciding body's next meeting, once, and after the date
  * the restriction reads overdue; its lifecycle never changes (REQ-EMB-022).
  *
  * @category Test
- * @package  OCA\Decidiq\Tests\Unit\Service
+ * @package  OCA\Decidiq\Tests\Unit\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,10 +22,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidiq\Tests\Unit\Service;
+namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use DateTimeImmutable;
-use OCA\Decidiq\Service\ConfidentialityLiftByService;
+use OCA\Decidiq\BackgroundJob\ConfidentialityLiftBySweep;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCP\IAppConfig;
@@ -35,10 +35,10 @@ use Psr\Log\NullLogger;
 /**
  * The lifting sweep over an in-memory register.
  *
- * @covers \OCA\Decidiq\Service\ConfidentialityLiftByService
+ * @covers \OCA\Decidiq\BackgroundJob\ConfidentialityLiftBySweep
  * @uses   \OCA\Decidiq\Service\SystemObjectRows
  */
-class ConfidentialityLiftByServiceTest extends TestCase {
+class ConfidentialityLiftBySweepTest extends TestCase {
 	/**
 	 * The objects per schema.
 	 *
@@ -90,9 +90,9 @@ class ConfidentialityLiftByServiceTest extends TestCase {
 	 *
 	 * @param int $leadDays The lead time setting.
 	 *
-	 * @return ConfidentialityLiftByService
+	 * @return ConfidentialityLiftBySweep
 	 */
-	private function service(int $leadDays = 30): ConfidentialityLiftByService {
+	private function service(int $leadDays = 30): ConfidentialityLiftBySweep {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willReturnCallback(
 			function (array $config): array {
@@ -129,9 +129,9 @@ class ConfidentialityLiftByServiceTest extends TestCase {
 			}
 		);
 		$config = $this->createMock(IAppConfig::class);
-		$config->method('getValueInt')->with('decidiq', ConfidentialityLiftByService::LEAD_DAYS_KEY, 30)->willReturn($leadDays);
+		$config->method('getValueInt')->with('decidiq', ConfidentialityLiftBySweep::LEAD_DAYS_KEY, 30)->willReturn($leadDays);
 
-		return new ConfidentialityLiftByService($objects, $config, new NullLogger());
+		return new ConfidentialityLiftBySweep($objects, $config, new NullLogger());
 	}//end service()
 
 	/**

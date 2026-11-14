@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
-use OCA\Decidiq\Service\ConfidentialityLiftByService;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -45,14 +44,14 @@ class ConfidentialityLiftByJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory                 $time    The clock.
-	 * @param ConfidentialityLiftByService $liftBy  The lifting sweep.
+	 * @param ConfidentialityLiftBySweep $liftBy  The lifting sweep.
 	 * @param LoggerInterface              $logger  Logs a failed sweep.
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly ConfidentialityLiftByService $liftBy,
+		private readonly ConfidentialityLiftBySweep $liftBy,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

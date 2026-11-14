@@ -3,8 +3,8 @@
 /**
  * Puts the lifting of a confidentiality restriction on the agenda before its end date.
  *
- * @category Service
- * @package  OCA\Decidiq\Service
+ * @category BackgroundJob
+ * @package  OCA\Decidiq\BackgroundJob
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -20,9 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OCA\Decidiq\Service;
+namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Service\SystemObjectRows;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -40,7 +41,7 @@ use Throwable;
  *
  * @spec openspec/changes/confidentiality-term-and-lapse/tasks.md#task-3
  */
-class ConfidentialityLiftByService {
+class ConfidentialityLiftBySweep {
 	/**
 	 * The app config key of the lead time, in days.
 	 *

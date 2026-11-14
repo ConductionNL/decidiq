@@ -25,7 +25,7 @@ namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use DateTimeImmutable;
 use OCA\Decidiq\BackgroundJob\ConfidentialityLiftByJob;
-use OCA\Decidiq\Service\ConfidentialityLiftByService;
+use OCA\Decidiq\BackgroundJob\ConfidentialityLiftBySweep;
 use OCP\AppFramework\Utility\ITimeFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -45,7 +45,7 @@ class ConfidentialityLiftByJobTest extends TestCase {
 	public function testItSweepsForTodayAndLogsWhatChanged(): void {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getTime')->willReturn((int)(new DateTimeImmutable('2027-06-01T03:00:00Z'))->format('U'));
-		$sweep = $this->createMock(ConfidentialityLiftByService::class);
+		$sweep = $this->createMock(ConfidentialityLiftBySweep::class);
 		$sweep->expects(self::once())->method('sweep')
 			->with(self::callback(static fn (DateTimeImmutable $day): bool => $day->format('Y-m-d') === '2027-06-01'))
 			->willReturn(['placed' => 1, 'overdue' => 0]);
@@ -63,7 +63,7 @@ class ConfidentialityLiftByJobTest extends TestCase {
 	 */
 	public function testAFailedSweepIsLogged(): void {
 		$time  = $this->createMock(ITimeFactory::class);
-		$sweep = $this->createMock(ConfidentialityLiftByService::class);
+		$sweep = $this->createMock(ConfidentialityLiftBySweep::class);
 		$sweep->method('sweep')->willThrowException(new \RuntimeException('register down'));
 		$logger = $this->createMock(LoggerInterface::class);
 		$logger->expects(self::once())->method('error')->with('Decidiq: the confidentiality lifting sweep failed', ['reason' => 'register down']);
