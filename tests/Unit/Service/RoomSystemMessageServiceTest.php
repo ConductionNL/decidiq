@@ -47,6 +47,7 @@ use RuntimeException;
  * @covers \OCA\Decidiq\Service\RoomSystemMessageService
  * @covers \OCA\Decidiq\Service\RoomSystemRefusal
  * @covers \OCA\Decidiq\Listener\RoomSystemMessageListener
+ * @uses   \OCA\Decidiq\Service\IntegriqConnection
  */
 final class RoomSystemMessageServiceTest extends TestCase {
 
@@ -99,6 +100,9 @@ final class RoomSystemMessageServiceTest extends TestCase {
 			],
 			'vote'                => [],
 			'room-system-message' => [],
+			// The room-system connection, linked to a source in integriq.
+			'app_connection'      => ['conn-room' => ['app' => 'decidiq', 'key' => 'room-system', 'source' => 'src-room']],
+			'source'              => ['src-room' => ['title' => 'Delegate system']],
 		];
 		$this->engagement = $this->createMock(EngagementServiceInterface::class);
 		$this->votes = $this->createMock(VoteCastingService::class);
@@ -322,6 +326,40 @@ final class RoomSystemMessageServiceTest extends TestCase {
 		self::assertSame($message, $this->service()->apply($message));
 		self::assertSame([], $this->saves);
 	}//end testAnAppliedMessageIsLeftAlone()
+
+	/**
+	 * While no room system is linked, nothing is applied: the message is rejected with the reason the page shows.
+	 *
+	 * @return void
+	 */
+	public function testNothingIsAppliedWhileNoRoomSystemIsLinked(): void {
+		$this->store['app_connection']['conn-room']['source'] = '';
+		$this->votes->expects(self::never())->method('castVote');
+		$service = $this->service();
+
+		$result = $service->apply($this->deskVote(id: 'm20', seat: '12'));
+
+		self::assertFalse($service->isConnected());
+		self::assertSame(['rejected', 'No room system is connected', null], [$result['status'], $result['rejectReason'], $result['participant']]);
+	}//end testNothingIsAppliedWhileNoRoomSystemIsLinked()
+
+	/**
+	 * A meeting's messages read rejected ones first, and a message names its meeting.
+	 *
+	 * @return void
+	 */
+	public function testAMeetingsMessagesListRejectedOnesFirst(): void {
+		$this->message(id: 'm21', fields: ['kind' => 'speech', 'seat' => '12', 'status' => 'applied']);
+		$this->message(id: 'm22', fields: ['kind' => 'vote', 'seat' => '27', 'status' => 'rejected']);
+		$this->message(id: 'm23', fields: ['kind' => 'vote', 'seat' => '14', 'meeting' => 'meet-2', 'status' => 'rejected']);
+		$service = $this->service();
+
+		self::assertTrue($service->isConnected());
+		self::assertSame(['m22', 'm21'], array_column($service->forMeeting('meet-1'), 'id'));
+		self::assertSame([], $service->forMeeting(''));
+		self::assertSame('meet-2', $service->meetingOf('m23'));
+		self::assertNull($service->meetingOf('nope'));
+	}//end testAMeetingsMessagesListRejectedOnesFirst()
 
 	/**
 	 * The listener applies a message from the real OpenRegister created event, and ignores other schemas.

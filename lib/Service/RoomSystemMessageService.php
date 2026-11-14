@@ -50,6 +50,16 @@ class RoomSystemMessageService {
 
 	public const REJECTED = 'rejected';
 
+	/**
+	 * The integriq connection the room system is linked through (lib/Settings/connections.json).
+	 */
+	public const CONNECTION_KEY = 'room-system';
+
+	/**
+	 * The reason a message gets while no room system is linked.
+	 */
+	public const NOT_CONNECTED = 'No room system is connected';
+
 	private const REGISTER = 'decidiq';
 
 	/**
@@ -87,6 +97,57 @@ class RoomSystemMessageService {
 	}//end applyById()
 
 	/**
+	 * Whether a source is linked to the room-system connection. While none is,
+	 * no message is applied and the meeting page says so.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-001-the-room-system-is-an-integriq-connection
+	 */
+	public function isConnected(): bool {
+		return (new IntegriqConnection(objectService: $this->objects))->isLinked(connectionKey: self::CONNECTION_KEY);
+	}//end isConnected()
+
+	/**
+	 * The meeting a message belongs to, null when the message does not exist.
+	 *
+	 * @param string $messageId The message UUID.
+	 *
+	 * @return string|null The meeting UUID.
+	 *
+	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+	 */
+	public function meetingOf(string $messageId): ?string {
+		$message = $this->find(id: $messageId, schema: self::SCHEMA);
+		if ($message === null) {
+			return null;
+		}
+
+		return (string)($message['meeting'] ?? '');
+	}//end meetingOf()
+
+	/**
+	 * A meeting's room system messages, rejected ones first, otherwise in the order they arrived.
+	 *
+	 * @param string $meetingId The meeting UUID.
+	 *
+	 * @return list<array<string, mixed>> The messages.
+	 *
+	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-006-a-message-that-cannot-be-applied-is-kept-and-can-be-applied-again
+	 */
+	public function forMeeting(string $meetingId): array {
+		if ($meetingId === '') {
+			return [];
+		}
+
+		$messages = $this->rows(schema: self::SCHEMA, filters: ['meeting' => $meetingId]);
+		$rejected = array_values(array_filter($messages, static fn (array $row): bool => ($row['status'] ?? null) === self::REJECTED));
+		$others = array_values(array_filter($messages, static fn (array $row): bool => ($row['status'] ?? null) !== self::REJECTED));
+
+		return array_merge($rejected, $others);
+	}//end forMeeting()
+
+	/**
 	 * Apply a message and record the outcome on it.
 	 *
 	 * An already applied message is left as it is, so a repeated apply never
@@ -102,6 +163,10 @@ class RoomSystemMessageService {
 	public function apply(array $message): array {
 		if (($message['status'] ?? null) === self::APPLIED) {
 			return $message;
+		}
+
+		if ($this->isConnected() === false) {
+			return $this->record(message: $message, status: self::REJECTED, reason: self::NOT_CONNECTED, participant: null);
 		}
 
 		try {

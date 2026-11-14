@@ -68,6 +68,10 @@
             "description": "The case system on the agenda item, the minutes page and the meeting page. Every action but the status belongs to the meeting's chair or secretary."
         },
         {
+            "name": "room-system",
+            "description": "The room's conference and voting system, through integriq."
+        },
+        {
             "name": "citizen-advice",
             "description": "Open and close a residents' advisory vote on a motion."
         },
@@ -1121,6 +1125,84 @@
                 ],
                 "responses": {
                     "202": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/meetings/{id}/room-system": {
+            "get": {
+                "operationId": "room-system-meeting",
+                "summary": "Whether a room system is connected, and the meeting's messages, rejected ones first",
+                "description": "Whether a room system is connected, and the meeting's messages, rejected ones first. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/room-system-messages/{id}/apply": {
+            "post": {
+                "operationId": "room-system-apply",
+                "summary": "Apply a room system message again",
+                "description": "Apply a room system message again. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The message.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": "The request succeeded.",
                         "headers": {
                             "API-Version": {
