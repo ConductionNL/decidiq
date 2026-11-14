@@ -224,6 +224,17 @@ class PublicationPayloadService {
 				continue;
 			}
 
+			if (($item['public'] ?? true) === false) {
+				// A closed item is listed by its place only: no title, no papers.
+				$published[] = [
+					'oriType' => 'AgendaPunt',
+					'order' => (int)($item['orderNumber'] ?? 0),
+					'title' => 'Besloten punt',
+					'papers' => [],
+				];
+				continue;
+			}
+
 			$papers      = $this->agendaPapers->publish(itemId: $itemId);
 			$paperRefs   = array_merge($paperRefs, $papers['refs']);
 			$published[] = [
