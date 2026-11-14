@@ -1,0 +1,23 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change goals-linked-to-decisions (REQ-010). A decision can name the organisation goal it serves. Optional and nullable, so a decision without a goal stays valid; the goal's linkedDecisionCount aggregation (66-organisation-goals.json) counts decisions through this reference. A property only, so no schema version moves here: a later fragment in the merge order sets the decision's version and a lower one here would be overwritten anyway.",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "properties": {
+          "goal": {
+            "title": "Goal",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Goal",
+            "nullable": true,
+            "description": "The organisation goal this decision serves. Empty when the decision serves no goal."
+          }
+        }
+      }
+    }
+  }
+}
