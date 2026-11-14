@@ -46,6 +46,7 @@ import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import DocumentAccessibilityTab from './components/tabs/DocumentAccessibilityTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
 import GovernanceBodyCompositionTab from './components/tabs/GovernanceBodyCompositionTab.vue'
@@ -449,6 +450,7 @@ export default {
 
 	// Document details on meeting and agenda item pages
 	// (platform-document-metadata-fields).
+	DocumentAccessibilityTab: page(DocumentAccessibilityTab),
 	DocumentMetadataTab: page(DocumentMetadataTab),
 	// Office papers as PDF on meeting and agenda item pages
 	// (agenda-office-files-to-pdf).

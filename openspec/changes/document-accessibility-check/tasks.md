@@ -84,8 +84,9 @@
   - GIVEN attachments with reports WHEN any attachment list renders THEN each shows its status badge (text + colour, CSS variables, heuristic-scan label)
   - GIVEN a `fail` badge WHEN clicked THEN the scan detail shows each finding with evidence and source-level fix guidance in the UI language (nl/en)
   - GIVEN an unscanned attachment WHEN viewed THEN a `not-scanned` badge with a working "scan now" action calling Task 5's endpoint
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built: `AccessibilityBadge.vue` (text plus colour, CSS variables, labelled heuristic) in a new Accessibility tab (`DocumentAccessibilityTab.vue`) on the meeting and agenda item pages and in the simple structure: each file with its badge, the findings with evidence and fix guidance in the UI language (`src/utils/documentAccessibility.js`, same catalogue keys as the server), and Check now calling the scan endpoint. The library's own Files widget is not changed.
 
 ### Task 8: Publication-gate dialog
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override`
@@ -94,8 +95,9 @@
   - GIVEN a 409 `accessibility-gate` response WHEN publishing from the UI THEN the dialog renders the server-provided document list, findings, and remediation guidance
   - GIVEN mode `warn` THEN the dialog offers acknowledge-and-publish; GIVEN mode `block` THEN it requires a non-empty override reason before the publish button enables
   - Dialog lives in its own file under `src/dialogs/` (modal-isolation) and is keyboard operable per accessibility-baseline
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built: `src/dialogs/AccessibilityGateDialog.vue` (NcDialog, own file), opened on a 409 `accessibility-gate` from both publish flows (`MeetingAgendaTab`, `PublicationActionsTab`); warn offers Publish anyway, block needs a reason first; the answer is sent with the retried publication.
 
 ### Task 9: Aggregate accessibility report per body/period + CSV export
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period`
@@ -105,6 +107,7 @@
   - GIVEN the report WHEN CSV export is clicked THEN a CSV downloads with the same figures and the heuristic-scan disclaimer
 - [ ] Implement
 - [ ] Test
+  - Built as manifest pages (`src/manifest.d/document-accessibility.json`) reached from a Reports card: counts per status, a chart by status, the failing documents, and an index of all reports with status quick filters, body and date facets and mass export (CSV). Left: percentages, the override count and the disclaimer line inside the CSV need aggregation and export options the shared widgets do not offer yet.
 
 ## Quality checklist
 

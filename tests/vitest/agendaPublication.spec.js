@@ -46,7 +46,7 @@ describe('MeetingAgendaTab', () => {
 			source.indexOf('data-testid="agenda-publish"'),
 		)
 		expect(button).toMatch(/v-if="canManage"/)
-		expect(source).toMatch(/postJson\(publishAgendaPath\(this\.objectId\)\)/)
+		expect(source).toMatch(/postJson\(publishAgendaPath\(this\.objectId\), answer\)/)
 		expect(
 			readFileSync(
 				resolve(here, '../../src/components/tabs/jsonRequests.js'),
