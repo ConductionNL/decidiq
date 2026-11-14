@@ -96,6 +96,8 @@ use OCA\Decidiq\Kernel\Contracts\MotionStagesInterface;
 use OCA\Decidiq\Kernel\Contracts\MultilingualReconciliationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceRequestValidatorInterface;
 use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\OriFeedServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\OriPersonPublicationRuleInterface;
 use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
@@ -245,6 +247,8 @@ final class ContractBindings {
 		MultilingualReconciliationServiceInterface::class => MultilingualReconciliationService::class,
 		NotificationPreferenceRequestValidatorInterface::class => NotificationPreferenceRequestValidator::class,
 		NotificationPreferenceServiceInterface::class => NotificationPreferenceService::class,
+		OriFeedServiceInterface::class => Ori\OriFeedService::class,
+		OriImportServiceInterface::class => Ori\OriImportService::class,
 		OriPersonPublicationRuleInterface::class => OriPersonPublicationRule::class,
 		OriPublicationServiceInterface::class => OriPublicationService::class,
 		OriSerializerInterface::class => OriSerializer::class,
