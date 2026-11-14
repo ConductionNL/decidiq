@@ -858,6 +858,9 @@
 			},
 			"configPatch": {
 				"widgets": {
+					"decision-urgency": {
+						"type": "UrgencyBanner"
+					},
 					"decision-lifecycle": {
 						"type": "DecisionLifecycleTab"
 					},
@@ -1049,6 +1052,10 @@
 						"icon": "NoteTextOutline",
 						"content": {
 							"sections": [
+								{
+									"label": "Urgency",
+									"widgetId": "decision-urgency"
+								},
 								{
 									"label": "Content",
 									"widgetId": "decision-content"
@@ -2565,6 +2572,16 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "urgency-kpi",
+						"widgetId": "awaiting-ratification-kpi",
+						"gridX": 0,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"showHeader": false,

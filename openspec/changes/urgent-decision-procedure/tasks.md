@@ -69,8 +69,8 @@
   - GIVEN an urgent decision awaiting ratification WHEN its detail opens THEN the "urgent — awaiting ratification" banner (icon + text, CSS variables, lifecycle badge still visible) names the ratifying body
   - GIVEN the decision list WHEN rendered THEN urgent rows carry a badge and an `awaitingRatification` filter is offered
   - GIVEN the dashboard WHEN loaded THEN the KPI counts `awaitingRatification=true` decisions and navigates to the pre-filtered list
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgencyBanner` widget on DecisionDetail (also in the simple structure's Overview tab): "Urgent — awaiting ratification by {body}" with icon and text next to the lifecycle badge, where ratification is scheduled or that no meeting exists yet, and the Declare urgent / Open expedited written round actions through `DeclareUrgencyDialog` and `ExpeditedRoundDialog`; Decisions list gets an `isUrgent` badge column and a "To ratify" quick filter; Dashboard gets the "To ratify" stat counting `awaitingRatification=true`, opening the urgent decisions list pre-filtered; en/nl strings. Playwright tests and the docs screenshot are left for the live pass)
+- [x] Test (tests/vitest/urgencyState.spec.js; simpleDecisionPage/simpleListAndDashboard specs cover the new block, tile and filter)
 
 ### Task 8: Seed data — municipal + corporate urgent procedures end-to-end
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/design.md#seed-data`

@@ -224,6 +224,13 @@
 						"title": "Open action items"
 					},
 					{
+						"id": "awaiting-ratification-kpi",
+						"type": "stat",
+						"title": "To ratify",
+						"_note": "urgent-decision-procedure REQ-006: counts urgent decisions whose ratification is still open, read from the materialised awaitingRatification field (a scalar-equality filter, which the stat count endpoint honours), and opens the urgent decisions list pre-filtered to the same set.",
+						"content": { "label": "To ratify", "icon": "AlertDecagramOutline", "variant": "warning", "route": { "name": "UrgentDecisions", "query": { "isUrgent": true, "awaitingRatification": true } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "decision", "metric": "count", "filter": { "awaitingRatification": true } } }
+					},
+					{
 						"id": "open-commitments-overdue",
 						"type": "stat",
 						"title": "Commitments over deadline",
@@ -416,6 +423,16 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "urgency-kpi",
+						"widgetId": "awaiting-ratification-kpi",
+						"gridX": 0,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
@@ -1227,6 +1244,13 @@
 						"default": true
 					},
 					{
+						"label": "To ratify",
+						"icon": "AlertDecagramOutline",
+						"filter": {
+							"awaitingRatification": true
+						}
+					},
+					{
 						"label": "Motions",
 						"icon": "Gavel",
 						"filter": {
@@ -1246,6 +1270,11 @@
 					{
 						"key": "lifecycle",
 						"label": "Stage",
+						"widget": "badge"
+					},
+					{
+						"key": "isUrgent",
+						"label": "Urgent",
 						"widget": "badge"
 					},
 					{
@@ -1315,6 +1344,7 @@
 			"_note": "decision-types-as-configuration: this detail page's built-in Edit dialog renders the same Decision schema the index pages do, and #1099 deliberately emptied properties.decisionType.enum (the decision_types app config is the only authority), so its type picker offered nothing and the required field blocked the save. #1109 fixed the two index pages through CnIndexPage's form-dialog slot; CnDetailPage grew the same slot with the same scope in nextcloud-vue#944, so the same DecisionFormDialog is wired here rather than a second copy of the vocabulary logic. The note stays a SIBLING of slots: CnPageRenderer resolves every slots entry as a registry name and warns on one it cannot find.",
 			"slots": {
 				"form-dialog": "DecisionFormDialog",
+				"widget-decision-urgency": "UrgencyBanner",
 				"widget-decision-lifecycle": "DecisionLifecycleTab",
 				"widget-decision-actions": "ActionItemsSurface",
 				"widget-decision-related": "RelatedDecisionsTab",
@@ -1329,6 +1359,7 @@
 				"schema": "decision",
 				"_note": "Decision — the core governance dossier (title, text, outcome, decision date, legal basis, lifecycle, publication state, effectiveStatus). The 42-field decision schema is split field-scoped (ADR-062 rule 3) into Content (title/text/proposedText/fullText/background/proposer/co-signers/resolution — WHAT was decided) and Governance (decisionDate/outcome/publication/lifecycle/enactedAt/voting mechanics/adoption+effective dates — the process STATE the dossier is in); fields already shown by dedicated tabs (amends/supersedes/repeals/route/offer/order/product, sourceApp/subject*/externalReference system fields) stay excluded from both. Bespoke dossier layout: Content leads 8-wide with the Lifecycle state machine (DecisionLifecycleTab — the guarded transition buttons that advance the decision) right, because moving a decision through its states is the primary action; Governance sits below Content with a Documents leaf beside it; the Action items it spawns (ActionItemsSurface — the Deck-board projection of children keyed on `decision`, ADR-019/ADR-002) render full-width, then Related decisions (RelatedDecisionsTab — the supersedes/repeals graph driving the computed effectiveStatus banner) and Route share a row, followed by the lower-frequency Voting results and Publication surfaces. Email linking lives on the dedicated DecisionIntegrations surface (schema declares no comms linkedType). Sidebar is audit-trail only. decision-facet-composition adds 8 reverse-lookup `object-list` widgets below the existing 9, grouped in 3 rows by domain (consultations: public/member/WOR; opinions+participation: advisory opinions/zienswijzerondes/zienswijzen; outcomes: commitments/confidentiality) so opening a decision surfaces everything that already references it via `decision`/`relatedDecision`/`relatedMotion`/`targetDecision` on six sibling schemas, closing the reverse-lookup gap `constituency-consultation`'s own manifest fragment deferred. Confidentiality is read-only (`allowCreate:false` — a restriction is imposed through the confidentiality register's own flow, not from here).",
 				"widgets": [
+					{ "id": "decision-urgency", "type": "custom", "component": "UrgencyBanner", "title": "Urgency", "icon": "AlertDecagramOutline" },
 					{ "id": "decision-content", "type": "data", "title": "Content", "icon": "NoteTextOutline", "content": { "columns": 2, "include": ["decisionType", "title", "text", "proposedText", "fullText", "background", "motionType", "proposer", "coSigners", "resolutionNumber", "resolutionType", "legalBasis", "targetBody", "targetPosts", "targetRole", "candidates", "nominatingParty", "appointedMemberships"] } },
 					{ "id": "decision-governance", "type": "data", "title": "Governance", "icon": "ScaleBalance", "content": { "columns": 2, "include": ["decisionDate", "outcome", "isPublished", "publishedAt", "lifecycle", "enactedAt", "submittedAt", "citizenVotingAllowed", "citizenVotingMethod", "votingOrder", "voteType", "voteThreshold", "adoptionDate", "effectiveDate"], "overrides": { "publishedAt": { "editable": false }, "lifecycle": { "editable": false }, "enactedAt": { "editable": false }, "submittedAt": { "editable": false } } } },
 					{ "id": "decision-lifecycle", "type": "custom", "component": "DecisionLifecycleTab", "title": "Lifecycle", "icon": "Timeline" },
@@ -1347,22 +1378,23 @@
 					{ "id": "decision-confidentiality", "type": "object-list", "title": "Confidentiality", "icon": "ShieldCheckOutline", "content": { "register": "decidiq", "schema": "confidentiality-restriction", "filter": { "targetDecision": "@objectId" }, "sort": { "field": "imposedAt", "dir": "desc" }, "columns": [ { "key": "ground", "label": "Ground", "widget": "link" }, { "key": "lifecycle", "label": "Status", "widget": "badge" }, { "key": "ratificationDeadline", "label": "Ratification deadline", "widget": "date" } ], "limit": 10, "allowCreate": false, "viewAllRoute": "ConfidentialityRestrictions", "viewAllQuery": { "targetDecision": "@objectId" }, "emptyText": "This decision has no confidentiality restriction.", "rowRoute": "ConfidentialityRestrictionDetail" } }
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "decision-content", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "decision-lifecycle", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "decision-governance", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "4", "widgetId": "decision-files", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 8 },
-					{ "id": "18", "widgetId": "decision-approval", "gridX": 0, "gridY": 14, "gridWidth": 12, "gridHeight": 6 },
-					{ "id": "5", "widgetId": "decision-actions", "gridX": 0, "gridY": 20, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "6", "widgetId": "decision-related", "gridX": 0, "gridY": 25, "gridWidth": 8, "gridHeight": 5 },
-					{ "id": "7", "widgetId": "decision-route", "gridX": 8, "gridY": 25, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "8", "widgetId": "decision-voting", "gridX": 0, "gridY": 30, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "9", "widgetId": "decision-publication", "gridX": 6, "gridY": 30, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "10", "widgetId": "decision-public-consultations", "gridX": 0, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "11", "widgetId": "decision-consultations", "gridX": 4, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "19", "widgetId": "decision-urgency", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 2 },
+					{ "id": "1", "widgetId": "decision-content", "gridX": 0, "gridY": 2, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "decision-lifecycle", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "3", "widgetId": "decision-governance", "gridX": 0, "gridY": 8, "gridWidth": 8, "gridHeight": 8 },
+					{ "id": "4", "widgetId": "decision-files", "gridX": 8, "gridY": 8, "gridWidth": 4, "gridHeight": 8 },
+					{ "id": "18", "widgetId": "decision-approval", "gridX": 0, "gridY": 16, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "5", "widgetId": "decision-actions", "gridX": 0, "gridY": 22, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "6", "widgetId": "decision-related", "gridX": 0, "gridY": 27, "gridWidth": 8, "gridHeight": 5 },
+					{ "id": "7", "widgetId": "decision-route", "gridX": 8, "gridY": 27, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "8", "widgetId": "decision-voting", "gridX": 0, "gridY": 32, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "9", "widgetId": "decision-publication", "gridX": 6, "gridY": 32, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "10", "widgetId": "decision-public-consultations", "gridX": 0, "gridY": 37, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "11", "widgetId": "decision-consultations", "gridX": 4, "gridY": 37, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 37, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 42, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 47, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 47, "gridWidth": 6, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

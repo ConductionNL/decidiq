@@ -23,6 +23,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  */
 
+import UrgencyBanner from './components/decision/UrgencyBanner.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
@@ -447,6 +448,7 @@ export default {
 	// The decision's approval route, and sending it along one (routes-send-proposal-along-route).
 	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
+	UrgencyBanner: page(UrgencyBanner),
 	DecisionVotingTab: page(DecisionVotingTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
 
