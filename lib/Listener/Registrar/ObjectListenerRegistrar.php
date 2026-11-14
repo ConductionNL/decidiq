@@ -161,6 +161,19 @@ class ObjectListenerRegistrar {
 			schemas: [ImplementationUpdateListener::SCHEMA_UPDATE]
 		);
 
+		// Governing documents (governing-documents-register, REQ-GDR-006): a
+		// version put in effect writes its date onto its document, which the
+		// register lists. Declared interest is the version schema.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $versionEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $versionEvent,
+				listener: GoverningDocumentCurrentDateListener::class,
+				registers: null,
+				schemas: ['governing-document-versie']
+			);
+		}
+
 		// Agenda change notices (#1396). Declared interest is the handler's
 		// own schema guard verbatim, AgendaItemChangeListener::SCHEMA_AGENDA_ITEM.
 		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $agendaEvent) {
@@ -183,19 +196,6 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
 		);
-
-		// Governing documents (governing-documents-register, REQ-GDR-006): a
-		// version put in effect writes its date onto its document, which the
-		// register lists. Declared interest is the version schema.
-		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $versionEvent) {
-			$this->subscribe(
-				dispatcher: $dispatcher,
-				event: $versionEvent,
-				listener: GoverningDocumentCurrentDateListener::class,
-				registers: null,
-				schemas: ['governing-document-versie']
-			);
-		}
 
 		// Before-save guards (SaveGuardSubscriptions): submission deadline,
 		// meeting defaults, submission window and document details.
