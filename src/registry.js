@@ -23,6 +23,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  */
 
+import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
@@ -124,6 +125,8 @@ import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWi
 import IncomingDocumentsWidget from './views/dashboard/widgets/IncomingDocumentsWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
+// interests-and-integrity (REQ-INT-010): the overdue-review KPI card.
+import OverdueReviewsKpiWidget from './views/dashboard/widgets/OverdueReviewsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
 import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
@@ -334,6 +337,8 @@ export default {
 	// page() because slot resolution (resolveRegistryName) ignores `kind`;
 	// what matters is that the kind is one CnAppRoot's validator knows.
 	DecisionFormDialog: page(DecisionFormDialog),
+	// Index-page slot (below-header) on AncillaryPositions.
+	AncillaryCompliancePanel: page(AncillaryCompliancePanel),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
@@ -363,6 +368,12 @@ export default {
 		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
+	}),
+	OverdueReviewsKpiWidget: widget(OverdueReviewsKpiWidget, {
 		defaultSize: { w: 3, h: 2 },
 		minSize: { w: 2, h: 2 },
 		maxSize: { w: 4, h: 3 },
