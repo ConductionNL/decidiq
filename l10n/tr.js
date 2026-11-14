@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kimler oy kullanabilir",
+        "All members of the body": "Organın tüm üyeleri",
+        "Left out because they are no longer active members: {names}": "Artık aktif üye olmadıkları için dışarıda bırakıldı: {names}",
         "sign-off route": "onay akışı",
         "#": "#",
         "+ Action item": "+ Eylem maddesi",

@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Cé atá i dteideal vótáil",
+        "All members of the body": "Baill uile an chomhlachta",
+        "Left out because they are no longer active members: {names}": "Fágtha amach toisc nach baill ghníomhacha iad a thuilleadh: {names}",
         "sign-off route": "bealach faofa",
         "#": "#",
         "+ Action item": "+ Mír gníomhaíochta",

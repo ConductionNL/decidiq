@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Ποιος μπορεί να ψηφίσει",
+        "All members of the body": "Όλα τα μέλη του οργάνου",
+        "Left out because they are no longer active members: {names}": "Παραλείφθηκαν επειδή δεν είναι πλέον ενεργά μέλη: {names}",
         "sign-off route": "διαδρομή έγκρισης",
         "#": "#",
         "+ Action item": "+ Στοιχείο δράσης",

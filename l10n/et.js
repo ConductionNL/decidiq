@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kes võib hääletada",
+        "All members of the body": "Kõik organi liikmed",
+        "Left out because they are no longer active members: {names}": "Välja jäetud, sest nad ei ole enam aktiivsed liikmed: {names}",
         "sign-off route": "kinnitusmarsruut",
         "#": "#",
         "+ Action item": "+ Toimepunkt",

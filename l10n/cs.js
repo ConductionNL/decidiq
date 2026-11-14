@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kdo může hlasovat",
+        "All members of the body": "Všichni členové orgánu",
+        "Left out because they are no longer active members: {names}": "Vynecháni, protože již nejsou aktivními členy: {names}",
         "sign-off route": "schvalovací postup",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d pro, %2$d proti, %3$d se zdrželo",

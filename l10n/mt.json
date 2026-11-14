@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Min jista' jivvota",
+        "All members of the body": "Il-membri kollha tal-korp",
+        "Left out because they are no longer active members: {names}": "Esklużi għax m'għadhomx membri attivi: {names}",
         "sign-off route": "rotta ta' approvazzjoni",
         "#": "#",
         "+ Action item": "+ Punt ta' azzjoni",
