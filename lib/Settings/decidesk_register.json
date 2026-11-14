@@ -565,7 +565,8 @@
               "advisory-body",
               "works-council",
               "shared-body",
-              "faction"
+              "faction",
+              "political-group"
             ],
             "example": "legislative"
           },
@@ -824,7 +825,8 @@
               "extraordinary",
               "committee",
               "public hearing",
-              "general_assembly"
+              "general_assembly",
+              "informational-session"
             ],
             "example": "regular"
           },
@@ -882,7 +884,8 @@
               "opened",
               "paused",
               "adjourned",
-              "closed"
+              "closed",
+              "cancelled"
             ],
             "example": "draft"
           },

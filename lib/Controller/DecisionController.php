@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
 use OCA\Decidiq\Service\DecisionPublicationService;
+use OCA\Decidiq\Service\DecisionWithdrawalRecorder;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -56,6 +57,13 @@ class DecisionController extends Controller {
 	private readonly DecisionPublicationService $publicationService;
 
 	/**
+	 * Loads, withdraws and stores a decision (REQ-DWP-005).
+	 *
+	 * @var DecisionWithdrawalRecorder
+	 */
+	private readonly DecisionWithdrawalRecorder $withdrawalRecorder;
+
+	/**
 	 * Constructor for DecisionController.
 	 *
 	 * @param IRequest $request The HTTP request
@@ -77,6 +85,7 @@ class DecisionController extends Controller {
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 		$this->publicationService = new DecisionPublicationService(container: $container, logger: $logger);
+		$this->withdrawalRecorder = new DecisionWithdrawalRecorder(container: $container, logger: $logger);
 
 	}//end __construct()
 
@@ -275,4 +284,37 @@ class DecisionController extends Controller {
 
 		return new JSONResponse($result['data'], $result['status']);
 	}//end publish()
+
+	/**
+	 * Withdraw a decision, keeping its original outcome readable beside the withdrawal.
+	 *
+	 * Body: `withdrawnBy` (`bestuursorgaan` or `belanghebbende`) and `reason`.
+	 * Administrators only, as publishing is: a withdrawal changes what people
+	 * may rely on, so it is not open to every authenticated user.
+	 *
+	 * @param string $decisionId The decision.
+	 *
+	 * @return JSONResponse The withdrawn decision, or the refusal.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-005)
+	 */
+	#[AuthorizedAdminSetting(AdminSettings::class)]
+	public function withdraw(string $decisionId): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Unauthenticated.'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		if ($this->groupManager->isAdmin($user->getUID()) === false) {
+			return new JSONResponse(['message' => 'Forbidden: only administrators may withdraw decisions.'], Http::STATUS_FORBIDDEN);
+		}
+
+		$result = $this->withdrawalRecorder->withdraw(
+			decisionId: $decisionId,
+			withdrawnBy: (string)$this->request->getParam('withdrawnBy', ''),
+			reason: (string)$this->request->getParam('reason', '')
+		);
+
+		return new JSONResponse($result['data'], $result['status']);
+	}//end withdraw()
 }//end class
