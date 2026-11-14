@@ -86,6 +86,20 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	private const REFERENCE_FIELDS = ['document', 'determinedBy'];
 
 	/**
+	 * The decision schema, whose citations point at a document.
+	 *
+	 * @var string
+	 */
+	public const DECISION_SCHEMA = 'decision';
+
+	/**
+	 * The most citing decisions one read lists.
+	 *
+	 * @var int
+	 */
+	private const CITED_BY_LIMIT = 200;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService Reads documents and versions.
@@ -322,6 +336,187 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	}//end assertUniqueNumber()
 
 	/**
+	 * The decisions citing a document, read with the caller's own rights
+	 * (REQ-GDR-005): each with the articles it cites and the pinned version.
+	 *
+	 * @param string $documentId The document uuid.
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function citingDecisions(string $documentId): array {
+		$this->objectService->setRegister('decidiq');
+		$this->objectService->setSchema(self::DOCUMENT_SCHEMA);
+		$page = $this->objectService->getObjectUsedBy(
+			objectId: $documentId,
+			query: ['_limit' => self::CITED_BY_LIMIT],
+			_rbac: true,
+			_multitenancy: true
+		);
+
+		$decisions = [];
+		foreach (self::rowsOf(page: $page) as $row) {
+			$citations = self::citationsOf(decision: $row, documentId: $documentId);
+			if ($citations === []) {
+				continue;
+			}
+
+			$decisions[] = [
+				'id' => self::idOf(row: $row),
+				'title' => (string)($row['title'] ?? ($row['name'] ?? '')),
+				'decisionDate' => ($row['decisionDate'] ?? null),
+				'articles' => array_values(array_filter(array_column($citations, 'article'), static fn (mixed $a): bool => is_string($a) && trim($a) !== '')),
+				'versions' => array_values(array_filter(array_map(static fn (array $c): string => self::reference(value: ($c['version'] ?? null)), $citations))),
+			];
+		}
+
+		return $decisions;
+	}//end citingDecisions()
+
+	/**
+	 * The citations of one document a decision carries.
+	 *
+	 * @param array<string, mixed> $decision   The decision.
+	 * @param string               $documentId The document uuid.
+	 *
+	 * @return list<array<string, mixed>>
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public static function citationsOf(array $decision, string $documentId): array {
+		$cited = ($decision['citesGoverningDocuments'] ?? null);
+		if ($documentId === '' || is_array($cited) === false) {
+			return [];
+		}
+
+		$matching = [];
+		foreach ($cited as $citation) {
+			if (is_array($citation) === true && self::reference(value: ($citation['document'] ?? null)) === $documentId) {
+				$matching[] = $citation;
+			}
+		}
+
+		return $matching;
+	}//end citationsOf()
+
+	/**
+	 * The public view of a document (REQ-GDR-007), or null when it is not
+	 * public: not marked public, lapsed, or without a version in effect today.
+	 *
+	 * Only the citation title, type, the governing body's name and the version
+	 * in force today (its number, dates and consolidated text) are in it; a
+	 * draft or adopted version, the notes and the notary never are.
+	 *
+	 * @param string            $documentId The document uuid.
+	 * @param DateTimeImmutable $today      The day the view answers for.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function publicView(string $documentId, DateTimeImmutable $today): ?array {
+		$document = $this->systemRead(id: $documentId, schema: self::DOCUMENT_SCHEMA);
+		if ($document === null || ($document['isPublic'] ?? false) !== true || ($document['status'] ?? null) === 'lapsed') {
+			return null;
+		}
+
+		$version = self::resolveInForce(versions: $this->versionsOf(documentId: $documentId, rbac: false), date: $today->format('Y-m-d'));
+		if ($version === null) {
+			return null;
+		}
+
+		$withFiles = $this->systemRead(id: self::idOf(row: $version), schema: self::VERSION_SCHEMA, files: true);
+		$body = $this->systemRead(id: self::reference(value: ($document['governingBody'] ?? null)), schema: 'governance-body');
+
+		return self::publicPayload(
+			document: $document,
+			version: $version,
+			bodyName: (string)($body['name'] ?? ($body['title'] ?? '')),
+			files: (array)($withFiles['@self']['files'] ?? [])
+		);
+	}//end publicView()
+
+	/**
+	 * The public payload of a document and its version in force, built only
+	 * from the fields that may be public.
+	 *
+	 * @param array<string, mixed>     $document The document.
+	 * @param array<string, mixed>     $version  The version in force.
+	 * @param string                   $bodyName The governing body's name.
+	 * @param array<int|string, mixed> $files    The version's files.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public static function publicPayload(array $document, array $version, string $bodyName, array $files): array {
+		$texts = [];
+		foreach ($files as $file) {
+			if (is_array($file) === false) {
+				continue;
+			}
+
+			$texts[] = [
+				'title' => (string)($file['title'] ?? ($file['name'] ?? ($file['filename'] ?? ''))),
+				'type' => ($file['type'] ?? ($file['mimeType'] ?? null)),
+				'accessUrl' => ($file['accessUrl'] ?? null),
+				'downloadUrl' => ($file['downloadUrl'] ?? null),
+			];
+		}
+
+		return [
+			'id' => self::idOf(row: $document),
+			'citationTitle' => (string)($document['citationTitle'] ?? ''),
+			'type' => ($document['type'] ?? null),
+			'governingBody' => $bodyName,
+			'currentVersion' => [
+				'versionNumber' => ($version['versionNumber'] ?? null),
+				'effectiveDate' => self::date(value: ($version['effectiveDate'] ?? null)),
+				'expiryDate' => self::dateOrNull(value: ($version['expiryDate'] ?? null)),
+				'consolidatedText' => $texts,
+			],
+		];
+	}//end publicPayload()
+
+	/**
+	 * Write the effective date of a version just put in effect onto its
+	 * document, so the register lists it without resolving versions
+	 * (REQ-GDR-006). Any other version is left alone.
+	 *
+	 * @param array<string, mixed> $version The version just saved.
+	 *
+	 * @return bool Whether the document was updated.
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function recordCurrentEffectiveDate(array $version): bool {
+		$effective = self::date(value: ($version['effectiveDate'] ?? null));
+		$documentId = self::reference(value: ($version['document'] ?? null));
+		if (($version['status'] ?? null) !== 'in-effect' || $effective === '' || $documentId === '') {
+			return false;
+		}
+
+		$document = $this->systemRead(id: $documentId, schema: self::DOCUMENT_SCHEMA);
+		if ($document === null || self::date(value: ($document['currentEffectiveDate'] ?? null)) === $effective) {
+			return false;
+		}
+
+		$document['currentEffectiveDate'] = $effective;
+		unset($document['@self']);
+		$this->objectService->saveObject(
+			object: $document,
+			register: 'decidiq',
+			schema: self::DOCUMENT_SCHEMA,
+			uuid: $documentId,
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		return true;
+	}//end recordCurrentEffectiveDate()
+
+	/**
 	 * Refuse sealing a version that does not take effect after the latest sealed one.
 	 *
 	 * Applies when the version is saved in the sealed `in-effect` state.
@@ -395,6 +590,56 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	}//end versionsOf()
 
 	/**
+	 * An object read without the caller's rights, or null.
+	 *
+	 * @param string $id     The uuid.
+	 * @param string $schema The schema slug.
+	 * @param bool   $files  Whether to read its files too.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function systemRead(string $id, string $schema, bool $files = false): ?array {
+		if ($id === '') {
+			return null;
+		}
+
+		try {
+			$entity = $this->objectService->find(id: $id, files: $files, register: 'decidiq', schema: $schema, _rbac: false, _multitenancy: false);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
+		if ($entity === null) {
+			return null;
+		}
+
+		return (array)$entity->jsonSerialize();
+	}//end systemRead()
+
+	/**
+	 * The rows of a list answer, as arrays.
+	 *
+	 * @param array<mixed> $page The answer: a page with `results`, or a list.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private static function rowsOf(array $page): array {
+		$rows = [];
+		foreach (($page['results'] ?? $page) as $row) {
+			$data = $row;
+			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+				$data = $row->jsonSerialize();
+			}
+
+			if (is_array($data) === true) {
+				$rows[] = $data;
+			}
+		}
+
+		return $rows;
+	}//end rowsOf()
+
+	/**
 	 * Whether a version is sealed.
 	 *
 	 * @param array<string, mixed> $version The version.
@@ -443,6 +688,22 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 
 		return trim((string)$value);
 	}//end comparable()
+
+	/**
+	 * A stored date as Y-m-d, or null when there is none.
+	 *
+	 * @param mixed $value The stored date.
+	 *
+	 * @return string|null
+	 */
+	private static function dateOrNull(mixed $value): ?string {
+		$date = self::date(value: $value);
+		if ($date === '') {
+			return null;
+		}
+
+		return $date;
+	}//end dateOrNull()
 
 	/**
 	 * A row's own id.

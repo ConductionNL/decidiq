@@ -2281,6 +2281,88 @@
                 }
             }
         },
+        "/governing-documents/{id}/cited-by": {
+            "get": {
+                "operationId": "governing-document-cited-by",
+                "summary": "The decisions citing a governing document.",
+                "description": "The decisions whose `citesGoverningDocuments` names the document, each with the articles it cites and any version it pins. The document and every decision are read with the user's own rights: a document they cannot see answers 404, a decision they cannot see is not listed. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "governing-document"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governing document UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/public/governing-documents/{id}": {
+            "get": {
+                "operationId": "governing-document-public-view",
+                "summary": "The public view of a governing document.",
+                "description": "Open to anyone. Answers only for a document marked public (`isPublic`) that is not lapsed and has a version in effect today, with its citation title, type, governing body name and that version's number, dates and consolidated text. Draft and adopted versions, notes and the notary are never in it. Any other document answers 404.",
+                "tags": [
+                    "governing-document"
+                ],
+                "security": [],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governing document UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
         "/health": {
             "get": {
                 "operationId": "health-status",

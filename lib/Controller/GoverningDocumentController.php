@@ -31,13 +31,16 @@ use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\GoverningDocumentConsolidationServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
+use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
+use OCP\AppFramework\Http\Attribute\PublicPage;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IRequest;
 use OCP\IUserSession;
 
 /**
- * In-force resolution of a governing document.
+ * In-force resolution, citing decisions and the public view of a governing document.
  *
  * @spec openspec/changes/governing-documents-register
  */
@@ -99,6 +102,62 @@ class GoverningDocumentController extends Controller {
 			]
 		);
 	}//end inForce()
+
+	/**
+	 * The decisions citing a document (REQ-GDR-005). The document is read with
+	 * the user's own rights first, and so is every citing decision: one they
+	 * cannot see is not listed.
+	 *
+	 * @param string $id The governing document UUID
+	 *
+	 * @NoAdminRequired
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 *
+	 * @return JSONResponse
+	 */
+	#[NoAdminRequired]
+	public function citedBy(string $id): JSONResponse {
+		$auth = $this->requireUserOr401(session: $this->userSession);
+		if ($auth !== null) {
+			return $auth;
+		}
+
+		if ($this->consolidation->readableDocument(documentId: $id) === null) {
+			return new JSONResponse(['message' => 'Governing document not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		$decisions = $this->consolidation->citingDecisions(documentId: $id);
+
+		return new JSONResponse(['document' => $id, 'results' => $decisions, 'total' => count($decisions)]);
+	}//end citedBy()
+
+	/**
+	 * The public view of a document (REQ-GDR-007): open to anyone, answered
+	 * only for a document marked public that has a version in effect today,
+	 * and holding only the fields that may be public. Any other document
+	 * answers the same 404 as one that does not exist.
+	 *
+	 * @param string $id The governing document UUID
+	 *
+	 * @PublicPage
+	 * @NoCSRFRequired
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 *
+	 * @return JSONResponse
+	 */
+	#[PublicPage]
+	#[NoCSRFRequired]
+	#[AnonRateLimit(limit: 120, period: 60)]
+	public function publicView(string $id): JSONResponse {
+		$view = $this->consolidation->publicView(documentId: $id, today: new DateTimeImmutable('today'));
+		if ($view === null) {
+			return new JSONResponse(['message' => 'Governing document not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		return new JSONResponse($view);
+	}//end publicView()
 
 	/**
 	 * A strict YYYY-MM-DD date, today when empty, or null when malformed.

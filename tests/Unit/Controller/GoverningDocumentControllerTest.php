@@ -123,4 +123,59 @@ class GoverningDocumentControllerTest extends TestCase {
 
 		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->controller(loggedIn: false)->inForce('doc-1', '2021-06-15')->getStatus());
 	}//end testAnAnonymousCallerIsRefused()
+
+	public function testAMemberListsTheDecisionsCitingADocument(): void {
+		$this->consolidation->method('readableDocument')->with('doc-1')->willReturn(['id' => 'doc-1']);
+		$cited = [['id' => 'd1', 'title' => 'Besluit spoedprocedure inkoop', 'decisionDate' => null, 'articles' => ['art. 14 lid 3'], 'versions' => []]];
+		$this->consolidation->expects(self::once())->method('citingDecisions')->with('doc-1')->willReturn($cited);
+
+		$response = $this->controller()->citedBy('doc-1');
+
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame(['document' => 'doc-1', 'results' => $cited, 'total' => 1], $response->getData());
+	}//end testAMemberListsTheDecisionsCitingADocument()
+
+	public function testCitationsOfADocumentTheCallerCannotReadAreNotListed(): void {
+		$this->consolidation->method('readableDocument')->willReturn(null);
+		$this->consolidation->expects(self::never())->method('citingDecisions');
+
+		self::assertSame(Http::STATUS_NOT_FOUND, $this->controller()->citedBy('doc-1')->getStatus());
+	}//end testCitationsOfADocumentTheCallerCannotReadAreNotListed()
+
+	public function testAnAnonymousCallerCannotListCitations(): void {
+		$this->consolidation->expects(self::never())->method('citingDecisions');
+
+		self::assertSame(Http::STATUS_UNAUTHORIZED, $this->controller(loggedIn: false)->citedBy('doc-1')->getStatus());
+	}//end testAnAnonymousCallerCannotListCitations()
+
+	public function testAnAnonymousVisitorReadsThePublicView(): void {
+		$view = ['id' => 'doc-1', 'citationTitle' => 'Statuten', 'type' => 'articles-of-association', 'governingBody' => 'VNG', 'currentVersion' => []];
+		$this->consolidation->expects(self::never())->method('readableDocument');
+		$this->consolidation->expects(self::once())->method('publicView')
+			->with('doc-1', self::callback(static fn (DateTimeImmutable $d): bool => $d->format('Y-m-d') === (new DateTimeImmutable('today'))->format('Y-m-d')))
+			->willReturn($view);
+
+		$response = $this->controller(loggedIn: false)->publicView('doc-1');
+
+		self::assertSame(Http::STATUS_OK, $response->getStatus());
+		self::assertSame($view, $response->getData());
+	}//end testAnAnonymousVisitorReadsThePublicView()
+
+	public function testADocumentWithoutAPublicViewIsNotFound(): void {
+		$this->consolidation->method('publicView')->willReturn(null);
+
+		$response = $this->controller(loggedIn: false)->publicView('doc-1');
+
+		self::assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
+		self::assertSame(['message' => 'Governing document not found.'], $response->getData());
+	}//end testADocumentWithoutAPublicViewIsNotFound()
+
+	public function testOnlyThePublicViewIsOpenToAnonymousVisitors(): void {
+		$class = new \ReflectionClass(GoverningDocumentController::class);
+		$public = static fn (string $method): bool => $class->getMethod($method)->getAttributes(\OCP\AppFramework\Http\Attribute\PublicPage::class) !== [];
+
+		self::assertTrue($public('publicView'));
+		self::assertFalse($public('citedBy'));
+		self::assertFalse($public('inForce'));
+	}//end testOnlyThePublicViewIsOpenToAnonymousVisitors()
 }//end class

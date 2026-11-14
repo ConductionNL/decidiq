@@ -81,4 +81,38 @@ interface GoverningDocumentConsolidationServiceInterface {
 	 * @spec openspec/changes/governing-documents-register
 	 */
 	public function assertEditable(array $before, array $after): void;
+
+	/**
+	 * The decisions citing a document, read with the caller's own rights.
+	 *
+	 * @param string $documentId The document uuid.
+	 *
+	 * @return list<array<string, mixed>> Each with id, title, decisionDate, articles and versions.
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function citingDecisions(string $documentId): array;
+
+	/**
+	 * The public view of a document, or null when it is not public.
+	 *
+	 * @param string            $documentId The document uuid.
+	 * @param DateTimeImmutable $today      The day the view answers for.
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function publicView(string $documentId, DateTimeImmutable $today): ?array;
+
+	/**
+	 * Write the effective date of a version just put in effect onto its document.
+	 *
+	 * @param array<string, mixed> $version The version just saved.
+	 *
+	 * @return bool Whether the document was updated.
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function recordCurrentEffectiveDate(array $version): bool;
 }//end interface

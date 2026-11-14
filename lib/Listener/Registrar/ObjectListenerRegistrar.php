@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\GoverningDocumentCurrentDateListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
@@ -182,6 +183,19 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
 		);
+
+		// Governing documents (governing-documents-register, REQ-GDR-006): a
+		// version put in effect writes its date onto its document, which the
+		// register lists. Declared interest is the version schema.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $versionEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $versionEvent,
+				listener: GoverningDocumentCurrentDateListener::class,
+				registers: null,
+				schemas: ['governing-document-versie']
+			);
+		}
 
 		// Before-save guards (SaveGuardSubscriptions): submission deadline,
 		// meeting defaults, submission window and document details.

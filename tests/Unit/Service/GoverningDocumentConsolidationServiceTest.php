@@ -277,6 +277,161 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 		self::addToAssertionCount(1);
 	}//end testADraftVersionMayStillBeEdited()
 
+	/**
+	 * A service over a document, its versions and a governing body, read without rights.
+	 *
+	 * @param array<string, mixed>             $document The document.
+	 * @param array<int, array<string, mixed>> $versions Its versions.
+	 * @param array<int, array{0: string, 1: bool, 2: bool}> $finds Every find: [schema, files, rbac].
+	 *
+	 * @return GoverningDocumentConsolidationService
+	 */
+	private function publicService(array $document, array $versions, array &$finds = []): GoverningDocumentConsolidationService {
+		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects->method('findAll')->willReturn(['results' => $versions]);
+		$objects->method('find')->willReturnCallback(
+			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null, bool $_rbac = true) use ($document, $versions, &$finds): ?ObjectEntity {
+				$finds[] = [(string)$schema, $files, $_rbac];
+				if ($schema === 'governance-body') {
+					return $this->document(['id' => $id, 'name' => 'Vereniging van Nederlandse Gemeenten']);
+				}
+
+				if ($schema === 'governing-document-versie') {
+					foreach ($versions as $version) {
+						if ($version['id'] === $id) {
+							return $this->document($version + ['@self' => ['files' => [['title' => 'statuten-2022.pdf', 'type' => 'application/pdf', 'accessUrl' => 'https://example.test/s/abc', 'path' => '/secret/path']]]]);
+						}
+					}
+				}
+
+				return $id === self::DOC ? $this->document($document) : null;
+			}
+		);
+
+		return new GoverningDocumentConsolidationService($objects);
+	}//end publicService()
+
+	/**
+	 * The statuten, public.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function publicStatuten(): array {
+		return ['id' => self::DOC, 'citationTitle' => 'Statuten Vereniging van Nederlandse Gemeenten', 'type' => 'articles-of-association', 'governingBody' => 'vng', 'status' => 'in-force', 'isPublic' => true, 'description' => 'internal'];
+	}//end publicStatuten()
+
+	public function testThePublicViewHoldsOnlyThePublicFieldsOfTheVersionInForce(): void {
+		$finds = [];
+		$versions = [
+			['id' => 'v1', 'document' => self::DOC, 'versionNumber' => 1, 'effectiveDate' => '1990-05-01', 'status' => 'replaced', 'notary' => 'mr. C. van Dam', 'deedDate' => '1990-04-12'],
+			['id' => 'v2', 'document' => self::DOC, 'versionNumber' => 2, 'effectiveDate' => '2022-01-01', 'status' => 'in-effect', 'determinedBy' => 'besluit-2021', 'notary' => 'mr. A. de Wit', 'notes' => 'Internal note.'],
+			['id' => 'v3', 'document' => self::DOC, 'versionNumber' => 3, 'effectiveDate' => '2024-01-01', 'status' => 'draft', 'determinedBy' => 'besluit-2023'],
+		];
+
+		$view = $this->publicService(self::publicStatuten(), $versions, $finds)->publicView(self::DOC, new DateTimeImmutable('2025-03-01'));
+
+		self::assertSame(
+			[
+				'id' => self::DOC,
+				'citationTitle' => 'Statuten Vereniging van Nederlandse Gemeenten',
+				'type' => 'articles-of-association',
+				'governingBody' => 'Vereniging van Nederlandse Gemeenten',
+				'currentVersion' => [
+					'versionNumber' => 2,
+					'effectiveDate' => '2022-01-01',
+					'expiryDate' => null,
+					'consolidatedText' => [['title' => 'statuten-2022.pdf', 'type' => 'application/pdf', 'accessUrl' => 'https://example.test/s/abc', 'downloadUrl' => null]],
+				],
+			],
+			$view
+		);
+		$encoded = (string)json_encode($view);
+		foreach (['mr. A. de Wit', 'Internal note.', 'besluit-2021', 'v3', 'internal', '/secret/path'] as $absent) {
+			self::assertStringNotContainsString($absent, $encoded, $absent);
+		}
+
+		self::assertContains(['governing-document-versie', true, false], $finds, 'the files are read from the version in force');
+	}//end testThePublicViewHoldsOnlyThePublicFieldsOfTheVersionInForce()
+
+	public function testAnInternalDocumentHasNoPublicView(): void {
+		$versions = self::statutenChain();
+
+		self::assertNull($this->publicService(['isPublic' => false] + self::publicStatuten(), $versions)->publicView(self::DOC, new DateTimeImmutable('2025-03-01')));
+		self::assertNull($this->publicService(['isPublic' => 'true'] + self::publicStatuten(), $versions)->publicView(self::DOC, new DateTimeImmutable('2025-03-01')));
+		$withoutFlag = self::publicStatuten();
+		unset($withoutFlag['isPublic']);
+		self::assertNull($this->publicService($withoutFlag, $versions)->publicView(self::DOC, new DateTimeImmutable('2025-03-01')));
+	}//end testAnInternalDocumentHasNoPublicView()
+
+	public function testAPublicDocumentWithOnlyADraftVersionHasNoPublicView(): void {
+		$versions = [['id' => 'v1', 'document' => self::DOC, 'versionNumber' => 1, 'effectiveDate' => '2020-01-01', 'status' => 'draft']];
+
+		self::assertNull($this->publicService(self::publicStatuten(), $versions)->publicView(self::DOC, new DateTimeImmutable('2025-03-01')));
+	}//end testAPublicDocumentWithOnlyADraftVersionHasNoPublicView()
+
+	public function testALapsedOrMissingDocumentHasNoPublicView(): void {
+		self::assertNull($this->publicService(['status' => 'lapsed'] + self::publicStatuten(), self::statutenChain())->publicView(self::DOC, new DateTimeImmutable('2025-03-01')));
+		self::assertNull($this->publicService(self::publicStatuten(), self::statutenChain())->publicView('unknown', new DateTimeImmutable('2025-03-01')));
+	}//end testALapsedOrMissingDocumentHasNoPublicView()
+
+	public function testCitingDecisionsListsOnlyDecisionsCitingThisDocument(): void {
+		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects->expects(self::once())->method('setRegister')->with('decidiq')->willReturnSelf();
+		$objects->expects(self::once())->method('setSchema')->with('governing-document')->willReturnSelf();
+		$objects->expects(self::once())->method('getObjectUsedBy')
+			->with(self::DOC, ['_limit' => 200], true, true)
+			->willReturn(
+				['results' => [
+					['id' => 'd1', 'title' => 'Besluit spoedprocedure inkoop', 'decisionDate' => '2025-02-01', 'citesGoverningDocuments' => [['document' => self::DOC, 'article' => 'art. 14 lid 3'], ['document' => 'other', 'article' => 'art. 1']]],
+					$this->document(['id' => 'd2', 'title' => 'Besluit statutenwijziging', 'citesGoverningDocuments' => [['document' => ['id' => self::DOC], 'version' => 'v2', 'article' => 'art. 20']]]),
+					['id' => 'm1', 'title' => 'A meeting naming the document elsewhere', 'agenda' => [self::DOC]],
+					['id' => 'd3', 'title' => 'Citing another document', 'citesGoverningDocuments' => [['document' => 'other']]],
+				]]
+			);
+
+		$cited = (new GoverningDocumentConsolidationService($objects))->citingDecisions(self::DOC);
+
+		self::assertSame(
+			[
+				['id' => 'd1', 'title' => 'Besluit spoedprocedure inkoop', 'decisionDate' => '2025-02-01', 'articles' => ['art. 14 lid 3'], 'versions' => []],
+				['id' => 'd2', 'title' => 'Besluit statutenwijziging', 'decisionDate' => null, 'articles' => ['art. 20'], 'versions' => ['v2']],
+			],
+			$cited
+		);
+	}//end testCitingDecisionsListsOnlyDecisionsCitingThisDocument()
+
+	public function testADecisionWithoutCitationsCitesNothing(): void {
+		self::assertSame([], GoverningDocumentConsolidationService::citationsOf(['id' => 'd'], self::DOC));
+		self::assertSame([], GoverningDocumentConsolidationService::citationsOf(['citesGoverningDocuments' => 'statuten-vng'], self::DOC));
+		self::assertSame([], GoverningDocumentConsolidationService::citationsOf(['citesGoverningDocuments' => [['document' => self::DOC]]], ''));
+	}//end testADecisionWithoutCitationsCitesNothing()
+
+	public function testAVersionPutInEffectWritesItsDateOntoItsDocument(): void {
+		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects->method('find')->willReturn($this->document(['id' => self::DOC, 'citationTitle' => 'Statuten', 'currentEffectiveDate' => '1990-05-01', '@self' => ['id' => self::DOC]]));
+		$saved = [];
+		$objects->expects(self::once())->method('saveObject')->willReturnCallback(
+			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null, bool $_rbac = true, bool $_multitenancy = true) use (&$saved): ObjectEntity {
+				$saved = [$object, $register, $schema, $uuid, $_rbac];
+				return $this->document([]);
+			}
+		);
+
+		self::assertTrue((new GoverningDocumentConsolidationService($objects))->recordCurrentEffectiveDate(self::statutenChain()[1]));
+		self::assertSame([['id' => self::DOC, 'citationTitle' => 'Statuten', 'currentEffectiveDate' => '2022-01-01'], 'decidiq', 'governing-document', self::DOC, false], $saved);
+	}//end testAVersionPutInEffectWritesItsDateOntoItsDocument()
+
+	public function testAVersionNotInEffectOrAnUnchangedDateWritesNothing(): void {
+		$objects = $this->createMock(ObjectServiceInterface::class);
+		$objects->method('find')->willReturn($this->document(['id' => self::DOC, 'currentEffectiveDate' => '2022-01-01']));
+		$objects->expects(self::never())->method('saveObject');
+		$service = new GoverningDocumentConsolidationService($objects);
+
+		self::assertFalse($service->recordCurrentEffectiveDate(self::statutenChain()[1]));
+		self::assertFalse($service->recordCurrentEffectiveDate(self::statutenChain()[0]));
+		self::assertFalse($service->recordCurrentEffectiveDate(['document' => self::DOC, 'status' => 'in-effect']));
+	}//end testAVersionNotInEffectOrAnUnchangedDateWritesNothing()
+
 	public function testUnreadableSiblingsRefuseTheSave(): void {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willThrowException(new RuntimeException('database gone'));
