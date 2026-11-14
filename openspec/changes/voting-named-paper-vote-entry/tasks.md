@@ -24,7 +24,7 @@
   - Verification: PHPUnit red-then-green; a Newman request that records and closes on a seeded round
 - [x] Implement
 - [x] Test
-  > `POST /api/voting-rounds/{id}/recorded-votes` → `VotingService::recordNamedVotes()` → `RecordedVoteWriter`. PHPUnit: `RecordedVoteWriterTest`, `VotingRecordVotesControllerTest`. The Newman request is not added in this pass. REQ-NPV-004 needs no code: the tally already counts vote objects.
+  > `POST /api/voting-rounds/{id}/named-votes` → `VotingService::recordNamedVotes()` → `RecordedVoteWriter`. PHPUnit: `RecordedVoteWriterTest`, `VotingRecordVotesControllerTest`. The Newman request is not added in this pass. REQ-NPV-004 needs no code: the tally already counts vote objects.
 
 ### Task 3: Refuse a wrong list as a whole
 

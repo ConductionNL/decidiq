@@ -6847,6 +6847,65 @@
                 }
             }
         },
+        "/voting-rounds/{id}/named-votes": {
+            "post": {
+                "operationId": "voting-record-votes",
+                "summary": "Record the members' choices of an open roll-call round by name",
+                "description": "Record the members' choices of an open roll-call round by name. POST /api/voting-rounds/{id}/named-votes Body: { \"entries\": [ { \"participantId\": \"<uuid>\", \"value\": \"for\"|\"against\"|\"abstain\" } ], \"heldAt\": \"<ISO 8601>\" }. Restricted to chair/secretary. The whole list is checked before anything is written; a corrected list replaces the earlier one. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "voting"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The voting round UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    }
+                }
+            }
+        },
         "/{resource}": {
             "options": {
                 "operationId": "api-preflight",

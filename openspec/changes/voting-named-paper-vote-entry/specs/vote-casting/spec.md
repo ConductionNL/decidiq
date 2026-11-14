@@ -27,7 +27,7 @@ The system SHALL offer `roll-call` as a voting method when a round is opened. On
 
 ### Requirement: REQ-NPV-002 The chair or secretary records each member's choice
 
-The system SHALL expose `POST /api/voting-rounds/{id}/recorded-votes` to the chair and secretary of the round's meeting. It SHALL store one vote per listed participant with the given value, `entryMode: recorded`, `recordedBy` set to the caller, and `castAt` set to the time the vote was held. Posting a corrected list SHALL replace the earlier recorded votes of the same members, never add to them. A participant left out of the list SHALL have no vote.
+The system SHALL expose `POST /api/voting-rounds/{id}/named-votes` to the chair and secretary of the round's meeting. It SHALL store one vote per listed participant with the given value, `entryMode: recorded`, `recordedBy` set to the caller, and `castAt` set to the time the vote was held. Posting a corrected list SHALL replace the earlier recorded votes of the same members, never add to them. A participant left out of the list SHALL have no vote.
 
 #### Scenario: The griffier enters a paper roll call
 
