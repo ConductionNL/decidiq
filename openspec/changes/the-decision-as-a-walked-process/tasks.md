@@ -104,12 +104,21 @@ them reachable is in reachability-scope.md beside this file.
 ## 7. The remedy clause
 
 - [x] 7.1 Add `legalRemedies` to the decision type: kind, term in days, body.
-- [ ] 7.2 Resolve the clause onto the decision at the moment it is taken.
-      <!-- NOT DELIVERED: LegalRemedyResolver::stamp() does the resolving, and
-      nothing calls it at the moment a decision is taken or at any other moment. -->
-- [ ] 7.3 Refuse publication of a decision type with no declaration.
-      <!-- NOT DELIVERED: assertPublishable() is not called by the publication
-      path, so a type with no remedies publishes today. -->
+- [x] 7.2 Resolve the clause onto the decision at the moment it is taken.
+      <!-- REACHABLE (2026-11-14): DecisionRemedyStampListener, subscribed to
+      decision creates and updates after the competence guard, merges
+      LegalRemedyResolver::stamp()'s clause into the save once the decision
+      carries an outcome or its lifecycle reaches decided, enacted or archived.
+      A stamped clause is never rewritten; an untyped decision, a type that
+      declares no remedy, or an unreadable type stamps nothing and never stops
+      the save (publication still refuses the undeclared type, 7.3). Publication
+      stamps only what was taken before this listener existed. Proven by
+      tests/Unit/Listener/DecisionRemedyStampListenerTest.php. -->
+- [x] 7.3 Refuse publication of a decision type with no declaration.
+      <!-- REACHABLE: DecisionPublicationService::withRemedyClause() calls
+      LegalRemedyResolver::assertPublishable() before the write and answers 422,
+      so a type with no remedies does not publish. Proven by
+      DecisionRemedyClauseReachesTheReaderTest::testATypeDeclaringNoRemediesIsRefusedAndNothingReachesAReader. -->
 - [x] 7.4 PHPUnit on resolution and on the publication guard.
       <!-- True of the resolver in isolation. -->
 

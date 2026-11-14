@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ședință extraordinară",
         "Committee meeting": "Ședința comisiei",
         "Public hearing": "Audiere publică",
-        "General assembly": "Adunare generală"
+        "General assembly": "Adunare generală",
+        "Members' ancillary positions": "Funcțiile auxiliare ale membrilor"
     },
     "nplurals=2; plural=(n != 1);"
 )

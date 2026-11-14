@@ -218,6 +218,26 @@
             "defaultFilters": {
                 "citizenVotingAllowed": true
             }
+        },
+        {
+            "id": "publicAncillaryPositions",
+            "register": "decidiq",
+            "schema": "ancillary-position",
+            "anonymous": true,
+            "label": "Members' ancillary positions",
+            "listable": true,
+            "fields": [
+                "person",
+                "organisation",
+                "role",
+                "remunerated",
+                "startDate",
+                "endDate"
+            ],
+            "defaultSort": {
+                "field": "startDate",
+                "direction": "desc"
+            }
         }
     ],
     "actions": [

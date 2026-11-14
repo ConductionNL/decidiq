@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ekstraordinært møte",
         "Committee meeting": "Komitémøte",
         "Public hearing": "Offentlig høring",
-        "General assembly": "Generalforsamling"
+        "General assembly": "Generalforsamling",
+        "Members' ancillary positions": "Medlemmenes bierverv"
     },
     "nplurals=2; plural=(n != 1);"
 )

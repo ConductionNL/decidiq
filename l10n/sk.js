@@ -3324,7 +3324,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Mimoriadne zasadnutie",
         "Committee meeting": "Zasadnutie výboru",
         "Public hearing": "Verejné vypočutie",
-        "General assembly": "Valné zhromaždenie"
+        "General assembly": "Valné zhromaždenie",
+        "Members' ancillary positions": "Vedľajšie funkcie členov"
     },
     "nplurals=2; plural=(n != 1);"
 )
