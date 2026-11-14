@@ -39,6 +39,7 @@ use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\MinutesApprovedListener;
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
@@ -169,6 +170,19 @@ class ObjectListenerRegistrar {
 				listener: AgendaItemChangeListener::class,
 				registers: null,
 				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+
+		// Confidential agenda items (agenda-item-confidential-papers,
+		// REQ-ACP-003/004): a non-public item closes its papers, and an
+		// imposed item restriction closes the item.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $confidentialityEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $confidentialityEvent,
+				listener: AgendaItemConfidentialityListener::class,
+				registers: null,
+				schemas: [AgendaItemConfidentialityListener::SCHEMA_AGENDA_ITEM, AgendaItemConfidentialityListener::SCHEMA_RESTRICTION]
 			);
 		}
 

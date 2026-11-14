@@ -2267,6 +2267,7 @@ OC.L10N.register(
         "The body putting the question.": "The body putting the question.",
         "The body that held the meeting.": "The body that held the meeting.",
         "The body that needs this competence.": "The body that needs this competence.",
+        "Closed to the public": "Closed to the public",
         "The body the agenda, paper, decision or minutes belongs to.": "The body the agenda, paper, decision or minutes belongs to.",
         "The body the membership sits on.": "The body the membership sits on.",
         "The body the position is on.": "The body the position is on.",
