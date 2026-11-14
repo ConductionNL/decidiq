@@ -58,8 +58,9 @@
   - GIVEN an authorised user WHEN POST `/api/accessibility/scan` with sourceObject + fileId THEN 200 with the created/updated report
   - GIVEN a user without access to the source object WHEN they call the endpoint THEN 403 via OR per-object RBAC (no-admin-idor)
   - Route declares `#[NoAdminRequired]` auth posture (route-auth) and the method carries `@spec` tags (gate 16)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built: `AccessibilityController::scan()` reads the source under the caller's OpenRegister RBAC (refused, missing or another schema: 403), accepts only a file that is one of the object's papers (else 404), answers 200 with the report or 413 when the file is over the size cap.
 
 ### Task 6: Publication gate in the two publish chokepoints with recorded override
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override`
