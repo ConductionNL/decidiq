@@ -125,7 +125,8 @@ class ConfidentialityLapseListener implements IEventListener {
 
 		if ($this->justNotRatified(new: $new, old: $old) === true) {
 			$itemId = $this->idOf(row: $new, entity: $event->getNewObject());
-			$this->lapseForItem(item: $new + ['id' => $itemId], meetingId: (string)($new['meeting'] ?? ''), now: $now, atClose: false);
+			$moment = new LapseMoment(meetingId: (string)($new['meeting'] ?? ''), now: $now, atClose: false);
+			$this->lapseForItem(item: $new + ['id' => $itemId], moment: $moment);
 		}
 	}//end handle()
 
@@ -172,7 +173,7 @@ class ConfidentialityLapseListener implements IEventListener {
 
 		foreach ($this->rows(filters: ['schema' => self::SCHEMA_AGENDA_ITEM, 'meeting' => $meetingId]) as $item) {
 			if ((string)($item['meeting'] ?? '') === $meetingId) {
-				$this->lapseForItem(item: $item, meetingId: $meetingId, now: $now, atClose: true);
+				$this->lapseForItem(item: $item, moment: new LapseMoment(meetingId: $meetingId, now: $now, atClose: true));
 			}
 		}
 	}//end lapseAtClose()
@@ -180,14 +181,12 @@ class ConfidentialityLapseListener implements IEventListener {
 	/**
 	 * Lapse the restrictions put to the body with this item, where they lapse.
 	 *
-	 * @param array<string, mixed> $item      The agenda item.
-	 * @param string               $meetingId The meeting it sits on.
-	 * @param DateTimeImmutable    $now       The moment of the lapse.
-	 * @param bool                 $atClose   Whether the meeting closed (else a clerk recorded it).
+	 * @param array<string, mixed> $item   The agenda item.
+	 * @param LapseMoment          $moment The meeting it sits on, the moment of the lapse, and whether the meeting closed (else a clerk recorded it).
 	 *
 	 * @return void
 	 */
-	private function lapseForItem(array $item, string $meetingId, DateTimeImmutable $now, bool $atClose): void {
+	private function lapseForItem(array $item, LapseMoment $moment): void {
 		$itemId = (string)($item['id'] ?? '');
 		if ($itemId === '') {
 			return;
@@ -200,8 +199,8 @@ class ConfidentialityLapseListener implements IEventListener {
 			}
 
 			$ground = $this->ground(groundId: (string)($restriction['ground'] ?? ''));
-			if ($this->lapses(restriction: $restriction, ground: $ground, item: $item, atClose: $atClose) === true) {
-				$this->lapse(restriction: $restriction, meetingId: $meetingId, itemId: $itemId, now: $now);
+			if ($this->lapses(restriction: $restriction, ground: $ground, item: $item, atClose: $moment->atClose) === true) {
+				$this->lapse(restriction: $restriction, moment: $moment->forItem(itemId: $itemId));
 			}
 		}
 	}//end lapseForItem()
@@ -242,17 +241,17 @@ class ConfidentialityLapseListener implements IEventListener {
 	 * Write the lapse onto the restriction.
 	 *
 	 * @param array<string, mixed> $restriction The restriction.
-	 * @param string               $meetingId   The meeting.
-	 * @param string               $itemId      The ratification item.
-	 * @param DateTimeImmutable    $now         The moment of the lapse.
+	 * @param LapseMoment          $moment      The meeting, the ratification item and the moment of the lapse.
 	 *
 	 * @return void
 	 */
-	private function lapse(array $restriction, string $meetingId, string $itemId, DateTimeImmutable $now): void {
+	private function lapse(array $restriction, LapseMoment $moment): void {
+		$meetingId = $moment->meetingId;
+		$itemId    = $moment->itemId;
 		$id = (string)($restriction['id'] ?? ($restriction['@self']['id'] ?? ''));
 		unset($restriction['@self']);
 		$restriction['lifecycle'] = 'lapsed';
-		$restriction['lapsedAt']  = $now->format(DateTimeInterface::ATOM);
+		$restriction['lapsedAt']  = $moment->now->format(DateTimeInterface::ATOM);
 		if ($meetingId !== '') {
 			$restriction['lapsedAtMeeting'] = $meetingId;
 		}

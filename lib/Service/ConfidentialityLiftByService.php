@@ -131,7 +131,7 @@ class ConfidentialityLiftByService {
 			}
 
 			if ($liftBy <= $until && trim((string)($restriction['liftingAgendaItem'] ?? '')) === '') {
-				$result['placed'] += (int)$this->place(restriction: $restriction, today: $day, liftBy: $liftBy);
+				$result['placed'] += (int)$this->place(restriction: $restriction, window: ['from' => $day, 'until' => $liftBy]);
 			}
 		}
 
@@ -157,16 +157,16 @@ class ConfidentialityLiftByService {
 	/**
 	 * Place the lifting proposal on the body's next meeting and link it.
 	 *
-	 * @param array<string, mixed> $restriction The restriction.
-	 * @param string               $today       Today, `Y-m-d`.
-	 * @param string               $liftBy      Its end date, `Y-m-d`.
+	 * @param array<string, mixed>           $restriction The restriction.
+	 * @param array{from:string,until:string} $window     Today and its end date, `Y-m-d`.
 	 *
 	 * @return bool True when an item was placed.
 	 */
-	private function place(array $restriction, string $today, string $liftBy): bool {
+	private function place(array $restriction, array $window): bool {
+		$liftBy = $window['until'];
 		$id      = $this->idOf(row: $restriction);
 		$body    = $this->bodyOf(restriction: $restriction);
-		$meeting = $this->nextMeeting(body: $body, today: $today, liftBy: $liftBy);
+		$meeting = $this->nextMeeting(body: $body, window: $window);
 		if ($meeting === null) {
 			$this->logger->info(
 				'Decidiq: no meeting to put the lifting of a confidentiality on yet',
@@ -261,13 +261,12 @@ class ConfidentialityLiftByService {
 	/**
 	 * The body's first meeting from today up to the end date that still takes agenda items.
 	 *
-	 * @param string $body   The body.
-	 * @param string $today  Today, `Y-m-d`.
-	 * @param string $liftBy The end date, `Y-m-d`.
+	 * @param string                          $body   The body.
+	 * @param array{from:string,until:string} $window Today and the end date, `Y-m-d`.
 	 *
 	 * @return array<string, mixed>|null
 	 */
-	private function nextMeeting(string $body, string $today, string $liftBy): ?array {
+	private function nextMeeting(string $body, array $window): ?array {
 		if ($body === '') {
 			return null;
 		}
@@ -277,7 +276,7 @@ class ConfidentialityLiftByService {
 			$date = substr((string)($meeting['scheduledDate'] ?? ''), 0, 10);
 			if (($meeting['governanceBody'] ?? null) !== $body
 				|| in_array(($meeting['lifecycle'] ?? 'draft'), self::OPEN_MEETING_STATES, true) === false
-				|| $date === '' || $date < $today || $date > $liftBy
+				|| $date === '' || $date < $window['from'] || $date > $window['until']
 			) {
 				continue;
 			}
