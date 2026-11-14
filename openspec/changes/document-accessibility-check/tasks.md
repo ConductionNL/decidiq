@@ -105,9 +105,9 @@
 - **acceptance_criteria**:
   - GIVEN seeded reports WHEN staff open the report for a body and period THEN pass/warnings/fail/not-scanned counts + percentages and the override count render from the declarative aggregation (no imperative counting endpoint)
   - GIVEN the report WHEN CSV export is clicked THEN a CSV downloads with the same figures and the heuristic-scan disclaimer
-- [ ] Implement
-- [ ] Test
-  - Built as manifest pages (`src/manifest.d/document-accessibility.json`) reached from a Reports card: counts per status, a chart by status, the failing documents, and an index of all reports with status quick filters, body and date facets and mass export (CSV). Left: percentages, the override count and the disclaimer line inside the CSV need aggregation and export options the shared widgets do not offer yet.
+- [x] Implement
+- [x] Test
+  - Built as manifest pages (`src/manifest.d/document-accessibility.json`) reached from a Reports card. The dashboard's body picker (workspace filter over `governance-body`) and period range (`dateRange`, written as `dateFrom`/`dateTo`) scope every tile: the count per status, each with its share of the checked documents as a ratio caption, and the override count. Overrides are counted from `accessibility-override` records (fragment `134-accessibility-overrides.json`, aggregation `overrideCount`), one per publication past the gate, written by `DocumentPublicationGate` through `AccessibilityOverrideLog`; the Zuiddrecht set seeds the agenda override as one. The CSV is the `accessibility-report-export` widget (`AccessibilityReportExportWidget.vue`, figures and CSV in `src/utils/accessibilityReport.js`): the same figures for the page's body and period, the override count and the heuristic-scan statement, because the shared export has no room for that statement. The status donut is per body over all time (the grouped aggregation applies equality filters only). Left: a browser test of the report page needs a live instance.
 
 ## Quality checklist
 

@@ -3502,7 +3502,23 @@
         "Could not load the step-down schedule.": "Could not load the step-down schedule.",
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
-        "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end."
+        "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
+        "All time": "All time",
+        "Export report (CSV)": "Export report (CSV)",
+        "Published past the check": "Published past the check",
+        "Result of the heuristic check": "Result of the heuristic check",
+        "The report could not be exported.": "The report could not be exported.",
+        "These figures come from a heuristic check of the documents, not from a certified PDF/UA or EN 301 549 audit.": "These figures come from a heuristic check of the documents, not from a certified PDF/UA or EN 301 549 audit.",
+        "{ratio}% of checked documents": "{ratio}% of checked documents",
+        "Custom range": "Custom range",
+        "1y": "1y",
+        "Source type": "Source type",
+        "A publication that went ahead past the document accessibility check: who, why, when, for which body, and the scan reports concerned. Written by the system on publication; counted by the accessibility report.": "A publication that went ahead past the document accessibility check: who, why, when, for which body, and the scan reports concerned. Written by the system on publication; counted by the accessibility report.",
+        "The body whose meeting the published documents belong to, for the per-body report.": "The body whose meeting the published documents belong to, for the per-body report.",
+        "The meeting, agenda item or decision whose documents were published.": "The meeting, agenda item or decision whose documents were published.",
+        "The kind of record the documents are attached to.": "The kind of record the documents are attached to.",
+        "The scan reports of the documents published past the check.": "The scan reports of the documents published past the check.",
+        "How many documents were published past the check.": "How many documents were published past the check."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

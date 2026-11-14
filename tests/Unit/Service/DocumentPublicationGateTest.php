@@ -22,6 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use DateTime;
 use OCA\Decidiq\Exception\AccessibilityGateException;
 use OCA\Decidiq\Service\DocumentAccessibilityScanService;
+use OCA\Decidiq\Service\AccessibilityOverrideLog;
 use OCA\Decidiq\Service\DocumentPublicationGate;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IAppConfig;
@@ -57,11 +58,12 @@ class DocumentPublicationGateTest extends TestCase {
 	/**
 	 * A gate in a mode, published by `secretaris`.
 	 *
-	 * @param string $mode The stored mode.
+	 * @param string                        $mode        The stored mode.
+	 * @param AccessibilityOverrideLog|null $overrideLog The override log, when the test watches it.
 	 *
 	 * @return DocumentPublicationGate
 	 */
-	private function gate(string $mode): DocumentPublicationGate {
+	private function gate(string $mode, ?AccessibilityOverrideLog $overrideLog=null): DocumentPublicationGate {
 		$this->appConfig->method('getValueString')->with('decidiq', 'accessibility_enforcement_mode', 'warn')->willReturn($mode);
 		$user = $this->createMock(IUser::class);
 		$user->method('getUID')->willReturn('secretaris');
@@ -70,7 +72,7 @@ class DocumentPublicationGateTest extends TestCase {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getDateTime')->willReturn(new DateTime('2026-06-02T10:00:00+00:00'));
 
-		return new DocumentPublicationGate(scanner: $this->scanner, appConfig: $this->appConfig, userSession: $session, time: $time);
+		return new DocumentPublicationGate(scanner: $this->scanner, appConfig: $this->appConfig, userSession: $session, time: $time, overrideLog: $overrideLog);
 	}//end gate()
 
 	/**
@@ -133,6 +135,40 @@ class DocumentPublicationGateTest extends TestCase {
 			$override
 		);
 	}//end testBlockWithAReasonRecordsTheOverride()
+
+	/**
+	 * An override is logged once, with the reports that held the publication back.
+	 *
+	 * @return void
+	 */
+	public function testAnOverrideIsLoggedForTheReport(): void {
+		$this->reports([1 => 'fail', 2 => 'pass']);
+		$log = $this->createMock(AccessibilityOverrideLog::class);
+		$log->expects(self::once())->method('record')->with(
+			[
+				'reason' => 'Wettelijk termijngebonden',
+				'actor' => 'secretaris',
+				'overriddenAt' => '2026-06-02T10:00:00+00:00',
+				'reports' => ['r-1'],
+			],
+			[['id' => 'r-1', 'fileId' => 1, 'fileName' => '1.pdf', 'status' => 'fail', 'findings' => [['code' => 'x']]]]
+		)->willReturn(true);
+
+		$this->gate(mode: 'block', overrideLog: $log)->check(documents: self::documents(1, 2), consent: ['overrideReason' => 'Wettelijk termijngebonden']);
+	}//end testAnOverrideIsLoggedForTheReport()
+
+	/**
+	 * An acknowledged warning is no override, so nothing is logged.
+	 *
+	 * @return void
+	 */
+	public function testAnAcknowledgedWarningLogsNoOverride(): void {
+		$this->reports([1 => 'fail']);
+		$log = $this->createMock(AccessibilityOverrideLog::class);
+		$log->expects(self::never())->method('record');
+
+		self::assertNull($this->gate(mode: 'warn', overrideLog: $log)->check(documents: self::documents(1), consent: ['acknowledged' => true]));
+	}//end testAnAcknowledgedWarningLogsNoOverride()
 
 	/**
 	 * A blank reason is no override.

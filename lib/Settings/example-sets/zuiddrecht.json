@@ -4092,6 +4092,23 @@
 				"scannedAt": "{{datetime:-35@thu 09:20}}",
 				"heuristic": true
 			}
+		},
+		{
+			"key": "override-agenda-raad-1",
+			"register": "decidiq",
+			"schema": "accessibility-override",
+			"data": {
+				"reason": "Brondocument niet meer beschikbaar; publicatie wettelijk termijngebonden",
+				"actor": "bram",
+				"overriddenAt": "{{datetime:-32@thu 09:00}}",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"sourceObject": "{{object:meeting-raad-1.id}}",
+				"sourceSchema": "meeting",
+				"reports": [
+					"{{object:scan-bijlage-kaart-lindelaan.id}}"
+				],
+				"documentCount": 1
+			}
 		}
 	],
 	"groups": [
@@ -4176,7 +4193,9 @@
 						"reason": "Brondocument niet meer beschikbaar; publicatie wettelijk termijngebonden",
 						"actor": "bram",
 						"overriddenAt": "{{datetime:-32@thu 09:00}}",
-						"reports": []
+						"reports": [
+							"{{object:scan-bijlage-kaart-lindelaan.id}}"
+						]
 					}
 				]
 			}

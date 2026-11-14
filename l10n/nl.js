@@ -3917,7 +3917,23 @@ OC.L10N.register(
         "Could not load the step-down schedule.": "Het rooster van aftreden kon niet worden geladen.",
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
-        "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft."
+        "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
+        "All time": "Alle tijd",
+        "Export report (CSV)": "Rapport exporteren (CSV)",
+        "Published past the check": "Gepubliceerd ondanks de controle",
+        "Result of the heuristic check": "Uitkomst van de heuristische controle",
+        "The report could not be exported.": "Het rapport kon niet worden geëxporteerd.",
+        "These figures come from a heuristic check of the documents, not from a certified PDF/UA or EN 301 549 audit.": "Deze cijfers komen uit een heuristische controle van de documenten, niet uit een gecertificeerde PDF/UA- of EN 301 549-audit.",
+        "{ratio}% of checked documents": "{ratio}% van de gecontroleerde documenten",
+        "Custom range": "Eigen periode",
+        "1y": "1j",
+        "Source type": "Soort bron",
+        "A publication that went ahead past the document accessibility check: who, why, when, for which body, and the scan reports concerned. Written by the system on publication; counted by the accessibility report.": "Een publicatie die doorging ondanks de toegankelijkheidscontrole van de documenten: wie, waarom, wanneer, voor welk orgaan en om welke controlerapporten het gaat. Vastgelegd door het systeem bij publicatie; geteld in het toegankelijkheidsrapport.",
+        "The body whose meeting the published documents belong to, for the per-body report.": "Het orgaan bij wiens vergadering de gepubliceerde documenten horen, voor het rapport per orgaan.",
+        "The meeting, agenda item or decision whose documents were published.": "De vergadering, het agendapunt of het besluit waarvan de documenten zijn gepubliceerd.",
+        "The kind of record the documents are attached to.": "Het soort record waaraan de documenten hangen.",
+        "The scan reports of the documents published past the check.": "De controlerapporten van de documenten die ondanks de controle zijn gepubliceerd.",
+        "How many documents were published past the check.": "Hoeveel documenten ondanks de controle zijn gepubliceerd."
     },
     "nplurals=2; plural=(n != 1);"
 )

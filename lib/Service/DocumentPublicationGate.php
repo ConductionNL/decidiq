@@ -68,6 +68,7 @@ class DocumentPublicationGate {
 	 * @param IAppConfig                       $appConfig   The app config.
 	 * @param IUserSession                     $userSession The user who publishes.
 	 * @param ITimeFactory                     $time        The clock.
+	 * @param AccessibilityOverrideLog|null    $overrideLog Keeps the countable record of each override for the aggregate report.
 	 *
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
@@ -76,6 +77,7 @@ class DocumentPublicationGate {
 		private readonly IAppConfig $appConfig,
 		private readonly IUserSession $userSession,
 		private readonly ITimeFactory $time,
+		private readonly ?AccessibilityOverrideLog $overrideLog=null,
 	) {
 	}//end __construct()
 
@@ -157,7 +159,9 @@ class DocumentPublicationGate {
 	private function decide(array $holding, array $consent): ?array {
 		$reason = trim((string)($consent['overrideReason'] ?? ''));
 		if ($reason !== '') {
-			return $this->override(reason: $reason, reports: $holding);
+			$override = $this->override(reason: $reason, reports: $holding);
+			$this->overrideLog?->record(override: $override, reports: $holding);
+			return $override;
 		}
 
 		if ($consent['mode'] === 'warn' && ($consent['acknowledged'] ?? false) === true) {

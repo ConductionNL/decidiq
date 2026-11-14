@@ -36,6 +36,8 @@ class ExampleSetAccessibilityReportsTest extends TestCase {
 
 	private const REGISTER = __DIR__ . '/../../../lib/Settings/decidesk_register.json';
 
+	private const OVERRIDES = __DIR__ . '/../../../lib/Settings/register.d/134-accessibility-overrides.json';
+
 	/**
 	 * A JSON file as decoded data.
 	 *
@@ -152,4 +154,43 @@ class ExampleSetAccessibilityReportsTest extends TestCase {
 			actual: $overrides['meeting-raad-1'][0]['reason']
 		);
 	}//end testAPublishedAgendaCarriesAnOverride()
+
+	/**
+	 * The agenda's override is also a countable override record of the same
+	 * body, time and report, so the aggregate report counts it.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period
+	 */
+	public function testTheAgendaOverrideIsCounted(): void {
+		$fragment = self::json(path: self::OVERRIDES);
+		$schema   = $fragment['components']['schemas']['AccessibilityOverride'];
+		self::assertContains(needle: 'accessibility-override', haystack: $fragment['components']['registers']['decidiq']['schemas']);
+		self::assertSame(expected: ['governanceBody' => '@self.governanceBody'], actual: $schema['x-openregister-aggregations']['overrideCount']['filter']);
+		self::assertSame(expected: ['read' => ['authenticated'], 'list' => ['authenticated']], actual: $schema['authorization'], message: 'signed-in reads only, no write on the object API');
+
+		$records = self::objects(schema: 'accessibility-override');
+		self::assertSame(expected: ['override-agenda-raad-1'], actual: array_keys($records));
+		$record = $records['override-agenda-raad-1'];
+		self::assertSame(expected: [], actual: array_values(array_diff(array_keys($record), array_keys($schema['properties']))));
+		foreach ($schema['required'] as $field) {
+			self::assertArrayHasKey(key: $field, array: $record);
+		}
+
+		$override = null;
+		foreach (self::json(path: self::FRAGMENT)['changes'] as $change) {
+			if (($change['object'] ?? null) === 'meeting-raad-1' && isset($change['set']['accessibilityOverrides']) === true) {
+				$override = $change['set']['accessibilityOverrides'][0];
+			}
+		}
+
+		self::assertSame(expected: 'meeting-raad-1', actual: self::keyOf(reference: $record['sourceObject']));
+		self::assertSame(expected: 'body-gemeenteraad', actual: self::keyOf(reference: $record['governanceBody']));
+		foreach (['reason', 'actor', 'overriddenAt', 'reports'] as $field) {
+			self::assertSame(expected: $override[$field], actual: $record[$field], message: $field);
+		}
+
+		self::assertArrayHasKey(key: self::keyOf(reference: $record['reports'][0]), array: self::objects(schema: 'accessibility-scan-report'));
+	}//end testTheAgendaOverrideIsCounted()
 }//end class
