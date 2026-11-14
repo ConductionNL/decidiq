@@ -3804,7 +3804,13 @@
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "Lifting": "Opheffing",
+        "Prepare lifting": "Opheffing voorbereiden",
+        "Overdue for lifting": "Te laat voor opheffing",
+        "Lifting agenda item": "Agendapunt opheffing",
+        "The agenda item proposing to lift the confidentiality, placed on the next meeting of the deciding body when the end date comes within the lead time.": "Het agendapunt met het voorstel om de geheimhouding op te heffen, op de eerstvolgende vergadering van het orgaan dat beslist zodra de einddatum binnen de aanlooptijd valt.",
+        "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.": "Hoe het staat met de geplande opheffing: het agendapunt staat klaar, of de einddatum is voorbij zonder besluit tot opheffing. De status verandert niet door de datum alleen."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

@@ -30,8 +30,8 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
   - GIVEN liftBy within the lead time WHEN the job runs THEN one lifting agenda item exists on the next meeting; running again adds none
   - GIVEN liftBy passed WHEN the register loads THEN the restriction shows overdue; its lifecycle is unchanged
   - the job queries only restrictions with liftBy set and state imposed or ratified
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`lib/Service/ConfidentialityLiftByService.php`, `lib/BackgroundJob/ConfidentialityLiftByJob.php`; app config key `confidentiality_lift_lead_days`, default 30; the restriction gains `liftingAgendaItem` and `liftStatus` (preparing, overdue), shown in the register list with `liftBy`)
+- [x] Test
 
 ### Task 4: Detail page per board DcGeheimhouding
 - **spec_ref**: `#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board`, `#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date`

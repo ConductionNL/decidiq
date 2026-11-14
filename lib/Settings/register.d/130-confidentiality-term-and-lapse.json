@@ -61,6 +61,31 @@
             "description": "The meeting that closed without ratifying the confidentiality.",
             "x-notes": "REQ-EMB-021. Together with ratificationAgendaItem this names the meeting and the item the lapse came from; the object's audit trail records the write."
           },
+          "liftingAgendaItem": {
+            "title": "Lifting agenda item",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "agenda-item",
+            "nullable": true,
+            "description": "The agenda item proposing to lift the confidentiality, placed on the next meeting of the deciding body when the end date comes within the lead time.",
+            "x-notes": "REQ-EMB-022. Written by ConfidentialityLiftByJob; a restriction with one gets no second."
+          },
+          "liftStatus": {
+            "title": "Lifting",
+            "type": "string",
+            "enum": [
+              "preparing",
+              "overdue"
+            ],
+            "x-enum-labels": {
+              "preparing": "Prepare lifting",
+              "overdue": "Overdue for lifting"
+            },
+            "nullable": true,
+            "facetable": true,
+            "description": "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.",
+            "x-notes": "REQ-EMB-022. Written by ConfidentialityLiftByJob."
+          },
           "lifecycle": {
             "enum": [
               "lapsed"

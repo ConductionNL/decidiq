@@ -49,7 +49,9 @@
 						"label": "Bekrachtiging deadline",
 						"format": "date"
 					},
-					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+					{ "key": "lifecycle", "label": "Status", "widget": "badge" },
+					{ "key": "liftBy", "label": "Lift by", "format": "date" },
+					{ "key": "liftStatus", "label": "Lifting", "widget": "badge" }
 				],
 				"actions": [
 					{
