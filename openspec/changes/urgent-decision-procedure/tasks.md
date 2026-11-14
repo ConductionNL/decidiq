@@ -9,8 +9,8 @@
   - GIVEN the register after import WHEN the `decision` schema is inspected THEN `isUrgent`, `urgencyReason`, `urgencyDeclaredBy`, `urgencyDeclaredAt`, and the `awaitingRatification` calculation exist and the `x-openregister-lifecycle` block is unchanged
   - GIVEN the `meeting` schema WHEN inspected THEN `shortenedNotice`, `actualNoticeHours`, `noticeDeviationReason` exist as optional properties
   - GIVEN the `decision` notifications WHEN inspected THEN `urgentDecisionDeclared` (updated/isUrgent) and `urgentRatificationDue` (scheduled/awaitingRatification) exist in the verified dialect with `{nl,en}` subjects and no `kind:field` recipients
-- [ ] Implement
-- [ ] Test
+- [x] Implement (in `lib/Settings/register.d/46-urgency-policy.json`, the fragment the base register merges: urgency fields, Meeting deviation fields, the two notification rules, and the `awaitingRatification` calculation over three ratifying-stage aggregate refs)
+- [x] Test (UrgencyRegisterFragmentTest; MaterialisedCalculationTest covers the calculation wiring)
 
 ### Task 2: ProcessTemplate urgencyPolicy fragment + fail-closed validation
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy`
@@ -19,8 +19,8 @@
   - GIVEN a template save with `responseDeadlineHours={min:96,max:12}` WHEN validated THEN HTTP 400 naming the inverted bounds
   - GIVEN `ratificationRequired=true` without `ratifyingBody` WHEN validated THEN the save is rejected
   - GIVEN a body whose template has no `urgencyPolicy` WHEN the urgent procedure is attempted THEN it is unavailable (fail closed)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgencyPolicyValidator`, checked by `ProcessTemplateService::create()`/`update()`; `resolveUrgencyPolicyForBody()` answers null without a valid policy)
+- [x] Test (UrgencyPolicyValidatorTest, ProcessTemplateServiceTest)
 
 ### Task 3: Urgency trigger — guard, endpoint, field guard, audit
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-001-guarded-urgency-declaration`
