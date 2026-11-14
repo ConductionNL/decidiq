@@ -10,8 +10,10 @@
   - GIVEN a GoverningDocument without citeertitel or governingBody WHEN saved THEN schema validation rejects it (REQ-GDR-001)
   - GIVEN a GoverningDocumentVersie in `in-werking` WHEN its inwerkingtreding, notarial metadata, or consolidated-text reference is edited THEN the write is rejected as sealed (REQ-GDR-003)
   - GIVEN pre-existing decisions without the citation property WHEN the updated schema is imported THEN they validate unchanged
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+      DONE: the fragment (on development) declares both schemas, their lifecycles, the document/versie/decision/governance-body references, the new-effective-version notification and the optional `decision.citesGoverningDocuments`; `citationTitle` and `governingBody` are required. The seal (REQ-GDR-003) is a save-time guard: `GoverningDocumentConsolidationService::assertEditable()`, called by `GoverningDocumentVersionGuardListener` on every version update, refuses a change to the document, number, enacting decision, effective date or notarial-deed metadata of a version in effect, replaced or lapsed. The consolidated text is a Files leaf, not a property, so its seal rests on OpenRegister's file handling.
+- [x] Test
+      `tests/Unit/Service/GoverningDocumentConsolidationServiceTest.php` (each frozen field, a sealed version moving on, a draft still editable), `tests/Unit/Listener/GoverningDocumentVersionGuardListenerTest.php` (a sealed edit stopped on update), `tests/Unit/Settings/GoverningDocumentsRegisterFragmentTest.php`.
 
 ### Task 2: Seed data — vereniging statuten, gemeenteraad reglement van orde, VvE splitsingsakte
 - **spec_ref**: `openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-002-governingdocumentversie-traced-to-its-enacting-decision`
@@ -20,8 +22,10 @@
   - GIVEN a clean install WHEN seed data is planted THEN the three governing documents from the design Seed Data tables exist (statuten-vng with `isPublic=true`, reglement-van-orde-raad-amsterdam, splitsingsakte-vve-parkstaete) plus the `vve-parkstaete` governance body
   - GIVEN the four seed versions WHEN inspected THEN the statuten chain v1(`vervangen`, constitutive with aktedatum/notaris)→v2(`in-werking`, vastgesteldDoor `besluit-statutenwijziging-vng-2021`) resolves, rvo-amsterdam-v1 traces to `besluit-vaststelling-rvo-amsterdam`, and the splitsingsakte v1 carries notarial metadata without a decision link
   - GIVEN the seeded statutenwijziging decision WHEN its detail is opened THEN its `citesGoverningDocuments` entry renders as a link to the statuten
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+      DONE on development: the seed objects moved to `lib/Settings/profiles/association.json` (statuten-vng v1 constitutive with deed date and notary, v2 traced to `besluit-statutenwijziging-vng-2021` which cites the statuten; the splitsingsakte of `vve-parkstaete` without a decision) and `lib/Settings/profiles/municipality.json` (rvo-amsterdam-v1 traced to `besluit-vaststelling-rvo-amsterdam`).
+- [x] Test
+      `tests/Unit/Settings/GoverningDocumentsRegisterFragmentTest.php` reads the chains from the shipped profiles. The rendered citation link is Task 5.
 
 ### Task 3: GoverningDocumentConsolidationService — in-force resolution, activation guard, trace rule
 - **spec_ref**: `openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-004-in-force-resolution-per-date`

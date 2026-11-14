@@ -65,6 +65,27 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 	public const SEALED_STATES = ['in-effect', 'replaced', 'lapsed'];
 
 	/**
+	 * The fields of a version that a seal freezes (REQ-GDR-003).
+	 *
+	 * @var string[]
+	 */
+	public const SEALED_FIELDS = ['document', 'versionNumber', 'determinedBy', 'effectiveDate', 'deedDate', 'notary'];
+
+	/**
+	 * The sealed fields that hold a date.
+	 *
+	 * @var string[]
+	 */
+	private const DATE_FIELDS = ['effectiveDate', 'deedDate'];
+
+	/**
+	 * The sealed fields that hold a reference.
+	 *
+	 * @var string[]
+	 */
+	private const REFERENCE_FIELDS = ['document', 'determinedBy'];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService Reads documents and versions.
@@ -158,6 +179,52 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 		self::assertUniqueNumber(others: $others, version: $version);
 		self::assertActivationOrder(others: $others, version: $version);
 	}//end assertAcceptable()
+
+	/**
+	 * Refuse an edit of a sealed version's frozen fields (REQ-GDR-003).
+	 *
+	 * @param array<string, mixed> $before The version as stored.
+	 * @param array<string, mixed> $after  The version about to be saved.
+	 *
+	 * @return void
+	 *
+	 * @throws GoverningDocumentVersionRefusedException When it is refused.
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function assertEditable(array $before, array $after): void {
+		self::assertSealedUnchanged(before: $before, after: $after);
+	}//end assertEditable()
+
+	/**
+	 * Refuse a change to a frozen field of a version that is already sealed.
+	 *
+	 * The state may still move on (in effect to replaced or lapsed) and an
+	 * expiry date or a note may still be set; a correction is a new version.
+	 *
+	 * @param array<string, mixed> $before The version as stored.
+	 * @param array<string, mixed> $after  The version about to be saved.
+	 *
+	 * @return void
+	 *
+	 * @throws GoverningDocumentVersionRefusedException When it is refused.
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public static function assertSealedUnchanged(array $before, array $after): void {
+		if (self::isSealed(version: $before) === false) {
+			return;
+		}
+
+		foreach (self::SEALED_FIELDS as $field) {
+			if (self::comparable(field: $field, value: ($before[$field] ?? null)) !== self::comparable(field: $field, value: ($after[$field] ?? null))) {
+				throw new GoverningDocumentVersionRefusedException(
+					message: 'The version was not saved: version ' . (string)($before['versionNumber'] ?? '?')
+						. ' is in effect and sealed, so its ' . $field . ' cannot change. Record the correction as a new version.'
+				);
+			}
+		}
+	}//end assertSealedUnchanged()
 
 	/**
 	 * The version in force on a date, among a document's versions.
@@ -352,6 +419,30 @@ class GoverningDocumentConsolidationService implements GoverningDocumentConsolid
 
 		return substr($value, 0, 10);
 	}//end date()
+
+	/**
+	 * A sealed field's value in a form two saves can be compared in.
+	 *
+	 * @param string $field The field.
+	 * @param mixed  $value The stored value.
+	 *
+	 * @return string
+	 */
+	private static function comparable(string $field, mixed $value): string {
+		if (in_array($field, self::REFERENCE_FIELDS, true) === true) {
+			return self::reference(value: $value);
+		}
+
+		if (in_array($field, self::DATE_FIELDS, true) === true) {
+			return self::date(value: $value);
+		}
+
+		if ($value === null || is_scalar($value) === false) {
+			return '';
+		}
+
+		return trim((string)$value);
+	}//end comparable()
 
 	/**
 	 * A row's own id.

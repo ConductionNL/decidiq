@@ -88,6 +88,13 @@ class GoverningDocumentVersionGuardListener implements IEventListener {
 		}
 
 		try {
+			if ($event instanceof ObjectUpdatingEvent && is_object($event->getOldObject()) === true) {
+				$this->consolidation->assertEditable(
+					before: (new EntityPayloadReader())->payloadOf(entity: $event->getOldObject()),
+					after: $row
+				);
+			}
+
 			$this->consolidation->assertAcceptable(version: $row);
 		} catch (GoverningDocumentVersionRefusedException $e) {
 			$this->refuse(event: $event, message: $e->getMessage());

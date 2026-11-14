@@ -66,4 +66,19 @@ interface GoverningDocumentConsolidationServiceInterface {
 	 * @throws GoverningDocumentVersionRefusedException When it is refused.
 	 */
 	public function assertAcceptable(array $version): void;
+
+	/**
+	 * Refuse an edit of a sealed version's frozen fields: its document,
+	 * number, enacting decision, effective date and notarial-deed metadata.
+	 *
+	 * @param array<string, mixed> $before The version as stored.
+	 * @param array<string, mixed> $after  The version about to be saved.
+	 *
+	 * @return void
+	 *
+	 * @throws GoverningDocumentVersionRefusedException When it is refused.
+	 *
+	 * @spec openspec/changes/governing-documents-register
+	 */
+	public function assertEditable(array $before, array $after): void;
 }//end interface

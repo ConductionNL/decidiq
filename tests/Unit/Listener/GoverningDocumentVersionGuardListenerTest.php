@@ -122,6 +122,29 @@ class GoverningDocumentVersionGuardListenerTest extends TestCase {
 		self::assertFalse($event->isPropagationStopped());
 	}//end testAnotherSchemaIsLeftAlone()
 
+	public function testEditingTheEffectiveDateOfASealedVersionIsStopped(): void {
+		$sealed = ['document' => 'doc', 'versionNumber' => 1, 'effectiveDate' => '2022-01-01', 'status' => 'in-effect', 'notary' => 'mr. A. de Wit'];
+		$edited = array_merge($sealed, ['effectiveDate' => '2022-02-01']);
+		$event = new ObjectUpdatingEvent($this->entity($edited, 'v1'), $this->entity($sealed, 'v1'));
+
+		$this->listener()->handle($event);
+
+		self::assertTrue($event->isPropagationStopped());
+		self::assertStringContainsString('is in effect and sealed, so its effectiveDate cannot change', (string)$event->getErrors()['message']);
+	}//end testEditingTheEffectiveDateOfASealedVersionIsStopped()
+
+	public function testReplacingASealedVersionWithItsFieldsUntouchedIsSaved(): void {
+		$sealed = ['document' => 'doc', 'versionNumber' => 1, 'effectiveDate' => '2022-01-01', 'status' => 'in-effect'];
+		$event = new ObjectUpdatingEvent(
+			$this->entity(array_merge($sealed, ['status' => 'replaced', 'expiryDate' => '2024-01-01']), 'v1'),
+			$this->entity($sealed, 'v1')
+		);
+
+		$this->listener()->handle($event);
+
+		self::assertFalse($event->isPropagationStopped());
+	}//end testReplacingASealedVersionWithItsFieldsUntouchedIsSaved()
+
 	public function testTheRegistrarSubscribesTheGuardToVersionSaves(): void {
 		$subscribed = [];
 		$dispatcher = $this->createMock(IEventDispatcher::class);

@@ -234,6 +234,49 @@ class GoverningDocumentConsolidationServiceTest extends TestCase {
 		$this->service->assertAcceptable(['id' => 'v3', 'document' => self::DOC, 'versionNumber' => 3, 'status' => 'in-effect', 'determinedBy' => 'besluit-x']);
 	}//end testPuttingInEffectWithoutADateIsRefused()
 
+	/**
+	 * @return array<string, array{0: string, 1: mixed}>
+	 */
+	public static function frozenFieldEdits(): array {
+		return [
+			'effective date' => ['effectiveDate', '2022-02-01'],
+			'enacting decision' => ['determinedBy', 'besluit-other'],
+			'version number' => ['versionNumber', 7],
+			'deed date' => ['deedDate', '2021-12-16'],
+			'notary' => ['notary', 'mr. B. Jansen'],
+			'document' => ['document', 'another-document'],
+		];
+	}//end frozenFieldEdits()
+
+	/**
+	 * @dataProvider frozenFieldEdits
+	 */
+	public function testAFrozenFieldOfASealedVersionCannotChange(string $field, mixed $value): void {
+		$sealed = self::statutenChain()[1] + ['deedDate' => '2021-12-15', 'notary' => 'mr. A. de Wit'];
+
+		$this->expectException(GoverningDocumentVersionRefusedException::class);
+		$this->expectExceptionMessage('version 2 is in effect and sealed, so its ' . $field . ' cannot change');
+
+		$this->service->assertEditable($sealed, array_merge($sealed, [$field => $value]));
+	}//end testAFrozenFieldOfASealedVersionCannotChange()
+
+	public function testASealedVersionMayMoveOnAndTakeAnExpiryDate(): void {
+		$sealed = self::statutenChain()[1];
+		$after = array_merge($sealed, ['status' => 'replaced', 'expiryDate' => '2030-01-01', 'notes' => 'Superseded.', 'effectiveDate' => '2022-01-01T00:00:00+00:00', 'versionNumber' => '2']);
+
+		$this->service->assertEditable($sealed, $after);
+
+		self::addToAssertionCount(1);
+	}//end testASealedVersionMayMoveOnAndTakeAnExpiryDate()
+
+	public function testADraftVersionMayStillBeEdited(): void {
+		$draft = ['id' => 'v3', 'document' => self::DOC, 'versionNumber' => 3, 'effectiveDate' => '2025-01-01', 'status' => 'adopted', 'determinedBy' => 'besluit-x'];
+
+		$this->service->assertEditable($draft, array_merge($draft, ['effectiveDate' => '2025-06-01', 'determinedBy' => 'besluit-y']));
+
+		self::addToAssertionCount(1);
+	}//end testADraftVersionMayStillBeEdited()
+
 	public function testUnreadableSiblingsRefuseTheSave(): void {
 		$objects = $this->createMock(ObjectServiceInterface::class);
 		$objects->method('findAll')->willThrowException(new RuntimeException('database gone'));
