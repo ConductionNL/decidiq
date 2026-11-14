@@ -107,9 +107,13 @@ them reachable is in reachability-scope.md beside this file.
 - [ ] 7.2 Resolve the clause onto the decision at the moment it is taken.
       <!-- NOT DELIVERED: LegalRemedyResolver::stamp() does the resolving, and
       nothing calls it at the moment a decision is taken or at any other moment. -->
-- [ ] 7.3 Refuse publication of a decision type with no declaration.
-      <!-- NOT DELIVERED: assertPublishable() is not called by the publication
-      path, so a type with no remedies publishes today. -->
+- [x] 7.3 Refuse publication of a decision type with no declaration.
+      <!-- REACHABLE since 2026-09-19: DecisionPublicationService::publish()
+      calls assertPublishable() on the decision's type before the write and
+      answers 422 naming the missing declaration; nothing is saved. Proven by
+      tests/Unit/Service/DecisionPublicationRemedyClauseTest.php
+      (testATypeDeclaringNoRemediesIsRefusedAndNothingIsSaved). An untyped
+      decision still publishes with no clause, as reachability-scope.md says. -->
 - [x] 7.4 PHPUnit on resolution and on the publication guard.
       <!-- True of the resolver in isolation. -->
 
