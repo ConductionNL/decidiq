@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Ki szavazhat",
+        "All members of the body": "A testület összes tagja",
+        "Left out because they are no longer active members: {names}": "Kimaradtak, mert már nem aktív tagok: {names}",
         "sign-off route": "jóváhagyási útvonal",
         "#": "#",
         "+ Action item": "+ Teendő",

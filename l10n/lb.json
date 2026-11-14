@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Wien ofstëmme dierf",
+        "All members of the body": "All Memberen vum Gremium",
+        "Left out because they are no longer active members: {names}": "Net berécksiichtegt, well se keng aktiv Memberen méi sinn: {names}",
         "sign-off route": "Fräigabwee",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d dofir, %2$d dergéint, %3$d enthalen",

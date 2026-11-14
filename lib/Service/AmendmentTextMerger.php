@@ -44,6 +44,20 @@ use RuntimeException;
  */
 class AmendmentTextMerger {
 	/**
+	 * A change adopted by vote.
+	 *
+	 * @var string
+	 */
+	public const KIND_AMENDMENT = 'amendment';
+
+	/**
+	 * A change the chair or secretary accepted without a vote.
+	 *
+	 * @var string
+	 */
+	public const KIND_RECOMMENDATION = 'recommendation';
+
+	/**
 	 * Return the motion fields after working the amendment into its text.
 	 *
 	 * Returns null when the amendment is already in the motion's history, so
@@ -52,16 +66,20 @@ class AmendmentTextMerger {
 	 * @param array<string, mixed> $motionData The parent motion's object data
 	 * @param array<string, mixed> $amendmentData The adopted amendment's object data
 	 * @param string $amendmentId UUID of the amendment
+	 * @param string $kind What the change is: `amendment` (adopted by vote) or
+	 *                     `recommendation` (accepted by the chair or secretary).
+	 *                     The history entry names the change under this key.
 	 *
 	 * @throws RuntimeException When the amendment carries no replacement, or its passage is not in the text
 	 *
 	 * @spec openspec/specs/motion-amendment/spec.md
+	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
 	 *
 	 * @return array{text: string, originalText: string, amendmentHistory: list<array<string, string>>}|null
 	 */
-	public function merge(array $motionData, array $amendmentData, string $amendmentId): ?array {
+	public function merge(array $motionData, array $amendmentData, string $amendmentId, string $kind = self::KIND_AMENDMENT): ?array {
 		$history = array_values((array) ($motionData['amendmentHistory'] ?? []));
-		if ($this->isApplied(history: $history, amendmentId: $amendmentId) === true) {
+		if ($this->isApplied(history: $history, amendmentId: $amendmentId, kind: $kind) === true) {
 			return null;
 		}
 
@@ -73,13 +91,21 @@ class AmendmentTextMerger {
 			$original = $before;
 		}
 
-		$history[] = [
+		$entry = [
 			'amendment' => $amendmentId,
 			'mode'      => $mode,
 			'before'    => $before,
 			'after'     => $after,
 			'appliedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
 		];
+		if ($kind === self::KIND_RECOMMENDATION) {
+			// A recommendation is not an amendment: the entry names it under
+			// its own key, so the history tells the two apart (REQ-MCR-003).
+			unset($entry['amendment']);
+			$entry = ['recommendation' => $amendmentId, 'kind' => self::KIND_RECOMMENDATION] + $entry;
+		}
+
+		$history[] = $entry;
 
 		return [
 			'text'             => $after,
@@ -94,12 +120,13 @@ class AmendmentTextMerger {
 	 *
 	 * @param array<int, mixed> $history The motion's amendmentHistory
 	 * @param string $amendmentId UUID of the amendment
+	 * @param string $kind The key the history entry names the change under
 	 *
 	 * @return bool
 	 */
-	private function isApplied(array $history, string $amendmentId): bool {
+	private function isApplied(array $history, string $amendmentId, string $kind): bool {
 		foreach ($history as $entry) {
-			if (is_array($entry) === true && ($entry['amendment'] ?? null) === $amendmentId) {
+			if (is_array($entry) === true && ($entry[$kind] ?? null) === $amendmentId) {
 				return true;
 			}
 		}

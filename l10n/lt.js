@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kas gali balsuoti",
+        "All members of the body": "Visi organo nariai",
+        "Left out because they are no longer active members: {names}": "Neįtraukti, nes nebėra aktyvūs nariai: {names}",
         "sign-off route": "tvirtinimo maršrutas",
         "#": "#",
         "+ Action item": "+ Veiksmo punktas",

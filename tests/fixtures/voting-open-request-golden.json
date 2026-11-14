@@ -11,6 +11,7 @@
                 "p1",
                 "p2"
             ],
+            "votingGroupId": null,
             "voteThreshold": "qualified-majority-two-thirds",
             "abstentionHandling": "count",
             "tieBreakRule": "revote",
@@ -33,6 +34,7 @@
             "isSecret": false,
             "closedAt": null,
             "presetIds": [],
+            "votingGroupId": null,
             "voteThreshold": null,
             "abstentionHandling": null,
             "tieBreakRule": null,
@@ -51,6 +53,7 @@
             "isSecret": false,
             "closedAt": null,
             "presetIds": [],
+            "votingGroupId": null,
             "voteThreshold": null,
             "abstentionHandling": null,
             "tieBreakRule": null,
@@ -90,6 +93,29 @@
     },
     "bad rule beats bad subject": {
         "error": "abstentionHandling must be one of: exclude, count",
+        "payload": []
+    },
+    "voting group": {
+        "error": null,
+        "payload": {
+            "motionId": "m-1",
+            "meetingId": "mt-1",
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "closedAt": null,
+            "presetIds": [],
+            "votingGroupId": "group-1",
+            "voteThreshold": null,
+            "abstentionHandling": null,
+            "tieBreakRule": null,
+            "revoteOfRoundId": null,
+            "subjectType": "motion",
+            "governanceBodyId": null,
+            "options": []
+        }
+    },
+    "voting group and presets": {
+        "error": "Choose a voting group or preset participants, not both",
         "payload": []
     }
 }
