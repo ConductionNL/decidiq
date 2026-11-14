@@ -649,13 +649,15 @@
 					{ "id": "meeting-audit-statements", "type": "custom", "component": "MeetingAuditStatementTab", "title": "Audit statements", "icon": "ClipboardCheckOutline" },
 					{ "id": "meeting-routed-documents", "type": "custom", "component": "MeetingRoutedDocumentsTab", "title": "Incoming documents", "icon": "Email" },
 					{ "id": "meeting-technical-questions", "type": "custom", "component": "MeetingTechnicalQuestionsTab", "title": "Technical questions", "icon": "CommentQuestionOutline", "_note": "motions-technical-questions-to-officials (mot-17): the meeting's technical questions with their official, answer deadline and open, answered or overdue status." },
-					{ "id": "meeting-decision-list-signers", "type": "custom", "component": "DecisionListSignersTab", "title": "Signing the decision list", "icon": "FileSign", "_note": "signing-external-service-with-order (min-17): who signs the decision list, in which order, and Send for signature; the signed copy is stored in the meeting files." }
+					{ "id": "meeting-decision-list-signers", "type": "custom", "component": "DecisionListSignersTab", "title": "Signing the decision list", "icon": "FileSign", "_note": "signing-external-service-with-order (min-17): who signs the decision list, in which order, and Send for signature; the signed copy is stored in the meeting files." },
+					{ "id": "meeting-pack", "type": "custom", "component": "MeetingPackTab", "title": "Meeting pack", "icon": "FilePdfBox", "_note": "meeting-pack-board-book (task 8): the meeting pack's versions, the outdated badge, the skip report and, for the chair or secretary, the compile action. Packs are read from the OpenRegister objects API; compile and status go through BoardBookController." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "meeting-planning", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
 					{ "id": "26", "widgetId": "meeting-case-system", "gridX": 0, "gridY": 70, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "27", "widgetId": "meeting-broadcast", "gridX": 0, "gridY": 75, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "28", "widgetId": "meeting-sessions", "gridX": 0, "gridY": 81, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "29", "widgetId": "meeting-pack", "gridX": 0, "gridY": 87, "gridWidth": 12, "gridHeight": 6 },
 					{ "id": "13", "widgetId": "meeting-stats-agenda-items", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "14", "widgetId": "meeting-stats-action-items", "gridX": 8, "gridY": 2, "gridWidth": 4, "gridHeight": 2 },
 					{ "id": "12", "widgetId": "meeting-participants", "gridX": 8, "gridY": 4, "gridWidth": 4, "gridHeight": 8 },
@@ -703,7 +705,8 @@
 				"widget-meeting-stage": "MeetingStageTab",
 				"widget-meeting-video-call": "MeetingVideoCallTab",
 				"widget-meeting-broadcast": "MeetingBroadcastTab",
-				"widget-meeting-sessions": "MeetingSessionsTab"
+				"widget-meeting-sessions": "MeetingSessionsTab",
+				"widget-meeting-pack": "MeetingPackTab"
 			}
 		},
 		{

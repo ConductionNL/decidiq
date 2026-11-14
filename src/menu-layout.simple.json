@@ -1783,6 +1783,9 @@
 					"meeting-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
 					},
+					"meeting-pack": {
+						"type": "MeetingPackTab"
+					},
 					"meeting-votes": {
 						"type": "MeetingVotesTab"
 					},
@@ -1989,6 +1992,10 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "meeting-paper-renditions"
+								},
+								{
+									"label": "Meeting pack",
+									"widgetId": "meeting-pack"
 								}
 							]
 						}

@@ -65,6 +65,7 @@ import MeetingBroadcastTab from './components/tabs/MeetingBroadcastTab.vue'
 import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
+import MeetingPackTab from './components/tabs/MeetingPackTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
@@ -299,6 +300,7 @@ export default {
 	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
 	MeetingBroadcastTab: page(MeetingBroadcastTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
+	MeetingPackTab: page(MeetingPackTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
 	MinutesItemNotesTab: page(MinutesItemNotesTab),
 	MeetingTechnicalQuestionsTab: page(MeetingTechnicalQuestionsTab),

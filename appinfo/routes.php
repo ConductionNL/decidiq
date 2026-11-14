@@ -176,8 +176,8 @@ $extra = [
         ['name' => 'meeting#createSeries',    'url' => '/api/meetings/{id}/series',  'verb' => 'POST'],
         ['name' => 'meeting#assemblePackage', 'url' => '/api/meetings/{id}/package', 'verb' => 'POST'],
         // Meeting pack (board book): compile is chair/secretary gated, status is for the meeting's participants.
-        ['name' => 'board_book#compile', 'url' => '/api/meetings/{id}/board-book', 'verb' => 'POST'],
-        ['name' => 'board_book#status', 'url' => '/api/meetings/{id}/board-book/status', 'verb' => 'GET'],
+        ['name' => 'boardBook#compile', 'url' => '/api/meetings/{id}/board-book', 'verb' => 'POST'],
+        ['name' => 'boardBook#status', 'url' => '/api/meetings/{id}/board-book/status', 'verb' => 'GET'],
         ['name' => 'meeting#myRoles',         'url' => '/api/meetings/{meetingId}/my-roles', 'verb' => 'GET'],
         ['name' => 'guestInvitation#invite',  'url' => '/api/meetings/{id}/guests',  'verb' => 'POST'],
         // bodies-substitute-mandate-swap (REQ-MSW-001 to REQ-MSW-004): the seats and the mandate swap.

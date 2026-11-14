@@ -85,8 +85,9 @@
   - GIVEN a plain participant WHEN viewing THEN the section is read-only (download only, no compile action)
   - GIVEN the agenda changed after the latest pack WHEN the page loads THEN the "Vergaderbundel verouderd" `CnStatusBadge` shows (text + color, WCAG AA); fresh pack shows no badge
   - All strings nl/en with English i18n keys; NL Design System CSS variables only
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: `MeetingPackTab` on MeetingDetail (full and simple structures; in the simple one under Documents) with the pure helpers in `src/utils/meetingPack.js`. It shows the versions newest first (version, compiled, by, change note, pages, download), the latest skip report, the delivery report for the chair or secretary, and the `CnStatusBadge` "Vergaderbundel verouderd" when the status endpoint says the agenda moved since the latest pack. The compile action (a change note field from version 2) shows only when `my-roles` says chair, secretary or administrator; without an answer it stays hidden. The section is a manifest custom widget, not a `CnDetailCard` header action, because MeetingDetail is a manifest page whose widgets are tabs. English keys with Dutch in `l10n/nl.json`. Tests: `tests/vitest/meetingPack.spec.js` (6); `simpleMeetingPage.spec.js` counts the new widget.
 
 ### Task 9: End-to-end coverage for changed scenarios
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-002-defensive-attachment-merging-with-placeholder-pages`
