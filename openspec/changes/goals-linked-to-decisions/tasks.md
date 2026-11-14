@@ -43,8 +43,9 @@
   - GIVEN the example goal WHEN its page opens THEN the layout matches DcDoel: stepper, tabs Overzicht and Gerelateerd n, progress card with four "x van y" lines, Doel card, Subdoelen with Subdoel toevoegen, contributions list with Alle n bekijken, Kerngegevens, Hoofddoel
   - GIVEN a total of zero for a line WHEN the card renders THEN that line is hidden
   - Colours through CSS variables, WCAG AA, every string through `t()`
-- [ ] Implement
+- [x] Implement
 - [ ] Test (vitest for the widgets; one Playwright test on the example goal)
+- Build note: four registered widgets, declared as `custom` blocks in `src/manifest.d/organisation-goals.json` and by type in the simple structure: `GoalStepBar` (Draft, Active, Reached, dated by creation, `startDate` and `deadline`), `GoalProgressWidget` (target value, commitments settled, action items done, sub-goals reached as "x of y", a zero total hidden), `GoalContributionsWidget` (commitments, action items, planned agenda items and decisions that name the goal, Kind/What/Term/Status, the total in the heading, View all n; a planned agenda item's Term is its `plannedPeriod`, the schema has no meeting reference) and `GoalParentWidget` ("3 sub-goals, of which 1 reached"). Sub-goals stay the shared object list with Add sub-goal, which seeds `parentGoal` from its filter. The counts are read from the objects that name the goal (`src/services/goalContributions.js`, outside the shared object store), so they do not wait for the materialised rates. The rules are pure functions in `src/utils/goalPage.js`, covered by `tests/vitest/goalPage.spec.js`; `simpleGoalTabs.spec.js` and `goalSubgoalsAndContributions.spec.js` follow the new layout. Left: the Playwright test on the example goal (needs a live instance), and the count on the Related tab: the shared tabs widget counts one list (`count`, `countField`, `countFrom`), and this total spans four schemas.
 
 ### Task 5: Example data
 - **spec_ref**: `openspec/changes/goals-linked-to-decisions/design.md#example-data`

@@ -3293,7 +3293,7 @@
 		},
 		{
 			"id": "GoalDetail",
-			"_note": "The goal page in the simple structure (board DcDoel): tabs Overview, Related and History, the key facts beside them. The full structure keeps the manifest's stack. THE OVERVIEW (board DcDoel) holds the goal, its sub-goals (goals whose parentGoal is this one; adding one fills in the parent) and what contributes to it: the action items and the commitments that name this goal.",
+			"_note": "The goal page in the simple structure (board DcDoel): the step bar (Draft, Active, Achieved with their dates) over tabs Overview, Related and History, the key facts and the parent goal beside them. The full structure keeps the manifest's stack. THE OVERVIEW (board DcDoel, goals-linked-to-decisions Task 4) holds the progress card (target value, commitments settled, action items done, sub-goals reached, each \"x of y\", a line with a zero total hidden), the goal, its sub-goals (goals whose parentGoal is this one; Add sub-goal fills in the parent) and what contributes to it: every commitment, action item, planned agenda item and decision that names this goal, with the total and View all n. THE FOUR CUSTOM BLOCKS are named here by their registry component (configPatch.widgets), because a tab resolves a widget by type.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3316,19 +3316,46 @@
 							"hideEmpty": true,
 							"editable": false
 						}
-					}
+					},
+					"goal-parent"
 				],
 				"layout": [
 					{
 						"id": "1",
-						"widgetId": "goal-panels",
+						"widgetId": "goal-steps",
 						"gridX": 0,
 						"gridY": 0,
+						"gridWidth": 12,
+						"gridHeight": 2,
+						"showTitle": false,
+						"sizeToContent": true
+					},
+					{
+						"id": "2",
+						"widgetId": "goal-panels",
+						"gridX": 0,
+						"gridY": 2,
 						"gridWidth": 12,
 						"gridHeight": 12,
 						"showTitle": false
 					}
 				]
+			},
+			"configPatch": {
+				"widgets": {
+					"goal-steps": {
+						"type": "GoalStepBar"
+					},
+					"goal-progress": {
+						"type": "GoalProgressWidget"
+					},
+					"goal-parent": {
+						"type": "GoalParentWidget"
+					},
+					"goal-contributions": {
+						"type": "GoalContributionsWidget"
+					}
+				}
 			},
 			"configAppend": {
 				"widgets": [
@@ -3339,128 +3366,16 @@
 						"icon": "History"
 					},
 					{
-						"id": "goal-subgoals",
-						"type": "object-list",
-						"title": "Sub-goals",
-						"icon": "FileSign",
-						"content": {
-							"register": "decidiq",
-							"schema": "goal",
-							"filter": {
-								"parentGoal": "@objectId"
-							},
-							"sort": {
-								"field": "deadline",
-								"dir": "asc"
-							},
-							"columns": [
-								{
-									"key": "title",
-									"label": "Title"
-								},
-								{
-									"key": "owner",
-									"label": "Owner"
-								},
-								{
-									"key": "deadline",
-									"label": "Deadline"
-								},
-								{
-									"key": "status",
-									"label": "Status",
-									"widget": "badge"
-								}
-							],
-							"limit": 10,
-							"rowRoute": "GoalDetail"
-						}
-					},
-					{
-						"id": "goal-contributing-actions",
-						"type": "object-list",
-						"title": "Action items",
-						"icon": "CheckCircleOutline",
-						"content": {
-							"register": "decidiq",
-							"schema": "action-item",
-							"filter": {
-								"goal": "@objectId"
-							},
-							"sort": {
-								"field": "dueDate",
-								"dir": "asc"
-							},
-							"columns": [
-								{
-									"key": "title",
-									"label": "Title"
-								},
-								{
-									"key": "assignee",
-									"label": "Assignee"
-								},
-								{
-									"key": "dueDate",
-									"label": "Deadline"
-								},
-								{
-									"key": "taskStatus",
-									"label": "Status",
-									"widget": "badge"
-								}
-							],
-							"limit": 10,
-							"allowCreate": false,
-							"rowRoute": "ActionItemDetail"
-						}
-					},
-					{
-						"id": "goal-contributing-commitments",
-						"type": "object-list",
-						"title": "Commitments",
-						"icon": "HandshakeOutline",
-						"content": {
-							"register": "decidiq",
-							"schema": "governance-commitment",
-							"filter": {
-								"goal": "@objectId"
-							},
-							"sort": {
-								"field": "deadline",
-								"dir": "asc"
-							},
-							"columns": [
-								{
-									"key": "text",
-									"label": "Commitment"
-								},
-								{
-									"key": "madeBy",
-									"label": "Made by"
-								},
-								{
-									"key": "deadline",
-									"label": "Deadline"
-								},
-								{
-									"key": "lifecycle",
-									"label": "Status",
-									"widget": "badge"
-								}
-							],
-							"limit": 10,
-							"allowCreate": false,
-							"rowRoute": "CommitmentDetail"
-						}
-					},
-					{
 						"id": "goal-panel-overview",
 						"type": "detail-sections",
 						"title": "Goal",
 						"icon": "FileSign",
 						"content": {
 							"sections": [
+								{
+									"label": "Progress",
+									"widgetId": "goal-progress"
+								},
 								{
 									"label": "Goal",
 									"widgetId": "goal-data"
@@ -3470,12 +3385,8 @@
 									"widgetId": "goal-subgoals"
 								},
 								{
-									"label": "Action items",
-									"widgetId": "goal-contributing-actions"
-								},
-								{
-									"label": "Commitments",
-									"widgetId": "goal-contributing-commitments"
+									"label": "What contributes to this goal",
+									"widgetId": "goal-contributions"
 								}
 							]
 						}
