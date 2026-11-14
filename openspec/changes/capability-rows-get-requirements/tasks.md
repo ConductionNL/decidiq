@@ -20,7 +20,7 @@
 - **files**: `lib/Settings/decidesk_register.json` (GovernanceBody `allowedVotingMethods`), `lib/Service/VotingRoundPreflight.php`, `src/components/VotingRoundPanel.vue`, `tests/Unit/Service/VotingRoundPreflightTest.php`
 - [x] 3.1 Add the allowed methods to the body schema, empty meaning all.
 - [x] 3.2 Refuse a round whose method the body does not allow, with a message naming the allowed ones.
-- [ ] 3.3 Offer only the allowed methods in the voting round panel.
+- [x] 3.3 Offer only the allowed methods in the voting round panel.
 - [x] 3.4 Unit tests.
 
 ## 4. Amendments on proposals (mot-02)

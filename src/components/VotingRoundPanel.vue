@@ -43,18 +43,14 @@
 				:aria-label="t('decidiq', 'Open voting round')">
 				<h3>{{ t('decidiq', 'Open voting round') }}</h3>
 				<label for="votingMethod">{{ t('decidiq', 'Voting method') }}</label>
+				<!-- Only the methods the meeting's body allows (bod-14) -->
+				<!-- @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use -->
 				<select id="votingMethod" v-model="newRound.votingMethod">
-					<option value="for-against-abstain">
-						{{ t('decidiq', 'For / Against / Abstain') }}
-					</option>
-					<option value="show-of-hands">
-						{{ t('decidiq', 'Show of hands') }}
-					</option>
-					<option value="weighted">
-						{{ t('decidiq', 'Weighted vote') }}
-					</option>
-					<option value="ranked-choice">
-						{{ t('decidiq', 'Ranked preference (Borda count)') }}
+					<option
+						v-for="method in allowedMethods"
+						:key="method"
+						:value="method">
+						{{ methodLabels[method] }}
 					</option>
 				</select>
 				<!-- Options of a ranked round (REQ-PRF-001, issue #1419) -->
@@ -573,6 +569,12 @@ import { eligibleCount } from '../utils/conflicts.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
 import {
+	allowedVotingMethods,
+	meetingBodyId,
+	startingVotingMethod,
+	VOTING_METHODS,
+} from '../utils/votingMethods.js'
+import {
 	chosenRules,
 	NO_VOTING_PERMISSIONS,
 	readVotingPermissions,
@@ -657,6 +659,8 @@ export default {
 			activeProxy: null,
 			oriStatus: null,
 			showOfHands: { for: 0, against: 0, abstain: 0 },
+			// Every method until the meeting's body says otherwise (bod-14).
+			allowedMethods: [...VOTING_METHODS],
 			newRound: {
 				votingMethod: 'for-against-abstain',
 				isSecret: false,
@@ -687,6 +691,21 @@ export default {
 	},
 
 	computed: {
+		/**
+		 * The name of each voting method, as the panel lists it.
+		 *
+		 * @return {Record<string, string>}
+		 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 */
+		methodLabels() {
+			return {
+				'for-against-abstain': this.t('decidiq', 'For / Against / Abstain'),
+				'show-of-hands': this.t('decidiq', 'Show of hands'),
+				weighted: this.t('decidiq', 'Weighted vote'),
+				'ranked-choice': this.t('decidiq', 'Ranked preference (Borda count)'),
+			}
+		},
+
 		/**
 		 * The members who may vote: participants minus those recused on the
 		 * motion or its agenda item (bod-10).
@@ -859,6 +878,7 @@ export default {
 	/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.2 */
 	async mounted() {
 		this.loadPermissions()
+		this.loadAllowedMethods()
 		await this.fetchCurrentRound()
 		// Poll every 5 seconds when round is open.
 		this.pollInterval = setInterval(async () => {
@@ -876,6 +896,31 @@ export default {
 	},
 
 	methods: {
+		/**
+		 * The methods the meeting's body allows (bod-14). Without a meeting,
+		 * or when the body cannot be read, every method stays on offer: the
+		 * server refuses a method the body does not allow either way.
+		 *
+		 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+		 */
+		async loadAllowedMethods() {
+			if (!this.meetingId) {
+				return
+			}
+			try {
+				const meeting = await this.objectStore.fetchObject('meeting', this.meetingId)
+				const bodyId = meetingBodyId(meeting)
+				if (!bodyId) {
+					return
+				}
+				const body = await ensureRelationType('governance-body').fetchObject('governance-body', bodyId)
+				this.allowedMethods = allowedVotingMethods(body)
+				this.newRound.votingMethod = startingVotingMethod(this.newRound.votingMethod, this.allowedMethods)
+			} catch {
+				this.allowedMethods = [...VOTING_METHODS]
+			}
+		},
+
 		/**
 		 * Ask the server once per meeting which voting controls this user may
 		 * use. Fail closed: an error leaves every control hidden.
