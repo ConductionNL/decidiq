@@ -336,6 +336,41 @@
 							"isUrgent": true
 						},
 						"showCount": true
+					},
+					{
+						"label": "Not started",
+						"filter": {
+							"implementationStatus": "not-started"
+						},
+						"showCount": true
+					},
+					{
+						"label": "On track",
+						"filter": {
+							"implementationStatus": "on-track"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Delayed",
+						"filter": {
+							"implementationStatus": "delayed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Implemented",
+						"filter": {
+							"implementationStatus": "completed"
+						},
+						"showCount": true
+					},
+					{
+						"label": "Not implemented",
+						"filter": {
+							"implementationStatus": "will-not-be-implemented"
+						},
+						"showCount": true
 					}
 				]
 			},
@@ -1239,6 +1274,16 @@
 									"widgetId": "decision-lifecycle",
 									"label": "Lifecycle",
 									"overflow": true
+								},
+								{
+									"widgetId": "decision-implementation",
+									"label": "Implementation",
+									"visibleWhen": {
+										"field": "outcome",
+										"op": "eq",
+										"value": "adopted"
+									},
+									"overflow": true
 								}
 							]
 						}
@@ -1610,6 +1655,16 @@
 								{
 									"widgetId": "motion-stage",
 									"label": "Stage",
+									"overflow": true
+								},
+								{
+									"widgetId": "motion-implementation",
+									"label": "Implementation",
+									"visibleWhen": {
+										"field": "outcome",
+										"op": "eq",
+										"value": "adopted"
+									},
 									"overflow": true
 								}
 							]
