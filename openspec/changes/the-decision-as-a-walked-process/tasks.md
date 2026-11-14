@@ -77,10 +77,17 @@ them reachable is in reachability-scope.md beside this file.
 ## 5. Withdrawal
 
 - [x] 5.1 Add `withdrawn`, `withdrawnAt`, `withdrawnReason` and `withdrawnBy` to the decision schema.
-- [ ] 5.2 Append the withdrawal to the history and keep the original outcome readable.
+- [x] 5.2 Append the withdrawal to the history and keep the original outcome readable.
       <!-- NOT DELIVERED: DecisionWithdrawalService::withdraw() shapes the row,
       nothing calls it, and no endpoint withdraws a decision. -->
-- [ ] 5.3 Refuse a withdrawal with no actor kind.
+- [x] 5.3 Refuse a withdrawal with no actor kind.
+      <!-- REACHABLE since the second build pass: `POST /api/decisions/{decisionId}/withdraw`
+      (DecisionController::withdraw, administrators only, as publish is) loads the
+      decision, calls DecisionWithdrawalService::withdraw() and stores it through
+      DecisionWithdrawalRecorder. A refusal (no actor kind, already withdrawn, never
+      taken) answers 422 and writes nothing. Proven by
+      tests/Unit/Controller/DecisionWithdrawEndpointTest.php. The decision-page
+      action is not built yet. -->
       <!-- NOT DELIVERED: unreachable refusal, no caller. -->
 - [x] 5.4 PHPUnit on both actor kinds.
       <!-- True of the service in isolation. -->
