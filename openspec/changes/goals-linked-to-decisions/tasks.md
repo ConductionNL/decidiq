@@ -20,8 +20,10 @@
   - GIVEN an action item moved from goal A to goal B WHEN saved THEN both goals are recomputed
   - GIVEN a save that changes nothing calculated WHEN the listener runs THEN the goal is not saved (no loop, no audit noise)
   - Test with the real OpenRegister event classes, not a fake event (accessor names `getNewObject()`/`getOldObject()`)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `GoalProgressRefreshListener` re-saves the goal as stored (`_rbac: false`), so OpenRegister's save path materialises the rates. It acts only when the link or the counted field changed (commitment `lifecycle`, action item `taskStatus`, child goal `status`/`parentGoal`); planned agenda items and decisions feed no materialised rate, so their saves refresh nothing. The goal's own re-save comes back with the same parent and status, so it stops there. `tests/Unit/Listener/GoalProgressRefreshListenerTest.php`.
+
 
 ### Task 3: Decision form and data widget
 - **spec_ref**: `#requirement-req-010-a-decision-can-name-the-goal-it-serves`

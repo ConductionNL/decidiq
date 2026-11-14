@@ -33,6 +33,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\GoalProgressRefreshListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
@@ -169,6 +170,18 @@ class ObjectListenerRegistrar {
 				listener: AgendaItemChangeListener::class,
 				registers: null,
 				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+
+		// Goal progress (goals-linked-to-decisions REQ-013): a contribution
+		// that changes re-saves the goals it points at, so their rates follow.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $goalEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $goalEvent,
+				listener: GoalProgressRefreshListener::class,
+				registers: null,
+				schemas: array_keys(GoalProgressRefreshListener::CONTRIBUTORS)
 			);
 		}
 
