@@ -140,7 +140,7 @@ final class OriAdoptionRegisterTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md#requirement-reqoria-003-the-ori-importer-shall-migrate-source-objects-idempotently-with-dry-run-and-rollback
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function testEverySchemaTheImportWritesCarriesTheImportTag(): void {
 		foreach (['GovernanceBody', 'Person', 'Membership', 'Meeting', 'DigitalDocument', 'AgendaItem', 'Decision', 'VotingRound'] as $schema) {

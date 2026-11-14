@@ -74,6 +74,7 @@
   **Acceptance:** anonymous `curl` (no session cookie) returns HTTP 200 +
   `application/rss+xml` for all three feeds; a non-public object does not
   appear; hydra gates (route-auth, no-admin-idor) pass.
+  > 2026-11-14 built: `OriFeedController` (`#[PublicPage]`, `#[NoCSRFRequired]`, `#[AnonRateLimit]`, GET only) over `OriFeedService` and a generic `Feed\RssDocument`; routes in `appinfo/routes.php`. Public means a meeting with `isPublic: true`, the agenda items of such a meeting, and the documents attached to those items; each item's description is the ORI wire record. `OriFeedServiceTest`, `OriFeedControllerTest`, `RssDocumentTest`. route-auth passes; no-admin-idor reports the same 22 findings as development, none in these files (they are public pages). Box left open: the anonymous curl acceptance needs a live instance, and parity with procest's retired feed could not be compared (procest is not reachable from this session).
 
 ## 4. Demo seed
 
