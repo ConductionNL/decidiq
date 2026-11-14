@@ -498,4 +498,112 @@ class ProcessTemplateServiceTest extends TestCase {
 		self::assertSame('qualified-majority-two-thirds', $rule['voteThreshold']);
 
 	}//end testResolveVotingRuleForBody()
+	/**
+	 * create() refuses an urgency policy with inverted bounds, naming them, and persists nothing.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testCreateRejectsInvertedUrgencyBounds(): void {
+		$this->objectService->method('find')->willReturn($this->entity(['id' => 'raad']));
+		$this->objectService->expects(self::never())->method('saveObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Invalid urgency policy: urgencyPolicy.responseDeadlineHours is inverted: min 96 is above max 12.');
+		$this->service->create(
+			template: $this->validTemplate() + [
+				'urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'responseDeadlineHours' => ['min' => 96, 'max' => 12], 'ratifyingBody' => 'raad'],
+			]
+		);
+
+	}//end testCreateRejectsInvertedUrgencyBounds()
+
+	/**
+	 * create() refuses a ratifying body the register does not hold, and one whose lookup fails.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testCreateRejectsARatifyingBodyThatDoesNotResolve(): void {
+		$this->objectService->method('find')->willReturnCallback(
+			static function (string $id): ?ObjectEntity {
+				if ($id === 'broken') {
+					throw new \RuntimeException('database gone');
+				}
+
+				return null;
+			}
+		);
+		$this->objectService->expects(self::never())->method('saveObject');
+
+		foreach (['missing', 'broken'] as $ref) {
+			try {
+				$this->service->create(template: $this->validTemplate() + ['urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => $ref]]);
+				self::fail('A ratifying body "' . $ref . '" was accepted.');
+			} catch (\InvalidArgumentException $e) {
+				self::assertStringContainsString('ratifyingBody "' . $ref . '" is not a governance body', $e->getMessage());
+			}
+		}
+
+	}//end testCreateRejectsARatifyingBodyThatDoesNotResolve()
+
+	/**
+	 * update() checks the urgency policy too; a valid one, or none, saves.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testUpdateChecksTheUrgencyPolicy(): void {
+		$this->objectService->method('find')->willReturnCallback(
+			fn (string $id): ?ObjectEntity => match ($id) {
+				'tpl-1' => $this->entity(['id' => 'tpl-1', 'builtIn' => false]),
+				'raad' => $this->entity(['id' => 'raad']),
+				default => null,
+			}
+		);
+		$this->objectService->expects(self::exactly(2))->method('saveObject')->willReturnCallback(fn (array $object) => $this->entity($object));
+
+		$policy = ['allowedTriggerRoles' => ['chair'], 'minimumNoticeFloorHours' => 24, 'responseDeadlineHours' => ['min' => 12, 'max' => 96], 'ratificationRequired' => true, 'ratifyingBody' => 'raad'];
+		self::assertSame($policy, $this->service->update(templateId: 'tpl-1', template: $this->validTemplate() + ['urgencyPolicy' => $policy])['urgencyPolicy']);
+		self::assertArrayNotHasKey('urgencyPolicy', $this->service->update(templateId: 'tpl-1', template: $this->validTemplate()));
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('urgencyPolicy.allowedTriggerRoles must name at least one role.');
+		$this->service->update(templateId: 'tpl-1', template: $this->validTemplate() + ['urgencyPolicy' => ['allowedTriggerRoles' => [], 'ratificationRequired' => false]]);
+
+	}//end testUpdateChecksTheUrgencyPolicy()
+
+	/**
+	 * A body's urgency policy resolves only when its template carries a valid one (fail closed).
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testTheUrgentProcedureIsUnavailableWithoutAPolicy(): void {
+		$templates = [
+			'with-policy' => ['slug' => 'with-policy', 'urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => 'raad']],
+			'without-policy' => ['slug' => 'without-policy'],
+			'broken-policy' => ['slug' => 'broken-policy', 'urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => 'gone']],
+		];
+		$this->objectService->method('find')->willReturnCallback(
+			fn (string $id): ?ObjectEntity => match (true) {
+				str_starts_with($id, 'body-') => $this->entity(['id' => $id, 'processTemplate' => substr($id, 5)]),
+				$id === 'raad' => $this->entity(['id' => 'raad']),
+				default => null,
+			}
+		);
+		$this->objectService->method('findAll')->willReturnCallback(
+			fn (array $config): array => [$this->entity($templates[$config['filters']['slug']])]
+		);
+
+		self::assertSame(['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => 'raad'], $this->service->resolveUrgencyPolicyForBody(governanceBodyId: 'body-with-policy'));
+		self::assertNull($this->service->resolveUrgencyPolicyForBody(governanceBodyId: 'body-without-policy'));
+		self::assertNull($this->service->resolveUrgencyPolicyForBody(governanceBodyId: 'body-broken-policy'), 'a policy that no longer validates');
+		self::assertNull($this->service->resolveUrgencyPolicyForBody(governanceBodyId: null));
+
+	}//end testTheUrgentProcedureIsUnavailableWithoutAPolicy()
 }//end class
