@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Ποιος μπορεί να ψηφίσει",
+        "All members of the body": "Όλα τα μέλη του οργάνου",
+        "Left out because they are no longer active members: {names}": "Παραλείφθηκαν επειδή δεν είναι πλέον ενεργά μέλη: {names}",
         "sign-off route": "διαδρομή έγκρισης",
         "#": "#",
         "+ Action item": "+ Στοιχείο δράσης",
@@ -3351,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Έκτακτη συνεδρίαση",
         "Committee meeting": "Συνεδρίαση επιτροπής",
         "Public hearing": "Δημόσια ακρόαση",
-        "General assembly": "Γενική συνέλευση"
+        "General assembly": "Γενική συνέλευση",
+        "Members' ancillary positions": "Παρεπόμενες θέσεις των μελών"
     },
     "nplurals=2; plural=(n != 1);"
 )

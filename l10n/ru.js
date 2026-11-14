@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Кто может голосовать",
+        "All members of the body": "Все члены органа",
+        "Left out because they are no longer active members: {names}": "Не включены, так как больше не являются действующими членами: {names}",
         "sign-off route": "маршрут согласования",
         "#": "#",
         "+ Action item": "+ Пункт действия",
@@ -3351,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Внеочередное заседание",
         "Committee meeting": "Заседание комитета",
         "Public hearing": "Публичные слушания",
-        "General assembly": "Общее собрание"
+        "General assembly": "Общее собрание",
+        "Members' ancillary positions": "Побочные должности членов"
     },
     "nplurals=2; plural=(n != 1);"
 )

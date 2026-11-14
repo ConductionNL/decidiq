@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Kimler oy kullanabilir",
+        "All members of the body": "Organın tüm üyeleri",
+        "Left out because they are no longer active members: {names}": "Artık aktif üye olmadıkları için dışarıda bırakıldı: {names}",
         "sign-off route": "onay akışı",
         "#": "#",
         "+ Action item": "+ Eylem maddesi",
@@ -3353,7 +3356,8 @@
         "Extraordinary meeting": "Olağanüstü toplantı",
         "Committee meeting": "Komite toplantısı",
         "Public hearing": "Kamuya açık oturum",
-        "General assembly": "Genel kurul"
+        "General assembly": "Genel kurul",
+        "Members' ancillary positions": "Üyelerin yan görevleri"
     },
     "plurals": null
 }

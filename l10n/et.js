@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kes võib hääletada",
+        "All members of the body": "Kõik organi liikmed",
+        "Left out because they are no longer active members: {names}": "Välja jäetud, sest nad ei ole enam aktiivsed liikmed: {names}",
         "sign-off route": "kinnitusmarsruut",
         "#": "#",
         "+ Action item": "+ Toimepunkt",
@@ -3351,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Erakorraline koosolek",
         "Committee meeting": "Komisjoni koosolek",
         "Public hearing": "Avalik arutelu",
-        "General assembly": "Üldkoosolek"
+        "General assembly": "Üldkoosolek",
+        "Members' ancillary positions": "Liikmete kõrvaltegevused"
     },
     "nplurals=2; plural=(n != 1);"
 )
