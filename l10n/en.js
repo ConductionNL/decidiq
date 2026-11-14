@@ -3339,7 +3339,8 @@ OC.L10N.register(
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
         "Contacts": "Contacts",
         "Straw poll": "Straw poll",
-        "Intake form": "Intake form"
+        "Intake form": "Intake form",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )

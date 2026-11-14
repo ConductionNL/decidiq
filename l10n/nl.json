@@ -3759,7 +3759,8 @@
         "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
         "Contacts": "Contacten",
         "Straw poll": "Proefpeiling",
-        "Intake form": "Inspraakformulier"
+        "Intake form": "Inspraakformulier",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
