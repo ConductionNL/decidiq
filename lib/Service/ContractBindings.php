@@ -139,6 +139,7 @@ use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRecordServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
 use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\DossierDisposition;
@@ -286,6 +287,7 @@ final class ContractBindings {
 		VotingRecordServiceInterface::class => VotingRecordService::class,
 		VotingRoundGuardInterface::class => VotingRoundGuard::class,
 		VotingServiceInterface::class => VotingService::class,
+		WrittenRoundServiceInterface::class => WrittenRoundService::class,
 	];
 
 	/**

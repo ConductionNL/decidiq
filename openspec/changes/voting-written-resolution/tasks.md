@@ -21,8 +21,8 @@
   - GIVEN a caller outside the signatory scope WHEN they open THEN 403
   - GIVEN a member without a user id, a past deadline, a meeting id, or a decision with a meeting WHEN opened THEN 400 with the reason and no round
   - Verification: PHPUnit, the electorate cases written red first
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: Answer a written round
 
@@ -34,8 +34,8 @@
   - GIVEN a user outside the electorate WHEN they answer THEN 403 and nothing is stored, even though the round has no meeting
   - GIVEN `objection` on an in-meeting round WHEN posted THEN 400
   - Verification: PHPUnit red-then-green; a Newman request proving the outsider refusal on a live instance
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: Count against the whole electorate and close early
 
@@ -47,8 +47,8 @@
   - GIVEN a first against answer under `unanimous` WHEN saved THEN the round closes with `outcome-settled`
   - GIVEN a decision with an active vote stage for the body WHEN the round closes THEN the stage is decided with the same outcome
   - Verification: tally matrix cases red first; one close-path test per reason
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 5: Close at the deadline
 
@@ -59,8 +59,8 @@
   - GIVEN the job runs twice WHEN the round is read THEN it was closed once
   - GIVEN an in-meeting round with a deadline WHEN the job runs THEN it is untouched
   - Verification: PHPUnit red-then-green; the job is listed in `info.xml` and a test asserts it
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 6: The written resolution widget and its notification
 
@@ -79,3 +79,4 @@
 
 - Task 1: `lib/Settings/register.d/132-written-resolution.json` declares on `voting-round` `procedure` (default `in-meeting`), `decision` (the subject of a written round, design D1), `governanceBody`, `electorate`, `electorateUserIds`, `writtenRule` (default `unanimous`) and `closedReason`, and on `vote` `objection` and a `membership` relation. The fragments merge enums as a union, so `RankedPreferenceBallotRegisterTest` now asserts its values are contained rather than the exact list. `profiles/corporate.json` seeds the written decision, its round, three `for` answers and `nextcloudUserId` on the three board persons, set to their person slugs: the e2e of task 6 creates users with those ids. `RegisterJsonTest::testAVotingRoundCanBeHeldInWriting` and `testTheCompanyBoardSetHoldsAWrittenResolution`, red first.
 - Task 4 (counting only): `VotingResultCalculator::computeWritten()` counts against the whole electorate under `unanimous` and `threshold`, rejects on an objection, ignores answers from outside the electorate, and returns the close reason (`objection`, `all-answered`, `outcome-settled`, or none while the round stays open). `tests/Unit/Service/WrittenRoundResultTest.php` covers the scenarios of REQ-WRS-003 and REQ-WRS-004. Wiring it into the cast path and the closer (settle check after a save, `subjectOf()` learning `decision`, the decision's `decisionDate`) is still open, so task 4 stays unticked.
+- Tasks 2 to 5: a written round has its own seam, `WrittenRoundServiceInterface` (`WrittenRoundService`), which `VotingController` calls before the meeting guard on `open()` when `procedure` is `written` and before the participant lookup on `cast()` when the round is written. `WrittenRoundOpener` checks the body's `signatory` scope (403), the request (no meeting, a body, a deadline in the future, a known rule: 400), the decision (exists, no meeting, `proposed` or `deliberating`: 400) and takes the snapshot through `WrittenElectorateResolver` (active memberships, no observers or guests; members without a Nextcloud user id are named and refuse the open). It links the decision's active `vote` stage of the same body as `decisionStage`. `WrittenRoundAnswerer` answers only for a user in the snapshot (403 otherwise, no meeting check), stores one vote per membership (a second answer replaces it) and settles the round. `WrittenRoundCloser` closes through `VotingResultCalculator::computeWritten()` with `closedReason`, moves the decision to `decided` with the outcome (dated at the last answer on `adopted`) and decides the active stage. The written round keeps its own closer instead of `VotingRoundCloser`, because that path recounts against the votes cast and transitions only motions and amendments. `VoteCastGuard::loadOpenRound()` refuses a written round, so it can never reach the meeting path whose membership check is skipped without a meeting. `WrittenResolutionDeadlineJob` (every 15 minutes, `appinfo/info.xml`) closes past-deadline written rounds with reason `deadline`, once. The Newman request of task 3 needs a live instance and was not added in this build.
