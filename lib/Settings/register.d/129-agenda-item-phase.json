@@ -1,0 +1,29 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-item-phase-is-declared (REQ-LIV-010, matrix row age-08). The phase a discussion or decision item is in (forming a picture, forming an opinion, deciding) was written to an undeclared `status` property. It is now the declared, facetable `phase`; MoveAgendaItemStatusToPhase moves existing values once.",
+  "components": {
+    "schemas": {
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "version": "1.4.0",
+        "properties": {
+          "phase": {
+            "title": "Phase",
+            "type": "string",
+            "enum": [
+              "voorstel",
+              "beeldvorming",
+              "oordeelsvorming",
+              "besluitvorming",
+              "completed"
+            ],
+            "facetable": true,
+            "description": "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen."
+          }
+        }
+      }
+    }
+  }
+}

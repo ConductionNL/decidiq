@@ -26,6 +26,7 @@
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemPhaseTab from './components/tabs/AgendaItemPhaseTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
@@ -288,6 +289,7 @@ export default {
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	AgendaItemPhaseTab: page(AgendaItemPhaseTab),
 	// The case system on the agenda item and meeting pages
 	// (platform-case-system-document-exchange).
 	AgendaItemCaseTab: page(AgendaItemCaseTab),

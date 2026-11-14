@@ -215,8 +215,9 @@ class AgendaServiceTest extends TestCase {
 	/**
 	 * advanceBobPhase correctly cycles through the BOB phase sequence.
 	 *
-	 * Each step must be written through patchObject() with a status-only
-	 * payload: a uuid-bearing saveObject() is a full replace that OpenRegister
+	 * Each step must be written through patchObject() with a phase-only
+	 * payload (the declared `phase`, REQ-LIV-010; the legacy `status` input is
+	 * still read for an item from before the upgrade): a uuid-bearing saveObject() is a full replace that OpenRegister
 	 * validates whole, so a partial save 400s on the required fields it omits
 	 * (#1104). The assertion therefore pins BOTH the next phase and the patch
 	 * path, and saveObject() must never be reached.
@@ -264,9 +265,9 @@ class AgendaServiceTest extends TestCase {
 			$freshService->advanceBobPhase($itemId);
 
 			$this->assertSame(
-				[['id' => $itemId, 'data' => ['status' => $t['to']]]],
+				[['id' => $itemId, 'data' => ['phase' => $t['to']]]],
 				$patches,
-				"'{$t['from']}' must advance to '{$t['to']}' with a status-only patch"
+				"'{$t['from']}' must advance to '{$t['to']}' with a phase-only patch"
 			);
 		}//end foreach
 
