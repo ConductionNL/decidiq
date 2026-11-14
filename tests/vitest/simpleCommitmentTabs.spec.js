@@ -28,7 +28,7 @@ const VISIBLE_NL = [
 	'Historie',
 ]
 const OVERFLOW = []
-const SIDE = ['commitment-side-facts']
+const SIDE = ['commitment-side-facts', 'commitment-publication']
 const FACTS_LEAD = 'madeBy'
 
 const ROOT = path.resolve(__dirname, '../..')
