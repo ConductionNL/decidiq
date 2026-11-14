@@ -336,6 +336,9 @@ class PublicationEligibilityService {
 			case 'activity':
 				$this->assertActivityEligible(data: $data);
 				break;
+			case 'incoming-document':
+				$this->assertIncomingDocumentEligible(data: $data);
+				break;
 			default:
 				throw new AccessDeniedException(message: 'Unknown publication source type: ' . $sourceType);
 		}
@@ -405,6 +408,40 @@ class PublicationEligibilityService {
 	}//end assertActivityEligible()
 
 	/**
+	 * Assert an incoming document is publishable: the council confirmed its
+	 * routing (or it is disposed of) at a public meeting, the meeting of the
+	 * "lijst ingekomen stukken" agenda item it was placed on.
+	 *
+	 * @param array<string,mixed> $data IngekomenStuk object data.
+	 *
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 *
+	 * @throws AccessDeniedException When not eligible.
+	 *
+	 * @return void
+	 */
+	private function assertIncomingDocumentEligible(array $data): void {
+		$lifecycle = (string)($data['lifecycle'] ?? '');
+		if (in_array($lifecycle, ['routing-determined', 'disposed'], true) === false) {
+			throw new AccessDeniedException(
+				message: 'Only incoming documents whose routing the council confirmed are publishable.'
+			);
+		}
+
+		$agendaItemId = (string)($data['listAgendaItem'] ?? '');
+		$meetingId    = '';
+		if ($agendaItemId !== '') {
+			$meetingId = (string)($this->loadObject(schema: 'agenda-item', id: $agendaItemId)['meeting'] ?? '');
+		}
+
+		if ($meetingId === '' || ($this->loadObject(schema: 'meeting', id: $meetingId)['isPublic'] ?? false) !== true) {
+			throw new AccessDeniedException(
+				message: 'Only incoming documents confirmed at a public meeting are publishable.'
+			);
+		}
+	}//end assertIncomingDocumentEligible()
+
+	/**
 	 * Assert a meeting agenda is publishable (isPublic + convocation sent).
 	 *
 	 * @param array<string,mixed> $data Meeting object data.
@@ -467,6 +504,7 @@ class PublicationEligibilityService {
 			'agenda' => 'meeting',
 			'activity' => 'meeting',
 			'minutes' => 'minutes',
+			'incoming-document' => 'ingekomen-stuk',
 			default => $sourceType,
 		};
 
