@@ -3816,7 +3816,23 @@ OC.L10N.register(
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "Topic": "Hoofdonderwerp",
+        "Track": "Traject",
+        "Tracks": "Trajecten",
+        "Open tracks": "Open trajecten",
+        "Owner type": "Soort eigenaar",
+        "Topics only": "Alleen hoofdonderwerpen",
+        "This item has no tracks. Add one to split the topic into parallel paths.": "Dit item heeft geen trajecten. Voeg er een toe om het onderwerp op te splitsen in parallelle trajecten.",
+        "filinq is not installed, so the report was saved as HTML": "filinq is niet geïnstalleerd, dus het rapport is als HTML opgeslagen",
+        "No items match these filters": "Geen items voldoen aan deze filters",
+        "The report could not be made. Try again.": "Het rapport kon niet worden gemaakt. Probeer het opnieuw.",
+        "The report was saved in your Files.": "Het rapport is opgeslagen in je Bestanden.",
+        "The topic this item is a track of, another planned agenda item. Empty for a topic or a standalone item. One level deep: a track cannot have tracks of its own, and an item with tracks cannot become a track.": "Het hoofdonderwerp waarvan dit item een traject is, een ander item op de langetermijnagenda. Leeg voor een hoofdonderwerp of een los item. Eén niveau diep: een traject kan zelf geen trajecten hebben, en een item met trajecten kan geen traject worden.",
+        "How many tracks name this item as their topic. Materialised by OpenRegister from x-openregister-aggregations. Never written by decidiq.": "Hoeveel trajecten dit item als hoofdonderwerp hebben. Bijgehouden door OpenRegister vanuit x-openregister-aggregations. Wordt nooit door decidiq geschreven.",
+        "How many of this item's tracks are still planned or postponed. Materialised by OpenRegister from x-openregister-aggregations. Never written by decidiq.": "Hoeveel trajecten van dit item nog gepland of uitgesteld zijn. Bijgehouden door OpenRegister vanuit x-openregister-aggregations. Wordt nooit door decidiq geschreven.",
+        "The official who drafts the proposal (the steller), a Person like owner so both resolve the same way and an official is recorded once. Empty when nobody is named yet.": "De ambtenaar die het voorstel opstelt (de steller), een persoon net als de portefeuillehouder, zodat beide op dezelfde manier worden opgezocht en een ambtenaar maar één keer wordt vastgelegd. Leeg zolang er nog niemand is genoemd.",
+        "The portfolio holder who brings the item, a Person. Required when the owner type is a portfolio holder, otherwise empty. Filter on it to list everything of one portfolio holder.": "De portefeuillehouder die het item inbrengt, een persoon. Verplicht als de soort eigenaar een portefeuillehouder is, anders leeg. Filter erop om alles van één portefeuillehouder te zien."
     },
     "nplurals=2; plural=(n != 1);"
 )
