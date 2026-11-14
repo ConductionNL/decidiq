@@ -141,6 +141,13 @@ class PublicationEligibilityService {
 	private readonly ConfidentialityRestrictions $confidentiality;
 
 	/**
+	 * Builds a theme's timeline, so a theme with nothing published is refused.
+	 *
+	 * @var ThemeTimelineBuilder
+	 */
+	private readonly ThemeTimelineBuilder $themeTimeline;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param LoggerInterface                  $logger          Logger.
@@ -148,6 +155,8 @@ class PublicationEligibilityService {
 	 * @param ConfidentialityRestrictions|null $confidentiality Reads the restrictions that keep a
 	 *        decision out of the public. Null builds it on the same object service, so the
 	 *        check always runs; it is never skipped.
+	 * @param ThemeTimelineBuilder|null        $themeTimeline   Builds a theme's timeline; null builds
+	 *        it on the same object service.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
 	 */
@@ -155,8 +164,10 @@ class PublicationEligibilityService {
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
 		?ConfidentialityRestrictions $confidentiality=null,
+		?ThemeTimelineBuilder $themeTimeline=null,
 	) {
 		$this->confidentiality = ($confidentiality ?? new ConfidentialityRestrictions(objectService: $objectService));
+		$this->themeTimeline   = ($themeTimeline ?? new ThemeTimelineBuilder(objectService: $objectService, logger: $logger));
 	}//end __construct()
 
 	/**
@@ -336,6 +347,9 @@ class PublicationEligibilityService {
 			case 'activity':
 				$this->assertActivityEligible(data: $data);
 				break;
+			case 'theme':
+				$this->assertThemeEligible(data: $data);
+				break;
 			case 'incoming-document':
 				$this->assertIncomingDocumentEligible(data: $data);
 				break;
@@ -406,6 +420,31 @@ class PublicationEligibilityService {
 			);
 		}
 	}//end assertActivityEligible()
+
+	/**
+	 * A theme is publishable when the griffie marked it public and at least one
+	 * linked item is published itself: a theme page never reveals an item that
+	 * has no publication of its own.
+	 *
+	 * @param array<string,mixed> $data The theme object data.
+	 *
+	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 *
+	 * @return void
+	 */
+	private function assertThemeEligible(array $data): void {
+		if (($data['isPublic'] ?? false) !== true) {
+			throw new AccessDeniedException(
+				message: 'Only themes marked public are publishable.'
+			);
+		}
+
+		if ($this->themeTimeline->publishedEntries(theme: $data) === []) {
+			throw new AccessDeniedException(
+				message: 'A theme is publishable once at least one of its items is published itself.'
+			);
+		}
+	}//end assertThemeEligible()
 
 	/**
 	 * Assert an incoming document is publishable: the council confirmed its
@@ -504,6 +543,7 @@ class PublicationEligibilityService {
 			'agenda' => 'meeting',
 			'activity' => 'meeting',
 			'minutes' => 'minutes',
+			'theme' => 'governance-theme',
 			'incoming-document' => 'ingekomen-stuk',
 			default => $sourceType,
 		};
