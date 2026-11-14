@@ -24,8 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\Service\Feed\RssDocument;
-use OCA\Decidiq\Service\Ori\OriFeedService;
+use OCA\Decidiq\Kernel\Contracts\OriFeedServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -50,7 +49,7 @@ class OriFeedController extends Controller {
 	 *
 	 * @param string          $appName The app name.
 	 * @param IRequest        $request The request.
-	 * @param OriFeedService  $feeds   Renders the feeds.
+	 * @param OriFeedServiceInterface $feeds Renders the feeds.
 	 * @param LoggerInterface $logger  Logs a failed feed.
 	 *
 	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
@@ -58,7 +57,7 @@ class OriFeedController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private readonly OriFeedService $feeds,
+		private readonly OriFeedServiceInterface $feeds,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(appName: $appName, request: $request);
@@ -115,7 +114,7 @@ class OriFeedController extends Controller {
 	 */
 	private function feed(callable $render): DataDisplayResponse {
 		try {
-			return new DataDisplayResponse(data: $render(), statusCode: Http::STATUS_OK, headers: ['Content-Type' => RssDocument::CONTENT_TYPE]);
+			return new DataDisplayResponse(data: $render(), statusCode: Http::STATUS_OK, headers: ['Content-Type' => OriFeedServiceInterface::CONTENT_TYPE]);
 		} catch (Throwable $e) {
 			$this->logger->error(message: 'Decidiq: ORI feed failed', context: ['exception' => $e]);
 			return new DataDisplayResponse(data: '', statusCode: Http::STATUS_INTERNAL_SERVER_ERROR);

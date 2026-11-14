@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\Ori;
 
+use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
@@ -46,7 +47,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
  */
-class OriImportService {
+class OriImportService implements OriImportServiceInterface {
 
 	/**
 	 * The register decidiq's objects live in.

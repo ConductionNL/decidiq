@@ -24,6 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service\Ori;
 
+use OCA\Decidiq\Kernel\Contracts\OriFeedServiceInterface;
 use OCA\Decidiq\Service\Feed\RssDocument;
 use OCA\OpenRegister\Contract\ObjectEntityInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -38,7 +39,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
  */
-class OriFeedService {
+class OriFeedService implements OriFeedServiceInterface {
 
 	/**
 	 * Constructor.

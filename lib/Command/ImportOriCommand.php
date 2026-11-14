@@ -24,8 +24,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Command;
 
+use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\Decidiq\Service\Ori\OriImportReport;
-use OCA\Decidiq\Service\Ori\OriImportService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -44,12 +44,12 @@ class ImportOriCommand extends Command {
 	/**
 	 * Constructor.
 	 *
-	 * @param OriImportService $import The importer.
+	 * @param OriImportServiceInterface $import The importer.
 	 *
 	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function __construct(
-		private readonly OriImportService $import,
+		private readonly OriImportServiceInterface $import,
 	) {
 		parent::__construct();
 	}//end __construct()
