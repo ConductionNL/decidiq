@@ -70,8 +70,9 @@
   - GIVEN mode `off` WHEN publishing THEN behaviour is identical to pre-change `agenda-publication`/`public-publication` flows
   - GIVEN a `not-scanned` attachment at publish time WHEN the gate runs THEN it is scanned synchronously first (size-capped)
   - Gate method is invoked from both chokepoints — no defined-but-never-called auth/validation code (gate: orphan-auth)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built: `AgendaService::publishAgenda()` (meeting and item files; override kept on the meeting) and `PublicationService::publish()` (the papers the payload makes public; override on the PublicationRecord). Both controllers answer 409 with the gate payload and pass `accessibilityAcknowledged` / `accessibilityOverride.reason` through.
 
 ### Task 7: Accessibility badge + scan detail with remediation guidance
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding`

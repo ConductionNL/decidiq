@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use OCA\Decidiq\Exception\AccessDeniedException;
+use OCA\Decidiq\Exception\AccessibilityGateException;
 use OCA\Decidiq\Exception\ConfidentialityUnreadableException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Kernel\AppIdentity;
@@ -154,12 +155,42 @@ class PublicationController extends Controller {
 	 */
 	private function publishResponse(PublicationSource $source, string $userId): JSONResponse {
 		try {
-			$result = $this->publicationService->publish($source->type, $source->id, $userId);
+			$result = $this->publicationService->publish(
+				$source->type,
+				$source->id,
+				$userId,
+				accessibilityAcknowledged: filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
+				accessibilityOverride: $this->accessibilityOverrideReason()
+			);
 			return new JSONResponse($result, Http::STATUS_CREATED);
+		} catch (AccessibilityGateException $e) {
+			return new JSONResponse($e->payload(), Http::STATUS_CONFLICT);
 		} catch (\Throwable $e) {
 			return $this->failureResponse(failure: $e, statuses: self::PUBLISH_FAILURE_STATUS);
 		}
 	}//end publishResponse()
+
+	/**
+	 * The override reason the request gives for publishing past the accessibility gate, or null.
+	 *
+	 * Accepts `accessibilityOverride: {reason}` and a bare string.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 */
+	private function accessibilityOverrideReason(): ?string {
+		$override = $this->request->getParam('accessibilityOverride');
+		if (is_array($override) === true) {
+			$override = ($override['reason'] ?? null);
+		}
+
+		if (is_string($override) === false) {
+			return null;
+		}
+
+		return $override;
+	}//end accessibilityOverrideReason()
 
 	/**
 	 * Withdraw a publication with a mandatory reason.

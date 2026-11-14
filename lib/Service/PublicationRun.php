@@ -75,6 +75,13 @@ final class PublicationRun {
 	public array $papers = [];
 
 	/**
+	 * The accessibility override the publication went ahead with, or null.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	public ?array $accessibilityOverride = null;
+
+	/**
 	 * The persisted payload's id.
 	 *
 	 * @var string
