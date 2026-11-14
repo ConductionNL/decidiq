@@ -431,6 +431,7 @@ OC.L10N.register(
         "Not saved: {names}": "Not saved: {names}",
         "Close voting round? {notVoted} of {total} members have not voted yet.": "Close voting round? {notVoted} of {total} members have not voted yet.",
         "Closed": "Closed",
+        "Cancelled": "Cancelled",
         "Closed by": "Closed by",
         "Closed on": "Closed on",
         "Closing": "Closing",
