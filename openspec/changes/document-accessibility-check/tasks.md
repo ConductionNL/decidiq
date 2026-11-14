@@ -23,8 +23,9 @@
   - GIVEN a clean install WHEN seeds import THEN 4 `accessibility-scan-report` objects exist per the design Seed Data table (pass/fail/warnings/not-scanned) linked to seeded agenda items / bodies
   - GIVEN the seeds WHEN the aggregate report is opened THEN non-zero counts render without any manual data entry
   - One existing PublicationRecord seed carries an example `accessibilityOverride` with a Dutch reason
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built: seeds live in the Zuiddrecht example set (`lib/Settings/example-sets/zuiddrecht.json`; the register itself plants no objects): four `accessibility-scan-report` objects, one per status, on Lindelaan and afvalstoffenheffing agenda items of the gemeenteraad. The agenda path keeps overrides on the meeting, so the example override (Dutch reason) is a change on `meeting-raad-1`; the set has no PublicationRecord seed. Also: titles and descriptions for every report and override property, in en and nl.
 
 ### Task 3: DocumentAccessibilityScanService (imperative scanner, ADR-031 exception)
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents`

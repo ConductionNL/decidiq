@@ -990,20 +990,28 @@
               "type": "object",
               "properties": {
                 "reason": {
-                  "type": "string"
+                  "type": "string",
+                  "title": "Reason",
+                  "description": "Why the publication went ahead past the accessibility check."
                 },
                 "actor": {
-                  "type": "string"
+                  "type": "string",
+                  "title": "By",
+                  "description": "The user who published past the check."
                 },
                 "overriddenAt": {
                   "type": "string",
-                  "format": "date-time"
+                  "format": "date-time",
+                  "title": "At",
+                  "description": "When the publication went ahead past the check."
                 },
                 "reports": {
                   "type": "array",
                   "items": {
                     "type": "string"
-                  }
+                  },
+                  "title": "Reports",
+                  "description": "The scan reports of the documents concerned."
                 }
               }
             }
@@ -5345,20 +5353,28 @@
             "description": "Recorded when a publication went ahead past the document accessibility gate (document-accessibility-check REQ-003): who, why, when, and the reports concerned.",
             "properties": {
               "reason": {
-                "type": "string"
+                "type": "string",
+                "title": "Reason",
+                "description": "Why the publication went ahead past the accessibility check."
               },
               "actor": {
-                "type": "string"
+                "type": "string",
+                "title": "By",
+                "description": "The user who published past the check."
               },
               "overriddenAt": {
                 "type": "string",
-                "format": "date-time"
+                "format": "date-time",
+                "title": "At",
+                "description": "When the publication went ahead past the check."
               },
               "reports": {
                 "type": "array",
                 "items": {
                   "type": "string"
-                }
+                },
+                "title": "Reports",
+                "description": "The scan reports of the documents concerned."
               }
             }
           }
@@ -5967,7 +5983,8 @@
           },
           "fileName": {
             "title": "File name",
-            "type": "string"
+            "type": "string",
+            "description": "The attachment's file name when it was scanned."
           },
           "sourceObject": {
             "title": "Source object",
@@ -5981,7 +5998,8 @@
             "enum": [
               "meeting",
               "agenda-item"
-            ]
+            ],
+            "description": "Whether the source object is a meeting or an agenda item."
           },
           "governanceBody": {
             "title": "Governance body",
@@ -5999,7 +6017,8 @@
               "fail",
               "not-scanned"
             ],
-            "default": "not-scanned"
+            "default": "not-scanned",
+            "description": "The scan outcome: pass, warnings, fail, or not-scanned when the file could not be checked."
           },
           "findings": {
             "title": "Findings",
@@ -6009,7 +6028,8 @@
               "properties": {
                 "code": {
                   "type": "string",
-                  "description": "Stable finding code, e.g. not-tagged, no-language, no-title, no-bookmarks, no-text-layer, missing-alt-text, too-large, parse-failure, unsupported-format."
+                  "description": "Stable finding code, e.g. not-tagged, no-language, no-title, no-bookmarks, no-text-layer, missing-alt-text, too-large, parse-failure, unsupported-format.",
+                  "title": "Finding"
                 },
                 "severity": {
                   "type": "string",
@@ -6017,11 +6037,14 @@
                     "error",
                     "warning",
                     "info"
-                  ]
+                  ],
+                  "title": "Severity",
+                  "description": "How much the finding weighs: error, warning or info."
                 },
                 "evidence": {
                   "type": "string",
-                  "description": "What the scan observed, e.g. '0 extractable characters across 12 pages'."
+                  "description": "What the scan observed, e.g. '0 extractable characters across 12 pages'.",
+                  "title": "Evidence"
                 }
               },
               "required": [
@@ -6029,7 +6052,8 @@
                 "severity"
               ]
             },
-            "default": []
+            "default": [],
+            "description": "What the scan found, one entry per check that did not pass."
           },
           "checks": {
             "title": "Checks evaluated",
@@ -6043,26 +6067,31 @@
           "pageCount": {
             "title": "Pages",
             "type": "integer",
-            "nullable": true
+            "nullable": true,
+            "description": "The number of pages the scan read, when the file is a PDF."
           },
           "fileSize": {
             "title": "Size in bytes",
             "type": "integer",
-            "nullable": true
+            "nullable": true,
+            "description": "The file's size when it was scanned."
           },
           "mimeType": {
             "title": "Type",
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "description": "The file's type when it was scanned."
           },
           "scannerVersion": {
             "title": "Scanner version",
-            "type": "string"
+            "type": "string",
+            "description": "The version of the scan rules that produced this report."
           },
           "scannedAt": {
             "title": "Scanned at",
             "type": "string",
-            "format": "date-time"
+            "format": "date-time",
+            "description": "When the scan ran."
           },
           "heuristic": {
             "title": "Heuristic scan",
