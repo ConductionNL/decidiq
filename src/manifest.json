@@ -509,15 +509,18 @@
 					{ "id": "body-evaluations", "type": "custom", "component": "GovernanceBodyEvaluationsTab", "title": "Self-evaluation", "icon": "ClipboardCheckOutline" },
 					{ "id": "body-position-holders", "type": "object-list", "title": "Position holders", "icon": "AccountGroup", "content": { "register": "decidiq", "schema": "position-hold", "filter": { "governanceBody": "@objectId" }, "sort": { "field": "endDate", "dir": "asc" }, "columns": [ { "key": "membership", "label": "Member", "widget": "link" }, { "key": "position", "label": "Position" }, { "key": "termNumber", "label": "Term" }, { "key": "endDate", "label": "Until", "widget": "date" } ], "limit": 10, "allowCreate": false, "rowRoute": "PositionHoldDetail", "viewAllRoute": "PositionHolds", "viewAllQuery": { "governanceBody": "@objectId" }, "emptyText": "Nobody holds a position on this body yet." } },
 					{ "id": "body-positions", "type": "object-list", "title": "Positions", "icon": "AccountBoxOutline", "content": { "register": "decidiq", "schema": "position-type", "filter": { "governanceBody": "@objectId" }, "sort": { "field": "order", "dir": "asc" }, "columns": [ { "key": "name", "label": "Position", "widget": "link" }, { "key": "seats", "label": "Seats" }, { "key": "termDurationMonths", "label": "Term (months)" }, { "key": "maxConsecutiveTerms", "label": "Max consecutive terms" } ], "limit": 10, "allowCreate": false, "rowRoute": "PositionTypeDetail", "viewAllRoute": "PositionTypes", "viewAllQuery": { "governanceBody": "@objectId" }, "emptyText": "No positions configured for this body yet." } },
+					{ "id": "body-step-down-schedule", "type": "custom", "component": "StepDownScheduleWidget", "title": "Step-down schedule", "icon": "CalendarClock", "_note": "bodies-term-of-office-and-step-down (REQ-TOS-002, REQ-TOS-003, bod-07): whose term ends when, soonest first, memberships and position holds together, with whether each can be reappointed. Sits with the positions widgets (the board's Functies en integriteit group). Computed on read, nothing stored." },
 					{ "id": "body-ancillary-positions", "type": "object-list", "title": "Other positions", "icon": "Briefcase", "content": { "register": "decidiq", "schema": "ancillary-position", "filter": { "governanceBody": "@objectId" }, "sort": { "field": "declaredAt", "dir": "desc" }, "columns": [ { "key": "person", "label": "Person", "widget": "link" }, { "key": "organisation", "label": "Organisation" }, { "key": "role", "label": "Function" }, { "key": "remunerated", "label": "Remunerated", "widget": "badge" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "emptyText": "No other positions declared for this body yet.", "rowRoute": "AncillaryPositionDetail" } },
 					{ "id": "body-gifts", "type": "object-list", "title": "Gifts", "icon": "Package", "content": { "register": "decidiq", "schema": "declared-gift", "filter": { "governanceBody": "@objectId" }, "sort": { "field": "receivedOn", "dir": "desc" }, "columns": [ { "key": "recipient", "label": "Recipient", "widget": "link" }, { "key": "type", "label": "Type", "widget": "badge" }, { "key": "giver", "label": "Giver" }, { "key": "estimatedValue", "label": "Value (EUR)" }, { "key": "decision", "label": "Decision", "widget": "badge" } ], "limit": 10, "emptyText": "No gifts or invitations declared for this body yet.", "rowRoute": "DeclaredGiftDetail" } },
 					{ "id": "body-participating-orgs", "type": "custom", "component": "BodyParticipationsTab", "title": "Participating organisations", "icon": "HandshakeOutline" },
 					{ "id": "body-shared-participations", "type": "object-list", "title": "Shared-body participations", "icon": "LinkVariant", "content": { "register": "decidiq", "schema": "body-participation", "filter": { "participant": "@objectId" }, "sort": { "field": "accessionDate", "dir": "asc" }, "columns": [ { "key": "sharedBody", "label": "Shared body", "widget": "link" }, { "key": "seats", "label": "Seats" }, { "key": "accessionDate", "label": "Accession date", "widget": "date" } ], "limit": 10, "emptyText": "This body does not participate in any shared bodies yet." } },
 					{ "id": "body-consultations", "type": "object-list", "title": "Consultations", "icon": "MessageTextOutline", "content": { "register": "decidiq", "schema": "governance-consultation", "filter": { "askingBody": "@objectId" }, "sort": { "field": "deadline", "dir": "desc" }, "columns": [ { "key": "subject", "label": "Subject", "widget": "link" }, { "key": "subjectType", "label": "Subject", "widget": "badge" }, { "key": "deadline", "label": "Deadline", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "emptyText": "No zienswijzerondes for this shared body yet.", "rowRoute": "GovernanceConsultationDetail" } },
+					{ "id": "body-contacts", "type": "integration", "integrationId": "contacts", "title": "Contacts", "icon": "AccountBox", "_note": "leaf-integrations REQ-LEAF-002: the body's secretariat and member contacts from the address book. The registry hides it when Contacts is absent." },
 					{ "id": "body-factions", "type": "object-list", "title": "Factions", "icon": "ScaleBalance", "content": { "register": "decidiq", "schema": "governance-body", "filter": { "parentBody": "@objectId", "bodyType": "faction" }, "sort": { "field": "name", "dir": "asc" }, "columns": [ { "key": "name", "label": "Name" }, { "key": "domain", "label": "Domain" } ], "limit": 10, "emptyText": "No factions registered under this body yet.", "rowRoute": "GovernanceBodyDetail" } }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "body-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
+					{ "id": "22", "widgetId": "body-contacts", "gridX": 0, "gridY": 66, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "2", "widgetId": "body-members", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
 					{ "id": "3", "widgetId": "body-meetings", "gridX": 0, "gridY": 7, "gridWidth": 8, "gridHeight": 4 },
 					{ "id": "4", "widgetId": "body-files", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 4 },
@@ -527,16 +530,17 @@
 					{ "id": "8", "widgetId": "body-evaluations", "gridX": 0, "gridY": 24, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "9", "widgetId": "body-position-holders", "gridX": 0, "gridY": 29, "gridWidth": 6, "gridHeight": 4 },
 					{ "id": "10", "widgetId": "body-positions", "gridX": 6, "gridY": 29, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "11", "widgetId": "body-ancillary-positions", "gridX": 0, "gridY": 33, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "12", "widgetId": "body-gifts", "gridX": 6, "gridY": 33, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "13", "widgetId": "body-participating-orgs", "gridX": 0, "gridY": 37, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "14", "widgetId": "body-shared-participations", "gridX": 6, "gridY": 37, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "15", "widgetId": "body-consultations", "gridX": 0, "gridY": 41, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "16", "widgetId": "body-factions", "gridX": 6, "gridY": 41, "gridWidth": 6, "gridHeight": 4 },
-					{ "id": "17", "widgetId": "body-workspace", "gridX": 0, "gridY": 45, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "18", "widgetId": "body-composition", "gridX": 0, "gridY": 49, "gridWidth": 12, "gridHeight": 7 },
-					{ "id": "19", "widgetId": "body-remuneration", "gridX": 0, "gridY": 56, "gridWidth": 8, "gridHeight": 5 },
-					{ "id": "20", "widgetId": "body-remuneration-total", "gridX": 8, "gridY": 56, "gridWidth": 4, "gridHeight": 5 }
+					{ "id": "21", "widgetId": "body-step-down-schedule", "gridX": 0, "gridY": 33, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "11", "widgetId": "body-ancillary-positions", "gridX": 0, "gridY": 38, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "12", "widgetId": "body-gifts", "gridX": 6, "gridY": 38, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "13", "widgetId": "body-participating-orgs", "gridX": 0, "gridY": 42, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "14", "widgetId": "body-shared-participations", "gridX": 6, "gridY": 42, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "15", "widgetId": "body-consultations", "gridX": 0, "gridY": 46, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "16", "widgetId": "body-factions", "gridX": 6, "gridY": 46, "gridWidth": 6, "gridHeight": 4 },
+					{ "id": "17", "widgetId": "body-workspace", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "18", "widgetId": "body-composition", "gridX": 0, "gridY": 54, "gridWidth": 12, "gridHeight": 7 },
+					{ "id": "19", "widgetId": "body-remuneration", "gridX": 0, "gridY": 61, "gridWidth": 8, "gridHeight": 5 },
+					{ "id": "20", "widgetId": "body-remuneration-total", "gridX": 8, "gridY": 61, "gridWidth": 4, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -715,13 +719,15 @@
 					{ "id": "mi-deck", "type": "integration", "integrationId": "deck", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "mi-talk", "type": "integration", "integrationId": "talk", "title": "Discussion", "icon": "MessageTextOutline" },
 					{ "id": "mi-files", "type": "integration", "integrationId": "files", "title": "Files", "icon": "FolderOutline" },
-					{ "id": "mi-notes", "type": "integration", "integrationId": "notes", "title": "Notes", "icon": "NoteTextOutline" }
+					{ "id": "mi-notes", "type": "integration", "integrationId": "notes", "title": "Notes", "icon": "NoteTextOutline" },
+					{ "id": "mi-calendar", "type": "integration", "integrationId": "calendar", "title": "Meeting calendar", "icon": "Calendar", "_note": "leaf-integrations REQ-LEAF-001: Meeting is a schema:Event, so the calendar leaf binds to the meeting. Action-item deadlines get no calendar widget: they are CalDAV VTODOs already, shown by the Tasks app and the Deck leaf. The registry hides the widget when Calendar is absent." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "mi-deck", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "mi-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
 					{ "id": "3", "widgetId": "mi-talk", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 5 },
-					{ "id": "4", "widgetId": "mi-notes", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 5 }
+					{ "id": "4", "widgetId": "mi-notes", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "5", "widgetId": "mi-calendar", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -748,12 +754,14 @@
 				"widgets": [
 					{ "id": "di-email", "type": "integration", "integrationId": "email", "title": "Emails", "icon": "Email" },
 					{ "id": "di-deck", "type": "integration", "integrationId": "deck", "title": "Action items", "icon": "ClipboardList" },
-					{ "id": "di-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" }
+					{ "id": "di-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "di-polls", "type": "integration", "integrationId": "polls", "title": "Straw poll", "icon": "Poll", "_note": "leaf-integrations REQ-LEAF-003: an advisory straw poll on a draft decision, upstream of the formal voting round. The leaf has no decidiq write path, so it never creates or changes a voting round or a vote; a person carries the result into the formal process." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "di-email", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 5 },
 					{ "id": "2", "widgetId": "di-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "3", "widgetId": "di-deck", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 5 }
+					{ "id": "3", "widgetId": "di-deck", "gridX": 0, "gridY": 5, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "4", "widgetId": "di-polls", "gridX": 0, "gridY": 10, "gridWidth": 12, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -841,13 +849,15 @@
 					{ "id": "participant-data", "type": "data", "title": "Participant", "icon": "AccountBoxOutline", "content": { "columns": 2 } },
 					{ "id": "participant-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
 					{ "id": "participant-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
-					{ "id": "participant-profile", "type": "custom", "component": "ParticipantProfileLink", "title": "Profile", "icon": "AccountBoxOutline" }
+					{ "id": "participant-profile", "type": "custom", "component": "ParticipantProfileLink", "title": "Profile", "icon": "AccountBoxOutline" },
+					{ "id": "participant-contacts", "type": "integration", "integrationId": "contacts", "title": "Contacts", "icon": "AccountBox", "_note": "leaf-integrations REQ-LEAF-002: the person's address-book entries. Moves to the person page when one replaces the deprecated participant schema. The registry hides it when Contacts is absent." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "participant-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 7 },
 					{ "id": "2", "widgetId": "participant-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 11 },
 					{ "id": "3", "widgetId": "participant-files", "gridX": 0, "gridY": 7, "gridWidth": 8, "gridHeight": 4 },
-					{ "id": "4", "widgetId": "participant-profile", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 2 }
+					{ "id": "4", "widgetId": "participant-profile", "gridX": 0, "gridY": 11, "gridWidth": 12, "gridHeight": 2 },
+					{ "id": "5", "widgetId": "participant-contacts", "gridX": 0, "gridY": 13, "gridWidth": 12, "gridHeight": 4 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -1314,6 +1324,7 @@
 				"widget-decision-lifecycle": "DecisionLifecycleTab",
 				"widget-decision-actions": "ActionItemsSurface",
 				"widget-decision-related": "RelatedDecisionsTab",
+				"widget-decision-approval": "DecisionApprovalTab",
 				"widget-decision-route": "DecisionRouteTab",
 				"widget-decision-voting": "DecisionVotingTab",
 				"widget-decision-publication": "DecisionPublicationTab"
@@ -1330,6 +1341,7 @@
 					{ "id": "decision-actions", "type": "custom", "component": "ActionItemsSurface", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "decision-related", "type": "custom", "component": "RelatedDecisionsTab", "title": "Related decisions", "icon": "LinkVariant" },
 					{ "id": "decision-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "decision-approval", "type": "custom", "component": "DecisionApprovalTab", "title": "Approval route", "icon": "AccountCheckOutline" },
 					{ "id": "decision-route", "type": "custom", "component": "DecisionRouteTab", "title": "Route", "icon": "Sitemap" },
 					{ "id": "decision-voting", "type": "custom", "component": "DecisionVotingTab", "title": "Voting results", "icon": "CheckCircleOutline" },
 					{ "id": "decision-publication", "type": "custom", "component": "DecisionPublicationTab", "title": "Publication", "icon": "Web" },
@@ -1345,17 +1357,18 @@
 					{ "id": "2", "widgetId": "decision-lifecycle", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
 					{ "id": "3", "widgetId": "decision-governance", "gridX": 0, "gridY": 6, "gridWidth": 8, "gridHeight": 8 },
 					{ "id": "4", "widgetId": "decision-files", "gridX": 8, "gridY": 6, "gridWidth": 4, "gridHeight": 8 },
-					{ "id": "5", "widgetId": "decision-actions", "gridX": 0, "gridY": 14, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "6", "widgetId": "decision-related", "gridX": 0, "gridY": 19, "gridWidth": 8, "gridHeight": 5 },
-					{ "id": "7", "widgetId": "decision-route", "gridX": 8, "gridY": 19, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "8", "widgetId": "decision-voting", "gridX": 0, "gridY": 24, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "9", "widgetId": "decision-publication", "gridX": 6, "gridY": 24, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "10", "widgetId": "decision-public-consultations", "gridX": 0, "gridY": 29, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "11", "widgetId": "decision-consultations", "gridX": 4, "gridY": 29, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 29, "gridWidth": 4, "gridHeight": 5 },
-					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 39, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 39, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "18", "widgetId": "decision-approval", "gridX": 0, "gridY": 14, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "5", "widgetId": "decision-actions", "gridX": 0, "gridY": 20, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "6", "widgetId": "decision-related", "gridX": 0, "gridY": 25, "gridWidth": 8, "gridHeight": 5 },
+					{ "id": "7", "widgetId": "decision-route", "gridX": 8, "gridY": 25, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "8", "widgetId": "decision-voting", "gridX": 0, "gridY": 30, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "9", "widgetId": "decision-publication", "gridX": 6, "gridY": 30, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "10", "widgetId": "decision-public-consultations", "gridX": 0, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "11", "widgetId": "decision-consultations", "gridX": 4, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
+					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
+					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 }
 				],
 				"sidebar": {
 					"enabled": true,

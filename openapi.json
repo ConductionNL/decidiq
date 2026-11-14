@@ -1527,6 +1527,73 @@
                 }
             }
         },
+        "/decisions/{decisionId}/withdraw": {
+            "post": {
+                "operationId": "decision-withdraw",
+                "summary": "Withdraw a Decision",
+                "description": "Withdraw a taken Decision. POST /api/decisions/{decisionId}/withdraw with withdrawnBy (bestuursorgaan or belanghebbende) and reason. The withdrawal is appended to the decision's history and the original outcome stays readable beside it. Returns 200 with the withdrawn Decision. Returns 401 when not authenticated, 403 when the caller is not a Nextcloud administrator, 404 when the Decision is not found, 422 when withdrawnBy is missing or not one of the two kinds, the decision is already withdrawn, or it was never taken, and 503 when OpenRegister is unavailable. Needs an administrator, or a user the matching admin setting is delegated to.",
+                "tags": [
+                    "decision"
+                ],
+                "parameters": [
+                    {
+                        "name": "decisionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the Decision object.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "withdrawnBy"
+                                ],
+                                "properties": {
+                                    "withdrawnBy": {
+                                        "type": "string",
+                                        "enum": [
+                                            "bestuursorgaan",
+                                            "belanghebbende"
+                                        ]
+                                    },
+                                    "reason": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    }
+                }
+            }
+        },
         "/decisions/{decisionId}/transition": {
             "post": {
                 "operationId": "decision-transition",

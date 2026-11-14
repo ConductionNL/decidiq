@@ -867,6 +867,9 @@
 					"decision-related": {
 						"type": "RelatedDecisionsTab"
 					},
+					"decision-approval": {
+						"type": "DecisionApprovalTab"
+					},
 					"decision-route": {
 						"type": "DecisionRouteTab"
 					},
@@ -1064,6 +1067,10 @@
 						"icon": "ScaleBalance",
 						"content": {
 							"sections": [
+								{
+									"label": "Approval route",
+									"widgetId": "decision-approval"
+								},
 								{
 									"label": "Route",
 									"widgetId": "decision-route"
@@ -1672,7 +1679,8 @@
 						"opened": "In session",
 						"paused": "Paused",
 						"adjourned": "Adjourned",
-						"closed": "Closed"
+						"closed": "Closed",
+						"cancelled": "Cancelled"
 					},
 					"colorMap": {
 						"draft": "default",
@@ -1680,7 +1688,8 @@
 						"opened": "success",
 						"paused": "warning",
 						"adjourned": "warning",
-						"closed": "default"
+						"closed": "default",
+						"cancelled": "default"
 					}
 				},
 				"nextStep": {
@@ -2897,6 +2906,9 @@
 					},
 					"body-participating-orgs": {
 						"type": "BodyParticipationsTab"
+					},
+					"body-step-down-schedule": {
+						"type": "StepDownScheduleWidget"
 					}
 				}
 			},
@@ -2968,6 +2980,11 @@
 									"overflow": true
 								},
 								{
+									"widgetId": "body-step-down-schedule",
+									"label": "Step-down schedule",
+									"overflow": true
+								},
+								{
 									"widgetId": "body-ancillary-positions",
 									"label": "Other positions",
 									"overflow": true
@@ -3010,6 +3027,11 @@
 								{
 									"widgetId": "body-remuneration-total",
 									"label": "Remuneration total",
+									"overflow": true
+								},
+								{
+									"widgetId": "body-contacts",
+									"label": "Contacts",
 									"overflow": true
 								}
 							]
@@ -3903,6 +3925,14 @@
 								{
 									"label": "Reactions",
 									"widgetId": "consult-reactions"
+								},
+								{
+									"label": "Straw poll",
+									"widgetId": "consult-polls"
+								},
+								{
+									"label": "Intake form",
+									"widgetId": "consult-forms"
 								}
 							]
 						}
