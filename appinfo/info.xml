@@ -124,6 +124,8 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\TranslationQueueJob</job>
         <!-- @spec openspec/specs/nextcloud-integration/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
+        <!-- @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-004-the-round-closes-as-soon-as-its-outcome-is-known-and-at-the-latest-at-its-deadline -->
+        <job>OCA\Decidiq\BackgroundJob\WrittenResolutionDeadlineJob</job>
         <!-- @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches -->
         <job>OCA\Decidiq\BackgroundJob\MeetingReminderJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->

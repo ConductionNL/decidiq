@@ -150,6 +150,7 @@ class VotingControllerTest extends TestCase {
 				appConfig: $this->createMock(originalClassName: IAppConfig::class),
 			),
 			errors: new VotingErrorResponder(logger: $this->logger),
+			written: $this->createMock(\OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface::class),
 		);
 
 	}//end buildController()
