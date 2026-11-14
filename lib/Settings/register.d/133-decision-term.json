@@ -1,0 +1,39 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change objection-advisory-committee (REQ-OAC-008). A decision whose type declares a term (fragment 132) records the moment the term counts from, and the server writes the date by which it has to be taken. `contests` names the decision it contests, so a term that counts from the end of the objection period can read that period from the contested decision's own legal remedy clause.",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "version": "1.9.0",
+        "properties": {
+          "receivedAt": {
+            "title": "Received on",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "description": "The day the request or the objection this decision answers was received."
+          },
+          "contests": {
+            "title": "Contests",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Decision",
+            "nullable": true,
+            "description": "The decision this decision answers an objection or an appeal against. Empty for a decision that contests nothing."
+          },
+          "termEndsAt": {
+            "title": "Decide by",
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "facetable": true,
+            "description": "The day by which this decision has to be taken: the term its decision type declares, counted from the moment the type names. Set by the server, never in a form; empty when the type declares no term or the moment is not known yet."
+          }
+        }
+      }
+    }
+  }
+}

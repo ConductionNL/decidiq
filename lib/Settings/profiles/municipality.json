@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 230,
+			"objectCount": 232,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -1079,6 +1079,63 @@
 								"label": "Accordering gemeentesecretaris"
 							}
 						]
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "approval-route"
+						},
+						"slug": "bezwaar-standaard",
+						"name": "Bezwaar — ontvangst, hoorzitting, advies, beslissing, verzending",
+						"subjectType": "bezwaar-decision",
+						"isDefault": true,
+						"description": "The route an objection travels: receipt with an admissibility verdict, a hearing, the advice of the independent objection advisory committee, the decision on the objection, and sending it.",
+						"steps": [
+							{
+								"order": 1,
+								"stageType": "preparatory",
+								"stepKind": "intake",
+								"actorType": "role",
+								"actor": "juridisch-medewerker",
+								"mandatory": true,
+								"label": "Ontvangst en ontvankelijkheid"
+							},
+							{
+								"order": 2,
+								"stageType": "advisory",
+								"stepKind": "committee",
+								"actorType": "body",
+								"actor": "bezwaaradviescommissie-amsterdam",
+								"mandatory": false,
+								"label": "Hoorzitting"
+							},
+							{
+								"order": 3,
+								"stageType": "advisory",
+								"stepKind": "committee",
+								"actorType": "body",
+								"actor": "bezwaaradviescommissie-amsterdam",
+								"mandatory": true,
+								"label": "Advies bezwaaradviescommissie"
+							},
+							{
+								"order": 4,
+								"stageType": "decisive",
+								"actorType": "role",
+								"actor": "gemeentesecretaris",
+								"mandatory": true,
+								"label": "Beslissing op bezwaar"
+							},
+							{
+								"order": 5,
+								"stageType": "ratifying",
+								"actorType": "role",
+								"actor": "juridisch-medewerker",
+								"mandatory": true,
+								"label": "Verzending"
+							}
+						]
 					}
 				],
 				"authority-delegation": [
@@ -2114,6 +2171,30 @@
 							"ratificationRequired": true,
 							"ratifyingBody": "gemeenteraad-amsterdam"
 						},
+						"checklist": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-template"
+						},
+						"slug": "bezwaar-decision",
+						"name": "Beslissing op bezwaar",
+						"description": "A decision on an objection against a decision of this organisation, walked through the bezwaar route with the advice of the independent objection advisory committee (Awb 7:13).",
+						"decisionType": "bezwaar-decision",
+						"context": "operations",
+						"builtIn": true,
+						"termPeriod": "P12W",
+						"termStartsAt": "objection-period-end",
+						"legalRemedies": [
+							{
+								"kind": "beroep",
+								"termDays": 42,
+								"body": "de rechtbank",
+								"text": "Bent u het niet eens met deze beslissing op bezwaar? Dan kunt u binnen zes weken beroep instellen bij de rechtbank."
+							}
+						],
 						"checklist": []
 					}
 				],

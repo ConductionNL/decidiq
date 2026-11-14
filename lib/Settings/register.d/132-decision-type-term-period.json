@@ -1,0 +1,33 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change objection-advisory-committee (REQ-OAC-008). A decision type declares the period within which a decision of that type has to be taken, so a route such as an objection carries its statutory term as configuration of the type rather than as code named after it.",
+  "components": {
+    "schemas": {
+      "DecisionTemplate": {
+        "slug": "decision-template",
+        "version": "1.2.0",
+        "properties": {
+          "termPeriod": {
+            "title": "Decision term",
+            "type": "string",
+            "pattern": "^P(?!$)(\\d+Y)?(\\d+M)?(\\d+W)?(\\d+D)?$",
+            "example": "P12W",
+            "description": "The period within which a decision of this type has to be taken, as an ISO 8601 duration in years, months, weeks or days (P12W is twelve weeks). Counted from the moment the type's route names, for an objection the end of the objection period. Empty means the type declares no term."
+          },
+          "termStartsAt": {
+            "title": "Term starts at",
+            "type": "string",
+            "enum": [
+              "received",
+              "objection-period-end"
+            ],
+            "default": "received",
+            "description": "Which moment the decision term is counted from: when the subject was received, or when the period to object to the contested decision ended."
+          }
+        }
+      }
+    }
+  }
+}
