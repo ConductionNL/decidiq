@@ -136,6 +136,20 @@ final class OriAdoptionRegisterTest extends TestCase {
 	}//end testTheNewPropertiesAreDeclared()
 
 	/**
+	 * Every schema the import writes carries the externalReference tag it writes.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 */
+	public function testEverySchemaTheImportWritesCarriesTheImportTag(): void {
+		foreach (['GovernanceBody', 'Person', 'Membership', 'Meeting', 'DigitalDocument', 'AgendaItem', 'Decision', 'VotingRound'] as $schema) {
+			$this->assertSame('string', self::$schemas[$schema]['properties']['externalReference']['type'], $schema);
+			$this->assertSame('', $this->errors(data: ['externalReference' => 'ori:3f2a'], schema: $schema), $schema);
+		}
+	}//end testEverySchemaTheImportWritesCarriesTheImportTag()
+
+	/**
 	 * Nothing existing was removed: every base property of the five schemas is still there.
 	 *
 	 * @return void
