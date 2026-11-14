@@ -11,6 +11,7 @@
   - GIVEN a toedeling in `ingetrokken` WHEN a transition back to `van-kracht` is attempted THEN OR rejects it (undeclared transition, REQ-DMR-002)
 - [ ] Implement
 - [ ] Test
+- State (verified on development): the schema, lifecycle, public predicate and both expiry notifications exist on `authority-delegation`. Left: "no delegans or no delegate is refused" (REQ-DMR-001). OpenRegister's `anyOf` composes schemas by reference and cannot express "at least one of these fields", so it needs a save guard beside the ondermandaat guard, and register tests.
 
 ### Task 2: Seed data — delegatie, mandaat + published ondermandaat chain, concept volmacht, ingetrokken machtiging
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-001-bevoegdheidstoedeling-schema`
@@ -30,6 +31,7 @@
   - GIVEN the parent lookup throws WHEN the guard runs THEN the save is rejected (fail closed, never null-swallow)
 - [x] Implement
 - [x] Test
+- The schema is now `authority-delegation` (renamed from `bevoegdheidstoedeling` by `86-the-last-two-dutch-names`, rows moved by `MigrateTheLastTwoDutchNames`). The guard is subscribed to, and reads parents on, the renamed schema, and still guards the old slug.
 
 ### Task 4: Register views — index/detail manifest pages, filters, "geldig op", search, CSV export
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-004-register-views-per-delegans-per-delegataris-in-force-on-date-search-csv-export`

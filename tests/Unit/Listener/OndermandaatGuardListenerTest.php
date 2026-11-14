@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Tests\Unit\Listener;
 
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\Listener\Registrar\SaveGuardSubscriptions;
 use OCA\Decidiq\Service\OndermandaatGuardService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
@@ -40,6 +41,7 @@ use Psr\Log\NullLogger;
  * @covers \OCA\Decidiq\Listener\OndermandaatGuardListener
  * @covers \OCA\Decidiq\Service\OndermandaatGuardService
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
+ * @covers \OCA\Decidiq\Listener\Registrar\SaveGuardSubscriptions
  */
 class OndermandaatGuardListenerTest extends TestCase {
 
@@ -119,6 +121,21 @@ class OndermandaatGuardListenerTest extends TestCase {
 		self::assertTrue($event->isPropagationStopped());
 	}//end testAnUnreadableParentStopsTheSave()
 
+	/**
+	 * The renamed schema is guarded, and so is the old Dutch slug.
+	 *
+	 * @return void
+	 */
+	public function testBothTheRenamedAndTheOldSchemaAreGuarded(): void {
+		foreach (['authority-delegation', 'Authority-Delegation', 'bevoegdheidstoedeling'] as $slug) {
+			$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => $slug, 'parentAllocation' => 'delegatie']));
+
+			$this->listener()->handle($event);
+
+			self::assertTrue($event->isPropagationStopped(), $slug);
+		}
+	}//end testBothTheRenamedAndTheOldSchemaAreGuarded()
+
 	public function testAnotherSchemaIsLeftAlone(): void {
 		$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => 'decision', 'parentAllocation' => 'delegatie']));
 
@@ -141,4 +158,23 @@ class OndermandaatGuardListenerTest extends TestCase {
 		self::assertContains([ObjectCreatingEvent::class, OndermandaatGuardListener::class], $subscribed);
 		self::assertContains([ObjectUpdatingEvent::class, OndermandaatGuardListener::class], $subscribed);
 	}//end testTheRegistrarSubscribesTheGuardToToedelingSaves()
+
+	/**
+	 * The subscription names the renamed schema, so saves on it reach the guard.
+	 *
+	 * @return void
+	 */
+	public function testTheSubscriptionCoversTheRenamedSchema(): void {
+		$guarded = array_values(
+			array_filter(
+				SaveGuardSubscriptions::ALL,
+				static fn (array $row): bool => $row['listener'] === OndermandaatGuardListener::class
+			)
+		);
+
+		self::assertCount(2, $guarded);
+		foreach ($guarded as $row) {
+			self::assertSame(OndermandaatGuardService::SCHEMAS, $row['schemas']);
+		}
+	}//end testTheSubscriptionCoversTheRenamedSchema()
 }//end class

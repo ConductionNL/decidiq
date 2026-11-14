@@ -123,7 +123,7 @@ class OndermandaatGuardListener implements IEventListener {
 		foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
 			$candidate = ($row[$key] ?? null);
 			if (is_string($candidate) === true && $candidate !== '' && ctype_digit($candidate) === false) {
-				return strtolower($candidate) !== OndermandaatGuardService::SCHEMA;
+				return in_array(strtolower($candidate), OndermandaatGuardService::SCHEMAS, true) === false;
 			}
 		}
 
