@@ -1,0 +1,145 @@
+{
+	"_note": "motion-change-recommendations (mot-19, recommendation half): a text change the griffie or committee recommends for a motion, line by line, which the chair or secretary accepts or rejects without a vote. The record and its pending -> accepted / pending -> rejected lifecycle are declarative. Accepting is imperative (ChangeRecommendationService): it writes the motion text through AmendmentTextMerger and the recommendation status together, and refuses when the passage no longer occurs. Numbered 133, the next free number, not the 125 the design names.",
+	"_spec": "openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"change-recommendation"
+				]
+			}
+		},
+		"schemas": {
+			"ChangeRecommendation": {
+				"slug": "change-recommendation",
+				"icon": "TextBoxCheckOutline",
+				"version": "0.1.0",
+				"title": "Change recommendation",
+				"description": "A recommended change to a range of lines of a motion's text, accepted or rejected by the chair or secretary without a vote.",
+				"type": "object",
+				"x-schema-org": "schema:Comment",
+				"x-openregister": {
+					"schemaType": "schema:Comment",
+					"active": true,
+					"hardDelete": false,
+					"searchable": false,
+					"mailEnabled": false
+				},
+				"required": [
+					"motion",
+					"targetPassage",
+					"proposedText",
+					"status"
+				],
+				"properties": {
+					"motion": {
+						"title": "Motion",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "decision",
+						"facetable": true,
+						"description": "The motion (a decision with decisionType motion) this recommendation changes."
+					},
+					"lineFrom": {
+						"title": "From line",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The first line of the passage, as numbered when the recommendation was made."
+					},
+					"lineTo": {
+						"title": "To line",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The last line of the passage, as numbered when the recommendation was made."
+					},
+					"targetPassage": {
+						"title": "Current text",
+						"type": "string",
+						"minLength": 1,
+						"description": "The exact words of those lines. This, not the line numbers, is what accepting replaces."
+					},
+					"proposedText": {
+						"title": "New text",
+						"type": "string",
+						"description": "The recommended wording. Empty deletes the passage."
+					},
+					"reason": {
+						"title": "Reason",
+						"type": "string",
+						"description": "Why the change is recommended."
+					},
+					"status": {
+						"title": "Status",
+						"type": "string",
+						"enum": [
+							"pending",
+							"accepted",
+							"rejected"
+						],
+						"default": "pending",
+						"facetable": true,
+						"description": "pending until the chair or secretary accepts or rejects it."
+					},
+					"decidedBy": {
+						"title": "Decided by",
+						"type": "string",
+						"description": "The user id of the chair or secretary who accepted or rejected it."
+					},
+					"decidedAt": {
+						"title": "Decided at",
+						"type": "string",
+						"format": "date-time",
+						"description": "When it was accepted or rejected."
+					}
+				},
+				"x-openregister-lifecycle": {
+					"field": "status",
+					"initial": "pending",
+					"states": [
+						"pending",
+						"accepted",
+						"rejected"
+					],
+					"terminal": [
+						"accepted",
+						"rejected"
+					],
+					"transitions": [
+						{
+							"from": "pending",
+							"to": "accepted"
+						},
+						{
+							"from": "pending",
+							"to": "rejected"
+						}
+					],
+					"_note": "REQ-MCR-003 and REQ-MCR-004: a recommendation is decided once. Accepting goes through POST /api/change-recommendations/{id}/accept, which also changes the motion text."
+				},
+				"authorization": {
+					"read": [
+						"authenticated"
+					],
+					"list": [
+						"authenticated"
+					],
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				}
+			}
+		}
+	}
+}
