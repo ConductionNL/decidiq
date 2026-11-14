@@ -1,6 +1,6 @@
 {
   "x-openregister": {
-    "_note": "planning-long-term-agenda-tracks-and-report task 1 (REQ-LTAT-001): a planned agenda item can be a track under a topic, one level deep (PlannedAgendaTrackGuardListener refuses deeper nesting on save). The topic counts its tracks through declared aggregations. A fragment per ADR-037; PlannedAgendaItem moves to 0.2.0 so an existing install re-imports the schema. Schemas only, no seed objects."
+    "_note": "planning-long-term-agenda-tracks-and-report tasks 1 and 4 (REQ-LTAT-001, REQ-LTAT-003): a planned agenda item can be a track under a topic, one level deep (PlannedAgendaTrackGuardListener refuses deeper nesting on save). The topic counts its tracks through declared aggregations. The named portfolio holder (owner) becomes facetable and the item gains an author, the official who drafts the proposal. A fragment per ADR-037; PlannedAgendaItem moves to 0.2.0 so an existing install re-imports the schema. Schemas only, no seed objects."
   },
   "components": {
     "schemas": {
@@ -28,6 +28,20 @@
             "type": "integer",
             "nullable": true,
             "description": "How many of this item's tracks are still planned or postponed. Materialised by OpenRegister from x-openregister-aggregations. Never written by decidiq."
+          },
+          "owner": {
+            "title": "Portfolio holder",
+            "description": "The portfolio holder who brings the item, a Person. Required when the owner type is a portfolio holder, otherwise empty. Filter on it to list everything of one portfolio holder.",
+            "facetable": true
+          },
+          "author": {
+            "title": "Author",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "Person",
+            "nullable": true,
+            "facetable": true,
+            "description": "The official who drafts the proposal (the steller), a Person like owner so both resolve the same way and an official is recorded once. Empty when nobody is named yet."
           }
         },
         "x-openregister-aggregations": {

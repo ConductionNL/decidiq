@@ -26,8 +26,8 @@
 - **acceptance_criteria**:
   - GIVEN the seeded topic WHEN its page opens THEN the Tracks widget lists both tracks and adds a third in place (Playwright)
   - GIVEN hydra gate `dashboard-antipattern` and the manifest validator WHEN they run THEN they pass
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (Playwright against a live instance with the seeded topic; the manifest validator, run on the assembled manifest, and hydra gate `dashboard-antipattern` pass)
 
 ### Task 4: Portfolio holder and author
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-003-the-list-filters-by-portfolio-holder-and-by-author`
@@ -35,8 +35,8 @@
 - **acceptance_criteria**:
   - GIVEN the facet "Portfolio holder" WHEN De Boer is picked THEN only her items list (Playwright)
   - GIVEN the facet "Author" WHEN S. Visser is picked THEN two items list (Playwright)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (Playwright against a live instance with seeded people)
 
 ### Task 5: The formatted report
 - **spec_ref**: `openspec/changes/planning-long-term-agenda-tracks-and-report/specs/termijnagenda-register/spec.md#requirement-req-ltat-004-the-filtered-list-downloads-as-a-formatted-report`
@@ -46,11 +46,11 @@
   - GIVEN `FilinqPdf` returns null WHEN rendered THEN the HTML is saved and the note returned (PHPUnit)
   - GIVEN no matching rows WHEN requested THEN 422
   - GIVEN hydra gates `route-auth`, `route-reachability` and `semantic-auth` WHEN they run THEN they pass
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`PlannedAgendaReportService` reads and saves, `PlannedAgendaReportRenderer` groups and writes the HTML, `src/utils/plannedAgendaReport.js` is the header action's handler)
+- [x] Test (PHPUnit on the service, renderer and controller, vitest on the handler; hydra gates `route-auth`, `route-reachability` and `semantic-auth` pass)
 
 ### Task 6: Strings and docs
 - Dutch and English strings for the widget, columns, facets, the action and the report headings (`test:l10n`, `check:schema-l10n` green).
 - `docs/features/long-term-agenda.md` (new): tracks under a topic, the two filters, and the report.
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (`test:l10n` and nl parity green; `check:schema-l10n` was already over its baseline on this branch before this change, which lowers the uncovered count from 1661 to 1653)

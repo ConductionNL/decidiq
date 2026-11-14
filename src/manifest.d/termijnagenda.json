@@ -30,15 +30,23 @@
 					{ "label": "Planned", "filter": { "lifecycle": "planned" } },
 					{ "label": "Shifted", "filter": { "lifecycle": "postponed" } },
 					{ "label": "Realised", "filter": { "lifecycle": "realised" } },
-					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } }
+					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } },
+					{ "label": "Topics only", "filter": { "parentItem": "IS NULL" } }
 				],
 				"columns": [
 					{ "key": "subject", "label": "Subject", "widget": "link" },
 					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "plannedPeriod", "label": "Planned period" },
 					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },
-					{ "key": "ownerType", "label": "Owner" },
+					{ "key": "ownerType", "label": "Owner type" },
+					{ "key": "owner", "label": "Portfolio holder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "author", "label": "Author", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "parentItem", "label": "Topic", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "planned-agenda-item", "labelField": "subject" } },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+				],
+				"_headerActionsNote": "planning-long-term-agenda-tracks-and-report task 5 (REQ-LTAT-004): Download report posts the list's active filters to POST /api/planned-agenda/report (PlannedAgendaReportController) and opens the PDF it saves in the user's Files. The handler is src/utils/plannedAgendaReport.js, passed through App.vue's headerActionHandlers.",
+				"headerActions": [
+					{ "id": "planned-agenda-report", "label": "Download report", "icon": "FileDocumentOutline", "handler": "downloadPlannedAgendaReport" }
 				],
 				"actions": [
 					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "PlannedAgendaDetail", "primary": true }
@@ -60,13 +68,15 @@
 				"_note": "TermijnagendaDetail (REQ-LTA-006/007). Plan data leads 8-wide, publication stacked right; governanceBody/owner and the origin links (originToezegging/originMotie/originDecision) and realisation links (realisedAgendaItem/realisedDecision) render as resolved references in the data + Related widgets. verschuifHistorie (shift history) renders in the data widget as an embedded array. Files leaf for a startnotitie. Audit trail is a sidebar tab. Execution narrative for a linked motion stays on that motion's UitvoeringsUpdate log — never duplicated here (REQ-LTA-006).",
 				"widgets": [
 					{ "id": "termijnagenda-data", "type": "data", "title": "Long-term agenda item", "icon": "Calendar", "content": { "columns": 2 } },
+					{ "id": "termijnagenda-tracks", "type": "object-list", "title": "Tracks", "icon": "Sitemap", "content": { "register": "decidiq", "schema": "planned-agenda-item", "filter": { "parentItem": "@objectId" }, "sort": { "field": "plannedPeriod", "dir": "asc" }, "columns": [ { "key": "subject", "label": "Track", "widget": "link" }, { "key": "governanceBody", "label": "Governance body" }, { "key": "plannedPeriod", "label": "Planned period" }, { "key": "owner", "label": "Portfolio holder" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 25, "allowCreate": true, "rowRoute": "PlannedAgendaDetail", "emptyText": "This item has no tracks. Add one to split the topic into parallel paths." } },
 					{ "id": "termijnagenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "termijnagenda-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "termijnagenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
 					{ "id": "2", "widgetId": "termijnagenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "termijnagenda-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+					{ "id": "3", "widgetId": "termijnagenda-tracks", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "4", "widgetId": "termijnagenda-related", "gridX": 0, "gridY": 10, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,
