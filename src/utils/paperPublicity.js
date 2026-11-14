@@ -17,8 +17,5 @@
  * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-001-an-agenda-item-and-each-paper-say-whether-they-are-public
  */
 export function isPaperPublic(record, item = null) {
-	if (item && item.public === false) {
-		return false
-	}
-	return !(record && record.public === false)
+	return item?.public !== false && record?.public !== false
 }

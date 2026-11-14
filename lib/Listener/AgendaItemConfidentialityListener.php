@@ -93,18 +93,31 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 */
 	public function handle(Event $event): void {
 		try {
-			if ($event instanceof ObjectCreatingEvent || $event instanceof ObjectUpdatingEvent) {
-				$this->beforePaperSave(event: $event);
-				return;
-			}
-
-			if ($event instanceof ObjectCreatedEvent || $event instanceof ObjectUpdatedEvent) {
-				$this->afterSave(event: $event);
-			}
+			$this->dispatch(event: $event);
 		} catch (Throwable $e) {
 			$this->logger->warning('Decidiq: agenda item confidentiality not applied', ['exception' => $e->getMessage()]);
 		}
 	}//end handle()
+
+	/**
+	 * Route a before-save event to the paper check and an after-save event to the closing.
+	 *
+	 * @param Event $event The OpenRegister object event.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public
+	 */
+	private function dispatch(Event $event): void {
+		if ($event instanceof ObjectCreatingEvent || $event instanceof ObjectUpdatingEvent) {
+			$this->beforePaperSave(event: $event);
+			return;
+		}
+
+		if ($event instanceof ObjectCreatedEvent || $event instanceof ObjectUpdatedEvent) {
+			$this->afterSave(event: $event);
+		}
+	}//end dispatch()
 
 	/**
 	 * A paper saved onto a non-public item is saved as not public.
@@ -116,30 +129,75 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
 	 */
 	private function beforePaperSave(ObjectCreatingEvent|ObjectUpdatingEvent $event): void {
-		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
-		} else {
-			$entity = $event->getObject();
-		}
-
+		$entity = self::savedEntity(event: $event);
 		if ($entity === null) {
 			return;
 		}
 
 		$paper = array_merge((array)$entity->getObject(), $event->getModifiedData());
-		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_DOCUMENT, row: $paper) === false
-			|| ($paper['public'] ?? true) === false
-		) {
+		if ($this->isPublicPaper(entity: $entity, paper: $paper) === false) {
 			return;
 		}
 
-		$itemId = self::referenceId(value: ($paper['agendaItem'] ?? null));
-		if ($itemId === null || $this->isPublic(item: $this->load(id: $itemId, schema: self::SCHEMA_AGENDA_ITEM)) === true) {
+		if ($this->onClosedItem(paper: $paper) === false) {
 			return;
 		}
 
 		$event->setModifiedData(array_merge($event->getModifiedData(), ['public' => false]));
 	}//end beforePaperSave()
+
+	/**
+	 * The object a before-save event is about to store.
+	 *
+	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event The before-save event.
+	 *
+	 * @return object|null The entity, or null when the event carries none.
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 */
+	private static function savedEntity(ObjectCreatingEvent|ObjectUpdatingEvent $event): ?object {
+		if ($event instanceof ObjectUpdatingEvent) {
+			return $event->getNewObject();
+		}
+
+		return $event->getObject();
+	}//end savedEntity()
+
+	/**
+	 * Whether the saved object is a paper that is still marked public.
+	 *
+	 * @param object              $entity The entity being saved.
+	 * @param array<string,mixed> $paper  Its data with the pending changes.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 */
+	private function isPublicPaper(object $entity, array $paper): bool {
+		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_DOCUMENT, row: $paper) === false) {
+			return false;
+		}
+
+		return ($paper['public'] ?? true) !== false;
+	}//end isPublicPaper()
+
+	/**
+	 * Whether the paper is on an agenda item that is not public.
+	 *
+	 * @param array<string,mixed> $paper The paper's data.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#scenario-a-paper-added-later
+	 */
+	private function onClosedItem(array $paper): bool {
+		$itemId = self::referenceId(value: ($paper['agendaItem'] ?? null));
+		if ($itemId === null) {
+			return false;
+		}
+
+		return $this->isPublic(item: $this->load(id: $itemId, schema: self::SCHEMA_AGENDA_ITEM)) === false;
+	}//end onClosedItem()
 
 	/**
 	 * After an item or a restriction is saved, close what must be closed.
@@ -163,12 +221,29 @@ class AgendaItemConfidentialityListener implements IEventListener {
 			return;
 		}
 
-		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_RESTRICTION, row: $row) === true
-			&& $this->becameImposed(event: $event, row: $row) === true
-		) {
+		$this->afterRestrictionSave(event: $event, entity: $entity, row: $row);
+	}//end afterSave()
+
+	/**
+	 * A confidentiality restriction that became imposed closes its agenda item.
+	 *
+	 * @param ObjectCreatedEvent|ObjectUpdatedEvent $event  The after-save event.
+	 * @param object                                $entity The saved entity.
+	 * @param array<string,mixed>                   $row    Its data as saved.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 */
+	private function afterRestrictionSave(ObjectCreatedEvent|ObjectUpdatedEvent $event, object $entity, array $row): void {
+		if ($this->schemaResolver->matchesSchema(entity: $entity, expectedSlug: self::SCHEMA_RESTRICTION, row: $row) === false) {
+			return;
+		}
+
+		if ($this->becameImposed(event: $event, row: $row) === true) {
 			$this->closeItem(itemId: self::referenceId(value: ($row['targetAgendaItem'] ?? null)));
 		}
-	}//end afterSave()
+	}//end afterRestrictionSave()
 
 	/**
 	 * Whether this save brought an item-scoped restriction into the state imposed.
@@ -181,17 +256,47 @@ class AgendaItemConfidentialityListener implements IEventListener {
 	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
 	 */
 	private function becameImposed(ObjectCreatedEvent|ObjectUpdatedEvent $event, array $row): bool {
-		if (($row['scope'] ?? null) !== 'item' || ($row['lifecycle'] ?? null) !== 'imposed') {
+		if (self::isImposedOnItem(row: $row) === false) {
 			return false;
 		}
 
-		if ($event instanceof ObjectUpdatedEvent && $event->getOldObject() !== null) {
-			$old = (new EntityPayloadReader())->payloadOf(entity: $event->getOldObject());
-			return ($old['lifecycle'] ?? null) !== 'imposed' || ($old['scope'] ?? null) !== 'item';
+		$old = self::previous(event: $event);
+		if ($old === null) {
+			return true;
 		}
 
-		return true;
+		return self::isImposedOnItem(row: (new EntityPayloadReader())->payloadOf(entity: $old)) === false;
 	}//end becameImposed()
+
+	/**
+	 * Whether a restriction is item-scoped and imposed.
+	 *
+	 * @param array<string,mixed> $row The restriction.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 */
+	private static function isImposedOnItem(array $row): bool {
+		return ($row['scope'] ?? null) === 'item' && ($row['lifecycle'] ?? null) === 'imposed';
+	}//end isImposedOnItem()
+
+	/**
+	 * The object as it was before an update, or null for a create.
+	 *
+	 * @param ObjectCreatedEvent|ObjectUpdatedEvent $event The after-save event.
+	 *
+	 * @return object|null
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item
+	 */
+	private static function previous(ObjectCreatedEvent|ObjectUpdatedEvent $event): ?object {
+		if ($event instanceof ObjectUpdatedEvent) {
+			return $event->getOldObject();
+		}
+
+		return null;
+	}//end previous()
 
 	/**
 	 * Set an item's public to false, and close its papers.
