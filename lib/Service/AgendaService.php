@@ -132,9 +132,9 @@ class AgendaService implements AgendaServiceInterface {
 	 * lifecycle is left alone (#1396). The accessibility gate checks the
 	 * meeting's and items' files first; an override is kept on the meeting.
 	 *
-	 * @param string      $meetingId                 UUID of the Meeting to publish
-	 * @param bool        $accessibilityAcknowledged Whether the publisher acknowledged the documents the gate lists
-	 * @param string|null $accessibilityOverride     The reason for publishing past the gate, when given
+	 * @param string               $meetingId     UUID of the Meeting to publish
+	 * @param array<string, mixed> $accessibility `acknowledged`: the publisher acknowledged the documents the gate lists;
+	 *                                            `overrideReason`: the reason for publishing past the gate, when given
 	 *
 	 * @return void
 	 *
@@ -144,7 +144,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	public function publishAgenda(string $meetingId, bool $accessibilityAcknowledged=false, ?string $accessibilityOverride=null): void {
+	public function publishAgenda(string $meetingId, array $accessibility=[]): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
@@ -152,9 +152,8 @@ class AgendaService implements AgendaServiceInterface {
 		$meeting = $this->readMeeting(meetingId: $meetingId);
 		// The accessibility gate runs before anything is written; an override is kept on the meeting.
 		$override = $this->documentGate?->check(
-			documents: $this->agendaDocuments(meetingId: $meetingId, meeting: $meeting, items: $items),
-			acknowledged: $accessibilityAcknowledged,
-			overrideReason: $accessibilityOverride
+			documents: $this->agendaDocuments(publication: ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items]),
+			consent: $accessibility
 		);
 		if ($override !== null) {
 			$meeting['accessibilityOverrides']   = (array)($meeting['accessibilityOverrides'] ?? []);
@@ -173,40 +172,22 @@ class AgendaService implements AgendaServiceInterface {
 	 *
 	 * Without OpenRegister no papers are published with the agenda, so there are none to check.
 	 *
-	 * @param string               $meetingId UUID of the Meeting
-	 * @param array<string, mixed> $meeting   The meeting
-	 * @param iterable             $items     Its agenda items
+	 * @param array<string, mixed> $publication meetingId, meeting and items, as publishAgenda() collects them
 	 *
 	 * @return list<array{fileId: int, fileName: string, sourceObject: string, sourceSchema: string, governanceBody: string|null}>
 	 *
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	private function agendaDocuments(string $meetingId, array $meeting, iterable $items): array {
+	private function agendaDocuments(array $publication): array {
 		if ($this->files === null || $this->files->installed() === false) {
 			return [];
 		}
 
-		$body = null;
-		if ((string)($meeting['governanceBody'] ?? '') !== '') {
-			$body = (string)$meeting['governanceBody'];
-		}
+		$body = ((string)($publication['meeting']['governanceBody'] ?? '') ?: null);
 
-		$sources = [[$meetingId, 'meeting']];
-		foreach ($items as $item) {
-			$itemId = (string)($this->rules->toArray(item: $item)['id'] ?? '');
-			if ($itemId === '' && is_object($item) === true && method_exists($item, 'getUuid') === true) {
-				$itemId = (string)$item->getUuid();
-			}
-
-			if ($itemId !== '') {
-				$sources[] = [$itemId, 'agenda-item'];
-			}
-		}
-
-		$fileService = $this->files->fileService();
-		$documents   = [];
-		foreach ($sources as [$sourceId, $schema]) {
-			foreach ((array)$fileService->getFiles($sourceId) as $node) {
+		$documents = [];
+		foreach ($this->documentSources(meetingId: $publication['meetingId'], items: $publication['items']) as [$sourceId, $schema]) {
+			foreach ((array)$this->files->fileService()->getFiles($sourceId) as $node) {
 				$documents[] = [
 					'fileId' => (int)$node->getId(),
 					'fileName' => (string)$node->getName(),
@@ -219,6 +200,42 @@ class AgendaService implements AgendaServiceInterface {
 
 		return $documents;
 	}//end agendaDocuments()
+
+	/**
+	 * The meeting and each of its agenda items, as `[id, schema]` pairs whose files are published.
+	 *
+	 * @param string   $meetingId UUID of the Meeting
+	 * @param iterable $items     Its agenda items
+	 *
+	 * @return list<array{0: string, 1: string}>
+	 */
+	private function documentSources(string $meetingId, iterable $items): array {
+		$sources = [[$meetingId, 'meeting']];
+		foreach ($items as $item) {
+			$itemId = $this->itemId(item: $item);
+			if ($itemId !== '') {
+				$sources[] = [$itemId, 'agenda-item'];
+			}
+		}
+
+		return $sources;
+	}//end documentSources()
+
+	/**
+	 * An agenda item's id, from its data or else its entity uuid.
+	 *
+	 * @param mixed $item The agenda item.
+	 *
+	 * @return string The id, or '' when it has none.
+	 */
+	private function itemId(mixed $item): string {
+		$itemId = (string)($this->rules->toArray(item: $item)['id'] ?? '');
+		if ($itemId === '' && is_object($item) === true && method_exists($item, 'getUuid') === true) {
+			$itemId = (string)$item->getUuid();
+		}
+
+		return $itemId;
+	}//end itemId()
 
 	/**
 	 * The agenda items of a meeting about to be published; at least one must exist.

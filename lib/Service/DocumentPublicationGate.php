@@ -100,9 +100,9 @@ class DocumentPublicationGate {
 	 *
 	 * Each document is `{fileId, fileName?, sourceObject, sourceSchema, governanceBody?}`.
 	 *
-	 * @param list<array<string, mixed>> $documents      The documents published.
-	 * @param bool                       $acknowledged   Whether the publisher acknowledged the listed documents.
-	 * @param string|null                $overrideReason The override reason, when one is given.
+	 * @param list<array<string, mixed>> $documents The documents published.
+	 * @param array<string, mixed>       $consent   `acknowledged` (bool): the publisher acknowledged the listed documents;
+	 *                                              `overrideReason` (string|null): the reason to publish past the gate.
 	 *
 	 * @return array<string, mixed>|null The override to record (reason, actor, overriddenAt, reports), or null when none is needed.
 	 *
@@ -110,10 +110,27 @@ class DocumentPublicationGate {
 	 *
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	public function check(array $documents, bool $acknowledged=false, ?string $overrideReason=null): ?array {
-		$mode = $this->mode();
-		if ($mode === 'off' || $documents === []) {
+	public function check(array $documents, array $consent=[]): ?array {
+		$mode    = $this->mode();
+		$holding = $this->holding(mode: $mode, documents: $documents);
+		if ($holding === []) {
 			return null;
+		}
+
+		return $this->decide(holding: $holding, consent: (['mode' => $mode] + $consent));
+	}//end check()
+
+	/**
+	 * The reports of the documents that hold the publication back in a mode.
+	 *
+	 * @param string                     $mode      The gate mode.
+	 * @param list<array<string, mixed>> $documents The documents published.
+	 *
+	 * @return list<array<string, mixed>> The holding reports.
+	 */
+	private function holding(string $mode, array $documents): array {
+		if ($mode === 'off') {
+			return [];
 		}
 
 		$holding = [];
@@ -124,21 +141,31 @@ class DocumentPublicationGate {
 			}
 		}
 
-		if ($holding === []) {
-			return null;
-		}
+		return $holding;
+	}//end holding()
 
-		$reason = trim((string)$overrideReason);
+	/**
+	 * Record an override, let an acknowledged warning through, or refuse.
+	 *
+	 * @param list<array<string, mixed>> $holding The holding reports.
+	 * @param array<string, mixed>       $consent The mode, and what the publisher acknowledged or gave as a reason.
+	 *
+	 * @return array<string, mixed>|null The override to record, or null when the publication may go ahead.
+	 *
+	 * @throws AccessibilityGateException When the publication is held back.
+	 */
+	private function decide(array $holding, array $consent): ?array {
+		$reason = trim((string)($consent['overrideReason'] ?? ''));
 		if ($reason !== '') {
 			return $this->override(reason: $reason, reports: $holding);
 		}
 
-		if ($mode === 'warn' && $acknowledged === true) {
+		if ($consent['mode'] === 'warn' && ($consent['acknowledged'] ?? false) === true) {
 			return null;
 		}
 
-		throw new AccessibilityGateException(mode: $mode, documents: array_map(fn (array $report): array => $this->summary(report: $report), $holding));
-	}//end check()
+		throw new AccessibilityGateException(mode: $consent['mode'], documents: array_map(fn (array $report): array => $this->summary(report: $report), $holding));
+	}//end decide()
 
 	/**
 	 * Whether a status holds a publication back in a mode.

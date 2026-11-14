@@ -114,8 +114,8 @@ interface AgendaServiceInterface {
 	 * lifecycle is left alone (#1396).
 	 *
 	 * @param string      $meetingId                 UUID of the Meeting to publish
-	 * @param bool        $accessibilityAcknowledged Whether the publisher acknowledged the documents the accessibility gate lists
-	 * @param string|null $accessibilityOverride     The reason for publishing past the accessibility gate, when given
+	 * @param array<string, mixed> $accessibility `acknowledged`: the publisher acknowledged the documents the accessibility gate lists;
+	 *                                            `overrideReason`: the reason for publishing past the accessibility gate, when given
 	 *
 	 * @return void
 	 *
@@ -125,7 +125,7 @@ interface AgendaServiceInterface {
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	public function publishAgenda(string $meetingId, bool $accessibilityAcknowledged=false, ?string $accessibilityOverride=null): void;
+	public function publishAgenda(string $meetingId, array $accessibility=[]): void;
 
 	/**
 	 * Atomically reorder agenda items for a meeting.

@@ -106,7 +106,7 @@ class DocumentPublicationGateTest extends TestCase {
 		$this->reports([1 => 'fail', 2 => 'warnings']);
 
 		try {
-			$this->gate(mode: 'block')->check(documents: self::documents(1, 2), acknowledged: true);
+			$this->gate(mode: 'block')->check(documents: self::documents(1, 2), consent: ['acknowledged' => true]);
 			self::fail('The gate let a failing document through');
 		} catch (AccessibilityGateException $e) {
 			$payload = $e->payload();
@@ -126,7 +126,7 @@ class DocumentPublicationGateTest extends TestCase {
 	public function testBlockWithAReasonRecordsTheOverride(): void {
 		$this->reports([1 => 'fail']);
 
-		$override = $this->gate(mode: 'block')->check(documents: self::documents(1), overrideReason: '  Wettelijk termijngebonden ');
+		$override = $this->gate(mode: 'block')->check(documents: self::documents(1), consent: ['overrideReason' => '  Wettelijk termijngebonden ']);
 
 		self::assertSame(
 			['reason' => 'Wettelijk termijngebonden', 'actor' => 'secretaris', 'overriddenAt' => '2026-06-02T10:00:00+00:00', 'reports' => ['r-1']],
@@ -143,7 +143,7 @@ class DocumentPublicationGateTest extends TestCase {
 		$this->reports([1 => 'fail']);
 		$this->expectException(AccessibilityGateException::class);
 
-		$this->gate(mode: 'block')->check(documents: self::documents(1), overrideReason: '   ');
+		$this->gate(mode: 'block')->check(documents: self::documents(1), consent: ['overrideReason' => '   ']);
 	}//end testABlankReasonIsNoOverride()
 
 	/**
@@ -185,7 +185,7 @@ class DocumentPublicationGateTest extends TestCase {
 	public function testWarnWithAcknowledgementPublishes(): void {
 		$this->reports([1 => 'fail']);
 
-		self::assertNull($this->gate(mode: 'warn')->check(documents: self::documents(1), acknowledged: true));
+		self::assertNull($this->gate(mode: 'warn')->check(documents: self::documents(1), consent: ['acknowledged' => true]));
 	}//end testWarnWithAcknowledgementPublishes()
 
 	/**
