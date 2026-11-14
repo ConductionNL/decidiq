@@ -5,7 +5,8 @@
  *
  * The secretariat's actions on member onboardings and offboardings that no
  * register dialect can express: granting and revoking groups, and
- * delivering the induction pack.
+ * delivering the induction pack, and turning an incoming roster into
+ * onboardings and offboardings.
  *
  * @category Controller
  * @package  OCA\Decidiq\Controller
@@ -32,6 +33,7 @@ use OCA\Decidiq\Service\InductionPackService;
 use OCA\Decidiq\Service\OnboardingProvisioningService;
 use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwayStaffGuard;
+use OCA\Decidiq\Service\RosterTurnoverService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -58,6 +60,7 @@ class OnboardingController extends Controller {
 	 * @param PathwayStaffGuard             $guard        Who may manage a body's pathways.
 	 * @param OnboardingProvisioningService $provisioning Granting and revoking groups.
 	 * @param InductionPackService          $inductionPack Delivering the induction documents.
+	 * @param RosterTurnoverService         $turnover      Suggesting and creating onboardings and offboardings.
 	 */
 	public function __construct(
 		IRequest $request,
@@ -65,6 +68,7 @@ class OnboardingController extends Controller {
 		private readonly PathwayStaffGuard $guard,
 		private readonly OnboardingProvisioningService $provisioning,
 		private readonly InductionPackService $inductionPack,
+		private readonly RosterTurnoverService $turnover,
 	) {
 		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
@@ -125,6 +129,99 @@ class OnboardingController extends Controller {
 
 		return $this->respond(result: $this->inductionPack->deliver(onboardingId: $id, actor: $this->uid()));
 	}//end deliverInductionPack()
+
+	/**
+	 * The suggestion list for an incoming roster. Creates nothing.
+	 *
+	 * @param string $bodyId The governance body uuid.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	#[NoAdminRequired]
+	public function turnoverSuggestions(string $bodyId): JSONResponse {
+		$denied = $this->denyBody(bodyId: $bodyId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$rows = $this->request->getParam('rows');
+		if (is_array($rows) === false) {
+			return new JSONResponse(['message' => 'rows must be a list.'], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
+
+		return new JSONResponse($this->turnover->suggest(bodyId: $bodyId, rows: $rows));
+	}//end turnoverSuggestions()
+
+	/**
+	 * Create the confirmed onboardings and offboardings that still hold.
+	 *
+	 * @param string $bodyId The governance body uuid.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	#[NoAdminRequired]
+	public function confirmTurnover(string $bodyId): JSONResponse {
+		$denied = $this->denyBody(bodyId: $bodyId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$rows    = $this->request->getParam('rows');
+		$joining = $this->request->getParam('joining', []);
+		$leaving = $this->request->getParam('leaving', []);
+		if (is_array($rows) === false || is_array($joining) === false || is_array($leaving) === false) {
+			return new JSONResponse(['message' => 'rows, joining and leaving must be lists.'], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
+
+		try {
+			$result = $this->turnover->confirm(
+				bodyId: $bodyId,
+				rows: $rows,
+				joining: array_values(array_filter($joining, 'is_string')),
+				leaving: array_values(array_filter($leaving, 'is_string')),
+				batch: (string) $this->request->getParam('batch', ''),
+				endDate: (string) $this->request->getParam('endDate', ''),
+				endReason: (string) $this->request->getParam('endReason', '')
+			);
+		} catch (\InvalidArgumentException $e) {
+			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_UNPROCESSABLE_ENTITY);
+		}
+
+		return new JSONResponse($result);
+	}//end confirmTurnover()
+
+	/**
+	 * The refusal for a caller who may not manage the body, or null.
+	 *
+	 * @param string $bodyId The governance body uuid.
+	 *
+	 * @return JSONResponse|null
+	 *
+	 * @spec openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import
+	 */
+	private function denyBody(string $bodyId): ?JSONResponse {
+		$uid = $this->uid();
+		if ($uid === '') {
+			return new JSONResponse(['message' => 'Not signed in.'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		if ($this->turnover->bodyExists(bodyId: $bodyId) === false) {
+			return new JSONResponse(['message' => 'Not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		if ($this->guard->mayManage(userId: $uid, bodyId: $bodyId) === false) {
+			return new JSONResponse(
+				['message' => 'Only the secretariat of this body may do this.'],
+				Http::STATUS_FORBIDDEN
+			);
+		}
+
+		return null;
+	}//end denyBody()
 
 	/**
 	 * The refusal for a caller who may not manage the record's body, or null.

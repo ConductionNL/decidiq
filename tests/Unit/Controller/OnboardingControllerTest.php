@@ -28,6 +28,7 @@ use OCA\Decidiq\Service\InductionPackService;
 use OCA\Decidiq\Service\OnboardingProvisioningService;
 use OCA\Decidiq\Service\Pathway\PathwayResult;
 use OCA\Decidiq\Service\Pathway\PathwayStaffGuard;
+use OCA\Decidiq\Service\RosterTurnoverService;
 use OCP\IRequest;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -74,6 +75,20 @@ class OnboardingControllerTest extends TestCase {
 	private InductionPackService&MockObject $inductionPack;
 
 	/**
+	 * The turnover service.
+	 *
+	 * @var RosterTurnoverService&MockObject
+	 */
+	private RosterTurnoverService&MockObject $turnover;
+
+	/**
+	 * The request.
+	 *
+	 * @var IRequest&MockObject
+	 */
+	private IRequest&MockObject $request;
+
+	/**
 	 * Build the mocks.
 	 *
 	 * @return void
@@ -83,6 +98,8 @@ class OnboardingControllerTest extends TestCase {
 		$this->guard        = $this->createMock(PathwayStaffGuard::class);
 		$this->provisioning  = $this->createMock(OnboardingProvisioningService::class);
 		$this->inductionPack = $this->createMock(InductionPackService::class);
+		$this->turnover      = $this->createMock(RosterTurnoverService::class);
+		$this->request       = $this->createMock(IRequest::class);
 	}//end setUp()
 
 	/**
@@ -186,6 +203,52 @@ class OnboardingControllerTest extends TestCase {
 	}//end testAnAnonymousCallerIsRefused()
 
 	/**
+	 * The suggestions run for a permitted caller; an unknown body answers
+	 * 404 and a caller outside the secretariat 403, both before any read.
+	 *
+	 * @return void
+	 */
+	public function testTurnoverSuggestionsAreGuardedPerBody(): void {
+		$this->signIn(uid: 'griffier');
+		$this->turnover->method('bodyExists')->willReturnCallback(static fn (string $id): bool => $id !== 'nope');
+		$this->guard->method('mayManage')->willReturnCallback(static fn (string $uid, string $body): bool => $body === 'body-1');
+		$this->request->method('getParam')->with('rows')->willReturn([['email' => 'eva@example.org']]);
+		$this->turnover->expects($this->once())->method('suggest')->with('body-1', [['email' => 'eva@example.org']])
+			->willReturn(['joining' => [], 'leaving' => [], 'ignored' => []]);
+
+		$this->assertSame(200, $this->controller()->turnoverSuggestions(bodyId: 'body-1')->getStatus());
+		$this->assertSame(404, $this->controller()->turnoverSuggestions(bodyId: 'nope')->getStatus());
+		$this->assertSame(403, $this->controller()->turnoverSuggestions(bodyId: 'body-2')->getStatus());
+	}//end testTurnoverSuggestionsAreGuardedPerBody()
+
+	/**
+	 * Confirmation passes the selection through and answers 422 on a bad request.
+	 *
+	 * @return void
+	 */
+	public function testConfirmTurnoverPassesTheSelectionAndRejectsBadInput(): void {
+		$this->signIn(uid: 'griffier');
+		$this->turnover->method('bodyExists')->willReturn(true);
+		$this->guard->method('mayManage')->willReturn(true);
+		$params = ['rows' => [], 'joining' => ['email:eva@example.org', 7], 'leaving' => [], 'batch' => 'intake', 'endDate' => '', 'endReason' => ''];
+		$this->request->method('getParam')->willReturnCallback(static fn (string $key, mixed $default=null): mixed => ($params[$key] ?? $default));
+		$this->turnover->expects($this->exactly(2))->method('confirm')
+			->with('body-1', [], ['email:eva@example.org'], [], 'intake', '', '')
+			->willReturnOnConsecutiveCalls(
+				['onboardings' => ['o-1'], 'offboardings' => [], 'rejected' => []],
+				$this->throwException(new \InvalidArgumentException('A batch label is required.'))
+			);
+
+		$ok = $this->controller()->confirmTurnover(bodyId: 'body-1');
+		$this->assertSame(200, $ok->getStatus());
+		$this->assertSame(['o-1'], $ok->getData()['onboardings']);
+
+		$bad = $this->controller()->confirmTurnover(bodyId: 'body-1');
+		$this->assertSame(422, $bad->getStatus());
+		$this->assertSame('A batch label is required.', $bad->getData()['message']);
+	}//end testConfirmTurnoverPassesTheSelectionAndRejectsBadInput()
+
+	/**
 	 * Sign a user in.
 	 *
 	 * @param string $uid The uid.
@@ -205,11 +268,12 @@ class OnboardingControllerTest extends TestCase {
 	 */
 	private function controller(): OnboardingController {
 		return new OnboardingController(
-			request: $this->createMock(IRequest::class),
+			request: $this->request,
 			userSession: $this->session,
 			guard: $this->guard,
 			provisioning: $this->provisioning,
 			inductionPack: $this->inductionPack,
+			turnover: $this->turnover,
 		);
 	}//end controller()
 

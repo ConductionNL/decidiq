@@ -7371,6 +7371,169 @@
                     }
                 }
             }
+        },
+        "/governance-bodies/{bodyId}/turnover/suggestions": {
+            "post": {
+                "operationId": "member-pathways-turnover-suggestions",
+                "summary": "Suggest onboardings and offboardings for an incoming roster",
+                "description": "Diff an incoming roster against the body's active memberships: an onboarding suggestion for each person without an active membership, an offboarding suggestion for each active member not on the roster. Creates nothing. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "bodyId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governance body.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "rows": {
+                                        "type": "array",
+                                        "description": "The incoming roster: one row per person with name, email and/or nextcloudUserId, and role.",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
+        "/governance-bodies/{bodyId}/turnover/confirm": {
+            "post": {
+                "operationId": "member-pathways-confirm-turnover",
+                "summary": "Create the confirmed onboardings and offboardings",
+                "description": "Recompute the suggestions from the current state and create only the confirmed ones that still hold, all with one batch label; the rest is returned as rejected. Never creates or ends a membership. Needs an administrator, the secretariat, or the body's secretary.",
+                "tags": [
+                    "member-pathways"
+                ],
+                "parameters": [
+                    {
+                        "name": "bodyId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The governance body.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "rows": {
+                                        "type": "array",
+                                        "description": "The incoming roster: one row per person with name, email and/or nextcloudUserId, and role.",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "joining": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "The confirmed joining keys."
+                                    },
+                                    "leaving": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "description": "The confirmed leaving membership ids."
+                                    },
+                                    "batch": {
+                                        "type": "string",
+                                        "description": "The batch label."
+                                    },
+                                    "endDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "The end date for leaving members."
+                                    },
+                                    "endReason": {
+                                        "type": "string",
+                                        "description": "Why their membership ends."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
         }
     },
     "components": {

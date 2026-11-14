@@ -73,8 +73,9 @@
   - GIVEN a completed Member Import and current active memberships WHEN the griffie starts a raadswisseling run THEN a suggestion list shows onboarding suggestions for new persons and offboarding suggestions for departed members, and nothing is created yet
   - GIVEN the griffie deselects suggestions and confirms THEN only confirmed suggestions become trajecten sharing one batch label; the run itself never creates or end-dates a Membership; a suggestion invalidated between diff and confirm is rejected, not double-applied (TOCTOU re-validation)
   - GIVEN a 45-member body WHEN the diff runs THEN it completes interactively without N+1 object reads (bulk queries)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `RosterTurnoverService` behind `POST /api/governance-bodies/{bodyId}/turnover/suggestions` and `.../turnover/confirm` (`OnboardingController`, same per-body secretariat check), and `src/dialogs/MemberTurnoverDialog.vue` opened from the members tab ("Member turnover"). The incoming roster is the member-import CSV (name, email, role); people are matched by account, else by email, case-insensitively. `suggest()` only reads: an onboarding suggestion for each roster person without an active membership (and no open onboarding), an offboarding suggestion for each active member not on the roster (and no open offboarding). `confirm()` recomputes the diff from the current state and creates only the confirmed suggestions that still hold, all with one batch label and trigger `council-turnover-batch`; the rest come back as rejected (TOCTOU). It never creates or ends a membership; the only other write is a Person for a joining person who has none. Reads are six bulk queries whatever the body's size (`ids` narrowing for the members' persons). Tests: `RosterTurnoverServiceTest` (5, incl. the bulk-read count with 45 extra members), 2 more in `OnboardingControllerTest`, `tests/vitest/rosterTurnover.spec.js` (5). Class and file names say what they do (roster turnover), not the procedure.
 
 ### Task 8: E2E coverage — Playwright scenarios for onboarding, offboarding, and the batch run
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md`

@@ -103,6 +103,8 @@ $extra = [
         ['name' => 'onboarding#assignGroups', 'url' => '/api/member-onboardings/{id}/assign-groups', 'verb' => 'POST'],
         ['name' => 'onboarding#deliverInductionPack', 'url' => '/api/member-onboardings/{id}/induction-pack', 'verb' => 'POST'],
         ['name' => 'onboarding#revokeGroups', 'url' => '/api/member-offboardings/{id}/revoke-groups', 'verb' => 'POST'],
+        ['name' => 'onboarding#turnoverSuggestions', 'url' => '/api/governance-bodies/{bodyId}/turnover/suggestions', 'verb' => 'POST'],
+        ['name' => 'onboarding#confirmTurnover', 'url' => '/api/governance-bodies/{bodyId}/turnover/confirm', 'verb' => 'POST'],
 
         // Member import (admin-only — AuthorizedAdminSetting on every method).
         // @spec openspec/specs/admin-settings/spec.md

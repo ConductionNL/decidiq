@@ -3375,7 +3375,19 @@
         "The documents and links a joining member of this body receives in their own Files.": "The documents and links a joining member of this body receives in their own Files.",
         "The name of the document or link.": "The name of the document or link.",
         "The Nextcloud file to copy.": "The Nextcloud file to copy.",
-        "A web address to include instead of a file.": "A web address to include instead of a file."
+        "A web address to include instead of a file.": "A web address to include instead of a file.",
+        "Member turnover": "Member turnover",
+        "Upload the incoming roster as a CSV file with the columns: name, email, role. Nothing is created until you confirm.": "Upload the incoming roster as a CSV file with the columns: name, email, role. Nothing is created until you confirm.",
+        "Joining ({count})": "Joining ({count})",
+        "Leaving ({count})": "Leaving ({count})",
+        "Nobody joins.": "Nobody joins.",
+        "Nobody leaves.": "Nobody leaves.",
+        "{count} rows without an email were left out.": "{count} rows without an email were left out.",
+        "Batch label": "Batch label",
+        "Last day of membership for the leavers": "Last day of membership for the leavers",
+        "Create {count} onboardings and offboardings": "Create {count} onboardings and offboardings",
+        "The file could not be read as a member list (name, email, role).": "The file could not be read as a member list (name, email, role).",
+        "{onboardings} onboardings and {offboardings} offboardings created; {rejected} no longer applied.": "{onboardings} onboardings and {offboardings} offboardings created; {rejected} no longer applied."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

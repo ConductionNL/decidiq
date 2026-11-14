@@ -3800,7 +3800,19 @@
         "The documents and links a joining member of this body receives in their own Files.": "De documenten en links die een nieuw lid van dit orgaan in de eigen Bestanden ontvangt.",
         "The name of the document or link.": "De naam van het document of de link.",
         "The Nextcloud file to copy.": "Het Nextcloud-bestand dat wordt gekopieerd.",
-        "A web address to include instead of a file.": "Een webadres dat in plaats van een bestand wordt meegegeven."
+        "A web address to include instead of a file.": "Een webadres dat in plaats van een bestand wordt meegegeven.",
+        "Member turnover": "Ledenwisseling",
+        "Upload the incoming roster as a CSV file with the columns: name, email, role. Nothing is created until you confirm.": "Upload de nieuwe ledenlijst als CSV-bestand met de kolommen: name, email, role. Er wordt niets aangemaakt voordat u bevestigt.",
+        "Joining ({count})": "Instroom ({count})",
+        "Leaving ({count})": "Uitstroom ({count})",
+        "Nobody joins.": "Er stroomt niemand in.",
+        "Nobody leaves.": "Er stroomt niemand uit.",
+        "{count} rows without an email were left out.": "{count} rijen zonder e-mailadres zijn weggelaten.",
+        "Batch label": "Batchlabel",
+        "Last day of membership for the leavers": "Laatste dag van het lidmaatschap voor wie uitstroomt",
+        "Create {count} onboardings and offboardings": "{count} instroom- en uitstroomtrajecten aanmaken",
+        "The file could not be read as a member list (name, email, role).": "Het bestand kon niet worden gelezen als ledenlijst (name, email, role).",
+        "{onboardings} onboardings and {offboardings} offboardings created; {rejected} no longer applied.": "{onboardings} instroom- en {offboardings} uitstroomtrajecten aangemaakt; {rejected} niet meer van toepassing."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"
