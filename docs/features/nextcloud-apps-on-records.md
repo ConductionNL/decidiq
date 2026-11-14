@@ -26,6 +26,24 @@ records a vote and never changes a decision. When the result should count,
 the chair opens a formal voting round and members vote there. The title
 "Straw poll" says this on the page itself.
 
+## Import the responses of an intake form
+
+Once a form is linked to a consultation, an administrator imports its
+responses with:
+
+```
+occ decidiq:consultation:import-form-responses <consultation id>
+```
+
+Each response becomes a reaction on the consultation, one line per answered
+question. Every imported reaction waits for moderation, whatever the
+consultation's moderation policy, and shows in the moderation queue; none is
+public before a moderator approves it. A respondent who was signed in is kept
+by their account; an anonymous one gets the same kind of pseudonym as any
+anonymous reaction. Running the import again adds only the responses that came
+in since: a response is never imported twice. An empty response, or one longer
+than a reaction may be, is skipped and counted as refused.
+
 ## Link a mail to a record
 
 In Nextcloud Mail, open a message and use the OpenRegister panel beside it.

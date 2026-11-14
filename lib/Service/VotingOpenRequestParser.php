@@ -99,6 +99,12 @@ class VotingOpenRequestParser {
 			return $ruleError;
 		}
 
+		// A voting group stands for the preset list; naming both leaves it
+		// unclear who may vote, so it is refused rather than guessed.
+		if ($this->strictString(params: $params, key: 'votingGroup') !== null && $this->listValue(params: $params, key: 'presetParticipantIds') !== []) {
+			return 'Choose a voting group or preset participants, not both';
+		}
+
 		// Subject type (motion-amendment spec): validate up front so a bad
 		// value is a clean 400, never a 500.
 		if (in_array($this->subjectType(params: $params), self::SUBJECT_TYPES, true) === false) {
@@ -157,6 +163,7 @@ class VotingOpenRequestParser {
 			'isSecret' => (bool)($params['isSecret'] ?? false),
 			'closedAt' => $this->presentValue(params: $params, key: 'closedAt'),
 			'presetIds' => $this->listValue(params: $params, key: 'presetParticipantIds'),
+			'votingGroupId' => $this->strictString(params: $params, key: 'votingGroup'),
 			'voteThreshold' => $this->looseString(params: $params, key: 'voteThreshold'),
 			'abstentionHandling' => $this->looseString(params: $params, key: 'abstentionHandling'),
 			'tieBreakRule' => $this->looseString(params: $params, key: 'tieBreakRule'),
