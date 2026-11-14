@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
-use OCA\Decidiq\Service\GuestInvitationService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\GuestInvitationServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,15 +46,15 @@ class GuestInvitationController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest               $request     The request
-	 * @param GuestInvitationService $invitations The invitation service
+	 * @param GuestInvitationServiceInterface $invitations The invitation service
 	 * @param IUserSession           $userSession The user session
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly GuestInvitationService $invitations,
+		private readonly GuestInvitationServiceInterface $invitations,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

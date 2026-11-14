@@ -43,7 +43,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -90,14 +90,14 @@ class MigrateLegacyTemplatesToDecisionTemplate implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService $settingsService Detects OpenRegister availability.
+	 * @param SettingsServiceInterface $settingsService Detects OpenRegister availability.
 	 * @param ContainerInterface $container DI container (lazy-loads OR ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 *
 	 * @spec openspec/changes/archive/2026-08-19-unified-decision-templates/tasks.md#task-1
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {

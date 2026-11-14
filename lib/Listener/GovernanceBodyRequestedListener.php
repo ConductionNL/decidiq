@@ -30,7 +30,7 @@ namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\GovernanceBodyCreatedEvent;
 use OCA\Decidiq\Event\GovernanceBodyRequestedEvent;
-use OCA\Decidiq\Service\GovernanceBodyCommandService;
+use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
 use OCP\EventDispatcher\IEventListener;
@@ -49,12 +49,12 @@ class GovernanceBodyRequestedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param GovernanceBodyCommandService $commandService The idempotent upsert engine.
+	 * @param GovernanceBodyCommandServiceInterface $commandService The idempotent upsert engine.
 	 * @param IEventDispatcher $dispatcher Dispatcher for the conclusion event.
 	 * @param LoggerInterface $logger Logger.
 	 */
 	public function __construct(
-		private readonly GovernanceBodyCommandService $commandService,
+		private readonly GovernanceBodyCommandServiceInterface $commandService,
 		private readonly IEventDispatcher $dispatcher,
 		private readonly LoggerInterface $logger,
 	) {

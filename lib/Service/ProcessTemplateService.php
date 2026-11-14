@@ -32,7 +32,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplatePolicyResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleGraph;
 use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
@@ -46,7 +47,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-class ProcessTemplateService {
+class ProcessTemplateService implements ProcessTemplateServiceInterface {
 
 	/**
 	 * Recognised guard tokens a transition may declare. An unknown token is a
@@ -65,7 +66,7 @@ class ProcessTemplateService {
 	 * Constructor for ProcessTemplateService.
 	 *
 	 * @param LoggerInterface $logger The logger
-	 * @param ProcessTemplatePolicyResolver $resolver Pure template -> guard policy translator
+	 * @param ProcessTemplatePolicyResolverInterface $resolver Pure template -> guard policy translator
 	 * @param ContainerInterface $container DI container (OpenRegister's LifecycleTransitionsValidator)
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
@@ -73,7 +74,7 @@ class ProcessTemplateService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ProcessTemplatePolicyResolver $resolver,
+		private readonly ProcessTemplatePolicyResolverInterface $resolver,
 		private readonly ContainerInterface $container,
 		private readonly ObjectServiceInterface $objectService,
 	) {

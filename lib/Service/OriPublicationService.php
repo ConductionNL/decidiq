@@ -26,7 +26,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Http\Client\IClientService;
 use OCP\IAppConfig;
@@ -41,7 +42,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3
  */
-class OriPublicationService {
+class OriPublicationService implements OriPublicationServiceInterface {
 	/**
 	 * Construct the OriPublicationService.
 	 *
@@ -70,7 +71,7 @@ class OriPublicationService {
 	 * @return string|null The URL or null if not configured
 	 */
 	private function getEndpoint(): ?string {
-		$endpoint = $this->appConfig->getValueString(Application::APP_ID, 'ori_endpoint', '');
+		$endpoint = $this->appConfig->getValueString(AppIdentity::APP_ID, 'ori_endpoint', '');
 		if (empty($endpoint) === false) {
 			return $endpoint;
 		}
@@ -128,31 +129,12 @@ class OriPublicationService {
 	 * @return void
 	 */
 	public function publish(string $votingRoundId): void {
-		// Structural publication deny-list (meeting-transcription-ai-minutes
-		// task 2.7): refuse before any payload is built if the target type is
-		// never publishable. VotingRound is publishable today; the guard is the
-		// single enforcement seam so the deny-list home stays exercised and the
-		// publish-decisions change extends the same list.
-		// @spec openspec/specs/meeting-transcription/spec.md
-		// The deny-list requirement itself lives in that spec.
-		try {
-			$eligibility = $this->container->get(\OCA\Decidiq\Service\PublicationEligibilityService::class);
-			$eligibility->assertPublishable(schemaSlug: 'voting-round');
-		} catch (\DomainException $e) {
-			$this->logger->warning('Decidiq ORI: publication refused by deny-list — ' . $e->getMessage());
+		if ($this->passesDenyList() === false) {
 			return;
-		} catch (Throwable) {
-			// Eligibility service unavailable (very old container): do not block
-			// the existing publish path on a missing optional guard.
 		}
 
-		$endpoint = $this->getEndpoint();
+		$endpoint = $this->publishEndpoint();
 		if ($endpoint === null) {
-			return;
-		}
-
-		if ($this->isValidOriEndpoint(url: $endpoint) === false) {
-			$this->logger->warning("Decidiq ORI: endpoint '$endpoint' failed safety validation — publication skipped");
 			return;
 		}
 
@@ -168,26 +150,8 @@ class OriPublicationService {
 
 			$roundData = $roundObject->getObject();
 
-			$payload = $this->buildJsonLd(votingRoundId: $votingRoundId, roundData: $roundData);
-
-			$body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-			if ($body === false) {
-				throw new RuntimeException('JSON encoding of ORI payload failed: ' . json_last_error_msg());
-			}
-
-			// #320: Attach the configurable ORI bearer token when set.
-			// The secret is stored in IAppConfig under key 'ori_bearer_secret'.
-			// When not configured the Authorization header is omitted (ORI endpoints
-			// that require auth will return 401, surfacing a configuration gap).
-			$headers = [
-				'Content-Type' => 'application/ld+json',
-				'Accept' => 'application/json',
-			];
-
-			$bearerSecret = $this->appConfig->getValueString(Application::APP_ID, 'ori_bearer_secret', '');
-			if ($bearerSecret !== '') {
-				$headers['Authorization'] = 'Bearer ' . $bearerSecret;
-			}
+			$body = $this->oriBody(votingRoundId: $votingRoundId, roundData: $roundData);
+			$headers = $this->oriHeaders();
 
 			$client = $this->clientService->newClient();
 			$client->post(
@@ -218,6 +182,103 @@ class OriPublicationService {
 		}//end try
 
 	}//end publish()
+
+	/**
+	 * Whether the publication deny-list lets a voting round be published.
+	 *
+	 * Structural publication deny-list (meeting-transcription-ai-minutes task 2.7):
+	 * refuse before any payload is built if the target type is never publishable.
+	 * VotingRound is publishable today; the guard is the single enforcement seam so
+	 * the deny-list home stays exercised and the publish-decisions change extends
+	 * the same list. When the eligibility service is unavailable (very old
+	 * container) the existing publish path is not blocked on a missing optional guard.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/meeting-transcription/spec.md
+	 */
+	private function passesDenyList(): bool {
+		try {
+			$eligibility = $this->container->get(\OCA\Decidiq\Service\PublicationEligibilityService::class);
+			$eligibility->assertPublishable(schemaSlug: 'voting-round');
+		} catch (\DomainException $e) {
+			$this->logger->warning('Decidiq ORI: publication refused by deny-list — ' . $e->getMessage());
+			return false;
+		} catch (Throwable) {
+			return true;
+		}
+
+		return true;
+	}//end passesDenyList()
+
+	/**
+	 * The configured ORI endpoint when it passes the safety validation, else null.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.1
+	 */
+	private function publishEndpoint(): ?string {
+		$endpoint = $this->getEndpoint();
+		if ($endpoint === null) {
+			return null;
+		}
+
+		if ($this->isValidOriEndpoint(url: $endpoint) === false) {
+			$this->logger->warning("Decidiq ORI: endpoint '$endpoint' failed safety validation — publication skipped");
+			return null;
+		}
+
+		return $endpoint;
+	}//end publishEndpoint()
+
+	/**
+	 * The JSON-LD body for a voting round.
+	 *
+	 * @param string               $votingRoundId The round.
+	 * @param array<string, mixed> $roundData     Its data.
+	 *
+	 * @return string
+	 *
+	 * @throws RuntimeException When the payload cannot be encoded.
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.1
+	 */
+	private function oriBody(string $votingRoundId, array $roundData): string {
+		$payload = $this->buildJsonLd(votingRoundId: $votingRoundId, roundData: $roundData);
+
+		$body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+		if ($body === false) {
+			throw new RuntimeException('JSON encoding of ORI payload failed: ' . json_last_error_msg());
+		}
+
+		return $body;
+	}//end oriBody()
+
+	/**
+	 * The request headers, with the configurable ORI bearer token when set (#320).
+	 *
+	 * The secret is stored in IAppConfig under key 'ori_bearer_secret'. When not
+	 * configured the Authorization header is omitted (ORI endpoints that require
+	 * auth will return 401, surfacing a configuration gap).
+	 *
+	 * @return array<string, string>
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-3.1
+	 */
+	private function oriHeaders(): array {
+		$headers = [
+			'Content-Type' => 'application/ld+json',
+			'Accept' => 'application/json',
+		];
+
+		$bearerSecret = $this->appConfig->getValueString(AppIdentity::APP_ID, 'ori_bearer_secret', '');
+		if ($bearerSecret !== '') {
+			$headers['Authorization'] = 'Bearer ' . $bearerSecret;
+		}
+
+		return $headers;
+	}//end oriHeaders()
 
 	/**
 	 * Build a JSON-LD payload following the ORI 1.0 standard for a VotingRound.

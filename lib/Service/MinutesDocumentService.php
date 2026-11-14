@@ -32,6 +32,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Kernel\Contracts\MinutesDocumentServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -43,7 +44,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MinutesDocumentService {
+class MinutesDocumentService implements MinutesDocumentServiceInterface {
 
 	/**
 	 * Formats the caller may request.

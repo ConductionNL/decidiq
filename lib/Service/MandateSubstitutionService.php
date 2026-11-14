@@ -33,6 +33,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\SubstitutionRefusedException;
+use OCA\Decidiq\Kernel\Contracts\MandateSubstitutionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -40,7 +41,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-003-a-swap-is-refused-when-it-would-change-a-vote-in-progress-or-break-the-seat-plan
  */
-class MandateSubstitutionService {
+class MandateSubstitutionService implements MandateSubstitutionServiceInterface {
 
 	/**
 	 * The roles that vote in a body. A substitute holds none of them.

@@ -339,6 +339,76 @@ class ProofPackageServiceTest extends TestCase {
 
 	}//end testAssembleThrowsRuntimeExceptionWhenWriteFails()
 
+	/**
+	 * The result lists the JSON file before the Markdown file, both named after
+	 * the same stamp; the package prefers the top-level meeting id over @self.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAssembleReturnsJsonThenMarkdownPathAndSelfId(): void {
+		$this->wireMeetingFixture(['@self' => ['id' => 'self-007'], 'id' => 'meeting-007', 'title' => 'Sync']);
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn([]);
+
+		$writes = [];
+		$this->folderService->method('writeMeetingFile')->willReturnCallback(
+			static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$writes): string {
+				$writes[] = ['subfolder' => $subfolder, 'fileName' => $fileName, 'content' => $content];
+				return '/Meetings/Sync/' . $subfolder . '/' . $fileName;
+			}
+		);
+
+		$result = $this->service->assemble(meetingId: 'meeting-007', generatedBy: 'Griffier');
+
+		self::assertCount(2, $writes);
+		self::assertMatchesRegularExpression('/^Proof package \d{4}-\d{2}-\d{2} \d{4}\.json$/', $writes[0]['fileName']);
+		self::assertSame(substr($writes[0]['fileName'], 0, -5) . '.md', $writes[1]['fileName']);
+		self::assertSame(
+			['/Meetings/Sync/Minutes/' . $writes[0]['fileName'], '/Meetings/Sync/Minutes/' . $writes[1]['fileName']],
+			$result['files']
+		);
+
+		$envelope = json_decode($writes[0]['content'], true);
+		self::assertSame('meeting-007', $envelope['package']['meeting']['id']);
+		self::assertSame('Griffier', $envelope['generatedBy']);
+		self::assertSame($envelope['generatedAt'], $result['generatedAt']);
+		self::assertSame(['package', 'integrity', 'generatedAt', 'generatedBy'], array_keys($envelope));
+		self::assertSame(
+			['meeting', 'convocation', 'quorum', 'votes', 'decisions'],
+			array_keys($envelope['package'])
+		);
+		self::assertStringContainsString($result['sha256'], $writes[1]['content']);
+
+	}//end testAssembleReturnsJsonThenMarkdownPathAndSelfId()
+
+	/**
+	 * A failed Markdown write after a successful JSON write still fails the
+	 * whole package with 503 semantics.
+	 *
+	 * @spec openspec/specs/resolution-minutes/spec.md
+	 *
+	 * @return void
+	 */
+	public function testAssembleThrowsWhenOnlyMarkdownWriteFails(): void {
+		$this->wireMeetingFixture(['id' => 'meeting-008', 'title' => 'Sync']);
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn([]);
+		$this->folderService->expects(self::exactly(2))->method('writeMeetingFile')->willReturnCallback(
+			static function (array $meeting, string $subfolder, string $fileName): ?string {
+				return str_ends_with($fileName, '.json') === true ? '/x/' . $fileName : null;
+			}
+		);
+
+		try {
+			$this->service->assemble(meetingId: 'meeting-008', generatedBy: 'S');
+			self::fail('Expected a RuntimeException.');
+		} catch (\RuntimeException $e) {
+			self::assertSame(503, $e->getCode());
+			self::assertSame('The proof package could not be stored: the Files backend is unavailable.', $e->getMessage());
+		}
+
+	}//end testAssembleThrowsWhenOnlyMarkdownWriteFails()
+
 	/*
 	 * REMOVED: testAssembleThrowsRuntimeExceptionWhenOpenRegisterUnavailable().
 	 *

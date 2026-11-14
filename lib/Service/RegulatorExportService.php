@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\RegulatorExportServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -41,7 +42,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
-class RegulatorExportService {
+class RegulatorExportService implements RegulatorExportServiceInterface {
 
 	/**
 	 * Allowed export formats.
@@ -131,32 +132,25 @@ class RegulatorExportService {
 			return $this->failure(message: 'OpenRegister is unavailable.');
 		}
 
-		try {
-			$rows = $this->collect(objectService: $objectService, boardId: $boardId, scope: $scope);
-		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: RegulatorExportService failed to collect data',
-				['scope' => $scope, 'exception' => $e->getMessage()]
-			);
+		$rows = $this->collectRows(objectService: $objectService, boardId: $boardId, scope: $scope);
+		if ($rows === null) {
 			return $this->failure(message: 'Failed to collect data for scope: ' . $scope);
 		}
 
 		$generatedAt = gmdate('Y-m-d\TH:i:s\Z');
-		$title = 'Decidiq Regulator Export — ' . $scope . ' — board ' . $boardId;
 		$body = $this->renderer->render(
 			format: $format,
-			title: $title,
+			title: 'Decidiq Regulator Export — ' . $scope . ' — board ' . $boardId,
 			generatedAt: $generatedAt,
 			scope: $scope,
 			rows: $rows
 		);
 
 		// The extension is always the format label ('csv' / 'pdf').
-		$contentType = self::CONTENT_TYPES[$format];
 		$checksum = hash('sha256', $body);
 		$filename = sprintf('decidiq-%s-%s-%s.%s', $scope, $boardId, substr($generatedAt, 0, 10), $format);
 
-		$exportRecord = [
+		$record = [
 			'boardIntegration' => $boardId,
 			'scope' => $scope,
 			'format' => $format,
@@ -166,7 +160,52 @@ class RegulatorExportService {
 			'generatedAt' => $generatedAt,
 			'generatedBy' => $actor,
 		];
+		$exportRecord = $this->persistExportRecord(objectService: $objectService, exportRecord: $record);
+		$this->auditExport(actor: $actor, exportId: (string)($exportRecord['id'] ?? $checksum), record: $record);
 
+		return [
+			'success' => true,
+			'export' => $exportRecord,
+			'body' => $body,
+			'contentType' => self::CONTENT_TYPES[$format],
+			'filename' => $filename,
+			'message' => 'Export generated.',
+		];
+
+	}//end generate()
+
+	/**
+	 * Collect the rows for a scope, logging and returning null on failure.
+	 *
+	 * @param object $objectService OpenRegister ObjectService
+	 * @param string $boardId Board UUID
+	 * @param string $scope One of self::SCOPES
+	 *
+	 * @return array<int, array<string, mixed>>|null The rows, or null when they could not be read
+	 */
+	private function collectRows(object $objectService, string $boardId, string $scope): ?array {
+		try {
+			return $this->collect(objectService: $objectService, boardId: $boardId, scope: $scope);
+		} catch (\Throwable $e) {
+			$this->logger->error(
+				'Decidiq: RegulatorExportService failed to collect data',
+				['scope' => $scope, 'exception' => $e->getMessage()]
+			);
+			return null;
+		}
+
+	}//end collectRows()
+
+	/**
+	 * Persist the export record. A persist failure is non-fatal: the unsaved
+	 * record is returned and the caller still serves the export body.
+	 *
+	 * @param object $objectService OpenRegister ObjectService
+	 * @param array<string, mixed> $exportRecord Record to persist
+	 *
+	 * @return array<string, mixed> The saved record, or the input record when it could not be saved
+	 */
+	private function persistExportRecord(object $objectService, array $exportRecord): array {
 		try {
 			$saved = $objectService->saveObject(
 				object: $exportRecord,
@@ -184,30 +223,34 @@ class RegulatorExportService {
 			);
 		}
 
-		$auditId = (string)($exportRecord['id'] ?? $checksum);
+		return $exportRecord;
+
+	}//end persistExportRecord()
+
+	/**
+	 * Append the material-access audit entry for a generated export.
+	 *
+	 * @param string $actor Acting user UID
+	 * @param string $exportId Persisted export id, or the body checksum when not persisted
+	 * @param array<string, mixed> $record The export record as built (before persisting)
+	 *
+	 * @return void
+	 */
+	private function auditExport(string $actor, string $exportId, array $record): void {
 		$this->auditLogService->append(
 			actor: $actor,
 			action: 'material-access',
-			objectUids: [$boardId, $auditId],
+			objectUids: [$record['boardIntegration'], $exportId],
 			payload: [
 				'kind' => 'regulator-export',
-				'scope' => $scope,
-				'format' => $format,
-				'recordCount' => count($rows),
-				'sha256' => $checksum,
+				'scope' => $record['scope'],
+				'format' => $record['format'],
+				'recordCount' => $record['recordCount'],
+				'sha256' => $record['sha256'],
 			]
 		);
 
-		return [
-			'success' => true,
-			'export' => $exportRecord,
-			'body' => $body,
-			'contentType' => $contentType,
-			'filename' => $filename,
-			'message' => 'Export generated.',
-		];
-
-	}//end generate()
+	}//end auditExport()
 
 	/**
 	 * Validate the generate() request triple.

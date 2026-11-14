@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\ExportBundleException;
-use OCA\Decidiq\Service\ExportBundleService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ExportBundleServiceInterface;
 use OCA\Decidiq\Service\ExportRequest;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -44,17 +44,17 @@ class ExportBundleController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest            $request The request.
-	 * @param ExportBundleService $exports The export.
+	 * @param ExportBundleServiceInterface $exports The export.
 	 * @param LoggerInterface     $logger  Diagnostics.
 	 *
 	 * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-001-motions-export-as-one-pdf-with-their-attachments
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ExportBundleService $exports,
+		private readonly ExportBundleServiceInterface $exports,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

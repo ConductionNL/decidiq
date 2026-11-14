@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard;
-use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -89,20 +89,21 @@ class IntegrationController extends Controller {
 	 *
 	 * @param IRequest $request HTTP request
 	 * @param IUserSession $userSession Nextcloud user session
-	 * @param DecisionIntegrationService $integrationService Outcome assembler + callback dispatcher
+	 * @param DecisionIntegrationServiceInterface $integrationService Outcome assembler + callback dispatcher
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param IGroupManager $groupManager Group manager (admin bypass on the outcome-read and subscribe guards)
-	 * @param DecisionIntegrationAuthorizationGuard $authorizationGuard Per-object outcome-read / subscribe authorization (REQ-DCDH-101 / REQ-DCDH-102)
+	 * @param DecisionIntegrationAuthorizationGuardInterface $authorizationGuard Per-object outcome-read / subscribe
+	 *                                                       authorization (REQ-DCDH-101 / REQ-DCDH-102)
 	 */
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly DecisionIntegrationService $integrationService,
+		private readonly DecisionIntegrationServiceInterface $integrationService,
 		private readonly LoggerInterface $logger,
 		private readonly IGroupManager $groupManager,
-		private readonly DecisionIntegrationAuthorizationGuard $authorizationGuard,
+		private readonly DecisionIntegrationAuthorizationGuardInterface $authorizationGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 

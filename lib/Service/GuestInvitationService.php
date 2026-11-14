@@ -37,6 +37,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use OCA\Decidiq\Exception\GuestInvitationRefusedException;
+use OCA\Decidiq\Kernel\Contracts\GuestInvitationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use OCP\IGroupManager;
@@ -49,7 +50,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/meeting-ad-hoc-with-guests/specs/meeting-management/spec.md#requirement-req-mah-001-an-organiser-runs-their-own-ad-hoc-meeting
  */
-class GuestInvitationService {
+class GuestInvitationService implements GuestInvitationServiceInterface {
 
 	/**
 	 * Groups that may invite to a meeting they did not organise.

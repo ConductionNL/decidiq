@@ -239,6 +239,13 @@ class AgendaControllerTest extends TestCase {
 	 */
 	public function testTheFormalityRouteReachesTheController(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$byName = array_column($routes['routes'], 'url', 'name');
 
 		self::assertSame('/api/agendas/{meetingId}/items/{itemId}/formality', ($byName['agenda#formality'] ?? null));
@@ -381,6 +388,13 @@ class AgendaControllerTest extends TestCase {
 	 */
 	public function testTheCurrentItemRouteReachesTheController(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$byName = array_column($routes['routes'], 'url', 'name');
 		$verbs = array_column($routes['routes'], 'verb', 'name');
 

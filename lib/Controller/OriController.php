@@ -27,9 +27,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\Service\OriSerializer;
-use OCA\Decidiq\Service\OriPersonPublicationRule;
-use OCA\Decidiq\Service\OriVotePublicationRule;
+use OCA\Decidiq\Kernel\Contracts\OriPersonPublicationRuleInterface;
+use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
+use OCA\Decidiq\Kernel\Contracts\OriVotePublicationRuleInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -141,18 +141,18 @@ class OriController extends CorsJsonController {
 		// payload's own `oriType` (Besluit / Vergadering / Verslag); this envelope
 		// label describes the harvest collection.
 		'publications' => 'Publication',
-		'commitments' => OriSerializer::COMMITMENT_TYPE,
+		'commitments' => OriSerializerInterface::COMMITMENT_TYPE,
 	];
 
 	/**
 	 * ORI JSON-LD context URL.
 	 */
-	private const ORI_CONTEXT = OriSerializer::ORI_CONTEXT;
+	private const ORI_CONTEXT = OriSerializerInterface::ORI_CONTEXT;
 
 	/**
 	 * The ORI resource slug backed by derived PublicationPayload objects.
 	 */
-	private const PUBLICATIONS = OriSerializer::PUBLICATIONS_RESOURCE;
+	private const PUBLICATIONS = OriSerializerInterface::PUBLICATIONS_RESOURCE;
 
 	/**
 	 * Constructor.
@@ -161,9 +161,9 @@ class OriController extends CorsJsonController {
 	 * @param IConfig $config The Nextcloud config service
 	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger PSR-3 logger
-	 * @param OriSerializer $serializer The ORI JSON-LD serializer
-	 * @param OriVotePublicationRule $voteRule The publication rule for votes and vote events
-	 * @param OriPersonPublicationRule $personRule The publication rule for persons
+	 * @param OriSerializerInterface $serializer The ORI JSON-LD serializer
+	 * @param OriVotePublicationRuleInterface $voteRule The publication rule for votes and vote events
+	 * @param OriPersonPublicationRuleInterface $personRule The publication rule for persons
 	 *
 	 * @return void
 	 */
@@ -172,9 +172,9 @@ class OriController extends CorsJsonController {
 		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
-		private readonly OriSerializer $serializer,
-		private readonly OriVotePublicationRule $voteRule,
-		private readonly OriPersonPublicationRule $personRule,
+		private readonly OriSerializerInterface $serializer,
+		private readonly OriVotePublicationRuleInterface $voteRule,
+		private readonly OriPersonPublicationRuleInterface $personRule,
 	) {
 		parent::__construct(request: $request, config: $config);
 
@@ -258,7 +258,7 @@ class OriController extends CorsJsonController {
 			'schema' => $schema,
 		];
 
-		if (in_array(needle: $resource, haystack: OriSerializer::WINDOWED_RESOURCES, strict: true) === true) {
+		if (in_array(needle: $resource, haystack: OriSerializerInterface::WINDOWED_RESOURCES, strict: true) === true) {
 			// Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
 			// feed has no `lifecycle`/`isPublished` field; its anonymous visibility
 			// is governed solely by the RBAC published-predicate the schema declares
@@ -360,7 +360,7 @@ class OriController extends CorsJsonController {
 			return $object;
 		}
 
-		if ($resource === OriSerializer::COMMITMENTS_RESOURCE) {
+		if ($resource === OriSerializerInterface::COMMITMENTS_RESOURCE) {
 			// A commitment's lifecycle is its progress (open .. disposed), not
 			// its visibility: it is public from its publication date on.
 			if ($this->serializer->isPayloadLive(object: $object) === false) {

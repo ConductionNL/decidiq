@@ -29,7 +29,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\DecisionConcludedEvent;
-use OCA\Decidiq\Lifecycle\DecisionTransitionGuard;
+use OCA\Decidiq\Kernel\Contracts\DecisionLifecycleServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -53,7 +54,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/decision-management/spec.md
  */
-class DecisionLifecycleService {
+class DecisionLifecycleService implements DecisionLifecycleServiceInterface {
 	/**
 	 * Terminal-outcome lifecycle states that conclude a delegated decision.
 	 *
@@ -77,7 +78,7 @@ class DecisionLifecycleService {
 	 * Constructor for DecisionLifecycleService.
 	 *
 	 * @param LoggerInterface $logger The logger
-	 * @param DecisionTransitionGuard $transitionGuard Pure transition map + per-domain policy guard
+	 * @param DecisionTransitionGuardInterface $transitionGuard Pure transition map + per-domain policy guard
 	 * @param AuditLogService $auditLogService Hash-chained append-only audit log
 	 * @param ProcessTemplateService $templateService Resolves a body's process-template policy override (process-configuration)
 	 * @param DecisionIntegrationService $integrationService Builds the cross-app outcome envelope for concluded delegated decisions
@@ -86,7 +87,7 @@ class DecisionLifecycleService {
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly DecisionTransitionGuard $transitionGuard,
+		private readonly DecisionTransitionGuardInterface $transitionGuard,
 		private readonly AuditLogService $auditLogService,
 		private readonly ProcessTemplateService $templateService,
 		private readonly DecisionIntegrationService $integrationService,
@@ -120,7 +121,7 @@ class DecisionLifecycleService {
 					'lifecycle' => null,
 					'domain' => null,
 					'actions' => [],
-					'states' => DecisionTransitionGuard::STATES,
+					'states' => DecisionTransitionGuardInterface::STATES,
 					'message' => "Decision '$decisionId' not found.",
 				];
 			}
@@ -160,7 +161,7 @@ class DecisionLifecycleService {
 				'lifecycle' => $lifecycle,
 				'domain' => $domain,
 				'actions' => $actions,
-				'states' => DecisionTransitionGuard::STATES,
+				'states' => DecisionTransitionGuardInterface::STATES,
 				'message' => 'OK',
 			];
 		} catch (\Throwable $e) {
@@ -173,7 +174,7 @@ class DecisionLifecycleService {
 				'lifecycle' => null,
 				'domain' => null,
 				'actions' => [],
-				'states' => DecisionTransitionGuard::STATES,
+				'states' => DecisionTransitionGuardInterface::STATES,
 				'message' => 'Failed to resolve available transitions.',
 			];
 		}//end try
@@ -210,51 +211,10 @@ class DecisionLifecycleService {
 		}
 
 		try {
-			$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
-			if ($decision === null) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => "Decision '$decisionId' not found.",
-				];
-			}
-
-			$run = (new DecisionTransitionRun(decisionId: $decisionId, action: $action, currentUserId: $currentUserId, comment: $comment))
-				->entering(transition: $transition, currentLifecycle: (string)($decision['lifecycle'] ?? 'draft'));
-
-			// Every guard (transition map, domain policy, chair-only fail-closed,
-			// quorum before `voting`, outcome before `enact`) reports through one
-			// rejection message; null means the transition may proceed.
-			$rejection = $this->resolveRejection(run: $run, decision: $decision);
-			if ($rejection !== null) {
-				return [
-					'success' => false,
-					'decision' => null,
-					'message' => $rejection,
-				];
-			}
-
-			$patch = ['lifecycle' => $transition['to']];
-			if ($transition['to'] === 'enacted') {
-				$patch['enactedAt'] = date(DATE_ATOM);
-			}
-
-			// Object-level write ACL: saveObject() throws when the session user lacks
-			// write access on this specific object (caught below, generic error).
-			$updated = $this->objectService->saveObject(
-				object: array_merge($decision, $patch),
-				register: 'decidiq',
-				schema: 'decision',
-				uuid: $decisionId,
+			return $this->attemptTransition(
+				decisionId: $decisionId,
+				job: ['transition' => $transition, 'action' => $action, 'currentUserId' => $currentUserId, 'comment' => $comment]
 			);
-
-			$this->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
-
-			return [
-				'success' => true,
-				'decision' => $updated->jsonSerialize(),
-				'message' => "Decision transitioned to '{$transition['to']}'.",
-			];
 		} catch (DoesNotExistException) {
 			return [
 				'success' => false,
@@ -274,6 +234,67 @@ class DecisionLifecycleService {
 		}//end try
 
 	}//end transition()
+
+	/**
+	 * Load the decision, run every guard and, when none rejects, apply the transition.
+	 *
+	 * Exceptions propagate to transition(), which answers them.
+	 *
+	 * @param string               $decisionId The decision.
+	 * @param array<string, mixed> $job        transition (resolved), action, currentUserId and comment.
+	 *
+	 * @return array{success: bool, decision: array<string, mixed>|null, message: string}
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 */
+	private function attemptTransition(string $decisionId, array $job): array {
+		$decision = $this->contextResolver->loadDecision(objectService: $this->objectService, decisionId: $decisionId);
+		if ($decision === null) {
+			return [
+				'success' => false,
+				'decision' => null,
+				'message' => "Decision '$decisionId' not found.",
+			];
+		}
+
+		$transition = $job['transition'];
+		$run = (new DecisionTransitionRun(decisionId: $decisionId, action: $job['action'], currentUserId: $job['currentUserId'], comment: $job['comment']))
+			->entering(transition: $transition, currentLifecycle: (string)($decision['lifecycle'] ?? 'draft'));
+
+		// Every guard (transition map, domain policy, chair-only fail-closed,
+		// quorum before `voting`, outcome before `enact`) reports through one
+		// rejection message; null means the transition may proceed.
+		$rejection = $this->resolveRejection(run: $run, decision: $decision);
+		if ($rejection !== null) {
+			return [
+				'success' => false,
+				'decision' => null,
+				'message' => $rejection,
+			];
+		}
+
+		$patch = ['lifecycle' => $transition['to']];
+		if ($transition['to'] === 'enacted') {
+			$patch['enactedAt'] = date(DATE_ATOM);
+		}
+
+		// Object-level write ACL: saveObject() throws when the session user lacks
+		// write access on this specific object (caught below, generic error).
+		$updated = $this->objectService->saveObject(
+			object: array_merge($decision, $patch),
+			register: 'decidiq',
+			schema: 'decision',
+			uuid: $decisionId,
+		);
+
+		$this->applyPostTransitionEffects(run: $run, decision: array_merge($decision, $patch));
+
+		return [
+			'success' => true,
+			'decision' => $updated->jsonSerialize(),
+			'message' => "Decision transitioned to '{$transition['to']}'.",
+		];
+	}//end attemptTransition()
 
 	/**
 	 * Resolve why a requested transition must be refused, or null when it may proceed.

@@ -45,6 +45,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -55,7 +56,7 @@ use RuntimeException;
  *
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.2
  */
-class ConflictOfInterestService {
+class ConflictOfInterestService implements ConflictOfInterestServiceInterface {
 
 	/**
 	 * Allowed declaration-type enum values.
@@ -321,9 +322,7 @@ class ConflictOfInterestService {
 			// method_exists() probe could never be false.
 			$current = $entity->getObject();
 
-			if ($callerUid !== null
-				&& $this->authorizationGuard->isAuthorizedToRecordAction(declaration: $current, callerUid: $callerUid) === false
-			) {
+			if ($this->deniesCaller(declaration: $current, callerUid: $callerUid) === true) {
 				return [
 					'success' => false,
 					'declaration' => null,
@@ -366,6 +365,22 @@ class ConflictOfInterestService {
 		}//end try
 
 	}//end recordAction()
+
+	/**
+	 * Whether a named caller may not record the action taken on the declaration.
+	 * A null caller (a system call) is never denied here.
+	 *
+	 * @param array<string, mixed> $declaration The declaration.
+	 * @param string|null          $callerUid   The caller, or null.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 */
+	private function deniesCaller(array $declaration, ?string $callerUid): bool {
+		return $callerUid !== null
+			&& $this->authorizationGuard->isAuthorizedToRecordAction(declaration: $declaration, callerUid: $callerUid) === false;
+	}//end deniesCaller()
 
 	/**
 	 * Return the most-restrictive active conflict for a given member + agenda

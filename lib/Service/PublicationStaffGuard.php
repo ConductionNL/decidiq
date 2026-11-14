@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\PublicationStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IGroupManager;
 use OCP\IUserSession;
@@ -42,21 +43,12 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationStaffGuard {
-	/**
-	 * Outcome: the caller holds the required authority.
-	 */
-	public const ALLOWED = 'allowed';
+class PublicationStaffGuard implements PublicationStaffGuardInterface {
 
 	/**
 	 * Outcome: the caller does not hold the required authority.
 	 */
 	public const FORBIDDEN = 'forbidden';
-
-	/**
-	 * Outcome: the PublicationRecord the check was keyed by does not exist.
-	 */
-	public const RECORD_NOT_FOUND = 'record-not-found';
 
 	/**
 	 * Constructor for PublicationStaffGuard.

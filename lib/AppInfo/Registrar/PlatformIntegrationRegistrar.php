@@ -32,10 +32,10 @@ namespace OCA\Decidiq\AppInfo\Registrar;
 
 use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Dashboard\DecidiqDashboardWidget;
+use OCA\Decidiq\Kernel\Contracts\DashboardWidgetServiceInterface;
 use OCA\Decidiq\Listener\PortalCreateOpenParentGuardListener;
 use OCA\Decidiq\Notification\Notifier;
 use OCA\Decidiq\Search\DecidiqSearchProvider;
-use OCA\Decidiq\Service\DashboardWidgetService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
@@ -177,7 +177,7 @@ class PlatformIntegrationRegistrar {
 					l10n: $c->get(IFactory::class)->get(Application::APP_ID),
 					urlGenerator: $c->get(IURLGenerator::class),
 					timeFactory: $c->get(ITimeFactory::class),
-					widgetService: $c->get(DashboardWidgetService::class),
+					widgetService: $c->get(DashboardWidgetServiceInterface::class),
 				);
 			}
 		);

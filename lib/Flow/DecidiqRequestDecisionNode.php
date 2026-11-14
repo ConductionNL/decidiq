@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Flow;
 
 use DateTime;
-use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
 use OCA\OpenRegister\Service\Flow\FlowSuspension;
@@ -107,14 +107,14 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	/**
 	 * Constructor.
 	 *
-	 * @param FlowDecisionService $decisions Raises and reads back the decision
+	 * @param FlowDecisionServiceInterface $decisions Raises and reads back the decision
 	 * @param IL10N $l10n The localisation service
 	 * @param LoggerInterface $logger The logger
 	 *
 	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function __construct(
-		private readonly FlowDecisionService $decisions,
+		private readonly FlowDecisionServiceInterface $decisions,
 		private readonly IL10N $l10n,
 		private readonly LoggerInterface $logger,
 	) {
@@ -278,7 +278,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 		$read = $this->decisions->readState(decisionId: $ref, actorId: $actor);
 		$state = $read['state'];
 
-		if ($state === FlowDecisionService::STATE_UNREADABLE) {
+		if ($state === FlowDecisionServiceInterface::STATE_UNREADABLE) {
 			$this->logger->warning(
 				'Decidiq request-decision: could not read decision ' . $ref . '; waiting another heartbeat',
 				['node' => $resume->nodeId(), 'actor' => $actor]
@@ -289,7 +289,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 
 		$this->failOnDeadEnd(state: $state, ref: $ref, actor: $actor);
 
-		if ($state !== FlowDecisionService::STATE_DECIDED) {
+		if ($state !== FlowDecisionServiceInterface::STATE_DECIDED) {
 			// Still open. Suspend again, and do NOT touch the slot.
 			throw $this->suspension(config: $config);
 		}
@@ -315,7 +315,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	private function failOnDeadEnd(string $state, string $ref, string $actor): void {
-		if ($state === FlowDecisionService::STATE_REFUSED) {
+		if ($state === FlowDecisionServiceInterface::STATE_REFUSED) {
 			throw new RuntimeException(
 				sprintf(
 					'Decidiq refused to report decision %s to "%s", the identity this run raised it as, '
@@ -327,13 +327,13 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 			);
 		}
 
-		if ($state === FlowDecisionService::STATE_GONE) {
+		if ($state === FlowDecisionServiceInterface::STATE_GONE) {
 			throw new RuntimeException(
 				sprintf('Decision %s, which %s was waiting on, no longer exists.', $ref, self::NODE_ID)
 			);
 		}
 
-		if ($state === FlowDecisionService::STATE_WITHDRAWN) {
+		if ($state === FlowDecisionServiceInterface::STATE_WITHDRAWN) {
 			throw new RuntimeException(
 				sprintf('Decision %s was withdrawn, so the question %s asked will never be answered.', $ref, self::NODE_ID)
 			);

@@ -26,9 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\GovernanceScopeGuard;
-use OCA\Decidiq\Service\SigningRoundService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\SigningRoundServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,17 +48,17 @@ class SigningController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param SigningRoundService $rounds Sends records for signature and stores the signed copy
+	 * @param SigningRoundServiceInterface $rounds Sends records for signature and stores the signed copy
 	 * @param IUserSession $userSession User session
-	 * @param GovernanceScopeGuard $scopeGuard Consumes the OR-projected signatory scope
+	 * @param GovernanceScopeGuardInterface $scopeGuard Consumes the OR-projected signatory scope
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly SigningRoundService $rounds,
+		private readonly SigningRoundServiceInterface $rounds,
 		private readonly IUserSession $userSession,
-		private readonly GovernanceScopeGuard $scopeGuard,
+		private readonly GovernanceScopeGuardInterface $scopeGuard,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -141,7 +141,7 @@ class SigningController extends Controller {
 			return $auth;
 		}
 
-		$schema = (SigningRoundService::SUBJECTS[$subjectType] ?? null);
+		$schema = (SigningRoundServiceInterface::SUBJECTS[$subjectType] ?? null);
 		if ($schema === null) {
 			return new JSONResponse(['message' => 'This record cannot be sent for signature.'], Http::STATUS_NOT_FOUND);
 		}

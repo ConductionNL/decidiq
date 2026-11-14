@@ -46,6 +46,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -55,7 +56,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  */
-class ParticipantToPersonMembershipResolver {
+class ParticipantToPersonMembershipResolver implements ParticipantToPersonMembershipResolverInterface {
 
 	/**
 	 * The decidesk register slug.

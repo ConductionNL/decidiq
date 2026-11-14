@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\LiveDecisionService;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\LiveDecisionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -46,21 +46,21 @@ class LiveMeetingController extends Controller {
 	 * Constructor for LiveMeetingController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param LiveDecisionService $liveDecisionService The live decision service
+	 * @param LiveDecisionServiceInterface $liveDecisionService The live decision service
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ParticipantResolverInterface $participantResolver Participant resolver for meeting-based access checks
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private LiveDecisionService $liveDecisionService,
+		private LiveDecisionServiceInterface $liveDecisionService,
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
-		private ParticipantResolver $participantResolver,
+		private ParticipantResolverInterface $participantResolver,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

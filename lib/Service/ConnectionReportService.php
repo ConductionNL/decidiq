@@ -28,7 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -41,7 +42,7 @@ use Throwable;
  *
  * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
  */
-class ConnectionReportService {
+class ConnectionReportService implements ConnectionReportServiceInterface {
 
 	/**
 	 * Integriq's report event (ADR-041). Named by string so decidiq stays
@@ -117,7 +118,7 @@ class ConnectionReportService {
 			$this->send(
 				key: $key,
 				build: static fn (): object => new $eventClass(
-					app: Application::APP_ID,
+					app: AppIdentity::APP_ID,
 					key: $key,
 					status: $status,
 					message: $message,
@@ -153,7 +154,7 @@ class ConnectionReportService {
 			$this->send(
 				key: $key,
 				build: static fn (): object => new $eventClass(
-					app: Application::APP_ID,
+					app: AppIdentity::APP_ID,
 					key: $key,
 				)
 			);

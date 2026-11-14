@@ -29,7 +29,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTime;
 use DateTimeImmutable;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
 use OCP\IURLGenerator;
 use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
@@ -40,7 +41,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
  */
-class NotificationPreferenceService {
+class NotificationPreferenceService implements NotificationPreferenceServiceInterface {
 
 	/**
 	 * Default preferences when no record exists for a person.
@@ -582,7 +583,7 @@ class NotificationPreferenceService {
 		try {
 			$manager = $this->container->get(INotificationManager::class);
 			$notification = $manager->createNotification();
-			$notification->setApp(Application::APP_ID)
+			$notification->setApp(AppIdentity::APP_ID)
 				->setUser($recipientId)
 				->setDateTime(new DateTime())
 				->setObject((string)($inApp['objectType'] ?? 'decidiq'), (string)($inApp['objectId'] ?? $recipientId))
@@ -662,7 +663,7 @@ class NotificationPreferenceService {
 			return $message;
 		}
 
-		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(Application::APP_ID . '.dashboard.page');
+		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page');
 		return $message . "\n\n" . rtrim($base, '/') . '/' . ltrim($deepLink, '/');
 	}//end withLink()
 }//end class

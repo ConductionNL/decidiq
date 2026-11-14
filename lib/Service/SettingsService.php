@@ -23,7 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCA\Decidiq\Service\Settings\RegisterFragmentMerger;
 use OCA\Decidiq\Support\FleetAppId;
@@ -39,7 +40,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
  */
-class SettingsService {
+class SettingsService implements SettingsServiceInterface {
 
 	/**
 	 * Configuration keys managed by this service.
@@ -220,7 +221,7 @@ class SettingsService {
 				continue;
 			}
 
-			$value = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+			$value = $this->appConfig->getValueString(AppIdentity::APP_ID, $key, '');
 			$settings[$key] = (self::DEFAULTS[$key] ?? '');
 			if ($value !== '') {
 				$settings[$key] = $value;
@@ -242,7 +243,7 @@ class SettingsService {
 	public function updateSettings(array $data): array {
 		foreach (self::CONFIG_KEYS as $key) {
 			if (isset($data[$key]) === true) {
-				$this->appConfig->setValueString(Application::APP_ID, $key, (string)$data[$key]);
+				$this->appConfig->setValueString(AppIdentity::APP_ID, $key, (string)$data[$key]);
 			}
 		}
 
@@ -329,7 +330,7 @@ class SettingsService {
 
 		$configurationService = $this->container->get('OCA\OpenRegister\Service\ConfigurationService');
 		return $this->importResult(
-			result: $configurationService->importFromApp(appId: Application::APP_ID, data: $configData, version: $version, force: $force)
+			result: $configurationService->importFromApp(appId: AppIdentity::APP_ID, data: $configData, version: $version, force: $force)
 		);
 	}//end importMergedConfig()
 
@@ -342,7 +343,7 @@ class SettingsService {
 	 */
 	public function roleGroupMapping(): array {
 		return $this->roleMapping->decode(
-			json: $this->appConfig->getValueString(Application::APP_ID, RoleGroupMapping::CONFIG_KEY, '')
+			json: $this->appConfig->getValueString(AppIdentity::APP_ID, RoleGroupMapping::CONFIG_KEY, '')
 		);
 	}//end roleGroupMapping()
 

@@ -22,7 +22,7 @@ namespace OCA\Decidiq\Tests\Unit\BackgroundJob;
 
 use DateTimeImmutable;
 use OCA\Decidiq\BackgroundJob\TranscriptRetentionJob;
-use OCA\Decidiq\Service\AuditLogService;
+use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Service\ObjectService;
 use OCP\AppFramework\Utility\ITimeFactory;
@@ -210,7 +210,7 @@ class TranscriptRetentionJobRunTest extends TestCase {
 			fn (string $id) => match ($id) {
 				'OCA\OpenRegister\Service\ObjectService' => $this->objectService,
 				'OCA\OpenRegister\Service\FileService' => $fileService,
-				AuditLogService::class => $audit,
+				AuditLogServiceInterface::class => $audit,
 				default => throw new RuntimeException('unexpected ' . $id),
 			}
 		);

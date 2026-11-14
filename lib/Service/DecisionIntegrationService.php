@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
  */
-class DecisionIntegrationService {
+class DecisionIntegrationService implements DecisionIntegrationServiceInterface {
 
 	/**
 	 * Lifecycles that map to the "approved" outcome status.
@@ -471,7 +472,8 @@ class DecisionIntegrationService {
 		}
 
 		// Persist the callback URL on the Decision object (declarative delivery
-		// is then handled by x-openregister-notifications outcomeEmitted trigger).
+		// is then handled by the x-openregister-notifications outcomeDecided,
+		// outcomeEnacted and outcomeWithdrawn rules).
 		$updated = $this->toArray(value: $entity);
 		$updated['outcomeCallbackUrl'] = $callbackUrl;
 

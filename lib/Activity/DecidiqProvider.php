@@ -25,7 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Activity;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\DecidiqProviderInterface;
 use OCP\Activity\Exceptions\UnknownActivityException;
 use OCP\Activity\IEvent;
 use OCP\Activity\IProvider;
@@ -43,7 +44,7 @@ use OCP\L10N\IFactory;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class DecidiqProvider implements IProvider {
+class DecidiqProvider implements IProvider, DecidiqProviderInterface {
 
 	/**
 	 * Subject identifier: a decision was recorded in a live meeting.
@@ -51,13 +52,6 @@ class DecidiqProvider implements IProvider {
 	 * @var string
 	 */
 	public const SUBJECT_DECISION_RECORDED = 'decision_recorded';
-
-	/**
-	 * Subject identifier: a decision status changed to published.
-	 *
-	 * @var string
-	 */
-	public const SUBJECT_DECISION_PUBLISHED = 'decision_published';
 
 	/**
 	 * Subject identifier: a meeting lifecycle transition completed.
@@ -108,13 +102,13 @@ class DecidiqProvider implements IProvider {
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
 	public function parse($language, IEvent $event, ?IEvent $previousEvent = null) {
-		if ($event->getApp() !== Application::APP_ID
+		if ($event->getApp() !== AppIdentity::APP_ID
 			|| $event->getType() !== GovernanceSetting::TYPE_GOVERNANCE
 		) {
 			throw new UnknownActivityException('Not a Decidiq governance event');
 		}
 
-		$l10n = $this->languageFactory->get(Application::APP_ID, $language);
+		$l10n = $this->languageFactory->get(AppIdentity::APP_ID, $language);
 		[$plain, $rich] = $this->subjectLines(l10n: $l10n, event: $event);
 
 		$params = $event->getSubjectParameters();
@@ -129,7 +123,7 @@ class DecidiqProvider implements IProvider {
 
 		$event->setIcon(
 			$this->urlGenerator->getAbsoluteURL(
-				$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')
+				$this->urlGenerator->imagePath(AppIdentity::APP_ID, 'app-dark.svg')
 			)
 		);
 
@@ -218,7 +212,7 @@ class DecidiqProvider implements IProvider {
 		}
 
 		return $this->urlGenerator->getAbsoluteURL(
-			'/apps/' . Application::APP_ID . '/#/' . $segment . '/' . $uuid
+			'/apps/' . AppIdentity::APP_ID . '/#/' . $segment . '/' . $uuid
 		);
 
 	}//end buildDeepLink()

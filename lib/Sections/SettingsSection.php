@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Sections;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
@@ -60,7 +60,7 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getID(): string {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getID()
 
 	/**
@@ -99,6 +99,6 @@ class SettingsSection implements IIconSection {
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath(appName: Application::APP_ID, file: 'app-dark.svg');
+		return $this->urlGenerator->imagePath(appName: AppIdentity::APP_ID, file: 'app-dark.svg');
 	}//end getIcon()
 }//end class

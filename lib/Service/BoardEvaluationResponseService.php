@@ -31,7 +31,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\BoardEvaluationResponseServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -41,7 +42,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
  */
-class BoardEvaluationResponseService {
+class BoardEvaluationResponseService implements BoardEvaluationResponseServiceInterface {
 
 	/**
 	 * App-config key holding the HMAC secret. Deliberately the SAME key
@@ -146,12 +147,9 @@ class BoardEvaluationResponseService {
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 	 */
 	public function submitResponse(string $evaluationId, string $participantId, array $answers): array {
-		if ($evaluationId === '' || $participantId === '') {
-			return ['success' => false, 'message' => 'An evaluation id and participant id are required.'];
-		}
-
-		if (empty($answers) === true) {
-			return ['success' => false, 'message' => 'At least one answer is required.'];
+		$missing = $this->missingInput(input: ['evaluationId' => $evaluationId, 'participantId' => $participantId, 'answers' => $answers]);
+		if ($missing !== null) {
+			return $missing;
 		}
 
 		try {
@@ -162,13 +160,9 @@ class BoardEvaluationResponseService {
 			}
 
 			$evaluation = $entity->jsonSerialize();
-			if ((string)($evaluation['lifecycle'] ?? '') !== 'open') {
-				return ['success' => false, 'message' => 'This evaluation is not open for responses.'];
-			}
-
-			$invited = (array)($evaluation['invitedParticipantIds'] ?? []);
-			if (in_array($participantId, $invited, true) === false) {
-				return ['success' => false, 'message' => 'This participant is not invited to this evaluation cycle.'];
+			$refusal = $this->evaluationRefusal(evaluation: $evaluation, participantId: $participantId);
+			if ($refusal !== null) {
+				return $refusal;
 			}
 
 			$responseToken = $this->responseToken(participantId: $participantId, evaluationId: $evaluationId);
@@ -207,6 +201,50 @@ class BoardEvaluationResponseService {
 		}//end try
 
 	}//end submitResponse()
+
+	/**
+	 * The failure when the evaluation id, participant id or answers are missing, else null.
+	 *
+	 * @param array<string, mixed> $input evaluationId, participantId and answers.
+	 *
+	 * @return array{success: false, message: string}|null
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+	 */
+	private function missingInput(array $input): ?array {
+		if ($input['evaluationId'] === '' || $input['participantId'] === '') {
+			return ['success' => false, 'message' => 'An evaluation id and participant id are required.'];
+		}
+
+		if (empty($input['answers']) === true) {
+			return ['success' => false, 'message' => 'At least one answer is required.'];
+		}
+
+		return null;
+	}//end missingInput()
+
+	/**
+	 * The failure when the evaluation is not open or the participant is not invited, else null.
+	 *
+	 * @param array<string, mixed> $evaluation    The BoardEvaluation.
+	 * @param string               $participantId The responding participant.
+	 *
+	 * @return array{success: false, message: string}|null
+	 *
+	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
+	 */
+	private function evaluationRefusal(array $evaluation, string $participantId): ?array {
+		if ((string)($evaluation['lifecycle'] ?? '') !== 'open') {
+			return ['success' => false, 'message' => 'This evaluation is not open for responses.'];
+		}
+
+		$invited = (array)($evaluation['invitedParticipantIds'] ?? []);
+		if (in_array($participantId, $invited, true) === false) {
+			return ['success' => false, 'message' => 'This participant is not invited to this evaluation cycle.'];
+		}
+
+		return null;
+	}//end evaluationRefusal()
 
 	/**
 	 * Reduce raw submitted answers to the persisted answer shape.
@@ -343,10 +381,10 @@ class BoardEvaluationResponseService {
 	 * @spec openspec/specs/board-self-evaluation/spec.md#requirement-req-eval-003-responses-are-anonymous-and-untraceable-to-the-member
 	 */
 	private function tokenSecret(): string {
-		$secret = $this->appConfig->getValueString(Application::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, '');
+		$secret = $this->appConfig->getValueString(AppIdentity::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString(Application::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, $secret);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, self::TOKEN_SECRET_CONFIG_KEY, $secret);
 		}
 
 		return $secret;

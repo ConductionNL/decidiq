@@ -29,6 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -38,7 +39,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.1
  */
-class EngagementService {
+class EngagementService implements EngagementServiceInterface {
 
 	/**
 	 * The record list each event type is appended to.

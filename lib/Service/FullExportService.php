@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\Files\IAppData;
@@ -45,7 +46,7 @@ use ZipArchive;
  *
  * @spec openspec/specs/openregister-integration/spec.md#requirement-req-pfe-001-an-administrator-exports-all-data
  */
-class FullExportService {
+class FullExportService implements FullExportServiceInterface {
 	/**
 	 * The app data folder the exports live in.
 	 */

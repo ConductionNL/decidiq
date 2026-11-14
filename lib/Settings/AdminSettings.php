@@ -23,8 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Settings;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\PublicationConfigService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\PublicationConfigServiceInterface;
 use OCA\Decidiq\Service\Settings\MenuStructure;
 use OCP\App\IAppManager;
 use OCP\AppFramework\Http\TemplateResponse;
@@ -49,13 +49,13 @@ class AdminSettings implements IDelegatedSettings {
 	 *
 	 * @param IAppManager $appManager The app manager.
 	 * @param IInitialState $initialState The initial state service.
-	 * @param PublicationConfigService $publicationConfig The publication configuration service.
+	 * @param PublicationConfigServiceInterface $publicationConfig The publication configuration service.
 	 * @param IAppConfig $appConfig App config, read for the structure setting.
 	 */
 	public function __construct(
 		private IAppManager $appManager,
 		private IInitialState $initialState,
-		private \OCA\Decidiq\Service\PublicationConfigService $publicationConfig,
+		private PublicationConfigServiceInterface $publicationConfig,
 		private IAppConfig $appConfig,
 	) {
 	}//end __construct()
@@ -71,7 +71,7 @@ class AdminSettings implements IDelegatedSettings {
 	 * @spec openspec/specs/app-navigation/spec.md#requirement-req-ssp-004-the-structure-is-an-app-setting-and-simple-is-the-default
 	 */
 	public function getForm(): TemplateResponse {
-		$version = $this->appManager->getAppVersion(appId: Application::APP_ID);
+		$version = $this->appManager->getAppVersion(appId: AppIdentity::APP_ID);
 		$this->initialState->provideInitialState('version', $version);
 
 		// @spec openspec/specs/public-publication/spec.md
@@ -82,8 +82,8 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState(
 			'publicationPolicies',
 			[
-				'policies' => \OCA\Decidiq\Service\PublicationConfigService::POLICIES,
-				'attendance' => \OCA\Decidiq\Service\PublicationConfigService::ATTENDANCE_POLICIES,
+				'policies' => PublicationConfigServiceInterface::POLICIES,
+				'attendance' => PublicationConfigServiceInterface::ATTENDANCE_POLICIES,
 			]
 		);
 
@@ -101,7 +101,7 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState(
 			MenuStructure::KEY,
 			(new MenuStructure())->normalise(
-				stored: $this->appConfig->getValueString(Application::APP_ID, MenuStructure::KEY, '')
+				stored: $this->appConfig->getValueString(AppIdentity::APP_ID, MenuStructure::KEY, '')
 			)
 		);
 
@@ -110,7 +110,7 @@ class AdminSettings implements IDelegatedSettings {
 		$this->initialState->provideInitialState('accessibilityAudit', $this->accessibilityAudit());
 
 		return new TemplateResponse(
-			Application::APP_ID,
+			AppIdentity::APP_ID,
 			'settings/admin',
 			[]
 		);
@@ -145,7 +145,7 @@ class AdminSettings implements IDelegatedSettings {
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getSection(): string {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getSection()
 
 	/**

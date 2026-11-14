@@ -41,7 +41,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\SeedProfileServiceInterface;
 use OCP\App\IAppManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -52,7 +53,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/seed-profiles/spec.md
  */
-class SeedProfileService {
+class SeedProfileService implements SeedProfileServiceInterface {
 	/**
 	 * App-relative directory holding the example-set descriptors.
 	 *
@@ -79,17 +80,6 @@ class SeedProfileService {
 	 * @var string
 	 */
 	public const GENERATED_PROFILE = 'generated';
-
-	/**
-	 * The answer that means "plant nothing".
-	 *
-	 * 🔴 NOT THE ABSENCE OF AN ANSWER. An operator who declines has FINISHED the
-	 * step; a step that can never be marked done reopens the wizard over every
-	 * page (nextcloud-vue#806).
-	 *
-	 * @var string
-	 */
-	public const NONE_PROFILE = 'none';
 
 	/**
 	 * Constructor.
@@ -244,15 +234,15 @@ class SeedProfileService {
 		}
 
 		$this->configurationService()->importFromApp(
-			appId: Application::APP_ID . '.profile.' . $profileId,
+			appId: AppIdentity::APP_ID . '.profile.' . $profileId,
 			data: $data,
-			version: $this->appManager->getAppVersion(Application::APP_ID),
+			version: $this->appManager->getAppVersion(AppIdentity::APP_ID),
 			force: true
 		);
 
 		$this->logger->info(
 			'[SeedProfileService] imported example set "' . $profileId . '": ' . $objects . ' object(s).',
-			['app' => Application::APP_ID]
+			['app' => AppIdentity::APP_ID]
 		);
 
 		return [
@@ -268,7 +258,7 @@ class SeedProfileService {
 	 * @return array<int, string> The paths, sorted.
 	 */
 	private function descriptorFiles(): array {
-		$dir = ($this->appManager->getAppPath(Application::APP_ID) . self::PROFILE_DIR);
+		$dir = ($this->appManager->getAppPath(AppIdentity::APP_ID) . self::PROFILE_DIR);
 		if (is_dir($dir) === false) {
 			return [];
 		}

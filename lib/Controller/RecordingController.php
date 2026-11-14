@@ -27,11 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\RecordingRange;
-use OCA\Decidiq\Service\TranscriptionStaffGuard;
-use OCA\Decidiq\Service\TranscriptRepository;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\RecordingRangeInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptRepositoryInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -51,19 +51,19 @@ class RecordingController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request
-	 * @param TranscriptionStaffGuard $guard Who may listen
-	 * @param TranscriptRepository $repository Transcripts and their source files
-	 * @param RecordingRange $range Byte ranges for the player
+	 * @param TranscriptionStaffGuardInterface $guard Who may listen
+	 * @param TranscriptRepositoryInterface $repository Transcripts and their source files
+	 * @param RecordingRangeInterface $range Byte ranges for the player
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md#requirement-req-lrj-001-jump-to-an-item-in-the-recording
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly TranscriptionStaffGuard $guard,
-		private readonly TranscriptRepository $repository,
-		private readonly RecordingRange $range,
+		private readonly TranscriptionStaffGuardInterface $guard,
+		private readonly TranscriptRepositoryInterface $repository,
+		private readonly RecordingRangeInterface $range,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

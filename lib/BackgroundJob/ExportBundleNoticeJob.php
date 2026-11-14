@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTime;
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ExportBundleWriter;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ExportBundleWriterInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\IJobList;
@@ -57,7 +57,7 @@ class ExportBundleNoticeJob extends QueuedJob {
 	 *
 	 * @param ITimeFactory         $time          The clock.
 	 * @param ContainerInterface   $container     Resolves filinq's merge job store.
-	 * @param ExportBundleWriter   $exports       Removes the rendered text pages.
+	 * @param ExportBundleWriterInterface   $exports       Removes the rendered text pages.
 	 * @param IJobList             $jobList       Schedules the next look.
 	 * @param INotificationManager $notifications Nextcloud notifications.
 	 * @param LoggerInterface      $logger        Diagnostics.
@@ -67,7 +67,7 @@ class ExportBundleNoticeJob extends QueuedJob {
 	public function __construct(
 		ITimeFactory $time,
 		private readonly ContainerInterface $container,
-		private readonly ExportBundleWriter $exports,
+		private readonly ExportBundleWriterInterface $exports,
 		private readonly IJobList $jobList,
 		private readonly INotificationManager $notifications,
 		private readonly LoggerInterface $logger,
@@ -144,7 +144,7 @@ class ExportBundleNoticeJob extends QueuedJob {
 		[$subject, $fileId] = $this->subjectAndFileOf(job: $job);
 
 		$notification = $this->notifications->createNotification();
-		$notification->setApp(Application::APP_ID)
+		$notification->setApp(AppIdentity::APP_ID)
 			->setUser((string)$argument['uid'])
 			->setDateTime(new DateTime())
 			->setObject('export-bundle', $this->objectIdOf(fileId: $fileId, name: $name))

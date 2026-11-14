@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\RoleGroupMapping;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\RoleGroupMappingInterface;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -49,8 +49,8 @@ class RoleRightsController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest         $request      The request.
-	 * @param SettingsService  $settings     The register import.
-	 * @param RoleGroupMapping $mapping      The mapping and the rewrite.
+	 * @param SettingsServiceInterface  $settings     The register import.
+	 * @param RoleGroupMappingInterface $mapping      The mapping and the rewrite.
 	 * @param IAppConfig       $appConfig    App config.
 	 * @param IGroupManager    $groupManager Groups.
 	 *
@@ -58,12 +58,12 @@ class RoleRightsController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly SettingsService $settings,
-		private readonly RoleGroupMapping $mapping,
+		private readonly SettingsServiceInterface $settings,
+		private readonly RoleGroupMappingInterface $mapping,
 		private readonly IAppConfig $appConfig,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -102,8 +102,8 @@ class RoleRightsController extends Controller {
 		}
 
 		$this->appConfig->setValueString(
-			Application::APP_ID,
-			RoleGroupMapping::CONFIG_KEY,
+			AppIdentity::APP_ID,
+			RoleGroupMappingInterface::CONFIG_KEY,
 			(string) json_encode($clean)
 		);
 		$import = $this->settings->reloadConfiguration();
@@ -128,7 +128,7 @@ class RoleRightsController extends Controller {
 	private function state(): array {
 		$mapped = $this->settings->roleGroupMapping();
 		$roles  = [];
-		foreach (RoleGroupMapping::ROLES as $role => $groups) {
+		foreach (RoleGroupMappingInterface::ROLES as $role => $groups) {
 			$roles[] = ['role' => $role, 'groups' => $groups, 'mapped' => ($mapped[$role] ?? [])];
 		}
 

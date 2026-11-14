@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Kernel\Contracts\MinutesGenerationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -37,7 +38,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
-class MinutesGenerationService {
+class MinutesGenerationService implements MinutesGenerationServiceInterface {
 
 	/**
 	 * Allowed lifecycle transitions: current state → next state.

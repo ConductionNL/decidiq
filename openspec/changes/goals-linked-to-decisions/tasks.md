@@ -8,8 +8,9 @@
 - **acceptance_criteria**:
   - GIVEN the register is imported WHEN `decision` is read THEN it has an optional `goal` (`$ref` goal, uuid, nullable) and the import log has no `PARTIAL IMPORT` line
   - GIVEN the goal schema WHEN its aggregations are read THEN none names `toezegging` or `termijnagenda-item`; commitment counts use `governance-commitment`; `linkedPlannedAgendaItemCount` and `linkedDecisionCount` exist in both `x-openregister-aggregations` and `x-openregister-aggregate-refs`
-- [ ] Implement
-- [ ] Test (register test over the real fragments)
+- [x] Implement
+- [x] Test (register test over the real fragments)
+- Build note: fragments merge in lexical filename order and the last one wins, so a `132-` fragment loads BEFORE `66-` and could not override the goal's aggregations. They are corrected in `66-organisation-goals.json` itself (goal version 0.2.0); `132-goals-linked-to-decisions.json` adds only `Decision.goal`. Proven by `tests/Unit/Settings/GoalsLinkedToDecisionsRegisterTest.php` over `SettingsService::shippedRegisterDescriptor()`.
 
 ### Task 2: Refresh goal progress when a contribution changes
 - **spec_ref**: `openspec/changes/goals-linked-to-decisions/specs/organisation-goals/spec.md#requirement-req-013-progress-stays-current-when-a-contribution-changes`

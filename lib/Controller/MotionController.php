@@ -25,10 +25,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\MotionService;
-use OCA\Decidiq\Service\MotionStages;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MotionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MotionStagesInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,12 +48,12 @@ class MotionController extends Controller {
 	 * Constructor for MotionController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param MotionService $motionService The motion service
+	 * @param MotionServiceInterface $motionService The motion service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager The group manager
 	 * @param IAppConfig $appConfig The app config
-	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
-	 * @param MotionStages $motionStages The stage steps a caller may take
+	 * @param ParticipantResolverInterface $participantResolver Per-meeting participant/role resolver
+	 * @param MotionStagesInterface $motionStages The stage steps a caller may take
 	 *
 	 * @return void
 	 *
@@ -61,14 +61,14 @@ class MotionController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MotionService $motionService,
+		private readonly MotionServiceInterface $motionService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly IAppConfig $appConfig,
-		private readonly ParticipantResolver $participantResolver,
-		private readonly MotionStages $motionStages,
+		private readonly ParticipantResolverInterface $participantResolver,
+		private readonly MotionStagesInterface $motionStages,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -188,7 +188,7 @@ class MotionController extends Controller {
 	 * @return bool True when the user holds global chair authority
 	 */
 	private function hasGlobalChairAuthority(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 		if ($chairGroup === '') {
 			return $this->groupManager->isAdmin($uid);
 		}

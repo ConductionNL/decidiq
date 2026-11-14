@@ -30,7 +30,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\ApprovalStageLapseService;
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageLapseServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -52,12 +52,12 @@ class ApprovalStageLapseJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory $time Nextcloud time factory (injected by TimedJob).
-	 * @param ApprovalStageLapseService $lapseService The sweep.
+	 * @param ApprovalStageLapseServiceInterface $lapseService The sweep.
 	 * @param LoggerInterface $logger The logger.
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly ApprovalStageLapseService $lapseService,
+		private readonly ApprovalStageLapseServiceInterface $lapseService,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

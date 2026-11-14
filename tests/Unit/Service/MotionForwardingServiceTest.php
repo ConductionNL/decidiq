@@ -10,12 +10,11 @@
  * @copyright 2026 Conduction B.V.
  * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
  *
- * @version GIT: <git-id>
- *
  * @link https://conduction.nl
- *
- * @spec openspec/specs/motion-amendment/spec.md
  */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2
 
 declare(strict_types=1);
 
@@ -34,92 +33,107 @@ use Psr\Container\ContainerInterface;
 use RuntimeException;
 
 /**
+ * Forwarding a motion to another governance body.
+ *
  * @covers \OCA\Decidiq\Service\MotionForwardingService
- * @spec   openspec/specs/motion-amendment/spec.md
  */
 class MotionForwardingServiceTest extends TestCase {
 
 	/**
-	 * Captured saveObject() calls, in order.
+	 * Mock object service.
 	 *
-	 * @var \ArrayObject<int, array<string, mixed>>
+	 * @var ObjectServiceInterface&MockObject
 	 */
-	private \ArrayObject $saves;
+	private ObjectServiceInterface&MockObject $objectService;
 
 	/**
-	 * The notifier double.
+	 * Mock user manager.
+	 *
+	 * @var IUserManager&MockObject
+	 */
+	private IUserManager&MockObject $userManager;
+
+	/**
+	 * Mock app config.
+	 *
+	 * @var IAppConfig&MockObject
+	 */
+	private IAppConfig&MockObject $appConfig;
+
+	/**
+	 * Mock motion notifier.
 	 *
 	 * @var MotionNotifier&MockObject
 	 */
-	private MotionNotifier $notifier;
+	private MotionNotifier&MockObject $notifier;
 
 	/**
-	 * Build the service.
+	 * Captured saveObject() calls.
 	 *
-	 * @param array<string, array<string, mixed>> $store            Objects keyed by id
-	 * @param bool                                $actorExists      Whether the user manager knows the actor
-	 * @param string                              $requiresApproval Stored motion_forwarding_requires_approval value
-	 *
-	 * @return MotionForwardingService
+	 * @var list<array{object: array<string, mixed>, register: mixed, schema: mixed, uuid: string|null}>
 	 */
-	private function buildService(array $store, bool $actorExists = true, string $requiresApproval = 'false'): MotionForwardingService {
-		$this->saves = new \ArrayObject();
-		$saves = $this->saves;
+	private array $saves = [];
 
-		$objectService = $this->createMock(ObjectServiceInterface::class);
-		$objectService->method('setRegister')->willReturnSelf();
-		$objectService->method('setSchema')->willReturnSelf();
-		$objectService->method('find')->willReturnCallback(
-			fn (int|string $id): ?ObjectEntity => isset($store[(string)$id]) === true ? $this->entity($store[(string)$id]) : null
-		);
-		$objectService->method('saveObject')->willReturnCallback(
+	/**
+	 * Set up shared mocks.
+	 *
+	 * @return void
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
+		$this->objectService->method('setRegister')->willReturnSelf();
+		$this->objectService->method('setSchema')->willReturnSelf();
+		$this->userManager = $this->createMock(IUserManager::class);
+		$this->appConfig = $this->createMock(IAppConfig::class);
+		$this->notifier = $this->createMock(MotionNotifier::class);
+
+		$this->saves = [];
+		$this->objectService->method('saveObject')->willReturnCallback(
 			function (
 				array $object,
 				?array $extend = [],
 				string|int|null $register = null,
 				string|int|null $schema = null,
 				?string $uuid = null,
-			) use ($saves): ObjectEntity {
-				$saves->append(['uuid' => $uuid, 'object' => $object, 'register' => $register, 'schema' => $schema]);
+			): ObjectEntity {
+				$this->saves[] = ['object' => $object, 'register' => $register, 'schema' => $schema, 'uuid' => $uuid];
 				if ($uuid === null) {
-					$object['id'] = 'forwarded-' . count($saves);
+					$object['id'] = 'forwarded-1';
 				}
 
 				return $this->entity($object);
 			}
 		);
 
-		$appConfig = $this->createMock(IAppConfig::class);
-		$appConfig->method('getValueString')->willReturnCallback(
-			static fn (string $app, string $key, string $default = ''): string =>
-				($app === 'decidiq' && $key === 'motion_forwarding_requires_approval') ? $requiresApproval : $default
-		);
+	}//end setUp()
 
-		$this->notifier = $this->createMock(MotionNotifier::class);
-		$notifier = $this->notifier;
-
+	/**
+	 * Build the service under test.
+	 *
+	 * @return MotionForwardingService
+	 */
+	private function service(): MotionForwardingService {
 		$container = $this->createMock(ContainerInterface::class);
 		$container->method('get')->willReturnCallback(
-			static fn (string $id): object => match ($id) {
-				IAppConfig::class => $appConfig,
-				MotionNotifier::class => $notifier,
-				default => throw new RuntimeException('not wired in test: ' . $id),
+			fn (string $id): object => match ($id) {
+				IAppConfig::class => $this->appConfig,
+				MotionNotifier::class => $this->notifier,
+				default => throw new RuntimeException('not wired: ' . $id),
 			}
 		);
 
-		$userManager = $this->createMock(IUserManager::class);
-		$userManager->method('get')->willReturn($actorExists === true ? $this->createMock(IUser::class) : null);
-
 		return new MotionForwardingService(
 			container: $container,
-			userManager: $userManager,
-			objectService: $objectService,
+			userManager: $this->userManager,
+			objectService: $this->objectService,
 		);
 
-	}//end buildService()
+	}//end service()
 
 	/**
-	 * Wrap a payload in an ObjectEntity double that serialises to it verbatim.
+	 * Wrap a payload in an ObjectEntity double.
 	 *
 	 * @param array<string, mixed> $object The payload
 	 *
@@ -137,60 +151,102 @@ class MotionForwardingServiceTest extends TestCase {
 	}//end entity()
 
 	/**
-	 * The source motion.
+	 * Make the actor exist and the source motion resolvable.
+	 *
+	 * @param array<string, mixed>|null $motion The source payload, null for not found
+	 * @param string $requiresApproval The stored approval setting
+	 *
+	 * @return void
+	 */
+	private function seed(?array $motion, string $requiresApproval = 'false'): void {
+		$this->userManager->method('get')->with('alice')->willReturn($this->createMock(IUser::class));
+		$this->objectService->method('find')->with('motion-1')->willReturn(
+			($motion === null) ? null : $this->entity($motion)
+		);
+		$this->appConfig->method('getValueString')
+			->with('decidiq', 'motion_forwarding_requires_approval', 'false')
+			->willReturn($requiresApproval);
+
+	}//end seed()
+
+	/**
+	 * A motion-typed source decision.
 	 *
 	 * @return array<string, mixed>
 	 */
 	private static function motion(): array {
 		return [
-			'id' => 'm1',
+			'id' => 'motion-1',
 			'decisionType' => 'motion',
-			'title' => 'Motie Groen',
+			'title' => 'Motie groen',
 			'text' => 'Meer bomen.',
 			'motionType' => 'resolution',
-			'proposer' => 'alice',
-			'coSigners' => ['bob'],
+			'proposer' => 'bob',
+			'coSigners' => ['carol'],
 			'lifecycle' => 'adopted',
-			'notes' => [['title' => 'Oud', 'body' => 'x']],
+			'notes' => [['title' => 'Bestaand', 'body' => 'x']],
 		];
 
 	}//end motion()
 
-	public function testRefusesAnUnknownActor(): void {
-		$service = $this->buildService(store: ['m1' => self::motion()], actorExists: false);
+	/**
+	 * An unknown actor is refused before anything is read.
+	 *
+	 * @return void
+	 */
+	public function testUnknownActorIsRefused(): void {
+		$this->userManager->method('get')->with('ghost')->willReturn(null);
+		$this->objectService->expects($this->never())->method('find');
+
 		$this->expectException(RuntimeException::class);
 		$this->expectExceptionMessage('Actor ghost not found');
-		$service->forward(motionId: 'm1', targetBodyId: 'body-2', actorId: 'ghost', justification: 'j');
 
-	}//end testRefusesAnUnknownActor()
+		$this->service()->forward('motion-1', 'body-2', 'ghost', 'reason');
 
-	public function testRefusesAMissingMotion(): void {
-		$service = $this->buildService(store: []);
+	}//end testUnknownActorIsRefused()
+
+	/**
+	 * A missing source motion is refused.
+	 *
+	 * @return void
+	 */
+	public function testMissingMotionIsRefused(): void {
+		$this->seed(null);
+		$this->objectService->expects($this->never())->method('saveObject');
+
 		$this->expectException(RuntimeException::class);
-		$this->expectExceptionMessage('Motion m1 not found');
-		$service->forward(motionId: 'm1', targetBodyId: 'body-2', actorId: 'chair', justification: 'j');
+		$this->expectExceptionMessage('Motion motion-1 not found');
 
-	}//end testRefusesAMissingMotion()
+		$this->service()->forward('motion-1', 'body-2', 'alice', 'reason');
 
-	public function testRefusesADecisionThatIsNotAMotion(): void {
-		$service = $this->buildService(store: ['m1' => array_merge(self::motion(), ['decisionType' => 'amendment'])]);
+	}//end testMissingMotionIsRefused()
 
-		try {
-			$service->forward(motionId: 'm1', targetBodyId: 'body-2', actorId: 'chair', justification: 'j');
-			$this->fail('expected RuntimeException');
-		} catch (RuntimeException $e) {
-			$this->assertSame('Motion m1 not found', $e->getMessage());
-		}
+	/**
+	 * A decision that is not a motion is refused as not found.
+	 *
+	 * @return void
+	 */
+	public function testNonMotionDecisionIsRefused(): void {
+		$this->seed(['id' => 'motion-1', 'decisionType' => 'meeting-outcome']);
+		$this->objectService->expects($this->never())->method('saveObject');
 
-		$this->assertCount(0, $this->saves);
+		$this->expectException(RuntimeException::class);
+		$this->expectExceptionMessage('Motion motion-1 not found');
 
-	}//end testRefusesADecisionThatIsNotAMotion()
+		$this->service()->forward('motion-1', 'body-2', 'alice', 'reason');
 
-	public function testCreatesAProposedCopyLinkedToTheTargetBodyAndTheSource(): void {
-		$service = $this->buildService(store: ['m1' => self::motion()]);
+	}//end testNonMotionDecisionIsRefused()
+
+	/**
+	 * Forwarding creates a proposed motion copy and notes the forwarding on the source.
+	 *
+	 * @return void
+	 */
+	public function testForwardCreatesCopyAndNotesSource(): void {
+		$this->seed(self::motion());
 		$this->notifier->expects($this->never())->method('notify');
 
-		$created = $service->forward(motionId: 'm1', targetBodyId: 'body-2', actorId: 'chair', justification: 'Bevoegd orgaan');
+		$created = $this->service()->forward('motion-1', 'body-2', 'alice', 'Bevoegd orgaan');
 
 		$this->assertSame('forwarded-1', $created['id']);
 		$this->assertCount(2, $this->saves);
@@ -200,47 +256,52 @@ class MotionForwardingServiceTest extends TestCase {
 		$this->assertSame('decidiq', $copy['register']);
 		$this->assertSame('decision', $copy['schema']);
 		$this->assertSame('motion', $copy['object']['decisionType']);
-		$this->assertSame('proposed', $copy['object']['lifecycle']);
-		$this->assertSame('Motie Groen', $copy['object']['title']);
+		$this->assertSame('Motie groen', $copy['object']['title']);
 		$this->assertSame('Meer bomen.', $copy['object']['text']);
 		$this->assertSame('resolution', $copy['object']['motionType']);
-		$this->assertSame('alice', $copy['object']['proposer']);
-		$this->assertSame(['bob'], $copy['object']['coSigners']);
+		$this->assertSame('bob', $copy['object']['proposer']);
+		$this->assertSame(['carol'], $copy['object']['coSigners']);
+		$this->assertSame('proposed', $copy['object']['lifecycle']);
+		$this->assertMatchesRegularExpression('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/', $copy['object']['submittedAt']);
 		$this->assertSame(
 			[
 				['register' => 'decidiq', 'schema' => 'governance-body', 'id' => 'body-2'],
-				['register' => 'decidiq', 'schema' => 'decision', 'id' => 'm1'],
+				['register' => 'decidiq', 'schema' => 'decision', 'id' => 'motion-1'],
 			],
 			$copy['object']['relations']
 		);
+		$this->assertCount(1, $copy['object']['notes']);
 		$this->assertSame('Doorgestuurd van', $copy['object']['notes'][0]['title']);
-		$note = json_decode($copy['object']['notes'][0]['body'], true);
-		$this->assertSame('m1', $note['sourceMotionId']);
-		$this->assertSame('body-2', $note['targetBodyId']);
-		$this->assertSame('chair', $note['forwardedBy']);
-		$this->assertSame('Bevoegd orgaan', $note['justification']);
-
-	}//end testCreatesAProposedCopyLinkedToTheTargetBodyAndTheSource()
-
-	public function testAppendsAForwardingNoteToTheSourceMotion(): void {
-		$service = $this->buildService(store: ['m1' => self::motion()]);
-		$service->forward(motionId: 'm1', targetBodyId: 'body-2', actorId: 'chair', justification: 'j');
+		$fromNote = json_decode($copy['object']['notes'][0]['body'], true);
+		$this->assertSame('motion-1', $fromNote['sourceMotionId']);
+		$this->assertSame('body-2', $fromNote['targetBodyId']);
+		$this->assertSame('alice', $fromNote['forwardedBy']);
+		$this->assertSame('Bevoegd orgaan', $fromNote['justification']);
+		$this->assertArrayHasKey('forwardedAt', $fromNote);
 
 		$source = $this->saves[1];
-		$this->assertSame('m1', $source['uuid']);
+		$this->assertSame('motion-1', $source['uuid']);
+		$this->assertSame('decidiq', $source['register']);
+		$this->assertSame('decision', $source['schema']);
 		$this->assertSame('adopted', $source['object']['lifecycle']);
 		$this->assertCount(2, $source['object']['notes']);
-		$this->assertSame('Oud', $source['object']['notes'][0]['title']);
+		$this->assertSame(['title' => 'Bestaand', 'body' => 'x'], $source['object']['notes'][0]);
 		$this->assertSame('Doorgestuurd naar', $source['object']['notes'][1]['title']);
-		$note = json_decode($source['object']['notes'][1]['body'], true);
-		$this->assertSame('body-2', $note['targetBodyId']);
-		$this->assertSame('forwarded-1', $note['forwardedMotionId']);
+		$toNote = json_decode($source['object']['notes'][1]['body'], true);
+		$this->assertSame('body-2', $toNote['targetBodyId']);
+		$this->assertSame('forwarded-1', $toNote['forwardedMotionId']);
 
-	}//end testAppendsAForwardingNoteToTheSourceMotion()
+	}//end testForwardCreatesCopyAndNotesSource()
 
-	public function testDefaultsMissingSourceFields(): void {
-		$service = $this->buildService(store: ['m1' => ['id' => 'm1', 'decisionType' => 'motion']]);
-		$service->forward(motionId: 'm1', targetBodyId: 'b', actorId: 'chair', justification: 'j');
+	/**
+	 * Missing source fields fall back to the documented defaults.
+	 *
+	 * @return void
+	 */
+	public function testSparseSourceUsesDefaults(): void {
+		$this->seed(['id' => 'motion-1', 'decisionType' => 'motion']);
+
+		$this->service()->forward('motion-1', 'body-2', 'alice', '');
 
 		$copy = $this->saves[0]['object'];
 		$this->assertSame('', $copy['title']);
@@ -248,43 +309,54 @@ class MotionForwardingServiceTest extends TestCase {
 		$this->assertSame('motion', $copy['motionType']);
 		$this->assertSame('', $copy['proposer']);
 		$this->assertSame([], $copy['coSigners']);
+		$this->assertCount(1, $this->saves[1]['object']['notes']);
 
-	}//end testDefaultsMissingSourceFields()
-
-	/**
-	 * @return array<string, array{0: string, 1: bool}>
-	 */
-	public static function approvalSettings(): array {
-		return [
-			'true' => ['true', true],
-			'padded upper TRUE' => [' TRUE ', true],
-			'one' => ['1', true],
-			'false' => ['false', false],
-			'yes is not a truthy spelling' => ['yes', false],
-			'empty' => ['', false],
-		];
-
-	}//end approvalSettings()
+	}//end testSparseSourceUsesDefaults()
 
 	/**
-	 * @dataProvider approvalSettings
+	 * When approval is required the actor is notified about the forwarded copy.
+	 *
+	 * @return void
 	 */
-	public function testNotifiesOnlyWhenApprovalIsRequired(string $setting, bool $expectNotify): void {
-		$service = $this->buildService(store: ['m1' => self::motion()], requiresApproval: $setting);
-
-		if ($expectNotify === true) {
-			$this->notifier->expects($this->once())->method('notify')->with(
-				'chair',
+	public function testApprovalRequiredNotifiesActor(): void {
+		$this->seed(self::motion(), ' TRUE ');
+		$this->notifier->expects($this->once())
+			->method('notify')
+			->with(
+				'alice',
 				'forwarded-1',
 				'motion_forwarded_approval',
-				['title' => 'Motie Groen', 'body' => 'body-2'],
+				['title' => 'Motie groen', 'body' => 'body-2'],
 				'Decidiq: notification send failed: '
 			);
-		} else {
-			$this->notifier->expects($this->never())->method('notify');
-		}
 
-		$service->forward(motionId: 'm1', targetBodyId: 'body-2', actorId: 'chair', justification: 'j');
+		$this->service()->forward('motion-1', 'body-2', 'alice', 'reason');
 
-	}//end testNotifiesOnlyWhenApprovalIsRequired()
+	}//end testApprovalRequiredNotifiesActor()
+
+	/**
+	 * The stored value "1" also counts as requiring approval.
+	 *
+	 * @return void
+	 */
+	public function testApprovalFlagOneNotifies(): void {
+		$this->seed(self::motion(), '1');
+		$this->notifier->expects($this->once())->method('notify');
+
+		$this->service()->forward('motion-1', 'body-2', 'alice', 'reason');
+
+	}//end testApprovalFlagOneNotifies()
+
+	/**
+	 * Any other stored value does not notify.
+	 *
+	 * @return void
+	 */
+	public function testApprovalFlagOtherValueDoesNotNotify(): void {
+		$this->seed(self::motion(), 'yes');
+		$this->notifier->expects($this->never())->method('notify');
+
+		$this->service()->forward('motion-1', 'body-2', 'alice', 'reason');
+
+	}//end testApprovalFlagOtherValueDoesNotNotify()
 }//end class

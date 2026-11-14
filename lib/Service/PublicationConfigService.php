@@ -25,7 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\PublicationConfigServiceInterface;
 use OCP\IAppConfig;
 
 /**
@@ -35,27 +36,13 @@ use OCP\IAppConfig;
  *
  * @spec openspec/specs/public-publication/spec.md
  */
-class PublicationConfigService {
+class PublicationConfigService implements PublicationConfigServiceInterface {
 	/**
 	 * IAppConfig key the publication configuration blob is stored under.
 	 *
 	 * @var string
 	 */
 	public const CONFIG_KEY = 'publication_config';
-
-	/**
-	 * Valid per-type publication policy values.
-	 *
-	 * @var string[]
-	 */
-	public const POLICIES = ['manual-only', 'prompt-on-transition'];
-
-	/**
-	 * Valid attendance-rendering policy values for minutes payloads.
-	 *
-	 * @var string[]
-	 */
-	public const ATTENDANCE_POLICIES = ['counts', 'role-holders'];
 
 	/**
 	 * Constructor.
@@ -77,7 +64,7 @@ class PublicationConfigService {
 	 * @return array<string,mixed> Map of bodyId => body config.
 	 */
 	public function getAll(): array {
-		$raw = $this->appConfig->getValueString(Application::APP_ID, self::CONFIG_KEY, '');
+		$raw = $this->appConfig->getValueString(AppIdentity::APP_ID, self::CONFIG_KEY, '');
 		if ($raw === '') {
 			return [];
 		}
@@ -188,7 +175,7 @@ class PublicationConfigService {
 			$encoded = '{}';
 		}
 
-		$this->appConfig->setValueString(Application::APP_ID, self::CONFIG_KEY, $encoded);
+		$this->appConfig->setValueString(AppIdentity::APP_ID, self::CONFIG_KEY, $encoded);
 
 		return $clean;
 	}//end save()

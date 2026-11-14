@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2
  */
-class ParticipantResolver {
+class ParticipantResolver implements ParticipantResolverInterface {
 	/**
 	 * Constructor.
 	 *

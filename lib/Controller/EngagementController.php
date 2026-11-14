@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\EngagementService;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -46,24 +46,24 @@ class EngagementController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param EngagementService $engagementService Engagement service
+	 * @param EngagementServiceInterface $engagementService Engagement service
 	 * @param IUserSession $userSession Current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param ContainerInterface $container DI container for ObjectService access
-	 * @param ParticipantResolver $participantResolver Resolves meeting chair/secretary roles (meeting-efficiency)
+	 * @param ParticipantResolverInterface $participantResolver Resolves meeting chair/secretary roles (meeting-efficiency)
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly EngagementService $engagementService,
+		private readonly EngagementServiceInterface $engagementService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly ContainerInterface $container,
-		private readonly ParticipantResolver $participantResolver,
+		private readonly ParticipantResolverInterface $participantResolver,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

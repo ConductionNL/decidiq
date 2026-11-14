@@ -334,8 +334,10 @@ class ProxyVoteServiceTest extends TestCase {
 		$svc = $this->makeService($rows, $saved);
 
 		$result = $svc->transition('p-1', 'bogus', 'alice');
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Unknown proxy status', $result['message']);
+		$this->assertSame(
+			['success' => false, 'proxy' => null, 'message' => 'Unknown proxy status: bogus'],
+			$result
+		);
 
 	}//end testTransitionRejectsUnknownStatus()
 
@@ -417,8 +419,14 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$result = $svc->revoke('p-1', 'carol', callerUid: 'carol');
 
-		$this->assertFalse($result['success']);
-		$this->assertStringStartsWith('Forbidden:', $result['message']);
+		$this->assertSame(
+			[
+				'success' => false,
+				'proxy' => null,
+				'message' => 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.',
+			],
+			$result
+		);
 		$this->assertSame('active', $rows[0]['proxyStatus'], 'Unrelated caller must not change the proxy status');
 		$this->assertCount(0, $saved, 'No save may occur for an unauthorized transition');
 
@@ -483,8 +491,10 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$result = $svc->transition('p-1', 'suspended', 'alice');
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Failed to transition proxy', $result['message']);
+		$this->assertSame(
+			['success' => false, 'proxy' => null, 'message' => 'Failed to transition proxy.'],
+			$result
+		);
 		$this->assertSame('active', $rows[0]['proxyStatus'], 'The row must not change when the write fails');
 		$this->assertCount(0, $this->auditCalls->getArrayCopy());
 

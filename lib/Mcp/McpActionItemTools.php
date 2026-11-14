@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidiq\Service\ActionItemWriter;
+use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -302,7 +302,7 @@ class McpActionItemTools {
 			$actionItemData['dueDate'] = $dueDate;
 		}
 
-		$writer = $this->container->get(ActionItemWriter::class);
+		$writer = $this->container->get(ActionItemWriterInterface::class);
 		$saved = $writer->create(item: $actionItemData);
 		if ($saved === null) {
 			return $this->formatter->error(

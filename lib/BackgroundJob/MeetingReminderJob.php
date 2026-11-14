@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\MeetingReminderService;
+use OCA\Decidiq\Kernel\Contracts\MeetingReminderServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -49,14 +49,14 @@ class MeetingReminderJob extends TimedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory           $time      Time factory
-	 * @param MeetingReminderService $reminders The reminder service
+	 * @param MeetingReminderServiceInterface $reminders The reminder service
 	 * @param LoggerInterface        $logger    Logger
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly MeetingReminderService $reminders,
+		private readonly MeetingReminderServiceInterface $reminders,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

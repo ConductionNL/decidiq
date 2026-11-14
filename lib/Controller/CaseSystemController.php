@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\CaseSystemException;
-use OCA\Decidiq\Service\CaseDocumentService;
-use OCA\Decidiq\Service\CaseExchangeRecords;
-use OCA\Decidiq\Service\CaseSystemClient;
-use OCA\Decidiq\Service\CaseSystemExchangeService;
-use OCA\Decidiq\Service\TranscriptionStaffGuard;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\CaseDocumentServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\CaseExchangeRecordsInterface;
+use OCA\Decidiq\Kernel\Contracts\CaseSystemClientInterface;
+use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -47,25 +47,25 @@ class CaseSystemController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest                  $request       The request.
-	 * @param CaseSystemClient          $client        The case system.
-	 * @param CaseDocumentService       $documents     Case link and fetch.
-	 * @param CaseSystemExchangeService $exchange      The meeting file send.
-	 * @param CaseExchangeRecords       $records       The exchange records.
-	 * @param TranscriptionStaffGuard   $guard         Chair or secretary of the meeting.
+	 * @param CaseSystemClientInterface          $client        The case system.
+	 * @param CaseDocumentServiceInterface       $documents     Case link and fetch.
+	 * @param CaseSystemExchangeServiceInterface $exchange      The meeting file send.
+	 * @param CaseExchangeRecordsInterface       $records       The exchange records.
+	 * @param TranscriptionStaffGuardInterface   $guard         Chair or secretary of the meeting.
 	 * @param ObjectServiceInterface    $objectService OpenRegister object service (the caller's own read).
 	 *
 	 * @spec openspec/specs/case-system-exchange/spec.md#requirement-req-csdx-001-the-case-system-is-an-integriq-connection
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly CaseSystemClient $client,
-		private readonly CaseDocumentService $documents,
-		private readonly CaseSystemExchangeService $exchange,
-		private readonly CaseExchangeRecords $records,
-		private readonly TranscriptionStaffGuard $guard,
+		private readonly CaseSystemClientInterface $client,
+		private readonly CaseDocumentServiceInterface $documents,
+		private readonly CaseSystemExchangeServiceInterface $exchange,
+		private readonly CaseExchangeRecordsInterface $records,
+		private readonly TranscriptionStaffGuardInterface $guard,
 		private readonly ObjectServiceInterface $objectService,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -205,7 +205,7 @@ class CaseSystemController extends Controller {
 		}
 
 		if ($this->client->isConnected() === false) {
-			return new JSONResponse(['message' => CaseSystemClient::NOT_CONNECTED], Http::STATUS_CONFLICT);
+			return new JSONResponse(['message' => CaseSystemClientInterface::NOT_CONNECTED], Http::STATUS_CONFLICT);
 		}
 
 		return $this->run(action: $action, status: Http::STATUS_OK);

@@ -25,8 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ProxyVoteService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ProxyVoteServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -48,17 +48,17 @@ class ProxyVoteController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param ProxyVoteService $proxyService Proxy service
+	 * @param ProxyVoteServiceInterface $proxyService Proxy service
 	 * @param IUserSession $userSession User session
 	 * @param IGroupManager $groupManager Group manager (for admin bypass on the authorization guard)
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ProxyVoteService $proxyService,
+		private readonly ProxyVoteServiceInterface $proxyService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

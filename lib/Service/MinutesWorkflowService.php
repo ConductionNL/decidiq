@@ -34,6 +34,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\MinutesWorkflowServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -42,7 +43,7 @@ use RuntimeException;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-4.2
  */
-class MinutesWorkflowService {
+class MinutesWorkflowService implements MinutesWorkflowServiceInterface {
 	/**
 	 * Constructor.
 	 *

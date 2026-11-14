@@ -36,9 +36,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\MailVoteReplyProcessor;
-use OCA\Decidiq\Service\MailVoteSigner;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MailVoteReplyProcessorInterface;
+use OCA\Decidiq\Kernel\Contracts\MailVoteSignerInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
@@ -62,8 +62,8 @@ class MailReplyHandler extends TimedJob {
 	 * @param ITimeFactory $time Nextcloud time factory
 	 * @param IAppConfig $appConfig The app config
 	 * @param LoggerInterface $logger The logger
-	 * @param MailVoteSigner $signer Signs and verifies _mail entries
-	 * @param MailVoteReplyProcessor $processor Turns _mail entries into votes
+	 * @param MailVoteSignerInterface $signer Signs and verifies _mail entries
+	 * @param MailVoteReplyProcessorInterface $processor Turns _mail entries into votes
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @return void
@@ -74,8 +74,8 @@ class MailReplyHandler extends TimedJob {
 		ITimeFactory $time,
 		private readonly IAppConfig $appConfig,
 		private readonly LoggerInterface $logger,
-		private readonly MailVoteSigner $signer,
-		private readonly MailVoteReplyProcessor $processor,
+		private readonly MailVoteSignerInterface $signer,
+		private readonly MailVoteReplyProcessorInterface $processor,
 		private readonly ObjectServiceInterface $objectService,
 	) {
 		parent::__construct(time: $time);
@@ -152,7 +152,7 @@ class MailReplyHandler extends TimedJob {
 	 * the parent contract.
 	 */
 	protected function run(mixed $argument): void {
-		$emailVotingEnabled = $this->appConfig->getValueString(Application::APP_ID, 'email_voting_enabled', '0');
+		$emailVotingEnabled = $this->appConfig->getValueString(AppIdentity::APP_ID, 'email_voting_enabled', '0');
 		if ($emailVotingEnabled !== '1') {
 			return;
 		}

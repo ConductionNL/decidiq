@@ -27,17 +27,17 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\SubjectClearanceServiceInterface;
 use OCA\Decidiq\Service\ApprovalPrincipal;
-use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
-use OCA\Decidiq\Service\ApprovalRouteService;
-use OCA\Decidiq\Service\SubjectClearanceService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
-use OCP\IRequest;
 use OCP\IGroupManager;
+use OCP\IRequest;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -52,9 +52,9 @@ class ApprovalRouteController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param ApprovalRouteService $service The route engine.
-	 * @param ApprovalRouteConclusionAnnouncer $announcer The one door a conclusion leaves by.
-	 * @param SubjectClearanceService $clearanceService Answers whether a subject is cleared.
+	 * @param ApprovalRouteServiceInterface $service The route engine.
+	 * @param ApprovalRouteConclusionAnnouncerInterface $announcer The one door a conclusion leaves by.
+	 * @param SubjectClearanceServiceInterface $clearanceService Answers whether a subject is cleared.
 	 * @param IUserSession $userSession The session.
 	 * @param IGroupManager $groupManager Group manager, used only to answer
 	 *        whether the caller may declare that a step's silence approves
@@ -63,14 +63,14 @@ class ApprovalRouteController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ApprovalRouteService $service,
-		private readonly ApprovalRouteConclusionAnnouncer $announcer,
-		private readonly SubjectClearanceService $clearanceService,
+		private readonly ApprovalRouteServiceInterface $service,
+		private readonly ApprovalRouteConclusionAnnouncerInterface $announcer,
+		private readonly SubjectClearanceServiceInterface $clearanceService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -111,7 +111,7 @@ class ApprovalRouteController extends Controller {
 			// gets the reason rather than a generic failure.
 			$this->logger->warning(
 				'Decidiq: could not instantiate an approval route',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
@@ -237,7 +237,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: an approval action was refused',
-				['app' => Application::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $action['subject'], 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}
@@ -291,7 +291,7 @@ class ApprovalRouteController extends Controller {
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: could not answer a clearance question',
-				['app' => Application::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
+				['app' => AppIdentity::APP_ID, 'subject' => $subject, 'reason' => $e->getMessage()]
 			);
 			return new JSONResponse(['message' => $e->getMessage()], Http::STATUS_BAD_REQUEST);
 		}

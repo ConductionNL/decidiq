@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTime;
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\FullExportService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use OCP\Notification\IManager as INotificationManager;
@@ -41,7 +41,7 @@ class FullExportJob extends QueuedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory         $time          Clock.
-	 * @param FullExportService    $exportService Builds the archive.
+	 * @param FullExportServiceInterface    $exportService Builds the archive.
 	 * @param INotificationManager $notifications Nextcloud notifications.
 	 * @param LoggerInterface      $logger        Logger.
 	 *
@@ -49,7 +49,7 @@ class FullExportJob extends QueuedJob {
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly FullExportService $exportService,
+		private readonly FullExportServiceInterface $exportService,
 		private readonly INotificationManager $notifications,
 		private readonly LoggerInterface $logger,
 	) {
@@ -90,7 +90,7 @@ class FullExportJob extends QueuedJob {
 		}
 
 		$notification = $this->notifications->createNotification();
-		$notification->setApp(Application::APP_ID)
+		$notification->setApp(AppIdentity::APP_ID)
 			->setUser($uid)
 			->setDateTime(new DateTime())
 			->setObject('export', $objectId)

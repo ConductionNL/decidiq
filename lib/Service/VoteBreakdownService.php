@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\VoteBreakdownServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -35,7 +36,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/specs/motion-and-voting/spec.md#requirement-req-vrf-001-results-per-faction-and-per-member
  */
-class VoteBreakdownService {
+class VoteBreakdownService implements VoteBreakdownServiceInterface {
 
 	/**
 	 * Participants already read in this request: id => name and faction.

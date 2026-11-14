@@ -24,8 +24,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Controller;
 
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\VotingBehaviourService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\VotingBehaviourServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Contract\RegisterSlugResolverInterface;
 use OCP\AppFramework\Controller;
@@ -60,7 +60,7 @@ class VotingBehaviourController extends Controller {
 	 * Constructor for VotingBehaviourController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param VotingBehaviourService $behaviourService The voting behaviour service
+	 * @param VotingBehaviourServiceInterface $behaviourService The voting behaviour service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager The group manager
 	 * @param ObjectServiceInterface $objectService OpenRegister object service for participant lookup
@@ -75,13 +75,13 @@ class VotingBehaviourController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VotingBehaviourService $behaviourService,
+		private readonly VotingBehaviourServiceInterface $behaviourService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly ObjectServiceInterface $objectService,
 		private readonly RegisterSlugResolverInterface $slugResolver,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -110,8 +110,30 @@ class VotingBehaviourController extends Controller {
 			return new JSONResponse(['message' => 'Unauthorized'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		$uid = $user->getUID();
+		$refusal = $this->accessRefusal(participantId: $participantId, uid: $user->getUID());
+		if ($refusal !== null) {
+			return $refusal;
+		}
 
+		if ($governanceBodyId === '') {
+			return new JSONResponse(['message' => 'governanceBodyId required'], Http::STATUS_BAD_REQUEST);
+		}
+
+		return $this->statsResponse(participantId: $participantId, governanceBodyId: $governanceBodyId);
+	}//end getStats()
+
+	/**
+	 * The refusal when the participant register is unavailable or the caller may not
+	 * see this participant's statistics (not theirs and not an admin), else null.
+	 *
+	 * @param string $participantId The participant.
+	 * @param string $uid           The caller.
+	 *
+	 * @return JSONResponse|null
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	private function accessRefusal(string $participantId, string $uid): ?JSONResponse {
 		// Which slug the participant register carries HERE, resolved once for
 		// the request. An absence is NOT "not your stats": answering 403 for a
 		// register that is not on the instance is exactly the silent recolouring
@@ -150,10 +172,20 @@ class VotingBehaviourController extends Controller {
 			return new JSONResponse(['message' => 'Forbidden'], Http::STATUS_FORBIDDEN);
 		}
 
-		if ($governanceBodyId === '') {
-			return new JSONResponse(['message' => 'governanceBodyId required'], Http::STATUS_BAD_REQUEST);
-		}
+		return null;
+	}//end accessRefusal()
 
+	/**
+	 * The participant's statistics in the body, or the 404/400 the service's errors map to.
+	 *
+	 * @param string $participantId    The participant.
+	 * @param string $governanceBodyId The governance body.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	private function statsResponse(string $participantId, string $governanceBodyId): JSONResponse {
 		// The service reaches OpenRegister for rounds and votes, so the same
 		// "unknown id throws" contract applies to the governance body. Translate
 		// it to the status the caller is owed instead of letting it surface as
@@ -173,7 +205,7 @@ class VotingBehaviourController extends Controller {
 		}
 
 		return new JSONResponse($stats);
-	}//end getStats()
+	}//end statsResponse()
 
 	/**
 	 * Whether a Nextcloud user owns the given participant record.

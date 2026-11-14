@@ -48,6 +48,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ProxyVoteServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -57,7 +58,7 @@ use Psr\Log\LoggerInterface;
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
  */
-class ProxyVoteService {
+class ProxyVoteService implements ProxyVoteServiceInterface {
 
 	/**
 	 * Allowed proxy status values.
@@ -245,19 +246,10 @@ class ProxyVoteService {
 
 		$out = [];
 		foreach ($rows as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = (array)$row->jsonSerialize();
+			$row = $this->asRow(row: $row);
+			if ($this->matchesMeeting(row: $row, match: ['meeting' => $meetingId, 'status' => $status]) === true) {
+				$out[] = $row;
 			}
-
-			if (is_array($row) === false || ($row['meeting'] ?? null) !== $meetingId) {
-				continue;
-			}
-
-			if ($status !== null && ($row['proxyStatus'] ?? '') !== $status) {
-				continue;
-			}
-
-			$out[] = $row;
 		}
 
 		return [
@@ -267,6 +259,41 @@ class ProxyVoteService {
 		];
 
 	}//end forMeeting()
+
+	/**
+	 * An entity as its array; anything else unchanged.
+	 *
+	 * @param mixed $row A findAll() row.
+	 *
+	 * @return mixed
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function asRow(mixed $row): mixed {
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			return (array)$row->jsonSerialize();
+		}
+
+		return $row;
+	}//end asRow()
+
+	/**
+	 * Whether a row is a proxy of the meeting, in the status asked for (any when null).
+	 *
+	 * @param mixed                $row   The row.
+	 * @param array<string, mixed> $match meeting and status (or null).
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function matchesMeeting(mixed $row, array $match): bool {
+		if (is_array($row) === false || ($row['meeting'] ?? null) !== $match['meeting']) {
+			return false;
+		}
+
+		return $match['status'] === null || ($row['proxyStatus'] ?? '') === $match['status'];
+	}//end matchesMeeting()
 
 	/**
 	 * Transition a proxy to a new status. Mirrors the change to the audit
@@ -288,11 +315,7 @@ class ProxyVoteService {
 	 */
 	public function transition(string $proxyId, string $newStatus, string $actor, ?string $callerUid = null): array {
 		if (in_array($newStatus, self::STATUSES, true) === false) {
-			return [
-				'success' => false,
-				'proxy' => null,
-				'message' => 'Unknown proxy status: ' . $newStatus,
-			];
+			return $this->transitionFailure(message: 'Unknown proxy status: ' . $newStatus);
 		}
 
 		try {
@@ -302,23 +325,17 @@ class ProxyVoteService {
 				schema: self::SCHEMA
 			);
 			if ($entity === null) {
-				return [
-					'success' => false,
-					'proxy' => null,
-					'message' => 'Proxy not found.',
-				];
+				return $this->transitionFailure(message: 'Proxy not found.');
 			}
 
 			// `getObject(): array` is on ObjectEntityInterface — the
 			// method_exists() probe could never be false.
 			$current = $entity->getObject();
 
-			if ($callerUid !== null && $this->isAuthorizedForTransition(proxy: $current, callerUid: $callerUid) === false) {
-				return [
-					'success' => false,
-					'proxy' => null,
-					'message' => 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.',
-				];
+			if ($this->deniesCaller(proxy: $current, callerUid: $callerUid) === true) {
+				return $this->transitionFailure(
+					message: 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.'
+				);
 			}
 
 			$previousStatus = (string)($current['proxyStatus'] ?? '');
@@ -345,25 +362,17 @@ class ProxyVoteService {
 				'Decidiq: ProxyVoteService::transition failed',
 				['exception' => $e->getMessage(), 'proxyId' => $proxyId]
 			);
-			return [
-				'success' => false,
-				'proxy' => null,
-				'message' => 'Failed to transition proxy.',
-			];
+			return $this->transitionFailure(message: 'Failed to transition proxy.');
 		}//end try
 
 		// OpenRegister's saveObject() returns ObjectEntityInterface — is_object() could never
 		// be false, so `$merged` was never the value used.
 		$payload = (array)$saved->jsonSerialize();
 
-		if ($newStatus === 'revoked') {
-			$this->auditLogService->append(
-				actor: $actor,
-				action: 'proxy-revoked',
-				objectUids: [$proxyId, (string)($current['meeting'] ?? '')],
-				payload: ['previousStatus' => $previousStatus]
-			);
-		}
+		$this->auditIfRevoked(
+			newStatus: $newStatus,
+			audit: ['actor' => $actor, 'proxyId' => $proxyId, 'meeting' => (string)($current['meeting'] ?? ''), 'previousStatus' => $previousStatus]
+		);
 
 		return [
 			'success' => true,
@@ -372,6 +381,58 @@ class ProxyVoteService {
 		];
 
 	}//end transition()
+
+	/**
+	 * Whether a named caller may not change the proxy's status. A null caller
+	 * (a system call) is never denied here.
+	 *
+	 * @param array<string, mixed> $proxy     The proxy.
+	 * @param string|null          $callerUid The caller, or null.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function deniesCaller(array $proxy, ?string $callerUid): bool {
+		return $callerUid !== null && $this->isAuthorizedForTransition(proxy: $proxy, callerUid: $callerUid) === false;
+	}//end deniesCaller()
+
+	/**
+	 * Audit a revocation; other statuses leave no audit entry.
+	 *
+	 * @param string               $newStatus The status the proxy moved to.
+	 * @param array<string, mixed> $audit     actor, proxyId, meeting and previousStatus.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function auditIfRevoked(string $newStatus, array $audit): void {
+		if ($newStatus === 'revoked') {
+			$this->auditLogService->append(
+				actor: $audit['actor'],
+				action: 'proxy-revoked',
+				objectUids: [$audit['proxyId'], $audit['meeting']],
+				payload: ['previousStatus' => $audit['previousStatus']]
+			);
+		}
+	}//end auditIfRevoked()
+
+	/**
+	 * Build the failure result of transition().
+	 *
+	 * @param string $message Failure message
+	 *
+	 * @return array{success: false, proxy: null, message: string}
+	 */
+	private function transitionFailure(string $message): array {
+		return [
+			'success' => false,
+			'proxy' => null,
+			'message' => $message,
+		];
+
+	}//end transitionFailure()
 
 	/**
 	 * Convenience: suspend a proxy (e.g. grantor joins remotely).

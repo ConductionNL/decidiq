@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -44,7 +45,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MinutesAccessGuard {
+class MinutesAccessGuard implements MinutesAccessGuardInterface {
 	/**
 	 * Constructor for MinutesAccessGuard.
 	 *

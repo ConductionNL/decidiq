@@ -28,7 +28,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\Lifecycle\MeetingTransitionGuard;
+use OCA\Decidiq\Kernel\Contracts\MeetingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingTransitionGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use Psr\Container\ContainerInterface;
@@ -44,7 +45,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.3
  */
-class MeetingService {
+class MeetingService implements MeetingServiceInterface {
 
 	/**
 	 * Valid lifecycle transitions keyed by action name.
@@ -70,7 +71,7 @@ class MeetingService {
 	 * @param ContainerInterface $container The DI container (used to retrieve ObjectService)
 	 * @param LoggerInterface $logger The logger
 	 * @param WorkflowService $workflowService Domain-specific transition rules and chair-only gates
-	 * @param MeetingTransitionGuard $transitionGuard Reads quorumMet field for the open transition
+	 * @param MeetingTransitionGuardInterface $transitionGuard Reads quorumMet field for the open transition
 	 * @param MeetingCostService $meetingCostService Computes the final meetingCost stamped on close (meeting-efficiency)
 	 * @param GovernanceScopeGuard $scopeGuard Consumes the OR-projected chair scope for chair-only transitions
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
@@ -83,7 +84,7 @@ class MeetingService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly WorkflowService $workflowService,
-		private readonly MeetingTransitionGuard $transitionGuard,
+		private readonly MeetingTransitionGuardInterface $transitionGuard,
 		private readonly MeetingCostService $meetingCostService,
 		private readonly GovernanceScopeGuard $scopeGuard,
 		private readonly ObjectServiceInterface $objectService,

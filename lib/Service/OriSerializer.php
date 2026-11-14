@@ -30,6 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
 
 /**
  * ORI 1.4 JSON-LD serialization for Decidiq register objects.
@@ -40,38 +41,7 @@ use DateTimeImmutable;
  *
  * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
-class OriSerializer {
-
-	/**
-	 * ORI JSON-LD context URL.
-	 */
-	public const ORI_CONTEXT = 'https://argu.co/ns/core';
-
-	/**
-	 * The ORI resource slug whose items are PublicationPayload objects.
-	 */
-	public const PUBLICATIONS_RESOURCE = 'publications';
-
-	/**
-	 * The ORI resource slug for commitments (followup-public-progress, fol-06).
-	 */
-	public const COMMITMENTS_RESOURCE = 'commitments';
-
-	/**
-	 * The ORI @type of a commitment.
-	 */
-	public const COMMITMENT_TYPE = 'Commitment';
-
-	/**
-	 * The resources whose public visibility is the publication window
-	 * (publicationDate <= now, not depublished) rather than a lifecycle state.
-	 *
-	 * @var list<string>
-	 */
-	public const WINDOWED_RESOURCES = [
-		self::PUBLICATIONS_RESOURCE,
-		self::COMMITMENTS_RESOURCE,
-	];
+class OriSerializer implements OriSerializerInterface {
 
 	/**
 	 * The allow-list a commitment adds to the shared fields (status, text).

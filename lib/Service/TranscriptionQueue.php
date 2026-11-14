@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\BackgroundJob\TranscriptionJob;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionQueueInterface;
 use OCP\BackgroundJob\IJobList;
 
 /**
@@ -35,7 +36,7 @@ use OCP\BackgroundJob\IJobList;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptionQueue {
+class TranscriptionQueue implements TranscriptionQueueInterface {
 	/**
 	 * Construct the queue.
 	 *

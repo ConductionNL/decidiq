@@ -60,6 +60,8 @@ use Psr\Log\LoggerInterface;
  * @uses   \OCA\Decidiq\Service\PaperSummaryAccess
  * @uses   \OCA\Decidiq\Service\PaperText
  * @uses   \OCA\Decidiq\Exception\PaperSummaryRefusedException
+ * @uses   \OCA\Decidiq\Middleware\Support\ApiPathAliases
+ * @uses   \OCA\Decidiq\Middleware\Support\StandardProtocolPaths
  */
 class PaperSummaryServiceTest extends TestCase {
 
@@ -476,6 +478,13 @@ class PaperSummaryServiceTest extends TestCase {
 	 */
 	public function testTheRoutesReachTheController(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$byName = [];
 		foreach ($routes['routes'] as $route) {
 			$byName[$route['name']] = $route;

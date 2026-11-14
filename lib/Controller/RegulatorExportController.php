@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\RegulatorExportService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\RegulatorExportServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -52,17 +52,17 @@ class RegulatorExportController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param RegulatorExportService $exportService Export service
+	 * @param RegulatorExportServiceInterface $exportService Export service
 	 * @param IUserSession $userSession User session
 	 * @param IGroupManager $groupManager Group manager
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly RegulatorExportService $exportService,
+		private readonly RegulatorExportServiceInterface $exportService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

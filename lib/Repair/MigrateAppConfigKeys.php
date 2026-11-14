@@ -67,7 +67,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -223,13 +223,13 @@ class MigrateAppConfigKeys implements IRepairStep {
 			return 'empty';
 		}
 
-		$existing = $this->appConfig->getValueString(Application::APP_ID, $key, '');
+		$existing = $this->appConfig->getValueString(AppIdentity::APP_ID, $key, '');
 		if ($existing !== '') {
 			return 'present';
 		}
 
 		$this->appConfig->setValueString(
-			Application::APP_ID,
+			AppIdentity::APP_ID,
 			$key,
 			$old,
 			sensitive: $this->isSensitiveKey(key: $key)

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\ExportBundleException;
+use OCA\Decidiq\Kernel\Contracts\ExportBundleServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
@@ -43,7 +44,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/specs/motion-management/spec.md#requirement-req-mxp-002-a-selection-or-a-filtered-set-exports-as-a-zip-of-its-documents
  */
-class ExportBundleService {
+class ExportBundleService implements ExportBundleServiceInterface {
 	/**
 	 * The most decisions one export may hold.
 	 */

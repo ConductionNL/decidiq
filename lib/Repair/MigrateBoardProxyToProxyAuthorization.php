@@ -42,8 +42,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
+use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\Decidiq\Service\ObjectResultNormaliser;
-use OCA\Decidiq\Service\ParticipantToPersonMembershipResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -93,12 +93,12 @@ class MigrateBoardProxyToProxyAuthorization implements IRepairStep {
 	 * Constructor.
 	 *
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
-	 * @param ParticipantToPersonMembershipResolver $resolver Shared crosswalk resolver
+	 * @param ParticipantToPersonMembershipResolverInterface $resolver Shared crosswalk resolver
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
-		private readonly ParticipantToPersonMembershipResolver $resolver,
+		private readonly ParticipantToPersonMembershipResolverInterface $resolver,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

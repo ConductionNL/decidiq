@@ -35,6 +35,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceRequestValidatorInterface;
 use OCP\IRequest;
 
 /**
@@ -42,7 +43,7 @@ use OCP\IRequest;
  *
  * @spec openspec/specs/user-settings/spec.md
  */
-class NotificationPreferenceRequestValidator {
+class NotificationPreferenceRequestValidator implements NotificationPreferenceRequestValidatorInterface {
 	/**
 	 * Boolean notification toggles accepted by the endpoint.
 	 *

@@ -25,12 +25,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\NotFoundException;
 use OCA\Decidiq\Exception\ParticipationValidationException;
-use OCA\Decidiq\Service\CitizenAdviceService;
-use OCA\Decidiq\Service\MotionService;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\CitizenAdviceServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MotionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -62,9 +62,9 @@ class CitizenAdviceController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request The request.
-	 * @param CitizenAdviceService $citizenAdviceService Opens, closes and counts the advisory vote.
-	 * @param MotionService $motionService Resolves the motion's meeting.
-	 * @param ParticipantResolver $participantResolver Resolves roles in a meeting.
+	 * @param CitizenAdviceServiceInterface $citizenAdviceService Opens, closes and counts the advisory vote.
+	 * @param MotionServiceInterface $motionService Resolves the motion's meeting.
+	 * @param ParticipantResolverInterface $participantResolver Resolves roles in a meeting.
 	 * @param IUserSession $userSession The user session.
 	 * @param IGroupManager $groupManager The group manager.
 	 * @param LoggerInterface $logger The logger.
@@ -75,14 +75,14 @@ class CitizenAdviceController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly CitizenAdviceService $citizenAdviceService,
-		private readonly MotionService $motionService,
-		private readonly ParticipantResolver $participantResolver,
+		private readonly CitizenAdviceServiceInterface $citizenAdviceService,
+		private readonly MotionServiceInterface $motionService,
+		private readonly ParticipantResolverInterface $participantResolver,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

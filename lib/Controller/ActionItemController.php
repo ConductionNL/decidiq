@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\Service\ActionItemWriter;
+use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -42,7 +42,7 @@ class ActionItemController extends Controller {
 	 *
 	 * @param string $appName The app id.
 	 * @param IRequest $request The request.
-	 * @param ActionItemWriter $writer The VTODO write path.
+	 * @param ActionItemWriterInterface $writer The VTODO write path.
 	 * @param IUserSession $userSession The user session (CalDAV writes are user-scoped).
 	 *
 	 * @return void
@@ -50,7 +50,7 @@ class ActionItemController extends Controller {
 	public function __construct(
 		string $appName,
 		IRequest $request,
-		private readonly ActionItemWriter $writer,
+		private readonly ActionItemWriterInterface $writer,
 		private readonly IUserSession $userSession,
 	) {
 		parent::__construct(appName: $appName, request: $request);
@@ -137,7 +137,7 @@ class ActionItemController extends Controller {
 	 *
 	 * @return JSONResponse Success, or 404 when not found.
 	 *
-	 * @no-admin-idor-exempt Same enforcement as update(): ActionItemWriter::delete()
+	 * @no-admin-idor-exempt Same enforcement as update(): ActionItemWriterInterface::delete()
 	 *   -> locate() (lib/Service/ActionItemWriter.php:275) reaches storage only via
 	 *   OCA\OpenRegister\Service\TaskService::getAllUserTasks(), hard-scoped at
 	 *   TaskService.php:126-132 to 'principals/users/' . $user->getUID(). A uid the

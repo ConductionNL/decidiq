@@ -39,6 +39,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
 use OCA\OpenRegister\Db\AuditTrailMapper;
@@ -62,7 +63,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
-class AuditLogService {
+class AuditLogService implements AuditLogServiceInterface {
 
 	/**
 	 * Namespace prefixed to every decidiq action written into OR's audit

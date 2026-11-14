@@ -27,7 +27,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ReactionIntakeServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ use Throwable;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ReactionIntakeService {
+class ReactionIntakeService implements ReactionIntakeServiceInterface {
 
 	/**
 	 * Maximum reaction body length in bytes (server-side payload cap).
@@ -121,16 +122,7 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/p3-citizen-participation/spec.md
 	 */
 	public function submitReaction(string $consultationId, string $body, ?string $ncUid, ?string $clientSeed = null): array {
-		$body = trim($body);
-		if ($body === '') {
-			throw new InvalidArgumentException('Reaction body must not be empty');
-		}
-
-		if (strlen($body) > self::MAX_BODY_BYTES) {
-			throw new InvalidArgumentException(
-				sprintf('Reaction body exceeds the maximum of %d bytes', self::MAX_BODY_BYTES)
-			);
-		}
+		$body = $this->validBody(body: $body);
 
 		$objectService = $this->objectService();
 		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
@@ -143,12 +135,7 @@ class ReactionIntakeService {
 		// Server-side window guard (open + future deadline), independent of stored status.
 		$this->lifecycleService->assertConsultationAcceptsSubmissions(consultation: $consultation);
 
-		$isAnonymous = ($ncUid === null || $ncUid === '');
-
-		// Anonymous intake is allowed only when staff enabled it on this consultation.
-		if ($isAnonymous === true && ($consultation['anonymousReactionsAllowed'] ?? false) !== true) {
-			throw new InvalidArgumentException('Anonymous reactions are not enabled for this consultation');
-		}
+		$isAnonymous = $this->anonymousAllowedOrRefused(consultation: $consultation, ncUid: $ncUid);
 
 		$policy = (string)($consultation['moderationPolicy'] ?? 'pre-moderation');
 
@@ -175,6 +162,54 @@ class ReactionIntakeService {
 
 		return $result;
 	}//end submitReaction()
+
+	/**
+	 * The trimmed reaction body; refused when empty or longer than MAX_BODY_BYTES.
+	 *
+	 * @param string $body The submitted body.
+	 *
+	 * @return string
+	 *
+	 * @throws InvalidArgumentException When the body is empty or too long.
+	 *
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
+	 */
+	private function validBody(string $body): string {
+		$body = trim($body);
+		if ($body === '') {
+			throw new InvalidArgumentException('Reaction body must not be empty');
+		}
+
+		if (strlen($body) > self::MAX_BODY_BYTES) {
+			throw new InvalidArgumentException(
+				sprintf('Reaction body exceeds the maximum of %d bytes', self::MAX_BODY_BYTES)
+			);
+		}
+
+		return $body;
+	}//end validBody()
+
+	/**
+	 * Whether the reaction is anonymous. Anonymous intake is allowed only when staff
+	 * enabled it on this consultation.
+	 *
+	 * @param array<string, mixed> $consultation The consultation.
+	 * @param string|null          $ncUid        The submitting user, or null/'' when anonymous.
+	 *
+	 * @return bool
+	 *
+	 * @throws InvalidArgumentException When an anonymous reaction is not allowed.
+	 *
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
+	 */
+	private function anonymousAllowedOrRefused(array $consultation, ?string $ncUid): bool {
+		$isAnonymous = ($ncUid === null || $ncUid === '');
+		if ($isAnonymous === true && ($consultation['anonymousReactionsAllowed'] ?? false) !== true) {
+			throw new InvalidArgumentException('Anonymous reactions are not enabled for this consultation');
+		}
+
+		return $isAnonymous;
+	}//end anonymousAllowedOrRefused()
 
 	/**
 	 * Approve a pending reaction (staff action).
@@ -365,10 +400,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function pseudonymousId(string $consultationId, string $seed): string {
-		$secret = $this->appConfig->getValueString(Application::APP_ID, 'participation_pseudonym_secret', '');
+		$secret = $this->appConfig->getValueString(AppIdentity::APP_ID, 'participation_pseudonym_secret', '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString(Application::APP_ID, 'participation_pseudonym_secret', $secret);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, 'participation_pseudonym_secret', $secret);
 		}
 
 		return 'anon-' . hash_hmac('sha256', $consultationId . ':' . $seed, $secret);

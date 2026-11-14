@@ -46,6 +46,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ApprovalStageTaskProjectorInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -55,7 +56,7 @@ use Throwable;
  *
  * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalStageTaskProjector {
+class ApprovalStageTaskProjector implements ApprovalStageTaskProjectorInterface {
 
 	/**
 	 * OpenRegister's flow-task service, resolved by name so decidiq does not
@@ -67,16 +68,6 @@ class ApprovalStageTaskProjector {
 	 * @var string
 	 */
 	private const TASK_SERVICE = 'OCA\\OpenRegister\\Service\\Task\\TaskService';
-
-	/**
-	 * The provenance marker a projected task carries in its templateId.
-	 *
-	 * The decision listener trusts this marker to know which terminal tasks
-	 * are approval-stage asks, so it is a contract, not a label.
-	 *
-	 * @var string
-	 */
-	public const TEMPLATE_ID = 'decidiq:approval-stage';
 
 	/**
 	 * Constructor.

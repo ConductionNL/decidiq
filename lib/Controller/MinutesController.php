@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ALVMinutesService;
-use OCA\Decidiq\Service\MinutesAccessGuard;
-use OCA\Decidiq\Service\MinutesDocumentService;
-use OCA\Decidiq\Service\MinutesGenerationService;
-use OCA\Decidiq\Service\MinutesWorkflowService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ALVMinutesServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesDocumentServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesGenerationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MinutesWorkflowServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\JSONResponse;
@@ -58,27 +58,27 @@ class MinutesController extends Controller {
 	 * pre-flight context. The UID is resolved per-request via $this->userSession.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param MinutesGenerationService $generationService The generation service
-	 * @param ALVMinutesService $alvMinutesService The ALV minutes service
-	 * @param MinutesWorkflowService $workflowService Action items + approval submission
+	 * @param MinutesGenerationServiceInterface $generationService The generation service
+	 * @param ALVMinutesServiceInterface $alvMinutesService The ALV minutes service
+	 * @param MinutesWorkflowServiceInterface $workflowService Action items + approval submission
 	 * @param IUserSession $userSession The current user session
-	 * @param MinutesAccessGuard $accessGuard Per-object minutes authorisation
-	 * @param MinutesDocumentService $documentService Document generation + persistence service
+	 * @param MinutesAccessGuardInterface $accessGuard Per-object minutes authorisation
+	 * @param MinutesDocumentServiceInterface $documentService Document generation + persistence service
 	 * @param MinutesResponder $responder Maps operation failures to HTTP statuses
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function __construct(
 		IRequest $request,
-		private MinutesGenerationService $generationService,
-		private ALVMinutesService $alvMinutesService,
-		private MinutesWorkflowService $workflowService,
+		private MinutesGenerationServiceInterface $generationService,
+		private ALVMinutesServiceInterface $alvMinutesService,
+		private MinutesWorkflowServiceInterface $workflowService,
 		private IUserSession $userSession,
-		private readonly MinutesAccessGuard $accessGuard,
-		private MinutesDocumentService $documentService,
+		private readonly MinutesAccessGuardInterface $accessGuard,
+		private MinutesDocumentServiceInterface $documentService,
 		private readonly MinutesResponder $responder,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
