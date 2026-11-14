@@ -353,21 +353,7 @@ class OriImportService {
 				continue;
 			}
 
-			$data = [
-				'name' => $body['name'],
-				'bodyType' => 'political-group',
-				'domain' => self::DOMAIN,
-				'parentBody' => $this->council['uuid'],
-			];
-			if ($body['seatCount'] !== null) {
-				$data['seatCount'] = $body['seatCount'];
-			}
-
-			if ($body['coalitionRole'] !== null) {
-				$data['coalitionRole'] = $body['coalitionRole'];
-			} else if ($body['coalitionRoleSource'] !== null) {
-				$this->report->problem(schema: $schema, source: $record['id'], problem: 'unknown classification ' . json_encode($body['coalitionRoleSource']));
-			}
+			$data = $this->politicalGroupData(record: $record, body: $body);
 
 			$uuid = $this->upsert(schema: 'governance-body', tag: self::tag(record: $record), data: $data, label: $body['name']);
 			$this->remember(schema: $schema, record: $record, uuid: $uuid);
@@ -376,6 +362,38 @@ class OriImportService {
 			}
 		}//end foreach
 	}//end importBodies()
+
+	/**
+	 * A political group's body under the council; an unknown coalition classification is reported.
+	 *
+	 * @param array<string, mixed> $record The source political group.
+	 * @param array<string, mixed> $body   The political group, read.
+	 *
+	 * @return array<string, mixed> The body.
+	 */
+	private function politicalGroupData(array $record, array $body): array {
+		$data = [
+			'name' => $body['name'],
+			'bodyType' => 'political-group',
+			'domain' => self::DOMAIN,
+			'parentBody' => $this->council['uuid'],
+		];
+		if ($body['seatCount'] !== null) {
+			$data['seatCount'] = $body['seatCount'];
+		}
+
+		if ($body['coalitionRole'] !== null) {
+			$data['coalitionRole'] = $body['coalitionRole'];
+		} else if ($body['coalitionRoleSource'] !== null) {
+			$this->report->problem(
+				schema: OriExportMapper::SOURCE_SCHEMAS['bodies'],
+				source: $record['id'],
+				problem: 'unknown classification ' . json_encode($body['coalitionRoleSource'])
+			);
+		}
+
+		return $data;
+	}//end politicalGroupData()
 
 	/**
 	 * Council members become a person, a membership of the council (or the
@@ -421,13 +439,7 @@ class OriImportService {
 			$ending = ['endDate' => $cutoverDate];
 		}
 
-		$group = null;
-		if ($person['party'] !== null) {
-			$group = ($this->slugs[OriExportMapper::SOURCE_SCHEMAS['bodies']][$person['party']] ?? null);
-			if ($group === null) {
-				$this->report->problem(schema: $schema, source: $record['id'], problem: 'political group ' . $person['party'] . ' does not exist');
-			}
-		}
+		$group = $this->politicalGroup(record: $record, person: $person);
 
 		if ($person['role'] === null) {
 			$this->report->problem(schema: $schema, source: $record['id'], problem: 'unknown role ' . json_encode($person['roleSource']));
@@ -451,6 +463,31 @@ class OriImportService {
 			);
 		}
 	}//end importMemberships()
+
+	/**
+	 * The political group a member belongs to, or null; a named group that was not imported is reported.
+	 *
+	 * @param array<string, mixed> $record The source member.
+	 * @param array<string, mixed> $person The member, read.
+	 *
+	 * @return string|null The group's uuid.
+	 */
+	private function politicalGroup(array $record, array $person): ?string {
+		if ($person['party'] === null) {
+			return null;
+		}
+
+		$group = ($this->slugs[OriExportMapper::SOURCE_SCHEMAS['bodies']][$person['party']] ?? null);
+		if ($group === null) {
+			$this->report->problem(
+				schema: OriExportMapper::SOURCE_SCHEMAS['persons'],
+				source: $record['id'],
+				problem: 'political group ' . $person['party'] . ' does not exist'
+			);
+		}
+
+		return $group;
+	}//end politicalGroup()
 
 	/**
 	 * The council, or the executive board created on first use.
@@ -483,28 +520,13 @@ class OriImportService {
 		$schema = OriExportMapper::SOURCE_SCHEMAS['meetings'];
 		foreach ($records as $record) {
 			$meeting = $this->mapper->readMeeting(record: $record);
-			$refusal = null;
-			if ($meeting['meetingType'] === null) {
-				$refusal = 'unknown type ' . json_encode($meeting['typeSource']);
-			} else if ($meeting['lifecycle'] === null) {
-				$refusal = 'unknown status ' . json_encode($meeting['statusSource']);
-			} else if ($meeting['scheduledDate'] === null) {
-				$refusal = 'has no start date';
-			}
-
+			$refusal = self::meetingRefusal(meeting: $meeting);
 			if ($refusal !== null) {
 				$this->report->problem(schema: $schema, source: $record['id'], problem: $refusal);
 				continue;
 			}
 
-			$body = $this->council['uuid'];
-			if ($meeting['organisation'] !== null && $meeting['organisation'] !== $this->council['name']) {
-				$body = $this->body(kind: 'council', name: $meeting['organisation'], bodyType: 'legislative');
-			}
-
-			if ($meeting['committee'] !== null) {
-				$body = $this->body(kind: 'committee', name: $meeting['committee'], bodyType: 'advisory-body', parent: $body);
-			}
+			$body = $this->meetingBody(meeting: $meeting);
 
 			$data = [
 				'title' => $meeting['title'],
@@ -520,6 +542,49 @@ class OriImportService {
 			$this->remember(schema: $schema, record: $record, uuid: $uuid);
 		}//end foreach
 	}//end importMeetings()
+
+	/**
+	 * Why a source meeting cannot be imported, or null when it can.
+	 *
+	 * @param array<string, mixed> $meeting The source meeting, read.
+	 *
+	 * @return string|null The problem to report.
+	 */
+	private static function meetingRefusal(array $meeting): ?string {
+		if ($meeting['meetingType'] === null) {
+			return 'unknown type ' . json_encode($meeting['typeSource']);
+		}
+
+		if ($meeting['lifecycle'] === null) {
+			return 'unknown status ' . json_encode($meeting['statusSource']);
+		}
+
+		if ($meeting['scheduledDate'] === null) {
+			return 'has no start date';
+		}
+
+		return null;
+	}//end meetingRefusal()
+
+	/**
+	 * The body holding a meeting: its committee when it names one, else its organisation's council.
+	 *
+	 * @param array<string, mixed> $meeting The source meeting, read.
+	 *
+	 * @return string The body's uuid.
+	 */
+	private function meetingBody(array $meeting): string {
+		$body = $this->council['uuid'];
+		if ($meeting['organisation'] !== null && $meeting['organisation'] !== $this->council['name']) {
+			$body = $this->body(kind: 'council', name: $meeting['organisation'], bodyType: 'legislative');
+		}
+
+		if ($meeting['committee'] !== null) {
+			$body = $this->body(kind: 'committee', name: $meeting['committee'], bodyType: 'advisory-body', parent: $body);
+		}
+
+		return $body;
+	}//end meetingBody()
 
 	/**
 	 * Council documents become digital documents.
@@ -662,16 +727,8 @@ class OriImportService {
 		foreach ($records as $record) {
 			$vote = $this->mapper->readVote(record: $record);
 			$item = $this->resolve(sourceRole: 'agendaItems', slug: $vote['agendaItem']);
-			$refusal = null;
-			if ($item === null) {
-				$refusal = 'agenda item ' . json_encode($vote['agendaItem']) . ' does not exist';
-			} else if ($vote['decisionType'] === null) {
-				$refusal = 'unknown type ' . json_encode($vote['typeSource']);
-			} else if ($vote['outcome'] === null && $vote['resultSource'] !== null) {
-				$refusal = 'unknown result ' . json_encode($vote['resultSource']);
-			}
-
-			if ($refusal !== null) {
+			$refusal = self::voteRefusal(vote: $vote, item: $item);
+			if ($item === null || $refusal !== null) {
 				$this->report->problem(schema: $schema, source: $record['id'], problem: $refusal);
 				continue;
 			}
@@ -700,6 +757,30 @@ class OriImportService {
 			$this->upsert(schema: 'voting-round', tag: $tag, data: $round, label: $vote['subject']);
 		}//end foreach
 	}//end importVotes()
+
+	/**
+	 * Why a source vote cannot be imported, or null when it can.
+	 *
+	 * @param array<string, mixed> $vote The source vote, read.
+	 * @param string|null          $item The agenda item it was taken on, resolved.
+	 *
+	 * @return string|null The problem to report.
+	 */
+	private static function voteRefusal(array $vote, ?string $item): ?string {
+		if ($item === null) {
+			return 'agenda item ' . json_encode($vote['agendaItem']) . ' does not exist';
+		}
+
+		if ($vote['decisionType'] === null) {
+			return 'unknown type ' . json_encode($vote['typeSource']);
+		}
+
+		if ($vote['outcome'] === null && $vote['resultSource'] !== null) {
+			return 'unknown result ' . json_encode($vote['resultSource']);
+		}
+
+		return null;
+	}//end voteRefusal()
 
 	/**
 	 * Party results as recorded: the party's body when it is known, else its name as given.

@@ -84,23 +84,12 @@ class ImportOriCommand extends Command {
 		$dryRun = ($input->getOption('dry-run') === true);
 
 		if ($input->getOption('rollback') === true) {
-			if ($dryRun === true) {
-				$this->write(output: $output, report: $this->import->previewRollback());
-				return self::SUCCESS;
-			}
-
-			$this->write(output: $output, report: $this->import->rollback());
-			return self::SUCCESS;
+			return $this->rollback(output: $output, dryRun: $dryRun);
 		}
 
 		$source = (string)$input->getOption('source-register');
-		if ($input->getOption('strict') === true && $dryRun === false) {
-			$preview = $this->import->preview(sourceRegister: $source);
-			if ($preview->problems() !== []) {
-				$this->write(output: $output, report: $preview);
-				$output->writeln('<error>Strict: ' . count($preview->problems()) . ' problem(s) found, nothing was written.</error>');
-				return self::FAILURE;
-			}
+		if ($input->getOption('strict') === true && $dryRun === false && $this->strictPreviewFails(output: $output, source: $source) === true) {
+			return self::FAILURE;
 		}
 
 		if ($dryRun === true) {
@@ -116,6 +105,47 @@ class ImportOriCommand extends Command {
 
 		return self::SUCCESS;
 	}//end execute()
+
+	/**
+	 * Roll the import back, or preview the rollback in a dry run.
+	 *
+	 * @param OutputInterface $output Where the report goes.
+	 * @param bool            $dryRun Whether to preview only.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 */
+	private function rollback(OutputInterface $output, bool $dryRun): int {
+		if ($dryRun === true) {
+			$this->write(output: $output, report: $this->import->previewRollback());
+			return self::SUCCESS;
+		}
+
+		$this->write(output: $output, report: $this->import->rollback());
+		return self::SUCCESS;
+	}//end rollback()
+
+	/**
+	 * Preview a strict import and print it when it found problems, so nothing is written.
+	 *
+	 * @param OutputInterface $output Where the report goes.
+	 * @param string          $source The source register.
+	 *
+	 * @return bool True when the preview found problems.
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
+	 */
+	private function strictPreviewFails(OutputInterface $output, string $source): bool {
+		$preview = $this->import->preview(sourceRegister: $source);
+		if ($preview->problems() === []) {
+			return false;
+		}
+
+		$this->write(output: $output, report: $preview);
+		$output->writeln('<error>Strict: ' . count($preview->problems()) . ' problem(s) found, nothing was written.</error>');
+		return true;
+	}//end strictPreviewFails()
 
 	/**
 	 * Print counts, the preview of a dry run, and every problem.
@@ -141,14 +171,28 @@ class ImportOriCommand extends Command {
 			);
 		}
 
-		if ($report->dryRun === true) {
-			foreach ($report->preview() as $line) {
-				$output->writeln(sprintf('  would %s %s %s %s', rtrim($line['action'], 'd'), $line['schema'], $line['reference'], $line['label']));
-			}
-		}
+		$this->writePreview(output: $output, report: $report);
 
 		foreach ($report->problems() as $problem) {
 			$output->writeln(sprintf('<comment>problem: %s %s %s</comment>', $problem['schema'], $problem['source'], $problem['problem']));
 		}
 	}//end write()
+
+	/**
+	 * Print what a dry run would write; a real run prints nothing here.
+	 *
+	 * @param OutputInterface $output Where to print.
+	 * @param OriImportReport $report The report.
+	 *
+	 * @return void
+	 */
+	private function writePreview(OutputInterface $output, OriImportReport $report): void {
+		if ($report->dryRun !== true) {
+			return;
+		}
+
+		foreach ($report->preview() as $line) {
+			$output->writeln(sprintf('  would %s %s %s %s', rtrim($line['action'], 'd'), $line['schema'], $line['reference'], $line['label']));
+		}
+	}//end writePreview()
 }//end class
