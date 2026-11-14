@@ -123,8 +123,19 @@ class FillDecisionDecidingBody implements IRepairStep {
 			return [];
 		}
 
+		return self::rowsOf(found: ($found['results'] ?? $found));
+	}//end page()
+
+	/**
+	 * The rows of a find result as arrays, skipping what is neither an array nor serialisable.
+	 *
+	 * @param iterable<mixed> $found The rows found.
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private static function rowsOf(iterable $found): array {
 		$rows = [];
-		foreach (($found['results'] ?? $found) as $row) {
+		foreach ($found as $row) {
 			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
 				$row = $row->jsonSerialize();
 			}
@@ -135,7 +146,7 @@ class FillDecisionDecidingBody implements IRepairStep {
 		}
 
 		return $rows;
-	}//end page()
+	}//end rowsOf()
 
 	/**
 	 * Fill one decision; 1 when it was written, 0 otherwise.
@@ -156,16 +167,42 @@ class FillDecisionDecidingBody implements IRepairStep {
 			return 0;
 		}
 
+		$body = $this->cachedBodyOf(meetingId: $meetingId, bodies: $bodies);
+		if ($body === null) {
+			return 0;
+		}
+
+		return $this->save(decision: $decision, id: $id, body: $body);
+	}//end fill()
+
+	/**
+	 * The governance body of a meeting, read once per meeting.
+	 *
+	 * @param string                     $meetingId The meeting.
+	 * @param array<string, string|null> $bodies    Meeting bodies already read, by meeting id.
+	 *
+	 * @return string|null
+	 */
+	private function cachedBodyOf(string $meetingId, array &$bodies): ?string {
 		if (array_key_exists($meetingId, $bodies) === false) {
 			$bodies[$meetingId] = $this->bodyOf(meetingId: $meetingId);
 		}
 
-		if ($bodies[$meetingId] === null) {
-			return 0;
-		}
+		return $bodies[$meetingId];
+	}//end cachedBodyOf()
 
+	/**
+	 * Write the deciding body onto a decision; 1 when it was written, 0 otherwise.
+	 *
+	 * @param array<string, mixed> $decision The decision.
+	 * @param string               $id       Its id.
+	 * @param string               $body     The deciding body.
+	 *
+	 * @return int
+	 */
+	private function save(array $decision, string $id, string $body): int {
 		unset($decision['@self']);
-		$decision['decidingBody'] = $bodies[$meetingId];
+		$decision['decidingBody'] = $body;
 		try {
 			$this->objectService->saveObject(object: $decision, register: self::REGISTER, schema: DecisionDecidingBodyListener::SCHEMA, uuid: $id);
 		} catch (Throwable $e) {
@@ -174,7 +211,7 @@ class FillDecisionDecidingBody implements IRepairStep {
 		}
 
 		return 1;
-	}//end fill()
+	}//end save()
 
 	/**
 	 * The governance body of a meeting, null when there is none or it cannot be read.

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
@@ -74,19 +75,27 @@ class DecisionDecidingBodyListener implements IEventListener {
 	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
 	 */
 	public function handle(Event $event): void {
-		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
+		if ($event instanceof ObjectCreatingEvent) {
+			$this->fillOn(event: $event, entity: $event->getObject());
 			return;
 		}
 
-		$entity = null;
-		if ($event instanceof ObjectCreatingEvent) {
-			$entity = $event->getObject();
-		}
-
 		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
+			$this->fillOn(event: $event, entity: $event->getNewObject());
 		}
+	}//end handle()
 
+	/**
+	 * Fill the deciding body on the data a creating or updating event saves.
+	 *
+	 * @param ObjectCreatingEvent|ObjectUpdatingEvent $event  The event.
+	 * @param ObjectEntity|null                       $entity The object it saves.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 */
+	private function fillOn(ObjectCreatingEvent|ObjectUpdatingEvent $event, ?ObjectEntity $entity): void {
 		if ($entity === null) {
 			return;
 		}
@@ -100,7 +109,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 		if ($body !== null) {
 			$event->setModifiedData(array_merge($event->getModifiedData(), ['decidingBody' => $body]));
 		}
-	}//end handle()
+	}//end fillOn()
 
 	/**
 	 * The body to fill in, or null when the decision has one or no meeting names one.
@@ -121,6 +130,19 @@ class DecisionDecidingBodyListener implements IEventListener {
 			return null;
 		}
 
+		return $this->meetingBody(meetingId: $meetingId);
+	}//end bodyFor()
+
+	/**
+	 * The governance body of a meeting, null when it names none or cannot be read.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/changes/insight-decisions-report-by-period-and-body/specs/dashboard/spec.md#requirement-req-drp-001-a-decision-names-the-body-that-took-it
+	 */
+	private function meetingBody(string $meetingId): ?string {
 		try {
 			$meeting = $this->objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting', _rbac: false);
 		} catch (Throwable $e) {
@@ -136,7 +158,7 @@ class DecisionDecidingBodyListener implements IEventListener {
 		}
 
 		return self::referenceId(value: (((array)$meeting->getObject())['governanceBody'] ?? null));
-	}//end bodyFor()
+	}//end meetingBody()
 
 	/**
 	 * The id a reference holds: a uuid string or an expanded object.
