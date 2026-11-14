@@ -3775,7 +3775,8 @@
         "The meeting that closed without ratifying the confidentiality.": "De vergadering die sloot zonder de geheimhouding te bekrachtigen.",
         "Ratification outcome": "Uitkomst bekrachtiging",
         "What the body did with a confidentiality put to it for ratification.": "Wat het orgaan deed met een geheimhouding die het ter bekrachtiging kreeg.",
-        "Not ratified": "Niet bekrachtigd"
+        "Not ratified": "Niet bekrachtigd",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

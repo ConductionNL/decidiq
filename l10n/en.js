@@ -3355,7 +3355,8 @@ OC.L10N.register(
         "The meeting that closed without ratifying the confidentiality.": "The meeting that closed without ratifying the confidentiality.",
         "Ratification outcome": "Ratification outcome",
         "What the body did with a confidentiality put to it for ratification.": "What the body did with a confidentiality put to it for ratification.",
-        "Not ratified": "Not ratified"
+        "Not ratified": "Not ratified",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )
