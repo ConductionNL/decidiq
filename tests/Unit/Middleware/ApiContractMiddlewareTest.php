@@ -40,14 +40,15 @@ class ApiContractMiddlewareTest extends TestCase {
 	 * Run the middleware for a request on the given path.
 	 *
 	 * @param string|false $path     The request path info.
-	 * @param Response     $response The controller response.
+	 * @param Response     $response   The controller response.
+	 * @param string|null  $requestUri The request URI; by default the path under /index.php.
 	 *
 	 * @return Response The decorated response.
 	 */
-	private function decorate(string|false $path, Response $response): Response {
+	private function decorate(string|false $path, Response $response, ?string $requestUri = null): Response {
 		$request = $this->createMock(originalClassName: IRequest::class);
 		$request->method('getPathInfo')->willReturn($path);
-		$request->method('getRequestUri')->willReturn('/index.php'.(string) $path.'?q=1');
+		$request->method('getRequestUri')->willReturn($requestUri ?? '/index.php'.(string) $path.'?q=1');
 		$appManager = $this->createMock(originalClassName: IAppManager::class);
 		$appManager->method('getAppVersion')->willReturn('1.2.3');
 
@@ -224,6 +225,106 @@ class ApiContractMiddlewareTest extends TestCase {
 		$this->assertArrayNotHasKey(key: 'API-Version', array: $headers);
 		$this->assertArrayNotHasKey(key: 'Deprecation', array: $headers);
 	}//end testStandardProtocolPathIsUntouched()
+
+	/**
+	 * When the request URI does not contain the path info, the successor link carries no script prefix.
+	 *
+	 * @return void
+	 */
+	public function testSuccessorLinkHasNoPrefixWhenTheUriDoesNotContainThePath(): void {
+		$response = $this->decorate(
+			path: '/apps/decidiq/api/things/7/parts',
+			response: new JSONResponse(data: ['id' => 7]),
+			requestUri: '/rewritten/elsewhere'
+		);
+
+		$this->assertSame(
+			expected: '</apps/decidiq/api/v1/things/7/parts>; rel="successor-version"',
+			actual: $this->headersOf(response: $response)['Link']
+		);
+	}//end testSuccessorLinkHasNoPrefixWhenTheUriDoesNotContainThePath()
+
+	/**
+	 * An empty or non-string detail candidate is skipped for the next one.
+	 *
+	 * @return void
+	 */
+	public function testEmptyAndNonStringDetailCandidatesAreSkipped(): void {
+		$response = $this->decorate(
+			path: '/apps/decidiq/api/v1/things',
+			response: new JSONResponse(data: ['message' => ['not', 'text'], 'error' => 'Real reason'], statusCode: 400)
+		);
+
+		$data = $response->getData();
+		$this->assertSame(expected: 'Real reason', actual: $data['detail']);
+		$this->assertSame(expected: 'Bad Request', actual: $data['title']);
+		$this->assertSame(expected: ['not', 'text'], actual: $data['message']);
+
+		$empty = $this->decorate(
+			path: '/apps/decidiq/api/v1/things',
+			response: new JSONResponse(data: ['message' => '', 'error' => 'Second reason'], statusCode: 400)
+		);
+		$this->assertSame(expected: 'Second reason', actual: $empty->getData()['detail']);
+	}//end testEmptyAndNonStringDetailCandidatesAreSkipped()
+
+	/**
+	 * A body with no usable detail candidate gets the problem members and no detail.
+	 *
+	 * @return void
+	 */
+	public function testABodyWithoutADetailCandidateGetsNoDetail(): void {
+		$response = $this->decorate(
+			path: '/apps/decidiq/api/v1/things',
+			response: new JSONResponse(data: ['code' => 7], statusCode: 422)
+		);
+
+		$this->assertSame(
+			expected: ['type' => 'about:blank', 'title' => 'Unprocessable Content', 'status' => 422, 'code' => 7],
+			actual: $response->getData()
+		);
+		$this->assertSame(expected: ApiContractMiddleware::PROBLEM_CONTENT_TYPE, actual: $this->headersOf(response: $response)['Content-Type']);
+	}//end testABodyWithoutADetailCandidateGetsNoDetail()
+
+	/**
+	 * A JSON error whose body is not an object keeps its body and content type.
+	 *
+	 * @return void
+	 */
+	public function testAScalarJsonErrorBodyIsLeftAlone(): void {
+		$response = $this->decorate(path: '/apps/decidiq/api/v1/things', response: new JSONResponse(data: 'oops', statusCode: 500));
+
+		$this->assertSame(expected: 'oops', actual: $response->getData());
+		$this->assertSame(expected: 'application/json; charset=utf-8', actual: $this->headersOf(response: $response)['Content-Type']);
+	}//end testAScalarJsonErrorBodyIsLeftAlone()
+
+	/**
+	 * A body that already carries a problem member with the same value is not a conflict.
+	 *
+	 * @return void
+	 */
+	public function testAMatchingProblemMemberIsNotAConflict(): void {
+		$response = $this->decorate(
+			path: '/apps/decidiq/api/v1/things/7',
+			response: new JSONResponse(data: ['status' => 409, 'error' => 'Already exists'], statusCode: 409)
+		);
+
+		$this->assertSame(
+			expected: ['type' => 'about:blank', 'title' => 'Conflict', 'status' => 409, 'detail' => 'Already exists', 'error' => 'Already exists'],
+			actual: $response->getData()
+		);
+	}//end testAMatchingProblemMemberIsNotAConflict()
+
+	/**
+	 * A successful response on a versioned path keeps its body and content type.
+	 *
+	 * @return void
+	 */
+	public function testAVersionedSuccessIsNotRewritten(): void {
+		$response = $this->decorate(path: '/apps/decidiq/api/v1/things/7', response: new JSONResponse(data: ['error' => 'not an error'], statusCode: 201));
+
+		$this->assertSame(expected: ['error' => 'not an error'], actual: $response->getData());
+		$this->assertSame(expected: 'application/json; charset=utf-8', actual: $this->headersOf(response: $response)['Content-Type']);
+	}//end testAVersionedSuccessIsNotRewritten()
 
 	/**
 	 * The headers a response set, read without the server container that

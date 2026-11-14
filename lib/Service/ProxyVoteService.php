@@ -246,19 +246,10 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 
 		$out = [];
 		foreach ($rows as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = (array)$row->jsonSerialize();
+			$row = $this->asRow(row: $row);
+			if ($this->matchesMeeting(row: $row, match: ['meeting' => $meetingId, 'status' => $status]) === true) {
+				$out[] = $row;
 			}
-
-			if (is_array($row) === false || ($row['meeting'] ?? null) !== $meetingId) {
-				continue;
-			}
-
-			if ($status !== null && ($row['proxyStatus'] ?? '') !== $status) {
-				continue;
-			}
-
-			$out[] = $row;
 		}
 
 		return [
@@ -268,6 +259,41 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 		];
 
 	}//end forMeeting()
+
+	/**
+	 * An entity as its array; anything else unchanged.
+	 *
+	 * @param mixed $row A findAll() row.
+	 *
+	 * @return mixed
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function asRow(mixed $row): mixed {
+		if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
+			return (array)$row->jsonSerialize();
+		}
+
+		return $row;
+	}//end asRow()
+
+	/**
+	 * Whether a row is a proxy of the meeting, in the status asked for (any when null).
+	 *
+	 * @param mixed                $row   The row.
+	 * @param array<string, mixed> $match meeting and status (or null).
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function matchesMeeting(mixed $row, array $match): bool {
+		if (is_array($row) === false || ($row['meeting'] ?? null) !== $match['meeting']) {
+			return false;
+		}
+
+		return $match['status'] === null || ($row['proxyStatus'] ?? '') === $match['status'];
+	}//end matchesMeeting()
 
 	/**
 	 * Transition a proxy to a new status. Mirrors the change to the audit
@@ -306,7 +332,7 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 			// method_exists() probe could never be false.
 			$current = $entity->getObject();
 
-			if ($callerUid !== null && $this->isAuthorizedForTransition(proxy: $current, callerUid: $callerUid) === false) {
+			if ($this->deniesCaller(proxy: $current, callerUid: $callerUid) === true) {
 				return $this->transitionFailure(
 					message: 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.'
 				);
@@ -343,14 +369,10 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 		// be false, so `$merged` was never the value used.
 		$payload = (array)$saved->jsonSerialize();
 
-		if ($newStatus === 'revoked') {
-			$this->auditLogService->append(
-				actor: $actor,
-				action: 'proxy-revoked',
-				objectUids: [$proxyId, (string)($current['meeting'] ?? '')],
-				payload: ['previousStatus' => $previousStatus]
-			);
-		}
+		$this->auditIfRevoked(
+			newStatus: $newStatus,
+			audit: ['actor' => $actor, 'proxyId' => $proxyId, 'meeting' => (string)($current['meeting'] ?? ''), 'previousStatus' => $previousStatus]
+		);
 
 		return [
 			'success' => true,
@@ -359,6 +381,42 @@ class ProxyVoteService implements ProxyVoteServiceInterface {
 		];
 
 	}//end transition()
+
+	/**
+	 * Whether a named caller may not change the proxy's status. A null caller
+	 * (a system call) is never denied here.
+	 *
+	 * @param array<string, mixed> $proxy     The proxy.
+	 * @param string|null          $callerUid The caller, or null.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function deniesCaller(array $proxy, ?string $callerUid): bool {
+		return $callerUid !== null && $this->isAuthorizedForTransition(proxy: $proxy, callerUid: $callerUid) === false;
+	}//end deniesCaller()
+
+	/**
+	 * Audit a revocation; other statuses leave no audit entry.
+	 *
+	 * @param string               $newStatus The status the proxy moved to.
+	 * @param array<string, mixed> $audit     actor, proxyId, meeting and previousStatus.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
+	 */
+	private function auditIfRevoked(string $newStatus, array $audit): void {
+		if ($newStatus === 'revoked') {
+			$this->auditLogService->append(
+				actor: $audit['actor'],
+				action: 'proxy-revoked',
+				objectUids: [$audit['proxyId'], $audit['meeting']],
+				payload: ['previousStatus' => $audit['previousStatus']]
+			);
+		}
+	}//end auditIfRevoked()
 
 	/**
 	 * Build the failure result of transition().

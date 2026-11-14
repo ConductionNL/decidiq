@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the register WHEN read THEN no notification rule on an updated trigger uses `in`
   - GIVEN a decision moving to `decided` WHEN saved THEN exactly one of the three rules matches
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 2: A webhook URL taken from the object (OpenRegister)
 - **spec_ref**: `openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback`

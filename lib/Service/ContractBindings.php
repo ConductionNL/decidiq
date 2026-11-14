@@ -157,11 +157,136 @@ use OCP\AppFramework\Bootstrap\IRegistrationContext;
  * @link     https://github.com/ConductionNL/decidiq
  *
  * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
- * @SuppressWarnings(PHPMD.ExcessiveMethodLength)
  *
  * @spec exclude Structural composition, no functional requirement.
  */
 final class ContractBindings {
+
+	/**
+	 * Contract => the class that implements it.
+	 *
+	 * @var array<class-string, class-string>
+	 */
+	private const BINDINGS = [
+		ALVMinutesServiceInterface::class => ALVMinutesService::class,
+		ActionItemAnalyticsServiceInterface::class => ActionItemAnalyticsService::class,
+		ActionItemWriterInterface::class => ActionItemWriter::class,
+		AgendaAuthorizationGuardInterface::class => AgendaAuthorizationGuard::class,
+		AgendaServiceInterface::class => AgendaService::class,
+		ApprovalRouteCommandServiceInterface::class => ApprovalRouteCommandService::class,
+		ApprovalRouteConclusionAnnouncerInterface::class => ApprovalRouteConclusionAnnouncer::class,
+		ApprovalRouteServiceInterface::class => ApprovalRouteService::class,
+		ApprovalStageLapseServiceInterface::class => ApprovalStageLapseService::class,
+		ApprovalStageTaskProjectorInterface::class => ApprovalStageTaskProjector::class,
+		ArchivalDossierServiceInterface::class => ArchivalDossierService::class,
+		AuditLogServiceInterface::class => AuditLogService::class,
+		BoardEvaluationAccessGuardInterface::class => BoardEvaluationAccessGuard::class,
+		BoardEvaluationReportServiceInterface::class => BoardEvaluationReportService::class,
+		BoardEvaluationResponseServiceInterface::class => BoardEvaluationResponseService::class,
+		BoardEvaluationScoreServiceInterface::class => BoardEvaluationScoreService::class,
+		BroadcastCaptionServiceInterface::class => BroadcastCaptionService::class,
+		BudgetVotingServiceInterface::class => BudgetVotingService::class,
+		CaseDocumentServiceInterface::class => CaseDocumentService::class,
+		CaseExchangeRecordsInterface::class => CaseExchangeRecords::class,
+		CaseSystemClientInterface::class => CaseSystemClient::class,
+		CaseSystemExchangeServiceInterface::class => CaseSystemExchangeService::class,
+		CitizenAdviceServiceInterface::class => CitizenAdviceService::class,
+		CommitmentProgressServiceInterface::class => CommitmentProgressService::class,
+		ConflictOfInterestServiceInterface::class => ConflictOfInterestService::class,
+		ConnectionReportServiceInterface::class => ConnectionReportService::class,
+		CurrentAgendaItemServiceInterface::class => CurrentAgendaItemService::class,
+		DashboardWidgetServiceInterface::class => DashboardWidgetService::class,
+		DecisionAuthorityInterface::class => DecisionAuthority::class,
+		DecisionIntegrationAuthorizationGuardInterface::class => DecisionIntegrationAuthorizationGuard::class,
+		DecisionIntegrationServiceInterface::class => DecisionIntegrationService::class,
+		DecisionLifecycleServiceInterface::class => DecisionLifecycleService::class,
+		DecisionListServiceInterface::class => DecisionListService::class,
+		DecisionStageLabelRepairInterface::class => DecisionStageLabelRepair::class,
+		DecisionTypeRegistryInterface::class => DecisionTypeRegistry::class,
+		DestructionCertificateRendererInterface::class => DestructionCertificateRenderer::class,
+		DossierCategoryInterface::class => DossierCategory::class,
+		DossierDispositionInterface::class => DossierDisposition::class,
+		EngagementServiceInterface::class => EngagementService::class,
+		ExportBundleServiceInterface::class => ExportBundleService::class,
+		ExportBundleWriterInterface::class => ExportBundleWriter::class,
+		FlowDecisionServiceInterface::class => FlowDecisionService::class,
+		FullExportServiceInterface::class => FullExportService::class,
+		GovernanceBodyCommandServiceInterface::class => GovernanceBodyCommandService::class,
+		GovernanceBodyQueryServiceInterface::class => GovernanceBodyQueryService::class,
+		GovernanceReportingServiceInterface::class => GovernanceReportingService::class,
+		GovernanceRoleScopeProjectorInterface::class => GovernanceRoleScopeProjector::class,
+		GovernanceScopeGuardInterface::class => GovernanceScopeGuard::class,
+		GuestInvitationServiceInterface::class => GuestInvitationService::class,
+		ListenerSchemaResolverInterface::class => ListenerSchemaResolver::class,
+		LiveDecisionServiceInterface::class => LiveDecisionService::class,
+		MailVoteReplyProcessorInterface::class => MailVoteReplyProcessor::class,
+		MailVoteSignerInterface::class => MailVoteSigner::class,
+		MandateSubstitutionServiceInterface::class => MandateSubstitutionService::class,
+		MeetingBroadcastServiceInterface::class => MeetingBroadcastService::class,
+		MeetingFolderServiceInterface::class => MeetingFolderService::class,
+		MeetingPackageServiceInterface::class => MeetingPackageService::class,
+		MeetingReminderServiceInterface::class => MeetingReminderService::class,
+		MeetingRoleGateInterface::class => MeetingRoleGate::class,
+		MeetingSeriesServiceInterface::class => MeetingSeriesService::class,
+		MeetingServiceInterface::class => MeetingService::class,
+		MemberCompetenceServiceInterface::class => MemberCompetenceService::class,
+		MemberImportServiceInterface::class => MemberImportService::class,
+		MinutesAccessGuardInterface::class => MinutesAccessGuard::class,
+		MinutesDocumentServiceInterface::class => MinutesDocumentService::class,
+		MinutesDraftServiceInterface::class => MinutesDraftService::class,
+		MinutesGenerationServiceInterface::class => MinutesGenerationService::class,
+		MinutesWorkflowServiceInterface::class => MinutesWorkflowService::class,
+		MotionCoauthorServiceInterface::class => MotionCoauthorService::class,
+		MotionServiceInterface::class => MotionService::class,
+		MotionStagesInterface::class => MotionStages::class,
+		MultilingualReconciliationServiceInterface::class => MultilingualReconciliationService::class,
+		NotificationPreferenceRequestValidatorInterface::class => NotificationPreferenceRequestValidator::class,
+		NotificationPreferenceServiceInterface::class => NotificationPreferenceService::class,
+		OriPersonPublicationRuleInterface::class => OriPersonPublicationRule::class,
+		OriPublicationServiceInterface::class => OriPublicationService::class,
+		OriSerializerInterface::class => OriSerializer::class,
+		OriVotePublicationRuleInterface::class => OriVotePublicationRule::class,
+		PaperSummaryServiceInterface::class => PaperSummaryService::class,
+		PaperVoteRecorderInterface::class => PaperVoteRecorder::class,
+		ParticipantResolverInterface::class => ParticipantResolver::class,
+		ParticipantToPersonMembershipResolverInterface::class => ParticipantToPersonMembershipResolver::class,
+		ParticipationLifecycleServiceInterface::class => ParticipationLifecycleService::class,
+		ParticipationPublicationServiceInterface::class => ParticipationPublicationService::class,
+		ParticipationResponderInterface::class => ParticipationResponder::class,
+		PlanningCycleGeneratorInterface::class => PlanningCycleGenerator::class,
+		ProcessTemplateServiceInterface::class => ProcessTemplateService::class,
+		ProofPackageServiceInterface::class => ProofPackageService::class,
+		ProxyDelegationServiceInterface::class => ProxyDelegationService::class,
+		ProxyVoteServiceInterface::class => ProxyVoteService::class,
+		PublicMeetingRecordsInterface::class => PublicMeetingRecords::class,
+		PublicVotingRecordsInterface::class => PublicVotingRecords::class,
+		PublicationConfigServiceInterface::class => PublicationConfigService::class,
+		PublicationDigestServiceInterface::class => PublicationDigestService::class,
+		PublicationEventRecorderInterface::class => PublicationEventRecorder::class,
+		PublicationServiceInterface::class => PublicationService::class,
+		PublicationStaffGuardInterface::class => PublicationStaffGuard::class,
+		ReactionIntakeServiceInterface::class => ReactionIntakeService::class,
+		RecordingRangeInterface::class => RecordingRange::class,
+		RegulatorExportServiceInterface::class => RegulatorExportService::class,
+		RoleGroupMappingInterface::class => RoleGroupMapping::class,
+		SeedProfileServiceInterface::class => SeedProfileService::class,
+		SettingsServiceInterface::class => SettingsService::class,
+		SigningRoundServiceInterface::class => SigningRoundService::class,
+		SubjectClearanceServiceInterface::class => SubjectClearanceService::class,
+		SystemWhenNobodySignedInInterface::class => SystemWhenNobodySignedIn::class,
+		TranscriptRepositoryInterface::class => TranscriptRepository::class,
+		TranscriptionQueueInterface::class => TranscriptionQueue::class,
+		TranscriptionServiceInterface::class => TranscriptionService::class,
+		TranscriptionStaffGuardInterface::class => TranscriptionStaffGuard::class,
+		VoteBreakdownServiceInterface::class => VoteBreakdownService::class,
+		VotingBehaviourServiceInterface::class => VotingBehaviourService::class,
+		VotingDeadlineReminderServiceInterface::class => VotingDeadlineReminderService::class,
+		VotingErrorResponderInterface::class => VotingErrorResponder::class,
+		VotingOpenRequestHandlerInterface::class => VotingOpenRequestHandler::class,
+		VotingRecordServiceInterface::class => VotingRecordService::class,
+		VotingRoundGuardInterface::class => VotingRoundGuard::class,
+		VotingServiceInterface::class => VotingService::class,
+	];
 
 	/**
 	 * Alias every contract to its implementation.
@@ -173,123 +298,8 @@ final class ContractBindings {
 	 * @spec exclude Structural composition, no functional requirement.
 	 */
 	public function register(IRegistrationContext $context): void {
-		$context->registerServiceAlias(ALVMinutesServiceInterface::class, ALVMinutesService::class);
-		$context->registerServiceAlias(ActionItemAnalyticsServiceInterface::class, ActionItemAnalyticsService::class);
-		$context->registerServiceAlias(ActionItemWriterInterface::class, ActionItemWriter::class);
-		$context->registerServiceAlias(AgendaAuthorizationGuardInterface::class, AgendaAuthorizationGuard::class);
-		$context->registerServiceAlias(AgendaServiceInterface::class, AgendaService::class);
-		$context->registerServiceAlias(ApprovalRouteCommandServiceInterface::class, ApprovalRouteCommandService::class);
-		$context->registerServiceAlias(ApprovalRouteConclusionAnnouncerInterface::class, ApprovalRouteConclusionAnnouncer::class);
-		$context->registerServiceAlias(ApprovalRouteServiceInterface::class, ApprovalRouteService::class);
-		$context->registerServiceAlias(ApprovalStageLapseServiceInterface::class, ApprovalStageLapseService::class);
-		$context->registerServiceAlias(ApprovalStageTaskProjectorInterface::class, ApprovalStageTaskProjector::class);
-		$context->registerServiceAlias(ArchivalDossierServiceInterface::class, ArchivalDossierService::class);
-		$context->registerServiceAlias(AuditLogServiceInterface::class, AuditLogService::class);
-		$context->registerServiceAlias(BoardEvaluationAccessGuardInterface::class, BoardEvaluationAccessGuard::class);
-		$context->registerServiceAlias(BoardEvaluationReportServiceInterface::class, BoardEvaluationReportService::class);
-		$context->registerServiceAlias(BoardEvaluationResponseServiceInterface::class, BoardEvaluationResponseService::class);
-		$context->registerServiceAlias(BoardEvaluationScoreServiceInterface::class, BoardEvaluationScoreService::class);
-		$context->registerServiceAlias(BroadcastCaptionServiceInterface::class, BroadcastCaptionService::class);
-		$context->registerServiceAlias(BudgetVotingServiceInterface::class, BudgetVotingService::class);
-		$context->registerServiceAlias(CaseDocumentServiceInterface::class, CaseDocumentService::class);
-		$context->registerServiceAlias(CaseExchangeRecordsInterface::class, CaseExchangeRecords::class);
-		$context->registerServiceAlias(CaseSystemClientInterface::class, CaseSystemClient::class);
-		$context->registerServiceAlias(CaseSystemExchangeServiceInterface::class, CaseSystemExchangeService::class);
-		$context->registerServiceAlias(CitizenAdviceServiceInterface::class, CitizenAdviceService::class);
-		$context->registerServiceAlias(CommitmentProgressServiceInterface::class, CommitmentProgressService::class);
-		$context->registerServiceAlias(ConflictOfInterestServiceInterface::class, ConflictOfInterestService::class);
-		$context->registerServiceAlias(ConnectionReportServiceInterface::class, ConnectionReportService::class);
-		$context->registerServiceAlias(CurrentAgendaItemServiceInterface::class, CurrentAgendaItemService::class);
-		$context->registerServiceAlias(DashboardWidgetServiceInterface::class, DashboardWidgetService::class);
-		$context->registerServiceAlias(DecisionAuthorityInterface::class, DecisionAuthority::class);
-		$context->registerServiceAlias(DecisionIntegrationAuthorizationGuardInterface::class, DecisionIntegrationAuthorizationGuard::class);
-		$context->registerServiceAlias(DecisionIntegrationServiceInterface::class, DecisionIntegrationService::class);
-		$context->registerServiceAlias(DecisionLifecycleServiceInterface::class, DecisionLifecycleService::class);
-		$context->registerServiceAlias(DecisionListServiceInterface::class, DecisionListService::class);
-		$context->registerServiceAlias(DecisionStageLabelRepairInterface::class, DecisionStageLabelRepair::class);
-		$context->registerServiceAlias(DecisionTypeRegistryInterface::class, DecisionTypeRegistry::class);
-		$context->registerServiceAlias(DestructionCertificateRendererInterface::class, DestructionCertificateRenderer::class);
-		$context->registerServiceAlias(DossierCategoryInterface::class, DossierCategory::class);
-		$context->registerServiceAlias(DossierDispositionInterface::class, DossierDisposition::class);
-		$context->registerServiceAlias(EngagementServiceInterface::class, EngagementService::class);
-		$context->registerServiceAlias(ExportBundleServiceInterface::class, ExportBundleService::class);
-		$context->registerServiceAlias(ExportBundleWriterInterface::class, ExportBundleWriter::class);
-		$context->registerServiceAlias(FlowDecisionServiceInterface::class, FlowDecisionService::class);
-		$context->registerServiceAlias(FullExportServiceInterface::class, FullExportService::class);
-		$context->registerServiceAlias(GovernanceBodyCommandServiceInterface::class, GovernanceBodyCommandService::class);
-		$context->registerServiceAlias(GovernanceBodyQueryServiceInterface::class, GovernanceBodyQueryService::class);
-		$context->registerServiceAlias(GovernanceReportingServiceInterface::class, GovernanceReportingService::class);
-		$context->registerServiceAlias(GovernanceRoleScopeProjectorInterface::class, GovernanceRoleScopeProjector::class);
-		$context->registerServiceAlias(GovernanceScopeGuardInterface::class, GovernanceScopeGuard::class);
-		$context->registerServiceAlias(GuestInvitationServiceInterface::class, GuestInvitationService::class);
-		$context->registerServiceAlias(ListenerSchemaResolverInterface::class, ListenerSchemaResolver::class);
-		$context->registerServiceAlias(LiveDecisionServiceInterface::class, LiveDecisionService::class);
-		$context->registerServiceAlias(MailVoteReplyProcessorInterface::class, MailVoteReplyProcessor::class);
-		$context->registerServiceAlias(MailVoteSignerInterface::class, MailVoteSigner::class);
-		$context->registerServiceAlias(MandateSubstitutionServiceInterface::class, MandateSubstitutionService::class);
-		$context->registerServiceAlias(MeetingBroadcastServiceInterface::class, MeetingBroadcastService::class);
-		$context->registerServiceAlias(MeetingFolderServiceInterface::class, MeetingFolderService::class);
-		$context->registerServiceAlias(MeetingPackageServiceInterface::class, MeetingPackageService::class);
-		$context->registerServiceAlias(MeetingReminderServiceInterface::class, MeetingReminderService::class);
-		$context->registerServiceAlias(MeetingRoleGateInterface::class, MeetingRoleGate::class);
-		$context->registerServiceAlias(MeetingSeriesServiceInterface::class, MeetingSeriesService::class);
-		$context->registerServiceAlias(MeetingServiceInterface::class, MeetingService::class);
-		$context->registerServiceAlias(MemberCompetenceServiceInterface::class, MemberCompetenceService::class);
-		$context->registerServiceAlias(MemberImportServiceInterface::class, MemberImportService::class);
-		$context->registerServiceAlias(MinutesAccessGuardInterface::class, MinutesAccessGuard::class);
-		$context->registerServiceAlias(MinutesDocumentServiceInterface::class, MinutesDocumentService::class);
-		$context->registerServiceAlias(MinutesDraftServiceInterface::class, MinutesDraftService::class);
-		$context->registerServiceAlias(MinutesGenerationServiceInterface::class, MinutesGenerationService::class);
-		$context->registerServiceAlias(MinutesWorkflowServiceInterface::class, MinutesWorkflowService::class);
-		$context->registerServiceAlias(MotionCoauthorServiceInterface::class, MotionCoauthorService::class);
-		$context->registerServiceAlias(MotionServiceInterface::class, MotionService::class);
-		$context->registerServiceAlias(MotionStagesInterface::class, MotionStages::class);
-		$context->registerServiceAlias(MultilingualReconciliationServiceInterface::class, MultilingualReconciliationService::class);
-		$context->registerServiceAlias(NotificationPreferenceRequestValidatorInterface::class, NotificationPreferenceRequestValidator::class);
-		$context->registerServiceAlias(NotificationPreferenceServiceInterface::class, NotificationPreferenceService::class);
-		$context->registerServiceAlias(OriPersonPublicationRuleInterface::class, OriPersonPublicationRule::class);
-		$context->registerServiceAlias(OriPublicationServiceInterface::class, OriPublicationService::class);
-		$context->registerServiceAlias(OriSerializerInterface::class, OriSerializer::class);
-		$context->registerServiceAlias(OriVotePublicationRuleInterface::class, OriVotePublicationRule::class);
-		$context->registerServiceAlias(PaperSummaryServiceInterface::class, PaperSummaryService::class);
-		$context->registerServiceAlias(PaperVoteRecorderInterface::class, PaperVoteRecorder::class);
-		$context->registerServiceAlias(ParticipantResolverInterface::class, ParticipantResolver::class);
-		$context->registerServiceAlias(ParticipantToPersonMembershipResolverInterface::class, ParticipantToPersonMembershipResolver::class);
-		$context->registerServiceAlias(ParticipationLifecycleServiceInterface::class, ParticipationLifecycleService::class);
-		$context->registerServiceAlias(ParticipationPublicationServiceInterface::class, ParticipationPublicationService::class);
-		$context->registerServiceAlias(ParticipationResponderInterface::class, ParticipationResponder::class);
-		$context->registerServiceAlias(PlanningCycleGeneratorInterface::class, PlanningCycleGenerator::class);
-		$context->registerServiceAlias(ProcessTemplateServiceInterface::class, ProcessTemplateService::class);
-		$context->registerServiceAlias(ProofPackageServiceInterface::class, ProofPackageService::class);
-		$context->registerServiceAlias(ProxyDelegationServiceInterface::class, ProxyDelegationService::class);
-		$context->registerServiceAlias(ProxyVoteServiceInterface::class, ProxyVoteService::class);
-		$context->registerServiceAlias(PublicMeetingRecordsInterface::class, PublicMeetingRecords::class);
-		$context->registerServiceAlias(PublicVotingRecordsInterface::class, PublicVotingRecords::class);
-		$context->registerServiceAlias(PublicationConfigServiceInterface::class, PublicationConfigService::class);
-		$context->registerServiceAlias(PublicationDigestServiceInterface::class, PublicationDigestService::class);
-		$context->registerServiceAlias(PublicationEventRecorderInterface::class, PublicationEventRecorder::class);
-		$context->registerServiceAlias(PublicationServiceInterface::class, PublicationService::class);
-		$context->registerServiceAlias(PublicationStaffGuardInterface::class, PublicationStaffGuard::class);
-		$context->registerServiceAlias(ReactionIntakeServiceInterface::class, ReactionIntakeService::class);
-		$context->registerServiceAlias(RecordingRangeInterface::class, RecordingRange::class);
-		$context->registerServiceAlias(RegulatorExportServiceInterface::class, RegulatorExportService::class);
-		$context->registerServiceAlias(RoleGroupMappingInterface::class, RoleGroupMapping::class);
-		$context->registerServiceAlias(SeedProfileServiceInterface::class, SeedProfileService::class);
-		$context->registerServiceAlias(SettingsServiceInterface::class, SettingsService::class);
-		$context->registerServiceAlias(SigningRoundServiceInterface::class, SigningRoundService::class);
-		$context->registerServiceAlias(SubjectClearanceServiceInterface::class, SubjectClearanceService::class);
-		$context->registerServiceAlias(SystemWhenNobodySignedInInterface::class, SystemWhenNobodySignedIn::class);
-		$context->registerServiceAlias(TranscriptRepositoryInterface::class, TranscriptRepository::class);
-		$context->registerServiceAlias(TranscriptionQueueInterface::class, TranscriptionQueue::class);
-		$context->registerServiceAlias(TranscriptionServiceInterface::class, TranscriptionService::class);
-		$context->registerServiceAlias(TranscriptionStaffGuardInterface::class, TranscriptionStaffGuard::class);
-		$context->registerServiceAlias(VoteBreakdownServiceInterface::class, VoteBreakdownService::class);
-		$context->registerServiceAlias(VotingBehaviourServiceInterface::class, VotingBehaviourService::class);
-		$context->registerServiceAlias(VotingDeadlineReminderServiceInterface::class, VotingDeadlineReminderService::class);
-		$context->registerServiceAlias(VotingErrorResponderInterface::class, VotingErrorResponder::class);
-		$context->registerServiceAlias(VotingOpenRequestHandlerInterface::class, VotingOpenRequestHandler::class);
-		$context->registerServiceAlias(VotingRecordServiceInterface::class, VotingRecordService::class);
-		$context->registerServiceAlias(VotingRoundGuardInterface::class, VotingRoundGuard::class);
-		$context->registerServiceAlias(VotingServiceInterface::class, VotingService::class);
+		foreach (self::BINDINGS as $contract => $implementation) {
+			$context->registerServiceAlias($contract, $implementation);
+		}
 	}//end register()
 }//end class
