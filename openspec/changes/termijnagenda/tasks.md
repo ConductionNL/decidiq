@@ -10,7 +10,7 @@
   - GIVEN the schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with `gepland → verschoven ⟲ → gerealiseerd | vervallen` and terminal states final, `vervallen` requires `redenVervallen`, ownerType `portefeuillehouder` requires an `owner` Person reference, and `plannedPeriod` rejects anything but `YYYY-Qn`/`YYYY-MM`
   - GIVEN the schema WHEN inspected THEN `x-openregister-notifications` declares the scheduled period-arrival rappel (owner + griffie, nl+en subjects, never for terminal/realised items) and no imperative dispatch exists anywhere
   - GIVEN an item with `publicatiedatum` in the past WHEN read anonymously via the OR predicate surface THEN it is returned live (including shift history); without the predicate it is not
-- **status**: built except two rules. The fragment, the lifecycle, the rappel and the publication predicate exist. But `owner` being required for `ownerType: portfolio-holder`, and `reasonExpired` being required on entering `lapsed`, are documented in the property descriptions as UI rules, and OpenRegister does not reject a save that breaks them. No dialog enforces them yet either (tasks 4 and 5). Left open until one of the two enforces them.
+- **status**: built except two rules. The fragment, the lifecycle, the rappel and the publication predicate exist. But `owner` being required for `ownerType: portfolio-holder`, and `reasonExpired` being required on entering `lapsed`, are documented in the property descriptions as UI rules, and OpenRegister does not reject a save that breaks them. No dialog enforces them yet either (tasks 4 and 5). Since the task-5 dialogs, the lapse reason is enforced on every UI path (the dialog and `buildLapse`). The owner rule is shown as a warning on the detail page only, and OpenRegister still accepts such a save, so this task stays open for that rule.
 - [ ] Implement
 - [ ] Test
 
@@ -41,8 +41,9 @@
   - GIVEN the board for one governance body WHEN it renders THEN items group into period columns ordered by the design D2 last-day sort key (mixed month/quarter granularity sorts chronologically)
   - GIVEN a card dragged to another period column WHEN the reason dialog is confirmed THEN one PUT-semantic saveObject sets lifecycle `verschoven`, updates `plannedPeriod`, and appends `{van, naar, reden, door, op}` to `verschuifHistorie` (existing entries unchanged); WHEN cancelled THEN the card restores and zero requests are issued
   - GIVEN a keyboard-only user WHEN they invoke the card's reschedule action THEN the same reschedule completes without dragging (WCAG 2.2 SC 2.5.7); a repeat shift appends a second history entry preserving the first
-- [ ] Implement
-- [ ] Test
+- **status**: built. `PlannedAgendaBoard` (custom page `/planned-agenda-board`, opened from the index's Board view header action) shows one body's items in period columns ordered by `comparePeriods` (last day, month before its quarter) plus two empty quarters. A drop on another column, or the card's Reschedule button (keyboard path), opens `PlannedAgendaRescheduleDialog`; confirm saves once via `buildReschedule` (lifecycle `postponed`, new period, one appended `shiftHistory` entry), cancel writes nothing and the card stays. Unit tests: `tests/vitest/plannedAgenda.spec.js`. The drag itself is covered by task 7's e2e.
+- [x] Implement
+- [x] Test
 
 ### Task 5: Realisation and vervallen flows — assistive linking, never auto-scheduling
 - **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-006-realisation-linkage-to-the-actual-agenda-item-or-decision` (+ REQ-LTA-003)
@@ -50,8 +51,9 @@
 - **acceptance_criteria**:
   - GIVEN an open item WHEN the griffier marks it `gerealiseerd` THEN the dialog suggests matching agenda items of the same body (standard OR list query), the confirmed link sets `realisedAgendaItem`/`realisedDecision`, and no meeting or agenda item is ever created or modified by the flow
   - GIVEN an open item WHEN a user marks it `vervallen` without a reason THEN the save is rejected; with a reason THEN the item is terminal and further lifecycle edits are refused by the OR transition map
-- [ ] Implement
-- [ ] Test
+- **status**: built. `PlannedAgendaActionsTab` on the detail page offers Mark as realised (`PlannedAgendaRealiseDialog` suggests the agenda items and decisions of the body's meetings, best subject match first; confirming only sets `realisedAgendaItem`/`realisedDecision`) and Mark as lapsed (`PlannedAgendaLapseDialog`, confirm disabled without a reason; `buildLapse` refuses an empty one). Both disappear once the item is final; OpenRegister's transition map refuses later changes.
+- [x] Implement
+- [x] Test
 
 ### Task 6: Dashboard KPI — overdue termijnagenda items
 - **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items`
@@ -59,8 +61,9 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN the "Termijnagenda over termijn" stat widget counts non-terminal unrealised items whose period's last day is past, via a declarative source aggregation, and clicking routes to the pre-filtered Termijnagenda index
   - GIVEN the widget filter DSL lacks a relative-now token WHEN implementing THEN the documented D6 fallback is applied (never a silently wrong count) and the design open question is resolved in the PR, aligned with the toezeggingen change's KPI token
-- [ ] Implement
-- [ ] Test
+- **status**: built with the D6 fallback. The aggregation endpoint takes scalar equality only and has no relative-today token (the same finding as the commitments KPI), so `overdue-planned-agenda` is a custom widget (`OverduePlannedAgendaKpiWidget`) that reads the planned and postponed items and counts those whose period's last day is past and that nothing realised (`overdueItems`). It links to the index filtered to the open states. Placed in its own band in both structure profiles.
+- [x] Implement
+- [x] Test
 
 ### Task 7: E2E coverage — Playwright scenarios for the termijnagenda register
 - **spec_ref**: `openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md`

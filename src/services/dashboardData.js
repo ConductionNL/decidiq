@@ -12,6 +12,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  */
 
+import { ensureRelationType } from '../components/tabs/useRelationStore.js'
 import { useObjectStore } from '../store/store.js'
 
 /**
@@ -111,4 +112,20 @@ export function getMinutes(params = {}) {
  */
 export function getGovernanceBodies(params = {}) {
 	return useObjectStore().fetchCollection('governance-body', params)
+}
+
+/**
+ * Fetch long-term agenda items, optionally narrowed by lifecycle.
+ *
+ * @param {object} [params] Extra OR filter params (e.g. { lifecycle: ['planned', 'postponed'] }).
+ *
+ * @return {Promise<Array<object>>} Planned-agenda items.
+ *
+ * @spec openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-010-dashboard-kpi-for-overdue-termijnagenda-items
+ */
+export function getPlannedAgendaItems(params = {}) {
+	return ensureRelationType('planned-agenda-item').fetchCollection(
+		'planned-agenda-item',
+		params,
+	)
 }

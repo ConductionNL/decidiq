@@ -46,6 +46,7 @@ import Broadcast from 'vue-material-design-icons/Broadcast.vue'
 import BullhornOutline from 'vue-material-design-icons/BullhornOutline.vue'
 import Calendar from 'vue-material-design-icons/Calendar.vue'
 import CalendarAccountOutline from 'vue-material-design-icons/CalendarAccountOutline.vue'
+import CalendarArrowRight from 'vue-material-design-icons/CalendarArrowRight.vue'
 import CalendarBlankOutline from 'vue-material-design-icons/CalendarBlankOutline.vue'
 import CalendarCheckOutline from 'vue-material-design-icons/CalendarCheckOutline.vue'
 import CalendarClock from 'vue-material-design-icons/CalendarClock.vue'
@@ -146,6 +147,7 @@ import TransitConnectionVariant from 'vue-material-design-icons/TransitConnectio
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
 import TrayFull from 'vue-material-design-icons/TrayFull.vue'
 import Video from 'vue-material-design-icons/Video.vue'
+import ViewColumnOutline from 'vue-material-design-icons/ViewColumnOutline.vue'
 import ViewDashboardOutline from 'vue-material-design-icons/ViewDashboardOutline.vue'
 import VoteOutline from 'vue-material-design-icons/VoteOutline.vue'
 import Web from 'vue-material-design-icons/Web.vue'
@@ -192,6 +194,8 @@ export default {
 	CalendarMonthOutline,
 	CalendarMultiple,
 	CalendarTextOutline,
+	CalendarArrowRight,
+	ViewColumnOutline,
 	CardAccountDetailsOutline,
 	CartOutline,
 	Cash,
