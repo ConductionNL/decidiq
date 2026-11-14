@@ -142,6 +142,24 @@ class WrittenRoundOpener {
 	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
 	 */
 	public function request(array $params, DateTimeImmutable $now): array {
+		$subject = $this->requestSubject(params: $params);
+		$deadline = $this->requestDeadline(params: $params, now: $now);
+
+		return $subject + ['deadline' => $deadline] + $this->requestRules(params: $params);
+	}//end request()
+
+	/**
+	 * The decision and body a written round is requested for.
+	 *
+	 * @param array<string, mixed> $params The request.
+	 *
+	 * @return array{decision: string, body: string}
+	 *
+	 * @throws InvalidArgumentException When a meeting is given or the decision or body is missing.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 */
+	private function requestSubject(array $params): array {
 		if (trim((string)($params['meetingId'] ?? '')) !== '') {
 			throw new InvalidArgumentException('A written round has no meeting: leave meetingId out.');
 		}
@@ -152,6 +170,22 @@ class WrittenRoundOpener {
 			throw new InvalidArgumentException('decisionId and governanceBodyId are required for a written round.');
 		}
 
+		return ['decision' => $decision, 'body' => $body];
+	}//end requestSubject()
+
+	/**
+	 * The requested deadline, which must lie in the future.
+	 *
+	 * @param array<string, mixed> $params The request.
+	 * @param DateTimeImmutable    $now    Now.
+	 *
+	 * @return string The deadline (ATOM).
+	 *
+	 * @throws InvalidArgumentException When the deadline is missing, unreadable or not in the future.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 */
+	private function requestDeadline(array $params, DateTimeImmutable $now): string {
 		$deadline = self::dateTimeOf(value: ($params['votingDeadline'] ?? null));
 		if ($deadline === null) {
 			throw new InvalidArgumentException('votingDeadline is required for a written round.');
@@ -161,6 +195,21 @@ class WrittenRoundOpener {
 			throw new InvalidArgumentException('The deadline of a written round must be in the future.');
 		}
 
+		return $deadline->format(DateTimeInterface::ATOM);
+	}//end requestDeadline()
+
+	/**
+	 * The requested counting rule and threshold.
+	 *
+	 * @param array<string, mixed> $params The request.
+	 *
+	 * @return array{rule: string, threshold: string}
+	 *
+	 * @throws InvalidArgumentException When the rule or threshold is unknown.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-001-the-chair-or-secretary-of-a-body-puts-a-decision-to-the-body-in-writing
+	 */
+	private function requestRules(array $params): array {
 		$rule = (string)($params['writtenRule'] ?? 'unanimous');
 		if (in_array($rule, self::RULES, true) === false) {
 			throw new InvalidArgumentException('writtenRule must be one of: ' . implode(', ', self::RULES));
@@ -171,14 +220,8 @@ class WrittenRoundOpener {
 			throw new InvalidArgumentException('voteThreshold must be one of: ' . implode(', ', VotingService::VOTE_THRESHOLDS));
 		}
 
-		return [
-			'decision' => $decision,
-			'body' => $body,
-			'deadline' => $deadline->format(DateTimeInterface::ATOM),
-			'rule' => $rule,
-			'threshold' => $threshold,
-		];
-	}//end request()
+		return ['rule' => $rule, 'threshold' => $threshold];
+	}//end requestRules()
 
 	/**
 	 * The decision, when it can be put in writing.
@@ -218,16 +261,27 @@ class WrittenRoundOpener {
 	 */
 	private function activeVoteStage(array $decision, string $bodyId): ?string {
 		foreach ($this->store->findAll(schema: 'decision-stage', filters: ['decision' => (string)$decision['id']]) as $stage) {
-			if ((string)($stage['status'] ?? '') === 'active'
-				&& (string)($stage['method'] ?? '') === 'vote'
-				&& WrittenRoundStore::idOf(value: ($stage['assignedBody'] ?? null)) === $bodyId
-			) {
+			if ($this->isActiveVoteStageOf(stage: $stage, bodyId: $bodyId) === true) {
 				return WrittenRoundStore::idOf(value: ($stage['id'] ?? null));
 			}
 		}
 
 		return null;
 	}//end activeVoteStage()
+
+	/**
+	 * Whether a stage is an active vote stage assigned to the body.
+	 *
+	 * @param array<string, mixed> $stage  The decision stage.
+	 * @param string               $bodyId The body.
+	 *
+	 * @return bool
+	 */
+	private function isActiveVoteStageOf(array $stage, string $bodyId): bool {
+		return (string)($stage['status'] ?? '') === 'active'
+			&& (string)($stage['method'] ?? '') === 'vote'
+			&& WrittenRoundStore::idOf(value: ($stage['assignedBody'] ?? null)) === $bodyId;
+	}//end isActiveVoteStageOf()
 
 	/**
 	 * Now, from the app clock.

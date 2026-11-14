@@ -177,7 +177,7 @@ class WrittenRoundCloser {
 		);
 		$closed = $this->store->save(schema: 'voting-round', object: $closed);
 
-		$this->decide(round: $round, result: (string)$computed['result'], lastAnswerAt: self::lastAnswerAt(answers: $answers));
+		$this->decide(round: $round, outcome: ['result' => (string)$computed['result'], 'lastAnswerAt' => self::lastAnswerAt(answers: $answers)]);
 		$this->resolveStage(round: $round, result: (string)$computed['result']);
 
 		return $closed;
@@ -187,13 +187,12 @@ class WrittenRoundCloser {
 	 * Move the decision to `decided` with the round's outcome. Fails soft: the
 	 * round's own result stays recorded when the decision cannot be written.
 	 *
-	 * @param array<string, mixed> $round        The round.
-	 * @param string               $result       adopted|rejected.
-	 * @param string|null          $lastAnswerAt The time of the last answer.
+	 * @param array<string, mixed>                           $round   The round.
+	 * @param array{result: string, lastAnswerAt: string|null} $outcome adopted|rejected, and the time of the last answer.
 	 *
 	 * @return void
 	 */
-	private function decide(array $round, string $result, ?string $lastAnswerAt): void {
+	private function decide(array $round, array $outcome): void {
 		$decisionId = WrittenRoundStore::idOf(value: ($round['decision'] ?? null));
 		if ($decisionId === null) {
 			return;
@@ -205,13 +204,7 @@ class WrittenRoundCloser {
 				return;
 			}
 
-			$decision['lifecycle'] = 'decided';
-			$decision['outcome']   = $result;
-			if ($result === 'adopted' && $lastAnswerAt !== null) {
-				$decision['decisionDate'] = $lastAnswerAt;
-			}
-
-			$this->store->save(schema: 'decision', object: $decision);
+			$this->store->save(schema: 'decision', object: self::decided(decision: $decision, outcome: $outcome));
 		} catch (Throwable $e) {
 			$this->logger->error(
 				'Decidiq: written round closed but the decision could not be marked decided',
@@ -219,6 +212,25 @@ class WrittenRoundCloser {
 			);
 		}
 	}//end decide()
+
+	/**
+	 * The decision marked decided with the round's outcome; an adopted
+	 * decision is dated by the last answer.
+	 *
+	 * @param array<string, mixed>                           $decision The decision.
+	 * @param array{result: string, lastAnswerAt: string|null} $outcome  The outcome.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function decided(array $decision, array $outcome): array {
+		$decision['lifecycle'] = 'decided';
+		$decision['outcome']   = $outcome['result'];
+		if ($outcome['result'] === 'adopted' && $outcome['lastAnswerAt'] !== null) {
+			$decision['decisionDate'] = $outcome['lastAnswerAt'];
+		}
+
+		return $decision;
+	}//end decided()
 
 	/**
 	 * Decide the active vote stage the round resolves with the same outcome.

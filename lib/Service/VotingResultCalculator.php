@@ -122,40 +122,89 @@ class VotingResultCalculator {
 	public function computeWritten(array $round, array $answers): array {
 		$weights = $this->electorateWeights(round: $round);
 		$given = array_intersect_key($answers, $weights);
-		$base = array_sum($weights);
-		$forWeight = array_sum(array_intersect_key($weights, array_filter($given, static fn ($value): bool => $value === 'for')));
-		$unanswered = array_sum(array_diff_key($weights, $given));
-		$allAnswered = count($given) === count($weights);
+		$tally = $this->writtenTally(weights: $weights, given: $given);
 
-		$summary = ['answered' => count($given), 'electorate' => count($weights), 'forWeight' => (float)$forWeight, 'base' => (float)$base];
+		$summary = ['answered' => count($given), 'electorate' => count($weights), 'forWeight' => $tally['forWeight'], 'base' => $tally['base']];
 		if (in_array('objection', $given, true) === true) {
 			return ['result' => 'rejected', 'closeReason' => 'objection'] + $summary;
 		}
 
-		if (($round['writtenRule'] ?? 'unanimous') === 'threshold') {
-			$threshold = $this->rule(round: $round, name: 'voteThreshold');
-			$adopted = $this->meetsWrittenThreshold(forWeight: (float)$forWeight, base: (float)$base, threshold: $threshold);
-			$canStillAdopt = $this->meetsWrittenThreshold(forWeight: (float)($forWeight + $unanswered), base: (float)$base, threshold: $threshold);
-		} else {
-			$everyoneFor = count(array_filter($given, static fn ($value): bool => $value === 'for'));
-			$adopted = $weights !== [] && $everyoneFor === count($weights);
-			$canStillAdopt = $weights !== [] && $everyoneFor === count($given);
-		}
-
-		$closeReason = null;
-		if ($allAnswered === true && $weights !== []) {
-			$closeReason = 'all-answered';
-		} elseif ($canStillAdopt === false) {
-			$closeReason = 'outcome-settled';
-		}
+		$outlook = $this->writtenOutlook(round: $round, tally: $tally);
 
 		$result = 'rejected';
-		if ($adopted === true) {
+		if ($outlook['adopted'] === true) {
 			$result = 'adopted';
 		}
 
-		return ['result' => $result, 'closeReason' => $closeReason] + $summary;
+		return ['result' => $result, 'closeReason' => $this->writtenCloseReason(tally: $tally, canStillAdopt: $outlook['canStillAdopt'])] + $summary;
 	}//end computeWritten()
+
+	/**
+	 * The counts and weights of a written round's answers.
+	 *
+	 * @param array<string, float>  $weights The electorate's weights, membership uuid => weight.
+	 * @param array<string, string> $given   The answers from the electorate, membership uuid => value.
+	 *
+	 * @return array{members: int, answered: int, forCount: int, forWeight: float, unanswered: float, base: float}
+	 */
+	private function writtenTally(array $weights, array $given): array {
+		$for = array_filter($given, static fn ($value): bool => $value === 'for');
+
+		return [
+			'members' => count($weights),
+			'answered' => count($given),
+			'forCount' => count($for),
+			'forWeight' => (float)array_sum(array_intersect_key($weights, $for)),
+			'unanswered' => (float)array_sum(array_diff_key($weights, $given)),
+			'base' => (float)array_sum($weights),
+		];
+	}//end writtenTally()
+
+	/**
+	 * Whether a written round is adopted now, and whether it still can be.
+	 *
+	 * @param array<string, mixed> $round The round: `writtenRule`, `voteThreshold`.
+	 * @param array<string, mixed> $tally The tally from writtenTally().
+	 *
+	 * @return array{adopted: bool, canStillAdopt: bool}
+	 */
+	private function writtenOutlook(array $round, array $tally): array {
+		if (($round['writtenRule'] ?? 'unanimous') === 'threshold') {
+			$threshold = $this->rule(round: $round, name: 'voteThreshold');
+			return [
+				'adopted' => $this->meetsWrittenThreshold(weight: ['for' => $tally['forWeight'], 'base' => $tally['base']], threshold: $threshold),
+				'canStillAdopt' => $this->meetsWrittenThreshold(
+					weight: ['for' => ($tally['forWeight'] + $tally['unanswered']), 'base' => $tally['base']],
+					threshold: $threshold
+				),
+			];
+		}
+
+		return [
+			'adopted' => $tally['members'] > 0 && $tally['forCount'] === $tally['members'],
+			'canStillAdopt' => $tally['members'] > 0 && $tally['forCount'] === $tally['answered'],
+		];
+	}//end writtenOutlook()
+
+	/**
+	 * Why a written round closes now, or null while it stays open.
+	 *
+	 * @param array<string, mixed> $tally         The tally from writtenTally().
+	 * @param bool                 $canStillAdopt Whether the remaining answers can still adopt it.
+	 *
+	 * @return string|null
+	 */
+	private function writtenCloseReason(array $tally, bool $canStillAdopt): ?string {
+		if ($tally['answered'] === $tally['members'] && $tally['members'] > 0) {
+			return 'all-answered';
+		}
+
+		if ($canStillAdopt === false) {
+			return 'outcome-settled';
+		}
+
+		return null;
+	}//end writtenCloseReason()
 
 	/**
 	 * The voting weight of each entitled member, by membership uuid.
@@ -183,13 +232,14 @@ class VotingResultCalculator {
 	/**
 	 * Whether a for weight meets a threshold of the whole electorate's weight.
 	 *
-	 * @param float  $forWeight The weight of the for answers.
-	 * @param float  $base      The weight of the whole electorate.
-	 * @param string $threshold The round's vote threshold.
+	 * @param array{for: float, base: float} $weight    The weight of the for answers and of the whole electorate.
+	 * @param string                         $threshold The round's vote threshold.
 	 *
 	 * @return bool
 	 */
-	private function meetsWrittenThreshold(float $forWeight, float $base, string $threshold): bool {
+	private function meetsWrittenThreshold(array $weight, string $threshold): bool {
+		$forWeight = (float)$weight['for'];
+		$base = (float)$weight['base'];
 		if ($base <= 0.0) {
 			return false;
 		}
