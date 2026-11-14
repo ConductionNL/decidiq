@@ -231,6 +231,12 @@
 						"content": { "label": "Commitments over deadline", "icon": "AlertOutline", "variant": "warning", "route": { "name": "Commitments", "query": { "lifecycle": ["open", "in-execution"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "governance-commitment", "metric": "count", "filter": { "lifecycle": { "in": ["open", "in-execution"] } } } }
 					},
 					{
+						"_note": "termijnagenda REQ-LTA-010 / design D6. Counts long-term agenda items whose planned period's last day has passed while they are planned or postponed and nothing realised them. The aggregation endpoint has no relative-today token and honours scalar-equality filters only (see open-commitments-overdue), so this is a custom widget that fetches the open items and applies the period rule client-side (src/utils/plannedAgenda.js), never a silently wrong declarative count. It deep-links to the long-term agenda filtered to the open states. Placed in its own band below the spec'd rows.",
+						"id": "overdue-planned-agenda",
+						"type": "custom",
+						"title": "Long-term agenda overdue"
+					},
+					{
 						"_note": "openspec/specs/dashboard/spec.md REQ 'Upcoming Meetings Widget' requires body name and agenda-item count per row and a highlight for meetings inside 24h. A declarative object-list renders columns from one schema and can do none of that, so UpcomingMeetingsListWidget.vue was built for it — and then never referenced, leaving the component orphaned and the spec'd behaviour absent.",
 						"id": "upcoming-meetings-list",
 						"type": "custom",
@@ -416,6 +422,16 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "overdue-planned-agenda",
+						"gridX": 0,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
@@ -425,6 +441,7 @@
 				"widget-active-decisions": "ActiveDecisionsKpiWidget",
 				"widget-upcoming-meetings-kpi": "UpcomingMeetingsKpiWidget",
 				"widget-overdue-actions-kpi": "OverdueActionsKpiWidget",
+				"widget-overdue-planned-agenda": "OverduePlannedAgendaKpiWidget",
 				"widget-upcoming-meetings-list": "UpcomingMeetingsListWidget",
 				"widget-recent-decisions": "RecentDecisionsWidget",
 				"widget-governance-health": "GovernanceHealthWidget",

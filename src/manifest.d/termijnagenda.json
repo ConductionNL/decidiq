@@ -1,6 +1,6 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "Termijnagenda (long-term agenda / LTA) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Declarative core only: index + detail pages for the termijnagenda-item register; schema refs BY SLUG (termijnagenda-item), never PascalCase. DEFERRED (imperative frontend, out of this declarative-core fragment): the per-body board page with drag-to-reschedule (REQ-LTA-005 — a custom component + reschedule/realise/vervallen dialogs) and the Dashboard 'Termijnagenda over termijn' stat widget (REQ-LTA-010), which lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale, so a fragment cannot add one widget to Dashboard without duplicating it). This fragment does NOT edit src/manifest.json.",
+	"_note": "Termijnagenda (long-term agenda / LTA) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). Index + detail pages for the planned-agenda-item register, the per-body board page (REQ-LTA-005, reached from the index's Board header action rather than a menu entry so the menu counts ADR-004 holds stay put; custom PlannedAgendaBoard: period columns, drag-to-reschedule and a keyboard Reschedule action, both through PlannedAgendaRescheduleDialog) and, on the detail page, the PlannedAgendaActionsTab widget (reschedule / realise / lapse dialogs, REQ-LTA-004/006/003). The Dashboard 'Long-term agenda overdue' widget (REQ-LTA-010) lives in the base src/manifest.json (design D6: mergePages replaces a same-id page wholesale).",
 	"menu": [
 		{
 			"id": "PlannedAgenda",
@@ -26,27 +26,105 @@
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": true,
 				"quickFilters": [
-					{ "label": "All", "filter": {}, "default": true },
-					{ "label": "Planned", "filter": { "lifecycle": "planned" } },
-					{ "label": "Shifted", "filter": { "lifecycle": "postponed" } },
-					{ "label": "Realised", "filter": { "lifecycle": "realised" } },
-					{ "label": "Lapsed", "filter": { "lifecycle": "lapsed" } }
+					{
+						"label": "All",
+						"filter": {},
+						"default": true
+					},
+					{
+						"label": "Planned",
+						"filter": {
+							"lifecycle": "planned"
+						}
+					},
+					{
+						"label": "Shifted",
+						"filter": {
+							"lifecycle": "postponed"
+						}
+					},
+					{
+						"label": "Realised",
+						"filter": {
+							"lifecycle": "realised"
+						}
+					},
+					{
+						"label": "Lapsed",
+						"filter": {
+							"lifecycle": "lapsed"
+						}
+					}
 				],
 				"columns": [
-					{ "key": "subject", "label": "Subject", "widget": "link" },
-					{ "key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
-					{ "key": "plannedPeriod", "label": "Planned period" },
-					{ "key": "expectedType", "label": "Expected type", "widget": "badge" },
-					{ "key": "ownerType", "label": "Owner" },
-					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
+					{
+						"key": "subject",
+						"label": "Subject",
+						"widget": "link"
+					},
+					{
+						"key": "governanceBody",
+						"label": "Governance body",
+						"widget": "fkResolve",
+						"widgetProps": {
+							"register": "decidiq",
+							"schema": "governance-body",
+							"labelField": "name"
+						}
+					},
+					{
+						"key": "plannedPeriod",
+						"label": "Planned period"
+					},
+					{
+						"key": "expectedType",
+						"label": "Expected type",
+						"widget": "badge"
+					},
+					{
+						"key": "ownerType",
+						"label": "Owner"
+					},
+					{
+						"key": "lifecycle",
+						"label": "Status",
+						"widget": "badge"
+					}
 				],
 				"actions": [
-					{ "id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "PlannedAgendaDetail", "primary": true }
+					{
+						"id": "view",
+						"label": "View",
+						"icon": "EyeOutline",
+						"handler": "navigate",
+						"route": "PlannedAgendaDetail",
+						"primary": true
+					}
 				],
 				"showMassExport": true,
-				"sidebar": { "enabled": true, "showMetadata": true },
-				"documentationUrl": "https://decidiq.conduction.nl"
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true
+				},
+				"documentationUrl": "https://decidiq.conduction.nl",
+				"headerActions": [
+					{
+						"id": "open-planned-agenda-board",
+						"label": "Board view",
+						"icon": "ViewColumnOutline",
+						"handler": "navigate",
+						"route": "PlannedAgendaBoard"
+					}
+				]
 			}
+		},
+		{
+			"id": "PlannedAgendaBoard",
+			"route": "/planned-agenda-board",
+			"type": "custom",
+			"title": "Long-term agenda board",
+			"component": "PlannedAgendaBoard",
+			"_note": "spec: openspec/changes/termijnagenda/specs/termijnagenda-register/spec.md#requirement-req-lta-005-per-body-board-view-with-drag-to-reschedule. Design D5 fallback: the shared board component binds lanes to an enum, not to a value-derived period axis, so the board is a custom page. Columns are the body's distinct planned periods plus two empty quarters, ordered by each period's last day (src/utils/plannedAgenda.js)."
 		},
 		{
 			"id": "PlannedAgendaDetail",
@@ -59,23 +137,91 @@
 				"schema": "planned-agenda-item",
 				"_note": "TermijnagendaDetail (REQ-LTA-006/007). Plan data leads 8-wide, publication stacked right; governanceBody/owner and the origin links (originToezegging/originMotie/originDecision) and realisation links (realisedAgendaItem/realisedDecision) render as resolved references in the data + Related widgets. verschuifHistorie (shift history) renders in the data widget as an embedded array. Files leaf for a startnotitie. Audit trail is a sidebar tab. Execution narrative for a linked motion stays on that motion's UitvoeringsUpdate log — never duplicated here (REQ-LTA-006).",
 				"widgets": [
-					{ "id": "termijnagenda-data", "type": "data", "title": "Long-term agenda item", "icon": "Calendar", "content": { "columns": 2 } },
-					{ "id": "termijnagenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
-					{ "id": "termijnagenda-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{
+						"id": "termijnagenda-data",
+						"type": "data",
+						"title": "Long-term agenda item",
+						"icon": "Calendar",
+						"content": {
+							"columns": 2
+						}
+					},
+					{
+						"id": "planned-agenda-actions",
+						"type": "custom",
+						"component": "PlannedAgendaActionsTab",
+						"title": "Actions",
+						"icon": "CalendarArrowRight",
+						"_note": "REQ-LTA-004/006/003: Reschedule (mandatory reason, appends a shift-history entry), Mark as realised (links the agenda item or decision of the same body that realised it; creates nothing), Mark as lapsed (mandatory reason). Hidden once the item is final."
+					},
+					{
+						"id": "termijnagenda-files",
+						"type": "integration",
+						"integrationId": "files",
+						"title": "Documents",
+						"icon": "FolderOutline"
+					},
+					{
+						"id": "termijnagenda-related",
+						"type": "related",
+						"title": "Related",
+						"icon": "LinkVariant"
+					}
 				],
 				"layout": [
-					{ "id": "1", "widgetId": "termijnagenda-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "termijnagenda-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
-					{ "id": "3", "widgetId": "termijnagenda-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
+					{
+						"id": "1",
+						"widgetId": "termijnagenda-data",
+						"gridX": 0,
+						"gridY": 0,
+						"gridWidth": 8,
+						"gridHeight": 6
+					},
+					{
+						"id": "2",
+						"widgetId": "termijnagenda-files",
+						"gridX": 8,
+						"gridY": 3,
+						"gridWidth": 4,
+						"gridHeight": 3
+					},
+					{
+						"id": "3",
+						"widgetId": "termijnagenda-related",
+						"gridX": 0,
+						"gridY": 6,
+						"gridWidth": 12,
+						"gridHeight": 3
+					},
+					{
+						"id": "4",
+						"widgetId": "planned-agenda-actions",
+						"gridX": 8,
+						"gridY": 0,
+						"gridWidth": 4,
+						"gridHeight": 3
+					}
 				],
 				"sidebar": {
 					"enabled": true,
 					"showMetadata": true,
 					"tabs": [
-						{ "id": "audit", "label": "History", "icon": "History", "widgets": [ { "type": "audit" } ] }
+						{
+							"id": "audit",
+							"label": "History",
+							"icon": "History",
+							"widgets": [
+								{
+									"type": "audit"
+								}
+							]
+						}
 					]
 				},
 				"documentationUrl": "https://decidiq.conduction.nl"
+			},
+			"slots": {
+				"widget-planned-agenda-actions": "PlannedAgendaActionsTab"
 			}
 		}
 	]
