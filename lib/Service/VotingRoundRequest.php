@@ -52,6 +52,13 @@ final class VotingRoundRequest {
 	private array $presetParticipantIds = [];
 
 	/**
+	 * The voting group whose members may vote, or null for no group.
+	 *
+	 * @var string|null
+	 */
+	private ?string $votingGroupId = null;
+
+	/**
 	 * UUID of the tied round this round is the single permitted revote of.
 	 *
 	 * @var string|null
@@ -107,6 +114,32 @@ final class VotingRoundRequest {
 		$request->rules = ($rules ?? new VotingRoundRules());
 		return $request;
 	}//end opening()
+
+	/**
+	 * The same request, restricted to the members of a voting group.
+	 *
+	 * @param string|null $votingGroupId The voting group's id, or null for no group.
+	 *
+	 * @return self The request.
+	 *
+	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 */
+	public function withVotingGroup(?string $votingGroupId): self {
+		$request = clone $this;
+		$request->votingGroupId = $votingGroupId;
+		return $request;
+	}//end withVotingGroup()
+
+	/**
+	 * The voting group whose members may vote.
+	 *
+	 * @return string|null The group's id, or null when the round names none.
+	 *
+	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 */
+	public function votingGroupId(): ?string {
+		return $this->votingGroupId;
+	}//end votingGroupId()
 
 	/**
 	 * The pre-defined close time.

@@ -420,10 +420,12 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 	 * The callbackUrl MUST match a registered ADR-019 integration registry
 	 * consumer entry — arbitrary URLs are rejected to prevent SSRF.
 	 * The URL is stored on the Decision's `outcomeCallbackUrl` field (additive,
-	 * per REQ-DCDH-001 provenance block). The registry dispatch itself is
-	 * declared via x-openregister-notifications on the Decision schema
-	 * (ADR-031) and wired by OpenRegister's notification engine on terminal
-	 * lifecycle transitions.
+	 * per REQ-DCDH-001 provenance block). The delivery itself is declared via
+	 * x-openregister-notifications on the Decision schema (ADR-031): the rules
+	 * `outcomeDecided`, `outcomeEnacted` and `outcomeWithdrawn` fire on the
+	 * terminal lifecycle transitions, and their webhook channel posts to this
+	 * field (`webhook.urlField: outcomeCallbackUrl`), so OpenRegister's
+	 * notification engine sends the outcome to each subscriber's own URL.
 	 *
 	 * This method does NOT authorize the caller. `isRegistryConsumer()` below
 	 * validates the callback URL against the app-wide ADR-019 registry — it
@@ -443,6 +445,7 @@ class DecisionIntegrationService implements DecisionIntegrationServiceInterface 
 	 *
 	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-2
 	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
 	 */
 	public function registerOutcomeCallback(string $decisionId, string $callbackUrl, string $actorId): array {
 		// Anti-SSRF: validate the callbackUrl against the ADR-019 registry.

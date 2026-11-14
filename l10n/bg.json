@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Кой може да гласува",
+        "All members of the body": "Всички членове на органа",
+        "Left out because they are no longer active members: {names}": "Изключени, защото вече не са активни членове: {names}",
         "sign-off route": "маршрут за одобрение",
         "#": "#",
         "+ Action item": "+ Действие",
