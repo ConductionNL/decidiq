@@ -3324,7 +3324,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Extra möte",
         "Committee meeting": "Utskottsmöte",
         "Public hearing": "Offentlig utfrågning",
-        "General assembly": "Stämma"
+        "General assembly": "Stämma",
+        "Members' ancillary positions": "Medlemmarnas bisysslor"
     },
     "nplurals=2; plural=(n != 1);"
 )

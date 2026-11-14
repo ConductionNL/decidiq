@@ -279,6 +279,12 @@
 						"id": "incoming-documents",
 						"type": "custom",
 						"title": "Incoming documents"
+					},
+					{
+						"_note": "interests-and-integrity REQ-INT-010 / design D7: 'Nevenfuncties zonder actuele review'. Counts other positions that have not ended whose review (or declaration, when never reviewed) is more than 12 months old. A declarative 'stat' widget cannot express this: OpenRegister's aggregation endpoint honours only scalar-equality filters and leaves a relative-date filter unapplied, which would show a wrong count. Per the design's KPI fallback it is a custom widget (OverdueReviewsKpiWidget) that self-fetches the positions that have not ended and counts client-side, like the Row-1 KPI cards; it deep-links to AncillaryPositions filtered to reviewedAt before @today-365d.",
+						"id": "overdue-reviews-kpi",
+						"type": "custom",
+						"title": "Other positions without a current review"
 					}
 				],
 				"dateRange": {
@@ -416,6 +422,16 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "overdue-reviews-kpi",
+						"gridX": 0,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"
@@ -434,7 +450,8 @@
 				"widget-running-processes-actions": "StartProcessAction",
 				"widget-my-action-items": "MyActionItemsWidget",
 				"widget-dashboard-empty-state": "DashboardEmptyState",
-				"widget-incoming-documents": "IncomingDocumentsWidget"
+				"widget-incoming-documents": "IncomingDocumentsWidget",
+				"widget-overdue-reviews-kpi": "OverdueReviewsKpiWidget"
 			}
 		},
 		{
