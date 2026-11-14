@@ -110,22 +110,51 @@ class DecisionRemedyStampListener implements IEventListener {
 			return;
 		}
 
+		$update = $this->clauseUpdate(decision: $decision);
+		if ($update !== null) {
+			$event->setModifiedData(array_merge($event->getModifiedData(), $update));
+		}
+	}//end stampInto()
+
+	/**
+	 * The `legalRemedyClause` change to write, or null when the stamp leaves
+	 * the clause as it is or nothing is stamped.
+	 *
+	 * @param array<string, mixed> $decision The merged decision payload.
+	 *
+	 * @return array{legalRemedyClause: mixed}|null
+	 */
+	private function clauseUpdate(array $decision): ?array {
+		$stamped = $this->stamped(decision: $decision);
+		if ($stamped === null || ($stamped['legalRemedyClause'] ?? null) === ($decision['legalRemedyClause'] ?? null)) {
+			return null;
+		}
+
+		return ['legalRemedyClause' => $stamped['legalRemedyClause']];
+	}//end clauseUpdate()
+
+	/**
+	 * The decision as the resolver stamps it, or null when its type cannot be
+	 * read or is not publishable, in which case nothing is stamped.
+	 *
+	 * @param array<string, mixed> $decision The merged decision payload.
+	 *
+	 * @return array<string, mixed>|null
+	 */
+	private function stamped(array $decision): ?array {
 		$type = $this->typeOf(decision: $decision);
 		if ($type === null) {
-			return;
+			return null;
 		}
 
 		try {
 			$this->remedies->assertPublishable(type: $type);
 		} catch (Throwable) {
-			return;
+			return null;
 		}
 
-		$stamped = $this->remedies->stamp(decision: $decision, type: $type);
-		if (($stamped['legalRemedyClause'] ?? null) !== ($decision['legalRemedyClause'] ?? null)) {
-			$event->setModifiedData(array_merge($event->getModifiedData(), ['legalRemedyClause' => $stamped['legalRemedyClause']]));
-		}
-	}//end stampInto()
+		return $this->remedies->stamp(decision: $decision, type: $type);
+	}//end stamped()
 
 	/**
 	 * Whether a decision as it will be saved has been taken.
@@ -170,17 +199,13 @@ class DecisionRemedyStampListener implements IEventListener {
 	 * @return array<string, mixed>|null
 	 */
 	private function typeOf(array $decision): ?array {
-		$typeId = $decision['type'] ?? null;
-		if (is_array($typeId) === true) {
-			$typeId = ($typeId['id'] ?? ($typeId['uuid'] ?? null));
-		}
-
-		if (is_string($typeId) === false || trim($typeId) === '') {
+		$typeId = self::typeIdOf(decision: $decision);
+		if ($typeId === null) {
 			return null;
 		}
 
 		try {
-			$found = $this->objectService->find(id: trim($typeId), register: 'decidiq', schema: 'decision-template');
+			$found = $this->objectService->find(id: $typeId, register: 'decidiq', schema: 'decision-template');
 		} catch (Throwable $e) {
 			$this->logger->warning(
 				message: 'Decidiq: the decision type could not be read, so no remedy clause was stamped',
@@ -195,4 +220,25 @@ class DecisionRemedyStampListener implements IEventListener {
 
 		return (array)$found->getObject();
 	}//end typeOf()
+
+	/**
+	 * The decision's type id: the `type` string, or the `id`/`uuid` of a
+	 * `type` object; null when it names none.
+	 *
+	 * @param array<string, mixed> $decision The merged decision payload.
+	 *
+	 * @return string|null The trimmed id.
+	 */
+	private static function typeIdOf(array $decision): ?string {
+		$typeId = ($decision['type'] ?? null);
+		if (is_array($typeId) === true) {
+			$typeId = ($typeId['id'] ?? ($typeId['uuid'] ?? null));
+		}
+
+		if (is_string($typeId) === false || trim($typeId) === '') {
+			return null;
+		}
+
+		return trim($typeId);
+	}//end typeIdOf()
 }//end class
