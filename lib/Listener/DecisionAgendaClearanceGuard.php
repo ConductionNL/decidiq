@@ -143,6 +143,8 @@ class DecisionAgendaClearanceGuard implements IEventListener {
 	 * @param array<int,array<string,mixed>> $waitingOn The open steps.
 	 *
 	 * @return string
+	 *
+	 * @spec openspec/changes/routes-send-proposal-along-route/specs/approval-routes/spec.md#scenario-not-on-the-agenda-before-approval
 	 */
 	public static function message(array $waitingOn): string {
 		$steps = [];
