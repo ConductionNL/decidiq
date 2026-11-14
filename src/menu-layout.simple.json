@@ -1809,6 +1809,9 @@
 					"meeting-video-call": {
 						"type": "MeetingVideoCallTab"
 					},
+					"meeting-teams": {
+						"type": "MeetingTeamsTab"
+					},
 					"meeting-participants": {
 						"type": "MeetingParticipantsTab"
 					},
@@ -2011,6 +2014,10 @@
 								{
 									"label": "Video call",
 									"widgetId": "meeting-video-call"
+								},
+								{
+									"label": "Microsoft Teams",
+									"widgetId": "meeting-teams"
 								}
 							]
 						}
