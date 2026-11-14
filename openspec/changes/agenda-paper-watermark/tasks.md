@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the register WHEN `meeting` is read THEN `watermarkPapers` (default `automatic`) and `watermarkText` exist
   - GIVEN the closed session in the example set WHEN loaded THEN it carries `on` and "Vertrouwelijk"
-- [ ] Implement (schema fields and the Planning widget done; the example set has no closed session to seed `on` / "Vertrouwelijk" on)
-- [x] Test (schema test)
+- [x] Implement (schema fields, the Planning widget, and the closed session "Besloten vergadering grondzaken" in the municipality example set with `on` / "Vertrouwelijk")
+- [x] Test (schema test, example-set test)
 
 ### Task 2: The policy
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
@@ -29,8 +29,8 @@
   - GIVEN a member who can read the item WHEN he opens a paper that must be stamped THEN the PDF he gets shows his name and the date on every page
   - GIVEN a user who cannot read the item WHEN he asks for the paper THEN 404
   - GIVEN filinq has no stamping method WHEN a stamped paper is asked for THEN 503 with the reason, never the unstamped file
-- [ ] Implement (waits on the filinq stamping method)
-- [ ] Test
+- [x] Implement (filinq `PdfStampService::stamp()`; route `/api/papers/{schema}/{objectId}/{fileId}/view`, next to the existing convert route, so the paper is checked against the page that records it)
+- [x] Test
 
 ### Task 4: Screens link through the stamp and the package is stamped
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it`
@@ -38,7 +38,7 @@
 - **acceptance_criteria**:
   - GIVEN a closed session WHEN a member opens a paper from the agenda item page THEN the viewer shows the stamped PDF
   - GIVEN the same meeting WHEN a member assembles the package THEN every paper in it carries his name
-- [ ] Implement
+- [x] Implement (the Papers widget links a member's paper through the view; `MeetingPackageService` stamps each paper for the person who takes the package and leaves out one that cannot be stamped; unit tests in `MeetingPackageServiceTest` and `paperRenditions.spec.js`)
 - [ ] Test (Playwright reads the PDF text layer for the name)
 
 ### Task 5: Cache and sweep
@@ -47,8 +47,8 @@
 - **acceptance_criteria**:
   - GIVEN a member opens the same paper twice on one day WHEN the second request arrives THEN it is served from the cache
   - GIVEN cached copies from yesterday WHEN the sweep runs THEN they are removed
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ## Verification
 

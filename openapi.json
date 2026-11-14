@@ -172,6 +172,10 @@
             "description": "The OpenAPI document that describes this API."
         },
         {
+            "name": "paper",
+            "description": "Papers of meetings and agenda items, opened with the reader's watermark when the meeting asks for it."
+        },
+        {
             "name": "paper-conversion",
             "description": "POST /api/papers/{schema}/{objectId}/{fileId}/convert queues a new conversion of a paper the object already records. Only the chair, the secretary or an administrator of the meeting may ask; the paper must be one of the object's own, so no other file can be converted through it."
         },
@@ -5247,6 +5251,84 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/papers/{schema}/{objectId}/{fileId}/view": {
+            "get": {
+                "operationId": "paper-view",
+                "summary": "Open one paper of a meeting or an agenda item",
+                "description": "Open one paper of a meeting or an agenda item. The caller must be able to read the meeting or the agenda item, and the file must be one of its papers. When the meeting's watermark policy applies, the paper is served only as a PDF stamped with the reader's name, the date and time and the meeting's watermark text; when it cannot be stamped the request is refused and no file is sent. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "paper"
+                ],
+                "parameters": [
+                    {
+                        "name": "schema",
+                        "in": "path",
+                        "required": true,
+                        "description": "`agenda-item` or `meeting`.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "objectId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The object uuid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The paper's file id: its PDF, or its original when it has none.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The paper, shown in the browser; stamped when the meeting asks for it.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/pdf": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            },
+                            "application/octet-stream": {
+                                "schema": {
+                                    "type": "string",
+                                    "format": "binary"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "$ref": "#/components/responses/Problem400"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
                     }
                 }
             }

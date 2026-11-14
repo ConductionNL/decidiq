@@ -13,7 +13,7 @@ import { validatorFor } from './helpers/registerSchema.js'
 
 vi.mock('@nextcloud/router', () => ({ generateUrl: (path) => `/index.php${path}` }))
 
-const { conversionPayload, conversionSetting, paperEntries, retryUrl, splitName } =
+const { conversionPayload, conversionSetting, paperEntries, retryUrl, splitName, viewUrl } =
 	await import('../../src/utils/paperRenditions.js')
 
 // The two shapes ConvertPaperToPdfJob writes (ConvertPaperToPdfJobTest).
@@ -46,6 +46,31 @@ describe('a member reads the PDF (REQ-OPDF-003)', () => {
 		const [entry] = paperEntries([converted], true)
 		expect(entry.originalUrl).toBe('/index.php/f/4711')
 		expect(entry.originalKind).toBe('Word')
+	})
+})
+
+describe('a member opens the paper through the watermark (REQ-WMK-002)', () => {
+	const page = { schema: 'agenda-item', objectId: 'item-1' }
+
+	it('opens the PDF through the paper view of this page', () => {
+		const [entry] = paperEntries([converted], false, page)
+		expect(entry.pdfUrl).toBe(
+			'/index.php/apps/decidiq/api/papers/agenda-item/item-1/4712/view',
+		)
+		expect(entry.originalUrl).toBe('')
+	})
+
+	it('opens an unconverted paper through the view too, so it is never handed out unstamped', () => {
+		const [entry] = paperEntries([failed], false, page)
+		expect(entry.originalUrl).toBe(
+			'/index.php/apps/decidiq/api/papers/agenda-item/item-1/5000/view',
+		)
+	})
+
+	it('keeps the clerk\'s original a Files link', () => {
+		const [entry] = paperEntries([converted], true, page)
+		expect(entry.pdfUrl).toBe(viewUrl('agenda-item', 'item-1', 4712))
+		expect(entry.originalUrl).toBe('/index.php/f/4711')
 	})
 })
 

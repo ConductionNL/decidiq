@@ -84,7 +84,8 @@ final class MeetingPackageWriter {
 		$number = 0;
 		foreach ($package['items'] as $item) {
 			$number++;
-			$this->copyItemDocuments(item: $item, place: ['packagePath' => $package['packagePath'], 'number' => $number]);
+			$place = ['packagePath' => $package['packagePath'], 'number' => $number, 'stamp' => ($package['stamp'] ?? null)];
+			$this->copyItemDocuments(item: $item, place: $place);
 		}
 
 	}//end write()
@@ -105,7 +106,7 @@ final class MeetingPackageWriter {
 	 * Copy one agenda item's documents into its numbered folder.
 	 *
 	 * @param array<string, mixed> $item Agenda item payload
-	 * @param array{packagePath: string, number: int} $place The package path and the item's position
+	 * @param array{packagePath: string, number: int, stamp?: (\Closure(array<string, mixed>, object, string): string)|null} $place Where, and the stamp
 	 *
 	 * @spec openspec/specs/agenda-management/spec.md
 	 *
@@ -116,7 +117,14 @@ final class MeetingPackageWriter {
 		$itemFolder = $this->fileService->createFolder($place['packagePath'] . '/' . $itemFolderName);
 		foreach ($this->resolveItemFiles(item: $item) as $fileNode) {
 			try {
-				$file = ['name' => (string)$fileNode->getName(), 'content' => (string)$fileNode->getContent()];
+				$content = (string)$fileNode->getContent();
+				if (isset($place['stamp']) === true) {
+					// Stamped for the person who takes the package when the
+					// meeting asks for it; a refusal skips the paper.
+					$content = ($place['stamp'])($item, $fileNode, $content);
+				}
+
+				$file = ['name' => (string)$fileNode->getName(), 'content' => $content];
 				$this->files += (int)$this->writeFileDefensively(folder: $itemFolder, file: $file);
 			} catch (\Throwable $copyError) {
 				$this->skipped[] = $itemFolderName . '/' . $fileNode->getName() . ' (' . $copyError->getMessage() . ')';

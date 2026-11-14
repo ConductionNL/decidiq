@@ -126,6 +126,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
         <job>OCA\Decidiq\BackgroundJob\VotingDeadlineReminderJob</job>
         <!-- @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-mrd-001-meeting-notices-follow-the-member-switches -->
         <job>OCA\Decidiq\BackgroundJob\MeetingReminderJob</job>
+        <!-- agenda-paper-watermark: once a day, removes the watermarked copies of
+             papers kept for earlier days.
+             @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md -->
+        <job>OCA\Decidiq\BackgroundJob\WatermarkCacheSweepJob</job>
         <!-- @spec openspec/changes/citizen-participation/specs/citizen-participation/spec.md -->
         <job>OCA\Decidiq\BackgroundJob\ConsultationAutoCloseJob</job>
         <!-- @spec openspec/changes/meeting-transcription-ai-minutes/specs/meeting-transcription/spec.md -->

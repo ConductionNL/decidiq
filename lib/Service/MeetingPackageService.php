@@ -29,6 +29,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Kernel\Contracts\MeetingPackageServiceInterface;
+use OCP\IUserManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -70,11 +71,15 @@ class MeetingPackageService implements MeetingPackageServiceInterface {
 	 * @param ContainerInterface $container DI container (lazy-loads OpenRegister's ObjectService + FileService)
 	 * @param LoggerInterface $logger The logger
 	 * @param MeetingFolderService $meetingFolderService Creates / locates the meeting's Files folder tree
+	 * @param PaperStamper $stamper Stamps a paper for the person who takes the package
+	 * @param IUserManager $userManager Names that person on the stamp
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly MeetingFolderService $meetingFolderService,
+		private readonly PaperStamper $stamper,
+		private readonly IUserManager $userManager,
 	) {
 	}//end __construct()
 
@@ -106,9 +111,47 @@ class MeetingPackageService implements MeetingPackageServiceInterface {
 		}
 
 		$package = ['meeting' => $loaded['meeting'], 'items' => $items, 'meetingPath' => $meetingPath, 'meetingId' => $meetingId, 'userId' => $userId];
+		$package['stamp'] = $this->stampFor(meeting: $loaded['meeting'], userId: $userId);
 		return $this->writePackage(package: $package);
 
 	}//end assemble()
+
+	/**
+	 * The stamp the package's papers get: the paper as it is when the
+	 * meeting's policy does not ask for one, else stamped for the person who
+	 * takes the package. A paper that must be stamped and cannot be is
+	 * thrown out of the package (the writer lists it as skipped), never
+	 * copied unstamped.
+	 *
+	 * @param array<string, mixed> $meeting The meeting
+	 * @param string               $userId  The person who takes the package
+	 *
+	 * @return \Closure(array<string, mixed>, object, string): string
+	 *
+	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
+	 */
+	private function stampFor(array $meeting, string $userId): \Closure {
+		$user   = $this->userManager->get($userId);
+		$reader = ['uid' => $userId, 'displayName' => $userId];
+		if ($user !== null) {
+			$reader['displayName'] = $user->getDisplayName();
+		}
+
+		return function (array $item, object $node, string $content) use ($meeting, $reader): string {
+			$itemId = (string)($item['id'] ?? ($item['@self']['id'] ?? ''));
+			if ($this->stamper->mustStamp(meeting: $meeting, agendaItemId: $itemId) === false) {
+				return $content;
+			}
+
+			$paper = [
+				'fileId'  => (int)$node->getId(),
+				'etag'    => (string)$node->getEtag(),
+				'content' => $content,
+			];
+			return $this->stamper->stamped(meeting: $meeting, paper: $paper, reader: $reader);
+		};
+
+	}//end stampFor()
 
 	/**
 	 * Load the meeting through ObjectService.

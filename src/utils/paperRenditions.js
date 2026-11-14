@@ -58,12 +58,23 @@ export function fileUrl(fileId) {
 /**
  * The entries of the Papers widget, one per Office paper.
  *
+ * With the page (`schema`, `objectId`) the paper a member opens goes through
+ * decidiq's paper view, which stamps it with the reader's name when the
+ * meeting asks for it (agenda-paper-watermark). The clerk's original stays a
+ * plain Files link.
+ *
  * @param {Array<object>} renditions The object's `paperRenditions`.
  * @param {boolean} canManage Whether the caller is chair, secretary or admin.
+ * @param {{schema: string, objectId: string}} [page] The meeting or agenda item the papers are on.
  * @return {Array<{key: number, title: string, pdfUrl: string, originalUrl: string, originalKind: string, failure: string, canRetry: boolean}>} The entries.
  * @spec openspec/specs/agenda-management/spec.md#requirement-req-opdf-003-members-read-and-download-the-pdf
+ * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
  */
-export function paperEntries(renditions, canManage) {
+export function paperEntries(renditions, canManage, page) {
+	const open = (fileId) =>
+		page?.schema && page?.objectId
+			? viewUrl(page.schema, page.objectId, fileId)
+			: fileUrl(fileId)
 	return (Array.isArray(renditions) ? renditions : [])
 		.filter((entry) => entry && Number.isInteger(entry.sourceFileId))
 		.map((entry) => {
@@ -72,15 +83,34 @@ export function paperEntries(renditions, canManage) {
 			return {
 				key: entry.sourceFileId,
 				title,
-				pdfUrl: converted ? fileUrl(entry.pdfFileId) : '',
-				// Without a PDF the original is the paper, for everyone.
-				originalUrl:
-					canManage || !converted ? fileUrl(entry.sourceFileId) : '',
+				pdfUrl: converted ? open(entry.pdfFileId) : '',
+				// Without a PDF the original is the paper, for everyone; the
+				// clerk's original is the Files copy.
+				originalUrl: canManage
+					? fileUrl(entry.sourceFileId)
+					: converted
+						? ''
+						: open(entry.sourceFileId),
 				originalKind: kind,
 				failure: converted ? '' : String(entry.failure || ''),
 				canRetry: canManage && !converted,
 			}
 		})
+}
+
+/**
+ * The address that opens one paper of a page, stamped when the meeting asks for it.
+ *
+ * @param {string} schema 'agenda-item' or 'meeting'.
+ * @param {string} objectId The object uuid.
+ * @param {number} fileId The paper's file id.
+ * @return {string} The URL.
+ * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date
+ */
+export function viewUrl(schema, objectId, fileId) {
+	return generateUrl(
+		`/apps/decidiq/api/papers/${schema}/${objectId}/${fileId}/view`,
+	)
 }
 
 /**
