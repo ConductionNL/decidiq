@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Olağanüstü toplantı",
         "Committee meeting": "Komite toplantısı",
         "Public hearing": "Kamuya açık oturum",
-        "General assembly": "Genel kurul"
+        "General assembly": "Genel kurul",
+        "Members' ancillary positions": "Üyelerin yan görevleri"
     },
     "nplurals=2; plural=(n != 1);"
 )
