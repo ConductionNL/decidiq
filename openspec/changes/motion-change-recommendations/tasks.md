@@ -49,8 +49,8 @@
 
 ### Task 6: End to end and docs
 - **files**: `tests/e2e/motion-change-recommendations.spec.ts` (new, `page.` steps, tagged with each scenario), `docs/features/motion-change-recommendations.md` (new)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [ ] Test (the Playwright spec needs a live instance with the seeded motion; not run here)
 
 ## Verification
 
