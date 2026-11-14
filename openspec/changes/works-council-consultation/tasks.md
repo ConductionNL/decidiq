@@ -56,8 +56,8 @@
   - GIVEN a traject in `verzonden` WHEN the secretaris records the bestuurder besluit via an explicit dialog THEN `besluitOutcome`/`besluitText`/`besluitDate` are stored with the transition to `besluit-ontvangen`, an afwijkend besluit on an adviesaanvraag shows the derived opschortingstermijn, and the OR-members notification fires declaratively
   - GIVEN a traject in `achterbanraadpleging` WHEN the OR links a constituency-consultation raadpleging THEN it renders as a navigable reference and no poll mechanics are stored on the traject
   - GIVEN a traject with `relatedDecision` set WHEN the formal response is recorded THEN the advisory stage flow (existing `method=advice` semantics) is reachable from the traject detail and no new derivation mechanism is introduced
-- [ ] Implement
-- [ ] Test
+- [x] Implement (a "Next step" widget on the traject page, `WorksCouncilResponseTab`: "Write the response document" once the response is adopted, and "Record the director's decision" once it is sent, through `src/dialogs/RecordDirectorDecisionDialog.vue`, which saves the outcome, text and date with the move to decision-received and shows the suspension term a decision contrary to the advice starts. The constituency consultation and the related decision open as links; nothing of the poll or the advisory stage is stored on the traject. The OR-members notification is the declared one in fragment 47)
+- [x] Test (`tests/vitest/worksCouncilResponse.spec.js`, the saved payload checked against the shipped schema)
 
 ### Task 7: E2E coverage — Playwright scenarios for the WOR traject
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md`
