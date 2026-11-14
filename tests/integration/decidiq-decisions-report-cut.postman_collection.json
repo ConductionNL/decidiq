@@ -1,0 +1,1146 @@
+{
+	"info": {
+		"name": "decidiq-decisions-report-cut",
+		"description": "insight-decisions-report-by-period-and-body, task 2 (REQ-DRP-002): OpenRegister's aggregation endpoint counts decisions with a decisionDate gte / lte bound, which is what the Decisions report's period picker sends. Seeds one governance body and five decisions of it (three dated 2025, two dated 2026), counts them with and without a period, groups the 2026 ones by decidingBody (the By body chart), and tears everything down. Every count is scoped to the seeded body, so other decisions on the instance do not change the numbers.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Seed governance body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: governance body created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.expect(id, 'governance body id captured').to.be.a('string');",
+							"pm.collectionVariables.set('bodyId', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"governance-body"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Newman Decisions Report Body\",\n  \"bodyType\": \"council\",\n  \"domain\": \"newman-decisions-report-cut\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed decision 1 dated 2025-03-10",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: decision 1 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.collectionVariables.set('decision1Id', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman report-cut decision 1\",\n  \"text\": \"Decided for the report-cut collection.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2025-03-10T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\",\n  \"decidingBody\": \"{{bodyId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed decision 2 dated 2025-06-12",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: decision 2 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.collectionVariables.set('decision2Id', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman report-cut decision 2\",\n  \"text\": \"Decided for the report-cut collection.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2025-06-12T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\",\n  \"decidingBody\": \"{{bodyId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed decision 3 dated 2025-11-20",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: decision 3 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.collectionVariables.set('decision3Id', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman report-cut decision 3\",\n  \"text\": \"Decided for the report-cut collection.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2025-11-20T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\",\n  \"decidingBody\": \"{{bodyId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed decision 4 dated 2026-02-05",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: decision 4 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.collectionVariables.set('decision4Id', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman report-cut decision 4\",\n  \"text\": \"Decided for the report-cut collection.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2026-02-05T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\",\n  \"decidingBody\": \"{{bodyId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Seed decision 5 dated 2026-05-18",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Setup: decision 5 created (201)', () => pm.response.to.have.status(201));",
+							"const b = pm.response.json();",
+							"const id = (b['@self'] && b['@self'].id) || b.id;",
+							"pm.collectionVariables.set('decision5Id', id);"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision"
+					]
+				},
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"decisionType\": \"meeting-outcome\",\n  \"title\": \"Newman report-cut decision 5\",\n  \"text\": \"Decided for the report-cut collection.\",\n  \"lifecycle\": \"decided\",\n  \"decisionDate\": \"2026-05-18T10:00:00+00:00\",\n  \"outcome\": \"adopted\",\n  \"isPublished\": \"internal\",\n  \"decidingBody\": \"{{bodyId}}\"\n}"
+				}
+			}
+		},
+		{
+			"name": "Count the body's decisions (no period)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Aggregation answers 200', () => pm.response.to.have.status(200));",
+							"pm.test('All five decisions of the body count', () => pm.expect(Number(pm.response.json().value)).to.eql(5));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/aggregations/decidiq/decision/value?metric=count&filter[decidingBody]={{bodyId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"aggregations",
+						"decidiq",
+						"decision",
+						"value"
+					],
+					"query": [
+						{
+							"key": "metric",
+							"value": "count"
+						},
+						{
+							"key": "filter[decidingBody]",
+							"value": "{{bodyId}}"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Count from 2026-01-01 (gte)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Aggregation answers 200', () => pm.response.to.have.status(200));",
+							"pm.test('Only the two decisions dated 2026 count', () => pm.expect(Number(pm.response.json().value)).to.eql(2));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/aggregations/decidiq/decision/value?metric=count&filter[decidingBody]={{bodyId}}&filter[decisionDate][gte]=2026-01-01",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"aggregations",
+						"decidiq",
+						"decision",
+						"value"
+					],
+					"query": [
+						{
+							"key": "metric",
+							"value": "count"
+						},
+						{
+							"key": "filter[decidingBody]",
+							"value": "{{bodyId}}"
+						},
+						{
+							"key": "filter[decisionDate][gte]",
+							"value": "2026-01-01"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Count within 2025 (gte + lte)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Aggregation answers 200', () => pm.response.to.have.status(200));",
+							"pm.test('Only the three decisions dated 2025 count', () => pm.expect(Number(pm.response.json().value)).to.eql(3));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/aggregations/decidiq/decision/value?metric=count&filter[decidingBody]={{bodyId}}&filter[decisionDate][gte]=2025-01-01&filter[decisionDate][lte]=2025-12-31T23:59:59%2B00:00",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"aggregations",
+						"decidiq",
+						"decision",
+						"value"
+					],
+					"query": [
+						{
+							"key": "metric",
+							"value": "count"
+						},
+						{
+							"key": "filter[decidingBody]",
+							"value": "{{bodyId}}"
+						},
+						{
+							"key": "filter[decisionDate][gte]",
+							"value": "2025-01-01"
+						},
+						{
+							"key": "filter[decisionDate][lte]",
+							"value": "2025-12-31T23:59:59%2B00:00"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Group the period's decisions by body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Grouped aggregation answers 200', () => pm.response.to.have.status(200));",
+							"const groups = pm.response.json().groups || [];",
+							"const mine = groups.find((g) => g.key === pm.collectionVariables.get('bodyId'));",
+							"pm.test('The By body chart counts 2 for the body in 2026', () => pm.expect(mine && Number(mine.value)).to.eql(2));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/aggregations/decidiq/decision/grouped?groupBy=decidingBody&metric=count&filter[decidingBody]={{bodyId}}&filter[decisionDate][gte]=2026-01-01",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"aggregations",
+						"decidiq",
+						"decision",
+						"grouped"
+					],
+					"query": [
+						{
+							"key": "groupBy",
+							"value": "decidingBody"
+						},
+						{
+							"key": "metric",
+							"value": "count"
+						},
+						{
+							"key": "filter[decidingBody]",
+							"value": "{{bodyId}}"
+						},
+						{
+							"key": "filter[decisionDate][gte]",
+							"value": "2026-01-01"
+						}
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown decision 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: decision deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decision1Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision",
+						"{{decision1Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown decision 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: decision deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decision2Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision",
+						"{{decision2Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown decision 3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: decision deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decision3Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision",
+						"{{decision3Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown decision 4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: decision deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decision4Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision",
+						"{{decision4Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown decision 5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: decision deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/decision/{{decision5Id}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"decision",
+						"{{decision5Id}}"
+					]
+				}
+			}
+		},
+		{
+			"name": "Teardown governance body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('Teardown: governance body deleted', () => pm.expect(pm.response.code).to.be.oneOf([200, 204, 404]));"
+						]
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{adminUser}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{adminPass}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "OCS-APIRequest",
+						"value": "true"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/index.php/apps/openregister/api/objects/decidiq/governance-body/{{bodyId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"openregister",
+						"api",
+						"objects",
+						"decidiq",
+						"governance-body",
+						"{{bodyId}}"
+					]
+				}
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "adminUser",
+			"value": "admin"
+		},
+		{
+			"key": "adminPass",
+			"value": "admin"
+		},
+		{
+			"key": "bodyId",
+			"value": ""
+		},
+		{
+			"key": "decision1Id",
+			"value": ""
+		},
+		{
+			"key": "decision2Id",
+			"value": ""
+		},
+		{
+			"key": "decision3Id",
+			"value": ""
+		},
+		{
+			"key": "decision4Id",
+			"value": ""
+		},
+		{
+			"key": "decision5Id",
+			"value": ""
+		}
+	]
+}
