@@ -9,8 +9,9 @@
   - GIVEN an array of PDF byte streams and a bookmark list WHEN `mergePdfs()` runs THEN one PDF is returned with continuous pagination and a named outline entry per bookmark (mPDF 8.2 + FPDI import, no new library)
   - GIVEN an unparsable PDF in the input WHEN merging THEN a `PdfMergeException`-style typed failure identifies the offending stream so the caller can substitute a placeholder
   - Existing `renderPdf`/`generatePdfFromHtml` callers are behaviourally unchanged (additive method only)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Done in filinq (ConductionNL/filinq#2132), as `PdfMerger::mergePdfs()` with `PdfMergeException::getStreamIndex()` rather than on `PdfService`, which would otherwise go past phpmd's public-method limit; `PdfService` and its render methods are unchanged. Tests: filinq `tests/unit/Service/PdfMergerTest.php` (6, over real mPDF output). Decidiq's `FilinqPdf::merge()` now asks filinq's `PdfMerger`, then a `PdfService` that carries `mergePdfs()`; until filinq#2132 is on an instance the pack keeps its placeholders (`FilinqPdfTest`).
 
 ### Task 2: Register — `MeetingPack` schema, `AgendaItem.confidentiality`, declarative notification
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-003-meetingpack-version-tracking`

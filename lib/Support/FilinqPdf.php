@@ -127,9 +127,10 @@ class FilinqPdf
     /**
      * Merge PDFs into one with a bookmark per named stream, or answer null.
      *
-     * Null when filinq is absent, when its PdfService has no `mergePdfs()`
-     * yet, or when the merge fails; the caller then keeps its attachments out
-     * of the document and says so.
+     * Filinq merges through its `PdfMerger`; an instance whose `PdfService`
+     * carries `mergePdfs()` itself is asked there. Null when filinq is absent,
+     * when neither can merge, or when the merge fails; the caller then keeps
+     * its attachments out of the document and says so.
      *
      * @param array<int, string> $pdfs      The PDF byte streams, in order.
      * @param array<int, string> $bookmarks The outline entry per stream index.
@@ -141,14 +142,14 @@ class FilinqPdf
      */
     public function merge(array $pdfs, array $bookmarks, string $context): ?string {
         try {
-            $pdfService = FleetAppId::getService($this->container, 'filinq', 'Service\PdfService');
-            if ($pdfService === null || method_exists($pdfService, 'mergePdfs') === false) {
+            $merger = $this->merger();
+            if ($merger === null) {
                 $this->logger->info('Decidiq: filinq cannot merge PDFs on this instance for ' . $context);
 
                 return null;
             }
 
-            $merged = $pdfService->mergePdfs($pdfs, $bookmarks);
+            $merged = $merger->mergePdfs($pdfs, $bookmarks);
             if (is_string($merged) === true && $merged !== '') {
                 return $merged;
             }
@@ -159,5 +160,25 @@ class FilinqPdf
         return null;
 
     }//end merge()
+
+
+    /**
+     * The filinq service that merges PDFs, or null when there is none.
+     *
+     * @return object|null An object with `mergePdfs(array, array): string`.
+     *
+     * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-002-defensive-attachment-merging-with-placeholder-pages
+     */
+    private function merger(): ?object {
+        foreach (['Service\PdfMerger', 'Service\PdfService'] as $relative) {
+            $service = FleetAppId::getService($this->container, 'filinq', $relative);
+            if ($service !== null && method_exists($service, 'mergePdfs') === true) {
+                return $service;
+            }
+        }
+
+        return null;
+
+    }//end merger()
 
 }//end class
