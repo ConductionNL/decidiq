@@ -12,12 +12,15 @@ import {
 	buildMembershipPayload,
 	isActiveMembershipAt,
 } from '../../src/components/tabs/useRelationStore.js'
-import { memberRowsFor } from '../../src/utils/bodyMembership.js'
+import { memberRowsFor, startOfDay } from '../../src/utils/bodyMembership.js'
 import {
 	defaultTermStart,
 	holdReappointable,
+	loadStepDownData,
 	membershipTerm,
+	pickedTerm,
 	REAPPOINTABLE,
+	shortDate,
 	STEP_DOWN_WINDOWS,
 	stepDownLines,
 	windowUntil,
@@ -327,5 +330,76 @@ describe('former members from the end date (REQ-TOS-005)', () => {
 			memberRowsFor([sanne, rachid], {}, { past: true }).map((row) => row.id),
 		).toEqual(['m-sanne'])
 		expect(sanne.endDate).toBe('2001-01-01T00:00:00Z')
+	})
+})
+
+describe('the dialogs\' picked term', () => {
+	it('takes the picked dates as ISO days and refuses an end before the start', () => {
+		const start = new Date(2026, 0, 5, 14, 30)
+		const end = new Date(2030, 0, 4)
+		const ok = pickedTerm(start, end)
+		expect(ok).toEqual({ startDate: startOfDay(start), endDate: startOfDay(end), valid: true })
+		expect(ok.startDate).toBe(startOfDay(new Date(2026, 0, 5)))
+		expect(pickedTerm(new Date(2026, 5, 1), new Date(2026, 4, 1)).valid).toBe(false)
+		expect(pickedTerm(null, null)).toEqual({ startDate: '', endDate: '', valid: true })
+	})
+})
+
+describe('the schedule\'s short date', () => {
+	it('gives the locale date, and nothing for an empty or unparsable value', () => {
+		expect(shortDate('2026-03-01')).toBe(new Date('2026-03-01').toLocaleDateString())
+		expect(shortDate('')).toBe('')
+		expect(shortDate(null)).toBe('')
+		expect(shortDate('not a date')).toBe('')
+	})
+})
+
+describe('loading a body\'s step-down data', () => {
+	it('reads the body, its memberships, holds and position types, and the people behind them', async () => {
+		const calls = []
+		const objects = {
+			'governance-body': { b1: { id: 'b1', name: 'Raad' } },
+			person: { p1: { id: 'p1', name: 'An' } },
+		}
+		const collections = {
+			membership: [{ id: 'm1', person: 'p1' }, { id: 'm2', person: 'p2' }, { id: 'm3', person: 'p1' }],
+			'position-hold': [{ id: 'h1' }],
+			'position-type': [{ id: 't1', name: 'Voorzitter' }],
+		}
+		const storeFor = (type) => ({
+			fetchObject: (schema, id) => {
+				calls.push(['object', type, schema, id])
+				const found = objects[schema]?.[id]
+				return found ? Promise.resolve(found) : Promise.reject(new Error('gone'))
+			},
+			fetchCollection: (schema, params) => {
+				calls.push(['collection', type, schema, params])
+				return Promise.resolve(collections[schema])
+			},
+		})
+
+		const data = await loadStepDownData('b1', storeFor)
+
+		expect(data).toEqual({
+			body: { id: 'b1', name: 'Raad' },
+			memberships: collections.membership,
+			holds: [{ id: 'h1' }],
+			positionTypesById: { t1: { id: 't1', name: 'Voorzitter' } },
+			personsById: { p1: { id: 'p1', name: 'An' } },
+		})
+		expect(calls).toContainEqual(['collection', 'membership', 'membership', { governanceBody: 'b1', _limit: 500 }])
+		expect(calls).toContainEqual(['collection', 'position-hold', 'position-hold', { governanceBody: 'b1', _limit: 500 }])
+		expect(calls).toContainEqual(['collection', 'position-type', 'position-type', { governanceBody: 'b1', _limit: 200 }])
+		expect(calls.filter((c) => c[2] === 'person').map((c) => c[3])).toEqual(['p1', 'p2'])
+	})
+
+	it('answers empty lists and no body when the reads come back empty', async () => {
+		const storeFor = () => ({
+			fetchObject: () => Promise.resolve(null),
+			fetchCollection: () => Promise.resolve(null),
+		})
+		expect(await loadStepDownData('b1', storeFor)).toEqual({
+			body: null, memberships: [], holds: [], positionTypesById: {}, personsById: {},
+		})
 	})
 })

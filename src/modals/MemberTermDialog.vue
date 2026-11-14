@@ -65,8 +65,7 @@ import {
 	buildMembershipPayload,
 	ensureRelationType,
 } from '../components/tabs/useRelationStore.js'
-import { startOfDay } from '../utils/bodyMembership.js'
-import { membershipTerm } from '../utils/stepDownSchedule.js'
+import { pickedTerm } from '../utils/stepDownSchedule.js'
 
 export default {
 	name: 'MemberTermDialog',
@@ -104,15 +103,9 @@ export default {
 		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-001-a-members-term-is-entered-when-the-member-is-added
 		 */
 		async save() {
-			const term = membershipTerm(
-				startOfDay(this.startDate),
-				startOfDay(this.endDate),
-			)
+			const term = pickedTerm(this.startDate, this.endDate)
 			if (!term.valid) {
-				this.error = this.t(
-					'decidiq',
-					'The term cannot end before it begins.',
-				)
+				this.error = this.t('decidiq', 'The term cannot end before it begins.')
 				return
 			}
 			this.saving = true

@@ -12,6 +12,8 @@
  * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md
  */
 
+import { startOfDay } from './bodyMembership.js'
+
 /** The window filter values, the first being the default. */
 export const STEP_DOWN_WINDOWS = ['next-12-months', 'this-term', 'all']
 
@@ -216,4 +218,62 @@ export function membershipTerm(startIso, endIso) {
 	const end = timeOf(endIso)
 	const valid = Number.isNaN(start) || Number.isNaN(end) || end >= start
 	return { startDate: startIso || '', endDate: endIso || '', valid }
+}
+
+/**
+ * Everything the step-down schedule of one body reads: the body, its
+ * memberships, position holds and position types (by id), and the people of
+ * the memberships (by id; an unreadable one is left out). Reads only.
+ *
+ * @param {string} bodyId The governance body id.
+ * @param {(type: string) => object} storeFor The relation store of a type (ensureRelationType).
+ * @return {Promise<{body: ?object, memberships: Array<object>, holds: Array<object>, positionTypesById: object, personsById: object}>}
+ *
+ * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-002-the-step-down-schedule-lists-every-term-that-ends-soonest-first
+ */
+export async function loadStepDownData(bodyId, storeFor) {
+	const scope = (limit) => ({ governanceBody: bodyId, _limit: limit })
+	const [body, memberships, holds, positionTypes] = await Promise.all([
+		storeFor('governance-body').fetchObject('governance-body', bodyId),
+		storeFor('membership').fetchCollection('membership', scope(500)),
+		storeFor('position-hold').fetchCollection('position-hold', scope(500)),
+		storeFor('position-type').fetchCollection('position-type', scope(200)),
+	])
+	const people = storeFor('person')
+	const ids = [...new Set((memberships || []).map((m) => m.person).filter(Boolean))]
+	const found = await Promise.all(ids.map((id) => people.fetchObject('person', id).catch(() => null)))
+	return {
+		body: body || null,
+		memberships: memberships || [],
+		holds: holds || [],
+		positionTypesById: Object.fromEntries((positionTypes || []).map((type) => [type.id, type])),
+		personsById: Object.fromEntries(ids.map((id, i) => [id, found[i]]).filter(([, person]) => person)),
+	}
+}
+
+/**
+ * The term a dialog's two date pickers give: each picked date as its ISO day,
+ * refused when the end lies before the start.
+ *
+ * @param {?Date} startDate The picked start.
+ * @param {?Date} endDate The picked end.
+ * @return {{startDate: string, endDate: string, valid: boolean}} The term.
+ *
+ * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-001-a-members-term-is-entered-when-the-member-is-added
+ */
+export function pickedTerm(startDate, endDate) {
+	return membershipTerm(startOfDay(startDate), startOfDay(endDate))
+}
+
+/**
+ * A date as the user's short date.
+ *
+ * @param {?string} value An ISO date or date-time.
+ * @return {string} The date, or '' when there is none or it does not parse.
+ *
+ * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-002-the-step-down-schedule-lists-every-term-that-ends-soonest-first
+ */
+export function shortDate(value) {
+	const time = value ? new Date(value).getTime() : NaN
+	return Number.isNaN(time) ? '' : new Date(time).toLocaleDateString()
 }

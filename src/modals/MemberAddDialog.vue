@@ -282,15 +282,9 @@ export default {
 			if (!trimmedName) {
 				return
 			}
-			const term = membershipTerm(
-				startOfDay(this.startDate),
-				startOfDay(this.endDate),
-			)
+			const term = membershipTerm(startOfDay(this.startDate), startOfDay(this.endDate))
 			if (!term.valid) {
-				this.error = this.t(
-					'decidiq',
-					'The term cannot end before it begins.',
-				)
+				this.error = this.t('decidiq', 'The term cannot end before it begins.')
 				return
 			}
 			this.linking = true

@@ -92,7 +92,9 @@
 import { NcSelect } from '@nextcloud/vue'
 import { profilePath } from '../../utils/memberProfile.js'
 import {
+	loadStepDownData,
 	REAPPOINTABLE,
+	shortDate,
 	STEP_DOWN_WINDOWS,
 	stepDownLines,
 	windowUntil,
@@ -155,13 +157,7 @@ export default {
 	},
 
 	watch: {
-		objectId: {
-			immediate: true,
-			/** @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-002-the-step-down-schedule-lists-every-term-that-ends-soonest-first */
-			handler() {
-				this.refresh()
-			},
-		},
+		objectId: { immediate: true, handler: 'refresh' },
 	},
 
 	/** @spec exclude lifecycle hook; only seeds the window select with its default */
@@ -193,59 +189,12 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				const bodyId = String(this.objectId)
-				const [body, memberships, holds, positionTypes] = await Promise.all([
-					ensureRelationType('governance-body').fetchObject(
-						'governance-body',
-						bodyId,
-					),
-					ensureRelationType('membership').fetchCollection('membership', {
-						governanceBody: bodyId,
-						_limit: 500,
-					}),
-					ensureRelationType('position-hold').fetchCollection(
-						'position-hold',
-						{ governanceBody: bodyId, _limit: 500 },
-					),
-					ensureRelationType('position-type').fetchCollection(
-						'position-type',
-						{ governanceBody: bodyId, _limit: 200 },
-					),
-				])
-				this.body = body || null
-				this.memberships = memberships || []
-				this.holds = holds || []
-				this.positionTypesById = Object.fromEntries(
-					(positionTypes || []).map((type) => [type.id, type]),
-				)
-				this.personsById = await this.fetchPeople(this.memberships)
+				Object.assign(this, await loadStepDownData(String(this.objectId), ensureRelationType))
 			} catch (e) {
-				this.error =
-					e?.message
-					|| this.t('decidiq', 'Could not load the step-down schedule.')
+				this.error = e?.message || this.t('decidiq', 'Could not load the step-down schedule.')
 			} finally {
 				this.loading = false
 			}
-		},
-
-		/**
-		 * The people of the memberships, by id; an unreadable one is left out.
-		 *
-		 * @param {Array<object>} memberships The memberships.
-		 * @return {Promise<{[id: string]: object}>}
-		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-002-the-step-down-schedule-lists-every-term-that-ends-soonest-first
-		 */
-		async fetchPeople(memberships) {
-			const store = ensureRelationType('person')
-			const ids = [
-				...new Set(memberships.map((m) => m.person).filter(Boolean)),
-			]
-			const people = await Promise.all(
-				ids.map((id) => store.fetchObject('person', id).catch(() => null)),
-			)
-			return Object.fromEntries(
-				ids.map((id, i) => [id, people[i]]).filter(([, person]) => person),
-			)
 		},
 
 		/**
@@ -271,9 +220,7 @@ export default {
 		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-002-the-step-down-schedule-lists-every-term-that-ends-soonest-first
 		 */
 		formatDate(value) {
-			if (!value) return ''
-			const date = new Date(value)
-			return Number.isNaN(date.getTime()) ? '' : date.toLocaleDateString()
+			return shortDate(value)
 		},
 	},
 }
