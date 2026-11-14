@@ -31,6 +31,7 @@ import { describe, expect, it } from 'vitest'
 import {
 	buildConfidentialityStages,
 	findChildren,
+	isLiftingOverdue,
 	resolveObjectLabel,
 	sortVersionsByEffectiveDate,
 	toTime,
@@ -146,7 +147,7 @@ describe('findChildren (REQ-DMR-008 ondermandaat children)', () => {
 	})
 })
 
-describe('buildConfidentialityStages (REQ-EMB-010)', () => {
+describe('buildConfidentialityStages (REQ-EMB-010, REQ-EMB-023)', () => {
 	const NOW = new Date('2026-06-01T00:00:00Z').getTime()
 
 	it('an imposed-only record shows the imposed stage populated and the other two pending', () => {
@@ -154,12 +155,11 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 			lifecycle: 'imposed',
 			imposedAt: '2026-01-01T10:00:00Z',
 		}
-		const [imposed, ratification, dissolution] = buildConfidentialityStages(
-			record,
-			NOW,
-		)
+		const [imposed, sent, ratification, dissolution] =
+			buildConfidentialityStages(record, NOW)
 		expect(imposed.populated).toBe(true)
 		expect(imposed.pending).toBe(false)
+		expect(sent.pending).toBe(true)
 		expect(ratification.pending).toBe(true)
 		expect(ratification.overdue).toBe(false)
 		expect(dissolution.pending).toBe(true)
@@ -171,7 +171,7 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 			imposedAt: '2026-01-01T10:00:00Z',
 			ratificationDeadline: '2026-03-01',
 		}
-		const [, ratification] = buildConfidentialityStages(record, NOW)
+		const [, , ratification] = buildConfidentialityStages(record, NOW)
 		expect(ratification.overdue).toBe(true)
 		expect(ratification.pending).toBe(true)
 	})
@@ -182,7 +182,7 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 			imposedAt: '2026-01-01T10:00:00Z',
 			ratificationDeadline: '2026-12-01',
 		}
-		const [, ratification] = buildConfidentialityStages(record, NOW)
+		const [, , ratification] = buildConfidentialityStages(record, NOW)
 		expect(ratification.overdue).toBe(false)
 	})
 
@@ -194,7 +194,7 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 			ratificationDate: '2026-03-15T09:00:00Z',
 			ratificationDecision: 'decision-1',
 		}
-		const [, ratification] = buildConfidentialityStages(record, NOW)
+		const [, , ratification] = buildConfidentialityStages(record, NOW)
 		expect(ratification.populated).toBe(true)
 		expect(ratification.overdue).toBe(false)
 	})
@@ -206,19 +206,113 @@ describe('buildConfidentialityStages (REQ-EMB-010)', () => {
 			liftingDate: '2026-05-01',
 			dissolutionDecision: 'decision-2',
 		}
-		const [, , dissolution] = buildConfidentialityStages(record, NOW)
+		const [, , , dissolution] = buildConfidentialityStages(record, NOW)
 		expect(dissolution.populated).toBe(true)
 		expect(dissolution.pending).toBe(false)
 	})
 
 	it('is null-safe for a missing/empty record', () => {
-		const [imposed, ratification, dissolution] = buildConfidentialityStages(
-			null,
-			NOW,
-		)
+		const [imposed, sent, ratification, dissolution] =
+			buildConfidentialityStages(null, NOW)
 		expect(imposed.pending).toBe(true)
+		expect(sent.pending).toBe(true)
 		expect(ratification.pending).toBe(true)
 		expect(dissolution.pending).toBe(true)
+	})
+})
+
+describe('the four steps of board DcGeheimhouding (confidentiality-term-and-lapse)', () => {
+	const NOW = new Date('2026-10-01T12:00:00Z').getTime()
+	const example = {
+		lifecycle: 'imposed',
+		imposedAt: '2026-09-10T10:00:00+02:00',
+		imposingDecision: 'decision-2026-0912',
+		sentToBodyAt: '2026-09-24T10:00:00+02:00',
+		sentWithAgendaItem: 'item-raadsvoorstel',
+		ratificationDeadline: '2026-10-15',
+		ratificationAgendaItem: 'item-9',
+		liftingConditions: 'Na gunning van de grondexploitatie',
+		liftBy: '2027-07-01',
+	}
+
+	it('shows imposed, sent, ratification planned and lifting planned, in that order (REQ-EMB-023)', () => {
+		const stages = buildConfidentialityStages(example, NOW)
+
+		expect(stages.map((stage) => stage.key)).toEqual([
+			'imposed',
+			'sent',
+			'ratification',
+			'dissolution',
+		])
+		const [imposed, sent, ratification, dissolution] = stages
+		expect(imposed.decisionId).toBe('decision-2026-0912')
+		expect(sent).toMatchObject({
+			populated: true,
+			date: '2026-09-24T10:00:00+02:00',
+			agendaItemId: 'item-raadsvoorstel',
+		})
+		expect(ratification).toMatchObject({
+			pending: true,
+			overdue: false,
+			lapsed: false,
+			agendaItemId: 'item-9',
+		})
+		expect(dissolution).toMatchObject({
+			pending: true,
+			overdue: false,
+			conditions: 'Na gunning van de grondexploitatie',
+			liftBy: '2027-07-01',
+		})
+	})
+
+	it('shows the ratification step lapsed with the meeting, never overdue (REQ-EMB-021)', () => {
+		const lapsed = {
+			...example,
+			lifecycle: 'lapsed',
+			lapsedAt: '2026-10-15T23:10:00+02:00',
+			lapsedAtMeeting: 'meeting-15-oct',
+		}
+		const [, , ratification, dissolution] = buildConfidentialityStages(
+			lapsed,
+			new Date('2026-11-01T00:00:00Z').getTime(),
+		)
+
+		expect(ratification).toMatchObject({
+			populated: true,
+			pending: false,
+			overdue: false,
+			lapsed: true,
+			date: '2026-10-15T23:10:00+02:00',
+			meetingId: 'meeting-15-oct',
+		})
+		expect(dissolution.overdue).toBe(false)
+	})
+
+	it('shows lifting overdue from the day after liftBy while the restriction holds (REQ-EMB-022)', () => {
+		const ratified = { ...example, lifecycle: 'ratified' }
+
+		expect(
+			isLiftingOverdue(ratified, new Date('2027-07-01T12:00:00Z').getTime()),
+		).toBe(false)
+		expect(
+			isLiftingOverdue(ratified, new Date('2027-07-02T12:00:00Z').getTime()),
+		).toBe(true)
+		expect(
+			isLiftingOverdue(
+				{ ...ratified, lifecycle: 'dissolved' },
+				new Date('2027-08-01T00:00:00Z').getTime(),
+			),
+		).toBe(false)
+		expect(
+			isLiftingOverdue(
+				ratified,
+				new Date('2027-08-01T00:00:00Z').getTime(),
+				true,
+			),
+		).toBe(false)
+		expect(isLiftingOverdue({ lifecycle: 'imposed' }, NOW)).toBe(false)
+		// The state is only shown, never changed.
+		expect(ratified.lifecycle).toBe('ratified')
 	})
 })
 

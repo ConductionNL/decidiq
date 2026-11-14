@@ -10,8 +10,8 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
 - **acceptance_criteria**:
   - GIVEN the import WHEN the restriction schema is read THEN `imposingDecision`, `liftBy`, `sentToBodyAt`, `sentWithAgendaItem` exist, optional; the lifecycle has `lapsed` (from imposed, terminal) in the canonical dialect; no `PARTIAL IMPORT`
   - GIVEN liftBy before imposedAt WHEN saved THEN refused (save-time check, OR rejects allOf)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`lib/Settings/register.d/130-confidentiality-term-and-lapse.json`, `lib/Listener/ConfidentialityTermGuardListener.php`)
+- [x] Test
 
 ### Task 2: Lapse on meeting close
 - **spec_ref**: `#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses`
@@ -20,8 +20,8 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
   - the four scenarios of REQ-EMB-021 pass with the real meeting lifecycle event
   - GIVEN a lapsed decision-scoped restriction WHEN `ConfidentialityRestrictions::isDecisionRestricted()` runs THEN false, and the decision still needs the normal publish flow
   - audit entry carries meeting and agenda item; a notification rule in the ADR-031 dialect fires on `lapsed`
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`lib/Listener/ConfidentialityLapseListener.php`; the item outcome is the new agenda-item field `ratificationOutcome`: ratified, not-ratified, postponed)
+- [x] Test
 
 ### Task 3: End-date job
 - **spec_ref**: `#requirement-req-emb-022-the-planned-end-date-puts-the-lifting-on-the-agenda`
@@ -30,8 +30,8 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
   - GIVEN liftBy within the lead time WHEN the job runs THEN one lifting agenda item exists on the next meeting; running again adds none
   - GIVEN liftBy passed WHEN the register loads THEN the restriction shows overdue; its lifecycle is unchanged
   - the job queries only restrictions with liftBy set and state imposed or ratified
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`lib/Service/ConfidentialityLiftByService.php`, `lib/BackgroundJob/ConfidentialityLiftByJob.php`; app config key `confidentiality_lift_lead_days`, default 30; the restriction gains `liftingAgendaItem` and `liftStatus` (preparing, overdue), shown in the register list with `liftBy`)
+- [x] Test
 
 ### Task 4: Detail page per board DcGeheimhouding
 - **spec_ref**: `#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board`, `#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date`
@@ -39,13 +39,13 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
 - **acceptance_criteria**:
   - GIVEN the example restriction WHEN its page opens THEN header, stepper, four-step timeline, Geheimhouding card, Waar de geheimhouding op ligt, Grond card and Gerelateerd match the board
   - GIVEN a lapsed restriction WHEN its page opens THEN the stepper and timeline show Vervallen
-- [ ] Implement
-- [ ] Test (vitest per stage; one Playwright test on the example)
+- [ ] Implement (four-step timeline, imposing-decision link, lapse and "uiterlijk" lines done in `ConfidentialityStatusTimelineWidget`; header line, stepper and the Geheimhouding / Grond / Gerelateerd cards of the board not yet)
+- [ ] Test (vitest per stage done; the Playwright test on the example needs a live instance)
 
 ### Task 5: Align embargo-geheimhouding REQ-EMB-003 and example data
 - **files**: `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN the example set WHEN loaded THEN the board's restriction and one lapsed restriction exist
   - the REQ-EMB-003 text of embargo-geheimhouding names the lapse of REQ-EMB-021 as its one exception (done in the spec PR that added this change)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
