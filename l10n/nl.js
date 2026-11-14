@@ -1273,6 +1273,14 @@ OC.L10N.register(
         "Failed to load the recommended changes.": "De aanbevolen wijzigingen konden niet worden geladen.",
         "From line": "Van regel",
         "l. {lines}": "r. {lines}",
+        "Implementation": "Uitvoering",
+        "Percent complete": "Percentage gereed",
+        "No progress reported yet.": "Nog geen voortgang gemeld.",
+        "Not started": "Niet gestart",
+        "On track": "Op schema",
+        "Delayed": "Vertraagd",
+        "Implemented": "Uitgevoerd",
+        "Not implemented": "Niet uitgevoerd",
         "Line numbers": "Regelnummers",
         "New text": "Nieuwe tekst",
         "No recommended changes for this motion yet.": "Nog geen aanbevolen wijzigingen voor dit voorstel.",
@@ -3816,15 +3824,7 @@ OC.L10N.register(
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
-        "Implementation": "Uitvoering",
-        "Percent complete": "Percentage gereed",
-        "No progress reported yet.": "Nog geen voortgang gemeld.",
-        "Not started": "Niet gestart",
-        "On track": "Op schema",
-        "Delayed": "Vertraagd",
-        "Implemented": "Uitgevoerd",
-        "Not implemented": "Niet uitgevoerd"
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )
