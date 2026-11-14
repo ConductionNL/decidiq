@@ -31,6 +31,7 @@ use Psr\Log\NullLogger;
 /**
  * @covers \OCA\Decidiq\Listener\ConfidentialityLapseListener
  * @uses   \OCA\Decidiq\Service\ConfidentialityRestrictions
+ * @uses   \OCA\Decidiq\Service\SystemObjectRows
  *
  * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-021-a-restriction-the-ratifying-body-did-not-ratify-lapses
  */

@@ -24,6 +24,7 @@ namespace OCA\Decidiq\Listener;
 
 use DateTimeImmutable;
 use DateTimeInterface;
+use OCA\Decidiq\Service\SystemObjectRows;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
 use OCP\EventDispatcher\Event;
@@ -312,29 +313,12 @@ class ConfidentialityLapseListener implements IEventListener {
 	 * @return list<array<string, mixed>>
 	 */
 	private function rows(array $filters): array {
-		try {
-			$found = $this->objectService->findAll(
-				config: ['filters' => ['register' => self::REGISTER] + $filters],
-				_rbac: false,
-				_multitenancy: false
-			);
-		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: objects could not be read; nothing lapses', ['filters' => $filters, 'error' => $e->getMessage()]);
-			return [];
-		}
-
-		$rows = [];
-		foreach (($found['results'] ?? $found) as $row) {
-			if (is_object($row) === true && method_exists($row, 'jsonSerialize') === true) {
-				$row = $row->jsonSerialize();
-			}
-
-			if (is_array($row) === true) {
-				$rows[] = $row;
-			}
-		}
-
-		return $rows;
+		return SystemObjectRows::read(
+			objectService: $this->objectService,
+			logger: $this->logger,
+			filters: $filters,
+			warning: 'Decidiq: objects could not be read; nothing lapses'
+		);
 	}//end rows()
 
 	/**

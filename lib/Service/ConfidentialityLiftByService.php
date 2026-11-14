@@ -359,23 +359,12 @@ class ConfidentialityLiftByService {
 	 * @return list<array<string, mixed>>
 	 */
 	private function rows(array $filters): array {
-		try {
-			$found = $this->objectService->findAll(
-				config: ['filters' => ['register' => self::REGISTER] + $filters],
-				_rbac: false,
-				_multitenancy: false
-			);
-		} catch (Throwable $e) {
-			$this->logger->warning('Decidiq: objects could not be read for the lifting sweep', ['filters' => $filters, 'error' => $e->getMessage()]);
-			return [];
-		}
-
-		$rows = [];
-		foreach (($found['results'] ?? $found) as $row) {
-			$rows[] = $this->asRow(row: $row);
-		}
-
-		return $rows;
+		return SystemObjectRows::read(
+			objectService: $this->objectService,
+			logger: $this->logger,
+			filters: $filters,
+			warning: 'Decidiq: objects could not be read for the lifting sweep'
+		);
 	}//end rows()
 
 	/**

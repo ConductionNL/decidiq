@@ -36,6 +36,7 @@ use Psr\Log\NullLogger;
  * The lifting sweep over an in-memory register.
  *
  * @covers \OCA\Decidiq\Service\ConfidentialityLiftByService
+ * @uses   \OCA\Decidiq\Service\SystemObjectRows
  */
 class ConfidentialityLiftByServiceTest extends TestCase {
 	/**

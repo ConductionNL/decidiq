@@ -23,8 +23,6 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use DateTimeImmutable;
-use OCA\OpenRegister\Event\ObjectCreatingEvent;
-use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 
@@ -60,19 +58,7 @@ class ConfidentialityTermGuardListener implements IEventListener {
 	 * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-020-a-restriction-records-its-imposing-decision-and-planned-end-date
 	 */
 	public function handle(Event $event): void {
-		if ($event instanceof ObjectCreatingEvent === false && $event instanceof ObjectUpdatingEvent === false) {
-			return;
-		}
-
-		$entity = null;
-		if ($event instanceof ObjectUpdatingEvent) {
-			$entity = $event->getNewObject();
-		}
-
-		if ($event instanceof ObjectCreatingEvent) {
-			$entity = $event->getObject();
-		}
-
+		$entity = SaveGuardEvent::entityOf(event: $event);
 		if ($entity === null) {
 			return;
 		}
@@ -83,12 +69,9 @@ class ConfidentialityTermGuardListener implements IEventListener {
 		}
 
 		$message = $this->refusal(row: $row);
-		if ($message === null) {
-			return;
+		if ($message !== null) {
+			SaveGuardEvent::refuse(event: $event, message: $message);
 		}
-
-		$event->setErrors(['message' => $message]);
-		$event->stopPropagation();
 	}//end handle()
 
 	/**
@@ -158,12 +141,7 @@ class ConfidentialityTermGuardListener implements IEventListener {
 	 * @return bool
 	 */
 	private function isRestriction(array $row): bool {
-		foreach (['_schemaSlug', '_schema', 'schema'] as $key) {
-			if (is_string($row[$key] ?? null) === true && $row[$key] !== '') {
-				return strtolower($row[$key]) === self::SCHEMA;
-			}
-		}
-
-		return array_key_exists('ground', $row) === true && array_key_exists('liftBy', $row) === true;
+		return SaveGuardEvent::namesSchema(row: $row, schema: self::SCHEMA)
+			?? (array_key_exists('ground', $row) === true && array_key_exists('liftBy', $row) === true);
 	}//end isRestriction()
 }//end class
