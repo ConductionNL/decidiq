@@ -18,8 +18,8 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN the "Ondernemingsraad Voorbeeldingen B.V." governance body (`bodyType=works-council`) exists with Person + Membership members, and 3 consultation-request objects per the design tables (one overdue non-terminal adviesaanvraag, one instemmingsverzoek in achterbanraadpleging, one afgerond adviesaanvraag with response, afwijkend besluit, and derived `opschortingTot`) exist with only nil-UUID placeholders for unresolved refs
   - GIVEN the seeded data WHEN the dashboard renders THEN both KPIs are non-zero (ADR-016 testability)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the example set `lib/Settings/profiles/works-council.json` carries the body, members and three trajecten; the finished advice request now records a decision contrary to the advice, so its suspension term is derived)
+- [x] Test (`tests/Unit/Settings/WorksCouncilSeedTest.php`)
 
 ### Task 3: Manifest fragment — WOR-trajecten index/detail pages + menu
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis` (+ REQ-WCC-003/REQ-WCC-004)
