@@ -19,7 +19,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  *
- * @spec openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
 
 import axios from '@nextcloud/axios'
@@ -56,6 +56,18 @@ export function statusToLane(status) {
 }
 
 /**
+ * Words in a Deck stack title that place a card in a lane, in the order the
+ * lanes are tried.
+ *
+ * @type {Array<[string, string[]]>}
+ */
+const LANE_TITLE_WORDS = [
+	['done', ['done', 'complete', 'completed', 'klaar']],
+	['in-progress', ['progress', 'doing', 'bezig', 'mee bezig']],
+	['open', ['open', 'to do', 'todo', 'backlog', 'te doen']],
+]
+
+/**
  * Match a Deck stack title to a lane, so we can place a card without
  * needing to create stacks (the leaf cannot create stacks).
  *
@@ -64,29 +76,10 @@ export function statusToLane(status) {
  */
 function stackTitleToLane(title) {
 	const t = String(title || '').toLowerCase()
-	if (
-		t.includes('done')
-		|| t.includes('complete')
-		|| t.includes('completed')
-		|| t.includes('klaar')
+	const match = LANE_TITLE_WORDS.find(([, words]) =>
+		words.some((word) => t.includes(word)),
 	)
-		return 'done'
-	if (
-		t.includes('progress')
-		|| t.includes('doing')
-		|| t.includes('bezig')
-		|| t.includes('mee bezig')
-	)
-		return 'in-progress'
-	if (
-		t.includes('open')
-		|| t.includes('to do')
-		|| t.includes('todo')
-		|| t.includes('backlog')
-		|| t.includes('te doen')
-	)
-		return 'open'
-	return null
+	return match ? match[0] : null
 }
 
 /**
@@ -118,53 +111,92 @@ export async function isDeckAvailable() {
  * @param {string} schema The decision/meeting schema slug or id.
  * @return {Promise<{boardId: number, laneStacks: object, fallbackStackId: number}>}
  * @throws {Error} When no Deck board is available to project onto.
+ *
+ * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-001-vtodo-is-authoritative-deck-leaf-is-the-board-projection
  */
 export async function resolveTarget(schema) {
-	let boardId = 0
-	let defaultStackId = 0
+	const sticky = await stickyDefault(schema)
+	const boardId = sticky.boardId || (await firstBoardId())
+	const stacks = await boardStacks(boardId)
+	const fallbackStackId = sticky.stackId || Number(stacks[0].id)
+	return { boardId, laneStacks: laneStacksOf(stacks), fallbackStackId }
+}
+
+/**
+ * The schema-level sticky default board and stack, zeros when there is none
+ * or the leaf cannot answer.
+ *
+ * @param {string} schema The decision/meeting schema slug or id.
+ * @return {Promise<{boardId: number, stackId: number}>}
+ */
+async function stickyDefault(schema) {
 	try {
 		const { data } = await axios.get(
 			generateUrl(
 				`${orBase}/integrations/deck/default/${encodeURIComponent(schema)}`,
 			),
 		)
-		boardId = Number(data?.boardId || 0)
-		defaultStackId = Number(data?.stackId || 0)
-	} catch (e) {
-		// No sticky default — fall through to first board.
-	}
-
-	if (!boardId) {
-		const { data } = await axios.get(
-			generateUrl(`${orBase}/integrations/deck/boards`),
-		)
-		const boards = data?.results || []
-		if (!boards.length) {
-			throw new Error(
-				'No Deck board available to project action items onto. Create a Deck board first.',
-			)
+		return {
+			boardId: Number(data?.boardId || 0),
+			stackId: Number(data?.stackId || 0),
 		}
-		boardId = Number(boards[0].id)
+	} catch (e) {
+		return { boardId: 0, stackId: 0 }
 	}
+}
 
-	const { data: stacksData } = await axios.get(
+/**
+ * The id of the first available Deck board.
+ *
+ * @return {Promise<number>}
+ * @throws {Error} When no Deck board is available to project onto.
+ */
+async function firstBoardId() {
+	const { data } = await axios.get(
+		generateUrl(`${orBase}/integrations/deck/boards`),
+	)
+	const boards = data?.results || []
+	if (!boards.length) {
+		throw new Error(
+			'No Deck board available to project action items onto. Create a Deck board first.',
+		)
+	}
+	return Number(boards[0].id)
+}
+
+/**
+ * The stacks on a Deck board.
+ *
+ * @param {number} boardId The board id.
+ * @return {Promise<object[]>} The stacks, never empty.
+ * @throws {Error} When the board has no stacks.
+ */
+async function boardStacks(boardId) {
+	const { data } = await axios.get(
 		generateUrl(`${orBase}/integrations/deck/boards/${boardId}/stacks`),
 	)
-	const stacks = stacksData?.results || []
+	const stacks = data?.results || []
 	if (!stacks.length) {
 		throw new Error(
 			'The target Deck board has no stacks. Add columns to the board first.',
 		)
 	}
+	return stacks
+}
 
+/**
+ * The first stack whose title matches each lane.
+ *
+ * @param {object[]} stacks The board's stacks.
+ * @return {object} Lane to stack id.
+ */
+function laneStacksOf(stacks) {
 	const laneStacks = {}
 	for (const stack of stacks) {
 		const lane = stackTitleToLane(stack.title)
 		if (lane && !laneStacks[lane]) laneStacks[lane] = Number(stack.id)
 	}
-
-	const fallbackStackId = defaultStackId || Number(stacks[0].id)
-	return { boardId, laneStacks, fallbackStackId }
+	return laneStacks
 }
 
 /**
@@ -208,24 +240,10 @@ export async function projectActionItems({
 		persistCardId
 		|| ((uid, cardId) => updateActionItem(uid, { deckCardId: cardId }))
 	const target = await resolveTarget(schema)
+	const objectPath = deckObjectPath(register, schema, objectId)
+	const linkedCardIds = await fetchLinkedCardIds(objectPath)
 
-	// Cards already linked to this object — used to confirm a stored
-	// deckCardId is still valid (not unlinked/deleted out-of-band).
-	let linkedCardIds = new Set()
-	try {
-		const { data } = await axios.get(
-			generateUrl(
-				`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck`,
-			),
-		)
-		linkedCardIds = new Set((data?.results || []).map((c) => Number(c.cardId)))
-	} catch (e) {
-		// No existing links (or list failed) — treat as none linked yet.
-	}
-
-	let created = 0
-	let skipped = 0
-	const errors = []
+	const result = { created: 0, skipped: 0, errors: [] }
 
 	for (const item of items) {
 		const uid = itemUid(item)
@@ -233,43 +251,106 @@ export async function projectActionItems({
 
 		const existing = Number(item.deckCardId || 0)
 		if (existing && linkedCardIds.has(existing)) {
-			skipped++
+			result.skipped++
 			continue
 		}
 
-		const lane = statusToLane(item.taskStatus)
-		const stackId = target.laneStacks[lane] || target.fallbackStackId
-
-		try {
-			const body = {
-				boardId: target.boardId,
-				stackId,
-				title: String(item.title || 'Action item'),
-				description: `Decidiq action item (${uid})`,
-			}
-			if (item.dueDate) body.duedate = String(item.dueDate)
-
-			const { data } = await axios.post(
-				generateUrl(
-					`${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck/new`,
-				),
-				body,
-			)
-			const cardId = Number(data?.cardId || 0)
-			if (cardId) {
-				await writeBack(uid, cardId)
-				linkedCardIds.add(cardId)
-				created++
-			} else {
-				errors.push({ uid, error: 'No card id returned' })
-			}
-		} catch (e) {
-			errors.push({
-				uid,
-				error: e?.response?.data?.error || e?.message || 'Projection failed',
-			})
+		const error = await projectOneItem({
+			item,
+			uid,
+			target,
+			objectPath,
+			linkedCardIds,
+			writeBack,
+		})
+		if (error) {
+			result.errors.push(error)
+		} else {
+			result.created++
 		}
 	}
 
-	return { created, skipped, errors }
+	return result
+}
+
+/**
+ * The OpenRegister path of an object's Deck leaf.
+ *
+ * @param {string} register Register slug or id.
+ * @param {string} schema   Schema slug or id.
+ * @param {string} objectId Object id (uuid).
+ * @return {string} `${orBase}/objects/<register>/<schema>/<objectId>/deck`.
+ */
+function deckObjectPath(register, schema, objectId) {
+	return `${orBase}/objects/${encodeURIComponent(register)}/${encodeURIComponent(schema)}/${encodeURIComponent(objectId)}/deck`
+}
+
+/**
+ * Cards already linked to the object, used to confirm a stored deckCardId is
+ * still valid (not unlinked/deleted out-of-band).
+ *
+ * @param {string} objectPath The object's Deck-leaf path.
+ * @return {Promise<Set<number>>} The linked card ids; empty when listing fails.
+ */
+async function fetchLinkedCardIds(objectPath) {
+	try {
+		const { data } = await axios.get(generateUrl(objectPath))
+		return new Set((data?.results || []).map((c) => Number(c.cardId)))
+	} catch (e) {
+		// No existing links (or list failed) — treat as none linked yet.
+		return new Set()
+	}
+}
+
+/**
+ * The create-card payload for one action item.
+ *
+ * @param {object} item   The action-item row.
+ * @param {string} uid    Its VTODO uid.
+ * @param {object} target The resolved board/stack target.
+ * @return {object} The request body.
+ */
+function buildCardBody(item, uid, target) {
+	const lane = statusToLane(item.taskStatus)
+	const body = {
+		boardId: target.boardId,
+		stackId: target.laneStacks[lane] || target.fallbackStackId,
+		title: String(item.title || 'Action item'),
+		description: `Decidiq action item (${uid})`,
+	}
+	if (item.dueDate) body.duedate = String(item.dueDate)
+	return body
+}
+
+/**
+ * Create the Deck card for one action item and write its id back.
+ *
+ * @param {object}      params               Parameters.
+ * @param {object}      params.item          The action-item row.
+ * @param {string}      params.uid           Its VTODO uid.
+ * @param {object}      params.target        The resolved board/stack target.
+ * @param {string}      params.objectPath    The object's Deck-leaf path.
+ * @param {Set<number>} params.linkedCardIds Linked card ids; the new id is added.
+ * @param {(uid: string, cardId: number) => Promise<unknown>} params.writeBack Persists the card id onto the VTODO.
+ * @return {Promise<object|null>} An `{uid, error}` entry, or null on success.
+ */
+async function projectOneItem({ item, uid, target, objectPath, linkedCardIds, writeBack }) {
+	try {
+		const { data } = await axios.post(
+			generateUrl(`${objectPath}/new`),
+			buildCardBody(item, uid, target),
+		)
+		const cardId = Number(data?.cardId || 0)
+		if (!cardId) {
+			return { uid, error: 'No card id returned' }
+		}
+		await writeBack(uid, cardId)
+		linkedCardIds.add(cardId)
+		return null
+	} catch (e) {
+		return {
+			uid,
+			error: e?.response?.data?.error || e?.message || 'Projection failed',
+		}
+	}
 }

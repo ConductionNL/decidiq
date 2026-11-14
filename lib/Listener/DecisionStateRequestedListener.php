@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -35,8 +35,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\DecisionStateRequestedEvent;
-use OCA\Decidiq\Service\DecisionIntegrationAuthorizationGuard;
-use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -62,20 +62,20 @@ use Psr\Log\LoggerInterface;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+ * @spec openspec/specs/decidesk-decision-events/spec.md
  */
 class DecisionStateRequestedListener implements IEventListener {
 
 	/**
 	 * Constructor.
 	 *
-	 * @param DecisionIntegrationService $integrationService The reused envelope derivation
-	 * @param DecisionIntegrationAuthorizationGuard $authorizationGuard The reused outcome-read rule (REQ-DCDH-101)
+	 * @param DecisionIntegrationServiceInterface $integrationService The reused envelope derivation
+	 * @param DecisionIntegrationAuthorizationGuardInterface $authorizationGuard The reused outcome-read rule (REQ-DCDH-101)
 	 * @param LoggerInterface $logger Logger
 	 */
 	public function __construct(
-		private readonly DecisionIntegrationService $integrationService,
-		private readonly DecisionIntegrationAuthorizationGuard $authorizationGuard,
+		private readonly DecisionIntegrationServiceInterface $integrationService,
+		private readonly DecisionIntegrationAuthorizationGuardInterface $authorizationGuard,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -93,7 +93,7 @@ class DecisionStateRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof DecisionStateRequestedEvent === false) {
@@ -117,58 +117,7 @@ class DecisionStateRequestedListener implements IEventListener {
 		}
 
 		try {
-			// REQ-DCDH-101, unchanged and not re-implemented: the owner that
-			// raised the Decision, or anyone when it is published. Asked in its
-			// three-way form, because a Decision that could not be RESOLVED is
-			// not a Decision the caller may not see — and this caller acts
-			// differently on the two.
-			$access = $this->authorizationGuard->resolveOutcomeReadAccess(
-				decisionId: $decisionId,
-				callerUid: $actorId
-			);
-
-			if ($access === DecisionIntegrationAuthorizationGuard::READ_UNRESOLVED) {
-				$this->logger->warning(
-					'Decidiq: could not resolve a Decision for a state read; leaving it unanswered',
-					['sourceApp' => $event->getSourceApp(), 'decisionId' => $decisionId, 'actor' => $actorId]
-				);
-
-				return;
-			}
-
-			if ($access !== DecisionIntegrationAuthorizationGuard::READ_ALLOWED) {
-				$this->logger->warning(
-					'Decidiq: refused a decision-state read',
-					['sourceApp' => $event->getSourceApp(), 'decisionId' => $decisionId, 'actor' => $actorId]
-				);
-				$event->setHandled(true);
-
-				return;
-			}
-
-			$event->setPermitted(true);
-
-			$envelope = $this->integrationService->getOutcomeEnvelope(decisionId: $decisionId);
-			if ($envelope === null) {
-				// The guard lets a genuine miss through so the answer is 404
-				// rather than 403, exactly as it does for the HTTP endpoint.
-				$event->setHandled(true);
-
-				return;
-			}
-
-			$event->setFound(true);
-			$event->setEnvelope($envelope);
-			$event->setHandled(true);
-
-			$this->logger->debug(
-				'Decidiq: answered a decision-state read',
-				[
-					'sourceApp' => $event->getSourceApp(),
-					'decisionId' => $decisionId,
-					'status' => (string)($envelope['status'] ?? ''),
-				]
-			);
+			$this->answerRead(event: $event, decisionId: $decisionId);
 		} catch (\Throwable $e) {
 			// Left UNHANDLED on purpose. A consumer reads that as "could not
 			// read", which buys it another attempt; reading a failed lookup as
@@ -185,4 +134,106 @@ class DecisionStateRequestedListener implements IEventListener {
 		}//end try
 
 	}//end handle()
+
+	/**
+	 * Answer a complete read: refuse or leave it unanswered as the read rule
+	 * says, else permit it and deliver the envelope.
+	 *
+	 * @param DecisionStateRequestedEvent $event      The event
+	 * @param string                      $decisionId The trimmed decision id
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 */
+	private function answerRead(DecisionStateRequestedEvent $event, string $decisionId): void {
+		if ($this->isPermittedRead(event: $event, decisionId: $decisionId) === false) {
+			return;
+		}
+
+		$event->setPermitted(true);
+		$this->deliverEnvelope(event: $event, decisionId: $decisionId);
+	}//end answerRead()
+
+	/**
+	 * Whether the caller may read the decision.
+	 *
+	 * REQ-DCDH-101, unchanged and not re-implemented: the owner that raised
+	 * the Decision, or anyone when it is published. Asked in its three-way
+	 * form, because a Decision that could not be RESOLVED is not a Decision
+	 * the caller may not see — and this caller acts differently on the two:
+	 * an unresolvable one is left unanswered, a refused one is handled.
+	 *
+	 * @param DecisionStateRequestedEvent $event      The event
+	 * @param string                      $decisionId The trimmed decision id
+	 *
+	 * @return bool True when the read is allowed.
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 */
+	private function isPermittedRead(DecisionStateRequestedEvent $event, string $decisionId): bool {
+		$access = $this->authorizationGuard->resolveOutcomeReadAccess(
+			decisionId: $decisionId,
+			callerUid: trim($event->getActorId())
+		);
+
+		if ($access === DecisionIntegrationAuthorizationGuardInterface::READ_UNRESOLVED) {
+			$this->logger->warning(
+				'Decidiq: could not resolve a Decision for a state read; leaving it unanswered',
+				$this->readContext(event: $event, decisionId: $decisionId)
+			);
+			return false;
+		}
+
+		if ($access !== DecisionIntegrationAuthorizationGuardInterface::READ_ALLOWED) {
+			$this->logger->warning('Decidiq: refused a decision-state read', $this->readContext(event: $event, decisionId: $decisionId));
+			$event->setHandled(true);
+			return false;
+		}
+
+		return true;
+	}//end isPermittedRead()
+
+	/**
+	 * Put the decision's envelope on a permitted read; a genuine miss is
+	 * handled and not found.
+	 *
+	 * @param DecisionStateRequestedEvent $event      The event
+	 * @param string                      $decisionId The trimmed decision id
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
+	 */
+	private function deliverEnvelope(DecisionStateRequestedEvent $event, string $decisionId): void {
+		$envelope = $this->integrationService->getOutcomeEnvelope(decisionId: $decisionId);
+		if ($envelope === null) {
+			// The guard lets a genuine miss through so the answer is 404
+			// rather than 403, exactly as it does for the HTTP endpoint.
+			$event->setHandled(true);
+
+			return;
+		}
+
+		$event->setFound(true);
+		$event->setEnvelope($envelope);
+		$event->setHandled(true);
+
+		$this->logger->debug(
+			'Decidiq: answered a decision-state read',
+			['sourceApp' => $event->getSourceApp(), 'decisionId' => $decisionId, 'status' => (string)($envelope['status'] ?? '')]
+		);
+	}//end deliverEnvelope()
+
+	/**
+	 * The log context of a read the rule refused or could not resolve.
+	 *
+	 * @param DecisionStateRequestedEvent $event      The event
+	 * @param string                      $decisionId The trimmed decision id
+	 *
+	 * @return array<string, string> The context.
+	 */
+	private function readContext(DecisionStateRequestedEvent $event, string $decisionId): array {
+		return ['sourceApp' => $event->getSourceApp(), 'decisionId' => $decisionId, 'actor' => trim($event->getActorId())];
+	}//end readContext()
 }//end class

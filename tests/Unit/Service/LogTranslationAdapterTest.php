@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -30,7 +30,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for LogTranslationAdapter.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 class LogTranslationAdapterTest extends TestCase {
 

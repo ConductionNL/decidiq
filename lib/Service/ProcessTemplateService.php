@@ -5,7 +5,8 @@
  *
  * Manages process templates (the state machine, default voting rule, and quorum
  * policy a governance body follows) as OpenRegister objects, validates their
- * transition graph server-side (fail closed), and resolves a body's assigned
+ * transition graph server-side through OpenRegister's LifecycleTransitionsValidator
+ * (fail closed), and resolves a body's assigned
  * template into the policy/voting-rule shapes the lifecycle guards and voting
  * round-open path consume.
  *
@@ -31,8 +32,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
-use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplatePolicyResolverInterface;
+use OCA\Decidiq\Kernel\Contracts\ProcessTemplateServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleGraph;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -41,7 +47,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/process-configuration/spec.md
  */
-class ProcessTemplateService {
+class ProcessTemplateService implements ProcessTemplateServiceInterface {
 
 	/**
 	 * Recognised guard tokens a transition may declare. An unknown token is a
@@ -49,22 +55,27 @@ class ProcessTemplateService {
 	 *
 	 * @var string[]
 	 */
-	public const KNOWN_GUARDS = StateMachineValidator::KNOWN_GUARDS;
+	public const KNOWN_GUARDS = [
+		'quorum_met',
+		'chair_only',
+		'all_amendments_resolved',
+		'legal_review_complete',
+	];
 
 	/**
 	 * Constructor for ProcessTemplateService.
 	 *
 	 * @param LoggerInterface $logger The logger
-	 * @param ProcessTemplatePolicyResolver $resolver Pure template -> guard policy translator
-	 * @param StateMachineValidator $validator Pure transition-graph validator
+	 * @param ProcessTemplatePolicyResolverInterface $resolver Pure template -> guard policy translator
+	 * @param ContainerInterface $container DI container (OpenRegister's LifecycleTransitionsValidator)
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
 	 * @spec openspec/specs/process-configuration/spec.md
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
-		private readonly ProcessTemplatePolicyResolver $resolver,
-		private readonly StateMachineValidator $validator,
+		private readonly ProcessTemplatePolicyResolverInterface $resolver,
+		private readonly ContainerInterface $container,
 		private readonly ObjectServiceInterface $objectService,
 	) {
 	}//end __construct()
@@ -172,6 +183,7 @@ class ProcessTemplateService {
 	 */
 	public function create(array $template): array {
 		$this->assertValidStateMachine(template: $template);
+		$this->assertValidUrgencyPolicy(template: $template);
 
 		// Created templates are never built-in; only seeds may be built-in.
 		$template['builtIn'] = false;
@@ -206,6 +218,7 @@ class ProcessTemplateService {
 		}
 
 		$this->assertValidStateMachine(template: $template);
+		$this->assertValidUrgencyPolicy(template: $template);
 
 		// Preserve identity + the not-built-in invariant.
 		$template['id'] = $templateId;
@@ -273,10 +286,14 @@ class ProcessTemplateService {
 	/**
 	 * Validate a template's state-machine transition graph (fail closed).
 	 *
-	 * Rejects: empty states; a transition whose from/to references a state not
-	 * declared in states[] (dangling); a state with no inbound and no outbound
-	 * transition that is not the declared initialState (unreachable); an
-	 * unrecognised guard token.
+	 * The graph rules are OpenRegister's (LifecycleTransitionsValidator, the entry
+	 * point for a lifecycle kept as data): empty states, a missing or undeclared
+	 * initial state, malformed or dangling transitions, a declared state no
+	 * transition touches (unreachable) and a guard token outside KNOWN_GUARDS.
+	 * Two template-shape rules stay here: stateMachine must be an object, and a
+	 * transition names ONE from-state, because ProcessTemplatePolicyResolver reads
+	 * a single from-state per edge and would skip a list (and its chair_only).
+	 * Without OpenRegister's validator the template is refused, never accepted.
 	 *
 	 * @param array<string, mixed> $template The template payload
 	 *
@@ -285,8 +302,65 @@ class ProcessTemplateService {
 	 * @return array{valid: bool, errors: string[]} Validation result with human-readable errors
 	 */
 	public function validateStateMachine(array $template): array {
-		return $this->validator->validate(template: $template);
+		$stateMachine = ($template['stateMachine'] ?? null);
+		if (is_array($stateMachine) === false) {
+			return ['valid' => false, 'errors' => ['stateMachine is required and must be an object.']];
+		}
+
+		try {
+			$validator = $this->container->get(LifecycleTransitionsValidator::class);
+		} catch (ContainerExceptionInterface $e) {
+			$this->logger->error(
+				'Decidiq: OpenRegister\'s LifecycleTransitionsValidator is unavailable; process template refused.',
+				['exception' => $e]
+			);
+			return [
+				'valid'  => false,
+				'errors' => ['The state machine cannot be validated: OpenRegister\'s lifecycle validator is not available. Update OpenRegister.'],
+			];
+		}
+
+		$transitions = (array)($stateMachine['transitions'] ?? []);
+		$initialState = ($template['initialState'] ?? null);
+		if (is_string($initialState) === false) {
+			$initialState = null;
+		}
+
+		$errors = $this->listFromErrors(transitions: $transitions);
+		$found = $validator->validate(
+			graph: new LifecycleGraph(
+				states: array_values(array_filter((array)($stateMachine['states'] ?? []), 'is_array')),
+				initial: $initialState,
+				transitions: $transitions,
+				knownGuards: self::KNOWN_GUARDS
+			)
+		);
+		foreach ($found as $error) {
+			$errors[] = $error['message'];
+		}
+
+		return ['valid' => ($errors === []), 'errors' => $errors];
 	}//end validateStateMachine()
+
+	/**
+	 * Refuse transitions whose from is a list of states.
+	 *
+	 * @param array<int|string, mixed> $transitions The raw transitions[] entries
+	 *
+	 * @spec openspec/specs/process-configuration/spec.md
+	 *
+	 * @return string[] One error per list-from transition
+	 */
+	private function listFromErrors(array $transitions): array {
+		$errors = [];
+		foreach ($transitions as $transition) {
+			if (is_array($transition) === true && is_array($transition['from'] ?? null) === true) {
+				$errors[] = 'Each transition must declare a single from state, not a list.';
+			}
+		}
+
+		return $errors;
+	}//end listFromErrors()
 
 	/**
 	 * Assert the template's state machine is valid, throwing on failure.
@@ -306,6 +380,90 @@ class ProcessTemplateService {
 		}
 
 	}//end assertValidStateMachine()
+
+	/**
+	 * Assert the template's urgency policy, when it has one, can be honoured.
+	 *
+	 * A template without `urgencyPolicy` is valid: it leaves the urgent
+	 * procedure unavailable to its bodies (resolveUrgencyPolicyForBody()).
+	 *
+	 * @param array<string, mixed> $template The template payload
+	 *
+	 * @throws InvalidArgumentException When the policy cannot be honoured (HTTP 400 at the controller)
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	private function assertValidUrgencyPolicy(array $template): void {
+		if (array_key_exists('urgencyPolicy', $template) === false || $template['urgencyPolicy'] === null) {
+			return;
+		}
+
+		$errors = $this->urgencyPolicyErrors(policy: $template['urgencyPolicy']);
+		if ($errors !== []) {
+			throw new InvalidArgumentException('Invalid urgency policy: ' . implode(' ', $errors));
+		}
+
+	}//end assertValidUrgencyPolicy()
+
+	/**
+	 * The faults of an urgency policy, its ratifying body looked up in the register.
+	 *
+	 * @param mixed $policy The `urgencyPolicy` value
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return string[] Human-readable errors
+	 */
+	private function urgencyPolicyErrors(mixed $policy): array {
+		return (new UrgencyPolicyValidator())->errors(
+			policy: $policy,
+			bodyExists: fn (string $ref): bool => $this->governanceBodyExists(ref: $ref)
+		);
+	}//end urgencyPolicyErrors()
+
+	/**
+	 * Whether a governance body reference resolves; a failed lookup answers no (fail closed).
+	 *
+	 * @param string $ref The governance body uuid
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return bool
+	 */
+	private function governanceBodyExists(string $ref): bool {
+		try {
+			return $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'governance-body') !== null;
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: ratifying body lookup failed; the urgency policy is refused', ['ref' => $ref, 'error' => $e->getMessage()]);
+			return false;
+		}
+
+	}//end governanceBodyExists()
+
+	/**
+	 * The urgency policy a governance body runs the urgent procedure under, or null.
+	 *
+	 * Null when the body has no template, the template has no `urgencyPolicy`
+	 * (every unmodified built-in template), or the policy no longer validates:
+	 * the absence of a policy never falls back to permissive defaults.
+	 *
+	 * @param string|null $governanceBodyId The governance body UUID, or null
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return array<string, mixed>|null The policy, or null when the procedure is unavailable
+	 */
+	public function resolveUrgencyPolicyForBody(?string $governanceBodyId): ?array {
+		$template = $this->loadBodyTemplate(governanceBodyId: $governanceBodyId);
+		$policy   = ($template['urgencyPolicy'] ?? null);
+		if (is_array($policy) === false || $this->urgencyPolicyErrors(policy: $policy) !== []) {
+			return null;
+		}
+
+		return $policy;
+	}//end resolveUrgencyPolicyForBody()
 
 	/**
 	 * Resolve a governance body's assigned template into the guard policy

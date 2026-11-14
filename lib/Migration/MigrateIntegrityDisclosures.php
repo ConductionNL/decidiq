@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -88,14 +88,14 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was migrated.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -195,7 +195,7 @@ class MigrateIntegrityDisclosures implements IRepairStep {
 						object: $this->coerceToTarget(
 							objectService: $objectService,
 							properties: $this->declaredProperties(slug: $target),
-							alreadyResolved: array_column(self::REFERENCES, 'target'),
+							alreadyResolved: array_keys(self::REFERENCES),
 							payload: $this->mapRow(objectService: $objectService, row: $row, origin: $origin),
 						),
 					);

@@ -159,22 +159,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-</style>
+<style scoped src="./amendmentTab.css"></style>

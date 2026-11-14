@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Sections;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\IL10N;
 use OCP\IURLGenerator;
 use OCP\Settings\IIconSection;
@@ -31,9 +31,9 @@ use OCP\Settings\IIconSection;
 /**
  * Defines the Decidiq section in the Nextcloud admin settings.
  *
- * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
  */
 class SettingsSection implements IIconSection {
 	/**
@@ -55,12 +55,12 @@ class SettingsSection implements IIconSection {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getID(): string {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getID()
 
 	/**
@@ -68,9 +68,9 @@ class SettingsSection implements IIconSection {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getName(): string {
 		return $this->l->t('Decidiq');
@@ -81,9 +81,9 @@ class SettingsSection implements IIconSection {
 	 *
 	 * @return int
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getPriority(): int {
 		return 75;
@@ -94,11 +94,11 @@ class SettingsSection implements IIconSection {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-1.5
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-1.5
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getIcon(): string {
-		return $this->urlGenerator->imagePath(appName: Application::APP_ID, file: 'app-dark.svg');
+		return $this->urlGenerator->imagePath(appName: AppIdentity::APP_ID, file: 'app-dark.svg');
 	}//end getIcon()
 }//end class

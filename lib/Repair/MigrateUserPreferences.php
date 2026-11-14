@@ -73,7 +73,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\Config\IUserConfig;
 use OCP\IUser;
 use OCP\IUserManager;
@@ -145,40 +145,17 @@ class MigrateUserPreferences implements IRepairStep {
 	 *       are read — openspec/specs/user-settings/spec.md.
 	 */
 	public function run(IOutput $output): void {
-		$migrated = 0;
-		$alreadyPresent = 0;
+		$counts = ['migrated' => 0, 'present' => 0];
 
 		$walked = $this->walkSeenUsers(
-			callback: function (IUser $user) use (&$migrated, &$alreadyPresent): void {
+			callback: function (IUser $user) use (&$counts): void {
 				$userId = $user->getUID();
 				foreach ($this->oldKeysFor(userId: $userId) as $key) {
-					/*
-					 * Both READS sit inside the try alongside the write. A read
-					 * that throws from a step registered under <install> stops
-					 * the app enabling entirely, taking every route with it.
-					 */
-					try {
-						$old = $this->userConfig->getValueString($userId, self::OLD_APP_ID, $key, '');
-						if ($old === '') {
-							continue;
-						}
-
-						$existing = $this->userConfig->getValueString($userId, Application::APP_ID, $key, '');
-						if ($existing !== '') {
-							$alreadyPresent++;
-							continue;
-						}
-
-						$this->userConfig->setValueString($userId, Application::APP_ID, $key, $old);
-						$migrated++;
-					} catch (Throwable $e) {
-						$this->logger->warning(
-							'Decidiq: could not migrate one per-user preference; '
-							. 'leaving it under the old app id',
-							['key' => $key, 'exception' => $e->getMessage()]
-						);
-					}//end try
-				}//end foreach
+					$outcome = $this->migratePreference(userId: $userId, key: $key);
+					if (isset($counts[$outcome]) === true) {
+						$counts[$outcome]++;
+					}
+				}
 			}
 		);
 
@@ -190,7 +167,58 @@ class MigrateUserPreferences implements IRepairStep {
 			return;
 		}
 
-		if ($migrated === 0 && $alreadyPresent === 0) {
+		$this->reportCounts(output: $output, counts: $counts);
+
+	}//end run()
+
+	/**
+	 * Copy one stored preference to the new app id unless it is set there
+	 * already.
+	 *
+	 * Both READS sit inside the try alongside the write. A read that throws
+	 * from a step registered under <install> stops the app enabling entirely,
+	 * taking every route with it.
+	 *
+	 * @param string $userId The user.
+	 * @param string $key    The preference key.
+	 *
+	 * @return string migrated, present, or skipped (empty or unreadable).
+	 */
+	private function migratePreference(string $userId, string $key): string {
+		try {
+			$old = $this->userConfig->getValueString($userId, self::OLD_APP_ID, $key, '');
+			if ($old === '') {
+				return 'skipped';
+			}
+
+			$existing = $this->userConfig->getValueString($userId, AppIdentity::APP_ID, $key, '');
+			if ($existing !== '') {
+				return 'present';
+			}
+
+			$this->userConfig->setValueString($userId, AppIdentity::APP_ID, $key, $old);
+			return 'migrated';
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not migrate one per-user preference; '
+				. 'leaving it under the old app id',
+				['key' => $key, 'exception' => $e->getMessage()]
+			);
+			return 'skipped';
+		}//end try
+	}//end migratePreference()
+
+	/**
+	 * Tell the repair output how many preferences moved and how many were
+	 * already set, or that there was nothing to do.
+	 *
+	 * @param IOutput                                $output Repair output channel.
+	 * @param array{migrated: int, present: int}     $counts The counts.
+	 *
+	 * @return void
+	 */
+	private function reportCounts(IOutput $output, array $counts): void {
+		if ($counts['migrated'] === 0 && $counts['present'] === 0) {
 			$output->info(
 				'MigrateUserPreferences: no stored decidesk user preferences on this install; nothing to do.'
 			);
@@ -200,12 +228,11 @@ class MigrateUserPreferences implements IRepairStep {
 		$output->info(
 			sprintf(
 				'MigrateUserPreferences: migrated %d preference(s); %d already set under decidiq.',
-				$migrated,
-				$alreadyPresent
+				$counts['migrated'],
+				$counts['present']
 			)
 		);
-
-	}//end run()
+	}//end reportCounts()
 
 	/**
 	 * Every preference key this user has stored under the old app id.

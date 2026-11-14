@@ -1,0 +1,1100 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`VotingRoundPanel write calls > castChairVote sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"chairCasting":"against"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": "Casting vote failed",
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"chairCasting":"against"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+      {
+        "fetchCurrentRound": true,
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"chairCasting":"against"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": "Not allowed",
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"chairCasting":"against"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": "Casting vote failed",
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > castRanking sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/nc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": "Failed to cast vote",
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/nc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+      {
+        "fetchCurrentRound": true,
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": true,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/nc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": "Not allowed",
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"ranking":["a","b"],"isProxy":false}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/nc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": "Failed to cast vote",
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > castVote sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"participantId":"alice","value":"for","isProxy":false,"delegatorId":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": "Failed to cast vote",
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"participantId":"alice","value":"for","isProxy":false,"delegatorId":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+      {
+        "fetchCurrentRound": true,
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": true,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"participantId":"alice","value":"for","isProxy":false,"delegatorId":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": "Not allowed",
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"participantId":"alice","value":"for","isProxy":false,"delegatorId":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/cast",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": "Failed to cast vote",
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > closeRound sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+      {
+        "fetchCurrentRound": true,
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/close",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > grantProxy sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice","toParticipantId":"p-to"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice","toParticipantId":"p-to"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": "p-to",
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice","toParticipantId":"p-to"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice","toParticipantId":"p-to"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > openRound sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": "Failed to open voting round",
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds",
+      },
+      {
+        "fetchCurrentRound": true,
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": "Not allowed",
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": "Failed to open voting round",
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > publishToOri sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/publish",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/publish",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": "published",
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/publish",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/publish",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > revokeProxy sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "DELETE",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "DELETE",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "DELETE",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"fromParticipantId":"alice"}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "DELETE",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/proxy",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;
+
+exports[`VotingRoundPanel write calls > saveShowOfHands sends the same request and leaves the same state 1`] = `
+{
+  "offline": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"votesFor":3,"votesAgainst":2,"votesAbstain":1}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/tally",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "ok": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"votesFor":3,"votesAgainst":2,"votesAbstain":1}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/tally",
+      },
+      {
+        "fetchCurrentRound": true,
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "refused": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"votesFor":3,"votesAgainst":2,"votesAbstain":1}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/tally",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+  "silent": {
+    "calls": [
+      {
+        "init": {
+          "body": "{"votesFor":3,"votesAgainst":2,"votesAbstain":1}",
+          "headers": {
+            "Content-Type": "application/json",
+            "requesttoken": "tok",
+          },
+          "method": "POST",
+        },
+        "url": "/oc/apps/decidiq/api/voting-rounds/r1/tally",
+      },
+    ],
+    "state": {
+      "activeProxy": null,
+      "castVoteError": null,
+      "castingRanking": false,
+      "chairCastingError": null,
+      "confirmCloseRound": false,
+      "openRoundError": null,
+      "openingRound": false,
+      "oriStatus": null,
+      "revoteOfRoundId": null,
+      "showOpenRoundDialog": false,
+      "showProxyDialog": false,
+      "voteCast": false,
+    },
+  },
+}
+`;

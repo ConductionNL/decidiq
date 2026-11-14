@@ -34,7 +34,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -42,6 +42,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Event\ApprovalRouteConcludedEvent;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCP\EventDispatcher\IEventDispatcher;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -49,9 +50,9 @@ use Throwable;
 /**
  * Announces a concluded route, from whichever path concluded it.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
-class ApprovalRouteConclusionAnnouncer {
+class ApprovalRouteConclusionAnnouncer implements ApprovalRouteConclusionAnnouncerInterface {
 
 	/**
 	 * Constructor.
@@ -60,12 +61,17 @@ class ApprovalRouteConclusionAnnouncer {
 	 * @param RegisterObjectStore $store Resolves the route row and the action trail.
 	 * @param IEventDispatcher $dispatcher Dispatches the conclusion.
 	 * @param LoggerInterface $logger The logger.
+	 * @param SubjectClearanceService|null $clearanceService Works out whether the
+	 *        subject's OTHER required routes have finished too. Nullable and
+	 *        last; a missing one carries NO clearance answer, which a consumer
+	 *        reads as not cleared, never as cleared.
 	 */
 	public function __construct(
 		private readonly ApprovalRouteService $engine,
 		private readonly RegisterObjectStore $store,
 		private readonly IEventDispatcher $dispatcher,
 		private readonly LoggerInterface $logger,
+		private readonly ?SubjectClearanceService $clearanceService = null,
 	) {
 	}//end __construct()
 
@@ -86,7 +92,7 @@ class ApprovalRouteConclusionAnnouncer {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function announceIfConcluded(string $subject, string $correlationId = ''): void {
 		try {
@@ -141,9 +147,48 @@ class ApprovalRouteConclusionAnnouncer {
 				subjectSchema: $subjectSchema,
 				externalReference: $externalReference,
 				actions: $actions,
+				// A route concluding is not the same as a subject being
+				// cleared: another required route on the same subject may still
+				// be waiting, and a consumer that read this conclusion as the
+				// clearance would close past it.
+				clearance: $this->clearanceOf(subject: $subject),
 			)
 		);
 	}//end announce()
+
+	/**
+	 * The clearance answer to carry on the conclusion.
+	 *
+	 * @param string $subject The subject uuid.
+	 *
+	 * @return array<string, mixed> The answer, or an empty array when nothing can
+	 *         work one out.
+	 *
+	 * @spec openspec/specs/approval-routes/spec.md (REQ-AR-014)
+	 */
+	private function clearanceOf(string $subject): array {
+		if ($this->clearanceService === null) {
+			return [];
+		}
+
+		try {
+			$clearance = $this->clearanceService->clearanceFor(
+				routes: $this->engine->routesWithStagesFor(subject: $subject)
+			);
+		} catch (Throwable $e) {
+			// An empty answer, not a cleared one. The consumer's fail-closed
+			// reading is what makes that safe.
+			$this->logger->warning(
+				'Decidiq: could not work out the clearance for a concluded route',
+				['subject' => $subject, 'error' => $e->getMessage()]
+			);
+			return [];
+		}
+
+		$clearance['reason'] = $this->clearanceService->describe(clearance: $clearance);
+
+		return $clearance;
+	}//end clearanceOf()
 
 	/**
 	 * What the stages say, when they say "concluded".

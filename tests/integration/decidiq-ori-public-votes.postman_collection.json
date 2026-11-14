@@ -1,0 +1,254 @@
+{
+	"info": {
+		"name": "Decidiq ORI public votes",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"description": "Anonymous reads of the ORI persons, votes and voteevents resources (bodies-member-profile-and-voting-record tasks 4 and 5). Read-only: it seeds and changes nothing. The console lines record the anonymous count per resource, the measurement task 4 asks for. A vote carries only voter, option, vote event and group; a vote event carries totals only; ?voter= narrows; an unknown id is 404."
+	},
+	"auth": {
+		"type": "noauth"
+	},
+	"variable": [
+		{
+			"key": "noAuthBase",
+			"value": "http://127.0.0.1:8080"
+		},
+		{
+			"key": "voteId",
+			"value": ""
+		},
+		{
+			"key": "voterId",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Anonymous persons",
+			"request": {
+				"method": "GET",
+				"auth": {
+					"type": "noauth"
+				},
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/ori/v1/persons",
+					"host": [
+						"{{noAuthBase}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"decidiq",
+						"api",
+						"ori",
+						"v1",
+						"persons"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('answers 200 to an anonymous caller', () => pm.response.to.have.status(200));",
+							"const body = pm.response.json();",
+							"pm.test('lists items with a count', () => { pm.expect(body.items).to.be.an('array'); pm.expect(body.count).to.eql(body.items.length); });",
+							"console.log('anonymous persons count', body.count);"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Anonymous votes",
+			"request": {
+				"method": "GET",
+				"auth": {
+					"type": "noauth"
+				},
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/ori/v1/votes",
+					"host": [
+						"{{noAuthBase}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"decidiq",
+						"api",
+						"ori",
+						"v1",
+						"votes"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('answers 200 to an anonymous caller', () => pm.response.to.have.status(200));",
+							"const body = pm.response.json();",
+							"pm.test('lists items with a count', () => { pm.expect(body.items).to.be.an('array'); pm.expect(body.count).to.eql(body.items.length); });",
+							"console.log('anonymous votes count', body.count);",
+							"pm.test('a vote carries only the published fields', () => body.items.forEach((v) => pm.expect(Object.keys(v)).to.have.members(['@context', '@type', 'id', 'voter', 'option', 'vote_event', 'group'])));",
+							"pm.test('a vote option is yes, no or abstain', () => body.items.forEach((v) => pm.expect(['yes', 'no', 'abstain']).to.include(v.option)));",
+							"if (body.items.length) { pm.collectionVariables.set('voteId', body.items[0].id); pm.collectionVariables.set('voterId', body.items[0].voter || ''); }"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Anonymous votes of one voter",
+			"request": {
+				"method": "GET",
+				"auth": {
+					"type": "noauth"
+				},
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/ori/v1/votes?voter={{voterId}}",
+					"host": [
+						"{{noAuthBase}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"decidiq",
+						"api",
+						"ori",
+						"v1",
+						"votes"
+					],
+					"query": [
+						{
+							"key": "voter",
+							"value": "{{voterId}}"
+						}
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('answers 200', () => pm.response.to.have.status(200));",
+							"const body = pm.response.json();",
+							"const voter = pm.collectionVariables.get('voterId');",
+							"pm.test('?voter= narrows to that person', () => body.items.forEach((v) => { if (voter) { pm.expect(v.voter).to.eql(voter); } }));"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Anonymous voteevents",
+			"request": {
+				"method": "GET",
+				"auth": {
+					"type": "noauth"
+				},
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/ori/v1/voteevents",
+					"host": [
+						"{{noAuthBase}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"decidiq",
+						"api",
+						"ori",
+						"v1",
+						"voteevents"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('answers 200 to an anonymous caller', () => pm.response.to.have.status(200));",
+							"const body = pm.response.json();",
+							"pm.test('lists items with a count', () => { pm.expect(body.items).to.be.an('array'); pm.expect(body.count).to.eql(body.items.length); });",
+							"console.log('anonymous voteevents count', body.count);",
+							"pm.test('a vote event carries totals and no per-member value', () => body.items.forEach((e) => { pm.expect(e.counts).to.be.an('array'); pm.expect(e).to.not.have.property('votes'); pm.expect(e).to.not.have.property('participant'); }));"
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Unknown vote id",
+			"request": {
+				"method": "GET",
+				"auth": {
+					"type": "noauth"
+				},
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{noAuthBase}}/index.php/apps/decidiq/api/ori/v1/votes/00000000-0000-4000-8000-000000000000",
+					"host": [
+						"{{noAuthBase}}"
+					],
+					"path": [
+						"index.php",
+						"apps",
+						"decidiq",
+						"api",
+						"ori",
+						"v1",
+						"votes",
+						"00000000-0000-4000-8000-000000000000"
+					]
+				}
+			},
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test('an unknown vote id is not found', () => pm.response.to.have.status(404));"
+						]
+					}
+				}
+			]
+		}
+	]
+}

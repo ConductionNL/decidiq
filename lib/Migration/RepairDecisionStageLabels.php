@@ -32,14 +32,14 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -49,7 +49,7 @@ use Throwable;
 /**
  * Backfills derived labels onto stages stored with a NULL label. Idempotent.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class RepairDecisionStageLabels implements IRepairStep {
 
@@ -61,12 +61,12 @@ class RepairDecisionStageLabels implements IRepairStep {
 	 * injecting it here would make this step — and with it `occ upgrade` —
 	 * fatal on an instance without openregister.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves the repair service and OR's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was repaired.
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -96,7 +96,7 @@ class RepairDecisionStageLabels implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {

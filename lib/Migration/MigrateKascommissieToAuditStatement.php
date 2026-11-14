@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -64,14 +64,14 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was migrated.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -117,39 +117,8 @@ class MigrateKascommissieToAuditStatement implements IRepairStep {
 	 * @spec openspec/changes/generic-audit-statement/specs/generic-audit-statement/spec.md#requirement-existing-statements-are-carried-across
 	 */
 	public function run(IOutput $output): void {
-		if ($this->settingsService->isOpenRegisterAvailable() === false) {
-			$output->info('OpenRegister unavailable — nothing to migrate.');
-			return;
-		}
-
-		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			$output->warning('Could not resolve OpenRegister ObjectService: ' . $e->getMessage());
-			return;
-		}
-
-		// 🔴 RUN AS SYSTEM, AND THE WHOLE TRAVERSAL IN ONE SCOPE.
-		//
-		// A repair step executes during `occ upgrade`, where there is no session,
-		// so OpenRegister sees the actor as 'Anonymous' and refuses `create`.
-		// Measured on a live instance before this line existed: both source rows
-		// failed with "User 'Anonymous' does not have permission to 'create'
-		// objects in schema 'AuditStatement'", and the step reported
-		// each one as $output->warning() — which does not fail an upgrade. So the
-		// upgrade would say "Update successful", the summary would say
-		// "0 migrated, 2 skipped", and nothing anyone reads would say the
-		// migration had not happened. The sibling template migration carries the
-		// same comment for the same reason.
-		//
-		// One scope around the whole traversal, not per save: a per-save wrapper
-		// re-enters for every row and leaves the index build outside it.
-		$objectService->runAsSystem(
-			function () use ($objectService, $output): void {
-				$this->migrateAll(objectService: $objectService, output: $output);
-			}
-		);
-
+		$runner = new SystemMigrationRunner(settingsService: $this->settingsService, container: $this->container);
+		$runner->run(output: $output, migrateAll: $this->migrateAll(...));
 	}//end run()
 
 	/**

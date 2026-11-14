@@ -1,0 +1,42 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change planning-parallel-sessions (REQ-PPS-001 and REQ-PPS-004, matrix row pla-17). An evening is split into parallel sessions, and each session is a full meeting that points at its evening, so it keeps its own agenda, minutes, votes, transcript and broadcast. The rules that cross objects (no nesting, inside the evening's times, the evening's defaults) are save-time checks in ParallelSessionListener, not schema constraints.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.11.0",
+        "properties": {
+          "parentMeeting": {
+            "title": "Evening",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "meeting",
+            "facetable": true,
+            "description": "The evening this meeting is a session of. Empty for a meeting that stands on its own or that holds sessions itself.",
+            "x-notes": "Checked by ParallelSessionListener: a session of a session, a meeting that is its own parent and a session outside its evening's times are refused, and a new session takes the evening's body, publicity and attendance mode when it has none."
+          },
+          "room": {
+            "title": "Room",
+            "type": "string",
+            "description": "The room the session takes place in, shown beside the location of the evening.",
+            "example": "Commissiekamer 1"
+          }
+        }
+      },
+      "MeetingBroadcast": {
+        "slug": "meeting-broadcast",
+        "version": "0.2.0",
+        "properties": {
+          "eveningTitle": {
+            "title": "Evening",
+            "type": "string",
+            "description": "The title of the evening the broadcast meeting is a session of, copied when the broadcast is made, so residents find an evening's sessions together."
+          }
+        }
+      }
+    }
+  }
+}

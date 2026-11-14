@@ -80,6 +80,25 @@ class VoteCastGuard {
 	}//end __construct()
 
 	/**
+	 * Check a ballot against its round's voting method and answer the value
+	 * to store: `ranked` for a full ranking on a ranked-choice round, the
+	 * value as cast on any other round (REQ-PRF-002).
+	 *
+	 * @param array<string,mixed> $round The open round.
+	 * @param string $value The value cast.
+	 * @param array<int, mixed>|null $ranking The ranking cast, or null.
+	 *
+	 * @return string The value to store.
+	 *
+	 * @throws \InvalidArgumentException When the ballot does not fit the round.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 */
+	public function ballotValue(array $round, string $value, ?array $ranking): string {
+		return (new RankedBallotRules())->ballotValue(round: $round, value: $value, ranking: $ranking);
+	}//end ballotValue()
+
+	/**
 	 * Load a voting round and assert it is currently accepting votes.
 	 *
 	 * @param string $votingRoundId The voting round UUID

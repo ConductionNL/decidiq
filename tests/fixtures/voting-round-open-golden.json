@@ -1,0 +1,4571 @@
+{
+    "motion-defaults": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "motion-null-rules": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "secret-with-deadline": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": true,
+            "openedAt": "<atom>",
+            "closedAt": "2026-06-12T18:00:00+00:00",
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": true,
+                        "openedAt": "<atom>",
+                        "closedAt": "2026-06-12T18:00:00+00:00",
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: 2026-06-12T18:00:00+00:00.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "empty-deadline": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": "",
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": "",
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "show-of-hands": {
+        "returns": {
+            "votingMethod": "show-of-hands",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "show-of-hands",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "show-of-hands",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "presets": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-0"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-1"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-left"
+                },
+                {
+                    "register": "decidiq",
+                    "schema": "participant",
+                    "id": "p-in"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new",
+            "excludedPresetUuids": [
+                "p-stranger"
+            ]
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-0"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-1"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-left"
+                            },
+                            {
+                                "register": "decidiq",
+                                "schema": "participant",
+                                "id": "p-in"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "chair-rules": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "qualified-majority-two-thirds",
+            "abstentionHandling": "count",
+            "tieBreakRule": "chair-decides",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "qualified-majority-two-thirds",
+                        "abstentionHandling": "count",
+                        "tieBreakRule": "chair-decides",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "invalid-threshold": {
+        "throws": "InvalidArgumentException",
+        "message": "Unknown voteThreshold 'bogus'",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            }
+        ]
+    },
+    "invalid-abstention": {
+        "throws": "InvalidArgumentException",
+        "message": "Unknown abstentionHandling 'bogus'",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            }
+        ]
+    },
+    "invalid-tie-break": {
+        "throws": "InvalidArgumentException",
+        "message": "Unknown tieBreakRule 'bogus'",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            }
+        ]
+    },
+    "invalid-subject": {
+        "throws": "InvalidArgumentException",
+        "message": "Unknown subjectType 'banana'",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            }
+        ]
+    },
+    "meeting-type-threshold": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "qualified-majority-three-quarters",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-typed",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-typed",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-typed",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "type-1",
+                    "register": "decidiq",
+                    "schema": "meeting-type"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-typed",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-typed",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-typed",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-typed"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-typed"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "qualified-majority-three-quarters",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-typed"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-typed",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-typed). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "named-body": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "qualified-majority-two-thirds",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "revote",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-2"
+            },
+            {
+                "find": {
+                    "id": "body-2",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "qualified-majority-two-thirds",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "revote",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "no-quorum": {
+        "throws": "RuntimeException",
+        "message": "Quorum niet bereikt",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-small",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-small",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-small",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-small",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-small",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-small"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-small"
+                        },
+                        "limit": 1000
+                    }
+                }
+            }
+        ]
+    },
+    "unknown-meeting": {
+        "throws": "RuntimeException",
+        "message": "Quorum niet bereikt",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-none",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-none",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": null
+            },
+            {
+                "find": {
+                    "id": "meet-none",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            }
+        ]
+    },
+    "pending-amendment": {
+        "throws": "RuntimeException",
+        "message": "Cannot open a voting round on the motion: 2 amendment(s) must be decided first (amendments are voted before the main motion): Amendement A, Amendement B",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-1"
+            }
+        ]
+    },
+    "first-amendment": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "amendment",
+                    "id": "am-1"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "am-1",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "amendmentsOf": "mot-1"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "amendment",
+                                "id": "am-1"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "am-1",
+                    "amendment",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "am-1",
+                    "register": "decidiq",
+                    "schema": "amendment"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Amendment",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/am-1"
+                ]
+            }
+        ]
+    },
+    "second-amendment": {
+        "throws": "RuntimeException",
+        "message": "Amendment voting order violated: 'Amendement A' must be voted first (the chair-configured order is enforced, most far-reaching first)",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "am-2",
+                    "register": "decidiq",
+                    "schema": "decision"
+                }
+            },
+            {
+                "amendmentsOf": "mot-1"
+            }
+        ]
+    },
+    "revote-of-tied": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-1"
+                }
+            ],
+            "meeting": "meet-1",
+            "revoteOfRound": "round-tied",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "round-tied",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "voting-round",
+                    "config": {
+                        "filters": {
+                            "revoteOfRound": "round-tied"
+                        }
+                    }
+                }
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-1"
+                            }
+                        ],
+                        "meeting": "meet-1",
+                        "revoteOfRound": "round-tied"
+                    }
+                }
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-1",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-1"
+                ]
+            }
+        ]
+    },
+    "revote-of-revoted": {
+        "throws": "RuntimeException",
+        "message": "Revote refused: this round has already been revoted once",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "round-revoted",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "voting-round",
+                    "config": {
+                        "filters": {
+                            "revoteOfRound": "round-revoted"
+                        }
+                    }
+                }
+            }
+        ]
+    },
+    "revote-of-decided": {
+        "throws": "RuntimeException",
+        "message": "Revote refused: the referenced round is not tied",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "round-decided",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            }
+        ]
+    },
+    "revote-of-missing": {
+        "throws": "RuntimeException",
+        "message": "Revote refused: round round-none not found",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "round-none",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            }
+        ]
+    },
+    "ranked": {
+        "returns": {
+            "votingMethod": "ranked-choice",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "options": [
+                {
+                    "key": "a",
+                    "label": "A"
+                },
+                {
+                    "key": "b",
+                    "label": "B"
+                }
+            ],
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-2"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "ranked-choice",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1",
+                        "options": [
+                            {
+                                "key": "a",
+                                "label": "A"
+                            },
+                            {
+                                "key": "b",
+                                "label": "B"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-2",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "ranked-choice",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "ranked-no-options": {
+        "throws": "InvalidArgumentException",
+        "message": "A ranked-choice round needs at least two options",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            }
+        ]
+    },
+    "options-on-plain": {
+        "throws": "InvalidArgumentException",
+        "message": "Options can only be given for a ranked-choice round",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            }
+        ]
+    },
+    "ranked-revote": {
+        "returns": {
+            "votingMethod": "ranked-choice",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-2"
+                }
+            ],
+            "meeting": "meet-1",
+            "revoteOfRound": "round-tied-ranked",
+            "options": [
+                {
+                    "key": "x",
+                    "label": "X"
+                },
+                {
+                    "key": "y",
+                    "label": "Y"
+                }
+            ],
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "round-tied-ranked",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "voting-round",
+                    "config": {
+                        "filters": {
+                            "revoteOfRound": "round-tied-ranked"
+                        }
+                    }
+                }
+            },
+            {
+                "find": {
+                    "id": "round-tied-ranked",
+                    "register": "decidiq",
+                    "schema": "voting-round"
+                }
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "ranked-choice",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-2"
+                            }
+                        ],
+                        "meeting": "meet-1",
+                        "revoteOfRound": "round-tied-ranked",
+                        "options": [
+                            {
+                                "key": "x",
+                                "label": "X"
+                            },
+                            {
+                                "key": "y",
+                                "label": "Y"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "ranked-choice",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-2",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-2"
+                ]
+            }
+        ]
+    },
+    "transition-refused": {
+        "throws": "RuntimeException",
+        "message": "Cannot open voting round: not allowed from this state",
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-locked"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-locked"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-locked",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            }
+        ]
+    },
+    "transition-fails": {
+        "returns": {
+            "votingMethod": "for-against-abstain",
+            "isSecret": false,
+            "openedAt": "<atom>",
+            "closedAt": null,
+            "quorumWith": true,
+            "result": null,
+            "votesFor": 0,
+            "votesAgainst": 0,
+            "votesAbstain": 0,
+            "voteThreshold": "simple-majority",
+            "abstentionHandling": "exclude",
+            "tieBreakRule": "rejected",
+            "relations": [
+                {
+                    "register": "decidiq",
+                    "schema": "motion",
+                    "id": "mot-broken"
+                }
+            ],
+            "meeting": "meet-1",
+            "id": "round-new"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "template": "body-1"
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "find": {
+                    "id": "body-1",
+                    "register": "decidiq",
+                    "schema": "governance-body"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "meeting-attendance",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": {
+                        "filters": {
+                            "register": "decidiq",
+                            "schema": "mandate-substitution",
+                            "meeting": "meet-1"
+                        },
+                        "limit": 1000
+                    }
+                }
+            },
+            {
+                "amendmentsOf": "mot-broken"
+            },
+            {
+                "save": {
+                    "register": "decidiq",
+                    "schema": "voting-round",
+                    "object": {
+                        "votingMethod": "for-against-abstain",
+                        "isSecret": false,
+                        "openedAt": "<atom>",
+                        "closedAt": null,
+                        "quorumWith": true,
+                        "result": null,
+                        "votesFor": 0,
+                        "votesAgainst": 0,
+                        "votesAbstain": 0,
+                        "voteThreshold": "simple-majority",
+                        "abstentionHandling": "exclude",
+                        "tieBreakRule": "rejected",
+                        "relations": [
+                            {
+                                "register": "decidiq",
+                                "schema": "motion",
+                                "id": "mot-broken"
+                            }
+                        ],
+                        "meeting": "meet-1"
+                    }
+                }
+            },
+            {
+                "transition": [
+                    "mot-broken",
+                    "motion",
+                    "voting",
+                    "system",
+                    null
+                ]
+            },
+            {
+                "activity": [
+                    "vote_initiated",
+                    "for-against-abstain",
+                    "open",
+                    "voting-round",
+                    "round-new",
+                    "voting-rounds",
+                    []
+                ]
+            },
+            {
+                "find": {
+                    "id": "mot-broken",
+                    "register": "decidiq",
+                    "schema": "motion"
+                }
+            },
+            {
+                "find": {
+                    "id": "meet-1",
+                    "register": "decidiq",
+                    "schema": "meeting"
+                }
+            },
+            {
+                "findAll": {
+                    "schema": "participant",
+                    "config": []
+                }
+            },
+            {
+                "notify": [
+                    "member-0",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            },
+            {
+                "notify": [
+                    "member-1",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            },
+            {
+                "notify": [
+                    "member-2",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            },
+            {
+                "notify": [
+                    "member-3",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            },
+            {
+                "notify": [
+                    "member-4",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            },
+            {
+                "notify": [
+                    "outgoing",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            },
+            {
+                "notify": [
+                    "incoming",
+                    "votingOpened",
+                    "Pending vote: Motion",
+                    "A new vote is open in your body (meeting meet-1). Voting deadline: no deadline set.",
+                    "/motions/mot-broken"
+                ]
+            }
+        ]
+    }
+}

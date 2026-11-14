@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for RegulatorExportService.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 class RegulatorExportServiceTest extends TestCase {
 
@@ -260,6 +260,30 @@ class RegulatorExportServiceTest extends TestCase {
 	}//end testGenerateResolutionsCsv()
 
 	/**
+	 * generate keeps user-written CSV cells inert: a formula is prefixed, a
+	 * lone carriage return and a semicolon are quoted.
+	 *
+	 * @return void
+	 */
+	public function testGenerateCsvKeepsHostileCellsInert(): void {
+		$rows = [
+			'meeting' => [
+				['id' => 'm-1', 'boardIntegration' => 'b-1'],
+			],
+			'decision' => [
+				['id' => 'r-1', 'meetingIntegration' => 'm-1', 'title' => '=HYPERLINK("https://evil.example")', 'type' => "a\rb", 'status' => 'x;=1+1'],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
+
+		$lines = explode("\n", $svc->generate('b-1', 'resolutions', 'csv', 'alice')['body']);
+
+		$this->assertSame("r-1,m-1,,\"'=HYPERLINK(\"\"https://evil.example\"\")\",\"a\rb\",\"x;'=1+1\",,", $lines[1]);
+
+	}//end testGenerateCsvKeepsHostileCellsInert()
+
+	/**
 	 * generate scopes audit-log to all entries.
 	 *
 	 * @return void
@@ -392,5 +416,156 @@ class RegulatorExportServiceTest extends TestCase {
 		$this->assertFalse($result['success']);
 
 	}//end testListExportsRejectsEmptyBoardId()
+
+	/**
+	 * generate reports OpenRegister as unavailable when the container cannot resolve it.
+	 *
+	 * @return void
+	 */
+	public function testGenerateFailsWhenObjectServiceCannotBeResolved(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(new \RuntimeException('no service'));
+
+		$audit = $this->createMock(AuditLogService::class);
+		$audit->expects($this->never())->method('append');
+
+		$svc = new RegulatorExportService(
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+			auditLogService: $audit,
+		);
+
+		$result = $svc->generate('b-1', 'resolutions', 'csv', 'alice');
+
+		$this->assertFalse($result['success']);
+		$this->assertSame('OpenRegister is unavailable.', $result['message']);
+		$this->assertNull($result['export']);
+
+	}//end testGenerateFailsWhenObjectServiceCannotBeResolved()
+
+	/**
+	 * generate reports a collect failure with the scope in the message and writes no audit entry.
+	 *
+	 * @return void
+	 */
+	public function testGenerateFailsWhenCollectThrows(): void {
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('findAll')->willThrowException(new \RuntimeException('db down'));
+		$objectService->expects($this->never())->method('saveObject');
+
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturn($objectService);
+
+		$audit = $this->createMock(AuditLogService::class);
+		$audit->expects($this->never())->method('append');
+
+		$svc = new RegulatorExportService(
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+			auditLogService: $audit,
+		);
+
+		$result = $svc->generate('b-1', 'RESOLUTIONS', 'CSV', 'alice');
+
+		$this->assertFalse($result['success']);
+		$this->assertSame('Failed to collect data for scope: resolutions', $result['message']);
+
+	}//end testGenerateFailsWhenCollectThrows()
+
+	/**
+	 * A failed persist is non-fatal: the body is still returned and the audit entry
+	 * falls back to the body checksum as the export id.
+	 *
+	 * @return void
+	 */
+	public function testGenerateStillSucceedsWhenPersistFails(): void {
+		$objectService = $this->createMock(ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturn([]);
+		$objectService->method('saveObject')->willThrowException(new \RuntimeException('write failed'));
+
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturn($objectService);
+
+		$captured = [];
+		$audit = $this->createMock(AuditLogService::class);
+		$audit->expects($this->once())->method('append')->willReturnCallback(
+			static function (string $actor, string $action, array $objectUids, array $payload = []) use (&$captured): array {
+				$captured = ['actor' => $actor, 'action' => $action, 'objectUids' => $objectUids, 'payload' => $payload];
+				return ['success' => true, 'entry' => null, 'message' => ''];
+			}
+		);
+
+		$svc = new RegulatorExportService(
+			container: $container,
+			logger: $this->createMock(LoggerInterface::class),
+			auditLogService: $audit,
+		);
+
+		$result = $svc->generate('b-1', 'resolutions', 'csv', 'alice');
+
+		$checksum = hash('sha256', $result['body']);
+		$this->assertTrue($result['success']);
+		$this->assertSame('Export generated.', $result['message']);
+		$this->assertSame('text/csv', $result['contentType']);
+		$this->assertSame($checksum, $result['export']['sha256']);
+		$this->assertArrayNotHasKey('id', $result['export']);
+		$this->assertSame(
+			[
+				'boardIntegration',
+				'scope',
+				'format',
+				'recordCount',
+				'sha256',
+				'filename',
+				'generatedAt',
+				'generatedBy',
+			],
+			array_keys($result['export'])
+		);
+		$this->assertSame('alice', $captured['actor']);
+		$this->assertSame('material-access', $captured['action']);
+		$this->assertSame(['b-1', $checksum], $captured['objectUids']);
+		$this->assertSame(
+			[
+				'kind' => 'regulator-export',
+				'scope' => 'resolutions',
+				'format' => 'csv',
+				'recordCount' => 0,
+				'sha256' => $checksum,
+			],
+			$captured['payload']
+		);
+
+	}//end testGenerateStillSucceedsWhenPersistFails()
+
+	/**
+	 * When the record is persisted, the returned export is the saved object and the
+	 * audit entry references its id.
+	 *
+	 * @return void
+	 */
+	public function testGenerateAuditsThePersistedRecordId(): void {
+		$rows = [];
+		$saved = [];
+
+		$captured = [];
+		$audit = $this->createMock(AuditLogService::class);
+		$audit->expects($this->once())->method('append')->willReturnCallback(
+			static function (string $actor, string $action, array $objectUids, array $payload = []) use (&$captured): array {
+				$captured = ['actor' => $actor, 'action' => $action, 'objectUids' => $objectUids, 'payload' => $payload];
+				return ['success' => true, 'entry' => null, 'message' => ''];
+			}
+		);
+
+		$svc = $this->makeService($rows, $saved, $audit);
+
+		$result = $svc->generate('b-1', 'resolutions', 'csv', 'alice');
+
+		$this->assertTrue($result['success']);
+		$this->assertSame(RegulatorExportService::SCHEMA . '-1', $result['export']['id']);
+		$this->assertSame('alice', $result['export']['generatedBy']);
+		$this->assertSame(['b-1', RegulatorExportService::SCHEMA . '-1'], $captured['objectUids']);
+
+	}//end testGenerateAuditsThePersistedRecordId()
 
 }//end class

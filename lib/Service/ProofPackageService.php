@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Service;
 use DateTimeImmutable;
 use DateTimeInterface;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\ProofPackageServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -45,7 +46,21 @@ use RuntimeException;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class ProofPackageService {
+class ProofPackageService implements ProofPackageServiceInterface {
+
+	/**
+	 * Minutes states that count as approved: approval comes before signing and publication.
+	 *
+	 * @var array<int, string>
+	 */
+	private const APPROVED_MINUTES_STATES = ['approved', 'signed', 'published'];
+
+	/**
+	 * Minutes states that carry the signatures.
+	 *
+	 * @var array<int, string>
+	 */
+	private const SIGNED_MINUTES_STATES = ['signed', 'published'];
 
 	/**
 	 * Attendance statuses counted as present for the quorum snapshot.
@@ -100,25 +115,7 @@ class ProofPackageService {
 
 		$meeting = $meetingEntity->jsonSerialize();
 
-		$agendaItems = $this->fetchRelated(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
-		$votingRounds = $this->fetchRelated(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
-		$decisions = $this->fetchRelated(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
-		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
-
-		$package = [
-			'meeting' => [
-				'id' => ($meeting['id'] ?? ($meeting['@self']['id'] ?? $meetingId)),
-				'title' => (string)($meeting['title'] ?? ''),
-				'meetingType' => (string)($meeting['meetingType'] ?? ''),
-				'scheduledDate' => (string)($meeting['scheduledDate'] ?? ''),
-				'location' => (string)($meeting['location'] ?? ''),
-				'lifecycle' => (string)($meeting['lifecycle'] ?? ''),
-			],
-			'convocation' => $this->buildConvocation(meeting: $meeting, agendaItems: $agendaItems),
-			'quorum' => $this->buildQuorumSnapshot(meeting: $meeting, participants: $participants),
-			'votes' => $this->buildVotesTally(votingRounds: $votingRounds),
-			'decisions' => $this->buildDecisionTexts(decisions: $decisions),
-		];
+		$package = $this->buildPackage(objectService: $objectService, meeting: $meeting, meetingId: $meetingId);
 
 		$generatedAt = (new DateTimeImmutable())->format(DateTimeInterface::ATOM);
 		$canonical = $this->canonicalJson(data: $package);
@@ -136,6 +133,152 @@ class ProofPackageService {
 			'generatedBy' => $generatedBy,
 		];
 
+		$files = $this->writePackageFiles(meeting: $meeting, envelope: $envelope);
+
+		return [
+			'files' => $files,
+			'sha256' => $sha256,
+			'generatedAt' => $generatedAt,
+		];
+
+	}//end assemble()
+
+	/**
+	 * Gather the evidence members of the proof package for a meeting.
+	 *
+	 * @param object $objectService OpenRegister ObjectService
+	 * @param array<string, mixed> $meeting Serialized meeting
+	 * @param string $meetingId UUID of the meeting
+	 *
+	 * @return array<string, mixed> Keys: meeting, convocation, quorum, votes, decisions
+	 */
+	private function buildPackage(object $objectService, array $meeting, string $meetingId): array {
+		$agendaItems = $this->fetchRelated(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
+		$votingRounds = $this->fetchRelated(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
+		$decisions = $this->fetchRelated(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
+		$minutes = $this->currentMinutes(rows: $this->fetchRelated(objectService: $objectService, schema: 'minutes', meetingId: $meetingId));
+		$participants = $this->participantResolver->resolveMeetingParticipants(meetingId: $meetingId);
+
+		return [
+			'meeting' => [
+				'id' => ($meeting['id'] ?? ($meeting['@self']['id'] ?? $meetingId)),
+				'title' => (string)($meeting['title'] ?? ''),
+				'meetingType' => (string)($meeting['meetingType'] ?? ''),
+				'scheduledDate' => (string)($meeting['scheduledDate'] ?? ''),
+				'location' => (string)($meeting['location'] ?? ''),
+				'lifecycle' => (string)($meeting['lifecycle'] ?? ''),
+			],
+			'convocation' => $this->buildConvocation(meeting: $meeting, agendaItems: $agendaItems),
+			'quorum' => $this->buildQuorumSnapshot(meeting: $meeting, participants: $participants),
+			'votes' => $this->buildVotesTally(votingRounds: $votingRounds),
+			'decisions' => $this->buildDecisionTexts(decisions: $decisions),
+			'minutes' => $this->buildMinutes(minutes: $minutes),
+			'signatures' => $this->buildSignatures(minutes: $minutes),
+		];
+
+	}//end buildPackage()
+
+	/**
+	 * The current version of a meeting's minutes, when there are any.
+	 *
+	 * @param array<int, array<string, mixed>> $rows The minutes recorded for the meeting.
+	 *
+	 * @return array<string, mixed>|null The highest version, or null when none is recorded.
+	 */
+	private function currentMinutes(array $rows): ?array {
+		$current = null;
+		foreach ($rows as $row) {
+			if ($current === null || (int)($row['version'] ?? 0) > (int)($current['version'] ?? 0)) {
+				$current = $row;
+			}
+		}
+
+		return $current;
+
+	}//end currentMinutes()
+
+	/**
+	 * The minutes as evidence: their text once approved, otherwise their state.
+	 *
+	 * Minutes that are not approved are named with their current state rather
+	 * than left out, so a reader sees why the package carries no minutes text.
+	 *
+	 * @param array<string, mixed>|null $minutes The current minutes, or null.
+	 *
+	 * @return array<string, mixed> The minutes member.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 */
+	private function buildMinutes(?array $minutes): array {
+		if ($minutes === null) {
+			return [
+				'recorded' => false,
+				'approved' => false,
+				'state' => 'missing',
+				'note' => 'No minutes are recorded for this meeting.',
+			];
+		}
+
+		$state = (string)($minutes['lifecycle'] ?? 'draft');
+		if (in_array($state, self::APPROVED_MINUTES_STATES, true) === false) {
+			return [
+				'recorded' => true,
+				'approved' => false,
+				'state' => $state,
+				'version' => ($minutes['version'] ?? null),
+				'note' => sprintf('The minutes are not approved; their current state is "%s".', $state),
+			];
+		}
+
+		return [
+			'recorded' => true,
+			'approved' => true,
+			'state' => $state,
+			'id' => ($minutes['id'] ?? ($minutes['@self']['id'] ?? null)),
+			'title' => (string)($minutes['title'] ?? ''),
+			'version' => ($minutes['version'] ?? null),
+			'approvedAt' => (string)($minutes['approvedAt'] ?? ''),
+			'content' => (string)($minutes['content'] ?? ''),
+		];
+
+	}//end buildMinutes()
+
+	/**
+	 * The signatures on the minutes.
+	 *
+	 * @param array<string, mixed>|null $minutes The current minutes, or null.
+	 *
+	 * @return array{signed: bool, signedBy: array<int, string>} Whether they are signed, and by whom.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 */
+	private function buildSignatures(?array $minutes): array {
+		$signers = [];
+		foreach ((array)($minutes['signedBy'] ?? []) as $signer) {
+			if (is_string($signer) === true && trim($signer) !== '') {
+				$signers[] = trim($signer);
+			}
+		}
+
+		return [
+			'signed' => in_array((string)($minutes['lifecycle'] ?? ''), self::SIGNED_MINUTES_STATES, true),
+			'signedBy' => $signers,
+		];
+
+	}//end buildSignatures()
+
+	/**
+	 * Write the sealed envelope as a JSON file and a Markdown rendering into
+	 * the meeting's Minutes folder.
+	 *
+	 * @param array<string, mixed> $meeting Serialized meeting
+	 * @param array<string, mixed> $envelope The sealed envelope
+	 *
+	 * @throws RuntimeException When encoding fails (500) or the Files backend is unavailable (503)
+	 *
+	 * @return string[] The JSON path, then the Markdown path
+	 */
+	private function writePackageFiles(array $meeting, array $envelope): array {
 		$stamp = (new DateTimeImmutable())->format('Y-m-d Hi');
 		$baseName = 'Proof package ' . $stamp;
 
@@ -165,13 +308,9 @@ class ProofPackageService {
 			);
 		}
 
-		return [
-			'files' => [$jsonPath, $mdPath],
-			'sha256' => $sha256,
-			'generatedAt' => $generatedAt,
-		];
+		return [$jsonPath, $mdPath];
 
-	}//end assemble()
+	}//end writePackageFiles()
 
 	/**
 	 * Build the convocation record — honest about unrecorded notice data.
@@ -372,7 +511,8 @@ class ProofPackageService {
 		$lines = array_merge(
 			$lines,
 			$this->renderVotesSection(votes: $package['votes']),
-			$this->renderDecisionsSection(decisions: $package['decisions'])
+			$this->renderDecisionsSection(decisions: $package['decisions']),
+			$this->renderMinutesSection(minutes: $package['minutes'], signatures: $package['signatures'])
 		);
 
 		$lines[] = '---';
@@ -383,6 +523,41 @@ class ProofPackageService {
 
 		return implode("\n", $lines);
 	}//end renderMarkdown()
+
+	/**
+	 * The minutes and signatures section of the readable package.
+	 *
+	 * @param array<string, mixed> $minutes    The minutes member.
+	 * @param array<string, mixed> $signatures The signatures member.
+	 *
+	 * @return array<int, string> The lines.
+	 */
+	private function renderMinutesSection(array $minutes, array $signatures): array {
+		$lines = ['## Notulen / Minutes', ''];
+		if ($minutes['approved'] === true) {
+			$lines[] = sprintf('%s (versie %s), vastgesteld %s', $minutes['title'], (string)($minutes['version'] ?? '-'), $minutes['approvedAt']);
+			$lines[] = '';
+			$lines[] = $minutes['content'];
+		} else {
+			$lines[] = '_' . $minutes['note'] . '_';
+		}
+
+		$lines[] = '';
+		$lines[] = '### Ondertekening / Signatures';
+		$lines[] = '';
+		if ($signatures['signedBy'] === []) {
+			$lines[] = '_Geen ondertekening vastgelegd._';
+		}
+
+		foreach ($signatures['signedBy'] as $signer) {
+			$lines[] = '- ' . $signer;
+		}
+
+		$lines[] = '';
+
+		return $lines;
+
+	}//end renderMinutesSection()
 
 	/**
 	 * Render section 3 (Stemmingen) of the markdown rendition.

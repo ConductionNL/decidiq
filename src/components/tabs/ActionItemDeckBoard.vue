@@ -14,7 +14,7 @@
 
  v1 is forward-only — editing the card in Deck does not sync back.
 
- @spec openspec/changes/action-item-deck-board/specs/action-item-board-via-deck-leaf/spec.md
+ @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
 -->
 <template>
 	<div class="ai-deck-board" data-testid="action-item-deck-board">
@@ -183,7 +183,7 @@ import {
 	statusToLane,
 } from '../../services/deckProjection.js'
 import { useSettingsStore } from '../../store/store.js'
-import { ensureRelationType } from './useRelationStore.js'
+import { relationCrudTab } from './relationRows.js'
 
 const LANE_LABELS = {
 	open: 'Open',
@@ -205,6 +205,8 @@ export default {
 		ViewColumnOutline,
 	},
 
+	mixins: [relationCrudTab],
+
 	props: {
 		objectId: { type: [String, Number], default: '' },
 	},
@@ -224,19 +226,19 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		register() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.register || 'decidiq'
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		schema() {
 			const settings = useSettingsStore().getSettings || {}
 			return settings.decisionSchema || 'decision'
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		lanes() {
 			return LANES.map((key) => ({
 				key,
@@ -245,7 +247,7 @@ export default {
 			}))
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-3 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-3 */
 		laneOptions() {
 			return LANES.map((key) => ({
 				id: key,
@@ -258,82 +260,40 @@ export default {
 			return generateUrl('/apps/deck/')
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-1 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-1 */
 		excludedFields() {
 			return ['id', 'uuid', 'decision', 'deckCardId', 'created', 'updated']
 		},
 	},
 
-	watch: {
-		objectId: {
-			immediate: true,
-			handler() {
-				this.refresh()
-			},
-		},
-	},
-
 	methods: {
+		/**
+		 * The relation this tab lists: its type, where it keeps the schema,
+		 * the fields that tie a row to the parent and the load failure text.
+		 *
+		 * @return {object} The listing.
+		 * @spec openspec/specs/relation-tab-ui/spec.md
+		 */
+		relationListing() {
+			return {
+				type: 'action-item',
+				schemaKey: 'actionItemSchema',
+				filter: { decision: this.objectId },
+				failedText: this.t('decidiq', 'Failed to load action items.'),
+			}
+		},
+
 		uidOf(item) {
 			return itemUid(item)
 		},
 
 		/**
 		 * @param item
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-3
 		 */
 		laneOption(item) {
 			const key = statusToLane(item.taskStatus)
 			return { id: key, label: this.t('decidiq', LANE_LABELS[key]) }
-		},
-
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
-		async refresh() {
-			if (!this.objectId) return
-			this.loading = true
-			this.error = ''
-			try {
-				const store = ensureRelationType('action-item')
-				if (!this.actionItemSchema)
-					this.actionItemSchema = await store.fetchSchema('action-item')
-				const items = await store.fetchCollection('action-item', {
-					decision: this.objectId,
-					_limit: 100,
-				})
-				this.rows = items || []
-			} catch (e) {
-				this.error =
-					e?.message || this.t('decidiq', 'Failed to load action items.')
-			} finally {
-				this.loading = false
-			}
-		},
-
-		/**
-		 * Open the create dialog.
-		 *
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
-		 */
-		async openCreate() {
-			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema)
-				this.actionItemSchema = await store.fetchSchema('action-item')
-			this.editTarget = null
-			this.formOpen = true
-		},
-
-		/**
-		 * Open the edit dialog for a card.
-		 *
-		 * @param {object} item The action-item row.
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
-		 */
-		async openEdit(item) {
-			const store = ensureRelationType('action-item')
-			if (!this.actionItemSchema)
-				this.actionItemSchema = await store.fetchSchema('action-item')
-			this.editTarget = { ...item }
-			this.formOpen = true
 		},
 
 		/**
@@ -341,7 +301,7 @@ export default {
 		 * (action items are a read-only projection — never the object API).
 		 *
 		 * @param {object} formData The dialog form data.
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-1
 		 */
 		async onConfirm(formData) {
 			try {
@@ -366,7 +326,7 @@ export default {
 		/**
 		 * Delete an action item (VTODO).
 		 *
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-1
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-1
 		 */
 		async confirmDelete() {
 			try {
@@ -380,7 +340,7 @@ export default {
 			}
 		},
 
-		/** @spec openspec/changes/action-item-deck-board/tasks.md#task-2 */
+		/** @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-2 */
 		async sync() {
 			this.syncing = true
 			this.error = ''
@@ -429,7 +389,7 @@ export default {
 		 *
 		 * @param {object} item The action-item row.
 		 * @param {object} opt  The chosen lane option ({id, label}).
-		 * @spec openspec/changes/action-item-deck-board/tasks.md#task-3
+		 * @spec openspec/changes/archive/2026-11-12-action-item-deck-board/tasks.md#task-3
 		 */
 		async moveTo(item, opt) {
 			const newLane = opt && opt.id

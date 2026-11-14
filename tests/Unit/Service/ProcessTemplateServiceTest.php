@@ -24,13 +24,14 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Lifecycle\ProcessTemplatePolicyResolver;
 use OCA\Decidiq\Service\ProcessTemplateService;
-use OCA\Decidiq\Service\StateMachineValidator;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCA\OpenRegister\Service\Lifecycle\LifecycleTransitionsValidator;
 use OCA\OpenRegister\Service\ObjectService;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -42,7 +43,7 @@ use Psr\Log\LoggerInterface;
 class ProcessTemplateServiceTest extends TestCase {
 
 	/**
-	 * Mock DI container.
+	 * Mock DI container; it hands out OpenRegister's real LifecycleTransitionsValidator.
 	 *
 	 * @var ContainerInterface&MockObject
 	 */
@@ -71,12 +72,12 @@ class ProcessTemplateServiceTest extends TestCase {
 		parent::setUp();
 		$this->container = $this->createMock(ContainerInterface::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
-		$this->container->method('get')->willReturn($this->objectService);
+		$this->container->method('get')->willReturnMap([[LifecycleTransitionsValidator::class, new LifecycleTransitionsValidator()]]);
 
 		$this->service = new ProcessTemplateService(
 			logger: $this->createMock(LoggerInterface::class),
 			resolver: new ProcessTemplatePolicyResolver(),
-			validator: new StateMachineValidator(),
+			container: $this->container,
 			objectService: $this->objectService,
 		);
 
@@ -173,6 +174,189 @@ class ProcessTemplateServiceTest extends TestCase {
 	}//end testValidateRejectsUnknownGuard()
 
 	/**
+	 * A template without a stateMachine object is refused, and the error says so.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsMissingStateMachine(): void {
+		$template = $this->validTemplate();
+		unset($template['stateMachine']);
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'stateMachine', haystack: implode(' ', $result['errors']));
+
+	}//end testValidateRejectsMissingStateMachine()
+
+	/**
+	 * A graph without a named state is refused.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsEmptyStates(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['states'] = [];
+		$template['stateMachine']['transitions'] = [];
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'state', haystack: strtolower(implode(' ', $result['errors'])));
+
+	}//end testValidateRejectsEmptyStates()
+
+	/**
+	 * A template without an initial state is refused.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsMissingInitialState(): void {
+		$template = $this->validTemplate();
+		unset($template['initialState']);
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'initial', haystack: strtolower(implode(' ', $result['errors'])));
+
+	}//end testValidateRejectsMissingInitialState()
+
+	/**
+	 * An initial state that is not one of the declared states is refused by name.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsUndeclaredInitialState(): void {
+		$template = $this->validTemplate();
+		$template['initialState'] = 'nowhere';
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'nowhere', haystack: implode(' ', $result['errors']));
+
+	}//end testValidateRejectsUndeclaredInitialState()
+
+	/**
+	 * A transition that is not an object, or lacks its to-state, is refused.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsMalformedTransitions(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][] = 'draft-to-decided';
+		$notAnObject = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $notAnObject['valid']);
+
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][] = ['from' => 'draft'];
+		$noTo = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $noTo['valid']);
+
+	}//end testValidateRejectsMalformedTransitions()
+
+	/**
+	 * A transition whose from is a LIST of states is refused (fail closed).
+	 *
+	 * ProcessTemplatePolicyResolver reads a single from-state per edge and
+	 * skips anything else, so a chair_only guard on a list-from transition would
+	 * silently guard nothing if the graph were accepted.
+	 *
+	 * @return void
+	 */
+	public function testValidateRejectsListFromState(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][] = [
+			'from' => ['draft', 'proposed'],
+			'to' => 'decided',
+			'guards' => ['chair_only'],
+		];
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertFalse(condition: $result['valid']);
+		self::assertNotSame([], $result['errors']);
+
+	}//end testValidateRejectsListFromState()
+
+	/**
+	 * Every token of the guard catalogue is accepted.
+	 *
+	 * @return void
+	 */
+	public function testValidateAcceptsEveryKnownGuard(): void {
+		$template = $this->validTemplate();
+		$template['stateMachine']['transitions'][0]['guards'] = ProcessTemplateService::KNOWN_GUARDS;
+
+		$result = $this->service->validateStateMachine(template: $template);
+		self::assertTrue(condition: $result['valid'], message: implode(' ', $result['errors']));
+		self::assertSame(
+			['quorum_met', 'chair_only', 'all_amendments_resolved', 'legal_review_complete'],
+			ProcessTemplateService::KNOWN_GUARDS
+		);
+
+	}//end testValidateAcceptsEveryKnownGuard()
+
+	/**
+	 * The graph rules are OpenRegister's: the service asks the container for
+	 * OpenRegister's LifecycleTransitionsValidator and applies its verdict.
+	 *
+	 * @return void
+	 */
+	public function testValidateAsksOpenRegisterForTheGraphRules(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->expects(self::once())
+			->method('get')
+			->with(LifecycleTransitionsValidator::class)
+			->willReturn(new LifecycleTransitionsValidator());
+		$service = $this->serviceWith(container: $container);
+
+		$template = $this->validTemplate();
+		$template['stateMachine']['states'][] = ['name' => 'orphan'];
+		$result = $service->validateStateMachine(template: $template);
+
+		self::assertFalse(condition: $result['valid']);
+		self::assertSame(
+			['State "orphan" is unreachable: no transition starts or ends in it.'],
+			$result['errors']
+		);
+
+	}//end testValidateAsksOpenRegisterForTheGraphRules()
+
+	/**
+	 * Without OpenRegister's validator the template is refused, never waved through.
+	 *
+	 * @return void
+	 */
+	public function testValidateFailsClosedWithoutOpenRegisterValidator(): void {
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willThrowException(
+			new class('not registered') extends \RuntimeException implements NotFoundExceptionInterface {
+			}
+		);
+		$service = $this->serviceWith(container: $container);
+
+		$result = $service->validateStateMachine(template: $this->validTemplate());
+
+		self::assertFalse(condition: $result['valid']);
+		self::assertStringContainsString(needle: 'OpenRegister', haystack: implode(' ', $result['errors']));
+
+	}//end testValidateFailsClosedWithoutOpenRegisterValidator()
+
+	/**
+	 * Build the service with a given DI container.
+	 *
+	 * @param ContainerInterface $container The container the service resolves OpenRegister's validator from
+	 *
+	 * @return ProcessTemplateService
+	 */
+	private function serviceWith(ContainerInterface $container): ProcessTemplateService {
+		return new ProcessTemplateService(
+			logger: $this->createMock(LoggerInterface::class),
+			resolver: new ProcessTemplatePolicyResolver(),
+			container: $container,
+			objectService: $this->objectService,
+		);
+
+	}//end serviceWith()
+
+	/**
 	 * create() refuses an invalid graph (fail closed) and never persists.
 	 *
 	 * @return void
@@ -181,6 +365,7 @@ class ProcessTemplateServiceTest extends TestCase {
 		$this->objectService->expects(self::never())->method('saveObject');
 
 		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Invalid state machine: ');
 		$this->service->create(template: ['name' => 'x', 'stateMachine' => ['states' => [], 'transitions' => []]]);
 
 	}//end testCreateRejectsInvalidGraph()
@@ -313,4 +498,112 @@ class ProcessTemplateServiceTest extends TestCase {
 		self::assertSame('qualified-majority-two-thirds', $rule['voteThreshold']);
 
 	}//end testResolveVotingRuleForBody()
+	/**
+	 * create() refuses an urgency policy with inverted bounds, naming them, and persists nothing.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testCreateRejectsInvertedUrgencyBounds(): void {
+		$this->objectService->method('find')->willReturn($this->entity(['id' => 'raad']));
+		$this->objectService->expects(self::never())->method('saveObject');
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('Invalid urgency policy: urgencyPolicy.responseDeadlineHours is inverted: min 96 is above max 12.');
+		$this->service->create(
+			template: $this->validTemplate() + [
+				'urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'responseDeadlineHours' => ['min' => 96, 'max' => 12], 'ratifyingBody' => 'raad'],
+			]
+		);
+
+	}//end testCreateRejectsInvertedUrgencyBounds()
+
+	/**
+	 * create() refuses a ratifying body the register does not hold, and one whose lookup fails.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testCreateRejectsARatifyingBodyThatDoesNotResolve(): void {
+		$this->objectService->method('find')->willReturnCallback(
+			static function (string $id): ?ObjectEntity {
+				if ($id === 'broken') {
+					throw new \RuntimeException('database gone');
+				}
+
+				return null;
+			}
+		);
+		$this->objectService->expects(self::never())->method('saveObject');
+
+		foreach (['missing', 'broken'] as $ref) {
+			try {
+				$this->service->create(template: $this->validTemplate() + ['urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => $ref]]);
+				self::fail('A ratifying body "' . $ref . '" was accepted.');
+			} catch (\InvalidArgumentException $e) {
+				self::assertStringContainsString('ratifyingBody "' . $ref . '" is not a governance body', $e->getMessage());
+			}
+		}
+
+	}//end testCreateRejectsARatifyingBodyThatDoesNotResolve()
+
+	/**
+	 * update() checks the urgency policy too; a valid one, or none, saves.
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testUpdateChecksTheUrgencyPolicy(): void {
+		$this->objectService->method('find')->willReturnCallback(
+			fn (string $id): ?ObjectEntity => match ($id) {
+				'tpl-1' => $this->entity(['id' => 'tpl-1', 'builtIn' => false]),
+				'raad' => $this->entity(['id' => 'raad']),
+				default => null,
+			}
+		);
+		$this->objectService->expects(self::exactly(2))->method('saveObject')->willReturnCallback(fn (array $object) => $this->entity($object));
+
+		$policy = ['allowedTriggerRoles' => ['chair'], 'minimumNoticeFloorHours' => 24, 'responseDeadlineHours' => ['min' => 12, 'max' => 96], 'ratificationRequired' => true, 'ratifyingBody' => 'raad'];
+		self::assertSame($policy, $this->service->update(templateId: 'tpl-1', template: $this->validTemplate() + ['urgencyPolicy' => $policy])['urgencyPolicy']);
+		self::assertArrayNotHasKey('urgencyPolicy', $this->service->update(templateId: 'tpl-1', template: $this->validTemplate()));
+
+		$this->expectException(\InvalidArgumentException::class);
+		$this->expectExceptionMessage('urgencyPolicy.allowedTriggerRoles must name at least one role.');
+		$this->service->update(templateId: 'tpl-1', template: $this->validTemplate() + ['urgencyPolicy' => ['allowedTriggerRoles' => [], 'ratificationRequired' => false]]);
+
+	}//end testUpdateChecksTheUrgencyPolicy()
+
+	/**
+	 * A body's urgency policy resolves only when its template carries a valid one (fail closed).
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	public function testTheUrgentProcedureIsUnavailableWithoutAPolicy(): void {
+		$templates = [
+			'with-policy' => ['slug' => 'with-policy', 'urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => 'raad']],
+			'without-policy' => ['slug' => 'without-policy'],
+			'broken-policy' => ['slug' => 'broken-policy', 'urgencyPolicy' => ['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => 'gone']],
+		];
+		$this->objectService->method('find')->willReturnCallback(
+			fn (string $id): ?ObjectEntity => match (true) {
+				str_starts_with($id, 'body-') => $this->entity(['id' => $id, 'processTemplate' => substr($id, 5)]),
+				$id === 'raad' => $this->entity(['id' => 'raad']),
+				default => null,
+			}
+		);
+		$this->objectService->method('findAll')->willReturnCallback(
+			fn (array $config): array => [$this->entity($templates[$config['filters']['slug']])]
+		);
+
+		self::assertSame(['allowedTriggerRoles' => ['chair'], 'ratifyingBody' => 'raad'], $this->service->resolveUrgencyPolicyForBody(governanceBodyId: 'body-with-policy'));
+		self::assertNull($this->service->resolveUrgencyPolicyForBody(governanceBodyId: 'body-without-policy'));
+		self::assertNull($this->service->resolveUrgencyPolicyForBody(governanceBodyId: 'body-broken-policy'), 'a policy that no longer validates');
+		self::assertNull($this->service->resolveUrgencyPolicyForBody(governanceBodyId: null));
+
+	}//end testTheUrgentProcedureIsUnavailableWithoutAPolicy()
 }//end class

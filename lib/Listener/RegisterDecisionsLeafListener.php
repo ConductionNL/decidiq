@@ -54,14 +54,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\OpenRegister\Event\RegisterLeafProvidersEvent;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\OpenRegister\Service\Integration\LeafAvailability;
 use OCA\OpenRegister\Service\Integration\LeafDescriptor;
-use OCP\EventDispatcher\Event;
-use OCP\EventDispatcher\IEventListener;
-use OCP\IL10N;
-use Psr\Log\LoggerInterface;
-use Throwable;
+use OCA\OpenRegister\Service\Integration\LeafIdentity;
+use OCA\OpenRegister\Service\Integration\LeafRendering;
 
 /**
  * Contributes the `decidesk-decisions` render leaf to OpenRegister's catalogue.
@@ -71,11 +68,9 @@ use Throwable;
  * declarations directly. They are written out as constants rather than inlined
  * so that comparison has something to read on this side.
  *
- * @implements IEventListener<Event>
- *
  * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
  */
-class RegisterDecisionsLeafListener implements IEventListener {
+class RegisterDecisionsLeafListener extends AbstractRenderLeafListener {
 
 	/**
 	 * The shared leaf id, equal to the JS `DECISIONS_INTEGRATION_ID`.
@@ -146,39 +141,36 @@ class RegisterDecisionsLeafListener implements IEventListener {
 	];
 
 	/**
-	 * Constructor.
+	 * Build the `decidesk-decisions` leaf descriptor.
 	 *
-	 * @param IL10N $l10n Localisation for the human-readable label.
-	 * @param LoggerInterface $logger PSR-3 logger (a throwing listener costs only its own leaf).
-	 */
-	public function __construct(
-		private readonly IL10N $l10n,
-		private readonly LoggerInterface $logger,
-	) {
-	}//end __construct()
-
-	/**
-	 * Contribute the `decidesk-decisions` leaf descriptor.
+	 * @param array<string, string> $optional LeafRendering arguments only some OpenRegister versions accept.
 	 *
-	 * @param Event $event The dispatched event.
-	 *
-	 * @return void
+	 * @return LeafDescriptor The descriptor.
 	 *
 	 * @spec openspec/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-008-the-decidesk-decisions-leaf-is-declared-on-both-layers
 	 */
-	public function handle(Event $event): void {
-		if ($event instanceof RegisterLeafProvidersEvent === false) {
-			return;
-		}
-
-		try {
-			$descriptor = new LeafDescriptor(
+	protected function descriptor(array $optional): LeafDescriptor {
+		// The optional half is UNPACKED FIRST into the rendering value object,
+		// and every agreed field stays a written-out named argument, for two
+		// reasons that pull the same way.
+		// PHP refuses unpacking after a named argument, and
+		// `scripts/check-integration-parity.js` reads this call as SOURCE: it
+		// correlates the two halves of the leaf by matching `name: value`
+		// arguments here against the JS registration. Building the whole
+		// argument list as an array leaves the gate nothing to read: measured,
+		// it dropped from 8 field assertions to 0 and reported the leaf as
+		// having no id at all.
+		return new LeafDescriptor(
+			identity: new LeafIdentity(
 				id: self::LEAF_ID,
 				label: $this->l10n->t(self::LABEL_SOURCE),
 				icon: self::ICON,
-				kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
-				requiredApp: Application::APP_ID,
 				group: self::GROUP,
+			),
+			kinds: [LeafDescriptor::KIND_RENDER_SURFACE],
+			availability: new LeafAvailability(requiredApp: AppIdentity::APP_ID),
+			rendering: new LeafRendering(
+				...$optional,
 				surfaces: self::SURFACES,
 				referenceType: self::REFERENCE_TYPE,
 				// Vue 3 leaf under a possibly-Vue-2.7 host: the JS half renders via a
@@ -186,19 +178,8 @@ class RegisterDecisionsLeafListener implements IEventListener {
 				// so the server descriptor MUST declare the SAME render mode under the
 				// shared id or the surface blanks (gate-24 R3).
 				renderMode: LeafDescriptor::RENDER_MODE_MOUNT,
-			);
+			),
+		);
 
-			// Render-only leaf: no IntegrationProvider (null). The tab and widget read
-			// and append decisions through OpenRegister's own object API in the
-			// browser, so Decidiq holds no app-local store to serve behind this leaf.
-			$event->registerLeaf($descriptor, null);
-		} catch (Throwable $e) {
-			// Never take the leaf catalogue down: log and skip our own leaf only.
-			$this->logger->warning(
-				'Decidiq could not register the decidesk-decisions leaf: ' . $e->getMessage(),
-				['exception' => $e]
-			);
-		}//end try
-
-	}//end handle()
+	}//end descriptor()
 }//end class

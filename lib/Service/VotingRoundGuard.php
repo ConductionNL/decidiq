@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -26,7 +26,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
 use OCP\IAppConfig;
@@ -41,9 +43,9 @@ use Psr\Container\ContainerInterface;
  * chair_group / system-admin check, and any failure yields a 401/403 response
  * instead of an exception.
  *
- * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
  */
-class VotingRoundGuard {
+class VotingRoundGuard implements VotingRoundGuardInterface {
 	/**
 	 * Constructor for VotingRoundGuard.
 	 *
@@ -53,7 +55,7 @@ class VotingRoundGuard {
 	 * @param ParticipantResolver $participantResolver Per-meeting participant/role resolver
 	 * @param ContainerInterface $container DI container (lazy-loads ObjectService)
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	public function __construct(
 		private readonly IUserSession $userSession,
@@ -78,7 +80,7 @@ class VotingRoundGuard {
 	 *
 	 * @return JSONResponse|null A 401/403 response on failure, null when authorised
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	public function requireChairOrSecretary(?string $meetingId = null): ?JSONResponse {
 		return $this->requireRoles(
@@ -125,7 +127,7 @@ class VotingRoundGuard {
 	 *
 	 * @return JSONResponse|null A 401/403 response on failure, null when authorised
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function requireRoles(
 		?string $meetingId,
@@ -168,10 +170,10 @@ class VotingRoundGuard {
 	 *
 	 * @return bool True when the user holds global chair authority
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-2.2
 	 */
 	private function isGloballyAuthorized(string $uid): bool {
-		$chairGroup = $this->appConfig->getValueString(Application::APP_ID, 'chair_group', '');
+		$chairGroup = $this->appConfig->getValueString(AppIdentity::APP_ID, 'chair_group', '');
 
 		if ($chairGroup !== '') {
 			return $this->groupManager->isInGroup($uid, $chairGroup);
@@ -202,24 +204,121 @@ class VotingRoundGuard {
 				return null;
 			}
 
-			$motionId = $this->resolveMotionId(objectService: $objectService, round: $round);
-			if ($motionId === null) {
-				return null;
-			}
-
-			// ADR-005: the motion is a `decision` discriminated by decisionType.
-			$motion = $this->findData(objectService: $objectService, id: $motionId, schema: 'decision');
-			if ($motion === null) {
-				return null;
-			}
-
-			return $this->meetingIdFromMotion(motion: $motion);
+			return $this->meetingIdOfRound(objectService: $objectService, round: $round);
 		} catch (\Throwable) {
 			// Silently fall through to global check.
 			return null;
 		}//end try
 
 	}//end resolveMeetingIdFromVotingRound()
+
+	/**
+	 * Refuse opening a round on a subject outside the request's meeting.
+	 *
+	 * The chair/secretary check runs on the body's meetingId, so the motion (or
+	 * the amendment's parent motion) must belong to that meeting, and a revote
+	 * must reference a round on the same subject. Requests the open-round parser
+	 * rejects (missing ids, unknown subjectType) and an unknown revote round are
+	 * left to their 400. Fail closed: a subject without that meeting, or any
+	 * lookup failure, is a 403.
+	 *
+	 * @param array<string,mixed> $params The open-round request parameters
+	 *
+	 * @return JSONResponse|null A 403 response when the subject lies outside the meeting, null otherwise
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 */
+	public function requireSubjectInMeeting(array $params): ?JSONResponse {
+		if (($params['meetingId'] ?? '') === ''
+			|| ($params['motionId'] ?? '') === ''
+			|| in_array(($params['subjectType'] ?? 'motion'), ['motion', 'amendment'], true) === false
+		) {
+			return null;
+		}
+
+		try {
+			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
+			return $this->subjectRefusal(objectService: $objectService, params: $params);
+		} catch (\Throwable) {
+			return new JSONResponse(['message' => 'The motion does not belong to this meeting'], Http::STATUS_FORBIDDEN);
+		}
+
+	}//end requireSubjectInMeeting()
+
+	/**
+	 * The 403 for a subject outside the request's meeting, or a revote of a round on another subject.
+	 *
+	 * @param object $objectService The OpenRegister ObjectService
+	 * @param array<string,mixed> $params The open-round request parameters (ids and subjectType present)
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return JSONResponse|null The 403 response, or null when the subject is in the meeting
+	 */
+	private function subjectRefusal(object $objectService, array $params): ?JSONResponse {
+		$subject = ['schema' => ($params['subjectType'] ?? 'motion'), 'id' => $params['motionId']];
+		if ($this->meetingIdOfRound(objectService: $objectService, round: ['relations' => [$subject]]) !== $params['meetingId']) {
+			return new JSONResponse(['message' => 'The motion does not belong to this meeting'], Http::STATUS_FORBIDDEN);
+		}
+
+		$revoteOf = ($params['revoteOfRound'] ?? null);
+		if (is_string($revoteOf) === false || $revoteOf === '') {
+			return null;
+		}
+
+		$tied = $this->findData(objectService: $objectService, id: $revoteOf, schema: 'voting-round');
+		if ($tied !== null && $this->subjectOf(round: $tied) !== $subject['schema'] . ':' . (string)$subject['id']) {
+			return new JSONResponse(['message' => 'The revoted round is not a round on this motion'], Http::STATUS_FORBIDDEN);
+		}
+
+		return null;
+	}//end subjectRefusal()
+
+	/**
+	 * Resolve the meeting of a round's motion or amendment subject.
+	 *
+	 * @param object $objectService The OpenRegister ObjectService
+	 * @param array<string,mixed> $round The voting-round data (only its relations are read)
+	 *
+	 * @spec openspec/specs/motion-amendment/spec.md
+	 *
+	 * @return string|null The meeting UUID, or null when it cannot be resolved
+	 */
+	private function meetingIdOfRound(object $objectService, array $round): ?string {
+		$motionId = $this->resolveMotionId(objectService: $objectService, round: $round);
+		if ($motionId === null) {
+			return null;
+		}
+
+		// ADR-005: the motion is a `decision` discriminated by decisionType.
+		$motion = $this->findData(objectService: $objectService, id: $motionId, schema: 'decision');
+		if ($motion === null || ($motion['decisionType'] ?? null) !== 'motion') {
+			return null;
+		}
+
+		return $this->meetingIdFromMotion(motion: $motion);
+	}//end meetingIdOfRound()
+
+	/**
+	 * The subject a round votes on, as "schema:id" of its first motion or amendment relation.
+	 *
+	 * @param array<string,mixed> $round The voting-round data
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 *
+	 * @return string|null The subject key, or null when the round has no subject relation
+	 */
+	private function subjectOf(array $round): ?string {
+		foreach (($round['relations'] ?? []) as $relation) {
+			$relSchema = ($relation['schema'] ?? '');
+			if ($relSchema === 'motion' || $relSchema === 'amendment') {
+				return $relSchema . ':' . (string)($relation['id'] ?? '');
+			}
+		}
+
+		return null;
+	}//end subjectOf()
 
 	/**
 	 * Fetch one object and return its serialised data, or null when absent.
@@ -233,7 +332,13 @@ class VotingRoundGuard {
 	 * @return array<string,mixed>|null The object data, or null when not found
 	 */
 	private function findData(object $objectService, mixed $id, string $schema): ?array {
-		$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		// OpenRegister reports a missing object by returning null or by throwing; both are a miss.
+		try {
+			$entity = $objectService->find(id: $id, register: 'decidiq', schema: $schema);
+		} catch (DoesNotExistException) {
+			return null;
+		}
+
 		if ($entity === null) {
 			return null;
 		}

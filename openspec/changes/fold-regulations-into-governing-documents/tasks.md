@@ -17,14 +17,14 @@
 
 ## 3. Remove the surfaces
 
-- [ ] 3.1 Delete the verordeningenregister manifest fragment: one menu entry, three pages.
-- [ ] 3.2 Check whether the version detail page has a generic counterpart, and add one if not.
+- [x] 3.1 Delete the verordeningenregister manifest fragment: one menu entry, three pages. (deleted in #1159; no src/manifest.d/verordeningenregister.json)
+- [x] 3.2 Check whether the version detail page has a generic counterpart, and add one if not. (ported: src/manifest.d/governing-documents-register.json, the version detail page noted "Ported from the retired RegelingVersieDetail")
 
 ## 4. Move the vocabulary to the example sets
 
-- [ ] 4.1 Convert the municipality set's regulations into governing documents.
+- [x] 4.1 Convert the municipality set's regulations into governing documents. (lib/Settings/profiles/municipality.json seeds a by-law with externalRegisterIdentifier CVDR641871 and a policy rule as governing-document)
 
 ## 5. Prove it
 
-- [ ] 5.1 Unit tests: mapping, the rename, idempotency, ordering, an orphan version.
-- [ ] 5.2 E2E: the regulations still render, under the generic surface.
+- [x] 5.1 Unit tests: mapping, the rename, idempotency, ordering, an orphan version. (tests/Unit/Migration/MigrateRegulationsToGoverningDocumentsTest.php)
+- [ ] 5.2 E2E: the regulations still render, under the generic surface. (not run: needs the live instance)

@@ -1,0 +1,105 @@
+/*
+ * SPDX-FileCopyrightText: 2026 Conduction B.V.
+ * SPDX-License-Identifier: EUPL-1.2
+ *
+ * The step tiles the amendment, decision and meeting step bars share. Each
+ * bar sets its own number of columns beside this.
+ *
+ * THE STEPS ARE AS TALL AS THE CARD HAS TO BE. The detail grid gives every
+ * card at least two rows (the library's `gs-min-h`), and sizing to content
+ * cannot go below that floor. A bar one line high left an empty band under
+ * it. So each step is a tile that fills those two rows: number, label and a
+ * word for done, now or next. A label that does not fit is cut with an
+ * ellipsis and keeps its full text as a tooltip.
+ */
+.amendment-steps__list,
+.decision-steps__list,
+.meeting-steps__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	gap: var(--default-grid-baseline);
+}
+
+.amendment-steps__step,
+.decision-steps__step,
+.meeting-steps__step {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	justify-content: center;
+	min-height: 124px;
+	box-sizing: border-box;
+	padding: calc(var(--default-grid-baseline) * 2) var(--default-grid-baseline);
+	border-radius: var(--border-radius-large);
+	background: var(--color-background-hover);
+	color: var(--color-text-maxcontrast);
+	font-size: 0.85em;
+	text-align: center;
+}
+
+.amendment-steps__label,
+.decision-steps__label,
+.meeting-steps__label {
+	max-width: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.amendment-steps__state,
+.decision-steps__state,
+.meeting-steps__state {
+	font-size: 0.9em;
+	font-weight: normal;
+}
+
+.amendment-steps__number,
+.decision-steps__number,
+.meeting-steps__number {
+	flex: none;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: bold;
+	border: 2px solid var(--color-border-dark);
+}
+
+.amendment-steps__step--done,
+.decision-steps__step--done,
+.meeting-steps__step--done {
+	color: var(--color-main-text);
+}
+
+.amendment-steps__step--done .amendment-steps__number,
+.decision-steps__step--done .decision-steps__number,
+.meeting-steps__step--done .meeting-steps__number {
+	border-color: var(--color-success);
+}
+
+.amendment-steps__step--current,
+.decision-steps__step--current,
+.meeting-steps__step--current {
+	background: var(--color-primary-element-light);
+	color: var(--color-primary-element-light-text);
+	font-weight: bold;
+}
+
+.amendment-steps__step--current .amendment-steps__number,
+.decision-steps__step--current .decision-steps__number,
+.meeting-steps__step--current .meeting-steps__number {
+	border-color: var(--color-primary-element);
+}
+
+.amendment-steps__note,
+.decision-steps__note,
+.meeting-steps__note {
+	margin: calc(var(--default-grid-baseline) * 2) 0 0;
+	color: var(--color-text-maxcontrast);
+}

@@ -12,7 +12,7 @@
  secretary takes minutes, member votes) is enforced by the backend
  services that consume the role field.
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -113,7 +113,7 @@ export default {
 		 * Persist the selected role onto the Membership (not a Participant).
 		 *
 		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
 		async save() {
 			if (!this.selectedRole) {
@@ -132,6 +132,10 @@ export default {
 						role: this.selectedRole.id,
 						party: this.member.party,
 						votingWeight: this.member.votingWeight,
+						// Keep the term and faction: the save replaces the object.
+						startDate: this.member.startDate || '',
+						endDate: this.member.endDate || '',
+						faction: this.member.faction || '',
 					}),
 				)
 				this.$emit('saved')

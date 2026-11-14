@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Decidiq Register",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release.",
-    "version": "0.13.0"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.15.2 sends each decision outcome to the subscriber's own `outcomeCallbackUrl` as well, through the webhook channel with `webhook.urlField` (decision-outcome-reaches-the-subscriber); a decision without a callback gets no outbound call. v0.15.1 splits the Decision outcome notification into one rule per terminal lifecycle value (decided, enacted, withdrawn), because OpenRegister does not support `in` on updated triggers and the single rule never fired. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release.",
+    "version": "0.15.2"
   },
   "x-openregister": {
     "type": "application",
@@ -203,13 +203,13 @@
             "title": "Full name",
             "type": "string",
             "description": "Full name (Popolo: name)",
-            "example": "Femke Halsema"
+            "example": "Wieteke Doornbos"
           },
           "familyName": {
             "title": "Family name",
             "type": "string",
             "description": "Family name (Popolo: family_name)",
-            "example": "Halsema"
+            "example": "Doornbos"
           },
           "givenName": {
             "title": "Given name",
@@ -483,7 +483,7 @@
             "title": "Value",
             "type": "string",
             "description": "Contact value e.g. email address (Popolo: value)",
-            "example": "f.halsema@amsterdam.nl"
+            "example": "w.doornbos@gemeente.example"
           },
           "label": {
             "title": "Label",
@@ -527,7 +527,7 @@
       "GovernanceBody": {
         "slug": "governance-body",
         "icon": "AccountGroupOutline",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "GovernanceBody",
         "description": "A governance body (council, board, committee, assembly)",
         "type": "object",
@@ -565,7 +565,8 @@
               "advisory-body",
               "works-council",
               "shared-body",
-              "faction"
+              "faction",
+              "political-group"
             ],
             "example": "legislative"
           },
@@ -614,6 +615,24 @@
             "type": "string",
             "description": "Default voting method",
             "example": "for-against-abstain"
+          },
+          "allowedVotingMethods": {
+            "title": "Allowed voting methods",
+            "type": "array",
+            "description": "The voting methods this body's meetings may use. Empty allows every method.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "for-against-abstain",
+                "ranked-choice",
+                "weighted",
+                "show-of-hands"
+              ]
+            },
+            "default": [],
+            "example": [
+              "for-against-abstain"
+            ]
           },
           "termStart": {
             "title": "Term start",
@@ -806,7 +825,8 @@
               "extraordinary",
               "committee",
               "public hearing",
-              "general_assembly"
+              "general_assembly",
+              "informational-session"
             ],
             "example": "regular"
           },
@@ -864,7 +884,8 @@
               "opened",
               "paused",
               "adjourned",
-              "closed"
+              "closed",
+              "cancelled"
             ],
             "example": "draft"
           },
@@ -1576,7 +1597,7 @@
         "icon": "AccountArrowRightOutline",
         "version": "0.1.0",
         "title": "BoardProxy",
-        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. This is the row ProxyVoteService writes through /api/proxies and the row the per-holder proxy cap counts; the signed-document side of a volmacht lives on ProxyAuthorization.",
+        "description": "A proxy (volmacht) granted by one board member to another for a single meeting. Retired: proxy rows now live on ProxyAuthorization (fragment 67), and a proxy granted in a voting round is stored on that round, where the per-holder proxy cap counts it.",
         "type": "object",
         "x-openregister": {
           "schemaType": "custom:BoardProxy",
@@ -1827,24 +1848,80 @@
               "en": "Decision repeals an earlier decision: {{title}}"
             }
           },
-          "outcomeEmitted": {
-            "_note": "`in` is not implemented for updated triggers. fieldChangeConditionMatches supports only `changed` and `equals`, and an unknown operator falls through to false — so this rule has never fired. Left declared rather than split into three near-identical rules: the scheduled path gained `in` in ConductionNL/openregister#2794, and bringing the same vocabulary to the updated path is the natural next step (the created-vs-updated-vs-scheduled convergence deferred there). Splitting now would only have to be undone then.",
+          "outcomeDecided": {
+            "_note": "One rule per terminal lifecycle value (decided, enacted, withdrawn): OpenRegister supports only `changed` and `equals` on updated triggers, so the former single `in` rule (outcomeEmitted) never fired (decision-outcome-reaches-the-subscriber, REQ-DCDH-010).",
             "trigger": {
               "type": "updated",
               "condition": {
                 "field": "lifecycle",
-                "operator": "in",
-                "value": [
-                  "decided",
-                  "enacted",
-                  "withdrawn"
-                ]
+                "operator": "equals",
+                "value": "decided"
               }
             },
             "enabled": true,
             "channels": [
-              "nc-notification"
+              "nc-notification",
+              "webhook"
             ],
+            "webhook": {
+              "urlField": "outcomeCallbackUrl"
+            },
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeEnacted": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "enacted"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification",
+              "webhook"
+            ],
+            "webhook": {
+              "urlField": "outcomeCallbackUrl"
+            },
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeWithdrawn": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "withdrawn"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification",
+              "webhook"
+            ],
+            "webhook": {
+              "urlField": "outcomeCallbackUrl"
+            },
             "recipients": [
               {
                 "kind": "object-acl",
@@ -1941,7 +2018,8 @@
               "group": "public",
               "match": {
                 "isPublished": "public"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -3908,7 +3986,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4185,7 +4264,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],
@@ -4409,45 +4489,72 @@
         },
         "x-openregister-lifecycle": {
           "field": "status",
-          "transitions": {
-            "draft": [
-              "open",
-              "published",
-              "proposals-open",
-              "closed"
-            ],
-            "open": [
-              "closed"
-            ],
-            "proposals-open": [
-              "voting",
-              "closed"
-            ],
-            "voting": [
-              "closed"
-            ],
-            "published": [
-              "questions",
-              "submission",
-              "evaluation"
-            ],
-            "questions": [
-              "submission"
-            ],
-            "submission": [
-              "evaluation"
-            ],
-            "evaluation": [
-              "awarded"
-            ],
-            "closed": [
-              "results-published",
-              "report-published"
-            ],
-            "results-published": [],
-            "report-published": [],
-            "awarded": []
-          }
+          "transitions": [
+            {
+              "from": "draft",
+              "to": "open"
+            },
+            {
+              "from": "draft",
+              "to": "published"
+            },
+            {
+              "from": "draft",
+              "to": "proposals-open"
+            },
+            {
+              "from": "draft",
+              "to": "closed"
+            },
+            {
+              "from": "open",
+              "to": "closed"
+            },
+            {
+              "from": "proposals-open",
+              "to": "voting"
+            },
+            {
+              "from": "proposals-open",
+              "to": "closed"
+            },
+            {
+              "from": "voting",
+              "to": "closed"
+            },
+            {
+              "from": "published",
+              "to": "questions"
+            },
+            {
+              "from": "published",
+              "to": "submission"
+            },
+            {
+              "from": "published",
+              "to": "evaluation"
+            },
+            {
+              "from": "questions",
+              "to": "submission"
+            },
+            {
+              "from": "submission",
+              "to": "evaluation"
+            },
+            {
+              "from": "evaluation",
+              "to": "awarded"
+            },
+            {
+              "from": "closed",
+              "to": "results-published"
+            },
+            {
+              "from": "closed",
+              "to": "report-published"
+            }
+          ]
         }
       },
       "ConsultationReaction": {
@@ -4505,7 +4612,8 @@
                   "$lte": "$now"
                 },
                 "moderationStatus": "approved"
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -5263,7 +5371,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ]
@@ -5595,7 +5704,8 @@
                 "publicationDate": {
                   "$lte": "$now"
                 }
-              }
+              },
+              "crossOrganisation": true
             },
             "authenticated"
           ],

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\TranscriptionService;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\QueuedJob;
 use Psr\Log\LoggerInterface;
@@ -46,14 +46,14 @@ class TranscriptionJob extends QueuedJob {
 	 * Constructor.
 	 *
 	 * @param ITimeFactory $time NC time factory (injected by QueuedJob).
-	 * @param TranscriptionService $transcriptionService The transcription orchestration service.
+	 * @param TranscriptionServiceInterface $transcriptionService The transcription orchestration service.
 	 * @param LoggerInterface $logger The logger.
 	 *
 	 * @spec openspec/specs/meeting-transcription/spec.md
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly TranscriptionService $transcriptionService,
+		private readonly TranscriptionServiceInterface $transcriptionService,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

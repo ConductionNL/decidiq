@@ -34,13 +34,14 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+ * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\DecisionIntegrationAuthorizationGuardInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -48,16 +49,9 @@ use Psr\Log\LoggerInterface;
  * Per-object authorization guard for the contract-decision hub's outcome-read
  * and outcome-subscribe endpoints. Fail-closed.
  *
- * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+ * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
  */
-class DecisionIntegrationAuthorizationGuard {
-
-	/**
-	 * The caller may read this Decision's outcome envelope.
-	 *
-	 * @var string
-	 */
-	public const READ_ALLOWED = 'allowed';
+class DecisionIntegrationAuthorizationGuard implements DecisionIntegrationAuthorizationGuardInterface {
 
 	/**
 	 * The caller may NOT read this Decision's outcome envelope.
@@ -65,15 +59,6 @@ class DecisionIntegrationAuthorizationGuard {
 	 * @var string
 	 */
 	public const READ_DENIED = 'denied';
-
-	/**
-	 * The question could not be answered — the Decision could not be resolved
-	 * at all. Not the same fact as a refusal; see
-	 * {@see self::resolveOutcomeReadAccess()}.
-	 *
-	 * @var string
-	 */
-	public const READ_UNRESOLVED = 'unresolved';
 
 	/**
 	 * Construct the guard.
@@ -127,7 +112,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return bool True when the caller may read the envelope
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-101-only-the-raising-consumer-an-admin-or-any-caller-of-a-published-decision-may-read-an-outcome-envelope
 	 */
 	public function isAuthorizedToReadOutcome(string $decisionId, string $callerUid): bool {
 		return ($this->resolveOutcomeReadAccess(
@@ -158,7 +143,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return string One of self::READ_ALLOWED, self::READ_DENIED, self::READ_UNRESOLVED
 	 *
-	 * @spec openspec/changes/decision-state-read-seam/specs/decidesk-decision-events/spec.md
+	 * @spec openspec/specs/decidesk-decision-events/spec.md
 	 */
 	public function resolveOutcomeReadAccess(string $decisionId, string $callerUid): string {
 		if ($decisionId === '' || $callerUid === '') {
@@ -247,7 +232,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return bool True when the caller may attach an outcome callback
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	public function isAuthorizedToSubscribe(string $decisionId, string $callerUid): bool {
 		if ($decisionId === '' || $callerUid === '') {
@@ -293,7 +278,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *                                         `null` when the Decision does not
 	 *                                         exist (caller lets the 404 stand)
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function loadDecisionForGuard(string $decisionId, string $callerUid, string $guard): array|false|null {
 		try {
@@ -329,7 +314,7 @@ class DecisionIntegrationAuthorizationGuard {
 	 *
 	 * @return bool True when the caller owns the Decision
 	 *
-	 * @spec openspec/changes/signature-and-outcome-authorization-guard/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
+	 * @spec openspec/specs/signature-and-outcome-authorization/spec.md#requirement-req-dcdh-102-only-the-raising-consumer-or-an-admin-may-attach-an-outcome-callback-to-a-decision
 	 */
 	private function isDecisionOwner(array $decision, string $callerUid): bool {
 		$self = $decision['@self'] ?? [];

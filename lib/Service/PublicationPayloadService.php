@@ -46,6 +46,7 @@ class PublicationPayloadService {
 	 * @param ContainerInterface $container DI container (lazy ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 * @param PublicationConfigService $configService Publication configuration.
+	 * @param AgendaPapers $agendaPapers Confidentiality check and papers of agenda items.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
@@ -53,6 +54,7 @@ class PublicationPayloadService {
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly PublicationConfigService $configService,
+		private readonly AgendaPapers $agendaPapers,
 	) {
 	}//end __construct()
 
@@ -66,34 +68,82 @@ class PublicationPayloadService {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
+	 * An agenda payload also carries `_publishedPapers` (agenda item + file of
+	 * every paper it made public). That key is internal: PublicationService
+	 * moves it onto the publication record before the payload is stored.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
+	 *
 	 * @return array<string,mixed> The allow-list payload, ready to persist.
 	 */
 	public function build(string $sourceType, array $source, ?string $bodyId, int $version = 1): array {
 		switch ($sourceType) {
 			case 'decision':
-				return $this->buildDecisionPayload(source: $source, version: $version);
+				$payload = $this->buildDecisionPayload(source: $source, version: $version);
+				break;
 			case 'agenda':
-				return $this->buildAgendaPayload(source: $source, version: $version);
+				$payload = $this->buildAgendaPayload(source: $source, version: $version);
+				break;
 			case 'minutes':
-				return $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
+				$payload = $this->buildMinutesPayload(source: $source, bodyId: $bodyId, version: $version);
+				break;
+			case 'activity':
+				$payload = $this->buildActivityPayload(source: $source, version: $version);
+				break;
+			case 'theme':
+				$payload = $this->buildThemePayload(source: $source, version: $version);
+				break;
+			case 'incoming-document':
+				$payload = self::buildIncomingDocumentPayload(source: $source, version: $version);
+				break;
 			default:
 				throw new InvalidArgumentException('Unknown publication source type: ' . $sourceType);
 		}
 
+		$payload['documentType'] = $sourceType;
+		return $payload;
+
 	}//end build()
 
 	/**
+	 * Take the papers of a withdrawn publication offline again.
+	 *
+	 * @param array<int,mixed> $refs The record's publishedPapers.
+	 * @param array<int,mixed> $keep Papers a newer version still publishes.
+	 *
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
+	 *
+	 * @return int The number of papers that could not be taken offline.
+	 */
+	public function withdrawPapers(array $refs, array $keep=[]): int {
+		return $this->agendaPapers->unpublish(refs: $refs, keep: $keep);
+	}//end withdrawPapers()
+
+	/**
 	 * Build a Besluit (decision) payload — totals only, never voters.
+	 *
+	 * 🔴 AN ALLOW-LIST OMITS BY DEFAULT, WHICH IS THE POINT AND ALSO THE RISK.
+	 * This list carried `legalBasis` and not `legalRemedyClause`, so once the
+	 * clause was finally stamped onto the decision the citizen reading the
+	 * public publication was still told the legal ground the besluit rests on
+	 * and not how to object to it. Nothing failed: the payload was valid, the
+	 * publication succeeded, and the one field a person needs in order to
+	 * disagree was simply not copied across.
+	 *
+	 * The clause is safe here by the same construction as the rest: it holds a
+	 * remedy kind, a term, a body and a sentence, all of them written to be read
+	 * by the public. It carries no identity of any kind.
 	 *
 	 * @param array<string,mixed> $source Decision object data.
 	 * @param int $version Payload version.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
 	 *
 	 * @return array<string,mixed>
 	 */
 	private function buildDecisionPayload(array $source, int $version): array {
-		return [
+		$payload = [
 			'oriType' => 'Besluit',
 			'schemaOrgType' => 'ChooseAction',
 			'payloadVersion' => $version,
@@ -106,31 +156,95 @@ class PublicationPayloadService {
 			'voteTotals' => $this->extractVoteTotals(source: $source),
 		];
 
+		$clause = $this->extractRemedyClause(source: $source);
+		if ($clause !== null) {
+			$payload['legalRemedyClause'] = $clause;
+		}
+
+		return $payload;
+
 	}//end buildDecisionPayload()
 
 	/**
-	 * Build a Vergadering (agenda) payload — confidential items stripped.
+	 * The remedy clause to publish, or null when the decision carries none.
+	 *
+	 * Copied field by field rather than passed through, so a clause that grew
+	 * an internal field upstream cannot arrive on the public feed by accident.
+	 * Omitted entirely when the decision was never stamped: an empty clause on
+	 * a publication would read as "no remedy is open", which is a statement
+	 * `geen` exists to make deliberately.
+	 *
+	 * @param array<string,mixed> $source Decision object data.
+	 *
+	 * @spec openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md (REQ-DWP-007)
+	 *
+	 * @return array<string,mixed>|null The clause, or null.
+	 */
+	private function extractRemedyClause(array $source): ?array {
+		$clause = ($source['legalRemedyClause'] ?? null);
+		if (is_array($clause) === false || $clause === []) {
+			return null;
+		}
+
+		$kind = trim((string)($clause['kind'] ?? ''));
+		$text = trim((string)($clause['text'] ?? ''));
+		if ($kind === '' && $text === '') {
+			return null;
+		}
+
+		return [
+			'kind' => $kind,
+			'termDays' => (int)($clause['termDays'] ?? 0),
+			'body' => trim((string)($clause['body'] ?? '')),
+			'text' => $text,
+		];
+
+	}//end extractRemedyClause()
+
+	/**
+	 * Build a Vergadering (agenda) payload — confidential items stripped, the
+	 * papers of the public items published with them.
 	 *
 	 * @param array<string,mixed> $source Meeting object data.
 	 * @param int $version Payload version.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-pps-001-public-papers-are-published-with-the-agenda
+	 *
+	 * @throws \OCA\Decidiq\Exception\ConfidentialityUnreadableException When the confidentiality restrictions cannot be read.
 	 *
 	 * @return array<string,mixed>
 	 */
 	private function buildAgendaPayload(array $source, int $version): array {
-		$items = $this->resolveAgendaItems(meeting: $source);
-		$published = [];
+		$items      = $this->resolveAgendaItems(meeting: $source);
+		$restricted = $this->agendaPapers->restrictedItemIds();
+		$published  = [];
+		$paperRefs  = [];
 		foreach ($items as $item) {
-			if ($this->isConfidentialItem(item: $item) === true) {
+			$itemId = (string)($item['id'] ?? ($item['@self']['id'] ?? ''));
+			if ($this->isConfidentialItem(item: $item) === true || isset($restricted[$itemId]) === true) {
 				// Strip the confidential item and ALL of its document references.
 				continue;
 			}
 
+			if (($item['public'] ?? true) === false) {
+				// A closed item is listed by its place only: no title, no papers.
+				$published[] = [
+					'oriType' => 'AgendaPunt',
+					'order' => (int)($item['orderNumber'] ?? 0),
+					'title' => 'Besloten punt',
+					'papers' => [],
+				];
+				continue;
+			}
+
+			$papers      = $this->agendaPapers->publish(itemId: $itemId);
+			$paperRefs   = array_merge($paperRefs, $papers['refs']);
 			$published[] = [
 				'oriType' => 'AgendaPunt',
 				'order' => (int)($item['orderNumber'] ?? 0),
 				'title' => (string)($item['title'] ?? ''),
+				'papers' => $papers['papers'],
 			];
 		}
 
@@ -151,9 +265,108 @@ class PublicationPayloadService {
 			'meetingDate' => ($source['scheduledDate'] ?? null),
 			'meetingType' => (string)($source['meetingType'] ?? ''),
 			'agendaItems' => $published,
+			'_publishedPapers' => $paperRefs,
 		];
 
 	}//end buildAgendaPayload()
+
+	/**
+	 * The public payload of a theme: its text and a timeline of only the linked
+	 * items that are published themselves, each with its publication.
+	 *
+	 * @param array<string,mixed> $source  Theme object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function buildThemePayload(array $source, int $version): array {
+		return [
+			'oriType' => 'Dossier',
+			'schemaOrgType' => 'CreativeWork',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'introduction' => (string)($source['introduction'] ?? ''),
+			'blocks' => $this->themeTimeline()->blocksOf(blocks: ($source['blocks'] ?? [])),
+			'status' => (string)($source['status'] ?? 'active'),
+			'bodyName' => $this->resolveBodyName(source: $source),
+			'timeline' => $this->themeTimeline()->publishedEntries(theme: $source),
+		];
+	}//end buildThemePayload()
+
+	/**
+	 * The theme timeline builder, resolved from the container on first use.
+	 *
+	 * @return ThemeTimelineBuilder
+	 */
+	private function themeTimeline(): ThemeTimelineBuilder {
+		return $this->container->get(ThemeTimelineBuilder::class);
+	}//end themeTimeline()
+
+	/**
+	 * Build a calendar entry for a public meeting: when, what, who organises
+	 * it, where, and who it is for. Allow-list only: no participant, no chair,
+	 * no agenda item, no UID.
+	 *
+	 * @param array<string,mixed> $source  Meeting object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function buildActivityPayload(array $source, int $version): array {
+		$type      = $this->meetingType(source: $source);
+		$audiences = [];
+		foreach ((array)($type['audiences'] ?? []) as $audience) {
+			if (is_string($audience) === true && $audience !== '') {
+				$audiences[] = $audience;
+			}
+		}
+
+		return [
+			'oriType' => 'Vergadering',
+			'schemaOrgType' => 'Event',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'bodyName' => $this->resolveBodyName(source: $source),
+			'meetingDate' => ($source['scheduledDate'] ?? null),
+			'meetingType' => (string)($type['name'] ?? $source['meetingType'] ?? ''),
+			'location' => (string)($source['location'] ?? ''),
+			'audiences' => $audiences,
+		];
+	}//end buildActivityPayload()
+
+	/**
+	 * The meeting's kind of meeting, or an empty array when it has none or it
+	 * cannot be read (the entry is still published, without type and audiences).
+	 *
+	 * @param array<string,mixed> $source Meeting object data.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
+	 *
+	 * @return array<string,mixed>
+	 */
+	private function meetingType(array $source): array {
+		$typeId = trim((string)($source['type'] ?? ''));
+		if ($typeId === '') {
+			return [];
+		}
+
+		try {
+			$entity = $this->container->get('OCA\OpenRegister\Service\ObjectService')->find(id: $typeId, register: 'decidiq', schema: 'meeting-type');
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq publication: the meeting type could not be read', ['type' => $typeId, 'error' => $e->getMessage()]);
+			return [];
+		}
+
+		if (is_object($entity) === false || method_exists($entity, 'jsonSerialize') === false) {
+			return [];
+		}
+
+		return (array)$entity->jsonSerialize();
+	}//end meetingType()
 
 	/**
 	 * Build a Verslag (minutes) payload — attendance per the body policy.
@@ -183,6 +396,42 @@ class PublicationPayloadService {
 		];
 
 	}//end buildMinutesPayload()
+
+	/**
+	 * The public payload of an incoming document: title, category, the day it
+	 * came in, the confirmed routing and the sender.
+	 *
+	 * A natural person is never named: the sender becomes the neutral label
+	 * "Inwoner" here, whatever the stored value holds, so no screen can leak
+	 * the name. The summary is left out, because a letter's summary is where
+	 * a resident's own details end up. Organisations and governing bodies are
+	 * named as they are. A sender type outside the known set is treated as a
+	 * natural person: an unknown kind of sender is not assumed to be public.
+	 *
+	 * @param array<string,mixed> $source  IngekomenStuk object data.
+	 * @param int                 $version Payload version.
+	 *
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function buildIncomingDocumentPayload(array $source, int $version): array {
+		$sender = 'Inwoner';
+		if (in_array(($source['senderType'] ?? null), ['organisation', 'governingBody'], true) === true) {
+			$sender = (string)($source['sender'] ?? '');
+		}
+
+		return [
+			'oriType' => 'IngekomenStuk',
+			'schemaOrgType' => 'DigitalDocument',
+			'payloadVersion' => $version,
+			'title' => (string)($source['title'] ?? ''),
+			'category' => (string)($source['category'] ?? ''),
+			'receivedAt' => (string)($source['receivedAt'] ?? ''),
+			'routing' => (string)($source['routingAdvice'] ?? ''),
+			'sender' => $sender,
+		];
+	}//end buildIncomingDocumentPayload()
 
 	/**
 	 * Extract for/against/abstain totals from a decision; never per-member votes.
@@ -280,10 +529,15 @@ class PublicationPayloadService {
 		try {
 			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
 			$entities = $objectService->findAll(
+				// Register and schema go INSIDE the filters: ObjectService reads
+				// them there and ignores them at the top level, so this query
+				// found no items and every published agenda was empty.
 				[
-					'register' => 'decidiq',
-					'schema' => 'agenda-item',
-					'filters' => ['meeting' => $meetingId],
+					'filters' => [
+						'register' => 'decidiq',
+						'schema' => 'agenda-item',
+						'meeting' => $meetingId,
+					],
 				]
 			);
 		} catch (\Throwable $e) {

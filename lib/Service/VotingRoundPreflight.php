@@ -26,8 +26,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeImmutable;
-use DateTimeInterface;
 use InvalidArgumentException;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -117,6 +115,67 @@ class VotingRoundPreflight {
 	}//end resolveRules()
 
 	/**
+	 * Refuse a voting method the meeting's body does not allow.
+	 *
+	 * A body that declares no allowed methods, or no body at all, allows every
+	 * method. A body that cannot be read refuses rather than lets any method through.
+	 *
+	 * @param string|null $governanceBodyId The body the meeting belongs to, or null.
+	 * @param string      $votingMethod     The requested method.
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the body does not allow the method; the message names the allowed ones.
+	 * @throws RuntimeException When the body cannot be read.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 */
+	public function assertMethodAllowed(?string $governanceBodyId, string $votingMethod): void {
+		$allowed = $this->allowedMethodsOf(governanceBodyId: $governanceBodyId);
+		if ($allowed === [] || in_array($votingMethod, $allowed, true) === true) {
+			return;
+		}
+
+		throw new InvalidArgumentException(
+			sprintf(
+				"Voting method '%s' is not allowed in this body. Allowed: %s",
+				$votingMethod,
+				implode(', ', $allowed)
+			)
+		);
+	}//end assertMethodAllowed()
+
+	/**
+	 * The voting methods a body allows; empty when it declares none.
+	 *
+	 * @param string|null $governanceBodyId The body, or null.
+	 *
+	 * @return list<string> The allowed methods.
+	 *
+	 * @throws RuntimeException When the body cannot be read.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 */
+	public function allowedMethodsOf(?string $governanceBodyId): array {
+		if ($governanceBodyId === null || $governanceBodyId === '') {
+			return [];
+		}
+
+		try {
+			$body = $this->objectService->find(id: $governanceBodyId, register: 'decidiq', schema: 'governance-body');
+		} catch (\Throwable $e) {
+			throw new RuntimeException('Cannot open voting round: the governance body could not be read', 0, $e);
+		}
+
+		$declared = [];
+		if ($body !== null) {
+			$declared = (array)($body->jsonSerialize()['allowedVotingMethods'] ?? []);
+		}
+
+		return array_values(array_filter($declared, static fn (mixed $method): bool => is_string($method) === true && $method !== ''));
+	}//end allowedMethodsOf()
+
+	/**
 	 * Reject a value that is not in its enum (fail closed).
 	 *
 	 * @param string $name The rule name, used in the message
@@ -181,6 +240,43 @@ class VotingRoundPreflight {
 	}//end assertRevoteAllowed()
 
 	/**
+	 * The options a revote of a tied ranked round offers: the tied ones only
+	 * (REQ-RPB-001). Null when the tied round is not a ranked round, so the
+	 * caller keeps the options it was given.
+	 *
+	 * @param string $revoteOfRoundId The tied round's UUID.
+	 *
+	 * @return array<int, array<string, mixed>>|null The tied options, or null.
+	 *
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-rpb-001-a-tie-in-a-ranked-round-follows-the-rounds-tie-break-rule
+	 */
+	public function tiedOptionsOf(string $revoteOfRoundId): ?array {
+		$entity = $this->objectService->find(id: $revoteOfRoundId, register: 'decidiq', schema: 'voting-round');
+		$original = [];
+		if ($entity !== null) {
+			$original = $entity->jsonSerialize();
+		}
+
+		if (($original['votingMethod'] ?? '') !== RankedBallotRules::METHOD) {
+			return null;
+		}
+
+		$tiedKeys = [];
+		foreach ((array)($original['rankingResult'] ?? []) as $row) {
+			if (is_array($row) === true && (int)($row['rank'] ?? 0) === 1) {
+				$tiedKeys[] = (string)($row['key'] ?? '');
+			}
+		}
+
+		return array_values(
+			array_filter(
+				(array)($original['options'] ?? []),
+				static fn (mixed $option): bool => is_array($option) === true && in_array((string)($option['key'] ?? ''), $tiedKeys, true) === true
+			)
+		);
+	}//end tiedOptionsOf()
+
+	/**
 	 * Split preset participant UUIDs into the eligible ones (active members of
 	 * the meeting) and the excluded ones.
 	 *
@@ -212,62 +308,6 @@ class VotingRoundPreflight {
 		];
 
 	}//end splitPresetParticipants()
-
-	/**
-	 * Assemble the VotingRound payload that gets persisted.
-	 *
-	 * @param string $motionId The motion UUID (amendment UUID for amendment rounds)
-	 * @param string $subjectType 'motion' or 'amendment' — the subject relation schema
-	 * @param string $votingMethod The voting method
-	 * @param bool $isSecret Whether the ballot is secret
-	 * @param string|null $closedAt Optional pre-defined close time
-	 * @param bool $quorumWith Whether quorum was met when the round opened
-	 * @param array<string> $rules The effective voting rules
-	 * @param string|null $revoteOfRoundId UUID of the tied round this round revotes, or null
-	 * @param array<string> $participantIds Eligible preset participant UUIDs
-	 *
-	 * @return array<string,mixed> The voting-round payload
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 */
-	public function buildRoundPayload(
-		string $motionId,
-		string $subjectType,
-		string $votingMethod,
-		bool $isSecret,
-		?string $closedAt,
-		bool $quorumWith,
-		array $rules,
-		?string $revoteOfRoundId,
-		array $participantIds,
-	): array {
-		$relations = [['register' => 'decidiq', 'schema' => $subjectType, 'id' => $motionId]];
-		foreach ($participantIds as $uuid) {
-			$relations[] = ['register' => 'decidiq', 'schema' => 'participant', 'id' => $uuid];
-		}
-
-		$round = [
-			'votingMethod' => $votingMethod,
-			'isSecret' => $isSecret,
-			'openedAt' => (new DateTimeImmutable())->format(DateTimeInterface::ATOM),
-			'closedAt' => $closedAt,
-			'quorumWith' => $quorumWith,
-			'result' => null,
-			'votesFor' => 0,
-			'votesAgainst' => 0,
-			'votesAbstain' => 0,
-			'voteThreshold' => $rules['voteThreshold'],
-			'abstentionHandling' => $rules['abstentionHandling'],
-			'tieBreakRule' => $rules['tieBreakRule'],
-			'relations' => $relations,
-		];
-
-		if ($revoteOfRoundId !== null) {
-			$round['revoteOfRound'] = $revoteOfRoundId;
-		}
-
-		return $round;
-	}//end buildRoundPayload()
 
 	/**
 	 * Transition the subject lifecycle to 'voting' via the guarded state machine.

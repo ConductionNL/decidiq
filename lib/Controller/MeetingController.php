@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-meeting-management/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -25,13 +25,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\MeetingPackageService;
-use OCA\Decidiq\Service\MeetingRoleGate;
-use OCA\Decidiq\Service\MeetingSeriesService;
-use OCA\Decidiq\Service\MeetingService;
-use OCA\Decidiq\Service\ProofPackageService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\MeetingPackageServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingRoleGateInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingSeriesServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\MeetingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ProofPackageServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -66,32 +66,32 @@ use OCP\IUserSession;
  * This is the approved pattern per ADR-005 for resources governed by
  * OpenRegister's own RBAC instead of Nextcloud group membership.
  *
- * @spec openspec/changes/p2-meeting-management/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p2-meeting-management/tasks.md#task-2.1
  */
 class MeetingController extends Controller {
 	/**
 	 * Constructor for MeetingController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param MeetingService $meetingService The meeting service
-	 * @param MeetingSeriesService $meetingSeriesService Recurring-series generation service
-	 * @param MeetingPackageService $packageService Document package assembly service
+	 * @param MeetingServiceInterface $meetingService The meeting service
+	 * @param MeetingSeriesServiceInterface $meetingSeriesService Recurring-series generation service
+	 * @param MeetingPackageServiceInterface $packageService Document package assembly service
 	 * @param IUserSession $userSession The user session
-	 * @param MeetingRoleGate $roleGate Chair/secretary authorization (NC-admin fallback)
-	 * @param ProofPackageService $proofPackageService Notarial proof package assembly
+	 * @param MeetingRoleGateInterface $roleGate Chair/secretary authorization (NC-admin fallback)
+	 * @param ProofPackageServiceInterface $proofPackageService Notarial proof package assembly
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly MeetingService $meetingService,
-		private readonly MeetingSeriesService $meetingSeriesService,
-		private readonly MeetingPackageService $packageService,
+		private readonly MeetingServiceInterface $meetingService,
+		private readonly MeetingSeriesServiceInterface $meetingSeriesService,
+		private readonly MeetingPackageServiceInterface $packageService,
 		private readonly IUserSession $userSession,
-		private readonly MeetingRoleGate $roleGate,
-		private readonly ProofPackageService $proofPackageService,
+		private readonly MeetingRoleGateInterface $roleGate,
+		private readonly ProofPackageServiceInterface $proofPackageService,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -107,9 +107,11 @@ class MeetingController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p2-meeting-management-core-t1/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p2-meeting-management-core-t1/tasks.md#task-2.3
 	 *
-	 * @return JSONResponse HTTP 200 with updated meeting on success; 422 if transition is invalid
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 *
+	 * @return JSONResponse HTTP 200 with updated meeting on success; 403 for a caller who is not chair or secretary; 422 if transition is invalid
 	 */
 	#[NoAdminRequired]
 	public function lifecycle(string $id): JSONResponse {
@@ -127,7 +129,16 @@ class MeetingController extends Controller {
 			);
 		}
 
+		// Only the chair or secretary (or an NC admin) moves a meeting through its
+		// stages: the stage buttons on the meeting page show for exactly them.
 		$userId = $this->userSession->getUser()->getUID();
+		if ($this->roleGate->isChairOrSecretary(meetingId: $id, userId: $userId) === false) {
+			return new JSONResponse(
+				['message' => 'Only the chair or secretary of the meeting may change its stage.'],
+				Http::STATUS_FORBIDDEN
+			);
+		}
+
 		$result = $this->meetingService->transition(meetingId: $id, action: $action, currentUserId: $userId);
 
 		if ($result['success'] === false) {
@@ -139,6 +150,43 @@ class MeetingController extends Controller {
 
 		return new JSONResponse($result);
 	}//end lifecycle()
+
+	/**
+	 * Tell the caller the meeting's stage and the steps they may take.
+	 *
+	 * GET /api/meetings/{id}/transitions
+	 *
+	 * Access control: the meeting is read through ObjectService (OpenRegister
+	 * RBAC), so a caller who cannot read it gets 404. Steps are offered only to
+	 * the chair or secretary of the meeting or an NC admin, the same gate
+	 * lifecycle() applies, and only the steps MeetingService would accept.
+	 *
+	 * @param string $id UUID of the meeting
+	 *
+	 * @return JSONResponse 200 with { lifecycle, actions }; 401 when anonymous; 404 when the meeting cannot be read
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-001-the-chair-moves-a-meeting-through-its-stages
+	 */
+	#[NoAdminRequired]
+	public function transitions(string $id): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		$userId = $user->getUID();
+		$answer = $this->meetingService->availableActionsFor(meetingId: $id, userId: $userId);
+		if ($answer === null) {
+			return new JSONResponse(['message' => 'Meeting not found.'], Http::STATUS_NOT_FOUND);
+		}
+
+		if ($this->roleGate->isChairOrSecretary(meetingId: $id, userId: $userId) === false) {
+			$answer['actions'] = [];
+		}
+
+		return new JSONResponse($answer);
+
+	}//end transitions()
 
 	/**
 	 * Generate the notarial proof package for a meeting.
@@ -237,7 +285,7 @@ class MeetingController extends Controller {
 			);
 		}
 
-		// Per-object guard (OWASP A01 / ADR-005): MeetingSeriesService loads the
+		// Per-object guard (OWASP A01 / ADR-005): MeetingSeriesServiceInterface loads the
 		// template via ObjectService::find() — OpenRegister RBAC returns null for
 		// callers without read access, which surfaces as a 422 "Meeting not found".
 		$result = $this->meetingSeriesService->generateSeries(
@@ -280,7 +328,7 @@ class MeetingController extends Controller {
 			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
 		}
 
-		// Per-object guard (OWASP A01 / ADR-005): MeetingPackageService loads the
+		// Per-object guard (OWASP A01 / ADR-005): MeetingPackageServiceInterface loads the
 		// meeting via ObjectService::find() — OpenRegister RBAC returns null for
 		// callers without read access, which surfaces as a 422 "Meeting not found".
 		$result = $this->packageService->assemble(meetingId: $id, userId: $user->getUID());
@@ -294,4 +342,33 @@ class MeetingController extends Controller {
 
 		return new JSONResponse($result);
 	}//end assemblePackage()
+
+	/**
+	 * Tell the caller which presiding roles they hold on a meeting.
+	 *
+	 * GET /api/meetings/{meetingId}/my-roles
+	 *
+	 * Access control: answers only about the signed-in caller, so there is no
+	 * object of someone else's to guard. Anonymous callers get 401. The meeting
+	 * page uses the answer to show reorder and live-screen controls exactly when
+	 * the server's own guards would accept them.
+	 *
+	 * @param string $meetingId UUID of the meeting
+	 *
+	 * @return JSONResponse 200 with { chair, secretary, admin } booleans; 401 when anonymous
+	 *
+	 * @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-001-the-meeting-page-asks-the-server-for-the-callers-meeting-roles
+	 */
+	#[NoAdminRequired]
+	public function myRoles(string $meetingId): JSONResponse {
+		$user = $this->userSession->getUser();
+		if ($user === null) {
+			return new JSONResponse(['message' => 'Authentication required'], Http::STATUS_UNAUTHORIZED);
+		}
+
+		return new JSONResponse(
+			$this->roleGate->rolesOf(meetingId: $meetingId, userId: $user->getUID())
+		);
+
+	}//end myRoles()
 }//end class

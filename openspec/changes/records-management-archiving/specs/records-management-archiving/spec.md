@@ -99,6 +99,15 @@ The system MUST express Selectielijst gemeenten 2020 categories as OpenRegister 
 - THEN the dossier MUST be routed to transfer (overbrenging) rather than destruction
 - AND it MUST appear in the compliance dashboard's transfer-pipeline counters with the Archiefwet 10-year deadline computed from the dossier period
 
+#### Scenario: A dossier's own category overrides its schema's
+
+@e2e exclude server-side routing rule with no screen of its own yet; proven by tests/Unit/Service/Records/DossierDispositionTest.php (testADossiersOwnCategoryOverridesTheSchemas, testAnArchivistSetsTheCategoryOnlyWhenItDiffers) over the real register fragment
+
+- GIVEN the dossier schema declares category 2.1 (bewaren) and points at `selectielijstCategorie` for a dossier's own category
+- WHEN an archivist sets category 11.1 (vernietigen) on one dossier and it is routed
+- THEN that dossier MUST go to a destruction list while every other dossier keeps the schema's category
+- AND setting the schema's own category MUST clear the dossier's override, and a category the register ships no row for MUST be refused
+
 #### Scenario: An inexpressible trigger becomes an OR follow-up, not decidiq code
 
 - GIVEN a desired `end-of-council-term` retention trigger

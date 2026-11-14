@@ -13,7 +13,6 @@
 -->
 <template>
 	<div class="user-settings-section" data-testid="display-preferences-section">
-		<h3>{{ t('decidiq', 'Display preferences') }}</h3>
 		<p class="user-settings-section__hint">
 			{{
 				t('decidiq', 'Control how Decidiq presents itself for your account.')
@@ -220,22 +219,4 @@ export default {
 }
 </script>
 
-<style scoped>
-.user-settings-section {
-	margin-bottom: 24px;
-}
-
-.user-settings-section__hint {
-	color: var(--color-text-maxcontrast);
-	margin-bottom: 8px;
-}
-
-.user-settings-section__field {
-	margin: 12px 0;
-	max-width: 400px;
-}
-
-.user-settings-section__actions {
-	margin-top: 12px;
-}
-</style>
+<style scoped src="./userSettingsFields.css"></style>

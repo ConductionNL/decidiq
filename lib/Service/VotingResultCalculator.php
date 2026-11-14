@@ -47,6 +47,28 @@ namespace OCA\Decidiq\Service;
  */
 class VotingResultCalculator {
 	/**
+	 * The accepted values of each rule a round stores.
+	 *
+	 * @var array<string, string[]>
+	 */
+	private const RULE_VALUES = [
+		'voteThreshold' => VotingService::VOTE_THRESHOLDS,
+		'abstentionHandling' => VotingService::ABSTENTION_MODES,
+		'tieBreakRule' => VotingService::TIE_BREAK_RULES,
+	];
+
+	/**
+	 * The strictest sane default of each rule, for an unknown stored value.
+	 *
+	 * @var array<string, string>
+	 */
+	private const RULE_FALLBACKS = [
+		'voteThreshold' => 'simple-majority',
+		'abstentionHandling' => 'exclude',
+		'tieBreakRule' => 'rejected',
+	];
+
+	/**
 	 * Compute the rule-aware voting result for a set of counts.
 	 *
 	 * @param int $for Weighted for-votes
@@ -59,80 +81,87 @@ class VotingResultCalculator {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	public function compute(int $for, int $against, int $abstain, array $round): array {
-		// Fail closed: unknown stored values fall back to the strictest sane default.
-		$threshold = $this->rule(
-			value: ($round['voteThreshold'] ?? null),
-			allowed: VotingService::VOTE_THRESHOLDS,
-			fallback: 'simple-majority'
-		);
-		$abstMode = $this->rule(
-			value: ($round['abstentionHandling'] ?? null),
-			allowed: VotingService::ABSTENTION_MODES,
-			fallback: 'exclude'
-		);
-		$tieRule = $this->rule(
-			value: ($round['tieBreakRule'] ?? null),
-			allowed: VotingService::TIE_BREAK_RULES,
-			fallback: 'rejected'
-		);
-
-		$total = ($for + $against + $abstain);
-		$base = ($for + $against);
-		if ($abstMode === 'count') {
-			$base = $total;
-		}
+		$rules = $this->rulesOf(round: $round);
+		$tally = new VoteTally(votesFor: $for, votesAgainst: $against);
+		$tally->abstentions = $abstain;
 
 		$meta = [
-			'base' => $base,
-			'voteThreshold' => $threshold,
-			'abstentionHandling' => $abstMode,
-			'tieBreakRule' => $tieRule,
+			'base' => $tally->base(abstentionHandling: $rules->abstentionHandling),
+			'voteThreshold' => $rules->threshold,
+			'abstentionHandling' => $rules->abstentionHandling,
+			'tieBreakRule' => $rules->tieBreakRule,
 		];
 
-		if ($total === 0) {
-			return (['result' => 'invalid'] + $meta);
-		}
-
-		$tied = $this->tieOutcome(
-			for: $for,
-			against: $against,
-			threshold: $threshold,
-			tieRule: $tieRule,
-			round: $round
-		);
-		if ($tied !== null) {
-			return (['result' => $tied] + $meta);
-		}
-
-		if ($base === 0) {
-			return (['result' => 'rejected'] + $meta);
-		}
-
-		if ($this->meetsThreshold(threshold: $threshold, for: $for, base: $base) === true) {
-			return (['result' => 'adopted'] + $meta);
-		}
-
-		return (['result' => 'rejected'] + $meta);
+		return (['result' => $this->resultOf(tally: $tally, rules: $rules)] + $meta);
 	}//end compute()
+
+	/**
+	 * The effective rules of a round.
+	 *
+	 * Fail closed: unknown stored values fall back to the strictest sane default.
+	 *
+	 * @param array<string,mixed> $round The voting round
+	 *
+	 * @return EffectiveVoteRules The rules
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function rulesOf(array $round): EffectiveVoteRules {
+		$rules = new EffectiveVoteRules(
+			threshold: $this->rule(round: $round, name: 'voteThreshold'),
+			abstentionHandling: $this->rule(round: $round, name: 'abstentionHandling'),
+		);
+		$rules->tieBreakRule = $this->rule(round: $round, name: 'tieBreakRule');
+		$rules->chairCastingVote = ($round['chairCastingVote'] ?? null);
+
+		return $rules;
+	}//end rulesOf()
 
 	/**
 	 * A stored rule value, or the strictest sane default when unknown.
 	 *
-	 * @param mixed $value The stored rule value
-	 * @param string[] $allowed The accepted values
-	 * @param string $fallback The default when the stored value is unknown
+	 * @param array<string,mixed> $round The voting round
+	 * @param string $name The rule: voteThreshold, abstentionHandling or tieBreakRule
 	 *
 	 * @return string The effective rule value
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function rule(mixed $value, array $allowed, string $fallback): string {
-		if (in_array($value, $allowed, true) === true) {
+	private function rule(array $round, string $name): string {
+		$value = ($round[$name] ?? null);
+		if (in_array($value, self::RULE_VALUES[$name], true) === true) {
 			return (string)$value;
 		}
 
-		return $fallback;
+		return self::RULE_FALLBACKS[$name];
 	}//end rule()
+
+	/**
+	 * The result of a tally under the effective rules.
+	 *
+	 * @param VoteTally $tally The weighted counts
+	 * @param EffectiveVoteRules $rules The effective rules
+	 *
+	 * @return string invalid, tied, adopted or rejected
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function resultOf(VoteTally $tally, EffectiveVoteRules $rules): string {
+		if ($tally->total() === 0) {
+			return 'invalid';
+		}
+
+		$tied = $this->tieOutcome(tally: $tally, rules: $rules);
+		if ($tied !== null) {
+			return $tied;
+		}
+
+		if ($this->meetsThreshold(tally: $tally, rules: $rules) === true) {
+			return 'adopted';
+		}
+
+		return 'rejected';
+	}//end resultOf()
 
 	/**
 	 * The outcome of a classic tie deadlock, or null when the counts are not a
@@ -141,57 +170,68 @@ class VotingResultCalculator {
 	 * A tie is only meaningful under simple majority: a vote that merely misses
 	 * half of a counted base (F != A) is plain 'rejected'.
 	 *
-	 * @param int $for Weighted for-votes
-	 * @param int $against Weighted against-votes
-	 * @param string $threshold The effective majority threshold
-	 * @param string $tieRule The effective tie-break rule
-	 * @param array<string,mixed> $round The voting round (chairCastingVote is read from it)
+	 * @param VoteTally $tally The weighted counts
+	 * @param EffectiveVoteRules $rules The effective rules
 	 *
 	 * @return string|null The tie outcome, or null when this is not a tie
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function tieOutcome(int $for, int $against, string $threshold, string $tieRule, array $round): ?string {
-		if ($threshold !== 'simple-majority' || $for !== $against || $for <= 0) {
+	private function tieOutcome(VoteTally $tally, EffectiveVoteRules $rules): ?string {
+		if ($rules->threshold !== 'simple-majority' || $tally->votesFor !== $tally->votesAgainst || $tally->votesFor <= 0) {
 			return null;
 		}
 
-		if ($tieRule === 'revote') {
+		return $this->tieBreak(rules: $rules);
+	}//end tieOutcome()
+
+	/**
+	 * What a simple-majority tie comes to under the tie-break rule.
+	 *
+	 * @param EffectiveVoteRules $rules The effective rules
+	 *
+	 * @return string The tie outcome
+	 *
+	 * @spec openspec/specs/voting-system/spec.md
+	 */
+	private function tieBreak(EffectiveVoteRules $rules): string {
+		if ($rules->tieBreakRule === 'revote') {
 			return 'tied';
 		}
 
-		if ($tieRule !== 'chair-decides') {
+		if ($rules->tieBreakRule !== 'chair-decides') {
 			// Default 'rejected': a tied motion fails (legal status quo).
 			return 'rejected';
 		}
 
-		$casting = ($round['chairCastingVote'] ?? null);
-		if ($casting === 'for') {
-			return 'adopted';
-		}
-
-		if ($casting === 'against') {
-			return 'rejected';
-		}
-
-		return 'tied';
-	}//end tieOutcome()
+		return match ($rules->chairCastingVote) {
+			'for' => 'adopted',
+			'against' => 'rejected',
+			default => 'tied',
+		};
+	}//end tieBreak()
 
 	/**
 	 * Whether the for-votes carry the round under the effective threshold.
 	 *
-	 * Integer math throughout — no float threshold comparisons.
+	 * Nothing carries on an empty base (it guards unanimous vacuity). Integer
+	 * math throughout — no float threshold comparisons.
 	 *
-	 * @param string $threshold The effective majority threshold
-	 * @param int $for Weighted for-votes
-	 * @param int $base The calculation base
+	 * @param VoteTally $tally The weighted counts
+	 * @param EffectiveVoteRules $rules The effective rules
 	 *
 	 * @return bool True when the threshold is met
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function meetsThreshold(string $threshold, int $for, int $base): bool {
-		return match ($threshold) {
+	private function meetsThreshold(VoteTally $tally, EffectiveVoteRules $rules): bool {
+		$for = $tally->votesFor;
+		$base = $tally->base(abstentionHandling: $rules->abstentionHandling);
+		if ($base === 0) {
+			return false;
+		}
+
+		return match ($rules->threshold) {
 			'qualified-majority-two-thirds' => (3 * $for) >= (2 * $base),
 			'qualified-majority-three-quarters' => (4 * $for) >= (3 * $base),
 			'unanimous' => $for === $base,

@@ -193,6 +193,33 @@ class PublicationEligibilityServiceTest extends TestCase {
 	}//end testConfidentialResolutionDenied()
 
 	/**
+	 * A record labelled above public (records-management-archiving,
+	 * REQ-RMA-008) is refused structurally, before the lifecycle check:
+	 * approved minutes labelled vertrouwelijk never reach the payload.
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
+	 *
+	 * @return void
+	 */
+	public function testAClassifiedRecordIsRefusedBeforeEligibility(): void {
+		$service = $this->makeService([]);
+		foreach (['intern', 'vertrouwelijk', 'geheim'] as $level) {
+			$this->assertTrue($service->isDeniedType('minutes', ['lifecycle' => 'approved', 'securityClassification' => $level]), $level);
+		}
+
+		$this->assertFalse($service->isDeniedType('minutes', ['lifecycle' => 'approved', 'securityClassification' => 'openbaar']));
+		$this->assertFalse($service->isDeniedType('minutes', ['lifecycle' => 'approved']), 'unlabelled is openbaar');
+
+		$classified = $this->makeService(['lifecycle' => 'approved', 'securityClassification' => 'vertrouwelijk']);
+		try {
+			$classified->assertEligible('minutes', 'min-1');
+			$this->fail('classified minutes are refused');
+		} catch (AccessDeniedException $e) {
+			$this->assertStringContainsString('not publishable', $e->getMessage());
+		}
+	}//end testAClassifiedRecordIsRefusedBeforeEligibility()
+
+	/**
 	 * A missing source object raises MissingObjectException.
 	 *
 	 * @return void

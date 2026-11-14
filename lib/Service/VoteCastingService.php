@@ -43,13 +43,6 @@ use Psr\Log\LoggerInterface;
 class VoteCastingService {
 
 	/**
-	 * Derives the secret-ballot voter and delegator tokens.
-	 *
-	 * @var VoterTokenSecret
-	 */
-	private readonly VoterTokenSecret $tokens;
-
-	/**
 	 * Fail-closed eligibility rules a cast must pass.
 	 *
 	 * @var VoteCastGuard
@@ -64,6 +57,14 @@ class VoteCastingService {
 	private readonly VoteBallotFactory $ballots;
 
 	/**
+	 * Refuses a member whose seat a substitute holds, and a non-voting
+	 * participant who holds no seat (bodies-substitute-mandate-swap).
+	 *
+	 * @var SeatHolderGuard
+	 */
+	private readonly SeatHolderGuard $seats;
+
+	/**
 	 * Constructor for the VoteCastingService.
 	 *
 	 * @param LoggerInterface $logger The logger
@@ -72,8 +73,10 @@ class VoteCastingService {
 	 * @param ObjectRelationFilter $relationFilter Exact-id scoping for relation-filtered result sets
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object service (ADR-084)
 	 * @param ContainerInterface $container DI container — VoterTokenSecret, VoteBallotFactory and VoteCastGuard still resolve through it
+	 * @param RecusalGuard $recusal Keeps a member recused on the matter out of the vote (bod-10)
 	 *
 	 * @return void
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
 	public function __construct(
 		LoggerInterface $logger,
@@ -82,21 +85,25 @@ class VoteCastingService {
 		private readonly ObjectRelationFilter $relationFilter,
 		private readonly ObjectServiceInterface $objectService,
 		ContainerInterface $container,
+		private readonly RecusalGuard $recusal,
 	) {
-		$this->tokens = new VoterTokenSecret(container: $container);
-		$this->ballots = new VoteBallotFactory(
-			container: $container,
-			logger: $logger,
-			tokens: $this->tokens
-		);
+		// The ballot factory owns the token secret; the guard and the dedup
+		// lookup below use the same one.
+		$this->ballots = new VoteBallotFactory(container: $container, logger: $logger);
 		$this->guard = new VoteCastGuard(
 			container: $container,
 			logger: $logger,
 			relationFilter: $relationFilter,
-			tokens: $this->tokens,
+			tokens: $this->ballots->tokens(),
 			participantResolver: $participantResolver,
 			amendmentOrder: $amendmentOrder,
 			objectService: $objectService
+		);
+		$this->seats = new SeatHolderGuard(
+			amendmentOrder: $amendmentOrder,
+			participantResolver: $participantResolver,
+			objectService: $objectService,
+			logger: $logger
 		);
 
 	}//end __construct()
@@ -106,64 +113,55 @@ class VoteCastingService {
 	 *
 	 * Checks the round is open, verifies the participant is a member of the
 	 * meeting that owns the round (#300), prevents duplicates (overwrites
-	 * existing vote), and enforces one-proxy-per-round for proxy votes.
+	 * existing vote), and enforces one-proxy-per-round for proxy votes. A
+	 * refusal (the round is not open, the caller is not a meeting member, or
+	 * the proxy rules are violated) is a RuntimeException from the guards.
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The participant UUID
-	 * @param string $value for | against | abstain
-	 * @param bool $isProxy True when the participant is voting as proxy for another
-	 * @param string|null $delegatorId The participant UUID being delegated (required when isProxy=true)
+	 * @param VoteCast    $cast      The ballot: round, caster, choice and proxy
 	 * @param string|null $callerUid The authenticated Nextcloud UID of the casting user
 	 *
 	 * @return array<string,mixed> The created/updated Vote object
 	 *
-	 * @throws \RuntimeException When the round is not open, the caller is not a meeting member,
-	 *                           or proxy rules are violated
-	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 * @spec openspec/specs/user-settings/spec.md
 	 * @spec openspec/specs/motion-amendment/spec.md
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-002-a-recused-member-cannot-vote-on-the-matter
+	 * @spec openspec/changes/voting-ranked-preference-ballot/specs/preferential-ballot/spec.md#requirement-req-prf-002-members-rank-candidates-in-order-of-preference-when-voting
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
 	 */
-	public function castVote(
-		string $votingRoundId,
-		string $participantId,
-		string $value,
-		bool $isProxy,
-		?string $delegatorId,
-		?string $callerUid = null,
-	): array {
-		$round = $this->guard->loadOpenRound(votingRoundId: $votingRoundId);
-		$this->guard->assertMeetingMembership(round: $round, participantId: $participantId);
+	public function castVote(VoteCast $cast, ?string $callerUid = null): array {
+		$round = $this->guard->loadOpenRound(votingRoundId: $cast->votingRoundId);
 
-		$isSecret = (bool)($round['isSecret'] ?? false);
+		// A ranked-choice round takes a full ranking and stores value `ranked`;
+		// any other round refuses a ranking (REQ-PRF-002). Checked before
+		// anything is read or written for the ballot.
+		$cast = $cast->forRound(
+			value: $this->guard->ballotValue(round: $round, value: $cast->value(), ranking: $cast->ranking()),
+			isSecret: (bool)($round['isSecret'] ?? false)
+		);
 
-		if ($isProxy === true && $delegatorId !== null) {
+		$this->guard->assertMeetingMembership(round: $round, participantId: $cast->participantId);
+		$this->seats->assertHoldsSeat(round: $round, participantId: $cast->participantId);
+
+		// The ballot counts for the delegator on a proxy vote, for the caster
+		// otherwise; a member recused on the matter does not vote (bod-10).
+		$this->recusal->assertNotRecused(round: $round, participantId: $cast->ballotOwner());
+
+		if ($cast->isDelegated() === true) {
 			$this->guard->assertGrant(
 				round: $round,
-				participantId: $participantId,
-				delegatorId: $delegatorId,
+				participantId: $cast->participantId,
+				delegatorId: (string)$cast->delegatorId(),
 				callerUid: $callerUid
 			);
 			$this->guard->assertNotAlreadyRegistered(
-				votingRoundId: $votingRoundId,
-				delegatorId: $delegatorId,
-				isSecret: $isSecret
+				votingRoundId: $cast->votingRoundId,
+				delegatorId: (string)$cast->delegatorId(),
+				isSecret: $cast->isSecret()
 			);
 		}
 
-		$vote = $this->ballots->buildVote(
-			votingRoundId: $votingRoundId,
-			participantId: $participantId,
-			value: $value,
-			isProxy: $isProxy,
-			delegatorId: $delegatorId,
-			isSecret: $isSecret,
-			existingVote: $this->findExistingVote(
-				votingRoundId: $votingRoundId,
-				participantId: $participantId,
-				isSecret: $isSecret
-			)
-		);
+		$vote = $this->ballots->buildVote(cast: $cast, existingVote: $this->findExistingVote(cast: $cast));
 
 		$saved = $this->objectService()->saveObject(register: 'decidiq', schema: 'vote', object: $vote);
 
@@ -177,22 +175,14 @@ class VoteCastingService {
 	 * For secret rounds the participant relation is suppressed for anonymity,
 	 * so dedup is keyed on a deterministic voterToken instead.
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The casting participant UUID
-	 * @param bool $isSecret Whether the round is a secret ballot
+	 * @param VoteCast $cast The settled ballot
 	 *
 	 * @return array<string,mixed>|null The existing vote, or null.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function findExistingVote(string $votingRoundId, string $participantId, bool $isSecret): ?array {
-		$entities = $this->existingVoteEntities(
-			votingRoundId: $votingRoundId,
-			participantId: $participantId,
-			isSecret: $isSecret
-		);
-
-		foreach ($entities as $entity) {
+	private function findExistingVote(VoteCast $cast): ?array {
+		foreach ($this->existingVoteEntities(cast: $cast) as $entity) {
 			return $entity->jsonSerialize();
 		}
 
@@ -202,22 +192,20 @@ class VoteCastingService {
 	/**
 	 * Query the ballot entities that would collide with this cast.
 	 *
-	 * @param string $votingRoundId The voting round UUID
-	 * @param string $participantId The casting participant UUID
-	 * @param bool $isSecret Whether the round is a secret ballot
+	 * @param VoteCast $cast The settled ballot
 	 *
 	 * @return array<int, mixed> The colliding vote entities.
 	 *
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
-	private function existingVoteEntities(string $votingRoundId, string $participantId, bool $isSecret): array {
-		if ($isSecret === true) {
+	private function existingVoteEntities(VoteCast $cast): array {
+		if ($cast->isSecret() === true) {
 			return $this->votesInRound(
-				votingRoundId: $votingRoundId,
+				votingRoundId: $cast->votingRoundId,
 				extraFilters: [
-					'voterToken' => $this->tokens->voterToken(
-						participantId: $participantId,
-						votingRoundId: $votingRoundId
+					'voterToken' => $this->ballots->tokens()->voterToken(
+						participantId: $cast->participantId,
+						votingRoundId: $cast->votingRoundId
 					),
 				]
 			);
@@ -233,9 +221,9 @@ class VoteCastingService {
 		// stops deduping. matching() below re-checks the participant on the round
 		// -scoped set, which is exact and cannot collide.
 		return $this->relationFilter->matching(
-			entities: $this->votesInRound(votingRoundId: $votingRoundId, extraFilters: []),
+			entities: $this->votesInRound(votingRoundId: $cast->votingRoundId, extraFilters: []),
 			schema: 'participant',
-			targetId: $participantId
+			targetId: $cast->participantId
 		);
 
 	}//end existingVoteEntities()
@@ -281,7 +269,7 @@ class VoteCastingService {
 	 * @spec openspec/specs/voting-system/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
+		if (is_object($saved) === true && method_exists($saved, 'jsonSerialize') === true) {
 			return $saved->jsonSerialize();
 		}
 

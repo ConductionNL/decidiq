@@ -27,7 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -37,7 +37,7 @@ use Throwable;
 /**
  * Copies oral questions and interpellation requests onto generic agenda items.
  *
- * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ * @spec openspec/specs/questions-as-agenda-items/spec.md
  */
 class MigrateQuestionsToAgendaItems implements IRepairStep {
 	use ReadsLegacyRows;
@@ -126,7 +126,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService        $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface        $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface     $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface        $logger          Records what was migrated.
 	 * @param AgendaItemTypeResolver $types           Resolves the configurable kind each row becomes.
@@ -134,7 +134,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AgendaItemTypeResolver $types,
@@ -175,35 +175,11 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	public function run(IOutput $output): void {
-		if ($this->settingsService->isOpenRegisterAvailable() === false) {
-			$output->info('OpenRegister unavailable — nothing to migrate.');
-			return;
-		}
-
-		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			$output->warning('Could not resolve OpenRegister ObjectService: ' . $e->getMessage());
-			return;
-		}
-
-		// 🔴 RUN AS SYSTEM, AND THE WHOLE TRAVERSAL IN ONE SCOPE. A repair step
-		// executes during `occ upgrade`, where there is no session, so
-		// OpenRegister sees the actor as 'Anonymous' and refuses `create` — and
-		// this step reports such a failure as $output->warning(), which does NOT
-		// fail an upgrade. Without this line the upgrade says "Update successful"
-		// and nothing anyone reads says the migration did not happen. The sibling
-		// body-configuration migration carries the same comment for the same
-		// measured reason.
-		$objectService->runAsSystem(
-			function () use ($objectService, $output): void {
-				$this->migrateAll(objectService: $objectService, output: $output);
-			}
-		);
-
+		$runner = new SystemMigrationRunner(settingsService: $this->settingsService, container: $this->container);
+		$runner->run(output: $output, migrateAll: $this->migrateAll(...));
 	}//end run()
 
 	/**
@@ -214,7 +190,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		$migrated = 0;
@@ -427,7 +403,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return array<string,mixed> The type-specific values.
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-existing-questions-are-carried-across
 	 */
 	private function typeFieldsFor(array $source, array $carry, string $origin): array {
 		$fields = [self::ORIGIN_KEY => $origin];
@@ -460,7 +436,7 @@ class MigrateQuestionsToAgendaItems implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md#requirement-the-question-hour-configuration-moves-onto-the-type
+	 * @spec openspec/specs/questions-as-agenda-items/spec.md#requirement-the-question-hour-configuration-moves-onto-the-type
 	 */
 	private function applyConfigurations(object $objectService, IOutput $output): void {
 		$applied = 0;

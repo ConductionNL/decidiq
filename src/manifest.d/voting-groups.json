@@ -1,0 +1,46 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Voting groups (board DcBeheer, Stemgroepen): fixed groups of members of a body, kept by the secretariat. The admin page lists them and links here, where they are made and changed. No menu entry: the board places them on the admin page, not in the navigation.",
+	"pages": [
+		{
+			"id": "VotingGroups",
+			"route": "/voting-groups",
+			"type": "index",
+			"title": "Voting groups",
+			"config": {
+				"register": "decidiq",
+				"schema": "voting-group",
+				"sortKey": "name",
+				"sortOrder": "asc",
+				"columns": [
+					{ "key": "name", "label": "Name", "widget": "link" },
+					{ "key": "governanceBody", "label": "Body", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
+					{ "key": "active", "label": "Active", "widget": "badge" }
+				],
+				"rowRoute": "VotingGroupDetail",
+				"allowCreate": true,
+				"sidebar": { "enabled": true, "showMetadata": true }
+			}
+		},
+		{
+			"id": "VotingGroupDetail",
+			"route": "/voting-groups/:id",
+			"type": "detail",
+			"title": "Voting group",
+			"config": {
+				"register": "decidiq",
+				"schema": "voting-group",
+				"widgets": [
+					{ "id": "voting-group-data", "type": "data", "title": "Voting group", "icon": "AccountGroup", "content": { "columns": 2 } },
+					{ "id": "voting-group-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+				],
+				"layout": [
+					{ "id": "1", "widgetId": "voting-group-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "voting-group-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 }
+				],
+				"sidebar": { "enabled": true, "showMetadata": true, "tabs": [{ "id": "audit", "label": "History", "icon": "History", "widgets": [{ "type": "audit" }] }] },
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

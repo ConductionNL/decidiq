@@ -13,7 +13,7 @@
  store. Members already linked to the body (by NC uid or email) are
  flagged as duplicates and skipped.
 
- @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+ @spec openspec/specs/admin-settings/spec.md
 -->
 <template>
 	<NcDialog
@@ -106,16 +106,13 @@
 import { getRequestToken } from '@nextcloud/auth'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcDialog, NcSelect } from '@nextcloud/vue'
-import {
-	buildMembershipPayload,
-	ensureRelationType,
-	resolveOrCreatePerson,
-} from '../components/tabs/useRelationStore.js'
 import { DEFAULT_ROLE, markGroupDuplicates } from '../utils/memberImport.js'
+import { memberImportRunMixin } from './memberImportRun.js'
 
 export default {
 	name: 'MemberGroupImportDialog',
 	components: { NcButton, NcDialog, NcSelect },
+	mixins: [memberImportRunMixin],
 	props: {
 		/** OR object id of the governance body to import into. */
 		bodyId: { type: [String, Number], required: true },
@@ -243,83 +240,43 @@ export default {
 		},
 
 		/**
-		 * Import the previewed group members: each becomes a Person
-		 * (matched by email, else created) + Membership pair.
+		 * The previewed group members not yet in the body, as people to import.
 		 *
-		 * @return {Promise<void>}
-		 * @spec openspec/changes/model-debt-cleanup-code/specs/admin-settings/spec.md
+		 * @return {Array<{name: string, email: string, nextcloudUserId: string, role: string}>} The people.
+		 * @spec openspec/specs/admin-settings/spec.md
 		 */
-		async runImport() {
-			this.importing = true
-			this.error = ''
-			try {
-				const personStore = ensureRelationType('person')
-				const membershipStore = ensureRelationType('membership')
-				const rows = this.preview.filter((row) => !row.duplicate)
-				for (const row of rows) {
-					// Sequential on purpose: predictable ordering + no API hammering.
-					const person = await resolveOrCreatePerson(personStore, {
-						name: row.displayName,
-						email: row.email,
-						nextcloudUserId: row.uid,
-					})
-					if (!person?.id) {
-						continue
-					}
-					await membershipStore.saveObject(
-						'membership',
-						buildMembershipPayload({
-							personId: person.id,
-							governanceBodyId: this.bodyId,
-							role: DEFAULT_ROLE,
-						}),
-					)
-				}
-				this.doneMessage = this.t('decidiq', '{count} members imported.', {
-					count: rows.length,
-				})
-				this.$emit('imported')
-				// Refresh duplicate flags so a second click cannot double-import.
-				this.preview = this.preview.map((row) => ({
-					...row,
-					duplicate: true,
+		importablePeople() {
+			return this.preview
+				.filter((row) => !row.duplicate)
+				.map((row) => ({
+					name: row.displayName,
+					email: row.email,
+					nextcloudUserId: row.uid,
+					role: DEFAULT_ROLE,
 				}))
-			} catch (e) {
-				this.error = e?.message || this.t('decidiq', 'Import failed.')
-			} finally {
-				this.importing = false
-			}
+		},
+
+		/**
+		 * The preview once imported: every member reads as a duplicate.
+		 *
+		 * @return {Array<object>} The rows.
+		 * @spec openspec/specs/admin-settings/spec.md
+		 */
+		previewAfterImport() {
+			return this.preview.map((row) => ({
+				...row,
+				duplicate: true,
+			}))
 		},
 	},
 }
 </script>
 
+<style scoped src="./memberImport.css"></style>
+
 <style scoped>
-.group-import__table {
-	width: 100%;
-	margin-top: 12px;
-	border-collapse: collapse;
-}
-
-.group-import__table th,
-.group-import__table td {
-	text-align: start;
-	padding: 4px 8px;
-	border-bottom: 1px solid var(--color-border);
-}
-
 .group-import__dup {
 	color: var(--color-text-maxcontrast);
-}
-
-.group-import__error {
-	color: var(--color-error);
-	margin: 8px 0 0;
-}
-
-.group-import__done {
-	color: var(--color-success);
-	margin: 8px 0 0;
 }
 
 .group-import__loading {

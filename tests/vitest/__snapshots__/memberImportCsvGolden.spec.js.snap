@@ -1,0 +1,1297 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`parseCsv golden > bare cr records 1`] = `
+[
+  [
+    "a",
+    "b",
+  ],
+  [
+    "c",
+    "d",
+  ],
+]
+`;
+
+exports[`parseCsv golden > blank lines 1`] = `[]`;
+
+exports[`parseCsv golden > bom in the middle 1`] = `
+[
+  [
+    "a﻿",
+    "b",
+  ],
+]
+`;
+
+exports[`parseCsv golden > bom only 1`] = `[]`;
+
+exports[`parseCsv golden > bom then data 1`] = `
+[
+  [
+    "name",
+    "email",
+  ],
+  [
+    "a",
+    "b",
+  ],
+]
+`;
+
+exports[`parseCsv golden > cr at the end 1`] = `
+[
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > cr inside quotes 1`] = `
+[
+  [
+    "a
+b",
+  ],
+]
+`;
+
+exports[`parseCsv golden > crlf records 1`] = `
+[
+  [
+    "a",
+    "b",
+  ],
+  [
+    "c",
+    "d",
+  ],
+]
+`;
+
+exports[`parseCsv golden > double quote empty field 1`] = `
+[
+  [
+    "",
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > empty 1`] = `[]`;
+
+exports[`parseCsv golden > escaped quote 1`] = `
+[
+  [
+    "say "hi"",
+    "x",
+  ],
+]
+`;
+
+exports[`parseCsv golden > escaped quote at the end 1`] = `
+[
+  [
+    "a"",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 0 1`] = `
+[
+  [
+    "",
+    "a
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 1 1`] = `
+[
+  [
+    "
+
+
+
+a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 2 1`] = `
+[
+  [
+    "
+aa
+
+aaa
+
+
+
+aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 3 1`] = `
+[
+  [
+    "",
+    "a""aa",
+  ],
+  [
+    "aaaa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 4 1`] = `
+[
+  [
+    "aa",
+  ],
+  [
+    "
+aa",
+  ],
+  [
+    "aaaa",
+  ],
+  [
+    "aaa"
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 5 1`] = `
+[
+  [
+    "
+aa
+aaa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "aaa
+aa
+aaa"a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 6 1`] = `
+[
+  [
+    "aaa
+
+
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 7 1`] = `
+[
+  [
+    "b"
+
+
+
+
+a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 8 1`] = `
+[
+  [
+    "
+
+
+
+a""aba
+aa
+"
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 9 1`] = `
+[
+  [
+    "
+
+aa
+a"
+a",
+  ],
+  [
+    "
+a",
+  ],
+  [
+    "aaa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 10 1`] = `
+[
+  [
+    "a
+aa
+",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 11 1`] = `
+[
+  [
+    "aa",
+  ],
+  [
+    "aaa"a
+
+
+aaaa
+aaa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 12 1`] = `
+[
+  [
+    "",
+    "aa",
+  ],
+  [
+    "
+a"",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 13 1`] = `
+[
+  [
+    "aaaa",
+  ],
+  [
+    "aaa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 14 1`] = `
+[
+  [
+    "a"aaaaaaa
+"aaaa
+"",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 15 1`] = `
+[
+  [
+    "",
+    "",
+  ],
+  [
+    "
+aa
+"aa
+a
+
+",
+  ],
+  [
+    "aaa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 16 1`] = `
+[
+  [
+    " 
+a
+a"a
+
+
+a
+",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aa"a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 17 1`] = `
+[
+  [
+    "
+a
+aaaa"aaa",
+  ],
+  [
+    "aaaa"aaa
+a
+
+",
+  ],
+  [
+    ""
+"
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 18 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 19 1`] = `
+[
+  [
+    "ba",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a"a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 20 1`] = `
+[
+  [
+    "aaa",
+  ],
+  [
+    "aaa
+aaa"aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 21 1`] = `
+[
+  [
+    "aa
+
+
+",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a
+
+
+aa"",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "
+"a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 22 1`] = `
+[
+  [
+    "a
+
+
+a
+"
+a
+",
+  ],
+  [
+    "
+aa"
+"
+aa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 23 1`] = `
+[
+  [
+    "aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 24 1`] = `
+[
+  [
+    "",
+    "",
+  ],
+  [
+    "aaa
+
+aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 25 1`] = `
+[
+  [
+    "
+
+"a
+"aa",
+  ],
+  [
+    "a
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 26 1`] = `
+[
+  [
+    "
+
+aa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 27 1`] = `
+[
+  [
+    "",
+    "",
+  ],
+  [
+    "aaaa
+"
+aaa",
+  ],
+  [
+    "aaa
+a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "
+
+a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 28 1`] = `
+[
+  [
+    " aaa"a",
+  ],
+  [
+    "a,
+a
+a
+
+a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "
+
+a
+
+a
+"""
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 29 1`] = `
+[
+  [
+    "a
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 30 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "
+a
+a
+a
+
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 31 1`] = `
+[
+  [
+    "b",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a
+aaa
+
+a
+a
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 32 1`] = `
+[
+  [
+    "
+
+a
+a
+"
+aaa
+aa
+aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 33 1`] = `
+[
+  [
+    "a"
+a",
+  ],
+  [
+    "a"
+a
+a",
+  ],
+  [
+    "aa",
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 34 1`] = `
+[
+  [
+    "aa",
+  ],
+  [
+    "a
+aaa
+
+aa",
+  ],
+  [
+    "aa
+
+"",
+  ],
+  [
+    "aaaaa"a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 35 1`] = `
+[
+  [
+    "aa
+
+
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 36 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "",
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 37 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a"a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 38 1`] = `
+[
+  [
+    "aa",
+  ],
+  [
+    ""aa",
+  ],
+  [
+    "aaa
+
+a
+
+aaa
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 39 1`] = `
+[
+  [
+    "",
+    "
+aaa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a
+",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 40 1`] = `
+[
+  [
+    "",
+    "",
+  ],
+  [
+    "aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 41 1`] = `
+[
+  [
+    "a
+
+a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 42 1`] = `
+[
+  [
+    "aaa
+aa",
+  ],
+  [
+    "
+aaa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 43 1`] = `
+[
+  [
+    "b",
+  ],
+  [
+    "
+aaaaaa"
+"
+aa
+
+,
+
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 44 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aaaaaaaaa",
+  ],
+  [
+    "a",
+  ],
+  [
+    ""a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 45 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "aaaa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aa
+aa",
+  ],
+  [
+    "a
+
+aaa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 46 1`] = `
+[
+  [
+    "a",
+  ],
+  [
+    "a
+
+
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 47 1`] = `
+[
+  [
+    "
+a
+
+
+aaa
+
+
+a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 48 1`] = `
+[
+  [
+    "aaa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "aaaaa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 49 1`] = `
+[
+  [
+    "a"aaa",
+  ],
+  [
+    "
+aa",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 50 1`] = `
+[
+  [
+    "aa",
+  ],
+  [
+    """a",
+  ],
+  [
+    "a
+a
+
+",
+  ],
+  [
+    "aaaa",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 51 1`] = `
+[
+  [
+    "",
+    "aa"a",
+  ],
+  [
+    "
+a
+"",
+  ],
+  [
+    "
+aaa
+",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aa
+a
+a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 52 1`] = `
+[
+  [
+    "",
+    "a",
+  ],
+  [
+    "a",
+  ],
+  [
+    "a
+a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 53 1`] = `
+[
+  [
+    "a
+aa",
+  ],
+  [
+    "a",
+  ],
+  [
+    ""
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 54 1`] = `
+[
+  [
+    "aa"
+
+
+",
+  ],
+  [
+    "aaaaa",
+  ],
+  [
+    """,
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 55 1`] = `
+[
+  [
+    "b
+"""aa",
+  ],
+  [
+    "
+
+""
+
+aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 56 1`] = `
+[
+  [
+    ""
+",
+  ],
+  [
+    "a",
+  ],
+  [
+    "aaaaaa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "a",
+  ],
+  [
+    "
+aa",
+  ],
+  [
+    "
+aa
+",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 57 1`] = `
+[
+  [
+    "a
+a
+a",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "
+
+aaaaaa",
+  ],
+  [
+    "aaaaa
+a",
+  ],
+  [
+    "aa
+",
+  ],
+  [
+    "a",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 58 1`] = `
+[
+  [
+    "aa",
+  ],
+  [
+    "aa",
+  ],
+  [
+    "aa",
+  ],
+]
+`;
+
+exports[`parseCsv golden > generated 59 1`] = `
+[
+  [
+    "aaa
+
+
+"a",
+  ],
+  [
+    """,
+  ],
+]
+`;
+
+exports[`parseCsv golden > null 1`] = `[]`;
+
+exports[`parseCsv golden > number 1`] = `
+[
+  [
+    "42",
+  ],
+]
+`;
+
+exports[`parseCsv golden > only commas 1`] = `
+[
+  [
+    "",
+    "",
+    "",
+    "",
+  ],
+  [
+    "",
+    "",
+  ],
+]
+`;
+
+exports[`parseCsv golden > quote at the end 1`] = `
+[
+  [
+    "abc",
+  ],
+]
+`;
+
+exports[`parseCsv golden > quote inside a field 1`] = `
+[
+  [
+    "abc,de",
+  ],
+]
+`;
+
+exports[`parseCsv golden > quoted comma 1`] = `
+[
+  [
+    "a,b",
+    "c",
+  ],
+]
+`;
+
+exports[`parseCsv golden > quoted newline 1`] = `
+[
+  [
+    "a
+b",
+    "c",
+  ],
+  [
+    "d",
+  ],
+]
+`;
+
+exports[`parseCsv golden > single field 1`] = `
+[
+  [
+    "abc",
+  ],
+]
+`;
+
+exports[`parseCsv golden > trailing comma 1`] = `
+[
+  [
+    "a",
+    "b",
+    "",
+  ],
+]
+`;
+
+exports[`parseCsv golden > trailing newline 1`] = `
+[
+  [
+    "a",
+    "b",
+  ],
+]
+`;
+
+exports[`parseCsv golden > undefined 1`] = `[]`;
+
+exports[`parseCsv golden > unterminated quote 1`] = `
+[
+  [
+    "abc,def
+ghi",
+  ],
+]
+`;
+
+exports[`parseCsv golden > whitespace record 1`] = `
+[
+  [
+    "x",
+  ],
+]
+`;

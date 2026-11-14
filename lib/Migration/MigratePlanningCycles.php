@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the planning and control cycle into plain words.
  *
- * @spec openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md
+ * @spec openspec/specs/planning-cycle-in-plain-words/spec.md
  */
 class MigratePlanningCycles implements IRepairStep {
 	use ReadsLegacyRows;
@@ -86,14 +86,14 @@ class MigratePlanningCycles implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was migrated.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -132,30 +132,11 @@ class MigratePlanningCycles implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
+	 * @spec openspec/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
 	 */
 	public function run(IOutput $output): void {
-		if ($this->settingsService->isOpenRegisterAvailable() === false) {
-			$output->info('OpenRegister unavailable — nothing to migrate.');
-			return;
-		}
-
-		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			$output->warning('Could not resolve OpenRegister ObjectService: ' . $e->getMessage());
-			return;
-		}
-
-		// 🔴 RUN AS SYSTEM. A repair step has no session, so OpenRegister sees
-		// the actor as 'Anonymous' and refuses `create`, and this step reports
-		// that as a warning, which does not fail an upgrade.
-		$objectService->runAsSystem(
-			function () use ($objectService, $output): void {
-				$this->migrateAll(objectService: $objectService, output: $output);
-			}
-		);
-
+		$runner = new SystemMigrationRunner(settingsService: $this->settingsService, container: $this->container);
+		$runner->run(output: $output, migrateAll: $this->migrateAll(...));
 	}//end run()
 
 	/**
@@ -166,7 +147,7 @@ class MigratePlanningCycles implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/planning-cycle-in-plain-words/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
+	 * @spec openspec/specs/planning-cycle-in-plain-words/spec.md#requirement-existing-cycles-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,

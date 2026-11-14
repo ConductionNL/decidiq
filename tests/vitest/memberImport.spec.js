@@ -33,9 +33,9 @@ describe('parseCsv', () => {
 	})
 
 	it('handles quoted fields with commas, newlines and escaped quotes', () => {
-		const text = '"de Vries, Anna",anna@x.nl\n"say ""hi""","multi\nline"'
+		const text = '"de Vries, Anna",anna@x.example\n"say ""hi""","multi\nline"'
 		expect(parseCsv(text)).toEqual([
-			['de Vries, Anna', 'anna@x.nl'],
+			['de Vries, Anna', 'anna@x.example'],
 			['say "hi"', 'multi\nline'],
 		])
 	})
@@ -55,15 +55,17 @@ describe('parseCsv', () => {
 
 describe('parseMemberCsv', () => {
 	it('maps header columns case-insensitively and in any order', () => {
-		const { rows, error } = parseMemberCsv('Email,Role,Name\na@x.nl,chair,Anna')
+		const { rows, error } = parseMemberCsv(
+			'Email,Role,Name\na@x.example,chair,Anna',
+		)
 		expect(error).toBeNull()
 		expect(rows).toEqual([
-			{ name: 'Anna', email: 'a@x.nl', role: 'chair', line: 2 },
+			{ name: 'Anna', email: 'a@x.example', role: 'chair', line: 2 },
 		])
 	})
 
 	it('defaults a missing role column to empty string', () => {
-		const { rows } = parseMemberCsv('name,email\nAnna,a@x.nl')
+		const { rows } = parseMemberCsv('name,email\nAnna,a@x.example')
 		expect(rows[0].role).toBe('')
 	})
 
@@ -78,7 +80,7 @@ describe('parseMemberCsv', () => {
 	it('caps the import at MAX_IMPORT_ROWS', () => {
 		const lines = ['name,email,role']
 		for (let i = 0; i <= MAX_IMPORT_ROWS; i++) {
-			lines.push(`User ${i},u${i}@x.nl,member`)
+			lines.push(`User ${i},u${i}@x.example,member`)
 		}
 		expect(parseMemberCsv(lines.join('\n')).error).toBe('too-many-rows')
 	})
@@ -86,7 +88,7 @@ describe('parseMemberCsv', () => {
 	it('accepts exactly MAX_IMPORT_ROWS rows', () => {
 		const lines = ['name,email,role']
 		for (let i = 0; i < MAX_IMPORT_ROWS; i++) {
-			lines.push(`User ${i},u${i}@x.nl,member`)
+			lines.push(`User ${i},u${i}@x.example,member`)
 		}
 		const { rows, error } = parseMemberCsv(lines.join('\n'))
 		expect(error).toBeNull()
@@ -97,7 +99,7 @@ describe('parseMemberCsv', () => {
 describe('validateMemberRows', () => {
 	const row = (over = {}) => ({
 		name: 'Anna',
-		email: 'a@x.nl',
+		email: 'a@x.example',
 		role: 'chair',
 		line: 2,
 		...over,
@@ -136,7 +138,7 @@ describe('validateMemberRows', () => {
 	})
 
 	it('flags duplicates against existing members case-insensitively', () => {
-		const [out] = validateMemberRows([row()], [{ email: 'A@X.NL' }])
+		const [out] = validateMemberRows([row()], [{ email: 'A@X.EXAMPLE' }])
 		expect(out).toMatchObject({ status: 'duplicate', reason: 'already-member' })
 	})
 
@@ -158,7 +160,7 @@ describe('validateMemberRows', () => {
 
 describe('markGroupDuplicates', () => {
 	const members = [
-		{ uid: 'anna', displayName: 'Anna', email: 'a@x.nl' },
+		{ uid: 'anna', displayName: 'Anna', email: 'a@x.example' },
 		{ uid: 'bram', displayName: 'Bram', email: '' },
 	]
 
@@ -170,7 +172,7 @@ describe('markGroupDuplicates', () => {
 
 	it('marks duplicates by email when the uid differs', () => {
 		const out = markGroupDuplicates(members, [
-			{ nextcloudUserId: 'other', email: 'A@x.nl' },
+			{ nextcloudUserId: 'other', email: 'A@x.example' },
 		])
 		expect(out[0].duplicate).toBe(true)
 	})

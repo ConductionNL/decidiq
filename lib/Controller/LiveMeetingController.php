@@ -9,7 +9,7 @@
  * @category Controller
  * @package  OCA\Decidiq\Controller
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\MissingObjectException;
-use OCA\Decidiq\Service\LiveDecisionService;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\LiveDecisionServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -39,28 +39,28 @@ use OCP\IUserSession;
  *
  * Provides the endpoint for recording decisions during an active meeting.
  *
- * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2
  */
 class LiveMeetingController extends Controller {
 	/**
 	 * Constructor for LiveMeetingController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param LiveDecisionService $liveDecisionService The live decision service
+	 * @param LiveDecisionServiceInterface $liveDecisionService The live decision service
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ParticipantResolverInterface $participantResolver Participant resolver for meeting-based access checks
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private LiveDecisionService $liveDecisionService,
+		private LiveDecisionServiceInterface $liveDecisionService,
 		private IUserSession $userSession,
 		private IGroupManager $groupManager,
-		private ParticipantResolver $participantResolver,
+		private ParticipantResolverInterface $participantResolver,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -103,7 +103,8 @@ class LiveMeetingController extends Controller {
 	 *
 	 * POST /api/meetings/{meetingId}/live-decisions
 	 *
-	 * Body: { "title": string, "text": string, "outcome": string, "legalBasis"?: string }
+	 * Body: { "title": string, "text": string, "outcome": string, "legalBasis"?: string,
+	 *        "decisionType"?: string, "agendaItem"?: string }
 	 *
 	 * Returns 200 with the created Decision object on success.
 	 * Returns 400 when required fields are missing.
@@ -116,7 +117,8 @@ class LiveMeetingController extends Controller {
 	 *
 	 * @return JSONResponse The created Decision object
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-2.2
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
 	 */
 	#[NoAdminRequired]
 	public function recordLiveDecision(string $meetingId): JSONResponse {
@@ -126,23 +128,13 @@ class LiveMeetingController extends Controller {
 		}
 
 		try {
-			$title = $this->request->getParam('title');
-			$text = $this->request->getParam('text');
-			$outcome = $this->request->getParam('outcome');
-
-			if (empty($title) === true || empty($text) === true || empty($outcome) === true) {
+			$decisionData = $this->liveDecisionData();
+			if ($decisionData === null) {
 				return new JSONResponse(
 					['error' => 'Missing required fields: title, text, outcome'],
 					400
 				);
 			}
-
-			$decisionData = [
-				'title' => $title,
-				'text' => $text,
-				'outcome' => $outcome,
-				'legalBasis' => $this->request->getParam('legalBasis'),
-			];
 
 			$decisionSlug = $this->liveDecisionService->recordDecision(
 				$meetingId,
@@ -158,11 +150,55 @@ class LiveMeetingController extends Controller {
 		} catch (MissingObjectException $e) {
 			return new JSONResponse(['error' => $e->getMessage()], 404);
 		} catch (\Exception $e) {
-			if ((int)$e->getCode() === 409) {
-				return new JSONResponse(['error' => $e->getMessage()], 409);
-			}
-
-			return new JSONResponse(['error' => 'Internal server error.'], 500);
+			return self::failureResponse(exception: $e);
 		}//end try
 	}//end recordLiveDecision()
+
+	/**
+	 * The decision a live-decision request carries.
+	 *
+	 * @return array<string,mixed>|null The decision data, or null when a required field is empty
+	 */
+	private function liveDecisionData(): ?array {
+		$decision = [
+			'title' => $this->request->getParam('title'),
+			'text' => $this->request->getParam('text'),
+			'outcome' => $this->request->getParam('outcome'),
+		];
+		if (self::lacksRequiredField(decision: $decision) === true) {
+			return null;
+		}
+
+		return $decision + [
+			'legalBasis' => $this->request->getParam('legalBasis'),
+			'decisionType' => $this->request->getParam('decisionType'),
+			'agendaItem' => $this->request->getParam('agendaItem'),
+		];
+	}//end liveDecisionData()
+
+	/**
+	 * Whether a decision misses its title, text or outcome.
+	 *
+	 * @param array<string,mixed> $decision The title, text and outcome
+	 *
+	 * @return bool True when any of them is empty
+	 */
+	private static function lacksRequiredField(array $decision): bool {
+		return empty($decision['title']) === true || empty($decision['text']) === true || empty($decision['outcome']) === true;
+	}//end lacksRequiredField()
+
+	/**
+	 * The response for a failed recording: 409 passes its message, anything else is a generic 500.
+	 *
+	 * @param \Exception $exception The failure
+	 *
+	 * @return JSONResponse The error response
+	 */
+	private static function failureResponse(\Exception $exception): JSONResponse {
+		if ((int)$exception->getCode() === 409) {
+			return new JSONResponse(['error' => $exception->getMessage()], 409);
+		}
+
+		return new JSONResponse(['error' => 'Internal server error.'], 500);
+	}//end failureResponse()
 }//end class

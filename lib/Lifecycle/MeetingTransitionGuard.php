@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Lifecycle;
 
+use OCA\Decidiq\Kernel\Contracts\MeetingTransitionGuardInterface;
+
 /**
  * Guard for meeting lifecycle transitions.
  *
@@ -33,7 +35,7 @@ namespace OCA\Decidiq\Lifecycle;
  *
  * @spec openspec/changes/archive/2026-05-11-quorum-guard-rewrite/tasks.md#task-1
  */
-class MeetingTransitionGuard {
+class MeetingTransitionGuard implements MeetingTransitionGuardInterface {
 	/**
 	 * Check whether the open transition is allowed for the given meeting.
 	 *

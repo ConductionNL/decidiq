@@ -33,6 +33,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\MinutesAccessGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -44,7 +45,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MinutesAccessGuard {
+class MinutesAccessGuard implements MinutesAccessGuardInterface {
 	/**
 	 * Constructor for MinutesAccessGuard.
 	 *
@@ -77,7 +78,7 @@ class MinutesAccessGuard {
 	 *
 	 * @return JSONResponse|null Null if authorised, a 401/403 JSONResponse otherwise.
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function requireChairOrAdmin(string $minutesId): ?JSONResponse {

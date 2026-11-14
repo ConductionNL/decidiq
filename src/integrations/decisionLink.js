@@ -85,7 +85,16 @@ export async function listHostDecisions(subjectId, limit = 100) {
 	const res = await axios.get(decisionsUrl(), {
 		params: { subjectId, _limit: limit },
 	})
-	const data = res && res.data
+	return listRows(res && res.data)
+}
+
+/**
+ * The rows of an OpenRegister list answer, bare or under `results`.
+ *
+ * @param {object|Array|null} data The answer body.
+ * @return {object[]} The rows, or `[]` for any other shape.
+ */
+function listRows(data) {
 	if (Array.isArray(data)) return data
 	if (data && Array.isArray(data.results)) return data.results
 	return []
@@ -103,6 +112,37 @@ export async function listHostDecisions(subjectId, limit = 100) {
 export async function createHostDecision(payload) {
 	const res = await axios.post(decisionsUrl(), payload)
 	return (res && res.data) || null
+}
+
+/**
+ * The decision a "Create proposal" form on a host object writes: a proposed
+ * decision linked back to that host (REQ-DCDH-001).
+ *
+ * It carries NO `outcome`. The schema's outcome is the voting result
+ * (`adopted` / `rejected`); a motion still in flight has none, and a
+ * placeholder such as `pending` is outside the enum, so OpenRegister refused
+ * every proposal with a 400.
+ *
+ * @param {object} formData The form's values (`title`, `text`, `decisionType`).
+ * @param {{register: string, schema: string, objectId: string, label?: string}} host The host object.
+ * @param {string} fallbackTitle The title when the form has none.
+ * @return {object} The decision object to persist.
+ * @spec openspec/specs/decidesk-contract-decision-hub/spec.md — REQ-DCDH-002 create a decision pre-linked to the host.
+ */
+export function hostProposalPayload(formData, host, fallbackTitle) {
+	const data = formData || {}
+	return {
+		title: data.title || fallbackTitle,
+		text: data.text || '',
+		decisionType: data.decisionType || 'motion',
+		lifecycle: 'proposed',
+		decisionDate: new Date().toISOString(),
+		sourceApp: host.schema || 'openregister',
+		subjectRegister: host.register,
+		subjectSchema: host.schema,
+		subjectId: host.objectId,
+		subjectLabel: host.label || host.objectId,
+	}
 }
 
 /**
@@ -260,13 +300,9 @@ export function proposalFormSchema(types) {
  * @spec openspec/changes/decision-types-as-configuration/specs/decidesk-contract-decision-hub/spec.md
  */
 export function withDecisionTypeVocabulary(schema, types) {
-	if (!schema || typeof schema !== 'object') return schema
+	if (!hasDecisionTypeProperty(schema)) return schema
 	const properties = schema.properties
-	if (!properties || typeof properties !== 'object' || !properties.decisionType) {
-		return schema
-	}
-	const offered =
-		Array.isArray(types) && types.length > 0 ? types : FALLBACK_DECISION_TYPES
+	const offered = offeredDecisionTypes(types)
 	return {
 		...schema,
 		properties: {
@@ -278,6 +314,31 @@ export function withDecisionTypeVocabulary(schema, types) {
 			},
 		},
 	}
+}
+
+/**
+ * Whether a schema is an object whose properties include `decisionType`.
+ *
+ * @param {object|null} schema The schema.
+ * @return {boolean} True when it can carry the vocabulary.
+ */
+function hasDecisionTypeProperty(schema) {
+	if (!schema || typeof schema !== 'object') return false
+	const properties = schema.properties
+	return Boolean(
+		properties && typeof properties === 'object' && properties.decisionType,
+	)
+}
+
+/**
+ * The types to offer: the registry vocabulary, or the shipped seed while it
+ * is empty or still loading.
+ *
+ * @param {?string[]} types The registry vocabulary.
+ * @return {string[]} The types.
+ */
+function offeredDecisionTypes(types) {
+	return Array.isArray(types) && types.length > 0 ? types : FALLBACK_DECISION_TYPES
 }
 
 /**

@@ -279,6 +279,8 @@ class LiveMeetingControllerTest extends TestCase {
 					'text' => 'De raad besluit de begroting vast te stellen.',
 					'outcome' => 'adopted',
 					'legalBasis' => 'Gemeentewet art. 189',
+					'decisionType' => null,
+					'agendaItem' => null,
 				]
 			)
 			->willReturn('besluit-2026-014');
@@ -355,5 +357,36 @@ class LiveMeetingControllerTest extends TestCase {
 		self::assertSame('Internal server error.', $response->getData()['error']);
 
 	}//end testRecordLiveDecisionUnexpectedFailureIs500WithoutLeakingDetail()
+
+	/**
+	 * The live screen's decision names its type and the current agenda item,
+	 * and both reach the service.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-003-a-decision-is-recorded-when-it-is-taken
+	 */
+	public function testRecordLiveDecisionPassesTheTypeAndTheCurrentItem(): void {
+		$this->signIn(uid: 'admin', isAdmin: true);
+		$this->request->method('getParam')->willReturnMap(
+			[
+				['title', null, 'Woningbouwplan'],
+				['text', null, 'De raad stemt in.'],
+				['outcome', null, 'adopted'],
+				['legalBasis', null, null],
+				['decisionType', null, 'resolution'],
+				['agendaItem', null, 'item-5'],
+			]
+		);
+		$this->liveDecisionService->expects($this->once())->method('recordDecision')
+			->with(
+				'meeting-1',
+				$this->callback(static fn (array $data): bool => ($data['decisionType'] ?? null) === 'resolution' && ($data['agendaItem'] ?? null) === 'item-5')
+			)
+			->willReturn('decision-1');
+
+		self::assertSame(Http::STATUS_OK, $this->controller->recordLiveDecision(meetingId: 'meeting-1')->getStatus());
+
+	}//end testRecordLiveDecisionPassesTheTypeAndTheCurrentItem()
 
 }//end class

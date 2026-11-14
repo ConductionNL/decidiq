@@ -20,7 +20,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -35,7 +35,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Renders a regulator export body in the requested format.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 class RegulatorExportRenderer {
 
@@ -119,7 +119,7 @@ class RegulatorExportRenderer {
 	 * @param string $scope Scope label
 	 * @param array<int, array<string, mixed>> $rows Payload rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string Rendered export body
 	 */
@@ -142,7 +142,7 @@ class RegulatorExportRenderer {
 	 * @param string $scope Scope label
 	 * @param array<int, array<string, mixed>> $rows Payload rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string
 	 */
@@ -176,7 +176,7 @@ class RegulatorExportRenderer {
 	 * @param string $scope Scope label
 	 * @param array<int, array<string, mixed>> $rows Payload rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string|null
 	 */
@@ -197,7 +197,7 @@ class RegulatorExportRenderer {
 	 * @param string $candidate Fully-qualified candidate class name
 	 * @param array<mixed> $args Positional arguments for renderRegulatorExport()
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string|null Rendered blob, or null when this candidate cannot render
 	 */
@@ -232,17 +232,18 @@ class RegulatorExportRenderer {
 	 * @param string $scope Scope label
 	 * @param array<int, array<string, mixed>> $rows Payload rows
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string
 	 */
 	private function renderCsv(string $scope, array $rows): string {
 		$columns = $this->csvColumns(scope: $scope);
 		$lines = [implode(',', $columns)];
+		$csv   = new CsvCell();
 		foreach ($rows as $row) {
 			$cells = [];
 			foreach ($columns as $column) {
-				$cells[] = $this->csvEscape(value: (string)($row[$column] ?? ''));
+				$cells[] = $csv->escape(cell: (string)($row[$column] ?? ''));
 			}
 
 			$lines[] = implode(',', $cells);
@@ -256,7 +257,7 @@ class RegulatorExportRenderer {
 	 *
 	 * @param string $scope Scope label
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string[]
 	 */
@@ -265,29 +266,12 @@ class RegulatorExportRenderer {
 	}//end csvColumns()
 
 	/**
-	 * Safely escape a CSV cell (wraps in quotes when needed).
-	 *
-	 * @param string $value Raw value
-	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
-	 *
-	 * @return string
-	 */
-	private function csvEscape(string $value): string {
-		if (preg_match('/[",\n]/', $value) === 1) {
-			return '"' . str_replace('"', '""', $value) . '"';
-		}
-
-		return $value;
-	}//end csvEscape()
-
-	/**
 	 * Summarise one row for the PDF text body.
 	 *
 	 * @param string $scope Scope label
 	 * @param array<string, mixed> $row Row data
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string
 	 */
@@ -329,7 +313,7 @@ class RegulatorExportRenderer {
 	 *
 	 * @param string[] $lines Lines to render
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string
 	 */
@@ -372,7 +356,7 @@ class RegulatorExportRenderer {
 	 *
 	 * @param string[] $lines Lines to render
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return string
 	 */

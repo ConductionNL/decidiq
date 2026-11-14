@@ -90,3 +90,10 @@ Additive: one new schema plus optional properties — reverting the register imp
 
 - Can `end-of-council-term` retention be expressed via OR's `eigenschap` afleidingswijze (a materialised term-end date on the dossier), or does it warrant a first-class OR trigger? Provisional: use `eigenschap`; file the OR follow-up.
 - Should Selectielijst `SelectionList` rows be editable per municipality or shipped read-only? Provisional: shipped as editable seeds (municipalities apply local hotspots/exceptions) — consistent with `SelectionList` carrying an `organisation` field.
+
+## Matrix rows (build-all, 2026-09-29)
+
+This change also closes these rows of the decidiq matrix (`openspec/parity/capabilities.json`); `built.change` names this change:
+
+- pub-11: Archive decisions and documents with MDTO metadata and transfer them to an e-depot.
+- pub-18: Destroy documents whose retention period has passed only on an approved basis, and keep a record of each destruction or transfer.

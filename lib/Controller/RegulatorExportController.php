@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\RegulatorExportService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\RegulatorExportServiceInterface;
 use OCA\Decidiq\Settings\AdminSettings;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -42,7 +42,7 @@ use OCP\IUserSession;
 /**
  * REST controller for regulator exports.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
  */
 class RegulatorExportController extends Controller {
 	use RequiresOrAdmin;
@@ -52,17 +52,17 @@ class RegulatorExportController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param RegulatorExportService $exportService Export service
+	 * @param RegulatorExportServiceInterface $exportService Export service
 	 * @param IUserSession $userSession User session
 	 * @param IGroupManager $groupManager Group manager
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly RegulatorExportService $exportService,
+		private readonly RegulatorExportServiceInterface $exportService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -73,7 +73,7 @@ class RegulatorExportController extends Controller {
 	 * - scope (string: resolutions|minutes|audit-log, required)
 	 * - format (string: pdf|csv, default pdf)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return Response
 	 */
@@ -129,7 +129,7 @@ class RegulatorExportController extends Controller {
 	 *
 	 * @param string $id UUID of the persisted export record
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return Response
 	 */
@@ -169,7 +169,7 @@ class RegulatorExportController extends Controller {
 	/**
 	 * List previously generated exports for a board.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.1
 	 *
 	 * @return JSONResponse
 	 */

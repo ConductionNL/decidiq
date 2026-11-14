@@ -29,10 +29,16 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Mcp;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
+use OCA\Decidiq\Mcp\McpActionItemTools;
+use OCA\Decidiq\Mcp\McpArgumentValidator;
+use OCA\Decidiq\Mcp\McpMeetingGate;
+use OCA\Decidiq\Mcp\McpMeetingTools;
+use OCA\Decidiq\Mcp\McpSourceFormatter;
 use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUser;
 use OCP\IUserSession;
@@ -146,14 +152,25 @@ class DecidiqToolProviderTest extends TestCase {
 		$this->participantResolver = $this->createMock(ParticipantResolver::class);
 		$this->objectService = $this->createMock(ObjectServiceInterface::class);
 
+		$shared = [
+			'userSession' => $this->userSession,
+			'groupManager' => $this->groupManager,
+			'logger' => $this->logger,
+			'participantResolver' => $this->participantResolver,
+			'objectService' => $this->objectService,
+		];
+		$formatter = new McpSourceFormatter();
+		$validator = new McpArgumentValidator(formatter: $formatter);
+		$shared    = [
+			'logger'        => $shared['logger'],
+			'objectService' => $shared['objectService'],
+			'gate'          => new McpMeetingGate(...$shared, formatter: $formatter, validator: $validator),
+			'formatter'     => $formatter,
+			'validator'     => $validator,
+		];
 		$this->provider = new DecidiqToolProvider(
-			meetingService: $this->meetingService,
-			userSession: $this->userSession,
-			groupManager: $this->groupManager,
-			container: $this->container,
-			logger: $this->logger,
-			participantResolver: $this->participantResolver,
-			objectService: $this->objectService,
+			actionItemTools: new McpActionItemTools(...$shared, container: $this->container),
+			meetingTools: new McpMeetingTools(...$shared, meetingService: $this->meetingService),
 		);
 
 	}//end setUp()
@@ -266,7 +283,8 @@ class DecidiqToolProviderTest extends TestCase {
 	/**
 	 * Configure the INJECTED object-service double.
 	 *
-	 * When $meetingEntity is provided, `find()` returns it (or null for not-found).
+	 * When $meetingEntity is provided, `find()` returns it; otherwise `find()`
+	 * throws DoesNotExistException, as OpenRegister does for an unknown id.
 	 * findAll() returns an empty array by default.
 	 *
 	 * @param ObjectEntity&MockObject|null $meetingEntity Entity to return from find(), or null
@@ -278,7 +296,7 @@ class DecidiqToolProviderTest extends TestCase {
 		if ($meetingEntity !== null) {
 			$this->objectService->method('find')->willReturn($meetingEntity);
 		} else {
-			$this->objectService->method('find')->willReturn(null);
+			$this->objectService->method('find')->willThrowException(new DoesNotExistException('Object not found'));
 		}
 
 		if ($findAllCallback !== null) {
@@ -659,7 +677,7 @@ class DecidiqToolProviderTest extends TestCase {
 		// OpenRegister is no longer resolved through it (ADR-083).
 		$this->container->method('get')->willReturnCallback(
 			function (string $id) use ($writerMock) {
-				if ($id === \OCA\Decidiq\Service\ActionItemWriter::class) {
+				if ($id === \OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface::class) {
 					return $writerMock;
 				}
 
@@ -875,14 +893,14 @@ class DecidiqToolProviderTest extends TestCase {
 	// =========================================================================
 
 	/**
-	 * getMeetingDetails returns not_found when ObjectService::find returns null.
+	 * getMeetingDetails returns not_found to an admin when ObjectService::find throws DoesNotExistException.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
 	 */
 	public function testNotFound_getMeetingDetails_returnsNotFoundEnvelope(): void {
-		$this->setCurrentUser('alice');
+		$this->setAdminUser('admin');
 		$this->mockObjectService(meetingEntity: null);
 
 		$result = $this->provider->invokeTool(
@@ -896,14 +914,14 @@ class DecidiqToolProviderTest extends TestCase {
 	}//end testNotFound_getMeetingDetails_returnsNotFoundEnvelope()
 
 	/**
-	 * startMeeting returns not_found when ObjectService::find returns null.
+	 * startMeeting returns not_found to an admin when ObjectService::find throws DoesNotExistException.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
 	 */
 	public function testNotFound_startMeeting_returnsNotFoundEnvelope(): void {
-		$this->setCurrentUser('alice');
+		$this->setAdminUser('admin');
 		$this->mockObjectService(meetingEntity: null);
 
 		$result = $this->provider->invokeTool(
@@ -917,14 +935,14 @@ class DecidiqToolProviderTest extends TestCase {
 	}//end testNotFound_startMeeting_returnsNotFoundEnvelope()
 
 	/**
-	 * addActionItem returns not_found when ObjectService::find returns null.
+	 * addActionItem returns not_found to an admin when ObjectService::find throws DoesNotExistException.
 	 *
 	 * @return void
 	 *
 	 * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
 	 */
 	public function testNotFound_addActionItem_returnsNotFoundEnvelope(): void {
-		$this->setCurrentUser('alice');
+		$this->setAdminUser('admin');
 		$this->mockObjectService(meetingEntity: null);
 
 		$result = $this->provider->invokeTool(
@@ -1003,8 +1021,8 @@ class DecidiqToolProviderTest extends TestCase {
 	 * @spec openspec/changes/decidesk-mcp-tools/specs/mcp-tools/spec.md#REQ-DMCP-007
 	 */
 	public function testNullUuidIsValidSyntax(): void {
-		$this->setCurrentUser('alice');
-		// ObjectService returns null → not_found (not invalid_arguments).
+		$this->setAdminUser('admin');
+		// ObjectService throws DoesNotExistException → not_found (not invalid_arguments).
 		$this->mockObjectService(meetingEntity: null);
 
 		$result = $this->provider->invokeTool(
@@ -1038,5 +1056,313 @@ class DecidiqToolProviderTest extends TestCase {
 		self::assertSame('invalid_arguments', $result2['error']);
 
 	}//end testShortStringsAreInvalidUuids()
+
+	// =========================================================================
+	// Callers without a session user, failing lookups, unknown meetings
+	// =========================================================================
+
+	/**
+	 * The scope values of listOpenActionItems.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function actionItemScopes(): array {
+		return [
+			'mine' => ['mine'],
+			'all' => ['all'],
+		];
+
+	}//end actionItemScopes()
+
+	/**
+	 * listOpenActionItems without a session user refuses and runs no query.
+	 *
+	 * @param string $scope The scope argument
+	 *
+	 * @return void
+	 *
+	 * @dataProvider actionItemScopes
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedOut_listOpenActionItems_refusesWithoutQuery(string $scope): void {
+		$this->setCurrentUser('');
+		$this->objectService->expects(self::never())->method('findAll');
+
+		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => $scope]);
+
+		self::assertTrue($result['isError']);
+		self::assertSame('forbidden', $result['error']);
+		self::assertArrayNotHasKey('items', $result);
+
+	}//end testSignedOut_listOpenActionItems_refusesWithoutQuery()
+
+	/**
+	 * listRecentMeetings without a session user refuses and runs no query.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedOut_listRecentMeetings_refusesWithoutQuery(): void {
+		$this->setCurrentUser('');
+		$this->objectService->expects(self::never())->method('findAll');
+
+		$result = $this->provider->invokeTool('decidesk.listRecentMeetings', []);
+
+		self::assertTrue($result['isError']);
+		self::assertSame('forbidden', $result['error']);
+		self::assertArrayNotHasKey('meetings', $result);
+
+	}//end testSignedOut_listRecentMeetings_refusesWithoutQuery()
+
+	/**
+	 * The three meeting-targeting tools with valid arguments for the fixture meeting.
+	 *
+	 * @return array<string, array{0: string, 1: array<string, mixed>}>
+	 */
+	public static function meetingTools(): array {
+		return [
+			'getMeetingDetails' => ['decidesk.getMeetingDetails', []],
+			'startMeeting' => ['decidesk.startMeeting', []],
+			'addActionItem' => ['decidesk.addActionItem', ['title' => 'Follow up']],
+		];
+
+	}//end meetingTools()
+
+	/**
+	 * A meeting lookup that throws is answered with internal_error and logged.
+	 *
+	 * @param string $tool The tool id
+	 * @param array<string, mixed> $args The extra tool arguments
+	 *
+	 * @return void
+	 *
+	 * @dataProvider meetingTools
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-003
+	 */
+	public function testMeetingLookupThrows_returnsInternalError(string $tool, array $args): void {
+		$this->setCurrentUser('alice');
+		$this->objectService->method('find')->willThrowException(new \RuntimeException('register down at db-7'));
+		$this->logger->expects(self::once())
+			->method('error')
+			->with(
+				'Decidiq MCP: meeting lookup failed',
+				['meetingUuid' => $this->meetingUuid, 'exception' => 'register down at db-7']
+			);
+
+		$result = $this->provider->invokeTool($tool, ['meetingUuid' => $this->meetingUuid] + $args);
+
+		self::assertSame(
+			[
+				'isError' => true,
+				'error' => 'internal_error',
+				'message' => 'Failed to load the meeting. See server log for details.',
+			],
+			$result
+		);
+
+	}//end testMeetingLookupThrows_returnsInternalError()
+
+	/**
+	 * A non-admin gets the same answer for an unknown meeting as for one they may not see.
+	 *
+	 * @param string $tool The tool id
+	 * @param array<string, mixed> $args The extra tool arguments
+	 *
+	 * @return void
+	 *
+	 * @dataProvider meetingTools
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-007
+	 */
+	public function testUnknownMeeting_nonAdmin_answersLikeHiddenMeeting(string $tool, array $args): void {
+		$this->setCurrentUser('carol');
+		$hidden = $this->makeObjectEntityMock($this->makeMeeting($this->meetingUuid, 'scheduled', 'alice', ['bob']));
+		$this->objectService->method('find')->willReturnCallback(
+			fn (string $id) => ($id === $this->meetingUuid ? $hidden : throw new DoesNotExistException('Object not found'))
+		);
+		$this->objectService->expects(self::never())->method('findAll');
+		$this->meetingService->expects(self::never())->method('transition');
+		$this->logger->expects(self::never())->method('error');
+
+		$hiddenResult = $this->provider->invokeTool($tool, ['meetingUuid' => $this->meetingUuid] + $args);
+		$unknownResult = $this->provider->invokeTool($tool, ['meetingUuid' => $this->nullUuid] + $args);
+
+		self::assertSame('forbidden', $hiddenResult['error']);
+		self::assertSame($hiddenResult, $unknownResult);
+
+	}//end testUnknownMeeting_nonAdmin_answersLikeHiddenMeeting()
+
+	/**
+	 * A caller without a session user is refused for an unknown meeting without an admin lookup.
+	 *
+	 * @param string $tool The tool id
+	 * @param array<string, mixed> $args The extra tool arguments
+	 *
+	 * @return void
+	 *
+	 * @dataProvider meetingTools
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-007
+	 */
+	public function testUnknownMeeting_signedOut_isForbidden(string $tool, array $args): void {
+		$this->userSession->method('getUser')->willReturn(null);
+		$this->groupManager->expects(self::never())->method('isAdmin');
+		$this->mockObjectService(meetingEntity: null);
+
+		$result = $this->provider->invokeTool($tool, ['meetingUuid' => $this->nullUuid] + $args);
+
+		self::assertTrue($result['isError']);
+		self::assertSame('forbidden', $result['error']);
+
+	}//end testUnknownMeeting_signedOut_isForbidden()
+
+	/**
+	 * A signed-in caller's scope=mine query still filters on their own uid.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedIn_listOpenActionItems_mine_filtersOnCaller(): void {
+		$this->setCurrentUser('mia');
+		$seen = [];
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) use (&$seen) {
+				$seen[] = $config['filters'];
+				return [['uuid' => 'ai-1', 'title' => 'Mine']];
+			}
+		);
+
+		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'mine', 'limit' => 5]);
+
+		self::assertTrue($result['success']);
+		self::assertSame('Mine', $result['items'][0]['title']);
+		self::assertSame(
+			[
+				[
+					'register' => 'decidiq',
+					'schema' => 'action-item',
+					'completed' => false,
+					'_limit' => 5,
+					'assignee' => 'mia',
+				],
+			],
+			$seen
+		);
+
+	}//end testSignedIn_listOpenActionItems_mine_filtersOnCaller()
+
+	/**
+	 * A signed-in non-admin's scope=all query still keeps only items of their own meetings.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedIn_listOpenActionItems_all_keepsOwnMeetings(): void {
+		$this->setCurrentUser('mia');
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) {
+				$filters = $config['filters'];
+				if ($filters['schema'] === 'participant') {
+					return [['id' => 'p-mia', 'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']]]];
+				}
+
+				if ($filters['schema'] === 'meeting') {
+					return [['id' => 'm-own']];
+				}
+
+				return [
+					['uuid' => 'ai-own', 'title' => 'Own', 'meeting' => 'm-own'],
+					['uuid' => 'ai-other', 'title' => 'Other', 'meeting' => 'm-other'],
+				];
+			}
+		);
+
+		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'all']);
+
+		self::assertTrue($result['success']);
+		self::assertSame(['Own'], array_column($result['items'], 'title'));
+
+	}//end testSignedIn_listOpenActionItems_all_keepsOwnMeetings()
+
+	/**
+	 * Items linked through the relations array are scoped by their meeting
+	 * relation: a relation to an own meeting is kept; one to another meeting,
+	 * one without an id and items without any meeting relation are dropped.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedIn_listOpenActionItems_all_readsTheRelationsArray(): void {
+		$this->setCurrentUser(uid: 'mia');
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) {
+				$filters = $config['filters'];
+				if ($filters['schema'] === 'participant') {
+					return [['id' => 'p-mia', 'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']]]];
+				}
+
+				if ($filters['schema'] === 'meeting') {
+					return [['id' => 'm-own']];
+				}
+
+				return [
+					[
+						'uuid' => 'ai-own',
+						'title' => 'Own',
+						'relations' => ['not a relation', ['schema' => 'motion', 'id' => 'm-own'], ['schema' => 'meeting', 'id' => 'm-own']],
+					],
+					['uuid' => 'ai-other', 'title' => 'Other', 'relations' => [['schema' => 'meeting', 'id' => 'm-other']]],
+					['uuid' => 'ai-no-id', 'title' => 'No id', 'relations' => [['schema' => 'meeting'], ['schema' => 'meeting', 'id' => 'm-own']]],
+					['uuid' => 'ai-none', 'title' => 'None', 'relations' => [['schema' => 'motion', 'id' => 'm-own']]],
+				];
+			}
+		);
+
+		$result = $this->provider->invokeTool('decidesk.listOpenActionItems', ['scope' => 'all']);
+
+		self::assertTrue(condition: $result['success']);
+		self::assertSame(expected: ['Own'], actual: array_column($result['items'], 'title'));
+
+	}//end testSignedIn_listOpenActionItems_all_readsTheRelationsArray()
+
+	/**
+	 * A signed-in non-admin still sees exactly the meetings of their own governance bodies.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md#REQ-DMCP-004
+	 */
+	public function testSignedIn_listRecentMeetings_nonAdmin_seesOwnMeetings(): void {
+		$this->setCurrentUser('mia');
+		$this->objectService->method('findAll')->willReturnCallback(
+			function (array $config) {
+				$filters = $config['filters'];
+				if ($filters['schema'] === 'participant') {
+					return [['id' => 'p-mia', 'relations' => [['schema' => 'governance-body', 'id' => 'gb-1']]]];
+				}
+
+				if (isset($filters['_relations.governance-body']) === true) {
+					return [['id' => 'm-own']];
+				}
+
+				return [
+					['uuid' => 'm-own', 'title' => 'Own'],
+					['uuid' => 'm-other', 'title' => 'Other'],
+				];
+			}
+		);
+
+		$result = $this->provider->invokeTool('decidesk.listRecentMeetings', []);
+
+		self::assertTrue($result['success']);
+		self::assertSame(['Own'], array_column($result['meetings'], 'title'));
+
+	}//end testSignedIn_listRecentMeetings_nonAdmin_seesOwnMeetings()
 
 }//end class

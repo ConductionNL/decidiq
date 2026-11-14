@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\VotingDeadlineReminderServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -41,7 +42,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class VotingDeadlineReminderService {
+class VotingDeadlineReminderService implements VotingDeadlineReminderServiceInterface {
 
 	/**
 	 * Reminder window before the deadline, in seconds (24 hours).

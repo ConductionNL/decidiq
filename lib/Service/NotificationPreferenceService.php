@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -27,16 +27,21 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use DateTime;
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
+use OCP\IURLGenerator;
+use OCP\Notification\IManager as INotificationManager;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Service for reading, updating, and consulting NotificationPreference objects.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
  */
-class NotificationPreferenceService {
+class NotificationPreferenceService implements NotificationPreferenceServiceInterface {
 
 	/**
 	 * Default preferences when no record exists for a person.
@@ -50,6 +55,8 @@ class NotificationPreferenceService {
 		'taskAssigned' => true,
 		'commentMention' => true,
 		'meetingReminder' => true,
+		// Agenda published, revised or changed (agenda-change-notices-reach-members).
+		'agendaChanged' => true,
 		'reminderTimes' => ['24h', '1h'],
 		'deliveryMethod' => 'in-app',
 		'delegate' => null,
@@ -61,12 +68,31 @@ class NotificationPreferenceService {
 	];
 
 	/**
+	 * Event types addressed to one person about their own work.
+	 *
+	 * These pass the per-event filter for everyone: a lapsed sign-off, an
+	 * escalation or a substitute request is the recipient's own task, not a
+	 * broadcast they can opt out of. The delivery method still applies.
+	 * Before this list the lapse notices of ApprovalStageLapseService were
+	 * dropped for every person, because no default or toggle named them
+	 * (issue #1395).
+	 *
+	 * @var string[]
+	 */
+	public const ALWAYS_ON_EVENTS = [
+		ApprovalStageLapseService::EVENT_TYPE,
+		// A publication digest reaches only a member who subscribed: the
+		// subscription is the opt-in (publication-subscriptions-and-daily-digest).
+		PublicationDigestService::EVENT_TYPE,
+	];
+
+	/**
 	 * Construct the NotificationPreferenceService.
 	 *
 	 * @param ContainerInterface $container DI container (lazy-loads OR services)
 	 * @param LoggerInterface $logger Logger interface
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
@@ -79,7 +105,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return object
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	private function getObjectService(): object {
 		return $this->container->get('OCA\OpenRegister\Service\ObjectService');
@@ -92,25 +118,11 @@ class NotificationPreferenceService {
 	 *
 	 * @return array<string, mixed>|null
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function findPreference(string $personId): ?array {
 		try {
-			$objectService = $this->getObjectService();
-			$objectService->setRegister('decidiq');
-			$objectService->setSchema('notification-preference');
-
-			// ObjectService::findAll() takes a single $config array — the
-			// named-argument form (limit:/offset:/filters:) threw
-			// "Unknown named parameter" and was swallowed by the catch below,
-			// leaving this lookup permanently returning null.
-			$results = $objectService->findAll(
-				[
-					'filters' => ['person' => $personId],
-					'limit' => 1,
-					'offset' => 0,
-				]
-			);
+			$results = $this->queryPreferenceRows(personId: $personId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: findPreference failed',
@@ -119,8 +131,48 @@ class NotificationPreferenceService {
 			return null;
 		}//end try
 
+		return $this->firstPreferenceRow(results: $results);
+	}//end findPreference()
+
+	/**
+	 * Query OpenRegister for the person's NotificationPreference rows (at most one).
+	 *
+	 * @param string $personId Person UUID or user ID
+	 *
+	 * @return mixed The findAll() result
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function queryPreferenceRows(string $personId): mixed {
+		$objectService = $this->getObjectService();
+		$objectService->setRegister('decidiq');
+		$objectService->setSchema('notification-preference');
+
+		// ObjectService::findAll() takes a single $config array — the
+		// named-argument form (limit:/offset:/filters:) threw
+		// "Unknown named parameter" and was swallowed by the catch in
+		// findPreference(), leaving this lookup permanently returning null.
+		return $objectService->findAll(
+			[
+				'filters' => ['person' => $personId],
+				'limit' => 1,
+				'offset' => 0,
+			]
+		);
+	}//end queryPreferenceRows()
+
+	/**
+	 * The first entity's object or array row of a findAll() result.
+	 *
+	 * @param mixed $results The findAll() result
+	 *
+	 * @return array<string, mixed>|null
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function firstPreferenceRow(mixed $results): ?array {
 		foreach ($results as $entity) {
-			if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
+			if ($this->isObjectEntity(entity: $entity) === true) {
 				return $entity->getObject();
 			}
 
@@ -130,7 +182,20 @@ class NotificationPreferenceService {
 		}
 
 		return null;
-	}//end findPreference()
+	}//end firstPreferenceRow()
+
+	/**
+	 * Whether a findAll() item is an entity carrying its object.
+	 *
+	 * @param mixed $entity A findAll() item
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 */
+	private function isObjectEntity(mixed $entity): bool {
+		return is_object($entity) === true && method_exists($entity, 'getObject') === true;
+	}//end isObjectEntity()
 
 	/**
 	 * Create or update a NotificationPreference object for a person.
@@ -140,7 +205,7 @@ class NotificationPreferenceService {
 	 *
 	 * @return array<string, mixed>
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function updatePreference(string $personId, array $preferences): array {
 		$existing = $this->findPreference(personId: $personId);
@@ -179,14 +244,18 @@ class NotificationPreferenceService {
 	 * Determine if a given event type should produce a notification for the person.
 	 *
 	 * @param string $personId Person UUID or user ID
-	 * @param string $eventType One of: meetingCreated, votingOpened, decisionPublished,
-	 *                          taskAssigned, commentMention
+	 * @param string $eventType A DEFAULTS toggle key, or one of ALWAYS_ON_EVENTS
+	 *                          (always true, the notice is the recipient's own task)
 	 *
 	 * @return bool
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-7.1
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-7.1
 	 */
 	public function shouldNotify(string $personId, string $eventType): bool {
+		if (in_array($eventType, self::ALWAYS_ON_EVENTS, true) === true) {
+			return true;
+		}
+
 		$pref = $this->findPreference(personId: $personId);
 		$merged = array_merge(self::DEFAULTS, ($pref ?? []));
 
@@ -231,31 +300,72 @@ class NotificationPreferenceService {
 	public function getActiveDelegate(string $personId, ?DateTimeImmutable $today = null): ?string {
 		$pref = $this->findPreference(personId: $personId);
 		$delegate = ($pref['delegate'] ?? null);
-		if (is_string($delegate) === false || $delegate === '') {
+		if ($this->isFilledString(value: $delegate) === false) {
 			return null;
 		}
 
-		$until = ($pref['delegationUntil'] ?? null);
-		if (is_string($until) === false || $until === '') {
-			// No expiry configured — treat as not active (the spec requires
-			// delegation to expire automatically, so an unbounded delegation
-			// is never honoured).
-			return null;
-		}
-
-		$todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
-
-		$from = ($pref['delegationFrom'] ?? null);
-		if (is_string($from) === true && $from !== '' && substr($from, 0, 10) > $todayStr) {
-			return null;
-		}
-
-		if (substr($until, 0, 10) < $todayStr) {
+		if ($this->delegationWindowCovers(pref: ($pref ?? []), today: $today) === false) {
 			return null;
 		}
 
 		return $delegate;
 	}//end getActiveDelegate()
+
+	/**
+	 * Whether the stored delegation window covers today (dates inclusive).
+	 *
+	 * @param array<string, mixed>   $pref  The stored preference
+	 * @param DateTimeImmutable|null $today Clock override for tests (defaults to today)
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationWindowCovers(array $pref, ?DateTimeImmutable $today): bool {
+		$until = ($pref['delegationUntil'] ?? null);
+		if ($this->isFilledString(value: $until) === false) {
+			// No expiry configured — treat as not active (the spec requires
+			// delegation to expire automatically, so an unbounded delegation
+			// is never honoured).
+			return false;
+		}
+
+		$todayStr = ($today ?? new DateTimeImmutable())->format('Y-m-d');
+		if ($this->delegationStartsAfter(from: ($pref['delegationFrom'] ?? null), todayStr: $todayStr) === true) {
+			return false;
+		}
+
+		return (substr($until, 0, 10) < $todayStr) === false;
+	}//end delegationWindowCovers()
+
+	/**
+	 * Whether a stored delegation start date lies after today; a blank start means "already started".
+	 *
+	 * @param mixed  $from     The stored delegationFrom value
+	 * @param string $todayStr Today as Y-m-d
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function delegationStartsAfter(mixed $from, string $todayStr): bool {
+		return $this->isFilledString(value: $from) === true && substr($from, 0, 10) > $todayStr;
+	}//end delegationStartsAfter()
+
+	/**
+	 * Whether a stored value is a non-empty string.
+	 *
+	 * @param mixed $value The stored value
+	 *
+	 * @return bool
+	 *
+	 * @phpstan-assert-if-true non-empty-string $value
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function isFilledString(mixed $value): bool {
+		return is_string($value) === true && $value !== '';
+	}//end isFilledString()
 
 	/**
 	 * Check whether $delegatorId currently has an active absence delegation to $delegateId.
@@ -323,26 +433,54 @@ class NotificationPreferenceService {
 	public function getGovernanceEmail(string $personId): ?string {
 		$pref = $this->findPreference(personId: $personId);
 		$override = ($pref['governanceEmail'] ?? null);
-		if (is_string($override) === true && $override !== '') {
+		if ($this->isFilledString(value: $override) === true) {
 			return $override;
 		}
 
+		return $this->accountEmail(personId: $personId);
+	}//end getGovernanceEmail()
+
+	/**
+	 * The Nextcloud account e-mail of a user, or null when none is set (fail-soft).
+	 *
+	 * @param string $personId NC UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function accountEmail(string $personId): ?string {
 		try {
-			$userManager = $this->container->get(\OCP\IUserManager::class);
-			$user = $userManager->get($personId);
-			$email = $user?->getEMailAddress();
-			if (is_string($email) === true && $email !== '') {
-				return $email;
-			}
+			$email = $this->lookupAccountEmail(personId: $personId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: account email lookup failed',
 				['personId' => $personId, 'error' => $e->getMessage()]
 			);
+			return null;
 		}
 
-		return null;
-	}//end getGovernanceEmail()
+		if ($this->isFilledString(value: $email) === false) {
+			return null;
+		}
+
+		return $email;
+	}//end accountEmail()
+
+	/**
+	 * Read the account e-mail through Nextcloud's user manager.
+	 *
+	 * @param string $personId NC UID
+	 *
+	 * @return mixed The stored address, or null for an unknown user
+	 *
+	 * @spec openspec/specs/user-settings/spec.md
+	 */
+	private function lookupAccountEmail(string $personId): mixed {
+		$userManager = $this->container->get(\OCP\IUserManager::class);
+		$user = $userManager->get($personId);
+		return $user?->getEMailAddress();
+	}//end lookupAccountEmail()
 
 	/**
 	 * Preference-aware, delegation-aware notification dispatch.
@@ -352,8 +490,10 @@ class NotificationPreferenceService {
 	 *    absent member would have received).
 	 * 2. Recipient expansion — the person plus their active delegate.
 	 * 3. Channel selection per recipient — each recipient's own
-	 *    `deliveryMethod` decides in-app (OpenRegister notification service)
-	 *    and/or e-mail (IMailer, to governanceEmail ?? account email).
+	 *    `deliveryMethod` decides in-app (a decidiq notification through
+	 *    Nextcloud's notification manager, rendered by
+	 *    OCA\Decidiq\Notification\Notifier) and/or e-mail (IMailer, to
+	 *    governanceEmail ?? account email).
 	 *
 	 * Fail-soft by design: a failing channel is logged and never breaks the
 	 * calling flow (publishing a decision / opening a voting round must not
@@ -364,13 +504,28 @@ class NotificationPreferenceService {
 	 * @param string $title Notification title
 	 * @param string $message Notification body
 	 * @param string $deepLink In-app deep link (app-relative, e.g. /decisions/{id})
+	 * @param array<string, mixed>|null $inApp The bell notice (subject, parameters, objectType, objectId), or null for decidiq_message
+	 * @param array<int, array<string, string>> $attachments Files for the email, each { data, filename, contentType }
 	 *
 	 * @return int Number of channel deliveries performed
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
-	public function dispatch(string $personId, string $eventType, string $title, string $message, string $deepLink = ''): int {
+	public function dispatch(
+		string $personId,
+		string $eventType,
+		string $title,
+		string $message,
+		string $deepLink = '',
+		?array $inApp = null,
+		array $attachments = [],
+	): int {
 		if ($this->shouldNotify(personId: $personId, eventType: $eventType) === false) {
+			$this->logger->info(
+				'Decidiq: notification not sent, the event type is switched off or unknown',
+				['personId' => $personId, 'eventType' => $eventType]
+			);
 			return 0;
 		}
 
@@ -379,11 +534,14 @@ class NotificationPreferenceService {
 			$method = (string)($this->getPreferenceWithDefaults(personId: $recipientId)['deliveryMethod'] ?? 'in-app');
 
 			if ($method === 'in-app' || $method === 'both') {
-				$sent += $this->sendInApp(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink);
+				$sent += $this->sendInApp(
+					recipientId: $recipientId,
+					inApp: ($inApp ?? $this->genericInApp(title: $title, message: $message, deepLink: $deepLink))
+				);
 			}
 
 			if ($method === 'email' || $method === 'both') {
-				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message);
+				$sent += $this->sendEmail(recipientId: $recipientId, title: $title, message: $message, deepLink: $deepLink, attachments: $attachments);
 			}
 		}
 
@@ -391,26 +549,46 @@ class NotificationPreferenceService {
 	}//end dispatch()
 
 	/**
-	 * Send one in-app Nextcloud notification (fail-soft).
+	 * The generic bell notice: the notifier shows its title, message and link.
+	 *
+	 * @param string $title    Notification title
+	 * @param string $message  Notification body
+	 * @param string $deepLink App-relative deep link
+	 *
+	 * @return array{subject: string, parameters: array<string, string>, objectType: string, objectId: string}
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
+	 */
+	private function genericInApp(string $title, string $message, string $deepLink): array {
+		return [
+			'subject'    => 'decidiq_message',
+			'parameters' => ['title' => $title, 'message' => $message, 'link' => $deepLink],
+			'objectType' => 'decidiq',
+			'objectId'   => md5($title . "\n" . $deepLink),
+		];
+	}//end genericInApp()
+
+	/**
+	 * Send one in-app notification as decidiq through Nextcloud's
+	 * notification manager (fail-soft). decidiq's notifier renders it.
 	 *
 	 * @param string $recipientId Recipient NC UID
-	 * @param string $title Notification title
-	 * @param string $message Notification body
-	 * @param string $deepLink App-relative deep link
+	 * @param array{subject?: string, parameters?: array<string, mixed>, objectType?: string, objectId?: string} $inApp The notice
 	 *
 	 * @return int 1 on success, 0 on failure
 	 *
-	 * @spec openspec/specs/user-settings/spec.md
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-002-preference-aware-in-app-notices-are-sent-as-decidiq
 	 */
-	private function sendInApp(string $recipientId, string $title, string $message, string $deepLink): int {
+	private function sendInApp(string $recipientId, array $inApp): int {
 		try {
-			$notificationService = $this->container->get('OpenRegisterNotificationService');
-			$notificationService->sendNotification(
-				userId: $recipientId,
-				title: $title,
-				message: $message,
-				deepLink: $deepLink
-			);
+			$manager = $this->container->get(INotificationManager::class);
+			$notification = $manager->createNotification();
+			$notification->setApp(AppIdentity::APP_ID)
+				->setUser($recipientId)
+				->setDateTime(new DateTime())
+				->setObject((string)($inApp['objectType'] ?? 'decidiq'), (string)($inApp['objectId'] ?? $recipientId))
+				->setSubject((string)($inApp['subject'] ?? 'decidiq_message'), (array)($inApp['parameters'] ?? []));
+			$manager->notify($notification);
 			return 1;
 		} catch (\Throwable $e) {
 			$this->logger->warning(
@@ -428,12 +606,14 @@ class NotificationPreferenceService {
 	 * @param string $recipientId Recipient NC UID
 	 * @param string $title E-mail subject
 	 * @param string $message E-mail plain-text body
+	 * @param string $deepLink App-relative link, appended as an absolute URL when set
+	 * @param array<int, array<string, string>> $attachments Files to attach, each { data, filename, contentType }
 	 *
 	 * @return int 1 on success, 0 on failure (or no address available)
 	 *
 	 * @spec openspec/specs/user-settings/spec.md
 	 */
-	private function sendEmail(string $recipientId, string $title, string $message): int {
+	private function sendEmail(string $recipientId, string $title, string $message, string $deepLink = '', array $attachments = []): int {
 		try {
 			$address = $this->getGovernanceEmail(personId: $recipientId);
 			if ($address === null) {
@@ -445,7 +625,16 @@ class NotificationPreferenceService {
 			$emailMessage = $mailer->createMessage();
 			$emailMessage->setTo([$address]);
 			$emailMessage->setSubject($title);
-			$emailMessage->setPlainBody($message);
+			$emailMessage->setPlainBody($this->withLink(message: $message, deepLink: $deepLink));
+			foreach ($attachments as $attachment) {
+				$emailMessage->attach(
+					$mailer->createAttachment(
+						($attachment['data'] ?? ''),
+						($attachment['filename'] ?? 'attachment'),
+						($attachment['contentType'] ?? 'application/octet-stream')
+					)
+				);
+			}
 			$mailer->send($emailMessage);
 			return 1;
 		} catch (\Throwable $e) {
@@ -457,4 +646,24 @@ class NotificationPreferenceService {
 		}//end try
 
 	}//end sendEmail()
+
+	/**
+	 * Append the absolute link to an e-mail body, so the reader can open the
+	 * object the notice is about.
+	 *
+	 * @param string $message  Plain-text body
+	 * @param string $deepLink App-relative link, or ''
+	 *
+	 * @return string The body, with the link on its own line when there is one
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-req-acn-003-agenda-notices-follow-the-members-delivery-choice
+	 */
+	private function withLink(string $message, string $deepLink): string {
+		if ($deepLink === '') {
+			return $message;
+		}
+
+		$base = $this->container->get(IURLGenerator::class)->linkToRouteAbsolute(AppIdentity::APP_ID . '.dashboard.page');
+		return $message . "\n\n" . rtrim($base, '/') . '/' . ltrim($deepLink, '/');
+	}//end withLink()
 }//end class

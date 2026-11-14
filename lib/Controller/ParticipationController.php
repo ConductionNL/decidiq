@@ -29,11 +29,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ParticipationLifecycleService;
-use OCA\Decidiq\Service\ParticipationPublicationService;
-use OCA\Decidiq\Service\ParticipationResponder;
-use OCA\Decidiq\Service\ReactionIntakeService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ParticipationLifecycleServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationPublicationServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipationResponderInterface;
+use OCA\Decidiq\Kernel\Contracts\ReactionIntakeServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -60,10 +60,10 @@ class ParticipationController extends Controller {
 	 * Constructor for ParticipationController.
 	 *
 	 * @param IRequest $request The request object
-	 * @param ParticipationLifecycleService $lifecycleService Lifecycle transitions
-	 * @param ReactionIntakeService $intakeService Reaction intake + moderation
-	 * @param ParticipationPublicationService $publicationService Result publication
-	 * @param ParticipationResponder $responder Guard + response mapping
+	 * @param ParticipationLifecycleServiceInterface $lifecycleService Lifecycle transitions
+	 * @param ReactionIntakeServiceInterface $intakeService Reaction intake + moderation
+	 * @param ParticipationPublicationServiceInterface $publicationService Result publication
+	 * @param ParticipationResponderInterface $responder Guard + response mapping
 	 *
 	 * @return void
 	 *
@@ -71,12 +71,12 @@ class ParticipationController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ParticipationLifecycleService $lifecycleService,
-		private readonly ReactionIntakeService $intakeService,
-		private readonly ParticipationPublicationService $publicationService,
-		private readonly ParticipationResponder $responder,
+		private readonly ParticipationLifecycleServiceInterface $lifecycleService,
+		private readonly ReactionIntakeServiceInterface $intakeService,
+		private readonly ParticipationPublicationServiceInterface $publicationService,
+		private readonly ParticipationResponderInterface $responder,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 
 	}//end __construct()
 
@@ -129,7 +129,7 @@ class ParticipationController extends Controller {
 	 * @return JSONResponse
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-101-participation-endpoints-record-the-session-identity-never-a-request-supplied-one
 	 */
 	#[NoAdminRequired]
 	public function submitReaction(string $consultationId, string $body = ''): JSONResponse {

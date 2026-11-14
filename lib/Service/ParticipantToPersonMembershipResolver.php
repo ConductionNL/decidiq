@@ -46,6 +46,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ParticipantToPersonMembershipResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use Throwable;
@@ -55,7 +56,7 @@ use Throwable;
  *
  * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-1-crosswalk-resolver--match-by-email-else-create
  */
-class ParticipantToPersonMembershipResolver {
+class ParticipantToPersonMembershipResolver implements ParticipantToPersonMembershipResolverInterface {
 
 	/**
 	 * The decidesk register slug.
@@ -411,28 +412,6 @@ class ParticipantToPersonMembershipResolver {
 	 * @return array<string, mixed>|null
 	 */
 	private function toArray(mixed $entity): ?array {
-		if ($entity === null) {
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-		}
-
-		return null;
+		return (new ObjectResultNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class

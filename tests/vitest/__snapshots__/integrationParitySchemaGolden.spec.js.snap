@@ -1,0 +1,35 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`integration parity schema and provider reading > joins the properties of a slug declared in two files 1`] = `
+{
+  "status": 0,
+  "stderr": "",
+  "stdout": "✓ integration parity: 1 server leaf face(s), 1 JS registration(s), 3 OpenRegister schema declaration file(s) — all rules pass (assertions run per rule: R1:1 R2:2 R3:0 R4:2 R5:0 R6:4)
+",
+}
+`;
+
+exports[`integration parity schema and provider reading > keeps provider getters that return empty literals 1`] = `
+{
+  "status": 1,
+  "stderr": "integration parity gate FAILED — 2 violation(s) over 2 server leaf face(s), 2 JS registration(s), 0 OpenRegister schema declaration file(s):
+✗ [R4 metadata] leaf "empty" field \`label\` mismatch across layers: server (lib/Provider/EmptyProvider.php) says "", JS (src/empty.js) says "Shown" — the two halves describe different leaves.
+✗ [R4 metadata] leaf "empty" field \`group\` mismatch across layers: server (lib/Provider/EmptyProvider.php) says "0", JS (src/empty.js) says "1" — the two halves describe different leaves.
+
+Assertions run per rule: R1:2 R2:4 R3:0 R4:2 R5:0 R6:0
+",
+  "stdout": "",
+}
+`;
+
+exports[`integration parity schema and provider reading > reads a schema under its slug, not its key 1`] = `
+{
+  "status": 1,
+  "stderr": "integration parity gate FAILED — 1 violation(s) over 1 server leaf face(s), 1 JS registration(s), 3 OpenRegister schema declaration file(s):
+✗ [R6 offlineConfig] leaf offlineConfig.plannedSchema = "other" (src/alpha.js) names a schema this repo does not declare in lib/Settings/** — the leaf would query a schema that does not exist. Declared slugs: bare, flat, keyed, nul, plan
+
+Assertions run per rule: R1:1 R2:2 R3:0 R4:2 R5:0 R6:2
+",
+  "stdout": "",
+}
+`;

@@ -28,7 +28,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 
 declare(strict_types=1);
@@ -40,7 +40,7 @@ use RuntimeException;
 /**
  * Resolves the addressed stage and authorises the action against it.
  *
- * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+ * @spec openspec/specs/parafering-route-runtime/spec.md
  */
 class ApprovalStageGuard {
 
@@ -90,7 +90,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When no active stage accepts this actor.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function stageForAction(array $actives, array $action): array {
 		if (count($actives) === 1) {
@@ -133,7 +133,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When the verb does not fit the stage type.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertVerbFitsStage(array $stage, string $verb): void {
 		if ($verb === 'skipped') {
@@ -163,7 +163,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When a mandatory field is missing.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertRequiredFields(string $verb, array $action): void {
 		if ($verb === 'returned' && trim((string)($action['comment'] ?? '')) === '') {
@@ -188,7 +188,7 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When the target does not point backwards.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function assertReturnTargetValid(array $action, array $active): void {
 		$target = (int)($action['returnToStep'] ?? 0);
@@ -218,12 +218,12 @@ class ApprovalStageGuard {
 	 *
 	 * @throws RuntimeException When the actor may not act.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	private function assertActorMayAct(array $stage, array $action): void {
 		$assigned = (string)($stage['assignedPerson'] ?? '');
 		$actor = (string)($action['actor'] ?? '');
-		if ($assigned === '' || $assigned === $actor) {
+		if ($assigned === '' || $assigned === $actor || $this->isStagesSubstitute(stage: $stage, actor: $actor) === true) {
 			return;
 		}
 
@@ -249,7 +249,30 @@ class ApprovalStageGuard {
 		$actor = (string)($action['actor'] ?? '');
 		$onBehalfOf = (string)($action['onBehalfOf'] ?? '');
 
-		return ($assigned === $actor || ($onBehalfOf !== '' && $assigned === $onBehalfOf));
+		return ($assigned === $actor
+			|| ($onBehalfOf !== '' && $assigned === $onBehalfOf)
+			|| $this->isStagesSubstitute(stage: $stage, actor: $actor) === true);
 	}//end actorMatchesAssignee()
+
+	/**
+	 * Whether the actor is the substitute this stage asked.
+	 *
+	 * A stage asks a substitute part way through its window (REQ-AR-016) or at
+	 * activation when its actor is away. Both the assignee and the substitute
+	 * may then act; the Parafering card already offered the substitute the
+	 * buttons, and without this the server refused them.
+	 *
+	 * @param array<string, mixed> $stage The stage.
+	 * @param string $actor The acting user.
+	 *
+	 * @return boolean True when the stage names this actor as its substitute.
+	 *
+	 * @spec openspec/specs/decision-route/spec.md#requirement-req-ras-002-the-server-lets-a-steps-substitute-act
+	 */
+	private function isStagesSubstitute(array $stage, string $actor): bool {
+		$substitute = (string)($stage['substituteActor'] ?? '');
+
+		return ($actor !== '' && $substitute !== '' && $substitute === $actor);
+	}//end isStagesSubstitute()
 
 }//end class

@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\BackgroundJob;
 
-use OCA\Decidiq\Service\VotingDeadlineReminderService;
+use OCA\Decidiq\Kernel\Contracts\VotingDeadlineReminderServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Log\LoggerInterface;
@@ -49,12 +49,12 @@ class VotingDeadlineReminderJob extends TimedJob {
 	 * Constructor for VotingDeadlineReminderJob.
 	 *
 	 * @param ITimeFactory $time Nextcloud time factory (injected by TimedJob)
-	 * @param VotingDeadlineReminderService $reminderService The reminder sweep service
+	 * @param VotingDeadlineReminderServiceInterface $reminderService The reminder sweep service
 	 * @param LoggerInterface $logger The logger
 	 */
 	public function __construct(
 		ITimeFactory $time,
-		private readonly VotingDeadlineReminderService $reminderService,
+		private readonly VotingDeadlineReminderServiceInterface $reminderService,
 		private readonly LoggerInterface $logger,
 	) {
 		parent::__construct(time: $time);

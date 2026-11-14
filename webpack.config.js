@@ -1,3 +1,7 @@
+/**
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
 const path = require('path')
 const fs = require('fs')
 const webpack = require('webpack')
@@ -22,10 +26,6 @@ webpackConfig.entry = {
 	adminSettings: {
 		import: path.join(__dirname, 'src', 'settings.js'),
 		filename: appId + '-settings.js',
-	},
-	personalSettings: {
-		import: path.join(__dirname, 'src', 'personal.js'),
-		filename: appId + '-personal.js',
 	},
 	// Global integration-leaf bootstrap loaded on EVERY Nextcloud page via
 	// Util::addInitScript (ADR-019). Registers the "Besluitvorming" decisions

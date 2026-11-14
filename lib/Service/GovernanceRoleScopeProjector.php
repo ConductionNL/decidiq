@@ -36,7 +36,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\GovernanceRoleScopeProjectorInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\IGroup;
 use OCP\IGroupManager;
 use OCP\IUserManager;
 use Psr\Log\LoggerInterface;
@@ -47,7 +49,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
  */
-class GovernanceRoleScopeProjector {
+class GovernanceRoleScopeProjector implements GovernanceRoleScopeProjectorInterface {
 
 	/**
 	 * Roles that grant chair scope membership.
@@ -150,6 +152,28 @@ class GovernanceRoleScopeProjector {
 	}//end reconcileFromMemberRow()
 
 	/**
+	 * Remove both scope groups of a body that no longer exists.
+	 *
+	 * A deleted body has no roster, so it has no scope; its groups would
+	 * otherwise outlive it (an example set's remove left four behind).
+	 *
+	 * @param string $bodyId GovernanceBody UUID
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
+	 */
+	public function removeBody(string $bodyId): void {
+		if ($bodyId === '') {
+			return;
+		}
+
+		foreach ([GovernanceScopeGuard::SCOPE_CHAIR, GovernanceScopeGuard::SCOPE_SIGNATORY] as $scope) {
+			$this->removeScope(groupId: $this->scopeGuard->scopeGroupId(bodyId: $bodyId, scope: $scope));
+		}
+	}//end removeBody()
+
+	/**
 	 * Reconcile every GovernanceBody (backfill). Idempotent.
 	 *
 	 * @return int Number of bodies reconciled
@@ -196,9 +220,51 @@ class GovernanceRoleScopeProjector {
 	 * @return array{0: string[], 1: string[]} [chairUids, signatoryUids]
 	 */
 	private function desiredMembers(string $bodyId): array {
+		$memberRoles = $this->bodyMemberRoles(bodyId: $bodyId);
+
+		return [
+			$this->uidsHolding(memberRoles: $memberRoles, roles: self::CHAIR_ROLES),
+			$this->uidsHolding(memberRoles: $memberRoles, roles: self::SIGNATORY_ROLES),
+		];
+	}//end desiredMembers()
+
+	/**
+	 * Every signatory-role participant of the body with an account, as uid and role, in roster order.
+	 *
+	 * @param string $bodyId GovernanceBody UUID
+	 *
+	 * @return list<array{uid: string, role: string}>
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function bodyMemberRoles(string $bodyId): array {
+		$memberRoles = [];
+		foreach ($this->signatoryParticipants() as $participantEntity) {
+			$participant = $participantEntity->jsonSerialize();
+			if ($this->extractBodyId(row: $participant) !== $bodyId) {
+				continue;
+			}
+
+			$uid = (string)($participant['nextcloudUserId'] ?? '');
+			if ($uid !== '') {
+				$memberRoles[] = ['uid' => $uid, 'role' => (string)($participant['role'] ?? '')];
+			}
+		}
+
+		return $memberRoles;
+	}//end bodyMemberRoles()
+
+	/**
+	 * Read every participant holding a signatory role, across bodies.
+	 *
+	 * @return iterable<mixed> Participant entities
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function signatoryParticipants(): iterable {
 		$this->objectService->setRegister('decidiq');
 		$this->objectService->setSchema('participant');
-		$participants = $this->objectService->findAll(
+		return $this->objectService->findAll(
 			[
 				'filters' => [
 					'role' => self::SIGNATORY_ROLES,
@@ -206,52 +272,85 @@ class GovernanceRoleScopeProjector {
 				],
 			]
 		);
+	}//end signatoryParticipants()
 
-		$chairUids = [];
-		$signatoryUids = [];
-		foreach ($participants as $participantEntity) {
-			$participant = $participantEntity->jsonSerialize();
-
-			if ($this->extractBodyId(row: $participant) !== $bodyId) {
-				continue;
+	/**
+	 * The distinct uids holding one of the roles, in first-seen order.
+	 *
+	 * @param list<array{uid: string, role: string}> $memberRoles The body's members and roles
+	 * @param array<int, string>                     $roles       The roles that count
+	 *
+	 * @return list<string>
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function uidsHolding(array $memberRoles, array $roles): array {
+		$uids = [];
+		foreach ($memberRoles as $memberRole) {
+			if (in_array($memberRole['role'], $roles, true) === true) {
+				$uids[$memberRole['uid']] = $memberRole['uid'];
 			}
+		}
 
-			$uid = (string)($participant['nextcloudUserId'] ?? '');
-			if ($uid === '') {
-				continue;
-			}
-
-			$role = (string)($participant['role'] ?? '');
-			if (in_array($role, self::SIGNATORY_ROLES, true) === true) {
-				$signatoryUids[$uid] = $uid;
-			}
-
-			if (in_array($role, self::CHAIR_ROLES, true) === true) {
-				$chairUids[$uid] = $uid;
-			}
-		}//end foreach
-
-		return [array_values($chairUids), array_values($signatoryUids)];
-	}//end desiredMembers()
+		return array_values($uids);
+	}//end uidsHolding()
 
 	/**
 	 * Make a scope group's membership match the desired UID set exactly.
+	 *
+	 * A scope nobody holds has no group: an empty scope and a missing group
+	 * both deny, and a group is only created when it gets a member.
 	 *
 	 * @param string $groupId Scope group id
 	 * @param string[] $desiredUids Desired member UIDs
 	 *
 	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-a-body-scope-group-exists-only-while-it-has-members-req-rbac-009
 	 */
 	private function syncScope(string $groupId, array $desiredUids): void {
-		if ($this->groupManager->groupExists($groupId) === false) {
-			$this->groupManager->createGroup($groupId);
+		if ($desiredUids === []) {
+			$this->removeScope(groupId: $groupId);
+			return;
 		}
 
-		$group = $this->groupManager->get($groupId);
+		$group = $this->ensuredGroup(groupId: $groupId);
 		if ($group === null) {
 			return;
 		}
 
+		$currentUids = $this->pruneMembers(group: $group, desiredUids: $desiredUids);
+		$this->addMembers(group: $group, uids: array_diff($desiredUids, array_keys($currentUids)));
+	}//end syncScope()
+
+	/**
+	 * The scope group, created first when it does not exist yet.
+	 *
+	 * @param string $groupId NC group id
+	 *
+	 * @return IGroup|null The group, or null when it cannot be fetched
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function ensuredGroup(string $groupId): ?IGroup {
+		if ($this->groupManager->groupExists($groupId) === false) {
+			$this->groupManager->createGroup($groupId);
+		}
+
+		return $this->groupManager->get($groupId);
+	}//end ensuredGroup()
+
+	/**
+	 * Remove the members who should no longer hold the scope; returns every uid it found.
+	 *
+	 * @param IGroup        $group       The scope group
+	 * @param array<string> $desiredUids UIDs that should hold the scope
+	 *
+	 * @return array<string, true> The group's members before pruning, as a set
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function pruneMembers(IGroup $group, array $desiredUids): array {
 		$desired = array_fill_keys($desiredUids, true);
 
 		$currentUids = [];
@@ -263,17 +362,41 @@ class GovernanceRoleScopeProjector {
 			}
 		}
 
-		foreach ($desiredUids as $uid) {
-			if (isset($currentUids[$uid]) === true) {
-				continue;
-			}
+		return $currentUids;
+	}//end pruneMembers()
 
+	/**
+	 * Add the accounts that exist to the group, in order; unknown uids are skipped.
+	 *
+	 * @param IGroup        $group The scope group
+	 * @param array<string> $uids  UIDs to add
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function addMembers(IGroup $group, array $uids): void {
+		foreach ($uids as $uid) {
 			$user = $this->userManager->get($uid);
 			if ($user !== null) {
 				$group->addUser($user);
 			}
 		}
-	}//end syncScope()
+	}//end addMembers()
+
+	/**
+	 * Delete a scope group when it exists.
+	 *
+	 * @param string $groupId Scope group id
+	 *
+	 * @return void
+	 */
+	private function removeScope(string $groupId): void {
+		$group = $this->groupManager->get($groupId);
+		if ($group !== null) {
+			$group->delete();
+		}
+	}//end removeScope()
 
 	/**
 	 * Extract the GovernanceBody UUID from a serialised member row (relations
@@ -284,27 +407,58 @@ class GovernanceRoleScopeProjector {
 	 * @return string|null
 	 */
 	private function extractBodyId(array $row): ?string {
-		$relations = ($row['relations'] ?? []);
-		if (is_array($relations) === false) {
-			$relations = [];
-		}
-
 		$sources = [
-			$relations,
+			$this->relationsOf(row: $row),
 			$row,
 		];
 
 		foreach ($sources as $source) {
-			foreach (self::BODY_RELATION_KEYS as $key) {
-				$bodyId = $this->relationToId(value: ($source[$key] ?? null));
-				if ($bodyId !== null) {
-					return $bodyId;
-				}
+			$bodyId = $this->bodyIdIn(source: $source);
+			if ($bodyId !== null) {
+				return $bodyId;
 			}
 		}
 
 		return null;
 	}//end extractBodyId()
+
+	/**
+	 * A row's relations map, or [] when it carries none.
+	 *
+	 * @param array<string, mixed> $row Participant or member object
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function relationsOf(array $row): array {
+		$relations = ($row['relations'] ?? []);
+		if (is_array($relations) === false) {
+			$relations = [];
+		}
+
+		return $relations;
+	}//end relationsOf()
+
+	/**
+	 * The first governance-body reference among one source's relation keys.
+	 *
+	 * @param array<string, mixed> $source The relations map or the row itself
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-rbac-001-governance-body-roles-project-into-openregister-rbac-scopes
+	 */
+	private function bodyIdIn(array $source): ?string {
+		foreach (self::BODY_RELATION_KEYS as $key) {
+			$bodyId = $this->relationToId(value: ($source[$key] ?? null));
+			if ($bodyId !== null) {
+				return $bodyId;
+			}
+		}
+
+		return null;
+	}//end bodyIdIn()
 
 	/**
 	 * Reduce a relation value (uuid string, `{id: ...}` map, or list) to a UUID.

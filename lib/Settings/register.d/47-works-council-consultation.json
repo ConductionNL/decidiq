@@ -160,11 +160,11 @@
               "intervalSec": 1209600,
               "filter": {
                 "lifecycle": [
-                  "ontvangen",
-                  "in-behandeling",
+                  "received",
+                  "in-progress",
                   "constituencyConsultation",
                   "consultationMeeting",
-                  "vastgesteld"
+                  "adopted"
                 ]
               }
             },
@@ -196,11 +196,11 @@
               "intervalSec": 604800,
               "filter": {
                 "lifecycle": [
-                  "ontvangen",
-                  "in-behandeling",
+                  "received",
+                  "in-progress",
                   "constituencyConsultation",
                   "consultationMeeting",
-                  "vastgesteld"
+                  "adopted"
                 ]
               }
             },
@@ -232,7 +232,7 @@
               "intervalSec": 604800,
               "filter": {
                 "lifecycle": [
-                  "besluit-ontvangen"
+                  "decision-received"
                 ]
               }
             },
@@ -438,8 +438,48 @@
             "type": "string",
             "format": "date",
             "facetable": true,
-            "description": "The art. 25 lid 6 opschortingstermijn end date: the bestuurder must suspend execution for one month when deviating from the OR advice. Derived as besluitDate + 1 month for an adviesaanvraag whose besluitOutcome is afwijkend-van-advies ONLY. NEVER for instemmingsverzoeken or besluiten conform advies. This conditional derivation is expressed WITHOUT any composition keyword (no allOf/anyOf/oneOf); per design D3 it is set/validated at besluit-recording time (dialog + server-side validation) rather than by an unproven x-openregister-calculations rule, and the detail page surfaces the running termijn. Empty when no opschorting applies.",
+            "description": "The art. 25 lid 6 opschortingstermijn end date: the bestuurder must suspend execution for one month when deviating from the OR advice. Materialised by OpenRegister on save from x-openregister-calculations as decisionDate + 1 month, for an adviceRequest whose decisionOutcome is contrary-to-advice ONLY; empty for a consent request, for a decision in line with the advice, and while no decision date is recorded. Never written by decidiq.",
             "example": "2026-04-10"
+          }
+        },
+        "x-openregister-calculations": {
+          "suspensionTo": {
+            "type": "date",
+            "materialise": true,
+            "expression": {
+              "if": [
+                {
+                  "and": [
+                    {
+                      "eq": [
+                        {
+                          "prop": "type"
+                        },
+                        "adviceRequest"
+                      ]
+                    },
+                    {
+                      "eq": [
+                        {
+                          "prop": "decisionOutcome"
+                        },
+                        "contrary-to-advice"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "dateAdd": {
+                    "date": {
+                      "prop": "decisionDate"
+                    },
+                    "amount": 1,
+                    "unit": "months"
+                  }
+                },
+                null
+              ]
+            }
           }
         }
       }

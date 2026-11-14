@@ -212,7 +212,7 @@ class MotionLinkResolver {
 	 *
 	 * ADR-005 folded the `motion` schema into `decision`, so a relation written
 	 * against the unified schema records `decision`. The `motion` token is still
-	 * accepted: VotingRoundPreflight::buildRoundPayload() writes the subject
+	 * accepted: VotingRoundResolution::roundPayload() writes the subject
 	 * relation under the decisionType token, and pre-migration rows carry it too.
 	 *
 	 * @param array<string, mixed> $relation One entry from the amendment's relations list

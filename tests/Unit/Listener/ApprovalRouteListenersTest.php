@@ -21,6 +21,7 @@ use OCA\Decidiq\Event\ApprovalRouteRequestedEvent;
 use OCA\Decidiq\Listener\ApprovalActionRequestedListener;
 use OCA\Decidiq\Listener\ApprovalRouteRequestedListener;
 use OCA\Decidiq\Service\ApprovalRouteCommandService;
+use OCA\Decidiq\Service\ApprovalRouteService;
 use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
 use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
@@ -96,7 +97,11 @@ class ApprovalRouteListenersTest extends TestCase {
 		$service->method('holdRoute')->willReturn(['id' => 'ar-1', 'created' => true, 'stageCount' => 3]);
 
 		$event = $this->routeEvent(subject: 'voorstel-1');
-		$listener = new ApprovalRouteRequestedListener($service, $this->createMock(LoggerInterface::class));
+		$listener = new ApprovalRouteRequestedListener(
+			$service,
+			$this->createMock(LoggerInterface::class),
+			$this->approvalEngine()
+		);
 		$listener->handle($event);
 
 		$this->assertTrue($event->isHandled());
@@ -122,7 +127,11 @@ class ApprovalRouteListenersTest extends TestCase {
 			}
 		);
 
-		$listener = new ApprovalRouteRequestedListener($service, $this->createMock(LoggerInterface::class));
+		$listener = new ApprovalRouteRequestedListener(
+			$service,
+			$this->createMock(LoggerInterface::class),
+			$this->approvalEngine()
+		);
 		$listener->handle($this->routeEvent(subject: 'voorstel-1'));
 
 		$this->assertSame('dossiq', $seen['app']);
@@ -146,7 +155,11 @@ class ApprovalRouteListenersTest extends TestCase {
 		$service->method('holdRoute')->willThrowException(new RuntimeException('register down'));
 
 		$event = $this->routeEvent();
-		$listener = new ApprovalRouteRequestedListener($service, $this->createMock(LoggerInterface::class));
+		$listener = new ApprovalRouteRequestedListener(
+			$service,
+			$this->createMock(LoggerInterface::class),
+			$this->approvalEngine()
+		);
 		$listener->handle($event);
 
 		$this->assertFalse($event->isHandled());
@@ -299,7 +312,11 @@ class ApprovalRouteListenersTest extends TestCase {
 		$other = new class extends Event {
 		};
 
-		(new ApprovalRouteRequestedListener($service, $this->createMock(LoggerInterface::class)))->handle($other);
+		(new ApprovalRouteRequestedListener(
+			$service,
+			$this->createMock(LoggerInterface::class),
+			$this->approvalEngine()
+		))->handle($other);
 		(new ApprovalActionRequestedListener(
 			$service,
 			$this->createMock(ApprovalRouteConclusionAnnouncer::class),
@@ -309,5 +326,20 @@ class ApprovalRouteListenersTest extends TestCase {
 		$this->addToAssertionCount(1);
 
 	}//end testUnrelatedEventsAreIgnored()
+
+
+	/**
+	 * A route engine double, for the ad-hoc branch these tests do not take.
+	 *
+	 * `onlyMethods` so it cannot invent `holdFor` if the real class loses it.
+	 *
+	 * @return ApprovalRouteService The double.
+	 */
+	private function approvalEngine(): ApprovalRouteService {
+		return $this->getMockBuilder(ApprovalRouteService::class)
+			->disableOriginalConstructor()
+			->onlyMethods(['holdFor'])
+			->getMock();
+	}//end approvalEngine()
 
 }//end class

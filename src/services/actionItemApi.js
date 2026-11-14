@@ -35,7 +35,7 @@ export async function createActionItem(payload) {
  * @param {string} uid The action item's VTODO uid.
  * @param {object} changes The fields to change.
  * @return {Promise<object>} The updated action item.
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+ * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
  */
 export async function updateActionItem(uid, changes) {
 	const { data } = await axios.put(
@@ -50,7 +50,7 @@ export async function updateActionItem(uid, changes) {
  *
  * @param {string} uid The action item's VTODO uid.
  * @return {Promise<object>} The delete result.
- * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+ * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
  */
 export async function deleteActionItem(uid) {
 	const { data } = await axios.delete(

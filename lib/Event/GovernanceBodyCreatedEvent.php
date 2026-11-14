@@ -17,7 +17,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use OCP\EventDispatcher\Event;
 /**
  * Conclusion event for a cross-app governance-body command.
  *
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class GovernanceBodyCreatedEvent extends Event {
 
@@ -45,7 +45,7 @@ class GovernanceBodyCreatedEvent extends Event {
 	 * @param boolean $created True when this command minted the body, false when one matched
 	 * @param string $correlationId Correlation id echoed from the request
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function __construct(
 		private readonly string $governanceBodyId,
@@ -63,7 +63,7 @@ class GovernanceBodyCreatedEvent extends Event {
 	 *
 	 * @return string The id
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getGovernanceBodyId(): string {
 		return $this->governanceBodyId;
@@ -75,7 +75,7 @@ class GovernanceBodyCreatedEvent extends Event {
 	 *
 	 * @return string The app id
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getSourceApp(): string {
 		return $this->sourceApp;
@@ -87,7 +87,7 @@ class GovernanceBodyCreatedEvent extends Event {
 	 *
 	 * @return string The external reference
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getExternalReference(): string {
 		return $this->externalReference;
@@ -99,7 +99,7 @@ class GovernanceBodyCreatedEvent extends Event {
 	 *
 	 * @return boolean The created flag
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function isCreated(): bool {
 		return $this->created;
@@ -111,7 +111,7 @@ class GovernanceBodyCreatedEvent extends Event {
 	 *
 	 * @return string The correlation id
 	 *
-	 * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+	 * @spec openspec/specs/governance-body-events/spec.md
 	 */
 	public function getCorrelationId(): string {
 		return $this->correlationId;

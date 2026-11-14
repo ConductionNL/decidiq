@@ -19,9 +19,9 @@
  "confidentiality-status-timeline" (renderer-only, surfaces: ['detail-page'])
  by registerDetailWidgets.js.
 
- @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
- @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
- @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+ @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+ @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+ @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 -->
 <template>
 	<CnWidgetWrapper
@@ -207,6 +207,8 @@ import CheckCircleOutline from 'vue-material-design-icons/CheckCircleOutline.vue
 import ClockOutline from 'vue-material-design-icons/ClockOutline.vue'
 import {
 	buildConfidentialityStages,
+	contentWithDefaults,
+	plainObject,
 	resolveObjectLabel,
 } from './registerDetailWidgets.js'
 
@@ -215,6 +217,34 @@ const IMPOSED_BY_LABELS = {
 	chair: () => t('decidiq', 'Imposed by the chair'),
 	'executive-board': () => t('decidiq', 'Imposed by the executive board'),
 }
+
+/** Linked records the timeline labels, in lookup order. */
+const LABEL_LINKS = [
+	{
+		field: 'imposedByBody',
+		key: 'imposedByBodyLabel',
+		schema: 'governance-body',
+		labelField: 'name',
+	},
+	{
+		field: 'ratificationDecision',
+		key: 'ratificationDecisionLabel',
+		schema: 'decision',
+		labelField: 'title',
+	},
+	{
+		field: 'ratificationAgendaItem',
+		key: 'ratificationAgendaItemLabel',
+		schema: 'agenda-item',
+		labelField: 'title',
+	},
+	{
+		field: 'dissolutionDecision',
+		key: 'dissolutionDecisionLabel',
+		schema: 'decision',
+		labelField: 'title',
+	},
+]
 
 /** Target scope → { field, schema, labelField, route }. Document has no decidiq detail route (see design.md deviation note). */
 const TARGET_KINDS = {
@@ -282,11 +312,10 @@ export default {
 	computed: {
 		/** @spec exclude config-merge helper (register/groundSchema defaults), no behavioural requirement of its own */
 		cfg() {
-			const c = this.content || {}
-			return {
-				register: c.register || this.register || 'decidiq',
-				groundSchema: c.groundSchema || 'geheimhouding-grond',
-			}
+			return contentWithDefaults(this.content, {
+				register: this.register || 'decidiq',
+				groundSchema: 'geheimhouding-grond',
+			})
 		},
 
 		/** @spec exclude widget-id plumbing for CnWidgetWrapper, no behavioural requirement of its own */
@@ -296,34 +325,32 @@ export default {
 
 		/** @spec exclude defensive objectData accessor, no behavioural requirement of its own */
 		record() {
-			return this.objectData && typeof this.objectData === 'object'
-				? this.objectData
-				: {}
+			return plainObject(this.objectData)
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		stages() {
 			return buildConfidentialityStages(this.record, Date.now())
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		decisionRoute() {
 			return 'DecisionDetail'
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		agendaItemRoute() {
 			return 'AgendaItemDetail'
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 */
 		imposedByLabel() {
 			const fn = IMPOSED_BY_LABELS[this.record.imposedBy]
@@ -333,7 +360,7 @@ export default {
 		/**
 		 * Whichever of targetDocument/targetAgendaItem/targetDecision is set.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetKind() {
 			if (this.record.targetDocument) return 'document'
@@ -343,7 +370,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetId() {
 			const kind = TARGET_KINDS[this.targetKind]
@@ -351,7 +378,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetRoute() {
 			const kind = TARGET_KINDS[this.targetKind]
@@ -359,7 +386,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 */
 		targetKindLabel() {
 			const labels = {
@@ -375,7 +402,7 @@ export default {
 		record: {
 			immediate: true,
 			/**
-			 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+			 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
 			 */
 			handler() {
 				this.resolveReferences()
@@ -397,7 +424,7 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 * @param {string} key Stage key (imposed/ratification/dissolution).
 		 * @return {string}
 		 */
@@ -438,137 +465,89 @@ export default {
 		 * record (watch immediate); a missing store degrades to raw ids
 		 * rather than throwing.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
 		 * @return {Promise<void>}
 		 */
 		async resolveReferences() {
 			const store = this.getStore()
-			if (!store) return
 			const r = this.record
-			if (!r || !r.id) return
+			if (!store || !r || !r.id) return
 			this.loading = true
 			try {
-				const { register, groundSchema } = this.cfg
-				const tasks = []
-
-				if (r.ground) {
-					tasks.push(
-						(async () => {
-							if (
-								!store.objectTypeRegistry
-								|| !store.objectTypeRegistry[groundSchema]
-							) {
-								store.registerObjectType(
-									groundSchema,
-									groundSchema,
-									register,
-								)
-							}
-							this.groundObj = await store.fetchObject(
-								groundSchema,
-								r.ground,
-							)
-						})(),
-					)
-				} else {
-					this.groundObj = null
-				}
-
-				if (r.imposedByBody) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'governance-body',
-							'governance-body',
-							register,
-							r.imposedByBody,
-							'name',
-						).then((label) => {
-							this.imposedByBodyLabel = label
-						}),
-					)
-				} else {
-					this.imposedByBodyLabel = ''
-				}
-
-				if (r.ratificationDecision) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'decision',
-							'decision',
-							register,
-							r.ratificationDecision,
-							'title',
-						).then((label) => {
-							this.ratificationDecisionLabel = label
-						}),
-					)
-				} else {
-					this.ratificationDecisionLabel = ''
-				}
-
-				if (r.ratificationAgendaItem) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'agenda-item',
-							'agenda-item',
-							register,
-							r.ratificationAgendaItem,
-							'title',
-						).then((label) => {
-							this.ratificationAgendaItemLabel = label
-						}),
-					)
-				} else {
-					this.ratificationAgendaItemLabel = ''
-				}
-
-				if (r.dissolutionDecision) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							'decision',
-							'decision',
-							register,
-							r.dissolutionDecision,
-							'title',
-						).then((label) => {
-							this.dissolutionDecisionLabel = label
-						}),
-					)
-				} else {
-					this.dissolutionDecisionLabel = ''
-				}
-
-				const kind = TARGET_KINDS[this.targetKind]
-				if (kind) {
-					tasks.push(
-						resolveObjectLabel(
-							store,
-							kind.schema,
-							kind.schema,
-							register,
-							this.record[kind.field],
-							kind.labelField,
-						).then((label) => {
-							this.targetLabel = label
-						}),
-					)
-				} else {
-					this.targetLabel = ''
-				}
-
-				await Promise.all(tasks)
+				await Promise.all([
+					this.resolveGround(store),
+					...this.labelLinks().map((link) =>
+						this.resolveLink(store, link),
+					),
+				])
 			} finally {
 				this.loading = false
 			}
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
+		 * Fetch the ground object, registering its type first when needed.
+		 *
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-011-confidentiality-ground-resolves-with-legacy-citation-on-geheimhoudingdetail
+		 * @param {object} store The object store.
+		 * @return {Promise<void>}
+		 */
+		async resolveGround(store) {
+			const ground = this.record.ground
+			if (!ground) {
+				this.groundObj = null
+				return
+			}
+			const { register, groundSchema } = this.cfg
+			const registry = store.objectTypeRegistry || {}
+			if (!registry[groundSchema]) {
+				store.registerObjectType(groundSchema, groundSchema, register)
+			}
+			this.groundObj = await store.fetchObject(groundSchema, ground)
+		},
+
+		/**
+		 * The labelled links the timeline shows, the target last.
+		 *
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @return {Array<object>} Per link its field, label key, schema and label field.
+		 */
+		labelLinks() {
+			const kind = TARGET_KINDS[this.targetKind]
+			const target = kind
+				? { ...kind, key: 'targetLabel' }
+				: { field: '', key: 'targetLabel' }
+			return [...LABEL_LINKS, target]
+		},
+
+		/**
+		 * Resolve one link label, or clear it when the record does not link.
+		 *
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-012-target-reference-resolves-to-its-actual-object-type
+		 * @param {object} store The object store.
+		 * @param {object} link The link: field, key, schema and label field.
+		 * @return {Promise<void>|null}
+		 */
+		resolveLink(store, link) {
+			const id = this.record[link.field]
+			if (!id) {
+				this[link.key] = ''
+				return null
+			}
+			return resolveObjectLabel(store, {
+				typeSlug: link.schema,
+				schemaSlug: link.schema,
+				registerSlug: this.cfg.register,
+				id,
+				labelField: link.labelField,
+			}).then((label) => {
+				this[link.key] = label
+			})
+		},
+
+		/**
+		 * @spec openspec/specs/embargo-geheimhouding/spec.md#req-emb-010-confidentiality-status-timeline-widget-on-geheimhoudingdetail
 		 * @param {string} routeName Vue-router route name.
 		 * @param {string} id Object id to navigate to.
 		 * @return {void}

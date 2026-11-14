@@ -1,0 +1,50 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, issue #1418 (participation-citizen-advisory-vote-on-motions, REQ-CAV-001 to REQ-CAV-003). A clerk could set citizenVotingAllowed on a motion, but nothing let a resident vote. The motion now carries whether its advisory vote is open, and the counts the griffie reads once it closes. Residents vote through decidiq's portal contribution (castMotionAdvice); PortalCreateOpenParentGuardListener refuses a vote on a motion whose advisory vote is not open, a second vote by the same resident and any value other than voor, tegen or onthoud.",
+  "components": {
+    "schemas": {
+      "Decision": {
+        "slug": "decision",
+        "version": "1.4.0",
+        "properties": {
+          "citizenVotingStatus": {
+            "title": "Advisory vote by residents",
+            "type": "string",
+            "description": "Whether residents can give their advice on this motion right now.",
+            "enum": ["not-open", "open", "closed"],
+            "x-enum-labels": {
+              "not-open": "Not open",
+              "open": "Open",
+              "closed": "Closed"
+            },
+            "default": "not-open",
+            "x-notes": "Set only by CitizenAdviceService::open() and close() behind POST /api/motions/{id}/citizen-advice/open and /close. Opening needs a published motion with citizenVotingAllowed and citizenVotingMethod simple. The portal action castMotionAdvice is offered, and a citizen-vote on the motion accepted, only while this is open."
+          },
+          "citizenAdviceFor": {
+            "title": "Residents for",
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many residents advised for the motion.",
+            "x-notes": "Counted from citizen-vote rows with this motionId when the advisory vote closes. Never read by the statutory voting round tally."
+          },
+          "citizenAdviceAgainst": {
+            "title": "Residents against",
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many residents advised against the motion.",
+            "x-notes": "Counted when the advisory vote closes, as citizenAdviceFor."
+          },
+          "citizenAdviceAbstain": {
+            "title": "Residents abstaining",
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many residents gave their advice as abstain.",
+            "x-notes": "Counted when the advisory vote closes, as citizenAdviceFor."
+          }
+        }
+      }
+    }
+  }
+}

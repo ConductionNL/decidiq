@@ -23,7 +23,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -33,7 +33,7 @@ use Throwable;
 /**
  * Renames the forward agenda and the authority delegation into plain words.
  *
- * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md
+ * @spec openspec/specs/the-last-two-dutch-names/spec.md
  */
 class MigrateTheLastTwoDutchNames implements IRepairStep {
 	use ReadsLegacyRows;
@@ -100,14 +100,14 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService    $settingsService Reports whether OpenRegister is usable.
+	 * @param SettingsServiceInterface    $settingsService Reports whether OpenRegister is usable.
 	 * @param ContainerInterface $container       Resolves OpenRegister's ObjectService.
 	 * @param LoggerInterface    $logger          Records what was migrated.
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -146,30 +146,11 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	public function run(IOutput $output): void {
-		if ($this->settingsService->isOpenRegisterAvailable() === false) {
-			$output->info('OpenRegister unavailable — nothing to migrate.');
-			return;
-		}
-
-		try {
-			$objectService = $this->container->get('OCA\OpenRegister\Service\ObjectService');
-		} catch (Throwable $e) {
-			$output->warning('Could not resolve OpenRegister ObjectService: ' . $e->getMessage());
-			return;
-		}
-
-		// 🔴 RUN AS SYSTEM. A repair step has no session, so OpenRegister sees
-		// the actor as 'Anonymous' and refuses `create`, and this step reports
-		// that as a warning, which does not fail an upgrade.
-		$objectService->runAsSystem(
-			function () use ($objectService, $output): void {
-				$this->migrateAll(objectService: $objectService, output: $output);
-			}
-		);
-
+		$runner = new SystemMigrationRunner(settingsService: $this->settingsService, container: $this->container);
+		$runner->run(output: $output, migrateAll: $this->migrateAll(...));
 	}//end run()
 
 	/**
@@ -180,7 +161,7 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/the-last-two-dutch-names/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
 	 */
 	private function migrateAll(object $objectService, IOutput $output): void {
 		// Source identifier to NEW identifier, across every schema copied so far,
@@ -191,7 +172,8 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 		foreach (self::RENAMES as $source => $target) {
 			$existing = $this->originIndex(objectService: $objectService, schema: $target);
 
-			foreach ($this->readRows(objectService: $objectService, schema: $source, limit: 10000) as $row) {
+			$rows = $this->parentsFirst(rows: $this->readRows(objectService: $objectService, schema: $source, limit: 10000));
+			foreach ($rows as $row) {
 				$origin = $this->identifierOf(object: $row);
 				if ($origin === '' || isset($existing[$origin]) === true) {
 					continue;
@@ -253,6 +235,49 @@ class MigrateTheLastTwoDutchNames implements IRepairStep {
 		return $index;
 
 	}//end originIndex()
+
+	/**
+	 * Order the rows so a parent allocation is copied before its sub-delegations.
+	 *
+	 * A sub-delegation's `parentAllocation` follows its parent to the copy only
+	 * when the parent was copied first. The source list carries no order, so a
+	 * child read before its parent would keep pointing at the retired row.
+	 *
+	 * @param array<int,array<string,mixed>> $rows The source rows.
+	 *
+	 * @return array<int,array<string,mixed>> The rows, parents first.
+	 *
+	 * @spec openspec/specs/the-last-two-dutch-names/spec.md#requirement-existing-records-are-carried-across
+	 */
+	private function parentsFirst(array $rows): array {
+		$pending = [];
+		foreach ($rows as $row) {
+			$pending[$this->identifierOf(object: $row)] = $row;
+		}
+
+		$ordered = [];
+		while ($pending !== []) {
+			$progress = false;
+			foreach ($pending as $id => $row) {
+				$parent = (string)($row['parentAllocation'] ?? '');
+				if ($parent !== '' && isset($pending[$parent]) === true && $parent !== strval($id)) {
+					continue;
+				}
+
+				$ordered[] = $row;
+				unset($pending[$id]);
+				$progress = true;
+			}
+
+			if ($progress === false) {
+				// A cycle: copy the rest as read rather than loop forever.
+				return array_merge($ordered, array_values($pending));
+			}
+		}
+
+		return $ordered;
+
+	}//end parentsFirst()
 
 	/**
 	 * Copy one row across, resolving and retargeting its references.

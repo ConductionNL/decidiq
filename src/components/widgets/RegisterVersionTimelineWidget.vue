@@ -22,8 +22,8 @@
  (v-bind) onto this component — so `content.title` / `content.icon` land on
  this component's own `title` / `icon` props without extra wiring.
 
- @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
- @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+ @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+ @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 -->
 <template>
 	<CnWidgetWrapper
@@ -145,6 +145,9 @@ import {
 } from '@conduction/nextcloud-vue'
 import { NcButton } from '@nextcloud/vue'
 import {
+	contentWithDefaults,
+	detailObjectId,
+	plainObject,
 	resolveObjectLabel,
 	sortVersionsByEffectiveDate,
 } from './registerDetailWidgets.js'
@@ -204,15 +207,18 @@ export default {
 		cfg() {
 			const c = this.content || {}
 			return {
-				versionRegister: c.versionRegister || this.register || 'decidiq',
-				versionSchema: c.versionSchema || '',
-				parentRefField: c.parentRefField || '',
-				effectiveDateField: c.effectiveDateField || 'effectiveDate',
-				lapseDateField: c.lapseDateField || '',
-				versionNumberField: c.versionNumberField || 'versionNumber',
-				statusField: c.statusField || 'status',
-				decisionRefField: c.decisionRefField || '',
-				decisionRoute: c.decisionRoute || 'DecisionDetail',
+				...contentWithDefaults(c, {
+					versionRegister: this.register || 'decidiq',
+					versionSchema: '',
+					parentRefField: '',
+					effectiveDateField: 'effectiveDate',
+					lapseDateField: '',
+					versionNumberField: 'versionNumber',
+					statusField: 'status',
+					decisionRefField: '',
+					decisionRoute: 'DecisionDetail',
+				}),
+
 				extraFields: Array.isArray(c.extraFields) ? c.extraFields : [],
 			}
 		},
@@ -223,12 +229,7 @@ export default {
 		 * @spec exclude defensive object-id accessor, no behavioural requirement of its own
 		 */
 		resolvedObjectId() {
-			const data =
-				this.objectData && typeof this.objectData === 'object'
-					? this.objectData
-					: {}
-			const self = data['@self'] || {}
-			return this.objectId || data.id || self.id || ''
+			return detailObjectId(this.objectId, this.objectData)
 		},
 
 		/**
@@ -245,10 +246,7 @@ export default {
 		 * @spec exclude defensive object-slug accessor, no behavioural requirement of its own
 		 */
 		resolvedObjectSlug() {
-			const data =
-				this.objectData && typeof this.objectData === 'object'
-					? this.objectData
-					: {}
+			const data = plainObject(this.objectData)
 			const self = data['@self'] || {}
 			return self.slug || data.slug || ''
 		},
@@ -270,8 +268,8 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 */
 		sortedVersions() {
 			return sortVersionsByEffectiveDate(
@@ -281,8 +279,8 @@ export default {
 		},
 
 		/**
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 */
 		rows() {
 			const {
@@ -317,8 +315,8 @@ export default {
 		resolvedObjectId: {
 			immediate: true,
 			/**
-			 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-			 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+			 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+			 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 			 */
 			handler() {
 				this.load()
@@ -350,14 +348,12 @@ export default {
 		 * Fetch the version collection filtered on `parentRefField == currentId`,
 		 * then batch-resolve the (deduplicated) Decision links.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @return {Promise<void>}
 		 */
 		async load() {
-			const id = this.resolvedObjectId
-			const { versionSchema, versionRegister, parentRefField } = this.cfg
-			if (!id || !versionSchema || !parentRefField) {
+			if (!this.hasTarget()) {
 				this.versions = []
 				return
 			}
@@ -369,33 +365,8 @@ export default {
 			this.loading = true
 			this.error = ''
 			try {
-				if (
-					!store.objectTypeRegistry
-					|| !store.objectTypeRegistry[versionSchema]
-				) {
-					store.registerObjectType(
-						versionSchema,
-						versionSchema,
-						versionRegister,
-					)
-				}
-				this.versions = await store.fetchCollection(versionSchema, {
-					[parentRefField]: id,
-					_limit: 200,
-				})
-				// Seeded rows reference their parent by SLUG (see
-				// resolvedObjectSlug) — retry once on the slug before
-				// concluding this record simply has no versions.
-				if (
-					Array.isArray(this.versions)
-					&& this.versions.length === 0
-					&& this.resolvedObjectSlug
-				) {
-					this.versions = await store.fetchCollection(versionSchema, {
-						[parentRefField]: this.resolvedObjectSlug,
-						_limit: 200,
-					})
-				}
+				this.registerVersionType(store)
+				await this.fetchVersions(store)
 				await this.resolveDecisionLabels(store)
 			} catch (e) {
 				this.error =
@@ -408,11 +379,66 @@ export default {
 		},
 
 		/**
+		 * Whether there is a record, a version schema and a parent field to load by.
+		 *
+		 * @spec exclude load guard, no behavioural requirement of its own
+		 * @return {boolean}
+		 */
+		hasTarget() {
+			const { versionSchema, parentRefField } = this.cfg
+			return Boolean(this.resolvedObjectId && versionSchema && parentRefField)
+		},
+
+		/**
+		 * @spec exclude store-registration plumbing, no behavioural requirement of its own
+		 * @param {object} store The object store.
+		 * @return {void}
+		 */
+		registerVersionType(store) {
+			const { versionSchema, versionRegister } = this.cfg
+			const registry = store.objectTypeRegistry || {}
+			if (!registry[versionSchema]) {
+				store.registerObjectType(
+					versionSchema,
+					versionSchema,
+					versionRegister,
+				)
+			}
+		},
+
+		/**
+		 * Fetch the versions by the parent id, and once more by its slug when
+		 * the id finds none: seeded rows reference their parent by SLUG (see
+		 * resolvedObjectSlug).
+		 *
+		 * @spec exclude version fetch plumbing, no behavioural requirement of its own
+		 * @param {object} store The object store.
+		 * @return {Promise<void>}
+		 */
+		async fetchVersions(store) {
+			const { versionSchema, parentRefField } = this.cfg
+			this.versions = await store.fetchCollection(versionSchema, {
+				[parentRefField]: this.resolvedObjectId,
+				_limit: 200,
+			})
+			if (
+				Array.isArray(this.versions)
+				&& this.versions.length === 0
+				&& this.resolvedObjectSlug
+			) {
+				this.versions = await store.fetchCollection(versionSchema, {
+					[parentRefField]: this.resolvedObjectSlug,
+					_limit: 200,
+				})
+			}
+		},
+
+		/**
 		 * Batch-resolve every unique amending-Decision id referenced by the
 		 * loaded versions (single Promise.all pass, not one request per row).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {object} store The object store.
 		 * @return {Promise<void>}
 		 */
@@ -428,14 +454,13 @@ export default {
 			await Promise.all(
 				ids.map(async (id) => {
 					if (labels[id]) return
-					labels[id] = await resolveObjectLabel(
-						store,
-						'decision',
-						'decision',
-						versionRegister,
+					labels[id] = await resolveObjectLabel(store, {
+						typeSlug: 'decision',
+						schemaSlug: 'decision',
+						registerSlug: versionRegister,
 						id,
-						'title',
-					)
+						labelField: 'title',
+					})
 				}),
 			)
 			this.decisionLabels = labels
@@ -456,7 +481,7 @@ export default {
 		/**
 		 * Locale date, empty-safe (never a raw ISO string — REQ-VOR-011).
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-011-computed-in-force-date-columns-render-formatted-not-raw
 		 * @param {string} value ISO date string.
 		 * @return {string}
 		 */
@@ -469,7 +494,7 @@ export default {
 		/**
 		 * Render an extraFields entry value, date-formatted when configured.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string|number|null|undefined} value The raw field value.
 		 * @param {string} [format] `'date'` to format through formatDate.
 		 * @return {string}
@@ -482,8 +507,8 @@ export default {
 		/**
 		 * Navigate to the enacting Decision's detail page.
 		 *
-		 * @spec openspec/changes/register-detail-optimisation/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
-		 * @spec openspec/changes/register-detail-optimisation/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
+		 * @spec openspec/specs/verordeningenregister/spec.md#req-vor-009-version-timeline-widget-on-regelingdetail
+		 * @spec openspec/specs/governing-documents-register/spec.md#req-gdr-009-version-timeline-widget-on-governingdocumentdetail
 		 * @param {string} decisionId The Decision id.
 		 * @return {void}
 		 */

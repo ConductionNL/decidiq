@@ -37,7 +37,7 @@ use Throwable;
  * The using class must declare a `REGISTER` constant naming the register these
  * schemas belong to, and expose a logger through {@see self::migrationLogger()}.
  *
- * @spec openspec/changes/questions-as-agenda-items/specs/questions-as-agenda-items/spec.md
+ * @spec openspec/specs/questions-as-agenda-items/spec.md
  */
 trait ReadsLegacyRows {
 	/**
@@ -219,7 +219,7 @@ trait ReadsLegacyRows {
 	 * instead of its full set, every format declaration vanished, and
 	 * coerceToTarget() silently coerced nothing.
 	 *
-	 * SettingsService::deepMergeConfig() is what the app actually imports with.
+	 * Settings\RegisterFragmentMerger::deepMerge() is what the app actually imports with.
 	 * This mirrors the part of it a schema definition needs: associative arrays
 	 * recurse, everything else overwrites.
 	 *

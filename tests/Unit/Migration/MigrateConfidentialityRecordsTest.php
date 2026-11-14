@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 /**
  * The rename of the confidentiality records into plain words.
  *
- * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md
+ * @spec openspec/specs/confidentiality-in-plain-words/spec.md
  */
 class MigrateConfidentialityRecordsTest extends TestCase {
 
@@ -70,7 +70,7 @@ class MigrateConfidentialityRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
+	 * @spec openspec/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
 	 */
 	public function testARestrictionPointsAtTheCopiedGround(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -108,7 +108,7 @@ class MigrateConfidentialityRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
+	 * @spec openspec/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
 	 */
 	public function testTheValuesSurviveTheRename(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -145,7 +145,7 @@ class MigrateConfidentialityRecordsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/confidentiality-in-plain-words/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
+	 * @spec openspec/specs/confidentiality-in-plain-words/spec.md#requirement-existing-restrictions-are-carried-across
 	 */
 	public function testASecondRunCopiesNothing(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);

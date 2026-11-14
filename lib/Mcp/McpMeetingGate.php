@@ -26,11 +26,13 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
+use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
 use OCP\IUserSession;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Loads a meeting and enforces per-object authorisation for MCP tools.
@@ -61,7 +63,7 @@ class McpMeetingGate {
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ParticipantResolverInterface $participantResolver Participant resolver for meeting-based access checks
 	 * @param McpSourceFormatter $formatter Builds the error envelopes
 	 * @param McpArgumentValidator $validator Validates the meetingUuid argument
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
@@ -71,8 +73,8 @@ class McpMeetingGate {
 	public function __construct(
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
-		LoggerInterface $logger,
-		private readonly ParticipantResolver $participantResolver,
+		private readonly LoggerInterface $logger,
+		private readonly ParticipantResolverInterface $participantResolver,
 		private readonly McpSourceFormatter $formatter,
 		private readonly McpArgumentValidator $validator,
 		private readonly ObjectServiceInterface $objectService,
@@ -102,6 +104,24 @@ class McpMeetingGate {
 	}//end currentUserId()
 
 	/**
+	 * The forbidden envelope for a caller without a session user.
+	 *
+	 * Tools that scope their results by the caller use this to refuse instead
+	 * of running an unscoped query.
+	 *
+	 * @return array<string, mixed>|null The error envelope, or null when a user is signed in.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	public function signedOutError(): ?array {
+		if ($this->currentUserId() !== '') {
+			return null;
+		}
+
+		return $this->formatter->error(code: 'forbidden', message: 'Sign in to use this tool.');
+	}//end signedOutError()
+
+	/**
 	 * Return the set of meeting UUIDs the caller may see, or null for admins.
 	 *
 	 * @param string $userId Nextcloud UID of the caller
@@ -120,7 +140,9 @@ class McpMeetingGate {
 	 * On success returns `['meeting' => array, 'userId' => string, 'uuid' => string]`.
 	 * On any failure returns `['error' => array]` carrying the MCP error envelope.
 	 * Checks run in the documented order: missing argument, malformed UUID,
-	 * not found, then per-object authorisation (design D4).
+	 * then per-object authorisation (design D4). Only a system admin is told a
+	 * meeting does not exist; anyone else gets the same forbidden answer for an
+	 * unknown meeting as for one they may not see (REQ-DMCP-007).
 	 *
 	 * @param mixed $meetingUuid The raw meetingUuid argument
 	 * @param string $requirement Either "chair" or "participant"
@@ -136,19 +158,31 @@ class McpMeetingGate {
 		}
 
 		$uuid = (string)$meetingUuid;
-		$meeting = $this->loadMeeting(meetingUuid: $uuid);
-		if ($meeting === null) {
-			return ['error' => $this->formatter->error(code: 'not_found', message: 'Meeting not found.')];
-		}
-
-		$userId = $this->currentUserId();
-		if ($this->isGranted(requirement: $requirement, meetingUuid: $uuid, meeting: $meeting, userId: $userId) === false) {
+		try {
+			$meeting = $this->loadMeeting(meetingUuid: $uuid);
+		} catch (DoesNotExistException) {
+			// OpenRegister's find() throws for an unknown id instead of returning null.
+			$meeting = null;
+		} catch (Throwable $e) {
+			$this->logger->error(
+				'Decidiq MCP: meeting lookup failed',
+				['meetingUuid' => $uuid, 'exception' => $e->getMessage()]
+			);
 			return [
 				'error' => $this->formatter->error(
-					code: 'forbidden',
-					message: $this->denialMessage(requirement: $requirement)
+					code: 'internal_error',
+					message: 'Failed to load the meeting. See server log for details.'
 				),
 			];
+		}//end try
+
+		$userId = $this->currentUserId();
+		if ($meeting === null) {
+			return ['error' => $this->unknownMeetingError(requirement: $requirement, userId: $userId)];
+		}
+
+		if ($this->isGranted(requirement: $requirement, meetingUuid: $uuid, meeting: $meeting, userId: $userId) === false) {
+			return ['error' => $this->denialError(requirement: $requirement)];
 		}
 
 		return [
@@ -193,12 +227,9 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function isChairOrAdmin(array $meeting, string $userId): bool {
-		if ($userId === '') {
-			return false;
-		}
-
-		if ($this->isAdmin(userId: $userId) === true) {
-			return true;
+		$verdict = $this->blankOrAdminVerdict(userId: $userId);
+		if ($verdict !== null) {
+			return $verdict;
 		}
 
 		$chairUserId = $meeting['chair'] ?? null;
@@ -227,12 +258,9 @@ class McpMeetingGate {
 	 * @spec openspec/specs/mcp-tools/spec.md
 	 */
 	public function isParticipantOrAdmin(string $meetingUuid, string $userId): bool {
-		if ($userId === '') {
-			return false;
-		}
-
-		if ($this->isAdmin(userId: $userId) === true) {
-			return true;
+		$verdict = $this->blankOrAdminVerdict(userId: $userId);
+		if ($verdict !== null) {
+			return $verdict;
 		}
 
 		return $this->participantResolver->isParticipant(
@@ -241,6 +269,27 @@ class McpMeetingGate {
 		);
 
 	}//end isParticipantOrAdmin()
+
+	/**
+	 * The verdict that needs no meeting: false for an empty user id, true for a system admin, null otherwise.
+	 *
+	 * @param string $userId The calling user ID
+	 *
+	 * @return bool|null The verdict, or null when the meeting decides.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	private function blankOrAdminVerdict(string $userId): ?bool {
+		if ($userId === '') {
+			return false;
+		}
+
+		if ($this->isAdmin(userId: $userId) === true) {
+			return true;
+		}
+
+		return null;
+	}//end blankOrAdminVerdict()
 
 	/**
 	 * Check whether the user is a Nextcloud system administrator.
@@ -274,6 +323,42 @@ class McpMeetingGate {
 		};
 
 	}//end isGranted()
+
+	/**
+	 * The answer for a meeting id that matches no meeting.
+	 *
+	 * @param string $requirement Either "chair" or "participant"
+	 * @param string $userId The calling user ID
+	 *
+	 * @return array<string, mixed> The not_found envelope for a system admin, the forbidden envelope otherwise.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	private function unknownMeetingError(string $requirement, string $userId): array {
+		if ($userId !== '' && $this->isAdmin(userId: $userId) === true) {
+			return $this->formatter->error(code: 'not_found', message: 'Meeting not found.');
+		}
+
+		return $this->denialError(requirement: $requirement);
+
+	}//end unknownMeetingError()
+
+	/**
+	 * The forbidden envelope when a requirement is not satisfied.
+	 *
+	 * @param string $requirement Either "chair" or "participant"
+	 *
+	 * @return array<string, mixed> The error envelope.
+	 *
+	 * @spec openspec/specs/mcp-tools/spec.md
+	 */
+	private function denialError(string $requirement): array {
+		return $this->formatter->error(
+			code: 'forbidden',
+			message: $this->denialMessage(requirement: $requirement)
+		);
+
+	}//end denialError()
 
 	/**
 	 * The message returned when a requirement is not satisfied.

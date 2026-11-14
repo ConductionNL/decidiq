@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * Contract of SystemWhenNobodySignedIn
+ *
+ * The public surface of SystemWhenNobodySignedIn that other components call, so they depend
+ * on this contract instead of the implementation.
+ *
+ * @category  Kernel
+ * @package   OCA\Decidiq\Kernel\Contracts
+ * @author    Conduction b.v. <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @version   GIT: <git_id>
+ * @link      https://github.com/ConductionNL/decidiq
+ *
+ * @spec exclude Structural contract, no functional requirement.
+ *
+ * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
+ * SPDX-License-Identifier: EUPL-1.2
+ */
+
+declare(strict_types=1);
+
+namespace OCA\Decidiq\Kernel\Contracts;
+
+/**
+ * Contract of SystemWhenNobodySignedIn.
+ *
+ * @category Kernel
+ * @package  OCA\Decidiq\Kernel\Contracts
+ * @author   Conduction b.v. <info@conduction.nl>
+ * @license  EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ * @link     https://github.com/ConductionNL/decidiq
+ *
+ * @spec exclude Structural contract, no functional requirement.
+ */
+interface SystemWhenNobodySignedInInterface {
+
+	/**
+	 * Run the operation, as the system when nobody is signed in.
+	 *
+	 * @param callable $operation The operation.
+	 *
+	 * @return mixed What the operation returns.
+	 *
+	 * @spec openspec/specs/decidesk-notifications/spec.md#requirement-a-notice-sent-with-nobody-signed-in-runs-as-the-system-req-mrd-010
+	 */
+	public function run(callable $operation): mixed;
+}//end interface

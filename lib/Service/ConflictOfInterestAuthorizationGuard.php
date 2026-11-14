@@ -25,7 +25,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md
+ * @spec openspec/specs/conflict-of-interest-authorization/spec.md
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -41,7 +41,7 @@ use Psr\Log\LoggerInterface;
  * Per-object authorization guard for the conflict-of-interest endpoints.
  * Fail-closed.
  *
- * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md
+ * @spec openspec/specs/conflict-of-interest-authorization/spec.md
  */
 class ConflictOfInterestAuthorizationGuard {
 
@@ -73,7 +73,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @param string $agendaItemId UUID of the agenda item the declaration concerns
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 *
 	 * @return bool
 	 */
@@ -101,7 +101,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @param array<string, mixed> $declaration Serialised conflict-of-interest row
 	 * @param string $callerUid Nextcloud UID of the caller
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return bool
 	 */
@@ -141,6 +141,31 @@ class ConflictOfInterestAuthorizationGuard {
 	}//end isChairOrSecretary()
 
 	/**
+	 * The Membership UUID of a Nextcloud user (UID -> Participant -> Membership),
+	 * or null when the user has no participant record. Lets a member declare
+	 * from a page without knowing her own Membership id.
+	 *
+	 * @param string $uid Nextcloud UID
+	 *
+	 * @return string|null
+	 *
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
+	 */
+	public function membershipForUser(string $uid): ?string {
+		$participantId = $this->resolveParticipantUuid(nextcloudUid: $uid);
+		if ($participantId === null) {
+			return null;
+		}
+
+		$membership = (string)($this->participantCrosswalk->resolve(participantId: $participantId)['membership'] ?? '');
+		if ($membership === '') {
+			return null;
+		}
+
+		return $membership;
+	}//end membershipForUser()
+
+	/**
 	 * Whether the caller IS the Membership the declaration is about. Resolves
 	 * the caller's own identity (Nextcloud UID -> Participant -> Person/
 	 * Membership, via the same crosswalk `ProxyVoteService` uses) and compares
@@ -178,16 +203,7 @@ class ConflictOfInterestAuthorizationGuard {
 	 * @return string|null
 	 */
 	private function resolveParticipantUuid(string $nextcloudUid): ?string {
-		$this->objectService->setRegister('decidiq');
-		$this->objectService->setSchema('participant');
-		$entities = $this->objectService->findAll(['filters' => ['nextcloudUserId' => $nextcloudUid]]);
-
-		foreach ($entities as $participantEntity) {
-			$participant = $participantEntity->jsonSerialize();
-			return ($participant['uuid'] ?? $participant['id'] ?? null);
-		}
-
-		return null;
+		return (new ParticipantUuidLookup(objectService: $this->objectService))->forNextcloudUser(nextcloudUid: $nextcloudUid);
 	}//end resolveParticipantUuid()
 
 	/**
@@ -209,6 +225,12 @@ class ConflictOfInterestAuthorizationGuard {
 
 		try {
 			$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+			if ($entity === null) {
+				// A declaration made on a motion's page names the motion (a
+				// Decision) as its subject; the motion carries the same
+				// `meeting` reference an agenda item does (bod-10).
+				$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'decision');
+			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: ConflictOfInterestAuthorizationGuard could not resolve the agenda item\'s meeting',

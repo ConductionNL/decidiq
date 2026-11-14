@@ -21,16 +21,14 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-1
- * @spec openspec/changes/p4-integration/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -50,11 +48,11 @@ use Throwable;
  * OAuthScope register entries declared by `lib/Settings/decidesk_register.json`
  * — Decidiq does not implement custom token validation (REQ-OAUTH-002).
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-1
- * @spec openspec/changes/p4-integration/tasks.md#task-2
- * @spec openspec/changes/p4-integration/tasks.md#task-9
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-9
  */
-class ApiController extends Controller {
+class ApiController extends CorsJsonController {
 
 	/**
 	 * Map of public REST resource slug → register schema slug.
@@ -145,11 +143,11 @@ class ApiController extends Controller {
 	public function __construct(
 		IRequest $request,
 		private readonly IUserSession $userSession,
-		private readonly IConfig $config,
+		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(request: $request, config: $config);
 
 	}//end __construct()
 
@@ -160,8 +158,8 @@ class ApiController extends Controller {
 	 *
 	 * @return JSONResponse Paginated list envelope or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1
-	 * @spec openspec/changes/p4-integration/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -177,7 +175,7 @@ class ApiController extends Controller {
 
 		$page = (int)$this->request->getParam(key: '_page', default: 1);
 		$limit = (int)$this->request->getParam(key: '_limit', default: 25);
-		if ($limit > 100 || $limit < 1 || $page < 1) {
+		if ($this->validPage(page: $page, limit: $limit) === false) {
 			return $this->errorResponse(message: 'Invalid pagination parameters', status: Http::STATUS_BAD_REQUEST);
 		}
 
@@ -189,28 +187,14 @@ class ApiController extends Controller {
 		try {
 			$objectService = $this->container->get(id: 'OCA\\OpenRegister\\Service\\ObjectService');
 			$offset = (($page - 1) * $limit);
-			$filters = [
-				'register' => 'decidiq',
-				'schema' => $schema,
-			];
-			// ADR-005: /motions and /amendments are decisions narrowed by the
-			// decisionType discriminator, not by their own (retired) schema.
-			$decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
-			if ($decisionType !== null) {
-				$filters['decisionType'] = $decisionType;
-			}
-
 			$results = $objectService->findAll(
 				[
-					'filters' => $filters,
+					'filters' => $this->listFilters(resource: $resource, schema: $schema),
 					'limit' => $limit,
 					'offset' => $offset,
 				]
 			);
-			$total = 0;
-			if (is_array($results) === true) {
-				$total = count($results);
-			}
+			$total = $this->countOf(results: $results);
 
 			$pages = ((int)ceil((float)$total / max(1, $limit)));
 		} catch (Throwable $e) {
@@ -232,6 +216,63 @@ class ApiController extends Controller {
 	}//end index()
 
 	/**
+	 * Whether the page and page size are in range: page from 1, limit 1 to 100.
+	 *
+	 * @param int $page  The requested page.
+	 * @param int $limit The requested page size.
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
+	 */
+	private function validPage(int $page, int $limit): bool {
+		return $limit <= 100 && $limit >= 1 && $page >= 1;
+	}//end validPage()
+
+	/**
+	 * The list filters for a resource.
+	 *
+	 * ADR-005: /motions and /amendments are decisions narrowed by the
+	 * decisionType discriminator, not by their own (retired) schema.
+	 *
+	 * @param string $resource The API resource.
+	 * @param string $schema   Its schema.
+	 *
+	 * @return array<string, string>
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
+	 */
+	private function listFilters(string $resource, string $schema): array {
+		$filters = [
+			'register' => 'decidiq',
+			'schema' => $schema,
+		];
+		$decisionType = (self::RESOURCE_DECISION_TYPES[$resource] ?? null);
+		if ($decisionType !== null) {
+			$filters['decisionType'] = $decisionType;
+		}
+
+		return $filters;
+	}//end listFilters()
+
+	/**
+	 * The number of results, 0 when findAll() did not answer a list.
+	 *
+	 * @param mixed $results What findAll() returned.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
+	 */
+	private function countOf(mixed $results): int {
+		if (is_array($results) === true) {
+			return count($results);
+		}
+
+		return 0;
+	}//end countOf()
+
+	/**
 	 * Retrieve a single entity by id.
 	 *
 	 * @param string $resource The REST resource slug
@@ -239,7 +280,7 @@ class ApiController extends Controller {
 	 *
 	 * @return JSONResponse The serialized entity or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-2
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-2
 	 */
 	#[NoAdminRequired]
 	#[NoCSRFRequired]
@@ -417,7 +458,7 @@ class ApiController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
 	#[NoAdminRequired]
@@ -438,7 +479,7 @@ class ApiController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[NoCSRFRequired]
 	#[NoAdminRequired]
@@ -450,45 +491,4 @@ class ApiController extends Controller {
 
 		return $response;
 	}//end preflightItem()
-
-	/**
-	 * Build a consistent JSON error envelope (REQ-API-003).
-	 *
-	 * @param string $message The user-facing message
-	 * @param int $status The HTTP status code
-	 *
-	 * @return JSONResponse The decorated error response
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.2
-	 */
-	private function errorResponse(string $message, int $status): JSONResponse {
-		$response = new JSONResponse(['message' => $message, 'code' => $status], $status);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
-	}//end errorResponse()
-
-	/**
-	 * Apply CORS headers using the configured proxy origin when available.
-	 *
-	 * @param JSONResponse $response The response to decorate
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-	 * @spec openspec/changes/p4-integration/tasks.md#task-10.4
-	 */
-	private function applyCorsHeaders(JSONResponse $response): void {
-		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-		$allowedOrigin = '*';
-		if ($origin !== '') {
-			$allowedOrigin = $origin;
-		}
-
-		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-	}//end applyCorsHeaders()
 }//end class

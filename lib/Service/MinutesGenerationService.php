@@ -8,7 +8,7 @@
  * @category Service
  * @package  OCA\Decidiq\Service
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  *
  * @author    Conduction Development Team <info@conduction.nl>
  * @copyright 2026 Conduction B.V.
@@ -23,8 +23,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Kernel\Contracts\MinutesGenerationServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
@@ -36,9 +36,9 @@ use Throwable;
  * Fetches the linked Meeting's AgendaItems, Motions, VotingRounds, and Decisions via
  * OpenRegister ObjectService and renders them into a structured Dutch text template.
  *
- * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+ * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
  */
-class MinutesGenerationService {
+class MinutesGenerationService implements MinutesGenerationServiceInterface {
 
 	/**
 	 * Allowed lifecycle transitions: current state → next state.
@@ -56,19 +56,48 @@ class MinutesGenerationService {
 	];
 
 	/**
+	 * The page size of a related-object fetch.
+	 *
+	 * @var int
+	 */
+	private const PAGE_SIZE = 100;
+
+	/**
+	 * The related objects a draft gathers, in fetch order: part => [schema, extra filters].
+	 * ADR-005: motions are `decision` objects selected by the decisionType
+	 * discriminator; the `motion` schema no longer exists.
+	 *
+	 * @var array<string,array{0: string, 1: array<string,string>}>
+	 */
+	private const RELATED_PARTS = [
+		'agendaItems' => ['agenda-item', []],
+		'motions' => ['decision', ['decisionType' => 'motion']],
+		'votingRounds' => ['voting-round', []],
+		'decisions' => ['decision', []],
+	];
+
+	/**
+	 * Loads the minutes and their linked meeting under the caller's ACL.
+	 *
+	 * @var MinutesRecordReader
+	 */
+	private readonly MinutesRecordReader $reader;
+
+	/**
 	 * Constructor for MinutesGenerationService.
 	 *
 	 * @param LoggerInterface $logger The logger
 	 * @param MinutesDraftRenderer $renderer Renders the gathered data into the Dutch template
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function __construct(
 		private LoggerInterface $logger,
 		private MinutesDraftRenderer $renderer,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		$this->reader = new MinutesRecordReader(objectService: $objectService, logger: $logger);
 	}//end __construct()
 
 	/**
@@ -85,71 +114,167 @@ class MinutesGenerationService {
 	 *
 	 * @return string The generated Dutch minutes text
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function generateDraft(string $minutesId): string {
-		$objectService = $this->getObjectService();
-
-		// Fetch the Minutes object.
-		// setRegister/setSchema are called first so that OpenRegister's session-based
-		// ACL is applied — any caller without read access gets null (same as MeetingService).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
+		// The reader applies OpenRegister's ACL: a caller without read access gets null.
+		$minutes = $this->reader->find(minutesId: $minutesId);
+		if ($minutes === null) {
 			throw new InvalidArgumentException(
 				sprintf('Minutes object with id "%s" not found.', $minutesId)
 			);
 		}
 
-		$minutes = $minutesEntity->getObject();
+		$meeting = $this->requireLinkedMeeting(minutesId: $minutesId, minutes: $minutes);
 
-		// Resolve the linked Meeting.
-		$meeting = $this->resolveMeeting(minutes: $minutes, objectService: $objectService);
+		// The getObject() data carries the properties only, so the id falls back to the minutes' reference.
+		$meetingId = (string)($meeting['id'] ?? $this->meetingRefId(minutes: $minutes));
+
+		return $this->renderer->render(
+			minutes: $minutes,
+			parts: (['meeting' => $meeting] + $this->meetingParts(meetingId: $meetingId))
+		);
+
+	}//end generateDraft()
+
+	/**
+	 * The meeting the minutes link to.
+	 *
+	 * @param string              $minutesId UUID of the Minutes object
+	 * @param array<string,mixed> $minutes   The minutes data
+	 *
+	 * @throws MissingRelationException When the minutes link no meeting that can be read
+	 *
+	 * @return array<string,mixed> The meeting data
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function requireLinkedMeeting(string $minutesId, array $minutes): array {
+		$meeting = $this->reader->linkedMeeting(
+			minutes: $minutes,
+			failureLog: 'Decidiq: Failed to fetch linked Meeting for minutes draft generation'
+		);
 
 		if ($meeting === null) {
 			throw new MissingRelationException(
-				message: sprintf(
-					'No linked Meeting found for Minutes "%s". '
-					. 'Please link a Meeting before generating a draft.',
-					$minutesId
-				)
+				message: sprintf('No linked Meeting found for Minutes "%s". Please link a Meeting before generating a draft.', $minutesId)
 			);
 		}
 
-		// Fetch related entities for the Meeting.
-		$meetingId = $meeting['id'] ?? '';
-		$agendaItems = $this->fetchRelatedObjects(objectService: $objectService, schema: 'agenda-item', meetingId: $meetingId);
-		// ADR-005: motions are `decision` objects selected by the decisionType
-		// discriminator; the `motion` schema no longer exists.
-		$motions = $this->fetchRelatedObjects(
-			objectService: $objectService,
-			schema: 'decision',
-			meetingId: $meetingId,
-			extraFilters: ['decisionType' => 'motion']
-		);
-		$votingRounds = $this->fetchRelatedObjects(objectService: $objectService, schema: 'voting-round', meetingId: $meetingId);
-		$decisions = $this->fetchRelatedObjects(objectService: $objectService, schema: 'decision', meetingId: $meetingId);
+		return $meeting;
 
-		// Sort agenda items by orderNumber.
+	}//end requireLinkedMeeting()
+
+	/**
+	 * The meeting's agenda items (sorted by orderNumber), motions, voting
+	 * rounds, decisions and attendance, as the renderer takes them.
+	 *
+	 * @param string $meetingId The meeting UUID
+	 *
+	 * @return array<string,array<int,array<string,mixed>>>
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function meetingParts(string $meetingId): array {
+		$parts = [];
+		foreach (self::RELATED_PARTS as $part => $query) {
+			$parts[$part] = $this->fetchRelatedObjects(meetingId: $meetingId, query: $query);
+		}
+
 		usort(
-			$agendaItems,
+			$parts['agendaItems'],
 			static function (array $a, array $b): int {
 				return ($a['orderNumber'] ?? 0) <=> ($b['orderNumber'] ?? 0);
 			}
 		);
 
-		return $this->renderer->render(
-			minutes: $minutes,
-			meeting: $meeting,
-			agendaItems: $agendaItems,
-			motions: $motions,
-			votingRounds: $votingRounds,
-			decisions: $decisions
-		);
+		$parts['attendance'] = $this->attendance(meetingId: $meetingId);
+		return $parts;
 
-	}//end generateDraft()
+	}//end meetingParts()
+
+	/**
+	 * The meeting's attendance as names with status, from its
+	 * meeting-attendance records (meeting-attendance-per-meeting).
+	 *
+	 * @param string $meetingId The meeting UUID
+	 *
+	 * @return array<int,array{name:string,status:string}>
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 */
+	private function attendance(string $meetingId): array {
+		$statuses = (new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger))->statusesFor(meetingId: $meetingId);
+		if ($statuses === []) {
+			return [];
+		}
+
+		return self::attendanceRows(statuses: $statuses, names: $this->participantNames());
+
+	}//end attendance()
+
+	/**
+	 * One row per recorded status: the participant's name, or its id when it has none.
+	 *
+	 * @param array<string,string> $statuses The status per participant id
+	 * @param array<string,string> $names    The display name per participant id
+	 *
+	 * @return array<int,array{name:string,status:string}>
+	 */
+	private static function attendanceRows(array $statuses, array $names): array {
+		$rows = [];
+		foreach ($statuses as $participantId => $status) {
+			$name = ($names[$participantId] ?? '');
+			if ($name === '') {
+				$name = $participantId;
+			}
+
+			$rows[] = ['name' => $name, 'status' => $status];
+		}
+
+		return $rows;
+	}//end attendanceRows()
+
+	/**
+	 * Every participant's display name by id; none when they cannot be read.
+	 *
+	 * @return array<string,string>
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions/spec.md#requirement-req-mds-001-draft-minutes-from-the-meeting
+	 */
+	private function participantNames(): array {
+		try {
+			$participants = $this->objectService->findAll(['filters' => ['register' => 'decidiq', 'schema' => 'participant'], 'limit' => 1000]);
+		} catch (Throwable) {
+			$participants = [];
+		}
+
+		$names = [];
+		foreach ($participants as $participant) {
+			$data = (array)$participant->jsonSerialize();
+			$names[(string)($data['id'] ?? '')] = (string)($data['displayName'] ?? '');
+		}
+
+		return $names;
+
+	}//end participantNames()
+
+	/**
+	 * The meeting id the minutes reference, bare or expanded.
+	 *
+	 * @param array<string,mixed> $minutes The minutes data
+	 *
+	 * @return string
+	 */
+	private function meetingRefId(array $minutes): string {
+		$ref = ($minutes['meeting'] ?? $minutes['relations']['meeting'] ?? '');
+		if (is_array($ref) === true) {
+			$ref = ($ref['id'] ?? $ref['uuid'] ?? '');
+		}
+
+		return (string)$ref;
+
+	}//end meetingRefId()
 
 	/**
 	 * Transition a Minutes object to the next lifecycle state (server-side enforcement).
@@ -168,24 +293,13 @@ class MinutesGenerationService {
 	 *
 	 * @return array<string,mixed> The updated Minutes object data
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	public function transition(string $minutesId, string $newLifecycle, string $displayName): array {
 		$objectService = $this->getObjectService();
 
-		// SetRegister/setSchema are called first so that OpenRegister's session-based
-		// ACL is applied — callers without access to this object get null (OWASP A01).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
-			throw new MissingObjectException(
-				message: sprintf('Minutes object "%s" not found.', $minutesId)
-			);
-		}
-
-		$minutes = $minutesEntity->getObject();
+		// Callers without read access to this object get MissingObjectException (OWASP A01).
+		$minutes = $this->reader->require(minutesId: $minutesId);
 
 		$currentLifecycle = $minutes['lifecycle'] ?? 'draft';
 
@@ -227,7 +341,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<int,string> The signedBy list including the signer
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function withSigner(array $minutes, string $displayName): array {
 		$signers = [];
@@ -250,7 +364,7 @@ class MinutesGenerationService {
 	 *
 	 * @return array<string,mixed> The persisted object data
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
 		if ($saved instanceof \stdClass === true || is_array($saved) === true) {
@@ -277,8 +391,7 @@ class MinutesGenerationService {
 	 * @param string $comment The mandatory rejection comment
 	 * @param string $userId Nextcloud UID of the rejecting user (from server session)
 	 *
-	 * @throws MissingObjectException When the Minutes object is not found
-	 * @throws InvalidArgumentException When the comment is empty or lifecycle is not review
+	 * @throws InvalidArgumentException When the Minutes object is not found (MissingObjectException), the comment is empty or lifecycle is not review
 	 * @throws RuntimeException When OpenRegister is not available
 	 *
 	 * @return array<string,mixed> The updated Minutes object data
@@ -292,18 +405,8 @@ class MinutesGenerationService {
 
 		$objectService = $this->getObjectService();
 
-		// SetRegister/setSchema first so OpenRegister's session-based ACL applies (OWASP A01).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
-			throw new MissingObjectException(
-				message: sprintf('Minutes object "%s" not found.', $minutesId)
-			);
-		}
-
-		$minutes = $minutesEntity->getObject();
+		// Callers without read access to this object get MissingObjectException (OWASP A01).
+		$minutes = $this->reader->require(minutesId: $minutesId);
 
 		if (($minutes['lifecycle'] ?? 'draft') !== 'review') {
 			throw new InvalidArgumentException(
@@ -338,145 +441,101 @@ class MinutesGenerationService {
 	}//end reject()
 
 	/**
-	 * Resolve the linked Meeting from the Minutes object.
-	 *
-	 * @param array<string,mixed> $minutes The Minutes object data
-	 * @param object $objectService The OpenRegister ObjectService instance
-	 *
-	 * @return array<string,mixed>|null The Meeting data array or null if not found
-	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
-	 */
-	private function resolveMeeting(array $minutes, object $objectService): ?array {
-		// Meeting may be embedded in relations or stored as a UUID reference.
-		$meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-
-		if ($meetingRelation === null) {
-			return null;
-		}
-
-		// If it's already a fully-hydrated array with an id, return it directly.
-		if (is_array($meetingRelation) === true) {
-			if (isset($meetingRelation['id']) === true && $meetingRelation['id'] !== '') {
-				// Already a hydrated meeting object — return it directly.
-				return $meetingRelation;
-			}
-
-			// Array without a usable id — cannot resolve.
-			return null;
-		}
-
-		// It's a UUID string reference — fetch the meeting.
-		$meetingId = (string)$meetingRelation;
-
-		if ($meetingId === '') {
-			return null;
-		}
-
-		try {
-			// Named arguments: the positional form ($id, null, 'decidesk', 'meeting')
-			// silently bound the register string to ObjectService::find()'s third
-			// parameter ($files) — a latent pre-existing defect fixed here.
-			$meetingEntity = $objectService->find(
-				id: $meetingId,
-				register: 'decidiq',
-				schema: 'meeting'
-			);
-			if ($meetingEntity === null) {
-				return null;
-			}
-
-			return $meetingEntity->getObject();
-		} catch (Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: Failed to fetch linked Meeting for minutes draft generation',
-				['exception' => $e->getMessage(), 'meetingId' => $meetingId]
-			);
-			// Re-throw as RuntimeException (503) so the caller distinguishes a transient
-			// OpenRegister outage from a genuinely missing relation (null return above).
-			throw new RuntimeException(
-				'OpenRegister service is temporarily unavailable. Please try again later.',
-				503,
-				$e
-			);
-		}//end try
-
-	}//end resolveMeeting()
-
-	/**
 	 * Fetch ALL objects of a given type linked to a meeting using offset-based pagination.
 	 *
-	 * Iterates pages of 100 items until an empty page is returned, preventing silent
+	 * Iterates pages of 100 items until a short page is returned, preventing silent
 	 * truncation for governance bodies with more than 100 items per meeting.
 	 *
-	 * @param object $objectService The OpenRegister ObjectService instance
-	 * @param string $schema The schema slug
-	 * @param string $meetingId The meeting UUID for filtering
-	 * @param array<string,mixed> $extraFilters Additional filters, e.g. the ADR-005 decisionType discriminator
+	 * @param string                                 $meetingId The meeting UUID for filtering
+	 * @param array{0: string, 1: array<string,mixed>} $query   The schema slug and any additional filters
 	 *
 	 * @return array<int,array<string,mixed>> Array of object data arrays
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
-	private function fetchRelatedObjects(object $objectService, string $schema, string $meetingId, array $extraFilters = []): array {
+	private function fetchRelatedObjects(string $meetingId, array $query): array {
 		if ($meetingId === '') {
 			return [];
 		}
 
-		$pageSize = 100;
-		$offset = 0;
+		$filters = $this->relatedFilters(meetingId: $meetingId, query: $query);
 		$result = [];
-
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema($schema);
-
 		do {
-			try {
-				$entities = $objectService->findAll(
-					[
-						'filters' => array_merge(
-							$extraFilters,
-							[
-								'register' => 'decidiq',
-								'schema' => $schema,
-								'_relations.meeting' => $meetingId,
-							]
-						),
-						'limit' => $pageSize,
-						'offset' => $offset,
-					]
-				);
-			} catch (Throwable $e) {
-				$this->logger->warning(
-					'Decidiq: Failed to fetch related objects for minutes draft',
-					['schema' => $schema, 'meetingId' => $meetingId, 'offset' => $offset, 'exception' => $e->getMessage()]
-				);
-				break;
-			}//end try
-
-			$page = [];
-			foreach ($entities as $entity) {
-				if (method_exists($entity, 'getObject') === true) {
-					$page[] = $entity->getObject();
-				} elseif (is_array($entity) === true) {
-					$page[] = $entity;
-				}
-			}
-
-			$pageCount = count($page);
-			$result = array_merge($result, $page);
-			$offset += $pageSize;
-		} while ($pageCount === $pageSize);
+			// Only full pages continue the loop, so the next offset is the count read so far.
+			$page = $this->fetchPage(filters: $filters, offset: count($result));
+			$result = array_merge($result, ($page ?? []));
+			$full = (is_array($page) === true && count($page) === self::PAGE_SIZE);
+		} while ($full === true);
 
 		return $result;
 	}//end fetchRelatedObjects()
+
+	/**
+	 * Point the object service at a related schema and build its filters.
+	 *
+	 * @param string                                 $meetingId The meeting UUID for filtering
+	 * @param array{0: string, 1: array<string,mixed>} $query   The schema slug and any additional filters
+	 *
+	 * @return array<string,mixed> The findAll filters
+	 */
+	private function relatedFilters(string $meetingId, array $query): array {
+		[$schema, $extraFilters] = $query;
+		$this->objectService->setRegister('decidiq');
+		$this->objectService->setSchema($schema);
+
+		return array_merge($extraFilters, ['register' => 'decidiq', 'schema' => $schema, '_relations.meeting' => $meetingId]);
+	}//end relatedFilters()
+
+	/**
+	 * One page of related objects, as data arrays.
+	 *
+	 * @param array<string,mixed> $filters The findAll filters
+	 * @param int                 $offset  The page offset
+	 *
+	 * @return array<int,array<string,mixed>>|null The page, or null when it cannot be read
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
+	 */
+	private function fetchPage(array $filters, int $offset): ?array {
+		try {
+			$entities = $this->objectService->findAll(['filters' => $filters, 'limit' => self::PAGE_SIZE, 'offset' => $offset]);
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: Failed to fetch related objects for minutes draft',
+				['schema' => $filters['schema'], 'meetingId' => $filters['_relations.meeting'], 'offset' => $offset, 'exception' => $e->getMessage()]
+			);
+			return null;
+		}
+
+		return self::pageObjects(entities: $entities);
+	}//end fetchPage()
+
+	/**
+	 * The data of every entity or data array on a page; anything else is skipped.
+	 *
+	 * @param iterable<mixed> $entities The findAll() results
+	 *
+	 * @return array<int,array<string,mixed>>
+	 */
+	private static function pageObjects(iterable $entities): array {
+		$page = [];
+		foreach ($entities as $entity) {
+			if (method_exists($entity, 'getObject') === true) {
+				$page[] = $entity->getObject();
+			} elseif (is_array($entity) === true) {
+				$page[] = $entity;
+			}
+		}
+
+		return $page;
+	}//end pageObjects()
 
 	/**
 	 * Lazy-load the OpenRegister ObjectService from the container.
 	 *
 	 * @return object The OpenRegister ObjectService instance
 	 *
-	 * @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions/tasks.md#task-1
 	 */
 	private function getObjectService(): object {
 		// Injected (ADR-083): a property read throws nothing, so the old

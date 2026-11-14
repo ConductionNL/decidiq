@@ -26,7 +26,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
  */
 
 declare(strict_types=1);
@@ -39,8 +39,8 @@ use RuntimeException;
 /**
  * Reads and writes decidiq's OpenRegister objects.
  *
- * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
- * @spec openspec/changes/governance-body-events/specs/governance-body-events/spec.md
+ * @spec openspec/specs/approval-routes/spec.md
+ * @spec openspec/specs/governance-body-events/spec.md
  */
 class RegisterObjectStore {
 	/**
@@ -81,7 +81,7 @@ class RegisterObjectStore {
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	public function save(string $schema, array $object, ?string $uuid = null): array {
 		$stored = $this->objectService->saveObject(
@@ -114,7 +114,7 @@ class RegisterObjectStore {
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	public function patch(string $schema, array $data, string $uuid): array {
 		$stored = $this->objectService->patchObject(
@@ -149,7 +149,7 @@ class RegisterObjectStore {
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function find(string $schema, string $uuid): ?array {
 		if (trim($uuid) === '') {
@@ -178,7 +178,7 @@ class RegisterObjectStore {
 	 *
 	 * @throws RuntimeException When OpenRegister is unavailable.
 	 *
-	 * @spec openspec/changes/approval-routes/specs/approval-routes/spec.md
+	 * @spec openspec/specs/approval-routes/spec.md
 	 */
 	public function findAll(string $schema, array $filters): array {
 		$results = $this->objectService->findAll(

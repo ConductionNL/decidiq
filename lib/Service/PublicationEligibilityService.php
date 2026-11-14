@@ -44,6 +44,7 @@ namespace OCA\Decidiq\Service;
 use DomainException;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
 
@@ -133,17 +134,40 @@ class PublicationEligibilityService {
 	];
 
 	/**
+	 * Reads the confidentiality restrictions on a decision.
+	 *
+	 * @var ConfidentialityRestrictions
+	 */
+	private readonly ConfidentialityRestrictions $confidentiality;
+
+	/**
+	 * Builds a theme's timeline, so a theme with nothing published is refused.
+	 *
+	 * @var ThemeTimelineBuilder
+	 */
+	private readonly ThemeTimelineBuilder $themeTimeline;
+
+	/**
 	 * Constructor.
 	 *
-	 * @param LoggerInterface $logger Logger.
-	 * @param ObjectServiceInterface $objectService The OpenRegister object service.
+	 * @param LoggerInterface                  $logger          Logger.
+	 * @param ObjectServiceInterface           $objectService   The OpenRegister object service.
+	 * @param ConfidentialityRestrictions|null $confidentiality Reads the restrictions that keep a
+	 *        decision out of the public. Null builds it on the same object service, so the
+	 *        check always runs; it is never skipped.
+	 * @param ThemeTimelineBuilder|null        $themeTimeline   Builds a theme's timeline; null builds
+	 *        it on the same object service.
 	 *
-	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
 	 */
 	public function __construct(
 		private readonly LoggerInterface $logger,
 		private readonly ObjectServiceInterface $objectService,
+		?ConfidentialityRestrictions $confidentiality=null,
+		?ThemeTimelineBuilder $themeTimeline=null,
 	) {
+		$this->confidentiality = ($confidentiality ?? new ConfidentialityRestrictions(objectService: $objectService));
+		$this->themeTimeline   = ($themeTimeline ?? new ThemeTimelineBuilder(objectService: $objectService, logger: $logger));
 	}//end __construct()
 
 	/**
@@ -177,6 +201,12 @@ class PublicationEligibilityService {
 			}
 		}
 
+		// A record labelled above public (records-management-archiving,
+		// REQ-RMA-008) is never published, whatever its lifecycle.
+		if ($this->isClassified(objectData: $objectData) === true) {
+			return true;
+		}
+
 		// Confidential Resolution: a resolution carrying a confidentiality
 		// classification is never publishable (board confidentiality wins).
 		$classification = strtolower((string)($objectData['confidentiality'] ?? $objectData['classification'] ?? ''));
@@ -188,6 +218,20 @@ class PublicationEligibilityService {
 
 		return false;
 	}//end isDeniedType()
+
+	/**
+	 * Whether the record carries a security label above public
+	 * (records-management-archiving, REQ-RMA-008).
+	 *
+	 * @param array<string,mixed> $objectData The object payload
+	 *
+	 * @return bool
+	 *
+	 * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-008-security-classification-labels-on-archival-records
+	 */
+	private function isClassified(array $objectData): bool {
+		return (new SecurityClassification())->isPublishable(label: (string)($objectData['securityClassification'] ?? '')) === false;
+	}//end isClassified()
 
 	/**
 	 * Whether a schema slug is on the structural publication deny-list.
@@ -292,12 +336,22 @@ class PublicationEligibilityService {
 		switch ($sourceType) {
 			case 'decision':
 				$this->assertDecisionEligible(data: $data);
+				$this->assertDecisionNotRestricted(decisionId: $sourceId);
 				break;
 			case 'agenda':
 				$this->assertAgendaEligible(data: $data);
 				break;
 			case 'minutes':
 				$this->assertMinutesEligible(data: $data);
+				break;
+			case 'activity':
+				$this->assertActivityEligible(data: $data);
+				break;
+			case 'theme':
+				$this->assertThemeEligible(data: $data);
+				break;
+			case 'incoming-document':
+				$this->assertIncomingDocumentEligible(data: $data);
 				break;
 			default:
 				throw new AccessDeniedException(message: 'Unknown publication source type: ' . $sourceType);
@@ -326,6 +380,105 @@ class PublicationEligibilityService {
 		}
 
 	}//end assertDecisionEligible()
+
+	/**
+	 * Refuse a decision under an imposed or ratified confidentiality restriction.
+	 *
+	 * @param string $decisionId The decision id.
+	 *
+	 * @spec openspec/specs/public-publication/spec.md#requirement-a-decision-under-a-confidentiality-restriction-is-never-published
+	 *
+	 * @throws AccessDeniedException When a restriction keeps the decision out.
+	 * @throws \OCA\Decidiq\Exception\ConfidentialityUnreadableException When the restrictions cannot be read.
+	 *
+	 * @return void
+	 */
+	private function assertDecisionNotRestricted(string $decisionId): void {
+		if ($this->confidentiality->isDecisionRestricted(decisionId: $decisionId) === true) {
+			throw new AccessDeniedException(
+				message: 'This decision is under a confidentiality restriction and is not publishable.'
+			);
+		}
+	}//end assertDecisionNotRestricted()
+
+	/**
+	 * Assert a meeting may go on the residents' calendar: it is public. No
+	 * convocation or agenda is needed, which is the difference from `agenda`.
+	 *
+	 * @param array<string,mixed> $data Meeting object data.
+	 *
+	 * @spec openspec/specs/activity-calendar/spec.md#requirement-req-acal-004-staff-publish-a-public-meeting-to-the-residents-calendar
+	 *
+	 * @throws AccessDeniedException When the meeting is not public.
+	 *
+	 * @return void
+	 */
+	private function assertActivityEligible(array $data): void {
+		if (($data['isPublic'] ?? false) !== true) {
+			throw new AccessDeniedException(
+				message: 'Only public meetings can be published to the public calendar.'
+			);
+		}
+	}//end assertActivityEligible()
+
+	/**
+	 * A theme is publishable when the griffie marked it public and at least one
+	 * linked item is published itself: a theme page never reveals an item that
+	 * has no publication of its own.
+	 *
+	 * @param array<string,mixed> $data The theme object data.
+	 *
+	 * @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-003-a-published-theme-carries-only-published-items
+	 *
+	 * @return void
+	 */
+	private function assertThemeEligible(array $data): void {
+		if (($data['isPublic'] ?? false) !== true) {
+			throw new AccessDeniedException(
+				message: 'Only themes marked public are publishable.'
+			);
+		}
+
+		if ($this->themeTimeline->publishedEntries(theme: $data) === []) {
+			throw new AccessDeniedException(
+				message: 'A theme is publishable once at least one of its items is published itself.'
+			);
+		}
+	}//end assertThemeEligible()
+
+	/**
+	 * Assert an incoming document is publishable: the council confirmed its
+	 * routing (or it is disposed of) at a public meeting, the meeting of the
+	 * "lijst ingekomen stukken" agenda item it was placed on.
+	 *
+	 * @param array<string,mixed> $data IngekomenStuk object data.
+	 *
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 *
+	 * @throws AccessDeniedException When not eligible.
+	 *
+	 * @return void
+	 */
+	private function assertIncomingDocumentEligible(array $data): void {
+		$lifecycle = (string)($data['lifecycle'] ?? '');
+		if (in_array($lifecycle, ['routing-determined', 'disposed'], true) === false) {
+			throw new AccessDeniedException(
+				message: 'Only incoming documents whose routing the council confirmed are publishable.'
+			);
+		}
+
+		$agendaItemId = (string)($data['listAgendaItem'] ?? '');
+		$meetingId    = '';
+		if ($agendaItemId !== '') {
+			$meetingId = (string)($this->loadObject(schema: 'agenda-item', id: $agendaItemId)['meeting'] ?? '');
+		}
+
+		if ($meetingId === '' || ($this->loadObject(schema: 'meeting', id: $meetingId)['isPublic'] ?? false) !== true) {
+			throw new AccessDeniedException(
+				message: 'Only incoming documents confirmed at a public meeting are publishable.'
+			);
+		}
+	}//end assertIncomingDocumentEligible()
 
 	/**
 	 * Assert a meeting agenda is publishable (isPublic + convocation sent).
@@ -388,7 +541,10 @@ class PublicationEligibilityService {
 		return match ($sourceType) {
 			'decision' => 'decision',
 			'agenda' => 'meeting',
+			'activity' => 'meeting',
 			'minutes' => 'minutes',
+			'theme' => 'governance-theme',
+			'incoming-document' => 'ingekomen-stuk',
 			default => $sourceType,
 		};
 

@@ -27,6 +27,9 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Exception\ParticipationValidationException;
+use OCA\Decidiq\Exception\ParticipationWindowClosedException;
+use OCA\Decidiq\Kernel\Contracts\BudgetVotingServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use RuntimeException;
 
@@ -40,7 +43,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class BudgetVotingService {
+class BudgetVotingService implements BudgetVotingServiceInterface {
 	/**
 	 * Constructor for BudgetVotingService.
 	 *
@@ -81,15 +84,7 @@ class BudgetVotingService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**
@@ -107,10 +102,13 @@ class BudgetVotingService {
 	 *
 	 * @return array<string, mixed> The created BudgetProposal object.
 	 *
-	 * @throws RuntimeException When the round is missing or not accepting proposals.
-	 * @throws InvalidArgumentException When the amount is invalid.
+	 * @throws RuntimeException When the round is missing.
+	 * @throws ParticipationWindowClosedException When the round is not accepting proposals (HTTP 400).
+	 * @throws ParticipationValidationException When the amount is not positive or exceeds the round (HTTP 422).
+	 * @throws InvalidArgumentException When the title is empty.
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
 	 */
 	public function submitProposal(
 		string $budgetId,
@@ -134,16 +132,16 @@ class BudgetVotingService {
 		$round = $roundEntity->jsonSerialize();
 
 		if ($this->lifecycleService->budgetAcceptsProposals(round: $round) === false) {
-			throw new RuntimeException('This budget round is not open for proposal submission');
+			throw new ParticipationWindowClosedException(message: 'This budget round is not open for proposal submission');
 		}
 
 		if ($requested <= 0) {
-			throw new InvalidArgumentException('requestedAmount must be a positive number');
+			throw new ParticipationValidationException(message: 'requestedAmount must be a positive number');
 		}
 
 		$total = (float)($round['totalAmount'] ?? 0);
 		if ($total > 0 && $requested > $total) {
-			throw new InvalidArgumentException('requestedAmount exceeds the round total amount');
+			throw new ParticipationValidationException(message: 'requestedAmount exceeds the round total amount');
 		}
 
 		$proposal = [
@@ -154,6 +152,12 @@ class BudgetVotingService {
 			'status' => 'submitted',
 			'votesFor' => 0,
 			'votesAgainst' => 0,
+			// The schema's own reference to the round. `relations` below is not a
+			// BudgetProposal property: OpenRegister keeps it only until the next
+			// save, and validateProposal() saves the proposal again. Without this
+			// field castAdvisoryVote() could not find the round after validation
+			// and refused every vote as "voting is closed".
+			'participatoryBudget' => $budgetId,
 			'relations' => [
 				['register' => 'decidiq', 'schema' => 'participatory-budget', 'id' => $budgetId],
 			],
@@ -221,12 +225,13 @@ class BudgetVotingService {
 	 *
 	 * @return array<string, mixed> ['vote' => ..., 'votesFor' => int, 'votesAgainst' => int].
 	 *
-	 * @throws RuntimeException When the proposal/round is missing, closed, or not validated.
+	 * @throws RuntimeException When the proposal is missing or not validated.
+	 * @throws ParticipationWindowClosedException When the round cannot be established or is not in its voting window (HTTP 400).
 	 * @throws InvalidArgumentException When the value is invalid.
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 * @spec openspec/specs/voting-system/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-part-102-the-advisory-voting-window-guard-fails-closed
 	 */
 	public function castAdvisoryVote(string $proposalId, string $voterId, string $value): array {
 		$objectService = $this->objectService();
@@ -250,17 +255,17 @@ class BudgetVotingService {
 		// established" is not "the round is open".
 		$budgetId = $this->resolveBudgetId(proposal: $proposal);
 		if ($budgetId === null) {
-			throw new RuntimeException('Voting is closed for this budget round');
+			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
 		$roundEntity = $objectService->find(id: $budgetId, register: 'decidiq', schema: 'participatory-budget');
 		if ($roundEntity === null) {
-			throw new RuntimeException('Voting is closed for this budget round');
+			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
 		$round = $roundEntity->jsonSerialize();
 		if ($this->lifecycleService->budgetAcceptsVotes(round: $round) === false) {
-			throw new RuntimeException('Voting is closed for this budget round');
+			throw new ParticipationWindowClosedException(message: 'Voting is closed for this budget round');
 		}
 
 		return $this->advisoryVoteService->applyAdvisoryTally(proposalId: $proposalId, voterId: $voterId, value: $value);
@@ -295,22 +300,7 @@ class BudgetVotingService {
 
 		$proposals = $this->fetchValidatedProposals(budgetId: $budgetId);
 
-		usort(
-			$proposals,
-			static function (array $a, array $b): int {
-				$forCmp = ((int)($b['votesFor'] ?? 0) <=> (int)($a['votesFor'] ?? 0));
-				if ($forCmp !== 0) {
-					return $forCmp;
-				}
-
-				$againstCmp = ((int)($a['votesAgainst'] ?? 0) <=> (int)($b['votesAgainst'] ?? 0));
-				if ($againstCmp !== 0) {
-					return $againstCmp;
-				}
-
-				return ((float)($a['requestedAmount'] ?? 0) <=> (float)($b['requestedAmount'] ?? 0));
-			}
-		);
+		usort($proposals, [self::class, 'compareProposals']);
 
 		$allocated = 0.0;
 		$ranked = [];
@@ -324,10 +314,8 @@ class BudgetVotingService {
 
 			$proposalId = (string)($proposal['id'] ?? $proposal['uuid'] ?? '');
 
-			// Persist the award decision on the proposal.
-			if ($funded === true && $proposalId !== '') {
-				$proposal['status'] = 'awarded';
-				$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+			if ($funded === true) {
+				$this->persistAward(objectService: $objectService, proposal: $proposal);
 			}
 
 			$ranked[] = [
@@ -350,6 +338,49 @@ class BudgetVotingService {
 		];
 
 	}//end calculateAllocation()
+
+	/**
+	 * Ranking order: most votes for first, then fewest votes against, then the smallest request.
+	 *
+	 * @param array<string, mixed> $a A proposal.
+	 * @param array<string, mixed> $b Another proposal.
+	 *
+	 * @return int
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private static function compareProposals(array $a, array $b): int {
+		$forCmp = ((int)($b['votesFor'] ?? 0) <=> (int)($a['votesFor'] ?? 0));
+		if ($forCmp !== 0) {
+			return $forCmp;
+		}
+
+		$againstCmp = ((int)($a['votesAgainst'] ?? 0) <=> (int)($b['votesAgainst'] ?? 0));
+		if ($againstCmp !== 0) {
+			return $againstCmp;
+		}
+
+		return ((float)($a['requestedAmount'] ?? 0) <=> (float)($b['requestedAmount'] ?? 0));
+	}//end compareProposals()
+
+	/**
+	 * Persist the award decision on a funded proposal that has an id.
+	 *
+	 * @param object               $objectService OpenRegister's object service.
+	 * @param array<string, mixed> $proposal      The funded proposal.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/citizen-participation/spec.md
+	 */
+	private function persistAward(object $objectService, array $proposal): void {
+		if ((string)($proposal['id'] ?? $proposal['uuid'] ?? '') === '') {
+			return;
+		}
+
+		$proposal['status'] = 'awarded';
+		$objectService->saveObject(register: 'decidiq', schema: 'budget-proposal', object: $proposal);
+	}//end persistAward()
 
 	/**
 	 * Fetch all validated/awarded proposals for a round.

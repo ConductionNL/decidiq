@@ -27,7 +27,8 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use InvalidArgumentException;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ReactionIntakeServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use Psr\Log\LoggerInterface;
@@ -44,7 +45,7 @@ use Throwable;
  *
  * @spec openspec/specs/citizen-participation/spec.md
  */
-class ReactionIntakeService {
+class ReactionIntakeService implements ReactionIntakeServiceInterface {
 
 	/**
 	 * Maximum reaction body length in bytes (server-side payload cap).
@@ -93,15 +94,7 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function normaliseSaved(mixed $saved, array $fallback): array {
-		if ($saved instanceof \OCA\OpenRegister\Db\ObjectEntity === true) {
-			return $saved->jsonSerialize();
-		}
-
-		if (is_array($saved) === true) {
-			return $saved;
-		}
-
-		return $fallback;
+		return (new SavedObjectNormaliser())->toArray(saved: $saved, fallback: $fallback);
 	}//end normaliseSaved()
 
 	/**
@@ -120,22 +113,16 @@ class ReactionIntakeService {
 	 *
 	 * @return array<string, mixed> The created ConsultationReaction object.
 	 *
-	 * @throws RuntimeException When the consultation is not found or closed.
+	 * @throws RuntimeException When the consultation is not found, or closed or past its
+	 *                          deadline (then the lifecycle service's window exception, a
+	 *                          RuntimeException the responder answers with 400).
 	 * @throws InvalidArgumentException When the body is empty/oversized or anonymous intake is not enabled.
 	 *
 	 * @spec openspec/specs/citizen-participation/spec.md
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
 	 */
 	public function submitReaction(string $consultationId, string $body, ?string $ncUid, ?string $clientSeed = null): array {
-		$body = trim($body);
-		if ($body === '') {
-			throw new InvalidArgumentException('Reaction body must not be empty');
-		}
-
-		if (strlen($body) > self::MAX_BODY_BYTES) {
-			throw new InvalidArgumentException(
-				sprintf('Reaction body exceeds the maximum of %d bytes', self::MAX_BODY_BYTES)
-			);
-		}
+		$body = $this->validBody(body: $body);
 
 		$objectService = $this->objectService();
 		$entity = $objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation');
@@ -146,16 +133,9 @@ class ReactionIntakeService {
 		$consultation = $entity->jsonSerialize();
 
 		// Server-side window guard (open + future deadline), independent of stored status.
-		if ($this->lifecycleService->consultationAcceptsSubmissions(consultation: $consultation) === false) {
-			throw new RuntimeException('This consultation is not open for submissions');
-		}
+		$this->lifecycleService->assertConsultationAcceptsSubmissions(consultation: $consultation);
 
-		$isAnonymous = ($ncUid === null || $ncUid === '');
-
-		// Anonymous intake is allowed only when staff enabled it on this consultation.
-		if ($isAnonymous === true && ($consultation['anonymousReactionsAllowed'] ?? false) !== true) {
-			throw new InvalidArgumentException('Anonymous reactions are not enabled for this consultation');
-		}
+		$isAnonymous = $this->anonymousAllowedOrRefused(consultation: $consultation, ncUid: $ncUid);
 
 		$policy = (string)($consultation['moderationPolicy'] ?? 'pre-moderation');
 
@@ -182,6 +162,161 @@ class ReactionIntakeService {
 
 		return $result;
 	}//end submitReaction()
+
+	/**
+	 * Import one response of the consultation's intake form as a reaction.
+	 *
+	 * An imported response always starts as `pending`, whatever the
+	 * consultation's moderation policy: it enters the moderation queue like an
+	 * anonymous reaction and is never public before a moderator approves it.
+	 * The reaction's id is derived from the source key, so importing the same
+	 * response again finds it and creates nothing.
+	 *
+	 * @param string      $consultationId The consultation UUID.
+	 * @param string      $body           The response text.
+	 * @param string      $sourceKey      A key unique to the response, e.g. `forms:<formId>:<submissionId>`.
+	 * @param string|null $submitter      The Nextcloud UID of a named respondent; null, empty or an
+	 *                                    `anon-` id for an anonymous one (then stored pseudonymously).
+	 * @param int         $submittedAt    When the response was given, epoch seconds (0: now).
+	 *
+	 * @return array<string, mixed>|null The created reaction, or null when it was imported before.
+	 *
+	 * @throws RuntimeException When the consultation is not found.
+	 * @throws InvalidArgumentException When the body is empty or too long.
+	 *
+	 * @spec openspec/specs/leaf-integrations/spec.md#requirement-req-leaf-004-consultation-intake-shall-be-offered-via-the-forms-leaf-into-the-existing-reaction-path
+	 */
+	public function importReaction(string $consultationId, string $body, string $sourceKey, ?string $submitter, int $submittedAt): ?array {
+		$body = $this->validBody(body: $body);
+
+		$objectService = $this->objectService();
+		if ($objectService->find(id: $consultationId, register: 'decidiq', schema: 'public-consultation') === null) {
+			throw new RuntimeException("PublicConsultation {$consultationId} not found");
+		}
+
+		$uuid = self::importedReactionId(consultationId: $consultationId, sourceKey: $sourceKey);
+		if ($objectService->find(id: $uuid, register: 'decidiq', schema: 'consultation-reaction') !== null) {
+			return null;
+		}
+
+		$reaction = [
+			'body' => $body,
+			'moderationStatus' => 'pending',
+			'submitterId' => $this->importedSubmitterId(consultationId: $consultationId, submitter: $submitter, sourceKey: $sourceKey),
+			'submittedAt' => self::atomOf(epoch: $submittedAt),
+			'consultation' => $consultationId,
+			'relations' => [
+				['register' => 'decidiq', 'schema' => 'public-consultation', 'id' => $consultationId],
+			],
+		];
+
+		$saved = $objectService->saveObject(register: 'decidiq', schema: 'consultation-reaction', object: $reaction, uuid: $uuid);
+
+		return $this->normaliseSaved(saved: $saved, fallback: $reaction);
+	}//end importReaction()
+
+	/**
+	 * The stable reaction id of an imported response: a UUID derived from the consultation and the source key.
+	 *
+	 * @param string $consultationId The consultation UUID.
+	 * @param string $sourceKey      The response's source key.
+	 *
+	 * @return string
+	 *
+	 * @spec openspec/specs/leaf-integrations/spec.md#requirement-req-leaf-004-consultation-intake-shall-be-offered-via-the-forms-leaf-into-the-existing-reaction-path
+	 */
+	public static function importedReactionId(string $consultationId, string $sourceKey): string {
+		$hex = sha1('decidiq:consultation-reaction:' . $consultationId . ':' . $sourceKey);
+		$hex = substr($hex, 0, 12) . '5' . substr($hex, 13, 3) . dechex((hexdec($hex[16]) & 0x3) | 0x8) . substr($hex, 17, 15);
+
+		return substr($hex, 0, 8) . '-' . substr($hex, 8, 4) . '-' . substr($hex, 12, 4) . '-' . substr($hex, 16, 4) . '-' . substr($hex, 20, 12);
+	}//end importedReactionId()
+
+	/**
+	 * The submitter id of an imported response: the UID of a named respondent, else a pseudonym.
+	 *
+	 * @param string      $consultationId The consultation UUID.
+	 * @param string|null $submitter      The respondent as the source names them.
+	 * @param string      $sourceKey      The response's source key, the pseudonym seed of an unnamed respondent.
+	 *
+	 * @return string
+	 */
+	private function importedSubmitterId(string $consultationId, ?string $submitter, string $sourceKey): string {
+		$submitter = (string)$submitter;
+		if ($submitter !== '' && str_starts_with($submitter, 'anon-') === false) {
+			return $submitter;
+		}
+
+		$seed = $submitter;
+		if ($seed === '') {
+			$seed = $sourceKey;
+		}
+
+		return $this->pseudonymousId(consultationId: $consultationId, seed: 'import:' . $seed);
+	}//end importedSubmitterId()
+
+	/**
+	 * An epoch as an ATOM date, now for 0 or less.
+	 *
+	 * @param int $epoch Epoch seconds.
+	 *
+	 * @return string
+	 */
+	private static function atomOf(int $epoch): string {
+		if ($epoch <= 0) {
+			return (new DateTimeImmutable())->format(\DateTimeInterface::ATOM);
+		}
+
+		return (new DateTimeImmutable('@' . $epoch))->format(\DateTimeInterface::ATOM);
+	}//end atomOf()
+
+	/**
+	 * The trimmed reaction body; refused when empty or longer than MAX_BODY_BYTES.
+	 *
+	 * @param string $body The submitted body.
+	 *
+	 * @return string
+	 *
+	 * @throws InvalidArgumentException When the body is empty or too long.
+	 *
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
+	 */
+	private function validBody(string $body): string {
+		$body = trim($body);
+		if ($body === '') {
+			throw new InvalidArgumentException('Reaction body must not be empty');
+		}
+
+		if (strlen($body) > self::MAX_BODY_BYTES) {
+			throw new InvalidArgumentException(
+				sprintf('Reaction body exceeds the maximum of %d bytes', self::MAX_BODY_BYTES)
+			);
+		}
+
+		return $body;
+	}//end validBody()
+
+	/**
+	 * Whether the reaction is anonymous. Anonymous intake is allowed only when staff
+	 * enabled it on this consultation.
+	 *
+	 * @param array<string, mixed> $consultation The consultation.
+	 * @param string|null          $ncUid        The submitting user, or null/'' when anonymous.
+	 *
+	 * @return bool
+	 *
+	 * @throws InvalidArgumentException When an anonymous reaction is not allowed.
+	 *
+	 * @spec openspec/specs/p3-citizen-participation/spec.md
+	 */
+	private function anonymousAllowedOrRefused(array $consultation, ?string $ncUid): bool {
+		$isAnonymous = ($ncUid === null || $ncUid === '');
+		if ($isAnonymous === true && ($consultation['anonymousReactionsAllowed'] ?? false) !== true) {
+			throw new InvalidArgumentException('Anonymous reactions are not enabled for this consultation');
+		}
+
+		return $isAnonymous;
+	}//end anonymousAllowedOrRefused()
 
 	/**
 	 * Approve a pending reaction (staff action).
@@ -372,10 +507,10 @@ class ReactionIntakeService {
 	 * @spec openspec/specs/citizen-participation/spec.md
 	 */
 	private function pseudonymousId(string $consultationId, string $seed): string {
-		$secret = $this->appConfig->getValueString(Application::APP_ID, 'participation_pseudonym_secret', '');
+		$secret = $this->appConfig->getValueString(AppIdentity::APP_ID, 'participation_pseudonym_secret', '');
 		if ($secret === '') {
 			$secret = bin2hex(random_bytes(32));
-			$this->appConfig->setValueString(Application::APP_ID, 'participation_pseudonym_secret', $secret);
+			$this->appConfig->setValueString(AppIdentity::APP_ID, 'participation_pseudonym_secret', $secret);
 		}
 
 		return 'anon-' . hash_hmac('sha256', $consultationId . ':' . $seed, $secret);

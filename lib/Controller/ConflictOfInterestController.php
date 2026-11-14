@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -23,8 +23,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\ConflictOfInterestService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
+use OCA\Decidiq\Service\ConflictDeclaration;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -36,7 +37,7 @@ use OCP\IUserSession;
 /**
  * REST controller for the ConflictOfInterest entity.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
  */
 class ConflictOfInterestController extends Controller {
 	use GovernanceControllerTrait;
@@ -45,17 +46,17 @@ class ConflictOfInterestController extends Controller {
 	 * Constructor for ConflictOfInterestController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param ConflictOfInterestService $conflictService The conflict service
+	 * @param ConflictOfInterestServiceInterface $conflictService The conflict service
 	 * @param IUserSession $userSession The user session
 	 * @param IGroupManager $groupManager Group manager (for admin bypass on the authorization guard)
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly ConflictOfInterestService $conflictService,
+		private readonly ConflictOfInterestServiceInterface $conflictService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -66,20 +67,10 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @return string|null
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function resolveCallerUid(): ?string {
-		$user = $this->userSession->getUser();
-		if ($user === null) {
-			return null;
-		}
-
-		$uid = $user->getUID();
-		if ($this->groupManager->isAdmin($uid) === true) {
-			return null;
-		}
-
-		return $uid;
+		return (new GuardCaller(userSession: $this->userSession, groupManager: $this->groupManager))->uid();
 	}//end resolveCallerUid()
 
 	/**
@@ -95,16 +86,11 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-101-only-the-declaring-member-or-an-authorized-official-may-record-a-declaration
 	 */
 	private function respondFromAuthorizedResult(array $result, string $payloadKey, int $successCode = Http::STATUS_OK): JSONResponse {
-		if (($result['success'] ?? false) === false
-			&& stripos((string)($result['message'] ?? ''), 'Forbidden:') === 0
-		) {
-			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
-		}
-
-		return $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
+		return (new ForbiddenResult(result: $result))->response()
+			?? $this->respondFromResult(result: $result, payloadKey: $payloadKey, successCode: $successCode);
 	}//end respondFromAuthorizedResult()
 
 	/**
@@ -112,8 +98,9 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
+	 * @spec openspec/specs/conflict-of-interest/spec.md#requirement-req-coir-001-declare-a-conflict-of-interest-from-the-page
 	 *
 	 * @return JSONResponse
 	 */
@@ -129,6 +116,22 @@ class ConflictOfInterestController extends Controller {
 		$type = (string)$this->request->getParam('declarationType', 'none');
 		$description = (string)$this->request->getParam('description', '');
 		$severity = (string)$this->request->getParam('severity', 'material');
+		$initialAction = 'no-action-needed';
+		if (filter_var($this->request->getParam('recuseFromVote', false), FILTER_VALIDATE_BOOLEAN) === true) {
+			$initialAction = 'recused-from-vote';
+		}
+
+		// A member declaring from a page does not know her Membership id: an
+		// omitted one means "me" (bod-10).
+		if ($membershipId === '' && $agendaItemId !== '') {
+			$membershipId = (string)$this->conflictService->membershipForUser((string)$this->userSession->getUser()?->getUID());
+			if ($membershipId === '') {
+				return new JSONResponse(
+					['message' => 'You are not a member of a governance body, so there is no declaration to record.'],
+					Http::STATUS_UNPROCESSABLE_ENTITY
+				);
+			}
+		}
 
 		if ($membershipId === '' || $agendaItemId === '') {
 			return new JSONResponse(
@@ -138,9 +141,10 @@ class ConflictOfInterestController extends Controller {
 		}
 
 		$callerUid = $this->resolveCallerUid();
+		$declaration = new ConflictDeclaration(membershipId: $membershipId, agendaItemId: $agendaItemId, type: $type, description: $description);
 
 		return $this->respondFromAuthorizedResult(
-			result: $this->conflictService->declare($membershipId, $agendaItemId, $type, $description, $severity, $callerUid),
+			result: $this->conflictService->declare($declaration->assessed(severity: $severity, initialAction: $initialAction), $callerUid),
 			payloadKey: 'declaration',
 			successCode: Http::STATUS_CREATED
 		);
@@ -155,9 +159,9 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
 	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/proposal.md#in-scope
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-102-only-the-member-or-an-authorized-official-may-read-a-members-conflict-declarations
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-102-only-the-member-or-an-authorized-official-may-read-a-members-conflict-declarations
 	 *
 	 * @return JSONResponse
 	 */
@@ -180,7 +184,12 @@ class ConflictOfInterestController extends Controller {
 			return new JSONResponse(['message' => 'Forbidden.'], Http::STATUS_FORBIDDEN);
 		}
 
-		$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
+		try {
+			$conflict = $this->conflictService->getActiveConflicts($id, $agendaItemId);
+		} catch (\RuntimeException $e) {
+			return new JSONResponse(['message' => 'The declarations could not be read. Try again in a moment.'], Http::STATUS_SERVICE_UNAVAILABLE);
+		}
+
 		return new JSONResponse(['conflict' => $conflict]);
 	}//end forMember()
 
@@ -191,8 +200,8 @@ class ConflictOfInterestController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-4.3
-	 * @spec openspec/changes/conflict-of-interest-authorization-guard/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-4.3
+	 * @spec openspec/specs/conflict-of-interest-authorization/spec.md#requirement-req-coi-103-only-a-chair-or-secretary-may-record-the-action-taken
 	 *
 	 * @return JSONResponse
 	 */

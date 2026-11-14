@@ -49,26 +49,26 @@ collapsing 24 schemas in one commit would do the same.
 
 ## Stage 2 — collapse the agenda-item schemas (follow-up)
 
-- [ ] 2.1 Seed five `AgendaItemType` objects replacing `MondelingeVraag`, `Interpellatieverzoek`, `IngekomenStuk`, `Raadsinformatiebrief`, `KascommissieVerklaring`
-- [ ] 2.2 Migrate existing objects of those five schemas onto `AgendaItem` + type; report a **count**, treat `0` as failure
-- [ ] 2.3 Retire the five schemas and their five menu leaves; keep every route resolvable (gate-53 / ADR-044)
-- [ ] 2.4 Retire `VragenuurConfiguratie` into `AgendaItemType`
+- [x] 2.1 (delivered by `questions-as-agenda-items` and `documents-as-agenda-items`: the types are seeded per example set in `lib/Settings/profiles/`; the audit-committee report went to `AuditStatement` through `generic-audit-statement` instead) Seed five `AgendaItemType` objects replacing `MondelingeVraag`, `Interpellatieverzoek`, `IngekomenStuk`, `Raadsinformatiebrief`, `KascommissieVerklaring`
+- [x] 2.2 (delivered: `MigrateQuestionsToAgendaItems`, `MigrateDocumentsToAgendaItems` and `MigrateKascommissieToAuditStatement`, each counted and registered in `appinfo/info.xml`) Migrate existing objects of those five schemas onto `AgendaItem` + type; report a **count**, treat `0` as failure
+- [x] 2.3 (delivered: the five schemas are superseded non-destructively in fragments 75, 76 and 85 and their menu leaves are gone from `src/manifest.json` and `src/menu-layout.simple.json`) Retire the five schemas and their five menu leaves; keep every route resolvable (gate-53 / ADR-044)
+- [x] 2.4 (delivered by `questions-as-agenda-items`, fragment 76) Retire `VragenuurConfiguratie` into `AgendaItemType`
 
 ## Stage 3 — retire the retirement schedule (follow-up)
 
-- [ ] 3.1 Build the derived retirement-schedule view over `Membership.endDate` ∪ `PositionHold.endDate`
-- [ ] 3.2 Migrate `RoosterRegel` rows onto `PositionHold`, counted
-- [ ] 3.3 Retire `RoosterVanAftreden`, `RoosterRegel`, `TermijnRegeling`
-- [ ] 3.4 Move `publicationDate`/`depublicationDate` onto the export artifact
-- [ ] 3.5 Supersede `Post` and `BodyParticipation`
+- [x] 3.1 (delivered by `bodies-term-of-office-and-step-down`: `src/utils/stepDownSchedule.js` and `StepDownScheduleWidget` compute it on read from memberships and position holds, nothing stored) Build the derived retirement-schedule view over `Membership.endDate` ∪ `PositionHold.endDate`
+- [x] 3.2 (decided otherwise by `retire-the-unbuilt-rooster`: `RoosterRegel` was a projection no writer ever filled, so its rows are not copied; the term rules it derived from moved onto `PositionType` through `MigrateTermRulesToPositionTypes`) Migrate `RoosterRegel` rows onto `PositionHold`, counted
+- [x] 3.3 (delivered by `retire-the-unbuilt-rooster`, fragment 80) Retire `RoosterVanAftreden`, `RoosterRegel`, `TermijnRegeling`
+- [ ] 3.4 (left: no stored schedule carries these dates any more, but there is no exported schedule artifact yet to move them onto; this waits on a schedule export) Move `publicationDate`/`depublicationDate` onto the export artifact
+- [ ] 3.5 (left: `BodyParticipation` is live, with `BodyParticipationsTab`, `BodyParticipationDialog` and `src/utils/bodyParticipations.js` writing it; superseding it needs a counted migration onto `GovernanceBodyComposition` and those surfaces repointed in the same change. `Membership.post` is a reference with no `Post` schema behind it, so that half is moving holders onto `PositionHold`) Supersede `Post` and `BodyParticipation`
 
 ## Stage 4 — competence enforcement (follow-up, security-reviewed)
 
-- [ ] 4.1 `DecisionCompetenceGuard::assertCompetent()` — throws, never returns nullable
-- [ ] 4.2 Invoke it from the decision write path **before** persistence
-- [ ] 4.3 Test that fails when the *call* is removed, not only when the guard is
-- [ ] 4.4 Run `hydra-gate-orphan-auth`, `hydra-gate-unsafe-auth-resolver`, `hydra-gate-no-admin-idor`, `hydra-gate-semantic-auth`
-- [ ] 4.5 No implicit competence: a type with no `competentBody` falls back to the meeting's body, else refuses
+- [x] 4.1 `DecisionCompetenceGuard::assertCompetent()` — throws, never returns nullable
+- [x] 4.2 Invoke it from the decision write path **before** persistence
+- [x] 4.3 Test that fails when the *call* is removed, not only when the guard is
+- [x] 4.4 Run `hydra-gate-orphan-auth`, `hydra-gate-unsafe-auth-resolver`, `hydra-gate-no-admin-idor`, `hydra-gate-semantic-auth`
+- [x] 4.5 No implicit competence: a type with no `competentBody` falls back to the meeting's body, else refuses
 
 ## Stage 5 — humaniq handoff (not implemented here)
 

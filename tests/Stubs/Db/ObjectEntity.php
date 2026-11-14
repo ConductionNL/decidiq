@@ -106,6 +106,13 @@ class ObjectEntity extends Entity implements \OCA\OpenRegister\Contract\ObjectEn
 	protected ?string $schema = null;
 
 	/**
+	 * The user who created the object, as the production entity stores it.
+	 *
+	 * @var string|null
+	 */
+	protected ?string $owner = null;
+
+	/**
 	 * Object data stored as an array.
 	 *
 	 * @var array<string,mixed>|null
@@ -120,6 +127,7 @@ class ObjectEntity extends Entity implements \OCA\OpenRegister\Contract\ObjectEn
 		$this->addType('register', 'string');
 		$this->addType('schema', 'string');
 		$this->addType('object', 'json');
+		$this->addType('owner', 'string');
 
 	}//end __construct()
 

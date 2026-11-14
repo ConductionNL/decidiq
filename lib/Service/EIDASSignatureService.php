@@ -31,7 +31,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -49,8 +49,8 @@ use RuntimeException;
 /**
  * Concrete eIDAS QES service that delegates to openconnector's e-sign source.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
- * @spec openspec/changes/decision-methods/tasks.md#4-eidas-signature-method-wiring-code
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+ * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
  */
 class EIDASSignatureService implements IEIDASSignatureService {
 
@@ -77,26 +77,33 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param LoggerInterface $logger Logger
 	 * @param AuditLogService $auditLogService Audit log dependency
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
+	 * @param SigningAnswer $answers Reads the signing service's answers
 	 */
 	public function __construct(
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 		private readonly AuditLogService $auditLogService,
 		private readonly ObjectServiceInterface $objectService,
+		private readonly SigningAnswer $answers = new SigningAnswer(),
 	) {
 	}//end __construct()
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @param string $minutesId UUID of the BoardMinutes record
-	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 * The signatories go out in the order given and the service is told to
+	 * keep it (`signingOrder: sequential`): the first signs first.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @param string $minutesId UUID of the record to sign (minutes, meeting or decision)
+	 * @param array<string> $signatories Ordered list of member (Person) UUIDs
+	 * @param string $subjectType What is signed: minutes, decision-list or motion
+	 *
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
-	public function initializeSigningRequest(string $minutesId, array $signatories): array {
+	public function initializeSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
 		if ($minutesId === '' || $signatories === []) {
 			return [
 				'success' => false,
@@ -109,7 +116,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// Contract #2: prefer docudesk for document e-signature when available (REQ-DCDH-005).
 		$docudeskResult = $this->composeDocudeskSigningRequest(
 			minutesId: $minutesId,
-			signatories: $signatories
+			signatories: $signatories,
+			subjectType: $subjectType
 		);
 		if ($docudeskResult['success'] === true) {
 			return $docudeskResult;
@@ -118,9 +126,12 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// Fallback to openconnector e-sign Source (REQ-DCDH-005).
 		$payload = [
 			'minutesId' => $minutesId,
+			'subjectType' => $subjectType,
+			'subjectId' => $minutesId,
 			'signatories' => array_values(array_map('strval', $signatories)),
+			'signingOrder' => 'sequential',
 			'profile' => 'eIDAS-QES',
-			'returnTarget' => 'decidiq/board-portal/minutes/' . $minutesId,
+			'returnTarget' => 'decidiq/' . $subjectType . '/' . $minutesId,
 		];
 
 		try {
@@ -166,7 +177,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $value The raw field value
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return string|null
 	 */
@@ -184,7 +195,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param object $entity Entity returned by ObjectService
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -202,7 +213,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $requestId UUID of the signing request
 	 * @param string $signature Base-64 encoded signature blob
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, certificateThumbprint: ?string, timestamp: ?string, message: string}
 	 */
@@ -261,7 +272,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $minutesId UUID of the BoardMinutes record
 	 * @param array<int, array<string>> $signatureList List of {signer, signature, timestamp} tuples
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{success: bool, pdfArchiveReference: ?string, hashSha256: ?string, message: string}
 	 */
@@ -299,16 +310,19 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		$archiveReference = (string)($response['pdfArchiveReference'] ?? '');
 		$hash = (string)($response['hashSha256'] ?? '');
 
-		// Persist the archive reference + hash + signed payload on the Minutes row.
+		// Persist the archive reference + hash + signers on the Minutes row,
+		// in the fields the Minutes schema declares (register fragment 97).
+		// This wrote `version: signed` into the integer revision number and
+		// signature tuples into the list of signer names, so the save was
+		// refused and nothing was kept.
 		$this->updateMinutesRow(
 			minutesId: $minutesId,
 			patch: [
-				'pdfArchiveReference' => $archiveReference,
-				'hashSha256' => $hash,
-				'signingCompletionDate' => gmdate('Y-m-d'),
-				'eidasSignatureLevel' => 'QES',
-				'version' => 'signed',
-				'signedBy' => array_values($signatureList),
+				'signingStatus' => 'signed',
+				'signedCopy' => $archiveReference,
+				'signedCopyHash' => $hash,
+				'signedAt' => gmdate('Y-m-d\TH:i:s\Z'),
+				'signedBy' => $this->answers->signerNames(signatureList: $signatureList),
 			]
 		);
 
@@ -342,7 +356,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $certThumbprint SHA-256 thumbprint of the cert
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array{valid: bool, issuer: ?string, trustListLevel: ?string, message: string}
 	 */
@@ -393,12 +407,52 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	}//end validateCertificateChain()
 
 	/**
+	 * {@inheritDoc}
+	 *
+	 * Asks the `eidas-qes` source's `status` action. The service answers with
+	 * `status` and, once signed, the signed document base64-encoded in
+	 * `document` with an optional `fileName`. Any status that is not a finished
+	 * one reads as pending, so a round is only closed on a clear answer; a
+	 * signed answer without a decodable document also reads as pending, so
+	 * nothing half-stored is ever linked.
+	 *
+	 * @param string $requestId The signing service's request reference
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 *
+	 * @return array{status: string, document: ?string, fileName: ?string, message: string}
+	 */
+	public function fetchSigningResult(string $requestId): array {
+		if ($requestId === '') {
+			return ['status' => 'pending', 'document' => null, 'fileName' => null, 'message' => 'requestId is required.'];
+		}
+
+		try {
+			$response = $this->invokeOpenconnector(action: 'status', payload: ['requestId' => $requestId]);
+		} catch (\Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not ask the signing service for a request status',
+				['requestId' => $requestId, 'exception' => $e->getMessage()]
+			);
+			return [
+				'status' => 'pending',
+				'document' => null,
+				'fileName' => null,
+				'message' => 'Could not reach the signing service: ' . $e->getMessage(),
+			];
+		}
+
+		return $this->answers->result(response: $response);
+	}//end fetchSigningResult()
+
+
+	/**
 	 * Invoke the openconnector e-sign source via the CallService. The
 	 * openconnector Source slug is fixed (see ::ESIGN_SOURCE_SLUG); the action
 	 * is sent as a relative path the Source's mapper resolves into a concrete
 	 * API call.
 	 *
-	 * @param string $action One of initiate|verify|finalize|validate-cert
+	 * @param string $action One of initiate|verify|finalize|validate-cert|status
 	 * @param array<string, mixed> $payload Action-specific payload
 	 *
 	 * @return array<string, mixed>
@@ -412,10 +466,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// LogEIDASSignatureService rather than proceeding against nothing.
 		$callService = FleetAppId::getService($this->container, 'integriq', 'Service\CallService')
 			?? throw new RuntimeException('Integriq CallService is not available under any known namespace.');
-		$sourceMapper = FleetAppId::getService($this->container, 'integriq', 'Db\SourceMapper')
-			?? throw new RuntimeException('Integriq SourceMapper is not available under any known namespace.');
-
-		$source = $sourceMapper->findBySlug(slug: self::ESIGN_SOURCE_SLUG);
+		$source = $this->integriqSource(slug: self::ESIGN_SOURCE_SLUG);
 		if ($source === null) {
 			throw new RuntimeException("Openconnector source '" . self::ESIGN_SOURCE_SLUG . "' is not configured.");
 		}
@@ -430,11 +481,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			]
 		);
 
-		$body = '';
-		if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
-			$raw = $response->getResponse();
-			$body = (string)($raw['body'] ?? '');
-		}
+		$body = $this->answers->body(response: $response);
 
 		$decoded = null;
 		if ($body !== '') {
@@ -447,6 +494,45 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		return $decoded;
 	}//end invokeOpenconnector()
+
+	/**
+	 * Find an integriq source by slug.
+	 *
+	 * The integriq app keeps its sources as OpenRegister objects (register
+	 * `integriq`, schema `source`); its own controllers find them this way. There is no
+	 * `Db\SourceMapper` under any namespace integriq has shipped since the
+	 * sources moved into OpenRegister, so the lookup this replaces threw on
+	 * every instance and no signing request ever left decidiq.
+	 *
+	 * @param string $slug The source's slug.
+	 *
+	 * @return object|null The source object, or null when none is configured.
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 */
+	private function integriqSource(string $slug): ?object {
+		// Sources are admin configuration, not the signer's data: integriq reads
+		// them in system context too (ConnectionStore::findSourceBySlug()), so a
+		// griffier without rights on the integriq register still reaches them.
+		$found = $this->objectService->findAll(
+			config: ['filters' => ['register' => 'integriq', 'schema' => 'source', 'slug' => $slug]],
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		foreach (($found['results'] ?? $found) as $item) {
+			if (is_object($item) === false || method_exists($item, 'getObject') === false) {
+				continue;
+			}
+
+			if ((string)($item->getObject()['slug'] ?? '') === $slug) {
+				return $item;
+			}
+		}
+
+		return null;
+	}//end integriqSource()
+
 
 	/**
 	 * Resolve the DecisionStage of method=signature that is linked (via the
@@ -464,8 +550,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 * @param string $minutesId UUID of the finalised Minutes record
 	 * @param string|null $signingReference Optional signing reference (docudesk signingRequest id) to store on the stage
 	 *
-	 * @spec openspec/changes/decision-methods/tasks.md#4-eidas-signature-method-wiring-code
-	 * @spec openspec/changes/decidesk-contract-decision-hub/tasks.md#phase-3
+	 * @spec openspec/changes/archive/2026-06-14-decision-methods/tasks.md#4-eidas-signature-method-wiring-code
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
 	 *
 	 * @return void
 	 */
@@ -497,40 +583,8 @@ class EIDASSignatureService implements IEIDASSignatureService {
 			$decidedAt = gmdate('Y-m-d\TH:i:s\Z');
 
 			foreach ($results as $stage) {
-				$current = $this->toObjectArray(entity: $stage);
-
-				$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
-				if ($stageId === '') {
-					continue;
-				}
-
-				$patch = [
-					'outcome' => 'adopted',
-					'decidedAt' => $decidedAt,
-					'status' => 'decided',
-				];
-				if ($signingReference !== null) {
-					$patch['signingReference'] = $signingReference;
-				}
-
-				$this->objectService->saveObject(
-					object: array_merge($current, $patch),
-					register: 'decidiq',
-					schema: 'decision-stage',
-					uuid: $stageId
-				);
-
-				$this->auditLogService->append(
-					actor: 'system',
-					action: 'signature',
-					objectUids: [$minutesId, $stageId],
-					payload: [
-						'phase' => 'resolve-signature-stage',
-						'stageId' => $stageId,
-						'decidedAt' => $decidedAt,
-					]
-				);
-			}//end foreach
+				$this->decideStage(stage: $stage, signing: ['minutesId' => $minutesId, 'signingReference' => $signingReference, 'decidedAt' => $decidedAt]);
+			}
 		} catch (\Throwable $e) {
 			$this->logger->warning(
 				'Decidiq: failed to resolve method=signature DecisionStage after finalizeMinutes',
@@ -539,6 +593,52 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		}//end try
 
 	}//end resolveSignatureStage()
+
+	/**
+	 * Mark one signature stage adopted and decided, and audit it.
+	 *
+	 * @param mixed                $stage   The DecisionStage as found.
+	 * @param array<string, mixed> $signing minutesId, signingReference (or null) and decidedAt.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-06-14-decidesk-contract-decision-hub/tasks.md#phase-3
+	 */
+	private function decideStage(mixed $stage, array $signing): void {
+		$current = $this->toObjectArray(entity: $stage);
+
+		$stageId = (string)($current['id'] ?? ($current['uuid'] ?? ''));
+		if ($stageId === '') {
+			return;
+		}
+
+		$patch = [
+			'outcome' => 'adopted',
+			'decidedAt' => $signing['decidedAt'],
+			'status' => 'decided',
+		];
+		if ($signing['signingReference'] !== null) {
+			$patch['signingReference'] = $signing['signingReference'];
+		}
+
+		$this->objectService->saveObject(
+			object: array_merge($current, $patch),
+			register: 'decidiq',
+			schema: 'decision-stage',
+			uuid: $stageId
+		);
+
+		$this->auditLogService->append(
+			actor: 'system',
+			action: 'signature',
+			objectUids: [$signing['minutesId'], $stageId],
+			payload: [
+				'phase' => 'resolve-signature-stage',
+				'stageId' => $stageId,
+				'decidedAt' => $signing['decidedAt'],
+			]
+		);
+	}//end decideStage()
 
 	/**
 	 * Compose a docudesk signingRequest via the ADR-019 integration registry
@@ -552,14 +652,13 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @param string $minutesId UUID of the Minutes / document record
 	 * @param array<string> $signatories Ordered list of Person UUIDs
+	 * @param string $subjectType What is signed: minutes, decision-list or motion
 	 *
 	 * @return array{success: bool, requestId: ?string, signingUrl: ?string, message: string}
 	 */
-	private function composeDocudeskSigningRequest(string $minutesId, array $signatories): array {
+	private function composeDocudeskSigningRequest(string $minutesId, array $signatories, string $subjectType = 'minutes'): array {
 		try {
-			$sourceMapper = FleetAppId::getService($this->container, 'integriq', 'Db\SourceMapper')
-				?? throw new RuntimeException('Integriq SourceMapper is not available under any known namespace.');
-			$source = $sourceMapper->findBySlug(slug: self::DOCUDESK_SOURCE_SLUG);
+			$source = $this->integriqSource(slug: self::DOCUDESK_SOURCE_SLUG);
 		} catch (\Throwable) {
 			// Openconnector absent or source not configured — docudesk unavailable.
 			return ['success' => false, 'requestId' => null, 'signingUrl' => null, 'message' => 'Docudesk source not configured.'];
@@ -573,9 +672,11 @@ class EIDASSignatureService implements IEIDASSignatureService {
 		// Docudesk IS registered — compose the signingRequest (fail-closed from here).
 		$payload = [
 			'documentId' => $minutesId,
+			'subjectType' => $subjectType,
 			'signatories' => array_values(array_map('strval', $signatories)),
+			'signingOrder' => 'sequential',
 			'signingLevel' => 'QES',
-			'returnTarget' => 'decidiq/minutes/' . $minutesId,
+			'returnTarget' => 'decidiq/' . $subjectType . '/' . $minutesId,
 		];
 
 		try {
@@ -635,16 +736,12 @@ class EIDASSignatureService implements IEIDASSignatureService {
 	 *
 	 * @throws RuntimeException When the response carries no decodable JSON body.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-3.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-3.1
 	 *
 	 * @return array<string, mixed> The decoded response body
 	 */
 	private function decodeDocudeskResponse(mixed $response): array {
-		$body = '';
-		if (is_object($response) === true && method_exists($response, 'getResponse') === true) {
-			$raw = $response->getResponse();
-			$body = (string)($raw['body'] ?? '');
-		}
+		$body = $this->answers->body(response: $response);
 
 		$decoded = null;
 		if ($body !== '') {
@@ -657,6 +754,7 @@ class EIDASSignatureService implements IEIDASSignatureService {
 
 		return $decoded;
 	}//end decodeDocudeskResponse()
+
 
 	/**
 	 * Persist a partial update on a Minutes row. Wrapped in a try/catch so

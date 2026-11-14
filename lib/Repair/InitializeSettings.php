@@ -16,8 +16,8 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\IAppConfig;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
@@ -36,21 +36,21 @@ use Psr\Log\LoggerInterface;
 /**
  * Repair step that initializes Decidiq configuration via SettingsService.
  *
- * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.1
  */
 class InitializeSettings implements IRepairStep {
 	/**
 	 * Constructor for InitializeSettings.
 	 *
-	 * @param SettingsService $settingsService The settings service
+	 * @param SettingsServiceInterface $settingsService The settings service
 	 * @param IAppConfig $appConfig The app config
 	 * @param LoggerInterface $logger The logger interface
 	 *
 	 * @return void
 	 */
 	public function __construct(
-		private SettingsService $settingsService,
+		private SettingsServiceInterface $settingsService,
 		private IAppConfig $appConfig,
 		private LoggerInterface $logger,
 	) {
@@ -61,9 +61,9 @@ class InitializeSettings implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function getName(): string {
 		return 'Initialize Decidiq register and schemas via ConfigurationService';
@@ -76,49 +76,14 @@ class InitializeSettings implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p1-schemas-and-data-model/tasks.md#task-3
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-1
-	 * @spec openspec/changes/p2-minutes-and-decisions-core-t3/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 * @spec openspec/changes/archive/2026-05-11-p2-minutes-and-decisions-core-t3/tasks.md#task-1
 	 */
 	public function run(IOutput $output): void {
 		$output->info('Initializing Decidiq configuration...');
 
-		// Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
-		// to prevent a concurrent first-call race in VotingService::voterTokenSecret().
-		//
-		// The namespace below is Application::APP_ID rather than a literal. It used to
-		// be the bare string 'decidesk', which is the app-config namespace and NOT the
-		// (frozen) OpenRegister register slug — two different `'decidesk'` literals that
-		// grep cannot tell apart. Left as a literal it would read and write the secret
-		// under the pre-rename namespace while VotingService looked for it under the new
-		// one, so this step would keep "finding" a secret the rest of the app cannot see.
-		// MigrateAppConfigKeys runs BEFORE this step precisely so the copied value is
-		// already here and no fresh key is minted over it.
-		if ($this->appConfig->getValueString(Application::APP_ID, 'voter_token_secret', '') === '') {
-			// The `sensitive: true` flag below is required: this is the HMAC key that
-			// signs voting tokens and mail-reply links. Without the flag it is stored as
-			// an ordinary appconfig string, so it prints in cleartext in `occ config:list`
-			// and every support dump that feeds. Anyone who reads it can forge a vote.
-			$this->appConfig->setValueString(
-				Application::APP_ID,
-				'voter_token_secret',
-				bin2hex(random_bytes(32)),
-				sensitive: true
-			);
-			$output->info('Generated voter_token_secret for Decidiq.');
-		}
-
-		// Re-flag a token stored before this release: flagging the WRITE path only fixes
-		// new installs, and nobody regenerates the key. `updateSensitive()` re-encrypts
-		// the existing row at rest and redacts it from CLI output in place.
-		if ($this->appConfig->getValueString(Application::APP_ID, 'voter_token_secret', '') !== '') {
-			try {
-				$this->appConfig->updateSensitive(Application::APP_ID, 'voter_token_secret', true);
-			} catch (\Throwable $e) {
-				// Never fatal — leaving it as-is is the pre-existing state, not a regression.
-				$output->warning('Could not flag voter_token_secret as sensitive: ' . $e->getMessage());
-			}
-		}
+		$this->ensureVoterTokenSecret(output: $output);
 
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
 			$output->warning(
@@ -130,6 +95,67 @@ class InitializeSettings implements IRepairStep {
 			return;
 		}
 
+		$this->importConfiguration(output: $output);
+	}//end run()
+
+	/**
+	 * Make sure the voter token secret exists, and is flagged sensitive.
+	 *
+	 * @param IOutput $output The output interface for progress reporting
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-1
+	 */
+	private function ensureVoterTokenSecret(IOutput $output): void {
+		// Ensure voter_token_secret is initialized exactly once, at install/upgrade time,
+		// to prevent a concurrent first-call race in VotingService::voterTokenSecret().
+		//
+		// The namespace below is AppIdentity::APP_ID rather than a literal. It used to
+		// be the bare string 'decidesk', which is the app-config namespace and NOT the
+		// (frozen) OpenRegister register slug — two different `'decidesk'` literals that
+		// grep cannot tell apart. Left as a literal it would read and write the secret
+		// under the pre-rename namespace while VotingService looked for it under the new
+		// one, so this step would keep "finding" a secret the rest of the app cannot see.
+		// MigrateAppConfigKeys runs BEFORE this step precisely so the copied value is
+		// already here and no fresh key is minted over it.
+		if ($this->appConfig->getValueString(AppIdentity::APP_ID, 'voter_token_secret', '') === '') {
+			// The `sensitive: true` flag below is required: this is the HMAC key that
+			// signs voting tokens and mail-reply links. Without the flag it is stored as
+			// an ordinary appconfig string, so it prints in cleartext in `occ config:list`
+			// and every support dump that feeds. Anyone who reads it can forge a vote.
+			$this->appConfig->setValueString(
+				AppIdentity::APP_ID,
+				'voter_token_secret',
+				bin2hex(random_bytes(32)),
+				sensitive: true
+			);
+			$output->info('Generated voter_token_secret for Decidiq.');
+		}
+
+		// Re-flag a token stored before this release: flagging the WRITE path only fixes
+		// new installs, and nobody regenerates the key. `updateSensitive()` re-encrypts
+		// the existing row at rest and redacts it from CLI output in place.
+		if ($this->appConfig->getValueString(AppIdentity::APP_ID, 'voter_token_secret', '') !== '') {
+			try {
+				$this->appConfig->updateSensitive(AppIdentity::APP_ID, 'voter_token_secret', true);
+			} catch (\Throwable $e) {
+				// Never fatal — leaving it as-is is the pre-existing state, not a regression.
+				$output->warning('Could not flag voter_token_secret as sensitive: ' . $e->getMessage());
+			}
+		}
+	}//end ensureVoterTokenSecret()
+
+	/**
+	 * Import the register configuration and report how that went.
+	 *
+	 * @param IOutput $output The output interface for progress reporting
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p1-schemas-and-data-model/tasks.md#task-3
+	 */
+	private function importConfiguration(IOutput $output): void {
 		try {
 			$result = $this->settingsService->loadConfiguration();
 
@@ -152,5 +178,5 @@ class InitializeSettings implements IRepairStep {
 				['exception' => $e->getMessage()]
 			);
 		}//end try
-	}//end run()
+	}//end importConfiguration()
 }//end class

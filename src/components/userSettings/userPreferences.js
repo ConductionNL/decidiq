@@ -1,9 +1,9 @@
 /**
  * User-settings logic module (user-settings spec).
  *
- * Shared by the four personal-settings section components and their three
- * mounts (Nextcloud personal settings panel, SPA settings page, in-app
- * dialog). Pure logic lives here so vitest can exercise it without a DOM:
+ * Shared by the personal-settings section components, which mount in one
+ * place: the in-app user settings dialog (views/settings/UserSettings.vue).
+ * Pure logic lives here so vitest can exercise it without a DOM:
  *   - fetch/save of the per-user NotificationPreference REST resource
  *   - fetch/save of IConfig-backed display preferences
  *   - the two-toggle ↔ deliveryMethod enum mapping
@@ -27,6 +27,7 @@ export const EVENT_TYPES = [
 	'taskAssigned',
 	'commentMention',
 	'meetingReminder',
+	'agendaChanged',
 ]
 
 /** Valid meeting-reminder timing tokens (mirrors the schema enum). */
@@ -142,6 +143,18 @@ export function validateDelegation({ delegate, delegationFrom, delegationUntil }
 }
 
 /**
+ * The fixed date patterns by display preference; any other preference
+ * follows the locale.
+ *
+ * @type {Map<string, function({dd: string, mm: string, yyyy: string}): string>}
+ */
+const DATE_PATTERNS = new Map([
+	['DD-MM-YYYY', ({ dd, mm, yyyy }) => `${dd}-${mm}-${yyyy}`],
+	['YYYY-MM-DD', ({ dd, mm, yyyy }) => `${yyyy}-${mm}-${dd}`],
+	['MM/DD/YYYY', ({ dd, mm, yyyy }) => `${mm}/${dd}/${yyyy}`],
+])
+
+/**
  * Format a date per the user's date-format display preference.
  *
  * 'locale' (the default) follows the Nextcloud/browser locale, satisfying
@@ -154,25 +167,39 @@ export function validateDelegation({ delegate, delegationFrom, delegationUntil }
  * @spec openspec/specs/user-settings/spec.md
  */
 export function formatDate(value, format = 'locale') {
-	if (!value) {
+	const date = validDate(value)
+	if (date === null) {
 		return ''
+	}
+	const pattern = DATE_PATTERNS.get(format)
+	return pattern ? pattern(dateParts(date)) : date.toLocaleDateString()
+}
+
+/**
+ * A date from an ISO string or a Date, or null when empty or invalid.
+ *
+ * @param {string|Date} value The date.
+ * @return {Date|null} The date.
+ */
+function validDate(value) {
+	if (!value) {
+		return null
 	}
 	const date = value instanceof Date ? value : new Date(value)
-	if (isNaN(date.getTime())) {
-		return ''
-	}
-	const dd = String(date.getDate()).padStart(2, '0')
-	const mm = String(date.getMonth() + 1).padStart(2, '0')
-	const yyyy = String(date.getFullYear())
-	switch (format) {
-		case 'DD-MM-YYYY':
-			return `${dd}-${mm}-${yyyy}`
-		case 'YYYY-MM-DD':
-			return `${yyyy}-${mm}-${dd}`
-		case 'MM/DD/YYYY':
-			return `${mm}/${dd}/${yyyy}`
-		default:
-			return date.toLocaleDateString()
+	return isNaN(date.getTime()) ? null : date
+}
+
+/**
+ * The zero-padded day, month and year of a date.
+ *
+ * @param {Date} date The date.
+ * @return {{dd: string, mm: string, yyyy: string}} The parts.
+ */
+function dateParts(date) {
+	return {
+		dd: String(date.getDate()).padStart(2, '0'),
+		mm: String(date.getMonth() + 1).padStart(2, '0'),
+		yyyy: String(date.getFullYear()),
 	}
 }
 
@@ -243,10 +270,20 @@ export async function fetchDisplayPreference(key) {
 		},
 	)
 	if (!response.ok) {
-		return DISPLAY_DEFAULTS[key] ?? ''
+		return displayDefault(key)
 	}
 	const data = await response.json().catch(() => ({}))
-	return data?.value ?? DISPLAY_DEFAULTS[key] ?? ''
+	return data?.value ?? displayDefault(key)
+}
+
+/**
+ * The default of a display preference, '' for a key without one.
+ *
+ * @param {string} key Preference key.
+ * @return {string} The default.
+ */
+function displayDefault(key) {
+	return DISPLAY_DEFAULTS[key] ?? ''
 }
 
 /**

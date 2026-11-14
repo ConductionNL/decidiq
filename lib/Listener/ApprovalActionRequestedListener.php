@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -27,8 +27,8 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\ApprovalActionRequestedEvent;
-use OCA\Decidiq\Service\ApprovalRouteCommandService;
-use OCA\Decidiq\Service\ApprovalRouteConclusionAnnouncer;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteConclusionAnnouncerInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -39,20 +39,20 @@ use Throwable;
  *
  * @implements IEventListener<Event>
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
 class ApprovalActionRequestedListener implements IEventListener {
 
 	/**
 	 * Constructor.
 	 *
-	 * @param ApprovalRouteCommandService       $commandService The delegating command engine.
-	 * @param ApprovalRouteConclusionAnnouncer $announcer      The one door a conclusion leaves by.
+	 * @param ApprovalRouteCommandServiceInterface       $commandService The delegating command engine.
+	 * @param ApprovalRouteConclusionAnnouncerInterface $announcer      The one door a conclusion leaves by.
 	 * @param LoggerInterface                   $logger         Logger.
 	 */
 	public function __construct(
-		private readonly ApprovalRouteCommandService $commandService,
-		private readonly ApprovalRouteConclusionAnnouncer $announcer,
+		private readonly ApprovalRouteCommandServiceInterface $commandService,
+		private readonly ApprovalRouteConclusionAnnouncerInterface $announcer,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()
@@ -64,7 +64,7 @@ class ApprovalActionRequestedListener implements IEventListener {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function handle(Event $event): void {
 		if ($event instanceof ApprovalActionRequestedEvent === false) {

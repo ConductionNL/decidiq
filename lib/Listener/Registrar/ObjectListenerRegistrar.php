@@ -1,0 +1,251 @@
+<?php
+
+/**
+ * Decidiq Object Listener Registrar
+ *
+ * Subscribes decidiq's OpenRegister object-lifecycle listeners with their
+ * schema interest declared up front, so an uninterested listener is neither
+ * constructed nor invoked.
+ *
+ * Extracted from {@see \OCA\Decidiq\AppInfo\Application} so the bootstrap
+ * class stops accumulating a class reference for every listener and event it
+ * subscribes (PHPMD CouplingBetweenObjects); the imports move with the
+ * subscriptions.
+ *
+ * @category Listener
+ * @package  OCA\Decidiq\Listener\Registrar
+ *
+ * @author    Conduction Development Team <info@conduction.nl>
+ * @copyright 2026 Conduction B.V.
+ * @license   EUPL-1.2 https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * @version GIT: <git-id>
+ *
+ * @link https://conduction.nl
+ *
+ * @spec openspec/specs/nextcloud-integration/spec.md
+ */
+
+// SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
+// SPDX-License-Identifier: EUPL-1.2
+declare(strict_types=1);
+
+namespace OCA\Decidiq\Listener\Registrar;
+
+use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\ImplementationUpdateListener;
+use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
+use OCA\Decidiq\Listener\TechnicalQuestionListener;
+use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
+use OCA\Decidiq\Listener\MeetingFolderListener;
+use OCA\Decidiq\Listener\MinutesApprovedListener;
+use OCA\OpenRegister\Event\ObjectCreatedEvent;
+use OCA\OpenRegister\Event\ObjectDeletedEvent;
+use OCA\OpenRegister\Event\ObjectUpdatedEvent;
+use OCP\EventDispatcher\IEventDispatcher;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Filtered object-lifecycle listener subscriptions.
+ *
+ * MUST be driven from boot(), never from register(). Nextcloud enables each
+ * app's own autoloader immediately before calling that app's register(), so
+ * during register() OpenRegister's classes are only autoloadable to apps that
+ * happen to be registered after it — the class_exists() guard below would then
+ * resolve differently purely by app load order and silently fall back to an
+ * unfiltered registration. boot() runs only after every app's register() has
+ * completed, so the guard is order-independent there.
+ *
+ * @spec openspec/specs/nextcloud-integration/spec.md
+ */
+class ObjectListenerRegistrar {
+
+	/**
+	 * FQCN of OpenRegister's filtered-subscription helper.
+	 *
+	 * Referenced as a string, never imported: the class only exists when
+	 * openregister is installed.
+	 *
+	 * @var string
+	 */
+	private const SUBSCRIPTION = '\\OCA\\OpenRegister\\Event\\ObjectEventSubscription';
+
+	/**
+	 * Construct the ObjectListenerRegistrar.
+	 *
+	 * @param LoggerInterface $logger Logger used for the unfiltered-fallback warning
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function __construct(
+		private readonly LoggerInterface $logger,
+	) {
+	}//end __construct()
+
+	/**
+	 * Subscribe every decidiq object-lifecycle listener.
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	public function register(IEventDispatcher $dispatcher): void {
+		// Declares its schema interest at subscription time instead of
+		// re-deriving it on every dispatch: the handler's first guard is
+		// `resolveSchemaSlug(...) !== MeetingFolderListener::SCHEMA_MEETING`
+		// (= the `meeting` schema slug). Registered globally it was
+		// constructed and invoked on every object create on the instance —
+		// a larpingapp character create reached `handle()` and bailed at that
+		// guard. No register is declared: schema-only is exactly the guard
+		// the handler already applies, and stays correct if a Decidiq
+		// deployment ever splits meetings across registers.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: MeetingFolderListener::class,
+			registers: null,
+			schemas: ['meeting']
+		);
+
+		// Same narrowing as MeetingFolderListener above. The declared slug lists
+		// are the listener's own constants (a deletion also for a body, whose
+		// scope groups go with it), so the declaration cannot be narrower than
+		// the guard it fronts.
+		foreach ([
+			ObjectCreatedEvent::class => GovernanceRoleProjectionListener::ROSTER_SCHEMAS,
+			ObjectUpdatedEvent::class => GovernanceRoleProjectionListener::ROSTER_SCHEMAS,
+			ObjectDeletedEvent::class => GovernanceRoleProjectionListener::DELETE_SCHEMAS,
+		] as $rosterEvent => $rosterSchemas) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $rosterEvent,
+				listener: GovernanceRoleProjectionListener::class,
+				registers: null,
+				schemas: $rosterSchemas
+			);
+		}
+
+		// Technical questions (motions-technical-questions-to-officials, mot-17):
+		// assigning tells the official, answering tells the member who asked.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $questionEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $questionEvent,
+				listener: TechnicalQuestionListener::class,
+				registers: null,
+				schemas: [TechnicalQuestionListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+
+		// A planning cycle made from a template gets its steps
+		// (planning-cycle-generate-from-template, pla-12). Declared interest is
+		// the handler's own schema guard.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: PlanningCycleCreatedListener::class,
+			registers: null,
+			schemas: [PlanningCycleCreatedListener::SCHEMA_PLANNING_CYCLE]
+		);
+
+		// Implementation progress (followup-implementation-progress,
+		// REQ-FUP-002): the newest update sets the decision's status.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: ImplementationUpdateListener::class,
+			registers: null,
+			schemas: [ImplementationUpdateListener::SCHEMA_UPDATE]
+		);
+
+		// Agenda change notices (#1396). Declared interest is the handler's
+		// own schema guard verbatim, AgendaItemChangeListener::SCHEMA_AGENDA_ITEM.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class, ObjectDeletedEvent::class] as $agendaEvent) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $agendaEvent,
+				listener: AgendaItemChangeListener::class,
+				registers: null,
+				schemas: [AgendaItemChangeListener::SCHEMA_AGENDA_ITEM]
+			);
+		}
+
+		// Platform-case-system-document-exchange (plt-24): minutes reaching
+		// approved or signed render the decision list, and may send the
+		// meeting file. Declared interest is the handler's own schema guard.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectUpdatedEvent::class,
+			listener: MinutesApprovedListener::class,
+			registers: null,
+			schemas: [MinutesApprovedListener::SCHEMA_MINUTES]
+		);
+
+		// Before-save guards (SaveGuardSubscriptions): submission deadline,
+		// meeting defaults, submission window and document details.
+		foreach (SaveGuardSubscriptions::ALL as $guard) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $guard['event'],
+				listener: $guard['listener'],
+				registers: null,
+				schemas: $guard['schemas']
+			);
+		}
+
+	}//end register()
+
+	/**
+	 * Register an object-lifecycle listener that declares its interest up front.
+	 *
+	 * OpenRegister's `ObjectEventSubscription` records the register/schema slugs
+	 * a listener reacts to and routes dispatches through a single shared proxy,
+	 * so an uninterested listener is neither constructed nor invoked. When
+	 * OpenRegister is absent — Decidiq carries no hard dependency on it — this
+	 * degrades to the plain global registration it replaced, which is exactly
+	 * the behaviour every listener had before.
+	 *
+	 * @param IEventDispatcher $dispatcher The live event dispatcher.
+	 * @param string $event OpenRegister event class name
+	 * @param string $listener Listener class name
+	 * @param array<int,string>|null $registers Register slugs the listener reacts to, or null for all
+	 * @param array<int,string>|null $schemas Schema slugs the listener reacts to, or null for all
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/specs/nextcloud-integration/spec.md
+	 */
+	private function subscribe(
+		IEventDispatcher $dispatcher,
+		string $event,
+		string $listener,
+		?array $registers,
+		?array $schemas,
+	): void {
+		$subscription = self::SUBSCRIPTION;
+		if (class_exists($subscription) === true) {
+			$subscription::subscribe(
+				dispatcher: $dispatcher,
+				event: $event,
+				listener: $listener,
+				registers: $registers,
+				schemas: $schemas
+			);
+			return;
+		}
+
+		// Loud on purpose. This fallback is correct but UNFILTERED, and while it
+		// was silent it was indistinguishable from a working narrowing.
+		$this->logger->warning(
+			'OpenRegister ObjectEventSubscription unavailable: ' . $listener
+			. ' fell back to an UNFILTERED registration for ' . $event
+			. ' and will be invoked on every object write instance-wide.',
+			['app' => 'decidiq']
+		);
+
+		$dispatcher->addServiceListener($event, $listener);
+
+	}//end subscribe()
+}//end class

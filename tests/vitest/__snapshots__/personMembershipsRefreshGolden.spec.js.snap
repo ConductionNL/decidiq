@@ -1,0 +1,138 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`PersonMembershipsTab refresh() > loads the person, their memberships and their bodies 1`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "p-1",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "person": "p-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "body-1",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+    {
+      "fn": "fetchObject",
+      "id": "body-broken",
+      "schema": "governance-body",
+      "type": "governance-body",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "person": {
+      "id": "p-1",
+      "name": "Anna",
+    },
+    "photoFailed": false,
+    "sections": {
+      "current": [
+        {
+          "bodyId": "body-1",
+          "bodyName": "Gemeenteraad",
+          "endDate": "",
+          "id": "m1",
+          "party": "",
+          "portfolio": "",
+          "role": "member",
+          "startDate": "2024-01-01",
+        },
+        {
+          "bodyId": "body-broken",
+          "bodyName": "",
+          "endDate": "",
+          "id": "m2",
+          "party": "",
+          "portfolio": "",
+          "role": "chair",
+          "startDate": "2023-01-01",
+        },
+        {
+          "bodyId": "",
+          "bodyName": "",
+          "endDate": "",
+          "id": "m4",
+          "party": "",
+          "portfolio": "",
+          "role": "guest",
+          "startDate": "",
+        },
+      ],
+      "earlier": [
+        {
+          "bodyId": "body-1",
+          "bodyName": "Gemeenteraad",
+          "endDate": "2021-01-01",
+          "id": "m3",
+          "party": "",
+          "portfolio": "",
+          "role": "member",
+          "startDate": "2020-01-01",
+        },
+      ],
+    },
+  },
+}
+`;
+
+exports[`PersonMembershipsTab refresh() > loads the person, their memberships and their bodies 2`] = `
+{
+  "calls": [
+    {
+      "fn": "fetchObject",
+      "id": "p-1",
+      "schema": "person",
+      "type": "person",
+    },
+    {
+      "fn": "fetchCollection",
+      "params": {
+        "_limit": 100,
+        "person": "p-1",
+      },
+      "schema": "membership",
+      "type": "membership",
+    },
+  ],
+  "state": {
+    "error": "",
+    "loading": false,
+    "person": {
+      "id": "p-1",
+      "name": "Anna",
+    },
+    "photoFailed": false,
+    "sections": {
+      "current": [],
+      "earlier": [],
+    },
+  },
+}
+`;
+
+exports[`PersonMembershipsTab refresh() > reports a failing store, falling back to the default message 1`] = `
+{
+  "error": "Failed to load memberships.",
+  "loading": false,
+  "person": null,
+  "photoFailed": false,
+  "sections": {
+    "current": [],
+    "earlier": [],
+  },
+}
+`;

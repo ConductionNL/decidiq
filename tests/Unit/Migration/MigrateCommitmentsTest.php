@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 /**
  * The rename of the commitment schema into plain words.
  *
- * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md
+ * @spec openspec/specs/commitment-in-plain-words/spec.md
  */
 class MigrateCommitmentsTest extends TestCase {
 
@@ -71,7 +71,7 @@ class MigrateCommitmentsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
+	 * @spec openspec/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
 	 */
 	public function testTheValuesSurviveAndReferencesAreResolved(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);
@@ -81,7 +81,7 @@ class MigrateCommitmentsTest extends TestCase {
 				[
 					'id' => 'tz-1',
 					'text' => 'Het college stuurt de raad een memo over de parkeertarieven.',
-					'madeBy' => 'femke-halsema',
+					'madeBy' => 'wieteke-doornbos',
 					'meeting' => 'raadsvergadering-2025-01-15',
 					'directedTo' => 'gemeenteraad-amsterdam',
 					'deadline' => '2026-09-01',
@@ -105,7 +105,7 @@ class MigrateCommitmentsTest extends TestCase {
 		self::assertSame(expected: '2026-09-01', actual: $commitment['deadline']);
 
 		// Resolved, not copied.
-		self::assertSame(expected: 'uuid-of-femke-halsema', actual: $commitment['madeBy']);
+		self::assertSame(expected: 'uuid-of-wieteke-doornbos', actual: $commitment['madeBy']);
 		self::assertSame(expected: 'uuid-of-raadsvergadering-2025-01-15', actual: $commitment['meeting']);
 		self::assertSame(expected: 'uuid-of-gemeenteraad-amsterdam', actual: $commitment['directedTo']);
 		self::assertSame(expected: 'tz-1', actual: $commitment['migratedFromObject']);
@@ -117,7 +117,7 @@ class MigrateCommitmentsTest extends TestCase {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/commitment-in-plain-words/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
+	 * @spec openspec/specs/commitment-in-plain-words/spec.md#requirement-existing-commitments-are-carried-across
 	 */
 	public function testASecondRunCopiesNothing(): void {
 		$this->settingsService->method('isOpenRegisterAvailable')->willReturn(true);

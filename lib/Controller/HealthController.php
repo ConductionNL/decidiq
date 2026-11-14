@@ -32,7 +32,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+ * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.5
  * @spec openspec/specs/apphost-adoption/spec.md
  */
 
@@ -40,8 +40,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCP\AppFramework\Controller;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
 use OCP\AppFramework\Http\Attribute\NoCSRFRequired;
@@ -64,7 +63,7 @@ use Psr\Container\ContainerInterface;
  *
  * @spec openspec/specs/apphost-adoption/spec.md
  */
-class HealthController extends Controller {
+class HealthController extends CorsJsonController {
 
 	/**
 	 * FQCN of the AppHost observability manifest loader.
@@ -98,11 +97,11 @@ class HealthController extends Controller {
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IConfig $config,
+		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly IAppConfig $appConfig,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(request: $request, config: $config);
 
 	}//end __construct()
 
@@ -124,8 +123,8 @@ class HealthController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.5
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.5
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -137,7 +136,7 @@ class HealthController extends Controller {
 		if ($body === null) {
 			$body = [
 				'status' => 'degraded',
-				'version' => $this->appConfig->getValueString(Application::APP_ID, 'installed_version', ''),
+				'version' => $this->appConfig->getValueString(AppIdentity::APP_ID, 'installed_version', ''),
 				'openregister' => 'unavailable',
 				'httpStatus' => Http::STATUS_OK,
 			];
@@ -211,7 +210,7 @@ class HealthController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with status/baseUrl/version/openregister.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -225,37 +224,12 @@ class HealthController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers.
 	 *
-	 * @spec openspec/changes/adopt-apphost/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-06-16-adopt-apphost/tasks.md#task-2.3
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
 	#[AnonRateLimit(limit: 120, period: 60)]
 	public function statusOptions(): JSONResponse {
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end statusOptions()
-
-	/**
-	 * Apply CORS headers using the configured proxy origin when available
-	 * (REQ-API-004 parity with the pre-adoption controller).
-	 *
-	 * @param JSONResponse $response The response to decorate.
-	 *
-	 * @return void
-	 */
-	private function applyCorsHeaders(JSONResponse $response): void {
-		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-		$allowedOrigin = '*';
-		if ($origin !== '') {
-			$allowedOrigin = $origin;
-		}
-
-		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-	}//end applyCorsHeaders()
 }//end class

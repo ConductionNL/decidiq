@@ -32,7 +32,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
+ * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -41,7 +41,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Migration;
 
-use OCA\Decidiq\Service\SettingsService;
+use OCA\Decidiq\Kernel\Contracts\SettingsServiceInterface;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Container\ContainerInterface;
@@ -52,7 +52,7 @@ use Throwable;
  * Repair step migrating legacy EmailLink objects onto registry email-object
  * links, then archiving them (no hard delete).
  *
- * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
+ * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
  */
 class MigrateEmailLinksToRegistry implements IRepairStep {
 	/**
@@ -72,16 +72,16 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	/**
 	 * Constructor.
 	 *
-	 * @param SettingsService $settingsService Detects OpenRegister availability.
+	 * @param SettingsServiceInterface $settingsService Detects OpenRegister availability.
 	 * @param ContainerInterface $container DI container (lazy-loads OR ObjectService).
 	 * @param LoggerInterface $logger Logger.
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
 	 */
 	public function __construct(
-		private readonly SettingsService $settingsService,
+		private readonly SettingsServiceInterface $settingsService,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
 	) {
@@ -92,7 +92,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @return string
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
 	 */
 	public function getName(): string {
 		return 'Migrate legacy Decidiq EmailLink objects to registry email-object links';
@@ -105,9 +105,9 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.2
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.3
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.3
 	 */
 	public function run(IOutput $output): void {
 		if ($this->settingsService->isOpenRegisterAvailable() === false) {
@@ -163,8 +163,8 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @return bool True when the object was migrated; false when skipped.
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.3
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.3
 	 */
 	private function migrateOne(object $objectService, mixed $entity, IOutput $output): bool {
 		$link = $this->toArray(entity: $entity);
@@ -217,7 +217,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
 	 */
 	private function relinkToRegistry(object $objectService, string $target, array $link): void {
 		$parts = explode(':', $target);
@@ -268,7 +268,7 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.2
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.2
 	 */
 	private function archiveLegacy(object $objectService, string $uuid, array $link): void {
 		// Stamp the migration marker first so the step is resume-safe.
@@ -294,31 +294,9 @@ class MigrateEmailLinksToRegistry implements IRepairStep {
 	 *
 	 * @return array<string,mixed>|null The object array, or null when unusable.
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-4.1
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-4.1
 	 */
 	private function toArray(mixed $entity): ?array {
-		if (is_object($entity) === true && method_exists($entity, 'jsonSerialize') === true) {
-			$serialized = $entity->jsonSerialize();
-			if (is_array($serialized) === true) {
-				return $serialized;
-			}
-
-			return null;
-		}
-
-		if (is_object($entity) === true && method_exists($entity, 'getObject') === true) {
-			$object = $entity->getObject();
-			if (is_array($object) === true) {
-				return $object;
-			}
-
-			return null;
-		}
-
-		if (is_array($entity) === true) {
-			return $entity;
-		}
-
-		return null;
+		return (new MigratedObjectNormaliser())->toArray(entity: $entity);
 	}//end toArray()
 }//end class

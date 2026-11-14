@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Service;
 use DomainException;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\TranscriptionServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Service\FileService;
 use Psr\Container\ContainerInterface;
@@ -46,7 +47,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptionService {
+class TranscriptionService implements TranscriptionServiceInterface {
 
 	/**
 	 * Object + file access for the transcription pipeline.

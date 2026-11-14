@@ -1,0 +1,302 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`DecisionVotingTab refresh() > loads the rounds of the linked motion and their votes 1`] = `
+[
+  {
+    "fn": "fetchObject",
+    "id": "d1",
+    "schema": "decision",
+    "type": "decision",
+  },
+  {
+    "fn": "fetchCollection",
+    "params": {
+      "_limit": 50,
+      "motion": "m7",
+    },
+    "schema": "voting-round",
+    "type": "voting-round",
+  },
+  {
+    "fn": "fetchCollection",
+    "params": {
+      "_limit": 200,
+      "votingRound": "r1",
+    },
+    "schema": "vote",
+    "type": "vote",
+  },
+  {
+    "fn": "fetchCollection",
+    "params": {
+      "_limit": 200,
+      "votingRound": "r2",
+    },
+    "schema": "vote",
+    "type": "vote",
+  },
+]
+`;
+
+exports[`DecisionVotingTab refresh() > loads the rounds of the linked motion and their votes 2`] = `
+{
+  "error": "",
+  "loading": false,
+  "motionId": "m7",
+  "rounds": [
+    {
+      "id": "r1",
+    },
+    {
+      "id": "r2",
+    },
+  ],
+  "votes": [
+    {
+      "id": "v1",
+      "round": "r1",
+    },
+    {
+      "id": "v2",
+      "round": "r1",
+    },
+  ],
+}
+`;
+
+exports[`DecisionVotingTab refresh() > reads a motion stored as a plain id, including 0 1`] = `
+[
+  {
+    "fn": "fetchObject",
+    "id": "d1",
+    "schema": "decision",
+    "type": "decision",
+  },
+  {
+    "fn": "fetchCollection",
+    "params": {
+      "_limit": 50,
+      "motion": "0",
+    },
+    "schema": "voting-round",
+    "type": "voting-round",
+  },
+]
+`;
+
+exports[`DecisionVotingTab refresh() > reads a motion stored as a plain id, including 0 2`] = `
+{
+  "error": "",
+  "loading": false,
+  "motionId": "0",
+  "rounds": [],
+  "votes": [],
+}
+`;
+
+exports[`DecisionVotingTab refresh() > reports a failing store, falling back to the default message 1`] = `
+{
+  "error": "Failed to load voting results.",
+  "loading": false,
+  "motionId": "m1",
+  "rounds": [],
+  "votes": [],
+}
+`;
+
+exports[`RelatedDecisionsTab refresh() > falls back to the uuid and then the object id for its own id 1`] = `
+{
+  "amends": [],
+  "implements": [],
+  "refersTo": [],
+  "repeals": [],
+  "supersedes": [
+    {
+      "id": "x",
+      "supersedes": [
+        "u1",
+        "p9",
+      ],
+    },
+  ],
+}
+`;
+
+exports[`RelatedDecisionsTab refresh() > falls back to the uuid and then the object id for its own id 2`] = `
+{
+  "addOpen": false,
+  "decision": null,
+  "error": "",
+  "incoming": {
+    "amends": [],
+    "implements": [],
+    "refersTo": [],
+    "repeals": [],
+    "supersedes": [
+      {
+        "id": "x",
+        "supersedes": [
+          "u1",
+          "p9",
+        ],
+      },
+    ],
+  },
+  "loading": false,
+  "outgoing": {
+    "amends": [],
+    "implements": [],
+    "refersTo": [],
+    "repeals": [],
+    "supersedes": [],
+  },
+  "removeTarget": null,
+}
+`;
+
+exports[`RelatedDecisionsTab refresh() > falls back to the uuid and then the object id for its own id 3`] = `
+{
+  "addOpen": false,
+  "decision": {
+    "id": "p9",
+    "supersedes": [
+      "x",
+    ],
+  },
+  "error": "",
+  "incoming": {
+    "amends": [],
+    "implements": [],
+    "refersTo": [],
+    "repeals": [],
+    "supersedes": [],
+  },
+  "loading": false,
+  "outgoing": {
+    "amends": [],
+    "implements": [],
+    "refersTo": [],
+    "repeals": [],
+    "supersedes": [],
+  },
+  "removeTarget": null,
+}
+`;
+
+exports[`RelatedDecisionsTab refresh() > reports a failing store, falling back to the default message 1`] = `
+{
+  "addOpen": false,
+  "decision": null,
+  "error": "boom",
+  "incoming": {},
+  "loading": false,
+  "outgoing": {},
+  "removeTarget": null,
+}
+`;
+
+exports[`RelatedDecisionsTab refresh() > resolves outgoing relations and finds incoming ones 1`] = `
+[
+  {
+    "fn": "fetchObject",
+    "id": "d1",
+    "schema": "decision",
+    "type": "decision",
+  },
+  {
+    "fn": "fetchCollection",
+    "params": {
+      "_limit": 500,
+    },
+    "schema": "decision",
+    "type": "decision",
+  },
+]
+`;
+
+exports[`RelatedDecisionsTab refresh() > resolves outgoing relations and finds incoming ones 2`] = `
+{
+  "addOpen": false,
+  "decision": {
+    "amends": "not-a-list",
+    "id": "d1",
+    "supersedes": [
+      "d2",
+      {
+        "id": "d3",
+      },
+      "gone",
+    ],
+  },
+  "error": "",
+  "incoming": {
+    "amends": [],
+    "implements": [
+      {
+        "implements": [
+          null,
+          "d1",
+        ],
+        "refersTo": [
+          "d1",
+          "d2",
+        ],
+        "uuid": "d3",
+      },
+    ],
+    "refersTo": [
+      {
+        "implements": [
+          null,
+          "d1",
+        ],
+        "refersTo": [
+          "d1",
+          "d2",
+        ],
+        "uuid": "d3",
+      },
+    ],
+    "repeals": [
+      {
+        "id": "d2",
+        "repeals": [
+          {
+            "uuid": "d1",
+          },
+        ],
+      },
+    ],
+    "supersedes": [],
+  },
+  "loading": false,
+  "outgoing": {
+    "amends": [],
+    "implements": [],
+    "refersTo": [],
+    "repeals": [],
+    "supersedes": [
+      {
+        "id": "d2",
+        "repeals": [
+          {
+            "uuid": "d1",
+          },
+        ],
+      },
+      {
+        "implements": [
+          null,
+          "d1",
+        ],
+        "refersTo": [
+          "d1",
+          "d2",
+        ],
+        "uuid": "d3",
+      },
+    ],
+  },
+  "removeTarget": null,
+}
+`;

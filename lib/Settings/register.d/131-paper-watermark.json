@@ -1,0 +1,34 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change agenda-paper-watermark (REQ-WMK-001). A meeting says whether the papers opened through decidiq carry the reader's name and the date. PaperWatermarkPolicy decides per paper: on stamps, off never stamps, automatic stamps a closed meeting's papers and a paper under an active confidentiality restriction.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "version": "1.13.0",
+        "properties": {
+          "watermarkPapers": {
+            "title": "Watermark papers",
+            "type": "string",
+            "enum": [
+              "automatic",
+              "on",
+              "off"
+            ],
+            "default": "automatic",
+            "description": "Whether papers opened through decidiq carry the reader's name and the date. automatic stamps them when the meeting is not public or the paper is under an active confidentiality restriction; on always stamps; off never stamps."
+          },
+          "watermarkText": {
+            "title": "Watermark text",
+            "type": "string",
+            "maxLength": 60,
+            "default": "",
+            "description": "Extra text after the reader's name and the date in the stamp, for example Vertrouwelijk."
+          }
+        }
+      }
+    }
+  }
+}

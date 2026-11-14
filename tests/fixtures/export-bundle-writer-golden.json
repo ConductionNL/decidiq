@@ -1,0 +1,1306 @@
+{
+    "zip": {
+        "returns": {
+            "status": "done",
+            "format": "zip",
+            "name": "new Export.zip",
+            "path": "Decidiq exports/new Export.zip",
+            "fileId": 42
+        },
+        "calls": [
+            {
+                "getTemporaryFile": ".zip"
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-2"
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-3"
+            },
+            {
+                "newFile": [
+                    "new Export.zip",
+                    {
+                        "001 Motie   a b   c/decision.html": "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                        "001 Motie   a b   c/bijlage.pdf": "Ad-1",
+                        "001 Motie   a b   c/Bijlage (2).pdf": "Bd-1",
+                        "001 Motie   a b   c/geheim .txt": "Cd-1",
+                        "002 Motie   a b   c/decision.html": "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>E-2</td></tr><tr><th>Type</th><td>besluit</td></tr></table><div>Volledig</div></body></html>",
+                        "002 Motie   a b   c/bijlage.pdf": "Ad-2",
+                        "002 Motie   a b   c/Bijlage (2).pdf": "Bd-2",
+                        "002 Motie   a b   c/geheim .txt": "Cd-2",
+                        "003 untitled/decision.html": "<!doctype html><html><head><meta charset=\"utf-8\"><title>...</title></head><body><h1>...</h1><table><tr><th>Outcome</th><td>0</td></tr></table><div>Voorstel</div></body></html>",
+                        "003 untitled/bijlage.pdf": "Ad-3",
+                        "003 untitled/Bijlage (2).pdf": "Bd-3",
+                        "003 untitled/geheim .txt": "Cd-3",
+                        "004 Zonder id/decision.html": "<!doctype html><html><head><meta charset=\"utf-8\"><title>Zonder id</title></head><body><h1>Zonder id</h1><table></table><div></div></body></html>"
+                    }
+                ]
+            }
+        ]
+    },
+    "zip-no-temp": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The export could not be written. Try again.",
+        "code": 500,
+        "calls": [
+            {
+                "getTemporaryFile": ".zip"
+            }
+        ]
+    },
+    "zip-no-openregister": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The attachments could not be read: OpenRegister is not installed.",
+        "code": 503,
+        "calls": [
+            {
+                "getTemporaryFile": ".zip"
+            },
+            {
+                "isInstalled": "openregister"
+            }
+        ]
+    },
+    "pdf-merged": {
+        "returns": {
+            "status": "done",
+            "format": "pdf",
+            "name": "Export.pdf",
+            "path": "Decidiq exports/Export.pdf",
+            "fileId": 99
+        },
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>E-2</td></tr><tr><th>Type</th><td>besluit</td></tr></table><div>Volledig</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-002.pdf",
+                    "%PDF-1"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-2"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>...</title></head><body><h1>...</h1><table><tr><th>Outcome</th><td>0</td></tr></table><div>Voorstel</div></body></html>",
+                    "...",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-003.pdf",
+                    "%PDF-2"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-3"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Zonder id</title></head><body><h1>Zonder id</h1><table></table><div></div></body></html>",
+                    "Zonder id",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-004.pdf",
+                    "%PDF-3"
+                ]
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 509,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 21,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 22,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 23,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 514,
+                            "label": "...",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 31,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 32,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 33,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 519,
+                            "label": "Zonder id",
+                            "size": 6
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            },
+            {
+                "delete": 509
+            },
+            {
+                "delete": 514
+            },
+            {
+                "delete": 519
+            }
+        ]
+    },
+    "pdf-new-work": {
+        "returns": {
+            "status": "done",
+            "format": "pdf",
+            "name": "Export.pdf",
+            "path": "Decidiq exports/Export.pdf",
+            "fileId": 0
+        },
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "newFolder": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-work-not-folder": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The export could not be written. Try again.",
+        "code": 409,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            }
+        ]
+    },
+    "pdf-queued": {
+        "returns": {
+            "status": "queued",
+            "format": "pdf",
+            "name": "Export.pdf",
+            "path": "Decidiq exports/Export.pdf",
+            "fileId": null
+        },
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>E-2</td></tr><tr><th>Type</th><td>besluit</td></tr></table><div>Volledig</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-002.pdf",
+                    "%PDF-1"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-2"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>...</title></head><body><h1>...</h1><table><tr><th>Outcome</th><td>0</td></tr></table><div>Voorstel</div></body></html>",
+                    "...",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-003.pdf",
+                    "%PDF-2"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-3"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Zonder id</title></head><body><h1>Zonder id</h1><table></table><div></div></body></html>",
+                    "Zonder id",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-004.pdf",
+                    "%PDF-3"
+                ]
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 509,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 21,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 22,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 23,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 514,
+                            "label": "...",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 31,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 32,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 33,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 519,
+                            "label": "Zonder id",
+                            "size": 6
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "queue": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "jobList.add": [
+                    "OCA\\Decidiq\\BackgroundJob\\ExportBundleNoticeJob",
+                    {
+                        "mergeJob": "job-7",
+                        "uid": "griffier",
+                        "name": "Export.pdf",
+                        "pages": [
+                            504,
+                            509,
+                            514,
+                            519
+                        ],
+                        "attempt": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "pdf-queued-uuid": {
+        "returns": {
+            "status": "queued",
+            "format": "pdf",
+            "name": "Export.pdf",
+            "path": "Decidiq exports/Export.pdf",
+            "fileId": null
+        },
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "queue": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "jobList.add": [
+                    "OCA\\Decidiq\\BackgroundJob\\ExportBundleNoticeJob",
+                    {
+                        "mergeJob": "u-1",
+                        "uid": "griffier",
+                        "name": "Export.pdf",
+                        "pages": [
+                            504
+                        ],
+                        "attempt": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "pdf-queued-noid": {
+        "returns": {
+            "status": "queued",
+            "format": "pdf",
+            "name": "Export.pdf",
+            "path": "Decidiq exports/Export.pdf",
+            "fileId": null
+        },
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "queue": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "jobList.add": [
+                    "OCA\\Decidiq\\BackgroundJob\\ExportBundleNoticeJob",
+                    {
+                        "mergeJob": "",
+                        "uid": "griffier",
+                        "name": "Export.pdf",
+                        "pages": [
+                            504
+                        ],
+                        "attempt": 0
+                    }
+                ]
+            }
+        ]
+    },
+    "pdf-not-rendered": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The text pages could not be made into PDF. Export a ZIP instead.",
+        "code": 503,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>E-2</td></tr><tr><th>Type</th><td>besluit</td></tr></table><div>Volledig</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-failed-error": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The PDF could not be made: kapot",
+        "code": 502,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-failed-reason": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The PDF could not be made: geen rechten",
+        "code": 502,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-failed-bare": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The PDF could not be made: filinq did not finish the merge.",
+        "code": 502,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-throws-status": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "You may not read bijlage.pdf",
+        "code": 403,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-throws": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "filinq down",
+        "code": 502,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "container": "OCA\\OpenRegister\\Service\\FileService"
+            },
+            {
+                "getFiles": "d-1"
+            },
+            {
+                "shouldQueue": [
+                    [
+                        {
+                            "fileId": 504,
+                            "label": "Motie: \"a/b\" <c>",
+                            "size": 6
+                        },
+                        {
+                            "fileId": 11,
+                            "label": "bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 12,
+                            "label": "Bijlage.pdf",
+                            "size": 400
+                        },
+                        {
+                            "fileId": 13,
+                            "label": " ../geheim:*.txt ",
+                            "size": 400
+                        }
+                    ],
+                    150
+                ]
+            },
+            {
+                "merge": [
+                    {
+                        "bookmarks": true,
+                        "targetFolder": "Decidiq exports",
+                        "name": "Export.pdf"
+                    },
+                    {
+                        "app": "decidiq",
+                        "export": "Export.pdf"
+                    }
+                ]
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "pdf-no-openregister": {
+        "throws": "OCA\\Decidiq\\Exception\\ExportBundleException",
+        "message": "The attachments could not be read: OpenRegister is not installed.",
+        "code": 503,
+        "calls": [
+            {
+                "nodeExists": ".work"
+            },
+            {
+                "get": ".work"
+            },
+            {
+                "fromHtml": [
+                    "<!doctype html><html><head><meta charset=\"utf-8\"><title>Motie: &quot;a/b&quot; &lt;c&gt;</title></head><body><h1>Motie: &quot;a/b&quot; &lt;c&gt;</h1><table><tr><th>Number</th><td>R-1</td></tr><tr><th>Type</th><td>motie</td></tr><tr><th>Proposer</th><td>Anna &amp; Bob</td></tr><tr><th>Submitted</th><td>2026-10-01</td></tr></table><div>Regel 1<br />\nRegel &lt;2&gt;</div></body></html>",
+                    "Motie: \"a/b\" <c>",
+                    "decision export"
+                ]
+            },
+            {
+                "work.newFile": [
+                    "work/f01b46982640be39105a006de6f84693-001.pdf",
+                    "%PDF-0"
+                ]
+            },
+            {
+                "isInstalled": "openregister"
+            },
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 504
+            }
+        ]
+    },
+    "remove": {
+        "returns": null,
+        "calls": [
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "delete": 11
+            },
+            {
+                "delete": 12
+            }
+        ]
+    },
+    "remove-none": {
+        "returns": null,
+        "calls": []
+    },
+    "remove-fails": {
+        "returns": null,
+        "calls": [
+            {
+                "getUserFolder": "griffier"
+            },
+            {
+                "warning": "Decidiq export: a text page could not be removed",
+                "context": {
+                    "error": "no files"
+                }
+            }
+        ]
+    },
+    "titles": [
+        [
+            "Motie",
+            "d-1"
+        ],
+        [
+            "Untitled decision",
+            "d-2"
+        ],
+        [
+            "Untitled decision",
+            "d-3"
+        ],
+        [
+            "Untitled decision",
+            "7"
+        ],
+        [
+            "Untitled decision",
+            ""
+        ]
+    ]
+}

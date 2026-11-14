@@ -30,7 +30,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -39,7 +39,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use DateTimeZone;
+use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\AuditTrail;
 use OCA\OpenRegister\Db\AuditTrailMapper;
@@ -61,9 +61,9 @@ use Psr\Log\LoggerInterface;
  * success=false, and callers on governance paths surface that. It never
  * pretends a row was written.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
-class AuditLogService {
+class AuditLogService implements AuditLogServiceInterface {
 
 	/**
 	 * Namespace prefixed to every decidiq action written into OR's audit
@@ -107,6 +107,20 @@ class AuditLogService {
 	private const CHAIN_LIMIT = 10000;
 
 	/**
+	 * The error logged when an append carries no object uid.
+	 *
+	 * @var string
+	 */
+	private const NO_UIDS_LOG = 'Decidiq: audit append refused — no object uids to attach the entry to';
+
+	/**
+	 * The error logged when no referenced uid resolves to an OpenRegister object.
+	 *
+	 * @var string
+	 */
+	private const NO_OBJECT_LOG = 'Decidiq: audit append failed — none of the referenced object uids resolve to an OpenRegister object';
+
+	/**
 	 * Exact-match query filters applied to the mapped decidiq row shape.
 	 *
 	 * @var array<string, string>
@@ -115,6 +129,13 @@ class AuditLogService {
 		'actor' => 'actorUuid',
 		'action' => 'action',
 	];
+
+	/**
+	 * Shapes the rows, exports, pages and verification answers.
+	 *
+	 * @var AuditRowFormat
+	 */
+	private readonly AuditRowFormat $format;
 
 	/**
 	 * Constructor for AuditLogService.
@@ -130,6 +151,7 @@ class AuditLogService {
 		private readonly AuditTrailMapper $auditTrailMapper,
 		private readonly AuditHashService $auditHashService,
 	) {
+		$this->format = new AuditRowFormat();
 	}//end __construct()
 
 	/**
@@ -150,81 +172,117 @@ class AuditLogService {
 	 * @param string[] $objectUids List of object UUIDs the action touched
 	 * @param array $payload Optional extra structured detail; stored in the entry context
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{success: bool, entry: array|null, message: string}
 	 */
 	public function append(string $actor, string $action, array $objectUids, array $payload = []): array {
 		if (in_array($action, self::ACTIONS, true) === false) {
-			return [
-				'success' => false,
-				'entry' => null,
-				'message' => 'Unknown action: ' . $action,
-			];
+			return self::appendFailure(message: 'Unknown action: ' . $action);
 		}
 
-		$canonicalObjectUids = array_values(array_filter(array_map('strval', $objectUids), static fn (string $uid): bool => ($uid !== '')));
-		sort($canonicalObjectUids);
-
-		if ($canonicalObjectUids === []) {
-			$this->logger->error(
-				'Decidiq: audit append refused — no object uids to attach the entry to',
-				['actor' => $actor, 'action' => $action]
-			);
-			return [
-				'success' => false,
-				'entry' => null,
-				'message' => 'An audit entry must reference at least one object uid.',
-			];
-		}
-
+		$request = ['actor' => $actor, 'action' => $action, 'objectUids' => self::canonicalUids(objectUids: $objectUids), 'payload' => $payload];
 		try {
-			$entity = $this->resolveFirstEntity(objectUids: $canonicalObjectUids);
-			if ($entity === null) {
-				$this->logger->error(
-					'Decidiq: audit append failed — none of the referenced object uids resolve to an OpenRegister object',
-					['actor' => $actor, 'action' => $action, 'objectUids' => $canonicalObjectUids]
-				);
-				return [
-					'success' => false,
-					'entry' => null,
-					'message' => 'No referenced object uid resolves to an OpenRegister object.',
-				];
-			}
-
-			$entry = $this->auditTrailMapper->createAuditTrailEntry(
-				object: $entity,
-				action: (self::ACTION_NAMESPACE . $action),
-				context: [
-					'actorUuid' => $actor,
-					'objectUids' => $canonicalObjectUids,
-					'payload' => $payload,
-				]
-			);
-
-			$this->logger->info(
-				'Decidiq: audit log entry appended to the OR audit trail',
-				['actor' => $actor, 'action' => $action, 'entryUuid' => $entry->getUuid()]
-			);
-
-			return [
-				'success' => true,
-				'entry' => $this->mapRow(entry: $entry),
-				'message' => 'Audit log entry appended.',
-			];
+			return $this->appendEntry(request: $request);
 		} catch (\Throwable $e) {
 			$this->logger->error(
 				'Decidiq: failed to append audit log entry to the OR audit trail',
 				['actor' => $actor, 'action' => $action, 'exception' => $e->getMessage()]
 			);
-			return [
-				'success' => false,
-				'entry' => null,
-				'message' => 'Failed to append audit log entry: ' . $e->getMessage(),
-			];
-		}//end try
+			return self::appendFailure(message: 'Failed to append audit log entry: ' . $e->getMessage());
+		}
 
 	}//end append()
+
+	/**
+	 * The object uids as non-empty strings, sorted.
+	 *
+	 * @param array<mixed> $objectUids The uids the caller passed
+	 *
+	 * @return list<string>
+	 */
+	private static function canonicalUids(array $objectUids): array {
+		$canonicalObjectUids = array_values(array_filter(array_map('strval', $objectUids), static fn (string $uid): bool => ($uid !== '')));
+		sort($canonicalObjectUids);
+		return $canonicalObjectUids;
+	}//end canonicalUids()
+
+	/**
+	 * Write one entry onto the first object that resolves.
+	 *
+	 * @param array{actor: string, action: string, objectUids: list<string>, payload: array} $request The entry
+	 *
+	 * @return array{success: bool, entry: array|null, message: string}
+	 */
+	private function appendEntry(array $request): array {
+		$target = $this->appendTarget(request: $request);
+		if (is_array($target) === true) {
+			return $target;
+		}
+
+		$entry = $this->auditTrailMapper->createAuditTrailEntry(
+			object: $target,
+			action: (self::ACTION_NAMESPACE . $request['action']),
+			context: ['actorUuid' => $request['actor'], 'objectUids' => $request['objectUids'], 'payload' => $request['payload']]
+		);
+
+		return $this->appended(entry: $entry, request: $request);
+	}//end appendEntry()
+
+	/**
+	 * Log a written entry and answer with it.
+	 *
+	 * @param AuditTrail                                                                    $entry   The written entry
+	 * @param array{actor: string, action: string, objectUids: list<string>, payload: array} $request The entry as asked
+	 *
+	 * @return array{success: bool, entry: array|null, message: string}
+	 */
+	private function appended(AuditTrail $entry, array $request): array {
+		$this->logger->info(
+			'Decidiq: audit log entry appended to the OR audit trail',
+			['actor' => $request['actor'], 'action' => $request['action'], 'entryUuid' => $entry->getUuid()]
+		);
+
+		return ['success' => true, 'entry' => $this->format->mapRow(entry: $entry), 'message' => 'Audit log entry appended.'];
+	}//end appended()
+
+	/**
+	 * The object the entry attaches to, or the refusal when there is none (logged loudly).
+	 *
+	 * @param array{actor: string, action: string, objectUids: list<string>, payload: array} $request The entry
+	 *
+	 * @return ObjectEntity|array{success: bool, entry: null, message: string}
+	 */
+	private function appendTarget(array $request): ObjectEntity|array {
+		$context = ['actor' => $request['actor'], 'action' => $request['action']];
+		if ($request['objectUids'] === []) {
+			$this->logger->error(self::NO_UIDS_LOG, $context);
+			return self::appendFailure(message: 'An audit entry must reference at least one object uid.');
+		}
+
+		$entity = $this->resolveFirstEntity(objectUids: $request['objectUids']);
+		if ($entity === null) {
+			$this->logger->error(self::NO_OBJECT_LOG, ($context + ['objectUids' => $request['objectUids']]));
+			return self::appendFailure(message: 'No referenced object uid resolves to an OpenRegister object.');
+		}
+
+		return $entity;
+	}//end appendTarget()
+
+	/**
+	 * A refused append.
+	 *
+	 * @param string $message Why
+	 *
+	 * @return array{success: false, entry: null, message: string}
+	 */
+	private static function appendFailure(string $message): array {
+		return [
+			'success' => false,
+			'entry' => null,
+			'message' => $message,
+		];
+	}//end appendFailure()
 
 	/**
 	 * Verify the audit hash chain.
@@ -237,7 +295,7 @@ class AuditLogService {
 	 * @param string|null $entryUuid Optional entry UUID to stop at; null verifies the
 	 *                               entire chain.
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{valid: bool, checked: int, tampered: array<int, string>}
 	 */
@@ -245,54 +303,40 @@ class AuditLogService {
 		try {
 			$to = null;
 			if ($entryUuid !== null) {
-				$rows = $this->auditTrailMapper->findAll(
-					limit: 1,
-					offset: 0,
-					filters: ['uuid' => $entryUuid]
-				);
-
-				$row = false;
-				if (is_array($rows) === true) {
-					$row = reset($rows);
+				$to = $this->entryId(entryUuid: $entryUuid);
+				if ($to === null) {
+					return $this->format->notVerified();
 				}
-
-				if (($row instanceof AuditTrail) === false) {
-					return [
-						'valid' => false,
-						'checked' => 0,
-						'tampered' => [],
-					];
-				}
-
-				$to = (int)$row->getId();
 			}
 
-			$result = $this->auditHashService->verifyChain(to: $to);
-
-			$tampered = [];
-			$brokenAt = ($result['brokenAt'] ?? null);
-			if ($brokenAt !== null) {
-				$tampered[] = (string)$brokenAt;
-			}
-
-			return [
-				'valid' => (bool)($result['valid'] ?? false),
-				'checked' => (int)($result['entriesVerified'] ?? 0),
-				'tampered' => $tampered,
-			];
+			return $this->format->verification(result: $this->auditHashService->verifyChain(to: $to));
 		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: failed to verify the OR audit chain',
-				['exception' => $e->getMessage()]
-			);
-			return [
-				'valid' => false,
-				'checked' => 0,
-				'tampered' => [],
-			];
-		}//end try
+			$this->logger->error('Decidiq: failed to verify the OR audit chain', ['exception' => $e->getMessage()]);
+			return $this->format->notVerified();
+		}
 
 	}//end verify()
+
+	/**
+	 * The trail id of an entry, or null when no entry has that uuid.
+	 *
+	 * @param string $entryUuid The entry UUID
+	 *
+	 * @return int|null
+	 */
+	private function entryId(string $entryUuid): ?int {
+		$rows = $this->auditTrailMapper->findAll(limit: 1, offset: 0, filters: ['uuid' => $entryUuid]);
+		$row  = false;
+		if (is_array($rows) === true) {
+			$row = reset($rows);
+		}
+
+		if (($row instanceof AuditTrail) === false) {
+			return null;
+		}
+
+		return (int)$row->getId();
+	}//end entryId()
 
 	/**
 	 * Export audit log entries between two ISO-8601 UTC timestamps in the
@@ -302,88 +346,24 @@ class AuditLogService {
 	 * @param string $endDate Inclusive end (ISO-8601)
 	 * @param string $format 'json' (default) or 'csv'
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{success: bool, format: string, body: string, count: int}
 	 */
 	public function export(string $startDate, string $endDate, string $format = 'json'): array {
 		$format = strtolower($format);
 		if (in_array($format, ['json', 'csv'], true) === false) {
-			return [
-				'success' => false,
-				'format' => $format,
-				'body' => '',
-				'count' => 0,
-			];
+			return $this->format->exportFailure(format: $format);
 		}
 
 		try {
 			$chain = $this->loadChain();
 		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: failed to load audit log for export',
-				['exception' => $e->getMessage()]
-			);
-			return [
-				'success' => false,
-				'format' => $format,
-				'body' => '',
-				'count' => 0,
-			];
+			$this->logger->error('Decidiq: failed to load audit log for export', ['exception' => $e->getMessage()]);
+			return $this->format->exportFailure(format: $format);
 		}
 
-		$filtered = array_values(
-			array_filter(
-				$chain,
-				static function (array $row) use ($startDate, $endDate): bool {
-					$timestamp = ($row['timestamp'] ?? '');
-					return ($timestamp >= $startDate && $timestamp <= $endDate);
-				}
-			)
-		);
-
-		if ($format === 'csv') {
-			$lines = ['id,timestamp,actor,action,objectUids,previousHash,currentHash'];
-			foreach ($filtered as $row) {
-				$lines[] = implode(
-					',',
-					[
-						(string)($row['id'] ?? ''),
-						(string)($row['timestamp'] ?? ''),
-						(string)($row['actorUuid'] ?? ''),
-						(string)($row['action'] ?? ''),
-						'"' . implode('|', (array)($row['objectUids'] ?? [])) . '"',
-						(string)($row['previousHash'] ?? ''),
-						(string)($row['currentHash'] ?? ''),
-					]
-				);
-			}
-
-			return [
-				'success' => true,
-				'format' => 'csv',
-				'body' => implode("\n", $lines),
-				'count' => count($filtered),
-			];
-		}//end if
-
-		$body = json_encode(
-			['entries' => $filtered],
-			(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
-		);
-
-		$jsonBody = '{}';
-		if ($body !== false) {
-			$jsonBody = $body;
-		}
-
-		return [
-			'success' => true,
-			'format' => 'json',
-			'body' => $jsonBody,
-			'count' => count($filtered),
-		];
-
+		return $this->format->exportResult(format: $format, rows: $this->format->inPeriod(chain: $chain, period: [$startDate, $endDate]));
 	}//end export()
 
 	/**
@@ -393,23 +373,15 @@ class AuditLogService {
 	 *
 	 * @param array<string, mixed> $filters Filter criteria (actor / action / startDate / endDate / objectUuid / limit / offset)
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return array{success: bool, entries: array, count: int}
 	 */
 	public function query(array $filters = []): array {
-		$actionFilter = null;
-		if (($filters['action'] ?? null) !== null) {
-			$actionFilter = (string)$filters['action'];
-		}
-
 		try {
-			$chain = $this->loadChain(action: $actionFilter);
+			$chain = $this->loadChain(action: self::actionFilter(filters: $filters));
 		} catch (\Throwable $e) {
-			$this->logger->error(
-				'Decidiq: failed to load audit log for query',
-				['exception' => $e->getMessage()]
-			);
+			$this->logger->error('Decidiq: failed to load audit log for query', ['exception' => $e->getMessage()]);
 			return [
 				'success' => false,
 				'entries' => [],
@@ -417,7 +389,19 @@ class AuditLogService {
 			];
 		}
 
-		$filtered = array_values(
+		return $this->format->queryPage(filtered: $this->matchingRows(chain: $chain, filters: $filters), filters: $filters);
+	}//end query()
+
+	/**
+	 * The rows that match every filter (AND).
+	 *
+	 * @param array<int, array<string, mixed>> $chain   The mapped rows
+	 * @param array<string, mixed>             $filters Filter criteria
+	 *
+	 * @return list<array<string, mixed>>
+	 */
+	private function matchingRows(array $chain, array $filters): array {
+		return array_values(
 			array_filter(
 				$chain,
 				fn (array $row): bool => $this->matchesEqualityFilters(row: $row, filters: $filters) === true
@@ -425,22 +409,22 @@ class AuditLogService {
 					&& $this->matchesObjectUuid(row: $row, filters: $filters) === true
 			)
 		);
+	}//end matchingRows()
 
-		$limit = (int)($filters['limit'] ?? 100);
-		$offset = (int)($filters['offset'] ?? 0);
-		if ($limit <= 0) {
-			$limit = 100;
+	/**
+	 * The action filter as text, null when none is given.
+	 *
+	 * @param array<string, mixed> $filters Filter criteria
+	 *
+	 * @return string|null
+	 */
+	private static function actionFilter(array $filters): ?string {
+		if (($filters['action'] ?? null) !== null) {
+			return (string)$filters['action'];
 		}
 
-		$page = array_slice($filtered, $offset, $limit);
-
-		return [
-			'success' => true,
-			'entries' => $page,
-			'count' => count($filtered),
-		];
-
-	}//end query()
+		return null;
+	}//end actionFilter()
 
 	/**
 	 * Whether an audit row satisfies the exact-match filters (actor, action).
@@ -448,7 +432,7 @@ class AuditLogService {
 	 * @param array<string, mixed> $row A single mapped audit row
 	 * @param array<string, mixed> $filters Filter criteria
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return bool
 	 */
@@ -472,7 +456,7 @@ class AuditLogService {
 	 * @param array<string, mixed> $row A single mapped audit row
 	 * @param array<string, mixed> $filters Filter criteria
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return bool
 	 */
@@ -501,7 +485,7 @@ class AuditLogService {
 	 * @param array<string, mixed> $row A single mapped audit row
 	 * @param array<string, mixed> $filters Filter criteria
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
 	 *
 	 * @return bool
 	 */
@@ -554,27 +538,17 @@ class AuditLogService {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function loadChain(?string $action = null): array {
-		$actions = self::ACTIONS;
-		if ($action !== null && in_array($action, self::ACTIONS, true) === true) {
-			$actions = [$action];
-		}
-
-		$namespaced = array_map(
-			static fn (string $name): string => (self::ACTION_NAMESPACE . $name),
-			$actions
-		);
-
 		$rows = $this->auditTrailMapper->findAll(
 			limit: self::CHAIN_LIMIT,
 			offset: 0,
-			filters: ['action' => implode(',', $namespaced)],
+			filters: ['action' => self::namespacedActions(action: $action)],
 			sort: ['created' => 'ASC']
 		);
 
 		$out = [];
 		foreach ((array)$rows as $row) {
 			if ($row instanceof AuditTrail) {
-				$out[] = $this->mapRow(entry: $row);
+				$out[] = $this->format->mapRow(entry: $row);
 			}
 		}
 
@@ -582,48 +556,20 @@ class AuditLogService {
 	}//end loadChain()
 
 	/**
-	 * Map an OR AuditTrail entity onto the decidiq audit row shape.
+	 * The comma-separated namespaced actions to read: the one asked for when
+	 * it is a known action, every action otherwise.
 	 *
-	 * The decidiq context written by append() (actorUuid, objectUids,
-	 * payload) is read back out of the `changed` column; the platform's own
-	 * chain hash is exposed as `currentHash` (empty until AuditSealJob's next
-	 * sweep seals the row).
+	 * @param string|null $action Optional decidiq action
 	 *
-	 * @param AuditTrail $entry The OR audit trail entity
-	 *
-	 * @return array<string, mixed> The mapped decidiq audit row
+	 * @return string
 	 */
-	private function mapRow(AuditTrail $entry): array {
-		$changed = ($entry->getChanged() ?? []);
-		if (is_array($changed) === false) {
-			$changed = [];
+	private static function namespacedActions(?string $action): string {
+		$actions = self::ACTIONS;
+		if ($action !== null && in_array($action, self::ACTIONS, true) === true) {
+			$actions = [$action];
 		}
 
-		$action = (string)($entry->getAction() ?? '');
-		if (str_starts_with($action, self::ACTION_NAMESPACE) === true) {
-			$action = substr($action, strlen(self::ACTION_NAMESPACE));
-		}
+		return implode(',', array_map(static fn (string $name): string => (self::ACTION_NAMESPACE . $name), $actions));
+	}//end namespacedActions()
 
-		$objectUids = ($changed['objectUids'] ?? null);
-		if (is_array($objectUids) === false || $objectUids === []) {
-			$objectUids = array_filter([(string)($entry->getObjectUuid() ?? '')]);
-		}
-
-		$timestamp = '';
-		$created = $entry->getCreated();
-		if ($created !== null) {
-			$timestamp = $created->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d\TH:i:s\Z');
-		}
-
-		return [
-			'id' => (string)($entry->getUuid() ?? $entry->getId()),
-			'actorUuid' => (string)($changed['actorUuid'] ?? ($entry->getUser() ?? '')),
-			'action' => $action,
-			'objectUids' => array_values(array_map('strval', $objectUids)),
-			'timestamp' => $timestamp,
-			'payload' => (array)($changed['payload'] ?? []),
-			'currentHash' => (string)($entry->getHash() ?? ''),
-			'previousHash' => (string)($entry->getPreviousHash() ?? ''),
-		];
-	}//end mapRow()
 }//end class

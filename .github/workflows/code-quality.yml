@@ -46,36 +46,29 @@ on:
     branches: [main, master, development, beta]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   quality:
     if: (github.event_name != 'pull_request' || github.head_ref != 'development')
+    permissions:
+      contents: write
+      actions: write
+      issues: write
+      pull-requests: write
+      packages: read
     uses: ConductionNL/.github/.github/workflows/quality.yml@main
     with:
       app-name: decidiq
       php-version: "8.3"
       php-test-versions: '["8.3", "8.4"]'
-      # stable31 is REMOVED because it tested an impossible configuration, not
-      # because we are trimming coverage. `additional-apps` below installs
-      # openregister, which declares min-version="32" (ConductionNL/openregister#2384),
-      # so on NC31 `occ app:enable openregister` refuses with "not compatible with
-      # this version of the server". The shared workflow runs that as
-      # `php occ app:enable "$name" || echo "::warning::Failed to enable $name"`,
-      # so the failure is a WARNING and the job continues without its data layer,
-      # then dies ~70s later on missing schemas — which reads like an app fault.
-      #
-      # Order mattered as much as membership: the newman, playwright and
-      # journeydoc-capture jobs each check out the server at
-      # `fromJSON(inputs.nextcloud-test-refs)[0]`, so stable31 sitting FIRST put
-      # all three on the one version openregister cannot load.
-      #
-      # THE LIST IS THE WHOLE DECLARED RANGE. An earlier revision of this comment
-      # said "stable33 is deliberately NOT added: this removes an impossible leg,
-      # it does not widen the matrix" — but the same change also dropped stable32,
-      # which was NOT impossible, it was the declared floor. appinfo/info.xml
-      # declares <nextcloud min-version="32" max-version="34"/>, so 32, 33 and 34
-      # each get a leg; anything narrower advertises a range to the App Store that
-      # no job touches.
-      nextcloud-test-refs: '["stable34", "stable32", "stable33"]'
+      # NO `nextcloud-test-refs` HERE, DELIBERATELY. The shared workflow derives
+      # the server matrix from appinfo/info.xml (<nextcloud min-version="32"
+      # max-version="35"/>) when this input is unset, so every version advertised
+      # to the App Store gets a leg and the next max-version bump cannot leave a
+      # hand-kept list behind. The override that used to sit here read
+      # ["stable34", "stable32", "stable33"] and would have kept NC35 untested.
       enable-psalm: true
       enable-phpstan: true
       enable-phpmetrics: true
@@ -96,7 +89,14 @@ jobs:
       # interchangeable with `main`: decidiq's appinfo/routes.php builds on
       # `\OCA\OpenRegister\AppHost\Routes`, which does not exist on OpenRegister
       # `main` (0.2.19) at all — only on `development`.
-      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"}]'
+      #
+      # integriq is here because the Integrations page reads integriq's
+      # `app_connection` rows (adopt-connection-registry). Without it the page
+      # shows the missing-dependency screen and
+      # `tests/e2e/workflows/connection-registry.spec.ts` fails on every run.
+      # `app` is `integriq`, verified in its appinfo/info.xml on `development`
+      # on 2026-09-14.
+      additional-apps: '[{"repo":"ConductionNL/openregister","app":"openregister","ref":"development"},{"repo":"ConductionNL/integriq","app":"integriq","ref":"development"}]'
       # Two collections (decidiq-meeting-agenda, decidiq-user-settings) carry
       # no collection-level `baseUrl`/`noAuthBase`/`adminUser`/`adminPass`, and
       # the workflow's ad-hoc fallback defines `base_url`-style names instead.
@@ -177,10 +177,14 @@ jobs:
       # `test:unit` is NOT listed: the shared "Frontend Tests (unit)" job
       # already falls back to it when there is no `test` script, and this repo
       # has none — its 282 vitest tests are already covered there.
-      # `test:l10n:parity` is NOT listed either: measured on this tree it is
-      # short 289+ translations across the required locales. That is a
-      # translation backlog, and a permanently-red leg is one that gets
-      # switched off again.
+      # `test:l10n:parity` (every European locale) is NOT listed either:
+      # measured on this tree it is short 289+ translations across the
+      # required locales. That is a translation backlog, and a permanently-red
+      # leg is one that gets switched off again.
+      # `test:l10n:parity:nl` IS listed — HARD GATE. The same parity checker,
+      # scoped with L10N_REQUIRED_LOCALES=nl to the flagship locale, which is at
+      # full parity: a key missing from, or empty in, nl fails the run.
+      # Widening the required set is separate work (l10n-parity-ci-gate).
       #
       # `format` (prettier --check) is listed because the shared workflow has NO
       # prettier job of its own — `quality.yml` runs eslint and stylelint and
@@ -213,7 +217,7 @@ jobs:
       # renders the English source inside an otherwise translated form, silently.
       # The fleet had 30,459 such strings, so this records the current count and
       # fails only when it GROWS — burning it down stays an ordinary PR.
-      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "format", "check:l10n-js", "check:schema-l10n"]'
+      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "test:l10n:parity:nl", "format", "check:l10n-js", "check:schema-l10n"]'
 
       # ── Coverage ratchet ─────────────────────────────────────────────────
       # `enable-coverage-guard` defaults to FALSE, which is why both
@@ -237,6 +241,15 @@ jobs:
       # serious/critical violations on core's OWN routes that DOM scoping does
       # not remove. Enabling axe is a separate decision.
       enable-hydra-gates: true
+      # Gate 122 (SIG unit ratchet) blocks: a unit this change adds or makes
+      # worse must stay at NLOC 60, McCabe 10 and at most 4 parameters, and a
+      # new duplicated fragment of 6+ lines fails. Units the change does not
+      # touch, or touches without making worse, are inherited and do not count.
+      hydra-gates-sig-blocking: true
+      # Maintainability floor: no rating in .maintainability-floor.json may drop
+      # more than 0.01 against the merge base (pull request) or below the
+      # committed floor (push). The floor is raised after improving merges.
+      enable-maintainability-floor: true
       # No `hydra-gates-ref` here on purpose. The shared workflow defaults it
       # to @main, and this workflow is itself consumed at @main, so the two
       # sides move together and a gate fix reaches this repo without a commit

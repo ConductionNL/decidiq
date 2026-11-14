@@ -30,5 +30,9 @@
 
 ## 5. Prove it
 
-- [ ] 5.1 Unit tests for the migration.
-- [ ] 5.2 E2E: a consultation and its responses render.
+- [x] 5.1 Unit tests for the migration. (tests/Unit/Migration/MigrateConsultationsToOneSchemaTest.php)
+- [ ] 5.2 E2E: a consultation and its responses render, including a joint arrangement asking its participating councils and one council answering. (not run: needs the live instance; new file `tests/e2e/consultations.spec.ts`)
+
+## 5. The advice on the decision page
+
+- [x] 5.1 List the consultations and the recorded answers on the decision's page (`decision-consultations` and `decision-consultation-responses` in `src/manifest.json`).

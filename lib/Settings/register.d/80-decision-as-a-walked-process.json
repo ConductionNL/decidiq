@@ -1,0 +1,279 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment - the-decision-as-a-walked-process. Patches four existing schemas by key union: ApprovalAction gains the fields that make an awaited approval a work item and a withdrawn one explainable; ApprovalRoute's steps gain a threshold, an approval basis and a step kind; Decision gains its withdrawal, its admissibility verdict and the remedy clause stamped at decision time; DecisionTemplate gains the remedy declaration those clauses resolve from. Every addition defaults to today's behaviour, so no stored route or decision changes meaning. See openspec/changes/the-decision-as-a-walked-process/specs/decision-as-a-walked-process/spec.md, REQ-DWP-001 through REQ-DWP-005 and REQ-DWP-007.",
+  "components": {
+    "schemas": {
+      "ApprovalAction": {
+        "slug": "approval-action",
+        "version": "1.1.0",
+        "description": "Patched by the-decision-as-a-walked-process: an approval that is still awaited is a WORK ITEM, not an absence. It carries who it is waiting on, when it is due and what state it is in, so it can be listed on that person's task list and so a subject can say which approval is holding it up rather than only that it is blocked (REQ-DWP-001). It also carries withdrawnReason, because an approval can be taken back by the person who gave it and can also go stale on its own when what was approved changes underneath it, and the two look identical in a history that does not say which happened (REQ-DWP-003).",
+        "properties": {
+          "assignee": {
+            "title": "Assignee",
+            "type": "string",
+            "example": "j.jansen",
+            "description": "Who this approval is waiting on. An open action with no assignee is an approval nobody has been asked for, which is how a route sits still for a week with nothing to show for it."
+          },
+          "dueAt": {
+            "title": "Due at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-25T00:00:00Z",
+            "description": "When it is due. Shown on the assignee's task list beside the subject and the step."
+          },
+          "state": {
+            "title": "State",
+            "type": "string",
+            "enum": [
+              "open",
+              "granted",
+              "refused",
+              "withdrawn"
+            ],
+            "default": "open",
+            "example": "open",
+            "description": "Where the action stands. `open` is the work item; the other three are its ends."
+          },
+          "withdrawnReason": {
+            "title": "Withdrawn reason",
+            "type": "string",
+            "enum": [
+              "basis-changed",
+              "by-actor",
+              "superseded"
+            ],
+            "example": "basis-changed",
+            "description": "Why a granted approval is no longer good. `basis-changed` is the system's own: what was approved was edited afterwards. `by-actor` is the person taking it back. A history that cannot tell the two apart cannot answer who is responsible for the reopened step."
+          },
+          "withdrawnAt": {
+            "title": "Withdrawn at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-09-20T09:12:00Z",
+            "description": "When it was withdrawn."
+          },
+          "thresholdBefore": {
+            "title": "Threshold before",
+            "type": "number",
+            "example": 0.8,
+            "description": "On a recomputation action, the share or count the step required before an administrator changed it."
+          },
+          "thresholdAfter": {
+            "title": "Threshold after",
+            "type": "number",
+            "example": 0.6,
+            "description": "And after. The pair is the record REQ-DWP-002 asks for: a step whose outcome changed without an action to point at is a step nobody can explain."
+          }
+        }
+      },
+      "ApprovalRoute": {
+        "slug": "approval-route",
+        "version": "1.1.0",
+        "description": "Patched by the-decision-as-a-walked-process: a step can require a share or a count of its approvers rather than all of them, can name the properties its approvers are actually approving, and can be an intake step that yields an admissibility verdict instead of an approval.",
+        "properties": {
+          "steps": {
+            "title": "Steps",
+            "type": "array",
+            "description": "The ordered steps, with the walked-process additions. Every addition defaults to today's behaviour, so no stored route changes meaning.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "thresholdKind": {
+                  "title": "Threshold kind",
+                  "type": "string",
+                  "enum": [
+                    "all",
+                    "count",
+                    "share"
+                  ],
+                  "default": "all",
+                  "example": "share",
+                  "description": "How many of a step's approvers have to grant before it closes. `all` is today's behaviour and stays the default, so no stored route changes meaning."
+                },
+                "thresholdValue": {
+                  "title": "Threshold value",
+                  "type": "number",
+                  "minimum": 0,
+                  "example": 0.6,
+                  "description": "The count, or the share between 0 and 1. Ignored when the kind is `all`."
+                },
+                "approvalBasis": {
+                  "title": "Approval basis",
+                  "type": "array",
+                  "description": "The property paths on the subject that this step's approvers are actually approving. When one of them changes after a grant, the grant is withdrawn and the step reopens, because an approval of a document that has since been rewritten is not an approval of the document in front of you. An EMPTY basis never withdraws anything, which is what keeps this opt-in (REQ-DWP-003).",
+                  "items": {
+                    "type": "string"
+                  },
+                  "example": [
+                    "body",
+                    "attachments"
+                  ]
+                },
+                "stepKind": {
+                  "title": "Step kind",
+                  "type": "string",
+                  "enum": [
+                    "approval",
+                    "intake",
+                    "committee"
+                  ],
+                  "default": "approval",
+                  "example": "intake",
+                  "description": "What kind of step this is beyond its stage type. `intake` is the admissibility test: it yields a verdict rather than an approval, and a `niet-ontvankelijk` verdict ends the route where it stands (REQ-DWP-004)."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Decision": {
+        "slug": "decision",
+        "version": "1.2.0",
+        "description": "Patched by the-decision-as-a-walked-process: a decision can be WITHDRAWN, and the withdrawal is an append rather than an edit. The original outcome stays readable beside it, because a decision that was granted and then withdrawn is a different fact from a decision that was refused, and overwriting the outcome loses the difference (REQ-DWP-005). It also carries the legal remedy clause resolved from its type at the moment it was taken, and the admissibility verdict when its route began with an intake step.",
+        "properties": {
+          "withdrawn": {
+            "title": "Withdrawn",
+            "type": "boolean",
+            "default": false,
+            "example": true,
+            "description": "Whether the decision has been withdrawn. The original outcome is NOT cleared."
+          },
+          "withdrawnAt": {
+            "title": "Withdrawn at",
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-10-02T14:00:00Z",
+            "description": "When."
+          },
+          "withdrawnReason": {
+            "title": "Withdrawn reason",
+            "type": "string",
+            "example": "Aanvraag ingetrokken door aanvrager",
+            "description": "Why. Read by the person who receives the withdrawal, so it is written for them."
+          },
+          "withdrawnBy": {
+            "title": "Withdrawn by",
+            "type": "string",
+            "enum": [
+              "bestuursorgaan",
+              "belanghebbende"
+            ],
+            "example": "belanghebbende",
+            "description": "Who withdrew it. A withdrawal by the deciding body and a withdrawal by the party who asked are different acts with different consequences, and a record that does not say which is not a record (REQ-DWP-005)."
+          },
+          "ontvankelijkheid": {
+            "title": "Ontvankelijkheid",
+            "type": "string",
+            "enum": [
+              "ontvankelijk",
+              "niet-ontvankelijk"
+            ],
+            "example": "niet-ontvankelijk",
+            "description": "The admissibility verdict, when the route began with an intake step."
+          },
+          "ontvankelijkheidGround": {
+            "title": "Ground",
+            "type": "string",
+            "example": "Artikel 4:5 Awb, aanvraag onvolledig na hersteltermijn",
+            "description": "The ground the verdict rests on. A `niet-ontvankelijk` verdict without one cannot be contested, which is why it is refused (REQ-DWP-004)."
+          },
+          "ontvankelijkheidDecidedBy": {
+            "title": "Decided by",
+            "type": "string",
+            "example": "j.jansen",
+            "description": "Who gave the verdict."
+          },
+          "legalRemedyClause": {
+            "title": "Legal remedy clause",
+            "type": "object",
+            "description": "The remedy clause as it stood when this decision was taken, resolved from the decision type and STAMPED here. Resolved at decision time rather than read live, because a type whose term changes next year must not silently change what this decision told someone last year (REQ-DWP-007).",
+            "properties": {
+              "kind": {
+                "title": "Kind",
+                "type": "string",
+                "enum": [
+                  "bezwaar",
+                  "beroep",
+                  "administratief-beroep",
+                  "geen"
+                ],
+                "example": "bezwaar",
+                "description": "Which remedy is open."
+              },
+              "termDays": {
+                "title": "Term in days",
+                "type": "integer",
+                "example": 42,
+                "description": "How long the party has, in days."
+              },
+              "body": {
+                "title": "Body",
+                "type": "string",
+                "example": "het college van burgemeester en wethouders",
+                "description": "Where it is lodged."
+              },
+              "text": {
+                "title": "Text",
+                "type": "string",
+                "example": "Bent u het niet eens met dit besluit? Dan kunt u binnen zes weken bezwaar maken bij het college van burgemeester en wethouders.",
+                "description": "The sentence printed on the decision."
+              }
+            }
+          }
+        }
+      },
+      "DecisionTemplate": {
+        "slug": "decision-template",
+        "version": "1.1.0",
+        "description": "Patched by the-decision-as-a-walked-process: a decision type declares the legal remedies open against the decisions taken under it. Declared once on the type rather than typed onto each decision, which is the difference between a clause that is right everywhere and a clause that is right where somebody remembered it (REQ-DWP-007).",
+        "properties": {
+          "legalRemedies": {
+            "title": "Legal remedies",
+            "type": "array",
+            "description": "The remedies open against a decision of this type. A type published with none declared is refused: a decision that tells nobody how to contest it is the one failure this declaration exists to prevent. `geen` is a legitimate declaration and is how a type says so on purpose.",
+            "items": {
+              "type": "object",
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "title": "Kind",
+                  "type": "string",
+                  "enum": [
+                    "bezwaar",
+                    "beroep",
+                    "administratief-beroep",
+                    "geen"
+                  ],
+                  "example": "bezwaar",
+                  "description": "Which remedy is open."
+                },
+                "termDays": {
+                  "title": "Term in days",
+                  "type": "integer",
+                  "example": 42,
+                  "description": "How long the party has, in days."
+                },
+                "body": {
+                  "title": "Body",
+                  "type": "string",
+                  "example": "het college van burgemeester en wethouders",
+                  "description": "Where it is lodged."
+                },
+                "text": {
+                  "title": "Text",
+                  "type": "string",
+                  "example": "Bent u het niet eens met dit besluit? Dan kunt u binnen zes weken bezwaar maken bij het college van burgemeester en wethouders.",
+                  "description": "The sentence printed on the decision."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

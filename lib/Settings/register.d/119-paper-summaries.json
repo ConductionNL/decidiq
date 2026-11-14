@@ -1,0 +1,197 @@
+{
+	"_note": "agenda-ai-paper-summaries (age-16, age-20, plt-27): an AI summary or comparison of a meeting paper is a record with a review status. The review states are a declarative lifecycle and who reads what is a declarative read rule: members read shown summaries only, the secretariat and administrators read all. Generating the text is imperative (PaperSummaryService and PaperSummaryTaskListener: an external AI provider, ADR-031 exception). Numbered 119, not the 92 the design names: 92 was taken by citizen advice on motions.",
+	"_spec": "openspec/changes/agenda-ai-paper-summaries/specs/agenda-ai-paper-summaries/spec.md",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"paper-summary"
+				]
+			}
+		},
+		"schemas": {
+			"PaperSummary": {
+				"slug": "paper-summary",
+				"icon": "TextBoxCheckOutline",
+				"version": "0.1.0",
+				"title": "Paper summary",
+				"description": "An AI-generated summary of a meeting paper, or of the main differences between two papers, that a clerk checks before members read it.",
+				"type": "object",
+				"x-schema-org": "schema:CreativeWork",
+				"x-openregister": {
+					"schemaType": "schema:CreativeWork",
+					"active": true,
+					"hardDelete": false,
+					"searchable": false,
+					"mailEnabled": false
+				},
+				"required": [
+					"agendaItem",
+					"paperFileId",
+					"kind",
+					"status"
+				],
+				"properties": {
+					"agendaItem": {
+						"title": "Agenda item",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "agenda-item",
+						"facetable": true,
+						"description": "The agenda item the paper is attached to."
+					},
+					"paperFileId": {
+						"title": "Paper",
+						"type": "integer",
+						"description": "The Nextcloud file id of the paper (schema:isBasedOn)."
+					},
+					"paperTitle": {
+						"title": "Paper title",
+						"type": "string",
+						"description": "The file name of the paper when the summary was asked for."
+					},
+					"kind": {
+						"title": "Kind",
+						"type": "string",
+						"enum": [
+							"summary",
+							"comparison"
+						],
+						"facetable": true,
+						"description": "A summary of one paper, or a comparison of two."
+					},
+					"comparedFileId": {
+						"title": "Compared with",
+						"type": "integer",
+						"description": "The Nextcloud file id of the second paper of a comparison."
+					},
+					"comparedTitle": {
+						"title": "Compared with (title)",
+						"type": "string",
+						"description": "The file name of the second paper of a comparison."
+					},
+					"text": {
+						"title": "Text",
+						"type": "string",
+						"description": "The AI output in markdown, then the clerk's edit of it."
+					},
+					"provider": {
+						"title": "Provider",
+						"type": "string",
+						"description": "The TaskProcessing provider that wrote the text, for provenance."
+					},
+					"taskId": {
+						"title": "Task",
+						"type": "integer",
+						"description": "The TaskProcessing task that writes the text."
+					},
+					"chunked": {
+						"title": "Summarised in parts",
+						"type": "boolean",
+						"default": false,
+						"description": "True when the paper was too long for one task and was summarised part by part."
+					},
+					"status": {
+						"title": "Status",
+						"type": "string",
+						"enum": [
+							"requested",
+							"draft",
+							"shown",
+							"hidden",
+							"failed"
+						],
+						"default": "requested",
+						"facetable": true,
+						"description": "requested until the AI answers, then draft or failed; a clerk shows a draft to members or hides it."
+					},
+					"failure": {
+						"title": "Failure",
+						"type": "string",
+						"description": "The provider's error message when the task failed."
+					},
+					"reviewedBy": {
+						"title": "Checked by",
+						"type": "string",
+						"description": "The display name of the clerk who last showed or hid the summary, as the label shows it."
+					},
+					"reviewedAt": {
+						"title": "Checked at",
+						"type": "string",
+						"format": "date-time",
+						"description": "When the clerk last showed or hid the summary."
+					}
+				},
+				"x-openregister-lifecycle": {
+					"field": "status",
+					"initial": "requested",
+					"states": [
+						"requested",
+						"draft",
+						"shown",
+						"hidden",
+						"failed"
+					],
+					"terminal": [
+						"failed"
+					],
+					"transitions": [
+						{
+							"from": "requested",
+							"to": "draft"
+						},
+						{
+							"from": "requested",
+							"to": "failed"
+						},
+						{
+							"from": "draft",
+							"to": "shown"
+						},
+						{
+							"from": "draft",
+							"to": "hidden"
+						},
+						{
+							"from": "shown",
+							"to": "hidden"
+						},
+						{
+							"from": "hidden",
+							"to": "shown"
+						}
+					],
+					"_note": "Declarative review states (ADR-031, REQ-APS-001). A failed summary is not retried in place: Try again asks for a new one."
+				},
+				"authorization": {
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"read": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators",
+						{
+							"group": "decidesk-members",
+							"match": {
+								"status": "shown"
+							}
+						}
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				}
+			}
+		}
+	}
+}

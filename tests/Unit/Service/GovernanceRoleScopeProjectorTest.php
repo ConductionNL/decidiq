@@ -156,6 +156,51 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 	}//end testReconcileFromMemberRow()
 
 	/**
+	 * A scope nobody holds has no group; the scope somebody holds has one.
+	 *
+	 * @return void
+	 */
+	public function testAScopeNobodyHoldsHasNoGroup(): void {
+		$projector = $this->makeProjector(
+			[['role' => 'secretary', 'nextcloudUserId' => 'bob', 'governanceBody' => 'body-1']]
+		);
+
+		$projector->reconcileBody('body-1');
+
+		$this->assertArrayNotHasKey('decidesk:body:body-1:chair', $this->groups);
+		$this->assertSame(['bob' => true], $this->groups['decidesk:body:body-1:signatory']);
+	}//end testAScopeNobodyHoldsHasNoGroup()
+
+	/**
+	 * A scope whose last holder goes loses its group.
+	 *
+	 * @return void
+	 */
+	public function testTheLastHolderLeavingDeletesTheGroup(): void {
+		$this->groups['decidesk:body:body-1:chair']     = ['alice' => true];
+		$this->groups['decidesk:body:body-1:signatory'] = ['alice' => true];
+
+		$this->makeProjector([])->reconcileBody('body-1');
+
+		$this->assertSame([], $this->groups);
+	}//end testTheLastHolderLeavingDeletesTheGroup()
+
+	/**
+	 * Removing a body deletes its two groups and leaves another body's alone.
+	 *
+	 * @return void
+	 */
+	public function testRemovingABodyDeletesItsGroupsOnly(): void {
+		$this->groups['decidesk:body:body-1:chair']     = ['alice' => true];
+		$this->groups['decidesk:body:body-1:signatory'] = ['alice' => true, 'bob' => true];
+		$this->groups['decidesk:body:body-2:chair']     = ['carol' => true];
+
+		$this->makeProjector([])->removeBody('body-1');
+
+		$this->assertSame(['decidesk:body:body-2:chair' => ['carol' => true]], $this->groups);
+	}//end testRemovingABodyDeletesItsGroupsOnly()
+
+	/**
 	 * Build a projector whose ObjectService returns the given participant rows.
 	 *
 	 * @param array<int, array<string, mixed>> $participants Participant rows
@@ -201,7 +246,7 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 			}
 		);
 		$groupManager->method('get')->willReturnCallback(
-			fn (string $gid): IGroup => $this->makeGroup($gid)
+			fn (string $gid): ?IGroup => isset($this->groups[$gid]) === true ? $this->makeGroup($gid) : null
 		);
 
 		return new GovernanceRoleScopeProjector(
@@ -250,6 +295,12 @@ class GovernanceRoleScopeProjectorTest extends TestCase {
 		$group->method('removeUser')->willReturnCallback(
 			function (IUser $user) use ($gid): void {
 				unset($this->groups[$gid][$user->getUID()]);
+			}
+		);
+		$group->method('delete')->willReturnCallback(
+			function () use ($gid): bool {
+				unset($this->groups[$gid]);
+				return true;
 			}
 		);
 

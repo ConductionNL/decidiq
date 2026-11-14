@@ -22,7 +22,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 
 declare(strict_types=1);
@@ -30,7 +30,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
-use Throwable;
+use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
 
 /**
  * ORI 1.4 JSON-LD serialization for Decidiq register objects.
@@ -39,19 +39,32 @@ use Throwable;
  * the rule tables below: each ORI target key lists the source properties to try,
  * in order, and the first one present wins.
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
-class OriSerializer {
+class OriSerializer implements OriSerializerInterface {
 
 	/**
-	 * ORI JSON-LD context URL.
+	 * The allow-list a commitment adds to the shared fields (status, text).
+	 * Who made it, the meeting and body it was made to, the settlement
+	 * evidence link and the migration reference stay internal. `progress` is
+	 * narrowed entry by entry in serialize().
+	 *
+	 * @var array<string, list<string>>
 	 */
-	public const ORI_CONTEXT = 'https://argu.co/ns/core';
+	private const COMMITMENT_FIELD_RULES = [
+		'deadline' => ['deadline'],
+		'progress' => ['progress'],
+		'settlement_notes' => ['settlementNotes'],
+		'motion' => ['relatedMotion'],
+		'published_at' => ['publicationDate'],
+	];
 
 	/**
-	 * The ORI resource slug whose items are PublicationPayload objects.
+	 * The keys of one public progress entry.
+	 *
+	 * @var list<string>
 	 */
-	public const PUBLICATIONS_RESOURCE = 'publications';
+	private const PROGRESS_ENTRY_KEYS = ['date', 'note'];
 
 	/**
 	 * Core ORI field rules: target key => ordered list of source properties.
@@ -88,6 +101,12 @@ class OriSerializer {
 		'outcome' => ['outcome'],
 		'decision_date' => ['decisionDate'],
 		'legal_basis' => ['legalBasis'],
+		// 🔴 THE SECOND WHITELIST. Widening the payload builder alone is not
+		// enough: this table is what an ANONYMOUS reader receives from the ORI
+		// harvest feed, and a field the payload carries but this table omits
+		// never reaches them. A besluit that names its legal ground and not the
+		// way to object to it is the gap REQ-DWP-007 exists to close.
+		'legal_remedy_clause' => ['legalRemedyClause'],
 		'vote_totals' => ['voteTotals'],
 		'meeting_date' => ['meetingDate'],
 		'agenda_items' => ['agendaItems'],
@@ -122,7 +141,7 @@ class OriSerializer {
 	 *
 	 * @return list<array<string, mixed>> The serialized ORI items
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	public function serializeCollection(string $resource, string $type, iterable $objects): array {
@@ -130,15 +149,20 @@ class OriSerializer {
 		foreach ($objects as $object) {
 			$objectArray = $this->normalise(object: $object);
 
-			if ($resource !== self::PUBLICATIONS_RESOURCE) {
+			if (in_array(needle: $resource, haystack: self::WINDOWED_RESOURCES, strict: true) === false) {
 				$items[] = $this->serialize(type: $type, object: $objectArray);
 				continue;
 			}
 
 			// Defence-in-depth published-predicate window: only emit payloads
-			// that are live RIGHT NOW. A future-dated or already-depublished
-			// payload must never appear in the harvest feed.
+			// and commitments that are live RIGHT NOW. A future-dated or
+			// already-depublished one must never appear in the feed.
 			if ($this->isPayloadLive(object: $objectArray) === false) {
+				continue;
+			}
+
+			if ($resource === self::COMMITMENTS_RESOURCE) {
+				$items[] = $this->serialize(type: $type, object: $objectArray);
 				continue;
 			}
 
@@ -178,7 +202,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The serialized ORI resource
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	public function serialize(string $type, array $object): array {
 		$self = ($object['@self'] ?? []);
@@ -198,6 +222,10 @@ class OriSerializer {
 			$payload += $this->applyRules(object: $object, rules: ['email' => ['email']]);
 		}
 
+		if ($type === self::COMMITMENT_TYPE) {
+			return ($payload + $this->commitmentFields(object: $object));
+		}
+
 		// Publish-decisions-via-opencatalogi task 5.2 — the payload self-declares
 		// its ORI @type via oriType (Besluit / Vergadering / Verslag); its presence
 		// also selects the PublicationPayload-specific field set.
@@ -210,6 +238,27 @@ class OriSerializer {
 
 		return ($payload + $this->applyRules(object: $object, rules: self::PAYLOAD_FIELD_RULES));
 	}//end serialize()
+
+	/**
+	 * Wrap fields a publication rule already allow-listed in the ORI envelope.
+	 *
+	 * Votes and vote events are not mapped through FIELD_RULES: their fields
+	 * come from OriVotePublicationRule, which names exactly what an anonymous
+	 * caller may read, so nothing of the stored ballot is added here.
+	 *
+	 * @param string               $type   The ORI @type label
+	 * @param array<string, mixed> $fields The allow-listed fields, `id` first
+	 *
+	 * @return array<string, mixed> The serialized ORI resource
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
+	 */
+	public function serializeAllowed(string $type, array $fields): array {
+		return ([
+			'@context' => self::ORI_CONTEXT,
+			'@type' => $type,
+		] + $fields);
+	}//end serializeAllowed()
 
 	/**
 	 * Evaluate the RBAC published-predicate window for a PublicationPayload.
@@ -241,6 +290,36 @@ class OriSerializer {
 	}//end isPayloadLive()
 
 	/**
+	 * The commitment allow-list, with each progress entry narrowed to its
+	 * date and note.
+	 *
+	 * @param array<string, mixed> $object The commitment
+	 *
+	 * @return array<string, mixed> The public commitment fields
+	 *
+	 * @spec openspec/specs/ori-api/spec.md#requirement-req-fpp-001-the-public-sees-commitment-and-motion-progress
+	 */
+	private function commitmentFields(array $object): array {
+		$fields = $this->applyRules(object: $object, rules: self::COMMITMENT_FIELD_RULES);
+		if (isset($fields['progress']) === false) {
+			return $fields;
+		}
+
+		$entries = [];
+		foreach ((array)$fields['progress'] as $entry) {
+			if (is_array($entry) === false) {
+				continue;
+			}
+
+			$entries[] = array_intersect_key($entry, array_flip(self::PROGRESS_ENTRY_KEYS));
+		}
+
+		$fields['progress'] = $entries;
+
+		return $fields;
+	}//end commitmentFields()
+
+	/**
 	 * Apply an ordered target => sources rule table to an object payload.
 	 *
 	 * For every target key the first source property that is set on the object
@@ -251,7 +330,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The mapped subset, in rule order
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function applyRules(array $object, array $rules): array {
 		$mapped = [];
@@ -278,7 +357,7 @@ class OriSerializer {
 	 *
 	 * @return array<string, mixed> The flat property map
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function normalise(mixed $object): array {
 		if (is_object($object) === true && method_exists($object, 'jsonSerialize') === true) {
@@ -298,15 +377,6 @@ class OriSerializer {
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function parseDate(mixed $value): ?DateTimeImmutable {
-		if (is_string($value) === false || $value === '') {
-			return null;
-		}
-
-		try {
-			return new DateTimeImmutable($value);
-		} catch (Throwable) {
-			return null;
-		}
-
+		return (new DateValueParser())->parse(value: $value);
 	}//end parseDate()
 }//end class

@@ -29,21 +29,22 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ApprovalRouteCommandServiceInterface;
 use RuntimeException;
 
 /**
  * Idempotent upsert of an approval-route template, plus delegated travel.
  *
- * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+ * @spec openspec/specs/approval-route-events/spec.md
  */
-class ApprovalRouteCommandService {
+class ApprovalRouteCommandService implements ApprovalRouteCommandServiceInterface {
 
 	/**
 	 * Schema slug of the route template.
@@ -75,7 +76,7 @@ class ApprovalRouteCommandService {
 	 *
 	 * @throws RuntimeException When the command is incomplete or a write fails.
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function holdRoute(
 		string $sourceApp,
@@ -142,7 +143,7 @@ class ApprovalRouteCommandService {
 	 *
 	 * @throws RuntimeException When the engine refuses.
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function recordAction(array $action): array {
 		// Straight through. Every refusal below this line is the engine's, and
@@ -168,7 +169,7 @@ class ApprovalRouteCommandService {
 	 *
 	 * @return string The outcome, or an empty string.
 	 *
-	 * @spec openspec/changes/approval-route-events/specs/approval-route-events/spec.md
+	 * @spec openspec/specs/approval-route-events/spec.md
 	 */
 	public function finalOutcomeOf(string $subject): string {
 		$stages = $this->engine->stagesFor(subject: $subject);

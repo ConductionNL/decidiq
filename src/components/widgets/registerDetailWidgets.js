@@ -27,7 +27,7 @@
 // and the three widget components (see its own docblock for why) so that
 // importing THIS module for its pure exports never touches those imports.
 //
-// @spec openspec/changes/register-detail-optimisation/design.md#d4-declarative-vs-imperative-decision-adr-031
+// @spec openspec/changes/archive/2026-08-19-register-detail-optimisation/design.md#d4-declarative-vs-imperative-decision-adr-031
 
 /**
  * Parse a value that's meant to be a date, tolerant of null/invalid input.
@@ -133,47 +133,91 @@ export function findChildren(all, parentField, currentId) {
  */
 export function buildConfidentialityStages(record, now = Date.now()) {
 	const r = record || {}
+	return [imposedStage(r), ratificationStage(r, now), dissolutionStage(r)]
+}
 
-	const imposed = {
+/**
+ * The confidentiality timeline's imposed stage.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {object} The stage descriptor.
+ */
+function imposedStage(r) {
+	return {
 		key: 'imposed',
 		populated: Boolean(r.imposedAt),
 		pending: !r.imposedAt,
 		overdue: false,
 		date: r.imposedAt || null,
 	}
+}
 
-	const ratificationPopulated = Boolean(
-		r.ratificationDate || r.ratificationDecision,
-	)
+/**
+ * Whether a ratification date or decision is recorded.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {boolean} True when ratified.
+ */
+function isRatified(r) {
+	return Boolean(r.ratificationDate || r.ratificationDecision)
+}
+
+/**
+ * Whether ratification is overdue: the record is still imposed, nothing is
+ * ratified and the deadline lies before `now`.
+ *
+ * @param {object} r The geheimhouding object.
+ * @param {number} now Epoch ms "now".
+ * @return {boolean} True when overdue.
+ */
+function isRatificationOverdue(r, now) {
 	const deadlineTime = toTime(r.ratificationDeadline)
-	const overdue =
+	return (
 		r.lifecycle === 'imposed'
-		&& !ratificationPopulated
+		&& !isRatified(r)
 		&& !Number.isNaN(deadlineTime)
 		&& deadlineTime < now
-	const ratification = {
+	)
+}
+
+/**
+ * The confidentiality timeline's ratification stage.
+ *
+ * @param {object} r The geheimhouding object.
+ * @param {number} now Epoch ms "now".
+ * @return {object} The stage descriptor.
+ */
+function ratificationStage(r, now) {
+	const populated = isRatified(r)
+	return {
 		key: 'ratification',
-		populated: ratificationPopulated,
-		pending: !ratificationPopulated,
-		overdue,
+		populated,
+		pending: !populated,
+		overdue: isRatificationOverdue(r, now),
 		date: r.ratificationDate || null,
 		deadline: r.ratificationDeadline || null,
 		decisionId: r.ratificationDecision || null,
 		agendaItemId: r.ratificationAgendaItem || null,
 	}
+}
 
-	const dissolutionPopulated = Boolean(r.liftingDate || r.dissolutionDecision)
-	const dissolution = {
+/**
+ * The confidentiality timeline's dissolution stage.
+ *
+ * @param {object} r The geheimhouding object.
+ * @return {object} The stage descriptor.
+ */
+function dissolutionStage(r) {
+	const populated = Boolean(r.liftingDate || r.dissolutionDecision)
+	return {
 		key: 'dissolution',
-		populated: dissolutionPopulated,
-		pending: !dissolutionPopulated,
+		populated,
+		pending: !populated,
 		overdue: false,
 		date: r.liftingDate || null,
 		decisionId: r.dissolutionDecision || null,
 		conditions: r.liftingConditions || null,
 	}
-
-	return [imposed, ratification, dissolution]
 }
 
 /**
@@ -186,42 +230,99 @@ export function buildConfidentialityStages(record, now = Date.now()) {
  *
  * @param {object|null} store Object store instance (`fetchObject`,
  *   `registerObjectType`, `objectTypeRegistry`).
- * @param {string} typeSlug The store-registered type slug for this
+ * @param {object} ref The reference to resolve.
+ * @param {string} ref.typeSlug The store-registered type slug for this
  *   reference (a local slug; conventionally the schema slug itself).
- * @param {string} schemaSlug OpenRegister schema slug (used only if the
+ * @param {string} ref.schemaSlug OpenRegister schema slug (used only if the
  *   type still needs registering).
- * @param {string} registerSlug OpenRegister register slug (used only if the
- *   type still needs registering).
- * @param {string} id The reference id.
- * @param {string} [labelField] Property to prefer as the label.
+ * @param {string} ref.registerSlug OpenRegister register slug (used only if
+ *   the type still needs registering).
+ * @param {string} ref.id The reference id.
+ * @param {string} [ref.labelField] Property to prefer as the label.
  * @return {Promise<string>} The resolved label, or the raw id when
  *   unresolvable.
  */
-export async function resolveObjectLabel(
-	store,
-	typeSlug,
-	schemaSlug,
-	registerSlug,
-	id,
-	labelField = 'name',
-) {
-	if (!id) return ''
-	if (!store) return String(id)
+export async function resolveObjectLabel(store, ref) {
+	if (!ref.id) return ''
+	if (!store) return String(ref.id)
 	try {
-		if (!store.objectTypeRegistry || !store.objectTypeRegistry[typeSlug]) {
-			store.registerObjectType(typeSlug, schemaSlug, registerSlug)
-		}
-		const obj = await store.fetchObject(typeSlug, id)
-		if (!obj) return String(id)
-		const self = obj['@self'] || {}
-		const candidates = [obj[labelField], obj.title, obj.name, self.name]
-		for (const raw of candidates) {
-			if (typeof raw === 'string' && raw !== '') return raw
-		}
-		return String(id)
+		return (await fetchObjectLabel(store, ref)) || String(ref.id)
 	} catch {
-		return String(id)
+		return String(ref.id)
 	}
+}
+
+/**
+ * Fetch the referenced object, registering its type first when the store
+ * does not know it yet, and read its label.
+ *
+ * @param {object} store Object store instance.
+ * @param {object} ref The reference (see resolveObjectLabel).
+ * @return {Promise<string>} The label, or '' when the object has none.
+ */
+async function fetchObjectLabel(store, ref) {
+	const { typeSlug, schemaSlug, registerSlug, id, labelField = 'name' } = ref
+	if (!store.objectTypeRegistry || !store.objectTypeRegistry[typeSlug]) {
+		store.registerObjectType(typeSlug, schemaSlug, registerSlug)
+	}
+	const obj = await store.fetchObject(typeSlug, id)
+	return obj ? firstLabel(obj, labelField) : ''
+}
+
+/**
+ * The first non-empty string among the label field, title, name and
+ * `@self.name` of an object.
+ *
+ * @param {object} obj The fetched object.
+ * @param {string} labelField Property to prefer as the label.
+ * @return {string|undefined} The label, undefined when there is none.
+ */
+function firstLabel(obj, labelField) {
+	const self = obj['@self'] || {}
+	return [obj[labelField], obj.title, obj.name, self.name].find(
+		(raw) => typeof raw === 'string' && raw !== '',
+	)
+}
+
+/**
+ * A widget's content config merged over its defaults: each key takes the
+ * content's value when it is set, else the default.
+ *
+ * @param {object|null|undefined} content The widget's content config.
+ * @param {object} defaults The default per key, in config order.
+ * @return {object} The merged config.
+ */
+export function contentWithDefaults(content, defaults) {
+	const set = content || {}
+	const merged = {}
+	for (const [key, fallback] of Object.entries(defaults)) {
+		merged[key] = set[key] || fallback
+	}
+	return merged
+}
+
+/**
+ * The value when it is an object, else an empty object.
+ *
+ * @param {object|string|null|undefined} value The objectData prop.
+ * @return {object} The object.
+ */
+export function plainObject(value) {
+	return value && typeof value === 'object' ? value : {}
+}
+
+/**
+ * The id of the detail page's object: the explicit prop wins, else the id
+ * in objectData or its `@self`.
+ *
+ * @param {string} objectId The objectId prop.
+ * @param {object} objectData The objectData prop.
+ * @return {string} The id, or ''.
+ */
+export function detailObjectId(objectId, objectData) {
+	const data = plainObject(objectData)
+	const self = data['@self'] || {}
+	return objectId || data.id || self.id || ''
 }
 
 /**
@@ -251,12 +352,28 @@ export async function registerDetailWidgets() {
 		{ default: ConfidentialityStatusTimelineWidget },
 		{ default: DelegationChainWidget },
 		{ default: RegisterVersionTimelineWidget },
+		{ default: DetailSectionsWidget },
 	] = await Promise.all([
 		import('@conduction/nextcloud-vue'),
 		import('./ConfidentialityStatusTimelineWidget.vue'),
 		import('./DelegationChainWidget.vue'),
 		import('./RegisterVersionTimelineWidget.vue'),
+		import('./DetailSectionsWidget.vue'),
 	])
+
+	// `detail-sections` lets ONE tab hold more than one panel
+	// (simple-decision-page). It has to be in the shared catalog and not in
+	// src/registry.js: the detail page reads `container` from the catalog
+	// only, and only a container is handed the schema, the integration
+	// context and the app registry its children need.
+	registerDashboardWidget('detail-sections', {
+		renderer: DetailSectionsWidget,
+		form: null,
+		container: true,
+		surfaces: ['detail-page'],
+		displayName: 'Sections',
+		icon: 'LibraryOutline',
+	})
 
 	registerDashboardWidget('version-timeline', {
 		renderer: RegisterVersionTimelineWidget,

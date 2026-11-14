@@ -53,6 +53,15 @@ final class LeafDescriptor {
 		'single-entity',
 	];
 
+	/**
+	 * Load strategies, mirroring openregister#3956.
+	 */
+	public const LOADS_VIA_SHARED_ENTRY = 'shared-entry';
+
+	public const LOADS_VIA_OWN_SCRIPT = 'own-script';
+
+	public const LOADS_ALREADY_PRESENT = 'already-present';
+
 	public const RENDER_MODE_COMPONENT = 'component';
 
 	public const RENDER_MODE_MOUNT = 'mount';
@@ -61,6 +70,26 @@ final class LeafDescriptor {
 		self::RENDER_MODE_COMPONENT,
 		self::RENDER_MODE_MOUNT,
 	];
+
+	private string $id;
+
+	private string $label;
+
+	private string $icon;
+
+	private ?string $requiredApp;
+
+	private ?string $group;
+
+	private array $surfaces;
+
+	private ?string $referenceType;
+
+	private ?string $requiresPermission;
+
+	private string $renderMode;
+
+	private ?string $loadStrategy;
 
 	/**
 	 * Constructor — same parameter order and defaults as the real descriptor.
@@ -82,18 +111,33 @@ final class LeafDescriptor {
 	 *                           surface in production.
 	 */
 	public function __construct(
-		private string $id,
-		private string $label,
-		private string $icon,
+		LeafIdentity $identity,
 		private array $kinds,
-		private ?string $requiredApp = null,
-		private ?string $group = null,
-		private array $surfaces = [],
-		private ?string $referenceType = null,
-		private ?string $requiresPermission = null,
-		private string $renderMode = self::RENDER_MODE_COMPONENT,
+		?LeafAvailability $availability = null,
+		?LeafRendering $rendering = null,
 	) {
+		$availability = $availability ?? new LeafAvailability();
+		$rendering = $rendering ?? new LeafRendering();
+		$this->id = $identity->id;
+		$this->label = $identity->label;
+		$this->icon = $identity->icon;
+		$this->requiredApp = $availability->requiredApp;
+		$this->group = $identity->group;
+		$this->surfaces = $rendering->surfaces;
+		$this->referenceType = $rendering->referenceType;
+		$this->requiresPermission = $availability->requiresPermission;
+		$this->renderMode = $rendering->renderMode;
+		$this->loadStrategy = $rendering->loadStrategy;
 	}//end __construct()
+
+	/**
+	 * How this leaf's render bundle reaches the page, if it has said.
+	 *
+	 * @return string|null The declared strategy, or null.
+	 */
+	public function getLoadStrategy(): ?string {
+		return $this->loadStrategy;
+	}//end getLoadStrategy()
 
 	/**
 	 * Stable kebab-case identifier, equal to the JS registration id.

@@ -32,6 +32,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\ActionItemWriterInterface;
 use OCA\OpenRegister\Db\RegisterMapper;
 use OCA\OpenRegister\Db\SchemaMapper;
 use OCA\OpenRegister\Service\TaskService;
@@ -43,7 +44,7 @@ use Throwable;
  *
  * @spec openspec/specs/action-item-board-via-deck-leaf/spec.md
  */
-class ActionItemWriter {
+class ActionItemWriter implements ActionItemWriterInterface {
 
 	/**
 	 * The Decidiq register slug.
@@ -65,6 +66,31 @@ class ActionItemWriter {
 	 * @var array{0: int, 1: int}|null
 	 */
 	private ?array $ids = null;
+
+	/**
+	 * The action-item keys that map onto core VTODO fields, or are the task's
+	 * own; every other key rides along in the task's `fields` blob.
+	 *
+	 * @var list<string>
+	 */
+	private const CORE_TASK_KEYS = [
+		'title',
+		'summary',
+		'description',
+		'dueDate',
+		'due',
+		'status',
+		'priority',
+		'id',
+		'uid',
+		'calendarId',
+		'completed',
+		'created',
+		'objectUuid',
+		'registerId',
+		'schemaId',
+		'fields',
+	];
 
 	/**
 	 * Constructor.
@@ -93,7 +119,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed>|null The created VTODO task array, or null on failure.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	public function create(array $item): ?array {
 		try {
@@ -127,7 +153,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed>|null The updated VTODO task array, or null when not found/failed.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	public function update(string $uid, array $changes): ?array {
 		try {
@@ -166,7 +192,7 @@ class ActionItemWriter {
 	 *
 	 * @return bool True when deleted, false when not found/failed.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	public function delete(string $uid): bool {
 		try {
@@ -184,6 +210,34 @@ class ActionItemWriter {
 	}//end delete()
 
 	/**
+	 * The acting user's action-item VTODO whose round-tripped field holds a value.
+	 *
+	 * @param string $field The field in the VTODO's field blob.
+	 * @param string $value The value it must hold.
+	 *
+	 * @return array<string, mixed>|null The VTODO task array, or null when none holds it.
+	 *
+	 * @throws Throwable When the user's tasks cannot be read, so a caller never takes "unreadable" for "absent".
+	 *
+	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
+	 */
+	public function findByField(string $field, string $value): ?array {
+		if ($value === '') {
+			return null;
+		}
+
+		$result = $this->taskService->getAllUserTasks(limit: 1000);
+		foreach (($result['results'] ?? []) as $task) {
+			$fields = ($task['fields'] ?? []);
+			if (is_array($fields) === true && (string)($fields[$field] ?? '') === $value) {
+				return $task;
+			}
+		}
+
+		return null;
+	}//end findByField()
+
+	/**
 	 * Map an action-item payload onto TaskService::createTask `data`.
 	 *
 	 * Core VTODO fields (summary/status/description/due/priority) map directly;
@@ -195,7 +249,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed> The TaskService data array.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function toTaskData(array $item, string $title): array {
 		$data = [
@@ -212,31 +266,7 @@ class ActionItemWriter {
 		}
 
 		// Everything that is not a core VTODO field rides along in the field blob.
-		$coreKeys = [
-			'title',
-			'summary',
-			'description',
-			'dueDate',
-			'due',
-			'status',
-			'priority',
-			'id',
-			'uid',
-			'calendarId',
-			'completed',
-			'created',
-			'objectUuid',
-			'registerId',
-			'schemaId',
-			'fields',
-		];
-		$fields = [];
-		foreach ($item as $key => $value) {
-			if (in_array($key, $coreKeys, true) === false) {
-				$fields[$key] = $value;
-			}
-		}
-
+		$fields = self::extraFields(item: $item);
 		if (empty($fields) === false) {
 			$data['fields'] = $fields;
 		}
@@ -245,13 +275,31 @@ class ActionItemWriter {
 	}//end toTaskData()
 
 	/**
+	 * The keys of an action item that are not core VTODO fields, in order.
+	 *
+	 * @param array<string, mixed> $item The action-item payload.
+	 *
+	 * @return array<string, mixed> The extra fields.
+	 */
+	private static function extraFields(array $item): array {
+		$fields = [];
+		foreach ($item as $key => $value) {
+			if (in_array($key, self::CORE_TASK_KEYS, true) === false) {
+				$fields[$key] = $value;
+			}
+		}
+
+		return $fields;
+	}//end extraFields()
+
+	/**
 	 * Map an action-item taskStatus onto a VTODO STATUS value.
 	 *
 	 * @param string $taskStatus The action-item status.
 	 *
 	 * @return string The VTODO STATUS.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function mapStatus(string $taskStatus): string {
 		$map = [
@@ -273,7 +321,7 @@ class ActionItemWriter {
 	 *
 	 * @return array<string, mixed>|null The task array (with calendarId + id/uri), or null.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-3.4
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	private function locate(string $uid): ?array {
 		$result = $this->taskService->getAllUserTasks(limit: 1000);
@@ -291,7 +339,7 @@ class ActionItemWriter {
 	 *
 	 * @return array{0: int, 1: int}|null [registerId, schemaId], or null when unresolvable.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function resolveIds(): ?array {
 		if ($this->ids !== null) {
@@ -315,7 +363,7 @@ class ActionItemWriter {
 	 *
 	 * @return string A UUID v4 string.
 	 *
-	 * @spec openspec/changes/action-items-vtodo-deck-reconcile/tasks.md#task-1.1
+	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-1.1
 	 */
 	private function uuidV4(): string {
 		$bytes = random_bytes(16);
