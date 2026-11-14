@@ -3756,7 +3756,8 @@ OC.L10N.register(
         "The people in the group.": "De personen in de groep.",
         "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
         "Deciding body": "Besluitvormend orgaan",
-        "The governance body that took the decision.": "Het bestuursorgaan dat het besluit heeft genomen."
+        "The governance body that took the decision.": "Het bestuursorgaan dat het besluit heeft genomen.",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )

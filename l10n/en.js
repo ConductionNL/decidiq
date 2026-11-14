@@ -3338,7 +3338,8 @@ OC.L10N.register(
         "The people in the group.": "The people in the group.",
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
         "Deciding body": "Deciding body",
-        "The governance body that took the decision.": "The governance body that took the decision."
+        "The governance body that took the decision.": "The governance body that took the decision.",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )
