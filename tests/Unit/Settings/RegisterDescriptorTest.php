@@ -314,4 +314,53 @@ class RegisterDescriptorTest extends TestCase {
 			message: 'PublicationPayload lost legalBasis while gaining the clause'
 		);
 	}//end testThePublicationPayloadDeclaresTheRemedyClause()
+
+	/**
+	 * No notification rule on an updated trigger uses an operator OpenRegister
+	 * does not evaluate there: an unknown operator falls through to false, so
+	 * such a rule never fires and nothing says so.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
+	 */
+	public function testNoUpdatedTriggerUsesAnOperatorOpenRegisterCannotEvaluate(): void {
+		$unsupported = [];
+		foreach (($this->descriptor['components']['schemas'] ?? []) as $name => $schema) {
+			foreach ((array)($schema['x-openregister-notifications'] ?? []) as $rule => $declaration) {
+				$trigger = (array)($declaration['trigger'] ?? []);
+				$operator = ($trigger['condition']['operator'] ?? null);
+				if (($trigger['type'] ?? '') === 'updated' && $operator !== null && in_array($operator, ['equals', 'changed'], true) === false) {
+					$unsupported[] = $name . '.' . $rule . ' (' . (string)$operator . ')';
+				}
+			}
+		}
+
+		self::assertSame([], $unsupported);
+	}//end testNoUpdatedTriggerUsesAnOperatorOpenRegisterCannotEvaluate()
+
+	/**
+	 * Each terminal lifecycle value of a decision is announced by exactly one
+	 * outcome rule.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
+	 */
+	public function testEachDecisionOutcomeIsAnnouncedByExactlyOneRule(): void {
+		$rules = (array)($this->descriptor['components']['schemas']['Decision']['x-openregister-notifications'] ?? []);
+		self::assertArrayNotHasKey('outcomeEmitted', $rules);
+
+		foreach (['decided', 'enacted', 'withdrawn'] as $state) {
+			$matching = array_keys(
+				array_filter(
+					$rules,
+					static fn (array $rule): bool => ($rule['enabled'] ?? false) === true
+						&& ($rule['trigger']['type'] ?? '') === 'updated'
+						&& ($rule['trigger']['condition'] ?? []) === ['field' => 'lifecycle', 'operator' => 'equals', 'value' => $state]
+				)
+			);
+			self::assertSame(['outcome' . ucfirst($state)], $matching, $state);
+		}
+	}//end testEachDecisionOutcomeIsAnnouncedByExactlyOneRule()
 }//end class

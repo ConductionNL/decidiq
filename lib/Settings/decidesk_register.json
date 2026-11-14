@@ -2,7 +2,7 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Decidiq Register",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release. v0.16.0 adds the `accessibility-scan-report` schema and PublicationRecord.accessibilityOverride (document-accessibility-check).",
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.15.1 splits the Decision outcome notification into one rule per terminal lifecycle value (decided, enacted, withdrawn), because OpenRegister does not support `in` on updated triggers and the single rule never fired. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release. v0.16.0 adds the `accessibility-scan-report` schema and PublicationRecord.accessibilityOverride (document-accessibility-check).",
     "version": "0.16.0"
   },
   "x-openregister": {
@@ -1855,18 +1855,62 @@
               "en": "Decision repeals an earlier decision: {{title}}"
             }
           },
-          "outcomeEmitted": {
-            "_note": "`in` is not implemented for updated triggers. fieldChangeConditionMatches supports only `changed` and `equals`, and an unknown operator falls through to false — so this rule has never fired. Left declared rather than split into three near-identical rules: the scheduled path gained `in` in ConductionNL/openregister#2794, and bringing the same vocabulary to the updated path is the natural next step (the created-vs-updated-vs-scheduled convergence deferred there). Splitting now would only have to be undone then.",
+          "outcomeDecided": {
+            "_note": "One rule per terminal lifecycle value (decided, enacted, withdrawn): OpenRegister supports only `changed` and `equals` on updated triggers, so the former single `in` rule (outcomeEmitted) never fired (decision-outcome-reaches-the-subscriber, REQ-DCDH-010).",
             "trigger": {
               "type": "updated",
               "condition": {
                 "field": "lifecycle",
-                "operator": "in",
-                "value": [
-                  "decided",
-                  "enacted",
-                  "withdrawn"
-                ]
+                "operator": "equals",
+                "value": "decided"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeEnacted": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "enacted"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Besluit uitkomst beschikbaar: {{title}}",
+              "en": "Decision outcome available: {{title}}"
+            }
+          },
+          "outcomeWithdrawn": {
+            "trigger": {
+              "type": "updated",
+              "condition": {
+                "field": "lifecycle",
+                "operator": "equals",
+                "value": "withdrawn"
               }
             },
             "enabled": true,

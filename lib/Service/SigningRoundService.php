@@ -185,6 +185,27 @@ class SigningRoundService implements SigningRoundServiceInterface {
 		}
 
 		$data = $this->dataOf(entity: $entity);
+		$early = $this->collectState(data: $data);
+		if ($early !== null) {
+			return $early;
+		}
+
+		return $this->applySigningResult(
+			entity: $entity,
+			job: ['data' => $data, 'schema' => $schema, 'subjectType' => $subjectType, 'subjectId' => $subjectId]
+		);
+	}//end collect()
+
+	/**
+	 * The answer when the record is already signed or not out for signature, else null.
+	 *
+	 * @param array<string, mixed> $data The record.
+	 *
+	 * @return array<string, string>|null
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 */
+	private function collectState(array $data): ?array {
 		$current = (string)($data['signingStatus'] ?? '');
 		if ($current === 'signed') {
 			return ['status' => 'signed', 'message' => 'Already signed.', 'signedCopy' => (string)($data['signedCopy'] ?? '')];
@@ -195,7 +216,26 @@ class SigningRoundService implements SigningRoundServiceInterface {
 			return ['status' => 'failed', 'message' => 'This record is not out for signature.'];
 		}
 
-		$result = $this->signatureService->fetchSigningResult($requestId);
+		return null;
+	}//end collectState()
+
+	/**
+	 * Fetch the signing result and record it: failed, still pending, or the signed copy stored.
+	 *
+	 * @param object               $entity The record's entity.
+	 * @param array<string, mixed> $job    data, schema, subjectType and subjectId.
+	 *
+	 * @return array<string, string>
+	 *
+	 * @spec openspec/specs/p2-minutes-and-decisions-core-t3/spec.md#requirement-req-ses-001-send-for-signature-in-a-chosen-order-and-store-the-signed-copy
+	 */
+	private function applySigningResult(object $entity, array $job): array {
+		$data = $job['data'];
+		$schema = $job['schema'];
+		$subjectType = $job['subjectType'];
+		$subjectId = $job['subjectId'];
+
+		$result = $this->signatureService->fetchSigningResult((string)($data['signingRequestId'] ?? ''));
 		if ($result['status'] === 'failed') {
 			$this->objectService->saveObject(
 				object: array_merge($data, ['signingStatus' => 'failed']),
@@ -231,7 +271,7 @@ class SigningRoundService implements SigningRoundServiceInterface {
 		);
 
 		return ['status' => 'signed', 'message' => 'The signed copy is stored.', 'signedCopy' => $fileName];
-	}//end collect()
+	}//end applySigningResult()
 
 	/**
 	 * Collect every record that is out for signature. Run by the background
