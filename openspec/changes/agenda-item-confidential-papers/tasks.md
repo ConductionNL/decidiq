@@ -25,8 +25,9 @@
 - **files**: `lib/Listener/AgendaItemConfidentialityListener.php` (new), `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`
 - **acceptance_criteria**:
   - the test constructs the real OpenRegister object events, not fakes
-- [ ] Implement
-- [ ] Test (red first): `tests/Unit/Listener/AgendaItemConfidentialityListenerTest.php`
+- [x] Implement
+- [x] Test (red first): `tests/Unit/Listener/AgendaItemConfidentialityListenerTest.php`
+- Note: before-save on `digital-document` (SaveGuardSubscriptions) closes a paper saved onto a non-public item; after-save on `agenda-item` closes the item's public papers; after-save on `confidentiality-restriction` closes the item when scope `item` reaches `imposed` (lifting changes nothing). Writes run with `_rbac: false`: closing is an invariant, not the saver's right.
 
 ### Task 4: Pack and publication leave the item out
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site`

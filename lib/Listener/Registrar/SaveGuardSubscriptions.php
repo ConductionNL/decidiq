@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
@@ -83,6 +84,10 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Confidential agenda items (agenda-item-confidential-papers,
+		// REQ-ACP-003): a paper saved onto a non-public item is not public.
+		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
 		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
 		// a decision of a type is recorded only by the body the type names as
 		// competent, on create and on update.
