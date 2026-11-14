@@ -54,6 +54,11 @@ final class SaveGuardSubscriptions {
 	 * @var list<array{event: string, listener: string, schemas: list<string>}>
 	 */
 	public const ALL = [
+		// Deciding body (insight-decisions-report-by-period-and-body,
+		// REQ-DRP-001): a decision saved with a meeting and no deciding body
+		// gets the meeting's governance body, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
 		// Submission deadline gate (motion-amendment spec). ADR-005 retired
 		// the `motion` and `amendment` schemas into `decision`; the
 		// motion/amendment narrowing happens inside the handler on the
@@ -83,11 +88,6 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
-		// Deciding body (insight-decisions-report-by-period-and-body,
-		// REQ-DRP-001): a decision saved with a meeting and no deciding body
-		// gets the meeting's governance body, on create and on update.
-		['event' => ObjectCreatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
-		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionDecidingBodyListener::class, 'schemas' => ['decision']],
 		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
 		// a decision of a type is recorded only by the body the type names as
 		// competent, on create and on update.
