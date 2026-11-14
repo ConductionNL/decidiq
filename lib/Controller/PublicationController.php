@@ -53,7 +53,7 @@ class PublicationController extends Controller {
 	 *
 	 * @var array<int, string>
 	 */
-	private const SOURCE_TYPES = ['decision', 'agenda', 'minutes', 'activity'];
+	private const SOURCE_TYPES = ['decision', 'agenda', 'minutes', 'activity', 'incoming-document'];
 
 	/**
 	 * Publish and rectify failures with a status of their own, checked in order.
@@ -96,7 +96,7 @@ class PublicationController extends Controller {
 	 * Publish an eligible decision / agenda / minutes object.
 	 *
 	 * POST /api/publications
-	 * Body: { sourceType: decision|agenda|minutes|activity, sourceId: <uuid> }
+	 * Body: { sourceType: decision|agenda|minutes|activity|incoming-document, sourceId: <uuid> }
 	 *
 	 * An activity is a public meeting on the residents' calendar.
 	 *
@@ -114,7 +114,10 @@ class PublicationController extends Controller {
 
 		$source = $this->requestedSource();
 		if ($source === null) {
-			return new JSONResponse(['message' => 'sourceType (decision|agenda|minutes|activity) and sourceId are required.'], Http::STATUS_BAD_REQUEST);
+			return new JSONResponse(
+				['message' => 'sourceType (decision|agenda|minutes|activity|incoming-document) and sourceId are required.'],
+				Http::STATUS_BAD_REQUEST
+			);
 		}
 
 		$denied = $this->requireStaffForSource(sourceType: $source->type, sourceId: $source->id);

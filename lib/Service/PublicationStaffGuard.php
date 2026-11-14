@@ -185,6 +185,10 @@ class PublicationStaffGuard implements PublicationStaffGuardInterface {
 			return $sourceId;
 		}
 
+		if ($sourceType === 'incoming-document') {
+			return $this->incomingDocumentMeetingId(sourceId: $sourceId);
+		}
+
 		$schema = 'decision';
 		if ($sourceType === 'minutes') {
 			$schema = 'minutes';
@@ -207,4 +211,29 @@ class PublicationStaffGuard implements PublicationStaffGuardInterface {
 
 		return null;
 	}//end resolveMeetingId()
+
+	/**
+	 * The meeting of the "lijst ingekomen stukken" agenda item an incoming document is placed on.
+	 *
+	 * @param string $sourceId UUID of the IngekomenStuk
+	 *
+	 * @return string|null The meeting UUID, or null when the document is not placed
+	 *
+	 * @spec openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-005-public-publication-with-woo-aware-anonymisation
+	 */
+	private function incomingDocumentMeetingId(string $sourceId): ?string {
+		$stuk = $this->objectService->find(id: $sourceId, register: 'decidiq', schema: 'ingekomen-stuk');
+		$agendaItemId = (string)($stuk?->jsonSerialize()['listAgendaItem'] ?? '');
+		if ($agendaItemId === '') {
+			return null;
+		}
+
+		$agendaItem = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+		$meetingId  = (string)($agendaItem?->jsonSerialize()['meeting'] ?? '');
+		if ($meetingId === '') {
+			return null;
+		}
+
+		return $meetingId;
+	}//end incomingDocumentMeetingId()
 }//end class
