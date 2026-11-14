@@ -202,6 +202,10 @@ $extra = [
         ['name' => 'speakingRequest#approve', 'url' => '/api/speaking-requests/{id}/approve',  'verb' => 'POST'],
         ['name' => 'speakingRequest#reject',  'url' => '/api/speaking-requests/{id}/reject',   'verb' => 'POST'],
         ['name' => 'speakingRequest#refer',   'url' => '/api/speaking-requests/{id}/refer',    'verb' => 'POST'],
+        ['name' => 'speakingRequest#outcome', 'url' => '/api/speaking-requests/{id}/outcome',  'verb' => 'POST'],
+        ['name' => 'speakingRequest#agenda',  'url' => '/api/meetings/{meetingId}/speaking-slots',        'verb' => 'GET'],
+        ['name' => 'speakingRequest#publicAgenda', 'url' => '/api/meetings/{meetingId}/speaking-slots/public', 'verb' => 'GET'],
+        ['name' => 'speakingRequest#queue',   'url' => '/api/meetings/{meetingId}/speaking-queue',        'verb' => 'GET'],
 
         // Agenda lifecycle routes (task-1.3) — specific routes BEFORE wildcard catch-all.
         ['name' => 'agenda#publish',             'url' => '/api/agendas/{meetingId}/publish',      'verb' => 'POST'],

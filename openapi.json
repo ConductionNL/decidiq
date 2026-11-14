@@ -7373,6 +7373,190 @@
                     }
                 }
             }
+        },
+        "/speaking-requests/{id}/outcome": {
+            "post": {
+                "operationId": "speaking-request-outcome",
+                "summary": "Record that an approved speaker spoke or did not show up",
+                "description": "Sets an approved speaking request to spoke or no-show; the whole request is saved again with only its status changed. POST /api/speaking-requests/{id}/outcome. Access control: staff of the request's meeting. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "speaking-request"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The speaking request.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                },
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "outcome": {
+                                        "type": "string",
+                                        "enum": [
+                                            "spoke",
+                                            "no-show"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/speaking-slots": {
+            "get": {
+                "operationId": "speaking-slots-internal",
+                "summary": "The speaking slots of a meeting, for the internal agenda",
+                "description": "Per agenda item, and under `meeting` for meeting-level speakers: the approved slots in order and the pending requests; rejected requests are left out. GET /api/meetings/{meetingId}/speaking-slots. Access control: staff of the meeting. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "speaking-request"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/speaking-slots/public": {
+            "get": {
+                "operationId": "speaking-slots-public",
+                "summary": "The public view of a meeting's speakers",
+                "description": "Approved speakers per agenda item, projected by the body's public display setting: `count` gives only the number, `first-name` first names, `speaker-name` the speaker name, organisation and topic. Contact details, rejection reasons and pending or rejected requests are never in it. GET /api/meetings/{meetingId}/speaking-slots/public. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "speaking-request"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/speaking-queue": {
+            "get": {
+                "operationId": "speaking-queue-preload",
+                "summary": "The speaker queue entries of an agenda item's approved speakers",
+                "description": "In order, each labelled as a public speaker with its allotted minutes, to put ahead of the entries the chair adds. GET /api/meetings/{meetingId}/speaking-queue?agendaItem={id}; without agendaItem, the meeting-level speakers. Access control: staff of the meeting. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "speaking-request"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "agendaItem",
+                        "in": "query",
+                        "required": false,
+                        "description": "The agenda item; empty for the meeting-level speakers.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
         }
     },
     "components": {

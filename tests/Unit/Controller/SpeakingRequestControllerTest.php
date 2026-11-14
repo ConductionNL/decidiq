@@ -203,4 +203,50 @@ final class SpeakingRequestControllerTest extends TestCase {
 		self::assertSame(['meeting' => 'm2'], $this->controller()->refer('r1')->getData());
 		self::assertSame(['m2', 'm1'], $this->guarded);
 	}//end testAReferralIsGuardedOnBothMeetings()
+
+	/**
+	 * The internal agenda and the queue are for the meeting's staff; others
+	 * get the guard's refusal and the service is not asked.
+	 *
+	 * @return void
+	 */
+	public function testTheAgendaAndQueueAreForTheMeetingsStaff(): void {
+		$this->notStaff = ['m-other'];
+		$this->params   = ['agendaItem' => 'i1'];
+		$this->service->expects($this->once())->method('agenda')->with('m1')->willReturn(['i1' => ['slots' => [], 'pending' => []]]);
+		$this->service->expects($this->once())->method('queue')->with('m1', 'i1')->willReturn([['requestId' => 'r1']]);
+
+		self::assertSame(['i1' => ['slots' => [], 'pending' => []]], $this->controller()->agenda('m1')->getData());
+		self::assertSame([['requestId' => 'r1']], $this->controller()->queue('m1')->getData());
+		self::assertSame(403, $this->controller()->agenda('m-other')->getStatus());
+		self::assertSame(403, $this->controller()->queue('m-other')->getStatus());
+		self::assertSame(['m1', 'm1', 'm-other', 'm-other'], $this->guarded);
+	}//end testTheAgendaAndQueueAreForTheMeetingsStaff()
+
+	/**
+	 * The public view needs no staff guard: it is the public projection.
+	 *
+	 * @return void
+	 */
+	public function testThePublicViewIsTheProjection(): void {
+		$this->service->expects($this->once())->method('publicAgenda')->with('m1')->willReturn(['display' => 'count', 'agenda' => []]);
+
+		self::assertSame(['display' => 'count', 'agenda' => []], $this->controller()->publicAgenda('m1')->getData());
+		self::assertSame([], $this->guarded);
+	}//end testThePublicViewIsTheProjection()
+
+	/**
+	 * An outcome is guarded on the request's meeting and passes the outcome.
+	 *
+	 * @return void
+	 */
+	public function testAnOutcomeIsGuardedOnTheRequestsMeeting(): void {
+		$this->service->method('meetingOf')->willReturnMap([['r1', 'm1'], ['r2', 'm-other']]);
+		$this->notStaff = ['m-other'];
+		$this->params   = ['outcome' => 'spoke'];
+		$this->service->expects($this->once())->method('markOutcome')->with('r1', 'spoke')->willReturn(['lifecycle' => 'spoke']);
+
+		self::assertSame(['lifecycle' => 'spoke'], $this->controller()->outcome('r1')->getData());
+		self::assertSame(403, $this->controller()->outcome('r2')->getStatus());
+	}//end testAnOutcomeIsGuardedOnTheRequestsMeeting()
 }//end class

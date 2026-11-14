@@ -96,4 +96,50 @@ interface SpeakingRequestServiceInterface {
 	 * @throws SpeakingRequestRefusedException When it is not registered or the target is not usable.
 	 */
 	public function refer(string $requestId, string $meetingId, ?string $agendaItemId=null): array;
+
+	/**
+	 * The internal agenda view of a meeting's speaking requests.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+	 */
+	public function agenda(string $meetingId): array;
+
+	/**
+	 * The public view of a meeting's speakers, as the body's policy allows.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return array{display: string, agenda: array<string, array<string, mixed>>}
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
+	 */
+	public function publicAgenda(string $meetingId): array;
+
+	/**
+	 * The approved speakers of an agenda item as speaker queue entries.
+	 *
+	 * @param string $meetingId    The meeting.
+	 * @param string $agendaItemId The agenda item, or '' for the meeting block.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 */
+	public function queue(string $meetingId, string $agendaItemId): array;
+
+	/**
+	 * Record that an approved speaker spoke or did not show up.
+	 *
+	 * @param string $requestId The speaking request.
+	 * @param string $outcome   spoke or no-show.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 */
+	public function markOutcome(string $requestId, string $outcome): array;
 }//end interface

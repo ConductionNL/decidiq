@@ -56,12 +56,147 @@ class SpeakingRequestService implements SpeakingRequestServiceInterface {
 	 *
 	 * @param ObjectServiceInterface $objectService OpenRegister's object facade.
 	 * @param ITimeFactory           $time          The clock.
+	 * @param SpeakingSlots|null     $slots         Builds the agenda, public and queue views.
 	 */
 	public function __construct(
 		private readonly ObjectServiceInterface $objectService,
 		private readonly ITimeFactory $time,
+		private readonly ?SpeakingSlots $slots = null,
 	) {
 	}//end __construct()
+
+	/**
+	 * The internal agenda view of a meeting's speaking requests: per agenda
+	 * item and for the meeting block, the approved slots in order and the
+	 * pending requests.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return array<string, array<string, mixed>>
+	 *
+	 * @throws SpeakingRequestRefusedException 404 when the meeting is unknown.
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+	 */
+	public function agenda(string $meetingId): array {
+		$this->requireMeeting(meetingId: $meetingId);
+		return $this->slots()->internal(requests: $this->requestsOf(meetingId: $meetingId));
+	}//end agenda()
+
+	/**
+	 * The public view of a meeting's speakers, as the body's policy allows.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return array{display: string, agenda: array<string, array<string, mixed>>}
+	 *
+	 * @throws SpeakingRequestRefusedException 404 when the meeting is unknown.
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
+	 */
+	public function publicAgenda(string $meetingId): array {
+		$meeting = $this->requireMeeting(meetingId: $meetingId);
+		$policy  = $this->findPolicy(bodyId: $this->bodyOf(meeting: $meeting, supplied: ''));
+		$display = (string)($policy['publicDisplay'] ?? 'count');
+		if (in_array($display, SpeakingSlots::DISPLAYS, true) === false) {
+			$display = 'count';
+		}
+
+		return [
+			'display' => $display,
+			'agenda'  => $this->slots()->public(requests: $this->requestsOf(meetingId: $meetingId), display: $display),
+		];
+	}//end publicAgenda()
+
+	/**
+	 * The approved speakers of an agenda item as speaker queue entries, in
+	 * order, to put ahead of the entries the chair adds.
+	 *
+	 * @param string $meetingId    The meeting.
+	 * @param string $agendaItemId The agenda item, or '' for the meeting block.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 *
+	 * @throws SpeakingRequestRefusedException 404 when the meeting is unknown.
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 */
+	public function queue(string $meetingId, string $agendaItemId): array {
+		$this->requireMeeting(meetingId: $meetingId);
+		return $this->slots()->queue(requests: $this->requestsOf(meetingId: $meetingId), agendaItemId: trim($agendaItemId));
+	}//end queue()
+
+	/**
+	 * Record that an approved speaker spoke or did not show up.
+	 *
+	 * The whole request is saved again with only its status changed, so
+	 * every other field (the contribution, the transcript segment) survives.
+	 *
+	 * @param string $requestId The speaking request.
+	 * @param string $outcome   spoke or no-show.
+	 *
+	 * @return array<string, mixed> The saved request.
+	 *
+	 * @throws SpeakingRequestRefusedException 400 for another outcome, 404 for an unknown request,
+	 *                                         409 when the request is not approved.
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 */
+	public function markOutcome(string $requestId, string $outcome): array {
+		if (in_array($outcome, ['spoke', 'no-show'], true) === false) {
+			throw new SpeakingRequestRefusedException(message: 'The outcome is spoke or no-show.', status: 400);
+		}
+
+		$request = $this->read(schema: self::SCHEMA, id: $requestId);
+		if ($request === null) {
+			throw new SpeakingRequestRefusedException(message: 'Speaking request not found.', status: 404);
+		}
+
+		if (($request['lifecycle'] ?? '') !== 'approved') {
+			throw new SpeakingRequestRefusedException(message: 'Only an approved speaking request can be marked as spoken or no-show.', status: 409);
+		}
+
+		$request['lifecycle'] = $outcome;
+		return $this->write(request: ['id' => $requestId] + $request);
+	}//end markOutcome()
+
+	/**
+	 * The speaking requests of a meeting, each with its id.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function requestsOf(string $meetingId): array {
+		$rows = $this->objectService->findAll(
+			config: ['filters' => ['register' => self::REGISTER, 'schema' => self::SCHEMA, 'meeting' => $meetingId]],
+			_rbac: false,
+			_multitenancy: false
+		);
+
+		$requests = [];
+		foreach ($rows as $row) {
+			$request = $row->jsonSerialize();
+			if ((string)($request['meeting'] ?? '') !== $meetingId) {
+				// The filter may match loosely; only this meeting's requests count.
+				continue;
+			}
+
+			$request['id'] = (string)$row->getUuid();
+			$requests[]    = $request;
+		}
+
+		return $requests;
+	}//end requestsOf()
+
+	/**
+	 * The slot builder.
+	 *
+	 * @return SpeakingSlots
+	 */
+	private function slots(): SpeakingSlots {
+		return $this->slots ?? new SpeakingSlots();
+	}//end slots()
 
 	/**
 	 * The meeting a speaking request is for, or an empty string when it does not exist.

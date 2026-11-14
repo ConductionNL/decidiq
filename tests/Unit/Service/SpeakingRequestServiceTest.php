@@ -367,4 +367,122 @@ final class SpeakingRequestServiceTest extends TestCase {
 		self::assertSame('', $this->service->meetingOf(requestId: 'missing'));
 		self::assertSame('', $this->service->meetingOf(requestId: ''));
 	}//end testMeetingOf()
+
+	/**
+	 * Speakers of meeting-1: two approved on item-1 (positions 2 and 1), one
+	 * registered and one rejected there, one approved at meeting level.
+	 *
+	 * @return void
+	 */
+	private function seedSpeakers(): void {
+		$contact = ['name' => 'Anna Jansen', 'email' => 'anna@example.org'];
+		$this->put('s-jansen', 'speaking-request', ['meeting' => 'meeting-1', 'agendaItem' => 'item-1', 'lifecycle' => 'approved', 'position' => 2, 'allottedMinutes' => 5, 'topic' => ['speakerName' => 'Anna Jansen', 'organisation' => 'Buurtvereniging', 'topicText' => 'Parkeren'], 'contactDetails' => $contact]);
+		$this->put('s-boer', 'speaking-request', ['meeting' => 'meeting-1', 'agendaItem' => 'item-1', 'lifecycle' => 'approved', 'position' => 1, 'allottedMinutes' => 3, 'topic' => ['speakerName' => 'Kees de Boer', 'topicText' => 'Bomen'], 'contactDetails' => $contact]);
+		$this->put('s-wacht', 'speaking-request', ['meeting' => 'meeting-1', 'agendaItem' => 'item-1', 'lifecycle' => 'registered', 'topic' => ['speakerName' => 'Wachtend', 'topicText' => 'X', 'requestedMinutes' => 4], 'contactDetails' => $contact]);
+		$this->put('s-nee', 'speaking-request', ['meeting' => 'meeting-1', 'agendaItem' => 'item-1', 'lifecycle' => 'rejected', 'rejectionReason' => 'Buiten de orde', 'topic' => ['speakerName' => 'Afgewezen', 'topicText' => 'Y'], 'contactDetails' => $contact]);
+		$this->put('s-alv', 'speaking-request', ['meeting' => 'meeting-1', 'lifecycle' => 'approved', 'position' => 1, 'allottedMinutes' => 4, 'topic' => ['speakerName' => 'Lid Een', 'topicText' => 'Begroting'], 'contactDetails' => $contact]);
+		$this->put('s-elders', 'speaking-request', ['meeting' => 'meeting-2', 'agendaItem' => 'item-2', 'lifecycle' => 'approved', 'position' => 1, 'topic' => ['speakerName' => 'Elders', 'topicText' => 'Z']]);
+	}//end seedSpeakers()
+
+	/**
+	 * The internal agenda shows approved slots in order and pending requests,
+	 * per item and for the meeting block; rejected requests and other
+	 * meetings' requests are absent.
+	 *
+	 * @return void
+	 */
+	public function testTheInternalAgendaShowsSlotsInOrderAndPendingApart(): void {
+		$this->seedSpeakers();
+
+		$agenda = $this->service->agenda(meetingId: 'meeting-1');
+
+		$this->assertSame(['item-1', 'meeting'], array_keys($agenda));
+		$this->assertSame(['Kees de Boer', 'Anna Jansen'], array_column($agenda['item-1']['slots'], 'speakerName'));
+		$this->assertSame([3, 5], array_column($agenda['item-1']['slots'], 'minutes'));
+		$this->assertSame([['s-wacht', 'registered', 4]], array_map(static fn (array $row): array => [$row['id'], $row['status'], $row['minutes']], $agenda['item-1']['pending']));
+		$this->assertSame(['Lid Een'], array_column($agenda['meeting']['slots'], 'speakerName'));
+		$this->assertStringNotContainsString('Afgewezen', json_encode($agenda));
+		$this->assertStringNotContainsString('anna@example.org', json_encode($agenda));
+	}//end testTheInternalAgendaShowsSlotsInOrderAndPendingApart()
+
+	/**
+	 * The public agenda follows the body's display setting.
+	 *
+	 * @return void
+	 */
+	public function testThePublicAgendaFollowsTheBodysDisplaySetting(): void {
+		$this->seedSpeakers();
+
+		$count = $this->service->publicAgenda(meetingId: 'meeting-1');
+		$this->assertSame(['display' => 'count', 'agenda' => ['item-1' => ['count' => 2], 'meeting' => ['count' => 1]]], $count);
+
+		$this->objects['policy-council']['publicDisplay'] = 'first-name';
+		$this->assertSame(
+			['count' => 2, 'speakers' => [['firstName' => 'Kees'], ['firstName' => 'Anna']]],
+			$this->service->publicAgenda(meetingId: 'meeting-1')['agenda']['item-1']
+		);
+
+		$this->objects['policy-council']['publicDisplay'] = 'speaker-name';
+		$this->assertSame(
+			['speakerName' => 'Anna Jansen', 'organisation' => 'Buurtvereniging', 'topicText' => 'Parkeren'],
+			$this->service->publicAgenda(meetingId: 'meeting-1')['agenda']['item-1']['speakers'][1]
+		);
+	}//end testThePublicAgendaFollowsTheBodysDisplaySetting()
+
+	/**
+	 * The queue holds an item's approved speakers in order with their minutes.
+	 *
+	 * @return void
+	 */
+	public function testTheQueuePreloadsAnItemsApprovedSpeakers(): void {
+		$this->seedSpeakers();
+
+		$this->assertSame(
+			[
+				['requestId' => 's-boer', 'kind' => 'public-speaker', 'name' => 'Kees de Boer', 'minutes' => 3, 'position' => 1],
+				['requestId' => 's-jansen', 'kind' => 'public-speaker', 'name' => 'Anna Jansen', 'minutes' => 5, 'position' => 2],
+			],
+			$this->service->queue(meetingId: 'meeting-1', agendaItemId: 'item-1')
+		);
+		$this->assertSame(['s-alv'], array_column($this->service->queue(meetingId: 'meeting-1', agendaItemId: ''), 'requestId'));
+	}//end testTheQueuePreloadsAnItemsApprovedSpeakers()
+
+	/**
+	 * Marking an approved speaker as spoken saves the whole request with
+	 * only the status changed, so the contribution survives.
+	 *
+	 * @return void
+	 */
+	public function testMarkingSpokenKeepsEveryOtherField(): void {
+		$this->seedSpeakers();
+		$this->objects['s-jansen']['contribution'] = 'Mijn schriftelijke bijdrage';
+
+		$saved = $this->service->markOutcome(requestId: 's-jansen', outcome: 'spoke');
+
+		$this->assertSame('spoke', $saved['lifecycle']);
+		[$schema, $uuid, $object] = $this->saves[0];
+		$this->assertSame(['speaking-request', 's-jansen'], [$schema, $uuid]);
+		$this->assertSame('Mijn schriftelijke bijdrage', $object['contribution']);
+		$this->assertSame(['name' => 'Anna Jansen', 'email' => 'anna@example.org'], $object['contactDetails']);
+		$this->assertSame(5, $object['allottedMinutes']);
+	}//end testMarkingSpokenKeepsEveryOtherField()
+
+	/**
+	 * Only an approved request takes an outcome, and only spoke or no-show.
+	 *
+	 * @return void
+	 */
+	public function testAnOutcomeNeedsAnApprovedRequestAndAKnownValue(): void {
+		$this->seedSpeakers();
+		foreach ([['s-wacht', 'spoke', 409], ['s-jansen', 'gone', 400], ['nope', 'no-show', 404]] as [$id, $outcome, $status]) {
+			try {
+				$this->service->markOutcome(requestId: $id, outcome: $outcome);
+				$this->fail('Accepted '.$id.' '.$outcome);
+			} catch (SpeakingRequestRefusedException $e) {
+				$this->assertSame($status, $e->getStatus());
+			}
+		}
+
+		$this->assertSame([], $this->saves);
+	}//end testAnOutcomeNeedsAnApprovedRequestAndAKnownValue()
 }//end class

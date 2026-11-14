@@ -152,6 +152,83 @@ class SpeakingRequestController extends Controller {
 	}//end refer()
 
 	/**
+	 * The internal agenda view of a meeting's speakers: per agenda item and
+	 * for the meeting block, the approved slots in order and the pending
+	 * requests. For staff of the meeting.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-007-approved-insprekers-render-as-speaking-slots-on-the-agenda
+	 */
+	#[NoAdminRequired]
+	public function agenda(string $meetingId): JSONResponse {
+		$denied = $this->guard->forMeeting(meetingId: $meetingId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		return $this->answer(action: fn (): array => $this->requests->agenda(meetingId: $meetingId));
+	}//end agenda()
+
+	/**
+	 * The public view of a meeting's speakers, projected by the body's
+	 * public display setting.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @no-admin-idor-exempt Public projection (REQ-INS-008): an allow-list without contact details or rejections.
+	 *
+	 * The answer is what a published agenda shows, so it needs no per-object guard.
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-008-anonymised-public-agenda-view-per-policy
+	 */
+	#[NoAdminRequired]
+	public function publicAgenda(string $meetingId): JSONResponse {
+		return $this->answer(action: fn (): array => $this->requests->publicAgenda(meetingId: $meetingId));
+	}//end publicAgenda()
+
+	/**
+	 * The speaker queue entries of an agenda item's approved speakers, in
+	 * order, for the chair's speaking-time panel. For staff of the meeting.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 */
+	#[NoAdminRequired]
+	public function queue(string $meetingId): JSONResponse {
+		$denied = $this->guard->forMeeting(meetingId: $meetingId);
+		if ($denied !== null) {
+			return $denied;
+		}
+
+		$itemId = (string)$this->request->getParam('agendaItem', '');
+		return $this->answer(action: fn (): array => $this->requests->queue(meetingId: $meetingId, agendaItemId: $itemId));
+	}//end queue()
+
+	/**
+	 * Record that an approved speaker spoke (`outcome: spoke`) or did not
+	 * show up (`outcome: no-show`). For staff of the request's meeting.
+	 *
+	 * @param string $id The speaking request.
+	 *
+	 * @return JSONResponse
+	 *
+	 * @spec openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back
+	 */
+	#[NoAdminRequired]
+	public function outcome(string $id): JSONResponse {
+		$outcome = (string)$this->request->getParam('outcome', '');
+		return $this->moderated(requestId: $id, action: fn (): array => $this->requests->markOutcome(requestId: $id, outcome: $outcome));
+	}//end outcome()
+
+	/**
 	 * A request parameter as an integer, or null when it is absent or empty.
 	 *
 	 * @param mixed $value The parameter.
