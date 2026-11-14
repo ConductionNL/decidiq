@@ -3780,6 +3780,10 @@ OC.L10N.register(
         "The document the annotation is on.": "Het document waarop de aantekening staat.",
         "The agenda item the document belongs to.": "Het agendapunt waarbij het document hoort.",
         "The meeting the document belongs to.": "De vergadering waarbij het document hoort.",
+        "Document name": "Documentnaam",
+        "The file name of the document when the annotation was made, captured by the server.": "De bestandsnaam van het document toen de aantekening werd gemaakt, vastgelegd door de server.",
+        "Created": "Aangemaakt",
+        "When the annotation was made, set by the server.": "Wanneer de aantekening is gemaakt, vastgelegd door de server.",
         "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"

@@ -21,8 +21,9 @@
   - GIVEN a faction-shared annotation WHEN a faction colleague and a non-member each query THEN only the colleague receives it; unresolved membership denies (fail closed)
   - GIVEN a create request WHEN saved THEN author comes from the session, `visibility` defaults to `private`, and `visibility: faction` is rejected when the author has no faction membership; update/delete by a non-author returns 403
   - GIVEN the routes WHEN gates run THEN route-auth, no-admin-idor, orphan-auth, and route-reachability pass (guards invoked from the controller)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `AnnotationController` + `AnnotationVisibilityService` (author always; faction = a current `Membership.faction` shared with the author, resolved user → `Person.nextcloudUserId` → memberships; body = participant of the annotation's meeting via `ParticipantResolver`; anything unresolved admits only the author). A stranger's private annotation answers 404 on update/delete, the same as a missing one, so its existence cannot be probed; a visible one by someone else answers 403. Body sharing needs a meeting (taken from the agenda item when not given) the author can read. Tested through the controller in `tests/Unit/Controller/AnnotationControllerTest.php`.
 
 ### Task 3: Version capture and visibility-filtered agenda counts
 - **spec_ref**: `openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version`
@@ -31,8 +32,9 @@
   - GIVEN a create request WHEN saved THEN `fileVersion` and `versionLabel` are captured server-side from files_versions (client-supplied values ignored)
   - GIVEN a file re-uploaded as v2 WHEN listing THEN v1 annotations are returned flagged non-current with their `versionLabel`
   - GIVEN `GET /api/meetings/{id}/annotation-counts` WHEN called THEN per-agenda-item counts include only annotations visible to the caller (REQ-ANN-005 leak check)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `DocumentVersionReader` reads the file as the user (unreadable = 404): `fileVersion` is its modification time (the identifier Nextcloud file versions use), `versionLabel` counts the stored `files_versions` entries before it. The schema gained `documentName` and `createdAt` (both server-set) for the panel and the export. List results carry `current`; counts run behind the same visibility filter.
 
 ### Task 4: GDPR own-annotation export and bulk delete
 - **spec_ref**: `openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-006-author-can-delete-and-export-their-own-annotations-gdpr`
@@ -40,8 +42,9 @@
 - **acceptance_criteria**:
   - GIVEN a user with annotations WHEN they export JSON/CSV THEN only their own annotations appear with document, page, type, text, visibility, and date
   - GIVEN a bulk delete WHEN confirmed THEN all of the user's annotations (including shared ones) are removed and subsequent lists/counts reflect it
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `GET /api/annotations/export?format=json|csv` and `DELETE /api/annotations/own`; both read with an author filter re-checked after the query.
 
 ### Task 5: Annotation view — pdf.js rendering and overlay authoring
 - **spec_ref**: `openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents`

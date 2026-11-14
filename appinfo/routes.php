@@ -416,6 +416,17 @@ $extra = [
         ['name' => 'participationBudget#publishBudgetResults',  'url' => '/api/participation/budgets/{budgetId}/publish',                     'verb' => 'POST'],
         ['name' => 'participationBudget#validateProposal',      'url' => '/api/participation/proposals/{proposalId}/validate',                'verb' => 'POST'],
         ['name' => 'participationBudget#castAdvisoryVote',      'url' => '/api/participation/proposals/{proposalId}/vote',                    'verb' => 'POST'],
+        // Document annotations: every read filtered by who may see each one,
+        // every change the author's alone (AnnotationVisibilityService). The
+        // literal `export` and `own` routes come before `{id}` so they win.
+        // @spec openspec/changes/document-annotations/specs/document-annotations/spec.md
+        ['name' => 'annotation#index',      'url' => '/api/documents/{fileId}/annotations',         'verb' => 'GET',    'requirements' => ['fileId' => '\\d+']],
+        ['name' => 'annotation#create',     'url' => '/api/documents/{fileId}/annotations',         'verb' => 'POST',   'requirements' => ['fileId' => '\\d+']],
+        ['name' => 'annotation#counts',     'url' => '/api/meetings/{meetingId}/annotation-counts', 'verb' => 'GET'],
+        ['name' => 'annotation#export',     'url' => '/api/annotations/export',                    'verb' => 'GET'],
+        ['name' => 'annotation#destroyOwn', 'url' => '/api/annotations/own',                       'verb' => 'DELETE'],
+        ['name' => 'annotation#update',     'url' => '/api/annotations/{id}',                      'verb' => 'PUT'],
+        ['name' => 'annotation#destroy',    'url' => '/api/annotations/{id}',                      'verb' => 'DELETE'],
 ];
 
 // Preferred path: the OpenRegister AppHost owns the canonical route table.

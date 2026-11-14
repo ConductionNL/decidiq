@@ -16,7 +16,7 @@
 			"Annotation": {
 				"slug": "annotation",
 				"icon": "Marker",
-				"version": "0.1.0",
+				"version": "0.2.0",
 				"title": "Annotation",
 				"description": "A highlight, sticky note or drawing on a meeting document, private to its author unless shared.",
 				"type": "object",
@@ -63,6 +63,12 @@
 						"title": "Version label",
 						"type": "string",
 						"description": "The version as people see it, such as v1."
+					},
+					"documentName": {
+						"title": "Document name",
+						"type": "string",
+						"maxLength": 255,
+						"description": "The file name of the document when the annotation was made, captured by the server."
 					},
 					"page": {
 						"title": "Page",
@@ -159,6 +165,12 @@
 						"title": "Author",
 						"type": "string",
 						"description": "The user who made the annotation."
+					},
+					"createdAt": {
+						"title": "Created",
+						"type": "string",
+						"format": "date-time",
+						"description": "When the annotation was made, set by the server."
 					},
 					"document": {
 						"title": "Document",

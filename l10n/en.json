@@ -3365,6 +3365,10 @@
         "The document the annotation is on.": "The document the annotation is on.",
         "The agenda item the document belongs to.": "The agenda item the document belongs to.",
         "The meeting the document belongs to.": "The meeting the document belongs to.",
+        "Document name": "Document name",
+        "The file name of the document when the annotation was made, captured by the server.": "The file name of the document when the annotation was made, captured by the server.",
+        "Created": "Created",
+        "When the annotation was made, set by the server.": "When the annotation was made, set by the server.",
         "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
