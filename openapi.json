@@ -68,8 +68,8 @@
             "description": "The case system on the agenda item, the minutes page and the meeting page. Every action but the status belongs to the meeting's chair or secretary."
         },
         {
-            "name": "room-system",
-            "description": "The room's conference and voting system, through integriq."
+            "name": "change-recommendation",
+            "description": "POST /api/change-recommendations/{id}/accept and /reject: the chair or secretary decides a recommended text change to a motion without a vote."
         },
         {
             "name": "citizen-advice",
@@ -210,6 +210,10 @@
         {
             "name": "recording",
             "description": "Streams a meeting recording with byte ranges."
+        },
+        {
+            "name": "room-system",
+            "description": "The room's conference and voting system, through integriq."
         },
         {
             "name": "setup",
@@ -1143,20 +1147,20 @@
                 }
             }
         },
-        "/meetings/{id}/room-system": {
-            "get": {
-                "operationId": "room-system-meeting",
-                "summary": "Whether a room system is connected, and the meeting's messages, rejected ones first",
-                "description": "Whether a room system is connected, and the meeting's messages, rejected ones first. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+        "/change-recommendations/{id}/accept": {
+            "post": {
+                "operationId": "change-recommendation-accept",
+                "summary": "Accept a recommended text change into the motion without a vote",
+                "description": "Accept a recommended text change into the motion without a vote (motion-change-recommendations, REQ-MCR-003). POST /api/change-recommendations/{id}/accept. Only the chair or the secretary of the motion's meeting may decide. The passage is replaced in the motion text, the motion keeps its first wording and gains a history entry naming the recommendation, and the recommendation becomes accepted. Refused with 409 when it is already decided, the motion is in voting or later, or the passage no longer occurs in the text; 422 when it names no passage. Needs a signed-in Nextcloud user.",
                 "tags": [
-                    "room-system"
+                    "change-recommendation"
                 ],
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
                         "required": true,
-                        "description": "The meeting.",
+                        "description": "The change recommendation UUID.",
                         "schema": {
                             "type": "string"
                         }
@@ -1178,24 +1182,36 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
                     }
                 }
             }
         },
-        "/room-system-messages/{id}/apply": {
+        "/change-recommendations/{id}/reject": {
             "post": {
-                "operationId": "room-system-apply",
-                "summary": "Apply a room system message again",
-                "description": "Apply a room system message again. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "operationId": "change-recommendation-reject",
+                "summary": "Reject a recommended text change",
+                "description": "Reject a recommended text change (motion-change-recommendations, REQ-MCR-004). POST /api/change-recommendations/{id}/reject. Only the chair or the secretary of the motion's meeting may decide. The recommendation becomes rejected and the motion is not changed. Refused with 409 when it is already decided or the motion is in voting or later. Needs a signed-in Nextcloud user.",
                 "tags": [
-                    "room-system"
+                    "change-recommendation"
                 ],
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
                         "required": true,
-                        "description": "The message.",
+                        "description": "The change recommendation UUID.",
                         "schema": {
                             "type": "string"
                         }
@@ -1217,6 +1233,15 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
                     }
                 }
             }
@@ -7257,6 +7282,84 @@
                         "in": "path",
                         "required": true,
                         "description": "The entity UUID to update.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/meetings/{id}/room-system": {
+            "get": {
+                "operationId": "room-system-meeting",
+                "summary": "Whether a room system is connected, and the meeting's messages, rejected ones first",
+                "description": "Whether a room system is connected, and the meeting's messages, rejected ones first. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/room-system-messages/{id}/apply": {
+            "post": {
+                "operationId": "room-system-apply",
+                "summary": "Apply a room system message again",
+                "description": "Apply a room system message again. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The message.",
                         "schema": {
                             "type": "string"
                         }

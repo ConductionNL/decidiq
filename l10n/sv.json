@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Vem som får rösta",
+        "All members of the body": "Alla ledamöter i organet",
+        "Left out because they are no longer active members: {names}": "Utelämnade eftersom de inte längre är aktiva ledamöter: {names}",
         "sign-off route": "godkännandeflöde",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d för, %2$d emot, %3$d avstod",
