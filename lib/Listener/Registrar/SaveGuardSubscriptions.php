@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
+use OCA\Decidiq\Listener\DecisionRemedyStampListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
@@ -94,6 +95,11 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Remedy clause (the-decision-as-a-walked-process, REQ-DWP-007): a
+		// decision carries the clause of its type as it stood when it was
+		// taken. After the competence guard, so a refused save stamps nothing.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionRemedyStampListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionRemedyStampListener::class, 'schemas' => ['decision']],
 		// Implementation progress (followup-implementation-progress,
 		// REQ-FUP-001): only an adopted decision takes progress updates.
 		[

@@ -1,0 +1,28 @@
+{
+	"_note": "configurable-types-domain-model task 3.5 — a shared body's participating organisations are a representation GovernanceBodyComposition: the shared body is the composite, the organisation the component, and it sends `seats` representatives. BodyParticipation was the same idea half built: sharedBody/participant/seats with no seatPosition, so its seats were anonymous. Its rows are copied by MigrateParticipationsToCompositions and the participations widget, its dialog and the add-member dialog read and write the composition.",
+	"_spec": "openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md",
+	"components": {
+		"schemas": {
+			"GovernanceBodyComposition": {
+				"version": "0.2.0",
+				"properties": {
+					"migratedFromObject": {
+						"title": "Migrated from",
+						"type": "string",
+						"facetable": true,
+						"nullable": true,
+						"description": "The identifier of the retired record this one was copied from. Set only by the fold migration; absent on seeds and on anything a person created."
+					}
+				}
+			},
+			"BodyParticipation": {
+				"version": "0.2.0",
+				"description": "SUPERSEDED (configurable-types-domain-model): a participation is a representation GovernanceBodyComposition. `sharedBody` became `composite`, `participant` became `component`, the date-times became calendar dates, and seats, votingWeight and label kept their names. Definition and slug are kept (hardDelete:false, existing rows).",
+				"x-openregister": {
+					"active": false,
+					"hardDelete": false
+				}
+			}
+		}
+	}
+}
