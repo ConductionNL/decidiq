@@ -1,0 +1,207 @@
+{
+	"_note": "followup-implementation-progress (fol-10, mot-13): dated implementation updates on adopted decisions, the current status on the decision, and a 90-day silence reminder to the secretariat. Numbered 130, not the 92 the change names: 92 was taken.",
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"implementation-update"
+				]
+			}
+		},
+		"schemas": {
+			"ImplementationUpdate": {
+				"slug": "implementation-update",
+				"icon": "ProgressClock",
+				"version": "0.1.0",
+				"title": "Implementation update",
+				"description": "A dated report on how far the implementation of an adopted decision or motion has got: a status, an optional percentage and what happened. A record, not a draft: once added only an administrator changes or removes it.",
+				"type": "object",
+				"x-schema-org": "schema:UpdateAction",
+				"x-openregister": {
+					"schemaType": "schema:UpdateAction",
+					"active": true,
+					"hardDelete": false,
+					"searchable": true,
+					"mailEnabled": false
+				},
+				"required": [
+					"decision",
+					"reportedOn",
+					"status",
+					"text"
+				],
+				"authorization": {
+					"read": [
+						"authenticated"
+					],
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"update": [
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				},
+				"properties": {
+					"decision": {
+						"title": "Decision",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "Decision",
+						"facetable": true,
+						"description": "The adopted decision or motion this update reports on. Only a decision that is decided or enacted with outcome adopted takes updates (REQ-FUP-001)."
+					},
+					"reportedOn": {
+						"title": "Reported on",
+						"type": "string",
+						"format": "date",
+						"description": "The date the progress is reported for. The newest update by this date sets the decision's implementation status (REQ-FUP-002)."
+					},
+					"status": {
+						"title": "Status",
+						"type": "string",
+						"enum": [
+							"not-started",
+							"on-track",
+							"delayed",
+							"completed",
+							"will-not-be-implemented"
+						],
+						"x-enum-labels": {
+							"not-started": "Not started",
+							"on-track": "On track",
+							"delayed": "Delayed",
+							"completed": "Completed",
+							"will-not-be-implemented": "Will not be implemented"
+						},
+						"facetable": true,
+						"description": "How the implementation stands on that date."
+					},
+					"percentComplete": {
+						"title": "Percent complete",
+						"type": "integer",
+						"minimum": 0,
+						"maximum": 100,
+						"nullable": true,
+						"description": "How much of the implementation is done, when that can be said."
+					},
+					"text": {
+						"title": "What happened",
+						"type": "string",
+						"description": "What happened since the previous update."
+					},
+					"reportedBy": {
+						"title": "Reported by",
+						"type": "string",
+						"readOnly": true,
+						"description": "The Nextcloud account that added the update; set by the server."
+					}
+				}
+			},
+			"Decision": {
+				"slug": "decision",
+				"version": "1.8.0",
+				"properties": {
+					"implementationStatus": {
+						"title": "Implementation status",
+						"type": "string",
+						"enum": [
+							"not-started",
+							"on-track",
+							"delayed",
+							"completed",
+							"will-not-be-implemented"
+						],
+						"x-enum-labels": {
+							"not-started": "Not started",
+							"on-track": "On track",
+							"delayed": "Delayed",
+							"completed": "Completed",
+							"will-not-be-implemented": "Will not be implemented"
+						},
+						"nullable": true,
+						"readOnly": true,
+						"facetable": true,
+						"description": "The status of the newest implementation update by date; set by the server, never in a form (REQ-FUP-002)."
+					},
+					"implementationStatusDate": {
+						"title": "Implementation status date",
+						"type": "string",
+						"format": "date",
+						"nullable": true,
+						"readOnly": true,
+						"description": "The date of the newest implementation update; set by the server."
+					}
+				},
+				"x-openregister-notifications": {
+					"implementationSilent": {
+						"trigger": {
+							"type": "scheduled",
+							"intervalSec": 86400,
+							"filter": {
+								"outcome": "adopted",
+								"implementationStatus": {
+									"operator": "notIn",
+									"values": [
+										"completed",
+										"will-not-be-implemented"
+									]
+								},
+								"any": [
+									{
+										"implementationStatusDate": {
+											"operator": "olderThan",
+											"value": "P90D"
+										}
+									},
+									{
+										"all": [
+											{
+												"implementationStatusDate": {
+													"operator": "equals",
+													"value": null
+												}
+											},
+											{
+												"decisionDate": {
+													"operator": "olderThan",
+													"value": "P90D"
+												}
+											}
+										]
+									}
+								]
+							}
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "groups",
+								"groups": [
+									"decidiq-secretariat"
+								]
+							}
+						],
+						"subject": {
+							"nl": "Geen voortgang gemeld: {{title}}",
+							"en": "No progress reported: {{title}}"
+						},
+						"_note": "REQ-FUP-004. Daily sweep over adopted decisions not completed or abandoned whose newest update, or decision date when there is none, is more than 90 days old."
+					}
+				}
+			}
+		}
+	}
+}
