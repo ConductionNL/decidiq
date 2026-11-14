@@ -7,10 +7,46 @@
  * participation dialog writes, ending a participation, and the seats each
  * organisation has filled with members sitting on its behalf.
  *
+ * A participation is stored as a `representation` GovernanceBodyComposition
+ * (configurable-types-domain-model task 3.5): the shared body is the
+ * composite, the participating organisation the component, which sends
+ * `seats` representatives. BodyParticipation is superseded.
+ *
  * @spec openspec/specs/shared-governance-bodies/spec.md#requirement-req-sgbp-001-the-secretary-keeps-the-participations-of-a-shared-body
+ * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-009-a-gremium-may-be-composed-of-other-gremia
  */
 
-import { startOfDay } from './bodyMembership.js'
+
+/**
+ * The schema a participation is stored in.
+ *
+ * @type {string}
+ */
+export const PARTICIPATION_SCHEMA = 'governance-body-composition'
+
+/**
+ * The composition type of a participation: the organisation sends representatives.
+ *
+ * @type {string}
+ */
+export const PARTICIPATION_TYPE = 'representation'
+
+/**
+ * The collection query for the participations of one shared body.
+ *
+ * @param {string|number} sharedBodyId The shared body's id.
+ *
+ * @return {object} The query: its representation compositions.
+ *
+ * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-009-a-gremium-may-be-composed-of-other-gremia
+ */
+export function participationQuery(sharedBodyId) {
+	return {
+		composite: String(sharedBodyId),
+		compositionType: PARTICIPATION_TYPE,
+		_limit: 200,
+	}
+}
 
 /**
  * Whether a body is a shared body (a joint arrangement of organisations).
@@ -68,6 +104,41 @@ function fillsSeat(membership, now) {
 }
 
 /**
+ * A picked or stored date as the calendar date the composition stores
+ * (YYYY-MM-DD). A Date counts in the user's time zone; a string keeps the
+ * day it names, so a stored date-time from before the move keeps its day.
+ *
+ * @param {string|Date|null|undefined} value The date.
+ *
+ * @return {string} The date, or '' when there is none or it is not a date.
+ *
+ * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-009-a-gremium-may-be-composed-of-other-gremia
+ */
+export function calendarDate(value) {
+	if (!value) return ''
+	if (value instanceof Date) {
+		return Number.isNaN(value.getTime()) ? '' : ymd(value)
+	}
+	const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value))
+	if (!match) return ''
+	const [year, month, day] = match.slice(1).map(Number)
+	const date = new Date(year, month - 1, day)
+	return date.getMonth() === month - 1 && date.getDate() === day ? ymd(date) : ''
+}
+
+/**
+ * A Date's local calendar date as YYYY-MM-DD.
+ *
+ * @param {Date} date The date.
+ *
+ * @return {string} The calendar date.
+ */
+function ymd(date) {
+	const pad = (number) => String(number).padStart(2, '0')
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
+}
+
+/**
  * A number typed in a form field, or null when the field was left empty.
  *
  * @param {string|number|null|undefined} value The typed value.
@@ -81,12 +152,13 @@ function numberOrNull(value) {
 }
 
 /**
- * The BodyParticipation payload the participation dialog saves. Fields the
- * secretary left empty are left out, so an empty weight is not stored as 0.
+ * The participation payload the participation dialog saves: a representation
+ * GovernanceBodyComposition. Fields the secretary left empty are left out, so
+ * an empty weight is not stored as 0.
  *
  * @param {object} fields The dialog fields.
- * @param {string} fields.sharedBody The shared body's id.
- * @param {string} fields.participant The participating organisation's id.
+ * @param {string} fields.composite The shared body's id.
+ * @param {string} fields.component The participating organisation's id.
  * @param {string|number} [fields.seats] Number of seats.
  * @param {string|number} [fields.votingWeight] Voting weight agreed in the arrangement.
  * @param {string|Date} [fields.accessionDate] Date of accession.
@@ -100,8 +172,9 @@ function numberOrNull(value) {
  */
 export function buildParticipationPayload(fields) {
 	const payload = {
-		sharedBody: fields.sharedBody,
-		participant: fields.participant,
+		composite: fields.composite,
+		component: fields.component,
+		compositionType: PARTICIPATION_TYPE,
 	}
 	const optional = optionalParticipationFields(fields)
 	for (const [key, value] of Object.entries(optional)) {
@@ -123,8 +196,8 @@ function optionalParticipationFields(fields) {
 	return {
 		seats: seatCount === null ? null : Math.trunc(seatCount),
 		votingWeight: numberOrNull(fields.votingWeight),
-		accessionDate: startOfDay(fields.accessionDate),
-		exitDate: startOfDay(fields.exitDate),
+		accessionDate: calendarDate(fields.accessionDate),
+		exitDate: calendarDate(fields.exitDate),
 		label: String(fields.label || '').trim(),
 		id: fields.id || null,
 	}
@@ -135,7 +208,7 @@ function optionalParticipationFields(fields) {
  * withdrawal date set to the start of today. The participation stays on
  * record (history), it is not deleted.
  *
- * @param {object} participation The stored BodyParticipation.
+ * @param {object} participation The stored participation composition.
  * @param {Date} [now] Today.
  *
  * @return {object} The payload.
@@ -145,13 +218,11 @@ function optionalParticipationFields(fields) {
 export function endParticipationPayload(participation, now = new Date()) {
 	return buildParticipationPayload({
 		id: participation.id,
-		sharedBody: participation.sharedBody,
-		participant: participation.participant,
+		composite: participation.composite,
+		component: participation.component,
 		seats: participation.seats,
 		votingWeight: participation.votingWeight,
-		accessionDate: participation.accessionDate
-			? new Date(participation.accessionDate)
-			: '',
+		accessionDate: participation.accessionDate || '',
 		exitDate: now,
 		label: participation.label,
 	})
@@ -194,7 +265,7 @@ export function participationRows(
 	return (participations || [])
 		.map((participation) => ({
 			...participationFields(participation, bodiesById),
-			filled: filledBy[participation.participant] || 0,
+			filled: filledBy[participation.component] || 0,
 			active: isActiveParticipation(participation, now),
 			source: participation,
 		}))
@@ -243,8 +314,8 @@ function fillsSeatOnBehalf(membership, now) {
 function participationFields(participation, bodiesById) {
 	return {
 		id: participation.id,
-		participant: participation.participant,
-		name: bodyName(bodiesById, participation.participant),
+		participant: participation.component,
+		name: bodyName(bodiesById, participation.component),
 		seats: numberOrNull(participation.seats),
 		votingWeight: numberOrNull(participation.votingWeight),
 		accessionDate: participation.accessionDate || '',
@@ -283,7 +354,7 @@ export function onBehalfOfOptions(participations, bodiesById, now = new Date()) 
 		isActiveParticipation(participation, now),
 	)
 	for (const participation of active) {
-		const id = participation?.participant
+		const id = participation?.component
 		if (!id || seen.has(id)) continue
 		seen.add(id)
 		options.push({ id, label: bodyName(bodiesById, id) })

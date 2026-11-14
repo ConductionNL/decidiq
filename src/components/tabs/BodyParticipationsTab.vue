@@ -155,6 +155,8 @@ import {
 	endParticipationPayload,
 	isActiveParticipation,
 	isSharedBody,
+	PARTICIPATION_SCHEMA,
+	participationQuery,
 	participationRows,
 } from '../../utils/bodyParticipations.js'
 import { ensureRelationType } from './useRelationStore.js'
@@ -210,7 +212,7 @@ export default {
 			const taken = new Set(
 				this.participations
 					.filter((p) => isActiveParticipation(p))
-					.map((p) => p.participant),
+					.map((p) => p.component),
 			)
 			return this.bodies
 				.filter(
@@ -219,7 +221,7 @@ export default {
 				)
 				.filter(
 					(body) =>
-						this.editing?.participant === body.id || !taken.has(body.id),
+						this.editing?.component === body.id || !taken.has(body.id),
 				)
 				.map((body) => ({
 					id: body.id,
@@ -258,9 +260,9 @@ export default {
 				this.shared = isSharedBody(body)
 				if (!this.shared) return
 				const [participations, memberships, bodies] = await Promise.all([
-					ensureRelationType('body-participation').fetchCollection(
-						'body-participation',
-						{ sharedBody: bodyId, _limit: 200 },
+					ensureRelationType(PARTICIPATION_SCHEMA).fetchCollection(
+						PARTICIPATION_SCHEMA,
+						participationQuery(bodyId),
 					),
 					ensureRelationType('membership').fetchCollection('membership', {
 						governanceBody: bodyId,
@@ -300,8 +302,8 @@ export default {
 			this.busy = true
 			this.error = ''
 			try {
-				await ensureRelationType('body-participation').saveObject(
-					'body-participation',
+				await ensureRelationType(PARTICIPATION_SCHEMA).saveObject(
+					PARTICIPATION_SCHEMA,
 					endParticipationPayload(participation, new Date()),
 				)
 				await this.refresh()

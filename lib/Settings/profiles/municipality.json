@@ -1212,47 +1212,50 @@
 						"integrityNotificationGroup": "decidesk-burgemeester"
 					}
 				],
-				"body-participation": [
+				"governance-body-composition": [
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "body-participation"
+							"schema": "governance-body-composition"
 						},
 						"slug": "deelname-noorderbrug-noz",
-						"sharedBody": "bestuur-noz-organisatie",
-						"participant": "gemeenteraad-noorderbrug",
+						"composite": "bestuur-noz-organisatie",
+						"component": "gemeenteraad-noorderbrug",
+						"compositionType": "representation",
 						"seats": 2,
 						"votingWeight": 2,
-						"accessionDate": "2015-01-01T00:00:00Z",
+						"accessionDate": "2015-01-01",
 						"label": "Deelnemer per oprichting"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "body-participation"
+							"schema": "governance-body-composition"
 						},
 						"slug": "deelname-oostwoud-noz",
-						"sharedBody": "bestuur-noz-organisatie",
-						"participant": "gemeenteraad-oostwoud",
+						"composite": "bestuur-noz-organisatie",
+						"component": "gemeenteraad-oostwoud",
+						"compositionType": "representation",
 						"seats": 2,
 						"votingWeight": 2,
-						"accessionDate": "2015-01-01T00:00:00Z",
+						"accessionDate": "2015-01-01",
 						"label": "Deelnemer per oprichting"
 					},
 					{
 						"@self": {
 							"configuration": "decidiq",
 							"register": "decidiq",
-							"schema": "body-participation"
+							"schema": "governance-body-composition"
 						},
 						"slug": "deelname-zuidermeer-noz",
-						"sharedBody": "bestuur-noz-organisatie",
-						"participant": "gemeenteraad-zuidermeer",
+						"composite": "bestuur-noz-organisatie",
+						"component": "gemeenteraad-zuidermeer",
+						"compositionType": "representation",
 						"seats": 1,
 						"votingWeight": 1,
-						"accessionDate": "2015-01-01T00:00:00Z",
+						"accessionDate": "2015-01-01",
 						"label": "Deelnemer per oprichting"
 					}
 				],
