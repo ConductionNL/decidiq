@@ -667,6 +667,20 @@ class RegisterAuthorizationTest extends TestCase {
 				continue;
 			}
 
+			// ImplementationUpdate (followup-implementation-progress,
+			// REQ-FUP-001): the secretariat reports progress through the
+			// object API; correcting or removing a report is for
+			// administrators. ImplementationUpdateListener refuses a report
+			// on a decision that was not adopted.
+			if ($name === 'ImplementationUpdate') {
+				$this->assertSame(['decidiq-secretariat', 'decidiq-administrators', 'decidesk-administrators'], $block['create'] ?? null, 'ImplementationUpdate opens `create` to the secretariat and administrators.');
+				foreach (['update', 'delete'] as $action) {
+					$this->assertSame(['decidiq-administrators', 'decidesk-administrators'], $block[$action] ?? null, sprintf('ImplementationUpdate keeps `%s` to administrators.', $action));
+				}
+
+				continue;
+			}
+
 			if ($name === 'EvaluationResponse') {
 				$this->assertSame(
 					['authenticated'],
@@ -724,10 +738,10 @@ class RegisterAuthorizationTest extends TestCase {
 		// 14 restate the baseline writes, 10 are service owned, 1 is
 		// EvaluationResponse, 1 is PublicationSubscription, 5 are written by
 		// the secretariat (MandateRemuneration, PaperSummary, MeetingBroadcast,
-		// VotingGroup, MeetingPack), 17 are retired. A different number means schemas
-		// gained or lost their own block, which changes which ones the register
-		// baseline governs.
-		$this->assertCount(expectedCount: 48, haystack: $blocks, message: 'Expected 48 schema-level authorization blocks.');
+		// VotingGroup, MeetingPack), 1 is ImplementationUpdate, 17 are retired.
+		// A different number means schemas gained or lost their own block, which
+		// changes which ones the register baseline governs.
+		$this->assertCount(expectedCount: 49, haystack: $blocks, message: 'Expected 49 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**

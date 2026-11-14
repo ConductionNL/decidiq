@@ -169,8 +169,8 @@ class VotingBodyRulesTest extends TestCase {
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function open(VotingRoundOpener $opener): array {
-		$request = new VotingRoundRequest(motionId: self::MOTION, meetingId: self::MEETING, votingMethod: 'for-against-abstain', isSecret: false);
+	private function open(VotingRoundOpener $opener, string $method = 'for-against-abstain'): array {
+		$request = new VotingRoundRequest(motionId: self::MOTION, meetingId: self::MEETING, votingMethod: $method, isSecret: false);
 
 		return $opener->openVotingRound(
 			request: $request->opening(closedAt: null, presetParticipantIds: [], revoteOfRoundId: null, rules: new VotingRoundRules())
@@ -275,4 +275,44 @@ class VotingBodyRulesTest extends TestCase {
 		self::assertSame('qualified-majority-three-quarters', $this->saved[0]['voteThreshold']);
 
 	}//end testTheMeetingTypesThresholdComesBeforeTheBodys()
+
+	/**
+	 * Scenario: the body allows only for-against-abstain and weighted voting; a
+	 * show of hands is refused, naming the allowed methods, and nothing is written.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 */
+	public function testAMethodTheBodyDoesNotAllowIsRefusedBeforeAnythingIsWritten(): void {
+		$opener = $this->opener(meeting: [], body: ['allowedVotingMethods' => ['for-against-abstain', 'weighted']], present: 9, absent: 0);
+
+		try {
+			$this->open($opener, 'show-of-hands');
+			self::fail('A show of hands must be refused in this body.');
+		} catch (\InvalidArgumentException $e) {
+			self::assertSame("Voting method 'show-of-hands' is not allowed in this body. Allowed: for-against-abstain, weighted", $e->getMessage());
+		}
+
+		self::assertSame([], $this->saved);
+
+		$this->open($opener, 'weighted');
+		self::assertSame('weighted', $this->saved[0]['votingMethod']);
+
+	}//end testAMethodTheBodyDoesNotAllowIsRefusedBeforeAnythingIsWritten()
+
+	/**
+	 * A body that declares no allowed methods allows every method.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/meeting-management/spec.md#requirement-a-body-limits-which-voting-methods-its-meetings-may-use
+	 */
+	public function testABodyWithoutAllowedMethodsAllowsEveryMethod(): void {
+		$this->open($this->opener(meeting: [], body: ['allowedVotingMethods' => []], present: 9, absent: 0), 'show-of-hands');
+
+		self::assertSame('show-of-hands', $this->saved[0]['votingMethod']);
+
+	}//end testABodyWithoutAllowedMethodsAllowsEveryMethod()
+
 }//end class

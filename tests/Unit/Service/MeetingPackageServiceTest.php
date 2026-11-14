@@ -325,4 +325,55 @@ class MeetingPackageServiceTest extends TestCase {
 
 	}//end testAssembleFiltersForeignAgendaItems()
 
+	/**
+	 * A non-public item is in the pack by its place only: listed as
+	 * "Besloten punt", with no title, no folder of papers and no file copied.
+	 *
+	 * @spec openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-005-a-non-public-item-stays-out-of-the-pack-and-the-public-site
+	 *
+	 * @return void
+	 */
+	public function testAssembleListsANonPublicItemAsBeslotenPuntWithoutPapers(): void {
+		$paper = new class {
+
+			/**
+			 * @return string File name
+			 */
+			public function getName(): string {
+				return 'koopprijs.pdf';
+			}
+
+			/**
+			 * @return string File content
+			 */
+			public function getContent(): string {
+				return '%PDF koopprijs';
+			}
+		};
+
+		$written = new \ArrayObject();
+		$service = $this->makeService(
+			meetings: ['m-1' => ['id' => 'm-1', 'title' => 'Board meeting']],
+			items: [
+				['id' => 'ai-1', 'title' => 'Opening', 'orderNumber' => 1, 'meeting' => 'm-1'],
+				['id' => 'ai-7', 'title' => 'Grondaankoop Noordkade', 'orderNumber' => 7, 'meeting' => 'm-1', 'public' => false],
+			],
+			itemFiles: ['ai-7' => [$paper]],
+			written: $written
+		);
+
+		$result = $service->assemble('m-1', 'alice');
+
+		$this->assertTrue($result['success']);
+		$this->assertSame(2, $result['items']);
+		$this->assertSame(0, $result['files']);
+
+		$tocPath = 'Decidiq/2026-06-12 Board meeting/Meeting package/00 - Table of contents.md';
+		$this->assertStringContainsString('02. Besloten punt', $written[$tocPath]);
+		$everything = implode("\n", array_keys($written->getArrayCopy())) . "\n" . implode("\n", $written->getArrayCopy());
+		$this->assertStringNotContainsString('Noordkade', $everything);
+		$this->assertStringNotContainsString('koopprijs', $everything);
+
+	}//end testAssembleListsANonPublicItemAsBeslotenPuntWithoutPapers()
+
 }//end class

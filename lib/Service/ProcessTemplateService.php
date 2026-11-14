@@ -183,6 +183,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 	 */
 	public function create(array $template): array {
 		$this->assertValidStateMachine(template: $template);
+		$this->assertValidUrgencyPolicy(template: $template);
 
 		// Created templates are never built-in; only seeds may be built-in.
 		$template['builtIn'] = false;
@@ -217,6 +218,7 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		}
 
 		$this->assertValidStateMachine(template: $template);
+		$this->assertValidUrgencyPolicy(template: $template);
 
 		// Preserve identity + the not-built-in invariant.
 		$template['id'] = $templateId;
@@ -378,6 +380,90 @@ class ProcessTemplateService implements ProcessTemplateServiceInterface {
 		}
 
 	}//end assertValidStateMachine()
+
+	/**
+	 * Assert the template's urgency policy, when it has one, can be honoured.
+	 *
+	 * A template without `urgencyPolicy` is valid: it leaves the urgent
+	 * procedure unavailable to its bodies (resolveUrgencyPolicyForBody()).
+	 *
+	 * @param array<string, mixed> $template The template payload
+	 *
+	 * @throws InvalidArgumentException When the policy cannot be honoured (HTTP 400 at the controller)
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return void
+	 */
+	private function assertValidUrgencyPolicy(array $template): void {
+		if (array_key_exists('urgencyPolicy', $template) === false || $template['urgencyPolicy'] === null) {
+			return;
+		}
+
+		$errors = $this->urgencyPolicyErrors(policy: $template['urgencyPolicy']);
+		if ($errors !== []) {
+			throw new InvalidArgumentException('Invalid urgency policy: ' . implode(' ', $errors));
+		}
+
+	}//end assertValidUrgencyPolicy()
+
+	/**
+	 * The faults of an urgency policy, its ratifying body looked up in the register.
+	 *
+	 * @param mixed $policy The `urgencyPolicy` value
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return string[] Human-readable errors
+	 */
+	private function urgencyPolicyErrors(mixed $policy): array {
+		return (new UrgencyPolicyValidator())->errors(
+			policy: $policy,
+			bodyExists: fn (string $ref): bool => $this->governanceBodyExists(ref: $ref)
+		);
+	}//end urgencyPolicyErrors()
+
+	/**
+	 * Whether a governance body reference resolves; a failed lookup answers no (fail closed).
+	 *
+	 * @param string $ref The governance body uuid
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return bool
+	 */
+	private function governanceBodyExists(string $ref): bool {
+		try {
+			return $this->objectService()->find(id: $ref, register: 'decidiq', schema: 'governance-body') !== null;
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: ratifying body lookup failed; the urgency policy is refused', ['ref' => $ref, 'error' => $e->getMessage()]);
+			return false;
+		}
+
+	}//end governanceBodyExists()
+
+	/**
+	 * The urgency policy a governance body runs the urgent procedure under, or null.
+	 *
+	 * Null when the body has no template, the template has no `urgencyPolicy`
+	 * (every unmodified built-in template), or the policy no longer validates:
+	 * the absence of a policy never falls back to permissive defaults.
+	 *
+	 * @param string|null $governanceBodyId The governance body UUID, or null
+	 *
+	 * @spec openspec/changes/urgent-decision-procedure/specs/process-configuration/spec.md#requirement-per-template-urgency-policy
+	 *
+	 * @return array<string, mixed>|null The policy, or null when the procedure is unavailable
+	 */
+	public function resolveUrgencyPolicyForBody(?string $governanceBodyId): ?array {
+		$template = $this->loadBodyTemplate(governanceBodyId: $governanceBodyId);
+		$policy   = ($template['urgencyPolicy'] ?? null);
+		if (is_array($policy) === false || $this->urgencyPolicyErrors(policy: $policy) !== []) {
+			return null;
+		}
+
+		return $policy;
+	}//end resolveUrgencyPolicyForBody()
 
 	/**
 	 * Resolve a governance body's assigned template into the guard policy
