@@ -585,6 +585,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
     <commands>
         <command>OCA\Decidiq\Command\MigrateActionItems</command>
         <command>OCA\Decidiq\Command\ImportFormResponses</command>
+        <command>OCA\Decidiq\Command\ImportOriCommand</command>
     </commands>
 
     <settings>

@@ -41,6 +41,7 @@
   `coalitiepartij`→`coalition`, role→membership mapping incl. alderman→
   executive board) and the idempotency + dangling-ref behaviours;
   `composer check:strict` is clean.
+  > 2026-11-14 built: `OriImportService` (import, preview, rollback, previewRollback) over `OriExportMapper::read*()`, with `OriImportReport`. `OriImportServiceTest` covers every mapping row named above, idempotency (second run: zero created), dangling refs and unknown values reported, rollback of `ori:*` only, and no `Vote` objects. A member's group membership is tagged `ori:<uuid>#group` (two memberships come from one source member); derived bodies are tagged `ori:council:<name>`, `ori:executive:<name>`, `ori:committee:<name>`. Box left open: `composer check:strict` as a whole is not run here (phpcs, phpmd, phpstan clean on the new files).
 
 - [ ] 2.2 Create `lib/Command/ImportOriCommand.php` (`occ decidiq:import-ori`)
   with `--source-register=ori`, `--dry-run`, `--rollback`, `--strict`,
@@ -52,6 +53,7 @@
   not the command's own report); live run then re-run produce identical counts;
   rollback restores the pre-import decidiq count while the source register is
   untouched.
+  > 2026-11-14 built: `ImportOriCommand`, registered in `appinfo/info.xml`; `--strict` previews first and writes nothing when the preview finds a problem. `ImportOriCommandTest`. Box left open: the acceptance runs on a dev instance seeded with the source register.
 
 ## 3. ORI interop adapter
 
@@ -62,6 +64,7 @@
   Popolo storage → ORI wire) and assert field-level equality on the wire shape;
   a repo-wide grep confirms no Dutch identifier from the mapper leaks into any
   schema or other class.
+  > 2026-11-14 built: `OriExportMapper` holds the whole ORI vocabulary (reads for the importer, renders for the feeds). `OriExportMapperTest` round-trips meeting, document, agenda item and vote through the importer and back, and scans the change's other files for the mapper's Dutch identifiers. Box left open with 2.1 (check:strict).
 
 - [ ] 3.2 Add `lib/Controller/OriFeedController.php` + routes
   `/feed/ori/meetings.rss`, `/feed/ori/agenda-items.rss`,
