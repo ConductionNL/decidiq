@@ -13,7 +13,7 @@
 			"label": "Company board",
 			"description": "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.",
 			"order": 3,
-			"objectCount": 101,
+			"objectCount": 106,
 			"icon": "BriefcaseOutline"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -591,6 +591,21 @@
 						"outcome": "adopted",
 						"decisionDate": "2026-04-15T19:00:00Z",
 						"targetBody": "rvc-waterschap-amstel"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "besluit-schriftelijk-accountant-2026",
+						"decisionType": "resolution",
+						"title": "Appoint the external auditor for 2026",
+						"text": "The supervisory board appoints the external auditor for the 2026 financial year, decided in writing between meetings.",
+						"decisionDate": "2026-03-11T10:12:00Z",
+						"outcome": "adopted",
+						"isPublished": "confidential",
+						"lifecycle": "decided"
 					}
 				],
 				"decision-stage": [
@@ -1803,7 +1818,8 @@
 						"familyName": "de Vries",
 						"gender": "male",
 						"email": "j.devries@waterschap.example",
-						"biography": "Secretaris / griffier."
+						"biography": "Secretaris / griffier.",
+						"nextcloudUserId": "jan-de-vries"
 					},
 					{
 						"@self": {
@@ -1818,7 +1834,8 @@
 						"gender": "female",
 						"email": "j.debruin@acme.example",
 						"biography": "Voorzitter Raad van Commissarissen.",
-						"nationality": "NL"
+						"nationality": "NL",
+						"nextcloudUserId": "janneke-de-bruin"
 					},
 					{
 						"@self": {
@@ -1847,7 +1864,8 @@
 						"gender": "male",
 						"email": "m.vandenberg@acme.example",
 						"biography": "Lid Raad van Bestuur.",
-						"nationality": "NL"
+						"nationality": "NL",
+						"nextcloudUserId": "mark-van-den-berg"
 					}
 				],
 				"position-hold": [
@@ -2062,6 +2080,91 @@
 						"voteThreshold": "simple-majority",
 						"abstentionHandling": "exclude",
 						"decisionStage": "stage-investering-acme-2-dec"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"slug": "schriftelijke-ronde-accountant-2026",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"procedure": "written",
+						"decision": "besluit-schriftelijk-accountant-2026",
+						"governanceBody": "rvc-waterschap-amstel",
+						"writtenRule": "unanimous",
+						"electorate": [
+							{
+								"membership": "m-janneke-rvc",
+								"person": "janneke-de-bruin",
+								"userId": "janneke-de-bruin",
+								"votingWeight": 1
+							},
+							{
+								"membership": "m-jan-amstel",
+								"person": "jan-de-vries",
+								"userId": "jan-de-vries",
+								"votingWeight": 0
+							},
+							{
+								"membership": "m-mark-rvb",
+								"person": "mark-van-den-berg",
+								"userId": "mark-van-den-berg",
+								"votingWeight": 1
+							}
+						],
+						"electorateUserIds": [
+							"janneke-de-bruin",
+							"jan-de-vries",
+							"mark-van-den-berg"
+						],
+						"openedAt": "2026-03-09T09:00:00Z",
+						"votingDeadline": "2026-03-14T17:00:00Z",
+						"closedAt": "2026-03-11T10:12:00Z",
+						"votesFor": 3,
+						"votesAgainst": 0,
+						"votesAbstain": 0,
+						"result": "adopted",
+						"closedReason": "all-answered"
+					}
+				],
+				"vote": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-schriftelijk-accountant-2026-janneke-de-bruin",
+						"value": "for",
+						"castAt": "2026-03-09T11:30:00Z",
+						"votingRound": "schriftelijke-ronde-accountant-2026",
+						"membership": "m-janneke-rvc"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-schriftelijk-accountant-2026-jan-de-vries",
+						"value": "for",
+						"castAt": "2026-03-10T08:45:00Z",
+						"votingRound": "schriftelijke-ronde-accountant-2026",
+						"membership": "m-jan-amstel"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "vote"
+						},
+						"slug": "stem-schriftelijk-accountant-2026-mark-van-den-berg",
+						"value": "for",
+						"castAt": "2026-03-11T10:12:00Z",
+						"votingRound": "schriftelijke-ronde-accountant-2026",
+						"membership": "m-mark-rvb"
 					}
 				],
 				"meeting-pack": [
