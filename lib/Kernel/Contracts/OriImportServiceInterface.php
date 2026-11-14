@@ -46,6 +46,8 @@ interface OriImportServiceInterface {
 	 * @param string $cutoverDate    The end date given to the memberships of an inactive member (Y-m-d).
 	 *
 	 * @return OriImportReport
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function import(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport;
 
@@ -56,6 +58,8 @@ interface OriImportServiceInterface {
 	 * @param string $cutoverDate    The end date given to the memberships of an inactive member (Y-m-d).
 	 *
 	 * @return OriImportReport
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function preview(string $sourceRegister='ori', string $cutoverDate=''): OriImportReport;
 
@@ -63,6 +67,8 @@ interface OriImportServiceInterface {
 	 * Undo the last import.
 	 *
 	 * @return OriImportReport
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function rollback(): OriImportReport;
 
@@ -70,6 +76,8 @@ interface OriImportServiceInterface {
 	 * What a rollback would do, writing nothing.
 	 *
 	 * @return OriImportReport
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function previewRollback(): OriImportReport;
 }//end interface

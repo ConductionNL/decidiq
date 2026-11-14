@@ -48,6 +48,8 @@ interface OriFeedServiceInterface {
 	 * The RSS feed of the public meetings.
 	 *
 	 * @return string
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function meetings(): string;
 
@@ -55,6 +57,8 @@ interface OriFeedServiceInterface {
 	 * The RSS feed of the public agenda items.
 	 *
 	 * @return string
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function agendaItems(): string;
 
@@ -62,6 +66,8 @@ interface OriFeedServiceInterface {
 	 * The RSS feed of the public documents.
 	 *
 	 * @return string
+	 *
+	 * @spec openspec/changes/ori-adoption/specs/ori-adoption/spec.md
 	 */
 	public function documents(): string;
 }//end interface
