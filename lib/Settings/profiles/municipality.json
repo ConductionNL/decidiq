@@ -2968,6 +2968,24 @@
 						"meetingMode": "hybrid",
 						"isPublic": true,
 						"lifecycle": "scheduled"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting"
+						},
+						"slug": "besloten-vergadering-grondzaken-2026-10-03",
+						"title": "Besloten vergadering grondzaken",
+						"meetingType": "regular",
+						"scheduledDate": "2026-10-03T18:00:00Z",
+						"endDate": "2026-10-03T20:30:00Z",
+						"location": "Stadhuis Amsterdam, Raadzaal",
+						"meetingMode": "in-person",
+						"isPublic": false,
+						"watermarkPapers": "on",
+						"watermarkText": "Vertrouwelijk",
+						"lifecycle": "scheduled"
 					}
 				],
 				"membership": [

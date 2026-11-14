@@ -8,8 +8,8 @@
 - **acceptance_criteria**:
   - GIVEN the register WHEN `meeting` is read THEN `watermarkPapers` (default `automatic`) and `watermarkText` exist
   - GIVEN the closed session in the example set WHEN loaded THEN it carries `on` and "Vertrouwelijk"
-- [ ] Implement (schema fields and the Planning widget done; the example set has no closed session to seed `on` / "Vertrouwelijk" on)
-- [x] Test (schema test)
+- [x] Implement (schema fields, the Planning widget, and the closed session "Besloten vergadering grondzaken" in the municipality example set with `on` / "Vertrouwelijk")
+- [x] Test (schema test, example-set test)
 
 ### Task 2: The policy
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
