@@ -23,9 +23,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Tests\Unit\Service;
 
 use OCA\Decidiq\Service\MeetingFolderService;
+use OCA\Decidiq\Exception\PaperStampRefusedException;
 use OCA\Decidiq\Service\MeetingPackageService;
+use OCA\Decidiq\Service\PaperStamper;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
+use OCP\IUser;
+use OCP\IUserManager;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
@@ -49,6 +53,7 @@ class MeetingPackageServiceTest extends TestCase {
 	 * @param array<string, array<int, object>> $itemFiles Map of itemId => file nodes
 	 * @param \ArrayObject $written Written-files sink ("folder/file" => content)
 	 * @param string|null $meetingPath Path returned by MeetingFolderService (null = Files down)
+	 * @param PaperStamper|null $stamper The stamper; by default no paper needs a stamp
 	 *
 	 * @return MeetingPackageService
 	 */
@@ -58,7 +63,19 @@ class MeetingPackageServiceTest extends TestCase {
 		array $itemFiles,
 		\ArrayObject $written,
 		?string $meetingPath = 'Decidiq/2026-06-12 Board meeting',
+		?PaperStamper $stamper = null,
 	): MeetingPackageService {
+		if ($stamper === null) {
+			$stamper = $this->createMock(PaperStamper::class);
+			$stamper->method('mustStamp')->willReturn(false);
+			$stamper->expects($this->never())->method('stamped');
+		}
+
+		$jan = $this->createMock(IUser::class);
+		$jan->method('getDisplayName')->willReturn('Jan de Vries');
+		$users = $this->createMock(IUserManager::class);
+		$users->method('get')->willReturnCallback(static fn (string $uid): ?IUser => $uid === 'jan' ? $jan : null);
+
 		$logger = $this->createMock(LoggerInterface::class);
 
 		$objectService = $this->createMock(ObjectServiceInterface::class);
@@ -149,7 +166,7 @@ class MeetingPackageServiceTest extends TestCase {
 		$folderService = $this->createMock(MeetingFolderService::class);
 		$folderService->method('ensureMeetingFolders')->willReturn($meetingPath);
 
-		return new MeetingPackageService($container, $logger, $folderService);
+		return new MeetingPackageService($container, $logger, $folderService, $stamper, $users);
 	}//end makeService()
 
 	/**
@@ -376,4 +393,99 @@ class MeetingPackageServiceTest extends TestCase {
 
 	}//end testAssembleListsANonPublicItemAsBeslotenPuntWithoutPapers()
 
+	/**
+	 * A paper node with an id and a version, as Files hands them out.
+	 *
+	 * @return object
+	 */
+	private function paperNode(): object {
+		return new class {
+
+			/**
+			 * @return string File name
+			 */
+			public function getName(): string {
+				return 'grondtransactie.pdf';
+			}
+
+			/**
+			 * @return string File content
+			 */
+			public function getContent(): string {
+				return '%PDF grond';
+			}
+
+			/**
+			 * @return int File id
+			 */
+			public function getId(): int {
+				return 77;
+			}
+
+			/**
+			 * @return string File version
+			 */
+			public function getEtag(): string {
+				return 'e7';
+			}
+		};
+	}//end paperNode()
+
+	/**
+	 * In a closed session every paper in Jan's package carries his name.
+	 *
+	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
+	 *
+	 * @return void
+	 */
+	public function testTheClosedSessionPackageIsStampedForWhoTakesIt(): void {
+		$meeting = ['id' => 'm-1', 'title' => 'Besloten vergadering grondzaken', 'isPublic' => false];
+		$stamper = $this->createMock(PaperStamper::class);
+		$stamper->expects($this->once())->method('mustStamp')->with($meeting, 'ai-1')->willReturn(true);
+		$stamper->expects($this->once())->method('stamped')
+			->with($meeting, ['fileId' => 77, 'etag' => 'e7', 'content' => '%PDF grond'], ['uid' => 'jan', 'displayName' => 'Jan de Vries'])
+			->willReturn('%PDF grond, Jan de Vries');
+
+		$written = new \ArrayObject();
+		$service = $this->makeService(
+			meetings: ['m-1' => $meeting],
+			items: [['id' => 'ai-1', 'title' => 'Grondtransactie', 'orderNumber' => 1, 'meeting' => 'm-1']],
+			itemFiles: ['ai-1' => [$this->paperNode()]],
+			written: $written,
+			stamper: $stamper
+		);
+
+		$result = $service->assemble('m-1', 'jan');
+
+		$this->assertSame(1, $result['files']);
+		$this->assertSame('%PDF grond, Jan de Vries', $written['Decidiq/2026-06-12 Board meeting/Meeting package/01 - Grondtransactie/grondtransactie.pdf']);
+	}//end testTheClosedSessionPackageIsStampedForWhoTakesIt()
+
+	/**
+	 * A paper that must be stamped and cannot be is left out, never copied unstamped.
+	 *
+	 * @spec openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it
+	 *
+	 * @return void
+	 */
+	public function testAPaperThatCannotBeStampedIsLeftOut(): void {
+		$stamper = $this->createMock(PaperStamper::class);
+		$stamper->method('mustStamp')->willReturn(true);
+		$stamper->method('stamped')->willThrowException(new PaperStampRefusedException(PaperStampRefusedException::NO_SERVICE, 503));
+
+		$written = new \ArrayObject();
+		$service = $this->makeService(
+			meetings: ['m-1' => ['id' => 'm-1', 'title' => 'Besloten', 'isPublic' => false]],
+			items: [['id' => 'ai-1', 'title' => 'Grondtransactie', 'orderNumber' => 1, 'meeting' => 'm-1']],
+			itemFiles: ['ai-1' => [$this->paperNode()]],
+			written: $written,
+			stamper: $stamper
+		);
+
+		$result = $service->assemble('m-1', 'someone');
+
+		$this->assertSame(0, $result['files']);
+		$this->assertFalse($written->offsetExists('Decidiq/2026-06-12 Board meeting/Meeting package/01 - Grondtransactie/grondtransactie.pdf'));
+		$this->assertSame(['01 - Grondtransactie/grondtransactie.pdf (' . PaperStampRefusedException::NO_SERVICE . ')'], $result['skipped']);
+	}//end testAPaperThatCannotBeStampedIsLeftOut()
 }//end class

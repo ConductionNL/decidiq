@@ -38,7 +38,7 @@
 - **acceptance_criteria**:
   - GIVEN a closed session WHEN a member opens a paper from the agenda item page THEN the viewer shows the stamped PDF
   - GIVEN the same meeting WHEN a member assembles the package THEN every paper in it carries his name
-- [ ] Implement
+- [x] Implement (the Papers widget links a member's paper through the view; `MeetingPackageService` stamps each paper for the person who takes the package and leaves out one that cannot be stamped; unit tests in `MeetingPackageServiceTest` and `paperRenditions.spec.js`)
 - [ ] Test (Playwright reads the PDF text layer for the name)
 
 ### Task 5: Cache and sweep

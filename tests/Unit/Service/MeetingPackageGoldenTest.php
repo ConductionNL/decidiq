@@ -185,7 +185,11 @@ class MeetingPackageGoldenTest extends TestCase {
 			}
 		);
 
-		return new MeetingPackageService($container, $this->logger(), $folders);
+		// No paper of these meetings needs a watermark (agenda-paper-watermark).
+		$stamper = $this->createMock(\OCA\Decidiq\Service\PaperStamper::class);
+		$stamper->method('mustStamp')->willReturn(false);
+
+		return new MeetingPackageService($container, $this->logger(), $folders, $stamper, $this->createMock(\OCP\IUserManager::class));
 	}//end service()
 
 	/**
