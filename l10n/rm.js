@@ -3324,7 +3324,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Radunanza extraordinara",
         "Committee meeting": "Radunanza da la cumissiun",
         "Public hearing": "Audiziun publica",
-        "General assembly": "Radunanza generala"
+        "General assembly": "Radunanza generala",
+        "Members' ancillary positions": "Funcziuns accessoricas dals commembers"
     },
     "nplurals=2; plural=(n != 1);"
 )

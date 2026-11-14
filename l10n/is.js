@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Aukafundur",
         "Committee meeting": "Nefndarfundur",
         "Public hearing": "Opinber fundur",
-        "General assembly": "Aðalfundur"
+        "General assembly": "Aðalfundur",
+        "Members' ancillary positions": "Aukastörf meðlima"
     },
     "nplurals=2; plural=(n != 1);"
 )
