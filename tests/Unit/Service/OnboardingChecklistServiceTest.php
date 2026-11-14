@@ -30,6 +30,8 @@ use PHPUnit\Framework\TestCase;
  * Steps done and skipped, the lifecycle, the membership effects, and who may mark a step.
  *
  * @covers \OCA\Decidiq\Service\OnboardingChecklistService
+ * @covers \OCA\Decidiq\Service\OnboardingStepEffects
+ * @covers \OCA\Decidiq\Service\OnboardingStepRules
  * @covers \OCA\Decidiq\Controller\OnboardingController
  */
 final class OnboardingChecklistServiceTest extends TestCase {

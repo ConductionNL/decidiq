@@ -38,11 +38,6 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
 class OnboardingChecklistService {
 
 	/**
-	 * The register.
-	 */
-	private const REGISTER = 'decidiq';
-
-	/**
 	 * The record schema per kind.
 	 */
 	public const SCHEMAS = ['onboarding' => 'member-onboarding', 'offboarding' => 'member-offboarding'];
@@ -50,12 +45,14 @@ class OnboardingChecklistService {
 	/**
 	 * The outcomes a step may be given.
 	 */
-	public const OUTCOMES = ['completed', 'skipped'];
+	public const OUTCOMES = OnboardingStepRules::OUTCOMES;
 
 	/**
-	 * Lifecycle states after which nothing changes.
+	 * Reads and writes the register and runs the steps' membership effects.
+	 *
+	 * @var OnboardingStepEffects
 	 */
-	private const TERMINAL = ['completed', 'lapsed'];
+	private readonly OnboardingStepEffects $effects;
 
 	/**
 	 * Constructor.
@@ -63,8 +60,9 @@ class OnboardingChecklistService {
 	 * @param ObjectServiceInterface $objectService OpenRegister's object service.
 	 */
 	public function __construct(
-		private readonly ObjectServiceInterface $objectService,
+		ObjectServiceInterface $objectService,
 	) {
+		$this->effects = new OnboardingStepEffects(objectService: $objectService);
 	}//end __construct()
 
 	/**
@@ -85,15 +83,8 @@ class OnboardingChecklistService {
 			throw new OnboardingStepRefusedException(message: 'Unknown checklist kind.', status: 400);
 		}
 
-		$entity = null;
-		try {
-			$entity = $this->objectService->find(id: $id, register: self::REGISTER, schema: $schema, _rbac: false, _multitenancy: false);
-		} catch (\Throwable) {
-			$entity = null;
-		}
-
-		$data = $entity?->getObject();
-		if (is_array($data) === false) {
+		$data = $this->effects->findData(id: $id, schema: $schema);
+		if ($data === null) {
 			throw new OnboardingStepRefusedException(message: 'This record does not exist.', status: 404);
 		}
 
@@ -143,13 +134,13 @@ class OnboardingChecklistService {
 		}
 
 		$record = $this->record(kind: $kind, id: $id);
-		$step = $this->openStep(record: $record, index: $index);
-		if ($outcome === 'skipped' && self::isMandatory(kind: $kind, step: $step) === true) {
+		$step = OnboardingStepRules::openStep(record: $record, index: $index);
+		if ($outcome === 'skipped' && OnboardingStepRules::isMandatory(kind: $kind, step: $step) === true) {
 			throw new OnboardingStepRefusedException(message: 'A mandatory step cannot be skipped.');
 		}
 
 		if ($outcome === 'completed') {
-			$record = $this->runEffect(kind: $kind, record: $record, step: $step);
+			$record = $this->effects->apply(record: $record, effect: $kind . ':' . OnboardingStepRules::stepTypeOf(step: $step));
 		}
 
 		$record['steps'][$index]['status'] = $outcome;
@@ -170,249 +161,15 @@ class OnboardingChecklistService {
 	private function advance(string $kind, string $id, array $record): array {
 		if (($record['lifecycle'] ?? 'started') === 'started') {
 			$record['lifecycle'] = 'in-execution';
-			$record = $this->save(kind: $kind, id: $id, record: $record);
+			$this->effects->persist(object: $record, schema: self::SCHEMAS[$kind], uuid: $id);
 		}
 
-		if (self::noStepOpen(kind: $kind, steps: $record['steps']) === true) {
+		if (OnboardingStepRules::noStepOpen(kind: $kind, steps: $record['steps']) === true) {
 			$record['lifecycle'] = 'completed';
 		}
 
-		return $this->save(kind: $kind, id: $id, record: $record);
+		$this->effects->persist(object: $record, schema: self::SCHEMAS[$kind], uuid: $id);
+
+		return $record;
 	}//end advance()
-
-	/**
-	 * The step at an index, when it is still open on a record that is not finished.
-	 *
-	 * @param array<string, mixed> $record The record.
-	 * @param int                  $index  The step's position.
-	 *
-	 * @return array<string, mixed>
-	 *
-	 * @throws OnboardingStepRefusedException When the record is finished, the step is missing or no longer open.
-	 */
-	private function openStep(array $record, int $index): array {
-		if (in_array(($record['lifecycle'] ?? 'started'), self::TERMINAL, true) === true) {
-			throw new OnboardingStepRefusedException(message: 'This record is finished; its steps no longer change.');
-		}
-
-		$step = ($record['steps'][$index] ?? null);
-		if (is_array($step) === false) {
-			throw new OnboardingStepRefusedException(message: 'This step does not exist.', status: 404);
-		}
-
-		if (in_array(($step['status'] ?? 'open'), self::OUTCOMES, true) === true) {
-			throw new OnboardingStepRefusedException(message: 'This step is already ' . $step['status'] . '.');
-		}
-
-		return $step;
-	}//end openStep()
-
-	/**
-	 * Run the membership effect of an installation or end step; other steps have none.
-	 *
-	 * @param string               $kind   `onboarding` or `offboarding`.
-	 * @param array<string, mixed> $record The record.
-	 * @param array<string, mixed> $step   The step being completed.
-	 *
-	 * @return array<string, mixed> The record, with the membership it now refers to.
-	 *
-	 * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-002-installation-and-exit-steps-change-the-membership
-	 */
-	private function runEffect(string $kind, array $record, array $step): array {
-		$type = ($step['stepType'] ?? '');
-		if ($kind === 'onboarding' && $type === 'installation') {
-			return $this->createMembership(record: $record);
-		}
-
-		if ($kind === 'offboarding' && $type === 'end-membership') {
-			$this->endMembership(record: $record);
-		}
-
-		return $record;
-	}//end runEffect()
-
-	/**
-	 * Create the membership an installation starts, once.
-	 *
-	 * @param array<string, mixed> $record The onboarding.
-	 *
-	 * @return array<string, mixed> The onboarding, referring to the membership.
-	 *
-	 * @throws OnboardingStepRefusedException When the installation is not recorded yet.
-	 *
-	 * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-002-installation-and-exit-steps-change-the-membership
-	 */
-	private function createMembership(array $record): array {
-		self::assertInstallationRecorded(record: $record);
-
-		if (is_string($record['membership'] ?? null) === true && $record['membership'] !== '') {
-			return $record;
-		}
-
-		$saved = $this->objectService->saveObject(
-			object: [
-				'person' => $record['person'],
-				'governanceBody' => $record['targetBody'],
-				'role' => $record['targetRole'],
-				'startDate' => $record['installedOn'],
-			],
-			register: self::REGISTER,
-			schema: 'membership',
-			_rbac: false,
-			_multitenancy: false
-		);
-		$record['membership'] = (string)$saved->getUuid();
-
-		return $record;
-	}//end createMembership()
-
-	/**
-	 * Refuse an installation whose date, type or meeting is not recorded.
-	 *
-	 * @param array<string, mixed> $record The onboarding record.
-	 *
-	 * @return void
-	 *
-	 * @throws OnboardingStepRefusedException When one of them is missing.
-	 */
-	private static function assertInstallationRecorded(array $record): void {
-		foreach (['installedOn', 'installationType', 'installationMeeting'] as $field) {
-			if (is_string($record[$field] ?? null) === false || trim($record[$field]) === '') {
-				throw new OnboardingStepRefusedException(message: 'Record the installation date, type and meeting before completing the installation.');
-			}
-		}
-	}//end assertInstallationRecorded()
-
-	/**
-	 * Set the membership's end date to the offboarding's.
-	 *
-	 * @param array<string, mixed> $record The offboarding.
-	 *
-	 * @return void
-	 *
-	 * @throws OnboardingStepRefusedException When the end date or the membership is missing.
-	 *
-	 * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-002-installation-and-exit-steps-change-the-membership
-	 */
-	private function endMembership(array $record): void {
-		$endDate = ($record['endDate'] ?? null);
-		if (is_string($endDate) === false || $endDate === '') {
-			throw new OnboardingStepRefusedException(message: 'Record the end date before ending the membership.');
-		}
-
-		$membershipId = (string)($record['membership'] ?? '');
-		$data = $this->membershipData(membershipId: $membershipId);
-
-		$data['endDate'] = $endDate;
-		$this->objectService->saveObject(
-			object: $data,
-			register: self::REGISTER,
-			schema: 'membership',
-			uuid: $membershipId,
-			_rbac: false,
-			_multitenancy: false
-		);
-	}//end endMembership()
-
-	/**
-	 * The stored membership an offboarding ends.
-	 *
-	 * @param string $membershipId The membership's id.
-	 *
-	 * @return array<string, mixed> Its data.
-	 *
-	 * @throws OnboardingStepRefusedException When there is no such membership.
-	 */
-	private function membershipData(string $membershipId): array {
-		$membership = null;
-		try {
-			$membership = $this->objectService->find(id: $membershipId, register: self::REGISTER, schema: 'membership', _rbac: false, _multitenancy: false);
-		} catch (\Throwable) {
-			$membership = null;
-		}
-
-		$data = $membership?->getObject();
-		if ($membershipId === '' || is_array($data) === false) {
-			throw new OnboardingStepRefusedException(message: 'The membership to end does not exist.');
-		}
-
-		return $data;
-	}//end membershipData()
-
-	/**
-	 * Save the record.
-	 *
-	 * @param string               $kind   `onboarding` or `offboarding`.
-	 * @param string               $id     The record's uuid.
-	 * @param array<string, mixed> $record The record.
-	 *
-	 * @return array<string, mixed> The record as saved.
-	 */
-	private function save(string $kind, string $id, array $record): array {
-		$this->objectService->saveObject(
-			object: $record,
-			register: self::REGISTER,
-			schema: self::SCHEMAS[$kind],
-			uuid: $id,
-			_rbac: false,
-			_multitenancy: false
-		);
-
-		return $record;
-	}//end save()
-
-	/**
-	 * Whether a step is mandatory: as declared, default yes; revoke-groups always.
-	 *
-	 * @param string               $kind `onboarding` or `offboarding`.
-	 * @param array<string, mixed> $step The step.
-	 *
-	 * @return bool
-	 */
-	private static function isMandatory(string $kind, array $step): bool {
-		if ($kind === 'offboarding' && ($step['stepType'] ?? '') === 'revoke-groups') {
-			return true;
-		}
-
-		return (($step['mandatory'] ?? true) !== false);
-	}//end isMandatory()
-
-	/**
-	 * Whether every step is done or skipped, and every mandatory one done.
-	 *
-	 * @param string                   $kind  `onboarding` or `offboarding`.
-	 * @param array<int|string, mixed> $steps The checklist.
-	 *
-	 * @return bool
-	 */
-	private static function noStepOpen(string $kind, array $steps): bool {
-		foreach ($steps as $step) {
-			if (self::isSettled(kind: $kind, step: $step) === false) {
-				return false;
-			}
-		}
-
-		return true;
-	}//end noStepOpen()
-
-	/**
-	 * Whether a step is settled: completed, or skipped when it may be skipped.
-	 *
-	 * @param string $kind `onboarding` or `offboarding`.
-	 * @param mixed  $step The step.
-	 *
-	 * @return bool
-	 */
-	private static function isSettled(string $kind, mixed $step): bool {
-		if (is_array($step) === false) {
-			return false;
-		}
-
-		$status = ($step['status'] ?? 'open');
-		if (in_array($status, self::OUTCOMES, true) === false) {
-			return false;
-		}
-
-		return $status !== 'skipped' || self::isMandatory(kind: $kind, step: $step) === false;
-	}//end isSettled()
 }//end class

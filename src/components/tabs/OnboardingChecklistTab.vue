@@ -54,9 +54,9 @@
 </template>
 
 <script>
-import { generateUrl } from '@nextcloud/router'
 import { NcButton } from '@nextcloud/vue'
 import { checklistRows, kindOf, stepPath } from '../../utils/onboardingChecklist.js'
+import { acceptedOrThrow, putJson } from './jsonRequests.js'
 import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -129,26 +129,10 @@ export default {
 			this.error = ''
 			this.busy = true
 			try {
-				const response = await fetch(
-					generateUrl(stepPath(this.kind, String(this.objectId), index)),
-					{
-						method: 'PUT',
-						headers: {
-							'Content-Type': 'application/json',
-							Accept: 'application/json',
-							requesttoken: OC.requestToken,
-						},
-						body: JSON.stringify({ status }),
-					},
+				const response = await acceptedOrThrow(
+					await putJson(stepPath(this.kind, String(this.objectId), index), { status }),
 				)
-				const payload = await response.json().catch(() => ({}))
-				if (!response.ok) {
-					this.error =
-						payload?.message
-						|| this.t('decidiq', 'The step was not changed.')
-					return
-				}
-				this.record = payload
+				this.record = await response.json().catch(() => ({}))
 			} catch (e) {
 				this.error =
 					e?.message || this.t('decidiq', 'The step was not changed.')

@@ -29,7 +29,6 @@ namespace OCA\Decidiq\Controller;
 use OCA\Decidiq\Exception\OnboardingStepRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\GovernanceScopeGuardInterface;
-use OCA\Decidiq\Service\GovernanceScopeGuard;
 use OCA\Decidiq\Service\OnboardingChecklistService;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
@@ -45,6 +44,13 @@ use OCP\IUserSession;
  * @spec openspec/changes/bodies-onboarding-checklist-walkthrough/specs/member-onboarding/spec.md#requirement-req-mobw-001-the-secretary-walks-a-member-through-the-checklist
  */
 class OnboardingController extends Controller {
+
+	/**
+	 * The scope group whose members steer a body's checklists; the value of
+	 * GovernanceScopeGuard's signatory scope, held here so the controller depends on the
+	 * guard's contract only.
+	 */
+	private const SIGNATORY_SCOPE = 'signatory';
 
 	/**
 	 * Constructor.
@@ -91,18 +97,27 @@ class OnboardingController extends Controller {
 				return new JSONResponse(['message' => 'Only the secretary, the chair or an administrator may change this checklist.'], Http::STATUS_FORBIDDEN);
 			}
 
-			$outcome = $this->request->getParam('status', '');
-			if (is_string($outcome) === false) {
-				$outcome = '';
-			}
-
-			$saved = $this->checklist->completeStep(kind: $kind, id: $id, index: $index, outcome: $outcome);
+			$saved = $this->checklist->completeStep(kind: $kind, id: $id, index: $index, outcome: $this->outcomeParam());
 		} catch (OnboardingStepRefusedException $e) {
 			return new JSONResponse(['message' => $e->getMessage()], $e->getStatus());
 		}
 
 		return new JSONResponse($saved);
 	}//end updateStep()
+
+	/**
+	 * The requested step outcome, '' when it is not a string.
+	 *
+	 * @return string
+	 */
+	private function outcomeParam(): string {
+		$outcome = $this->request->getParam('status', '');
+		if (is_string($outcome) === false) {
+			return '';
+		}
+
+		return $outcome;
+	}//end outcomeParam()
 
 	/**
 	 * Whether the caller is an administrator or in the body's signatory scope.
@@ -117,6 +132,6 @@ class OnboardingController extends Controller {
 			return true;
 		}
 
-		return $this->scopeGuard->isInBodyScope(userId: $userId, bodyId: $bodyId, scope: GovernanceScopeGuard::SCOPE_SIGNATORY);
+		return $this->scopeGuard->isInBodyScope(userId: $userId, bodyId: $bodyId, scope: self::SIGNATORY_SCOPE);
 	}//end maySteer()
 }//end class
