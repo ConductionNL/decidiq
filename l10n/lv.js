@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ārkārtas sanāksme",
         "Committee meeting": "Komitejas sanāksme",
         "Public hearing": "Publiskā uzklausīšana",
-        "General assembly": "Kopsapulce"
+        "General assembly": "Kopsapulce",
+        "Members' ancillary positions": "Locekļu blakus amati"
     },
     "nplurals=2; plural=(n != 1);"
 )
