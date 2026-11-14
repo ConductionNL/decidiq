@@ -72,4 +72,16 @@ interface ActionItemWriterInterface {
 	 * @spec openspec/changes/archive/2026-06-23-action-items-vtodo-deck-reconcile/tasks.md#task-3.4
 	 */
 	public function update(string $uid, array $changes): ?array;
+
+	/**
+	 * The acting user's action-item VTODO whose round-tripped field holds a value.
+	 *
+	 * @param string $field The field in the VTODO's field blob.
+	 * @param string $value The value it must hold.
+	 *
+	 * @return array<string, mixed>|null The VTODO task array, or null when none holds it.
+	 *
+	 * @spec openspec/changes/action-item-vtodo-migration/specs/action-item-board-via-deck-leaf/spec.md#requirement-req-ai-deck-011-idempotent-archive-not-delete
+	 */
+	public function findByField(string $field, string $value): ?array;
 }//end interface

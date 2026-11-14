@@ -153,7 +153,8 @@
 						"itemType": "decision",
 						"orderNumber": 3,
 						"estimatedDuration": 45,
-						"description": "Bespreking en vaststelling van de jaarrekening over het boekjaar 2024"
+						"description": "Bespreking en vaststelling van de jaarrekening over het boekjaar 2024",
+						"confidentiality": "confidential"
 					},
 					{
 						"@self": {
@@ -4881,6 +4882,44 @@
 						"scheduledDate": "2025-04-10T19:30:00Z",
 						"lifecycle": "planned",
 						"liveCaptions": "off"
+					}
+				],
+				"meeting-pack": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-pack"
+						},
+						"slug": "vergaderbundel-raad-2025-01-15-v1",
+						"meeting": "raadsvergadering-2025-01-15",
+						"version": 1,
+						"changeNote": "",
+						"generatedAt": "2025-01-08T10:00:00Z",
+						"generatedBy": "griffier",
+						"fingerprint": "sha256:seed-placeholder-1",
+						"filePath": "Vergaderingen/Raadsvergadering 15 januari 2025/Vergaderbundel v1.pdf",
+						"pageCount": 42,
+						"skipped": []
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "meeting-pack"
+						},
+						"slug": "vergaderbundel-raad-2025-01-15-v2",
+						"meeting": "raadsvergadering-2025-01-15",
+						"version": 2,
+						"changeNote": "Bijlage begroting toegevoegd aan agendapunt 4",
+						"generatedAt": "2025-01-13T09:15:00Z",
+						"generatedBy": "griffier",
+						"fingerprint": "sha256:seed-placeholder-2",
+						"filePath": "Vergaderingen/Raadsvergadering 15 januari 2025/Vergaderbundel v2.pdf",
+						"pageCount": 58,
+						"skipped": [
+							"04 - Kadernota begroting 2026/begroting-detail.xlsx (non-PDF attachment)"
+						]
 					}
 				]
 			}
