@@ -36,8 +36,8 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN "Open WOR-trajecten" counts non-terminal trajecten and "Reactie over gevraagde datum" counts non-terminal trajecten before `verzonden` with `requestedResponseDate` in the past, both via declarative source aggregations (no imperative counting endpoint), and clicking each routes to the pre-filtered index
   - GIVEN the widget filter DSL lacks a relative-now token WHEN implementing THEN the toezeggingen D6-style documented fallback is applied — never a silently wrong count
-- [ ] Implement
-- [ ] Test
+- [x] Implement (two stat tiles on the dashboard, "Open WOR cases" and "Reply overdue", in the full and the simple layout. Both filters hold a list of states, which the aggregation endpoint cannot count, so they count through the list endpoint with `via: list`; the overdue tile compares `requestedResponseDate` with `@today`, which the widget resolves at fetch time, so no fallback is needed. Each opens the index filtered the same way)
+- [x] Test (`tests/vitest/worksCouncilKpis.spec.js`, and the simple dashboard spec)
 
 ### Task 5: ConsultationResponseDocumentService — formal advies/instemming document generation
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-005-formal-response-document-and-decision-linkage`

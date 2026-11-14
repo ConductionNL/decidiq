@@ -231,6 +231,20 @@
 						"content": { "label": "Commitments over deadline", "icon": "AlertOutline", "variant": "warning", "route": { "name": "Commitments", "query": { "lifecycle": ["open", "in-execution"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "governance-commitment", "metric": "count", "filter": { "lifecycle": { "in": ["open", "in-execution"] } } } }
 					},
 					{
+						"id": "open-wor-consultations",
+						"type": "stat",
+						"title": "Open WOR cases",
+						"_note": "works-council-consultation task 4 (REQ-WCC-008): the WOR-trajecten that are neither completed nor withdrawn. The filter holds a list of states, which the aggregation endpoint cannot count (see open-commitments-overdue), so `via: list` counts it through the list endpoint's total, the same query the pre-filtered index runs.",
+						"content": { "label": "Open WOR cases", "icon": "HandshakeOutline", "route": { "name": "WorksCouncilConsultations", "query": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted", "sent", "decision-received"] } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "consultation-request", "metric": "count", "via": "list", "filter": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted", "sent", "decision-received"] } } }
+					},
+					{
+						"id": "wor-response-overdue",
+						"type": "stat",
+						"title": "Reply overdue",
+						"_note": "works-council-consultation task 4 (REQ-WCC-008, design D5): open WOR-trajecten whose response has not been sent and whose requestedResponseDate lies before today. `@today` is resolved by the widget when it fetches, so the count follows the calendar without a stored flag; `via: list` counts through the list endpoint, which understands the state list and the date operator.",
+						"content": { "label": "Reply overdue", "icon": "AlertOutline", "variant": "warning", "route": { "name": "WorksCouncilConsultations", "query": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted"], "requestedResponseDate[lt]": "@today" } }, "format": { "style": "number" }, "source": { "register": "decidiq", "schema": "consultation-request", "metric": "count", "via": "list", "filter": { "lifecycle": ["received", "in-progress", "constituencyConsultation", "consultationMeeting", "adopted"], "requestedResponseDate": { "lt": "@today" } } } }
+					},
+					{
 						"_note": "openspec/specs/dashboard/spec.md REQ 'Upcoming Meetings Widget' requires body name and agenda-item count per row and a highlight for meetings inside 24h. A declarative object-list renders columns from one schema and can do none of that, so UpcomingMeetingsListWidget.vue was built for it — and then never referenced, leaving the component orphaned and the spec'd behaviour absent.",
 						"id": "upcoming-meetings-list",
 						"type": "custom",
@@ -416,6 +430,26 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "open-wor-consultations",
+						"gridX": 0,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "wor-response-overdue",
+						"gridX": 3,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"documentationUrl": "https://decidiq.conduction.nl"

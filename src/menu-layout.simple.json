@@ -2565,6 +2565,26 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "open-wor-consultations",
+						"gridX": 0,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "wor-response-overdue",
+						"gridX": 3,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"showHeader": false,
