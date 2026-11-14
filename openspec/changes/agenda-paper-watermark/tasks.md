@@ -4,12 +4,12 @@
 
 ### Task 1: Meeting settings for watermarks
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
-- **files**: `lib/Settings/register.d/92-paper-watermark.json`, `lib/Settings/profiles/municipality.json`, `src/manifest.json` (`MeetingDetail` Planning widget include list)
+- **files**: `lib/Settings/register.d/131-paper-watermark.json`, `lib/Settings/profiles/municipality.json`, `src/manifest.json` (`MeetingDetail` Planning widget include list)
 - **acceptance_criteria**:
   - GIVEN the register WHEN `meeting` is read THEN `watermarkPapers` (default `automatic`) and `watermarkText` exist
   - GIVEN the closed session in the example set WHEN loaded THEN it carries `on` and "Vertrouwelijk"
-- [ ] Implement
-- [ ] Test (schema test)
+- [ ] Implement (schema fields and the Planning widget done; the example set has no closed session to seed `on` / "Vertrouwelijk" on)
+- [x] Test (schema test)
 
 ### Task 2: The policy
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-001-a-meeting-says-whether-its-papers-are-watermarked`
@@ -19,8 +19,8 @@
   - GIVEN `automatic` and `isPublic` false WHEN asked THEN stamp
   - GIVEN `automatic`, a public meeting and an active restriction on the item WHEN asked THEN stamp
   - GIVEN `off` and a restricted item WHEN asked THEN no stamp
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 3: Serve papers through the stamp
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-002-a-paper-opened-through-decidiq-carries-the-readers-name-and-the-date`

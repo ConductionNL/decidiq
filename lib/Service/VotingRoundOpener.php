@@ -174,10 +174,7 @@ class VotingRoundOpener {
 		// The body may limit the methods its meetings use; checked before anything is written.
 		$this->preflight->assertMethodAllowed(governanceBodyId: $bodyId, votingMethod: $request->votingMethod);
 
-		$quorumWith = $this->checkQuorum(meetingId: $meetingId);
-		if ($quorumWith === false) {
-			throw new RuntimeException('Quorum niet bereikt');
-		}
+		$quorumWith = $this->quorumOrRefuse(meetingId: $meetingId);
 
 		// Revote-once guard: the referenced round must be a tied revote-rule round
 		// that has not been revoted before (fail closed on every mismatch).
@@ -200,10 +197,7 @@ class VotingRoundOpener {
 		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $request->presetParticipantIds());
 		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetIds);
 		$resolution = new VotingRoundResolution(rules: $rules, quorumWith: $quorumWith, participantIds: $presets['eligible']);
-		$votingRound = $resolution->roundPayload(request: $request);
-		if ($options !== []) {
-			$votingRound['options'] = $options;
-		}
+		$votingRound = $this->withOptions(votingRound: $resolution->roundPayload(request: $request), options: $options);
 
 		$created = $this->objectService()->saveObject(register: 'decidiq', schema: 'voting-round', object: $votingRound);
 
@@ -213,11 +207,10 @@ class VotingRoundOpener {
 
 		// ObjectService::saveObject() returns an ObjectEntity; normalise to an array so the
 		// declared `: array` return type holds and callers can subscript the result.
-		$result = $this->normaliser->toArray(saved: $created, fallback: $votingRound);
-
-		if (count($presets['excluded']) > 0) {
-			$result['excludedPresetUuids'] = $presets['excluded'];
-		}
+		$result = $this->withExcludedPresets(
+			result: $this->normaliser->toArray(saved: $created, fallback: $votingRound),
+			excluded: $presets['excluded']
+		);
 
 		// Fail-soft announcements: the activity-feed entry and the
 		// preference-aware "pending vote" notifications (user-settings spec),
@@ -232,6 +225,62 @@ class VotingRoundOpener {
 
 		return $result;
 	}//end openVotingRound()
+
+	/**
+	 * The quorum outcome; refused when the meeting has no quorum.
+	 *
+	 * @param string $meetingId The meeting.
+	 *
+	 * @return mixed What checkQuorum() reported.
+	 *
+	 * @throws RuntimeException When quorum is not reached.
+	 *
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
+	 */
+	private function quorumOrRefuse(string $meetingId): mixed {
+		$quorumWith = $this->checkQuorum(meetingId: $meetingId);
+		if ($quorumWith === false) {
+			throw new RuntimeException('Quorum niet bereikt');
+		}
+
+		return $quorumWith;
+	}//end quorumOrRefuse()
+
+	/**
+	 * The round payload with its options, when it has any.
+	 *
+	 * @param array<string, mixed> $votingRound The round payload.
+	 * @param array<mixed>         $options     The round's options.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
+	 */
+	private function withOptions(array $votingRound, array $options): array {
+		if ($options !== []) {
+			$votingRound['options'] = $options;
+		}
+
+		return $votingRound;
+	}//end withOptions()
+
+	/**
+	 * The created round with the preset participants that were not eligible, when there are any.
+	 *
+	 * @param array<string, mixed> $result   The created round.
+	 * @param array<mixed>         $excluded The preset ids left out.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/bodies-substitute-mandate-swap/specs/meeting-attendees/spec.md#requirement-req-msw-002-while-a-substitution-is-active-the-substitute-votes-for-the-seat
+	 */
+	private function withExcludedPresets(array $result, array $excluded): array {
+		if (count($excluded) > 0) {
+			$result['excludedPresetUuids'] = $excluded;
+		}
+
+		return $result;
+	}//end withExcludedPresets()
 
 	/**
 	 * The options a round opens with: the requested ones for a ranked-choice

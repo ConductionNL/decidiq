@@ -64,11 +64,11 @@ collapsing 24 schemas in one commit would do the same.
 
 ## Stage 4 — competence enforcement (follow-up, security-reviewed)
 
-- [ ] 4.1 `DecisionCompetenceGuard::assertCompetent()` — throws, never returns nullable
-- [ ] 4.2 Invoke it from the decision write path **before** persistence
-- [ ] 4.3 Test that fails when the *call* is removed, not only when the guard is
-- [ ] 4.4 Run `hydra-gate-orphan-auth`, `hydra-gate-unsafe-auth-resolver`, `hydra-gate-no-admin-idor`, `hydra-gate-semantic-auth`
-- [ ] 4.5 No implicit competence: a type with no `competentBody` falls back to the meeting's body, else refuses
+- [x] 4.1 `DecisionCompetenceGuard::assertCompetent()` — throws, never returns nullable
+- [x] 4.2 Invoke it from the decision write path **before** persistence
+- [x] 4.3 Test that fails when the *call* is removed, not only when the guard is
+- [x] 4.4 Run `hydra-gate-orphan-auth`, `hydra-gate-unsafe-auth-resolver`, `hydra-gate-no-admin-idor`, `hydra-gate-semantic-auth`
+- [x] 4.5 No implicit competence: a type with no `competentBody` falls back to the meeting's body, else refuses
 
 ## Stage 5 — humaniq handoff (not implemented here)
 
