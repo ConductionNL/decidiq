@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Кој може да гласа",
+        "All members of the body": "Сите членови на телото",
+        "Left out because they are no longer active members: {names}": "Изоставени бидејќи повеќе не се активни членови: {names}",
         "sign-off route": "тек на одобрување",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d за, %2$d против, %3$d воздржани",

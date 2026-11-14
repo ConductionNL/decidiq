@@ -179,6 +179,22 @@
 						)
 					}}
 				</p>
+				<!-- Who may vote (REQ-VGP-002): the body, or one of its voting groups -->
+				<label for="votingGroup">{{ t('decidiq', 'Who may vote') }}</label>
+				<select
+					id="votingGroup"
+					v-model="newRound.votingGroup"
+					data-testid="voting-group-choice">
+					<option value="">
+						{{ t('decidiq', 'All members of the body') }}
+					</option>
+					<option
+						v-for="group in votingGroupChoices"
+						:key="group.id"
+						:value="group.id">
+						{{ group.name }} ({{ group.memberCount }})
+					</option>
+				</select>
 				<label for="closedAt">{{
 					t('decidiq', 'Closing time (optional)')
 				}}</label>
@@ -205,6 +221,20 @@
 
 		<!-- Active or closed round -->
 		<template v-else>
+			<!-- Who the chosen voting group left out (REQ-VGP-005) -->
+			<p
+				v-if="leftOutNames.length > 0"
+				class="decidiq-notice"
+				role="status"
+				data-testid="voting-group-left-out">
+				{{
+					t(
+						'decidiq',
+						'Left out because they are no longer active members: {names}',
+						{ names: leftOutNames.join(', ') },
+					)
+				}}
+			</p>
 			<!-- Show-of-hands entry (chair/secretary when round is open) -->
 			<!-- @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.6 -->
 			<div
@@ -568,9 +598,9 @@ import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
+import { excludedMemberNames, meetingBodyId, votingGroupChoices } from '../utils/votingGroups.js'
 import {
 	allowedVotingMethods,
-	meetingBodyId,
 	startingVotingMethod,
 	VOTING_METHODS,
 } from '../utils/votingMethods.js'
@@ -671,7 +701,14 @@ export default {
 				abstentionHandling: '',
 				tieBreakRule: '',
 				options: [{ label: '' }, { label: '' }],
+				// Empty means every member of the body may vote (REQ-VGP-002).
+				votingGroup: '',
 			},
+
+			// The meeting body's active voting groups, for the open-round dialog.
+			votingGroupChoices: [],
+			// The members the chosen group left out when the round opened (REQ-VGP-005).
+			leftOutNames: [],
 
 			personOptions: [],
 			loadingPeople: false,
@@ -853,6 +890,18 @@ export default {
 	},
 
 	watch: {
+		/**
+		 * Load the voting groups when the open-round dialog opens for a fresh round.
+		 *
+		 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+		 * @param {boolean} open Whether the dialog is open.
+		 */
+		showOpenRoundDialog(open) {
+			if (open && !this.revoteOfRoundId) {
+				this.loadVotingGroups()
+			}
+		},
+
 		/** @spec openspec/specs/voting-round-management/spec.md#requirement-req-vcr-001-the-meetings-chair-and-secretary-see-the-voting-controls */
 		meetingId() {
 			this.loadPermissions()
@@ -1076,6 +1125,37 @@ export default {
 				data.message || this.t('decidiq', 'Failed to cast vote')
 		},
 
+		/**
+		 * The active voting groups of the meeting's body, as choices for who may vote.
+		 * Nothing to choose from when the meeting or its body cannot be read:
+		 * the round then opens for every member of the body, as before.
+		 *
+		 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+		 * @return {Promise<void>}
+		 */
+		async loadVotingGroups() {
+			this.votingGroupChoices = []
+			if (!this.meetingId) {
+				return
+			}
+			try {
+				const read = async (url) => {
+					const resp = await fetch(url, { headers: { Accept: 'application/json' } })
+					return resp.ok ? resp.json() : null
+				}
+				const bodyId = meetingBodyId(
+					await read(generateUrl('/apps/openregister/api/objects/decidiq/meeting/{id}', { id: this.meetingId })),
+				)
+				if (!bodyId) {
+					return
+				}
+				const groups = await read(generateUrl('/apps/openregister/api/objects/decidiq/voting-group') + '?_limit=100')
+				this.votingGroupChoices = votingGroupChoices(groups?.results, bodyId)
+			} catch {
+				this.votingGroupChoices = []
+			}
+		},
+
 		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.3 */
 		async openRound() {
 			this.openingRound = true
@@ -1095,9 +1175,11 @@ export default {
 						...chosenRules(this.newRound),
 						revoteOfRound: this.revoteOfRoundId || null,
 						options: this.rankedOptions(),
+						votingGroup: this.revoteOfRoundId ? null : (this.newRound.votingGroup || null),
 					}),
 				)
 				if (resp.ok) {
+					this.leftOutNames = excludedMemberNames(await resp.json().catch(() => null))
 					this.showOpenRoundDialog = false
 					this.revoteOfRoundId = null
 					this.voteCast = false
@@ -1435,6 +1517,14 @@ export default {
 .decidiq-error {
 	color: var(--color-error);
 	margin: var(--default-grid-baseline) 0 0;
+}
+
+.decidiq-notice {
+	margin: 0 0 var(--default-grid-baseline);
+	padding: calc(2 * var(--default-grid-baseline));
+	border-radius: var(--border-radius);
+	background: var(--color-warning-element-light, var(--color-background-dark));
+	color: var(--color-main-text);
 }
 
 .decidiq-ori-status {

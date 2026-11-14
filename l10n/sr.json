@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Ко може да гласа",
+        "All members of the body": "Сви чланови тела",
+        "Left out because they are no longer active members: {names}": "Изостављени јер више нису активни чланови: {names}",
         "sign-off route": "tok odobrenja",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d за, %2$d против, %3$d уздржано",

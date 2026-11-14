@@ -1521,6 +1521,44 @@
 						"icon": "History"
 					},
 					{
+						"id": "motion-panel-overview",
+						"type": "detail-sections",
+						"title": "Overview",
+						"icon": "NoteTextOutline",
+						"_note": "motion-change-recommendations (REQ-MCR-001): the motion text with line numbers sits under the motion's own fields, so Recommend a change is next to the text it changes.",
+						"content": {
+							"sections": [
+								{
+									"label": "Motion",
+									"widgetId": "motion-data"
+								},
+								{
+									"label": "Motion text",
+									"widgetId": "motion-text-lines"
+								}
+							]
+						}
+					},
+					{
+						"id": "motion-panel-amendments",
+						"type": "detail-sections",
+						"title": "Amendments",
+						"icon": "FileSign",
+						"_note": "motion-change-recommendations (REQ-MCR-006): Recommended changes directly below Amendments, as board DcVoorstel places the card.",
+						"content": {
+							"sections": [
+								{
+									"label": "Amendments",
+									"widgetId": "motion-amendments"
+								},
+								{
+									"label": "Recommended changes",
+									"widgetId": "motion-change-recommendations"
+								}
+							]
+						}
+					},
+					{
 						"id": "motion-panel-voting",
 						"type": "detail-sections",
 						"title": "Voting",
@@ -1548,7 +1586,7 @@
 							"moreLabel": "More",
 							"tabs": [
 								{
-									"widgetId": "motion-data",
+									"widgetId": "motion-panel-overview",
 									"label": "Overview"
 								},
 								{
@@ -1556,7 +1594,7 @@
 									"label": "Papers"
 								},
 								{
-									"widgetId": "motion-amendments",
+									"widgetId": "motion-panel-amendments",
 									"label": "Amendments"
 								},
 								{
@@ -1594,6 +1632,12 @@
 					},
 					"motion-amendments": {
 						"type": "MotionAmendmentsTab"
+					},
+					"motion-text-lines": {
+						"type": "MotionTextLinesTab"
+					},
+					"motion-change-recommendations": {
+						"type": "MotionChangeRecommendationsTab"
 					},
 					"motion-votes": {
 						"type": "MotionVotesTab"
