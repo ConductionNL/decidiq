@@ -704,7 +704,11 @@
       "decisionLabels": {
         "d1": "label of d1",
         "d2": "label of d2"
-      }
+      },
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -735,7 +739,11 @@
       ],
       "loading": false,
       "error": "",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -760,7 +768,11 @@
       "versions": [],
       "loading": false,
       "error": "",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -793,7 +805,11 @@
       "versions": [],
       "loading": false,
       "error": "",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -803,7 +819,11 @@
       "versions": [],
       "loading": false,
       "error": "",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -813,7 +833,11 @@
       "versions": [],
       "loading": false,
       "error": "",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -823,7 +847,11 @@
       "versions": [],
       "loading": false,
       "error": "",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -833,7 +861,11 @@
       "versions": [],
       "loading": false,
       "error": "No object store available",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -858,7 +890,11 @@
       "versions": [],
       "loading": false,
       "error": "collection failed",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   },
@@ -891,7 +927,11 @@
       "versions": [],
       "loading": false,
       "error": "label lookup failed",
-      "decisionLabels": {}
+      "decisionLabels": {},
+      "inForceDate": "",
+      "inForceVersionId": null,
+      "inForceMessage": "",
+      "inForceLoading": false
     },
     "thrown": null
   }

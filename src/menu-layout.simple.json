@@ -878,6 +878,9 @@
 					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
+					},
+					"decision-governing-citations": {
+						"type": "GoverningDocumentCitationsTab"
 					}
 				}
 			},
@@ -1233,6 +1236,11 @@
 								{
 									"widgetId": "decision-related",
 									"label": "Related decisions",
+									"overflow": true
+								},
+								{
+									"widgetId": "decision-governing-citations",
+									"label": "Cited governing documents",
 									"overflow": true
 								},
 								{

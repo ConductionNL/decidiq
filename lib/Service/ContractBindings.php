@@ -65,6 +65,7 @@ use OCA\Decidiq\Kernel\Contracts\ExportBundleServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ExportBundleWriterInterface;
 use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\FullExportServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\GoverningDocumentConsolidationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyCommandServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\GovernanceReportingServiceInterface;
@@ -213,6 +214,7 @@ final class ContractBindings {
 		ExportBundleWriterInterface::class => ExportBundleWriter::class,
 		FlowDecisionServiceInterface::class => FlowDecisionService::class,
 		FullExportServiceInterface::class => FullExportService::class,
+		GoverningDocumentConsolidationServiceInterface::class => GoverningDocumentConsolidationService::class,
 		GovernanceBodyCommandServiceInterface::class => GovernanceBodyCommandService::class,
 		GovernanceBodyQueryServiceInterface::class => GovernanceBodyQueryService::class,
 		GovernanceReportingServiceInterface::class => GovernanceReportingService::class,

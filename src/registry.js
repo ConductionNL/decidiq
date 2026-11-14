@@ -56,6 +56,8 @@ import GovernanceBodyEvaluationsTab from './components/tabs/GovernanceBodyEvalua
 import GovernanceBodyMembersTab from './components/tabs/GovernanceBodyMembersTab.vue'
 import GovernanceBodyRetentionTab from './components/tabs/GovernanceBodyRetentionTab.vue'
 import GovernanceBodyTemplateTab from './components/tabs/GovernanceBodyTemplateTab.vue'
+import GoverningDocumentCitationsTab from './components/tabs/GoverningDocumentCitationsTab.vue'
+import GoverningDocumentCitedByTab from './components/tabs/GoverningDocumentCitedByTab.vue'
 import MeetingAgendaTab from './components/tabs/MeetingAgendaTab.vue'
 // Meeting-scoped facet composition (meeting-facet-composition): kascommissie
 // verklaringen (VvE mode-gated) and incoming documents routed onto this
@@ -472,6 +474,9 @@ export default {
 	// Document details on meeting and agenda item pages
 	// (platform-document-metadata-fields).
 	DocumentMetadataTab: page(DocumentMetadataTab),
+	// governing-documents-register (REQ-GDR-005): a decision's citations and a document's citing decisions.
+	GoverningDocumentCitationsTab: page(GoverningDocumentCitationsTab),
+	GoverningDocumentCitedByTab: page(GoverningDocumentCitedByTab),
 	// Office papers as PDF on meeting and agenda item pages
 	// (agenda-office-files-to-pdf).
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
