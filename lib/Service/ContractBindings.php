@@ -44,6 +44,7 @@ use OCA\Decidiq\Kernel\Contracts\CaseDocumentServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CaseExchangeRecordsInterface;
 use OCA\Decidiq\Kernel\Contracts\CaseSystemClientInterface;
 use OCA\Decidiq\Kernel\Contracts\CaseSystemExchangeServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ChangeRecommendationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CitizenAdviceServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\CommitmentProgressServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ConflictOfInterestServiceInterface;
@@ -192,6 +193,7 @@ final class ContractBindings {
 		CaseExchangeRecordsInterface::class => CaseExchangeRecords::class,
 		CaseSystemClientInterface::class => CaseSystemClient::class,
 		CaseSystemExchangeServiceInterface::class => CaseSystemExchangeService::class,
+		ChangeRecommendationServiceInterface::class => ChangeRecommendationService::class,
 		CitizenAdviceServiceInterface::class => CitizenAdviceService::class,
 		CommitmentProgressServiceInterface::class => CommitmentProgressService::class,
 		ConflictOfInterestServiceInterface::class => ConflictOfInterestService::class,

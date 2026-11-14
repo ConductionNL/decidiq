@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Ketkä voivat äänestää",
+        "All members of the body": "Kaikki toimielimen jäsenet",
+        "Left out because they are no longer active members: {names}": "Jätetty pois, koska he eivät ole enää aktiivisia jäseniä: {names}",
         "sign-off route": "hyväksyntäreitti",
         "#": "#",
         "+ Action item": "+ Toimintakohde",
@@ -3351,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ylimääräinen kokous",
         "Committee meeting": "Valiokunnan kokous",
         "Public hearing": "Julkinen kuulemistilaisuus",
-        "General assembly": "Yleiskokous"
+        "General assembly": "Yleiskokous",
+        "Members' ancillary positions": "Jäsenten sivutoimet"
     },
     "nplurals=2; plural=(n != 1);"
 )
