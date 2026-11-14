@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Tgi che dastga votar",
+        "All members of the body": "Tut ils commembers da l'organ",
+        "Left out because they are no longer active members: {names}": "Exclus perquai ch'els n'èn betg pli commembers activs: {names}",
         "sign-off route": "via d'approvaziun",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d per, %2$d cunter, %3$d abstenziuns",

@@ -72,6 +72,10 @@
             "description": "The case system on the agenda item, the minutes page and the meeting page. Every action but the status belongs to the meeting's chair or secretary."
         },
         {
+            "name": "change-recommendation",
+            "description": "POST /api/change-recommendations/{id}/accept and /reject: the chair or secretary decides a recommended text change to a motion without a vote."
+        },
+        {
             "name": "citizen-advice",
             "description": "Open and close a residents' advisory vote on a motion."
         },
@@ -1139,6 +1143,105 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/change-recommendations/{id}/accept": {
+            "post": {
+                "operationId": "change-recommendation-accept",
+                "summary": "Accept a recommended text change into the motion without a vote",
+                "description": "Accept a recommended text change into the motion without a vote (motion-change-recommendations, REQ-MCR-003). POST /api/change-recommendations/{id}/accept. Only the chair or the secretary of the motion's meeting may decide. The passage is replaced in the motion text, the motion keeps its first wording and gains a history entry naming the recommendation, and the recommendation becomes accepted. Refused with 409 when it is already decided, the motion is in voting or later, or the passage no longer occurs in the text; 422 when it names no passage. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "change-recommendation"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The change recommendation UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
+        "/change-recommendations/{id}/reject": {
+            "post": {
+                "operationId": "change-recommendation-reject",
+                "summary": "Reject a recommended text change",
+                "description": "Reject a recommended text change (motion-change-recommendations, REQ-MCR-004). POST /api/change-recommendations/{id}/reject. Only the chair or the secretary of the motion's meeting may decide. The recommendation becomes rejected and the motion is not changed. Refused with 409 when it is already decided or the motion is in voting or later. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "change-recommendation"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The change recommendation UUID.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
                     }
                 }
             }

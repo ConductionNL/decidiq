@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Qui peut voter",
+        "All members of the body": "Tous les membres de l'organe",
+        "Left out because they are no longer active members: {names}": "Exclus parce qu'ils ne sont plus membres actifs : {names}",
         "sign-off route": "circuit de validation",
         "#": "#",
         "+ Action item": "+ Action item",
