@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\DocumentScanOnUploadListener;
 use OCA\Decidiq\Listener\OfficePaperAddedListener;
 use OCP\AppFramework\Bootstrap\IRegistrationContext;
 use OCP\Files\Events\Node\NodeCreatedEvent;
@@ -55,5 +56,8 @@ final class FilesEventRegistrar {
 	public function register(IRegistrationContext $context): void {
 		$context->registerEventListener(event: NodeCreatedEvent::class, listener: OfficePaperAddedListener::class);
 		$context->registerEventListener(event: NodeWrittenEvent::class, listener: OfficePaperAddedListener::class);
+		// @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-006-admin-settings-for-enforcement-and-scanning
+		$context->registerEventListener(event: NodeCreatedEvent::class, listener: DocumentScanOnUploadListener::class);
+		$context->registerEventListener(event: NodeWrittenEvent::class, listener: DocumentScanOnUploadListener::class);
 	}//end register()
 }//end class

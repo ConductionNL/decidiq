@@ -3757,7 +3757,14 @@
         "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
         "The people in the group.": "De personen in de groep.",
         "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "Document accessibility check": "Toegankelijkheidscontrole van documenten",
+        "Papers are checked for a text layer, tags, language, title and bookmarks before they are published. The check is a heuristic, not a full PDF/UA validation.": "Stukken worden vóór publicatie gecontroleerd op een tekstlaag, tags, taal, titel en bladwijzers. De controle is een benadering, geen volledige PDF/UA-validatie.",
+        "When a paper fails the check": "Als een stuk de controle niet doorstaat",
+        "Publish without checking": "Publiceren zonder controle",
+        "Warn, and publish once the publisher confirms": "Waarschuwen en publiceren na bevestiging",
+        "Hold the publication back unless a reason is given": "Publicatie tegenhouden, tenzij er een reden wordt opgegeven",
+        "Check a paper as soon as it is added": "Een stuk controleren zodra het is toegevoegd"
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

@@ -47,8 +47,9 @@
   - GIVEN scan-on-upload on WHEN a PDF is attached to an agenda item THEN a QueuedJob is queued and the report appears after the job runs
   - GIVEN scan-on-upload off WHEN a PDF is attached THEN no job is queued and the badge shows `not-scanned`
   - Admin settings component is NOT registered in the vue-router (gate: admin-router)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built: `accessibility_scan_on_upload` (default on) beside `accessibility_enforcement_mode`; `DocumentScanOnUploadListener` (Files created/written events, PDFs in a meeting or agenda item folder found by `PaperFolderOwner`) queues `DocumentAccessibilityScanJob`; admin section `DocumentScanSettings.vue` on the admin page, not routed.
 
 ### Task 5: On-demand scan endpoint
 - **spec_ref**: `openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents`

@@ -3337,7 +3337,14 @@ OC.L10N.register(
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Document accessibility check": "Document accessibility check",
+        "Papers are checked for a text layer, tags, language, title and bookmarks before they are published. The check is a heuristic, not a full PDF/UA validation.": "Papers are checked for a text layer, tags, language, title and bookmarks before they are published. The check is a heuristic, not a full PDF/UA validation.",
+        "When a paper fails the check": "When a paper fails the check",
+        "Publish without checking": "Publish without checking",
+        "Warn, and publish once the publisher confirms": "Warn, and publish once the publisher confirms",
+        "Hold the publication back unless a reason is given": "Hold the publication back unless a reason is given",
+        "Check a paper as soon as it is added": "Check a paper as soon as it is added"
     },
     "nplurals=2; plural=(n != 1);"
 )

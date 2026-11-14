@@ -21,6 +21,7 @@
 		<PublicationSettings v-if="storesReady" />
 		<FullExportSettings v-if="storesReady" />
 		<AccessibilitySettings />
+		<DocumentScanSettings v-if="storesReady" />
 		<RoleRightsSettings v-if="storesReady" />
 		<VotingGroupsSettings v-if="storesReady" />
 		<OfficePaperSettings v-if="storesReady" />
@@ -36,6 +37,7 @@ import { generateUrl } from '@nextcloud/router'
 import AccessibilitySettings from './AccessibilitySettings.vue'
 import CaseSystemSettings from './CaseSystemSettings.vue'
 import DecisionTypeSettings from './DecisionTypeSettings.vue'
+import DocumentScanSettings from './DocumentScanSettings.vue'
 import FullExportSettings from './FullExportSettings.vue'
 import MotionForwardingSettings from './MotionForwardingSettings.vue'
 import OfficePaperSettings from './OfficePaperSettings.vue'
@@ -54,6 +56,7 @@ export default {
 		CnAdminSettingsShell,
 		CaseSystemSettings,
 		DecisionTypeSettings,
+		DocumentScanSettings,
 		MenuStructureTab,
 		MotionForwardingSettings,
 		Settings,
