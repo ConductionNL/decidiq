@@ -534,7 +534,7 @@
 		},
 		{
 			"id": "CommitmentDetail",
-			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
+			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts and the publication actions beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
 			"config": {
 				"sideColumn": [
 					{
@@ -555,7 +555,8 @@
 							"hideEmpty": true,
 							"editable": false
 						}
-					}
+					},
+					"commitment-publication"
 				],
 				"layout": [
 					{
@@ -573,6 +574,9 @@
 				"widgets": {
 					"commitment-progress": {
 						"type": "CommitmentProgressTab"
+					},
+					"commitment-publication": {
+						"type": "CommitmentPublicationTab"
 					}
 				}
 			},
