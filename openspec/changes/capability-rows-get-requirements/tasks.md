@@ -27,9 +27,9 @@
 
 - **spec_ref**: `openspec/changes/capability-rows-get-requirements/specs/motion-amendment/spec.md#requirement-an-amendment-can-target-a-proposal-as-well-as-a-motion`
 - **files**: `src/components/tabs/MotionAmendmentsTab.vue`, `src/manifest.json` (DecisionDetail amendments widget)
-- [ ] 4.1 Let the amendments widget key on any decision, not only a motion.
-- [ ] 4.2 Place the widget on the proposal's detail page.
-- [ ] 4.3 Test the proposal case.
+- [x] 4.1 Let the amendments widget key on any decision, not only a motion.
+- [x] 4.2 Place the widget on the proposal's detail page.
+- [x] 4.3 Test the proposal case.
 
 ## Verification
 

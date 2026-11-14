@@ -1321,7 +1321,8 @@
 				"widget-decision-approval": "DecisionApprovalTab",
 				"widget-decision-route": "DecisionRouteTab",
 				"widget-decision-voting": "DecisionVotingTab",
-				"widget-decision-publication": "DecisionPublicationTab"
+				"widget-decision-publication": "DecisionPublicationTab",
+				"widget-decision-amendments": "MotionAmendmentsTab"
 			},
 			"title": "Decision",
 			"config": {
@@ -1334,6 +1335,7 @@
 					{ "id": "decision-lifecycle", "type": "custom", "component": "DecisionLifecycleTab", "title": "Lifecycle", "icon": "Timeline" },
 					{ "id": "decision-actions", "type": "custom", "component": "ActionItemsSurface", "title": "Action items", "icon": "ClipboardList" },
 					{ "id": "decision-related", "type": "custom", "component": "RelatedDecisionsTab", "title": "Related decisions", "icon": "LinkVariant" },
+					{ "id": "decision-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
 					{ "id": "decision-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "decision-approval", "type": "custom", "component": "DecisionApprovalTab", "title": "Approval route", "icon": "AccountCheckOutline" },
 					{ "id": "decision-route", "type": "custom", "component": "DecisionRouteTab", "title": "Route", "icon": "Sitemap" },
@@ -1362,7 +1364,8 @@
 					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
 					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "19", "widgetId": "decision-amendments", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,
