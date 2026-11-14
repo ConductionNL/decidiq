@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Contacts": "Contacts",
+        "Straw poll": "Straw poll",
+        "Intake form": "Intake form",
         "sign-off route": "sign-off route",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d for, %2$d against, %3$d abstained",
@@ -3337,9 +3340,6 @@ OC.L10N.register(
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
-        "Contacts": "Contacts",
-        "Straw poll": "Straw poll",
-        "Intake form": "Intake form",
         "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"

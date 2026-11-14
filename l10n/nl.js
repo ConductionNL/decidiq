@@ -3,6 +3,9 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "Contacts": "Contacten",
+        "Straw poll": "Proefpeiling",
+        "Intake form": "Inspraakformulier",
         "sign-off route": "paraferingsroute",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d voor, %2$d tegen, %3$d onthouden",
@@ -3755,9 +3758,6 @@ OC.L10N.register(
         "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
         "The people in the group.": "De personen in de groep.",
         "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
-        "Contacts": "Contacten",
-        "Straw poll": "Proefpeiling",
-        "Intake form": "Inspraakformulier",
         "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
