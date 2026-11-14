@@ -1,0 +1,167 @@
+{
+	"_note": "meeting-pack-board-book tasks 2 and 3: a compiled meeting pack is its own versioned record per meeting, with the fingerprint of the agenda it was compiled from so the meeting page can tell when it is outdated. An agenda item says how confidential it is; a confidential item is left out of every compiled pack. Availability is notified declaratively to everyone who may read the pack. A pack's own authorization block reads for signed-in users only: the register baseline would also let anonymous visitors read it, and a pack bundles a meeting's papers.",
+	"_spec": "openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md",
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"meeting-pack"
+				]
+			}
+		},
+		"schemas": {
+			"MeetingPack": {
+				"slug": "meeting-pack",
+				"icon": "BookOpenPageVariant",
+				"version": "0.1.0",
+				"title": "Meeting pack",
+				"description": "One compiled version of a meeting's pack: a single PDF with a cover, a table of contents and the agenda items with their papers. Each compilation is a new version; earlier versions and their files stay.",
+				"type": "object",
+				"x-schema-org": "schema:DigitalDocument",
+				"x-openregister": {
+					"schemaType": "schema:DigitalDocument",
+					"active": true,
+					"hardDelete": false,
+					"searchable": true,
+					"mailEnabled": false
+				},
+				"x-openregister-notifications": {
+					"meetingPackAvailable": {
+						"trigger": {
+							"type": "created"
+						},
+						"enabled": true,
+						"channels": [
+							"nc-notification"
+						],
+						"recipients": [
+							{
+								"kind": "object-acl",
+								"permission": "read"
+							}
+						],
+						"subject": {
+							"nl": "Vergaderbundel beschikbaar: versie {{version}}",
+							"en": "Meeting pack available: version {{version}}"
+						}
+					}
+				},
+				"authorization": {
+					"read": [
+						"authenticated"
+					],
+					"list": [
+						"authenticated"
+					],
+					"create": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"update": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					],
+					"delete": [
+						"decidiq-secretariat",
+						"decidiq-administrators",
+						"decidesk-administrators"
+					]
+				},
+				"required": [
+					"meeting",
+					"version",
+					"generatedAt",
+					"fingerprint"
+				],
+				"properties": {
+					"meeting": {
+						"title": "Meeting",
+						"type": "string",
+						"description": "The meeting this pack was compiled for.",
+						"format": "uuid",
+						"$ref": "meeting",
+						"facetable": true
+					},
+					"version": {
+						"title": "Version",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The number of this compilation for the meeting, starting at 1."
+					},
+					"changeNote": {
+						"title": "Change note",
+						"type": "string",
+						"maxLength": 500,
+						"default": "",
+						"description": "What changed since the previous version. Required from version 2 on."
+					},
+					"generatedAt": {
+						"title": "Compiled at",
+						"type": "string",
+						"format": "date-time",
+						"description": "When this version was compiled."
+					},
+					"generatedBy": {
+						"title": "Compiled by",
+						"type": "string",
+						"description": "Who compiled this version."
+					},
+					"fingerprint": {
+						"title": "Fingerprint",
+						"type": "string",
+						"pattern": "^sha256:",
+						"description": "A fingerprint of the agenda this version was compiled from: the items, their order, titles and papers. A different fingerprint now means the pack is outdated."
+					},
+					"filePath": {
+						"title": "File",
+						"type": "string",
+						"description": "Where the compiled PDF of this version sits in the meeting's Files folder."
+					},
+					"pageCount": {
+						"title": "Pages",
+						"type": "integer",
+						"minimum": 0,
+						"description": "The number of pages of the compiled PDF."
+					},
+					"skipped": {
+						"title": "Left out",
+						"type": "array",
+						"default": [],
+						"items": {
+							"type": "string"
+						},
+						"description": "Papers that could not be merged into the pack, each with the reason; each got a placeholder page naming it."
+					},
+					"deliveryFailures": {
+						"title": "Not delivered",
+						"type": "array",
+						"default": [],
+						"items": {
+							"type": "string"
+						},
+						"description": "Attendees whose own Files did not receive this version, each with the reason."
+					}
+				}
+			},
+			"AgendaItem": {
+				"slug": "agenda-item",
+				"version": "1.4.0",
+				"properties": {
+					"confidentiality": {
+						"title": "Confidentiality",
+						"type": "string",
+						"enum": [
+							"public",
+							"internal",
+							"confidential"
+						],
+						"default": "internal",
+						"description": "How confidential the item is. A confidential item keeps its line in a compiled meeting pack's table of contents, but its description and papers are left out of the pack for everyone."
+					}
+				}
+			}
+		}
+	}
+}
