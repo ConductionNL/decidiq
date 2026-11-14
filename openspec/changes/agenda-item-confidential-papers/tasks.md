@@ -41,6 +41,7 @@
 - **files**: the paper download path (`lib/Controller/` that serves meeting papers), `lib/Service/AuditLogService.php`
 - [ ] Implement
 - [ ] Test (red first)
+- Note: decidiq has no paper download path to hook: the Documents widget and DocumentMetadataTab read papers through OpenRegister's object file endpoints and Nextcloud Files, so a read never passes decidiq PHP. Logging each read of a closed paper belongs where the file is served (an OpenRegister read audit on object files), then shown on the item's History tab, which already renders OpenRegister's audit trail.
 
 ## Verification
 
