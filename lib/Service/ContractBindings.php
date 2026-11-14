@@ -97,6 +97,8 @@ use OCA\Decidiq\Kernel\Contracts\MotionStagesInterface;
 use OCA\Decidiq\Kernel\Contracts\MultilingualReconciliationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceRequestValidatorInterface;
 use OCA\Decidiq\Kernel\Contracts\NotificationPreferenceServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\OriFeedServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\OriImportServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\OriPersonPublicationRuleInterface;
 use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
@@ -141,6 +143,7 @@ use OCA\Decidiq\Kernel\Contracts\VotingOpenRequestHandlerInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRecordServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingRoundGuardInterface;
 use OCA\Decidiq\Kernel\Contracts\VotingServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\WrittenRoundServiceInterface;
 use OCA\Decidiq\Service\Records\DestructionCertificateRenderer;
 use OCA\Decidiq\Service\Records\DossierCategory;
 use OCA\Decidiq\Service\Records\DossierDisposition;
@@ -246,6 +249,8 @@ final class ContractBindings {
 		MultilingualReconciliationServiceInterface::class => MultilingualReconciliationService::class,
 		NotificationPreferenceRequestValidatorInterface::class => NotificationPreferenceRequestValidator::class,
 		NotificationPreferenceServiceInterface::class => NotificationPreferenceService::class,
+		OriFeedServiceInterface::class => Ori\OriFeedService::class,
+		OriImportServiceInterface::class => Ori\OriImportService::class,
 		OriPersonPublicationRuleInterface::class => OriPersonPublicationRule::class,
 		OriPublicationServiceInterface::class => OriPublicationService::class,
 		OriSerializerInterface::class => OriSerializer::class,
@@ -290,6 +295,7 @@ final class ContractBindings {
 		VotingRecordServiceInterface::class => VotingRecordService::class,
 		VotingRoundGuardInterface::class => VotingRoundGuard::class,
 		VotingServiceInterface::class => VotingService::class,
+		WrittenRoundServiceInterface::class => WrittenRoundService::class,
 	];
 
 	/**
