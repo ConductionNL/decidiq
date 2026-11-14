@@ -3427,7 +3427,11 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Planned effective date": "Planned effective date",
+        "Effective date": "Effective date",
+        "The date the document is to take effect. Once it is approved and this date has arrived, the system sets the effective date.": "The date the document is to take effect. Once it is approved and this date has arrived, the system sets the effective date.",
+        "The date the document took effect. Set by the system on the planned date, for an approved document only; while it is empty the document is not in force.": "The date the document took effect. Set by the system on the planned date, for an approved document only; while it is empty the document is not in force."
     },
     "nplurals=2; plural=(n != 1);"
 )

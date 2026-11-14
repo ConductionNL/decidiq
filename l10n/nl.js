@@ -3844,7 +3844,11 @@ OC.L10N.register(
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "Planned effective date": "Geplande datum van inwerkingtreding",
+        "Effective date": "Datum van inwerkingtreding",
+        "The date the document is to take effect. Once it is approved and this date has arrived, the system sets the effective date.": "De datum waarop het document in werking moet treden. Is het vastgesteld en is die datum bereikt, dan zet het systeem de datum van inwerkingtreding.",
+        "The date the document took effect. Set by the system on the planned date, for an approved document only; while it is empty the document is not in force.": "De datum waarop het document in werking is getreden. Het systeem zet die op de geplande datum, alleen voor een vastgesteld document; zolang hij leeg is, is het document niet van kracht."
     },
     "nplurals=2; plural=(n != 1);"
 )
