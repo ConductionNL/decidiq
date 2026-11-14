@@ -527,7 +527,7 @@
       "GovernanceBody": {
         "slug": "governance-body",
         "icon": "AccountGroupOutline",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "title": "GovernanceBody",
         "description": "A governance body (council, board, committee, assembly)",
         "type": "object",
@@ -565,7 +565,8 @@
               "advisory-body",
               "works-council",
               "shared-body",
-              "faction"
+              "faction",
+              "political-group"
             ],
             "example": "legislative"
           },
@@ -614,6 +615,24 @@
             "type": "string",
             "description": "Default voting method",
             "example": "for-against-abstain"
+          },
+          "allowedVotingMethods": {
+            "title": "Allowed voting methods",
+            "type": "array",
+            "description": "The voting methods this body's meetings may use. Empty allows every method.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "for-against-abstain",
+                "ranked-choice",
+                "weighted",
+                "show-of-hands"
+              ]
+            },
+            "default": [],
+            "example": [
+              "for-against-abstain"
+            ]
           },
           "termStart": {
             "title": "Term start",
@@ -806,7 +825,8 @@
               "extraordinary",
               "committee",
               "public hearing",
-              "general_assembly"
+              "general_assembly",
+              "informational-session"
             ],
             "example": "regular"
           },
@@ -864,7 +884,8 @@
               "opened",
               "paused",
               "adjourned",
-              "closed"
+              "closed",
+              "cancelled"
             ],
             "example": "draft"
           },
