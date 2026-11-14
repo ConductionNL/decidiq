@@ -124,4 +124,40 @@ class FilinqPdf
 
     }//end fromHtml()
 
+    /**
+     * Merge PDFs into one with a bookmark per named stream, or answer null.
+     *
+     * Null when filinq is absent, when its PdfService has no `mergePdfs()`
+     * yet, or when the merge fails; the caller then keeps its attachments out
+     * of the document and says so.
+     *
+     * @param array<int, string> $pdfs      The PDF byte streams, in order.
+     * @param array<int, string> $bookmarks The outline entry per stream index.
+     * @param string             $context   What was being merged, for the log line.
+     *
+     * @return string|null The merged PDF, or null.
+     *
+     * @spec openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-002-defensive-attachment-merging-with-placeholder-pages
+     */
+    public function merge(array $pdfs, array $bookmarks, string $context): ?string {
+        try {
+            $pdfService = FleetAppId::getService($this->container, 'filinq', 'Service\PdfService');
+            if ($pdfService === null || method_exists($pdfService, 'mergePdfs') === false) {
+                $this->logger->info('Decidiq: filinq cannot merge PDFs on this instance for ' . $context);
+
+                return null;
+            }
+
+            $merged = $pdfService->mergePdfs($pdfs, $bookmarks);
+            if (is_string($merged) === true && $merged !== '') {
+                return $merged;
+            }
+        } catch (Throwable $e) {
+            $this->logger->info('Decidiq: filinq could not merge the PDFs for ' . $context, ['error' => $e->getMessage()]);
+        }
+
+        return null;
+
+    }//end merge()
+
 }//end class

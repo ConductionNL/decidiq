@@ -3365,7 +3365,24 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "By": "By",
+        "Change note": "Change note",
+        "Compile a new version": "Compile a new version",
+        "Compile the meeting pack": "Compile the meeting pack",
+        "Compiled": "Compiled",
+        "Download": "Download",
+        "Download version {version}": "Download version {version}",
+        "Meeting pack outdated": "Meeting pack outdated",
+        "No meeting pack has been compiled yet.": "No meeting pack has been compiled yet.",
+        "Not included in the latest pack; available separately per agenda item:": "Not included in the latest pack; available separately per agenda item:",
+        "Pages": "Pages",
+        "The latest pack did not reach:": "The latest pack did not reach:",
+        "The meeting pack could not be compiled.": "The meeting pack could not be compiled.",
+        "The meeting pack is being compiled.": "The meeting pack is being compiled.",
+        "The meeting pack is being compiled. It appears here when it is ready.": "The meeting pack is being compiled. It appears here when it is ready.",
+        "What changed in this version?": "What changed in this version?",
+        "Meeting pack": "Meeting pack"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -41,8 +41,9 @@
   - GIVEN Docudesk absent WHEN compiling THEN the existing `MeetingPackageService` folder package is produced and the result honestly states no PDF was rendered (MinutesDocumentService pattern)
   - GIVEN a prior version WHEN recompiling without a changeNote THEN compilation is refused; with a changeNote THEN version N+1 is created and version N's file is untouched
   - GIVEN an empty agenda WHEN compiling THEN a validation error and no pack
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: `BoardBookService` with `BoardBook/BoardBookAgenda` (reads), `BoardBookComposer` (pages, bookmarks, file name, fingerprint), `BoardBookRenderer` + `BoardBookPlan` (sections and attachments in order) through `FilinqPdf` (`fromHtml()`, new `merge()`). Each version is written under its own name (`Vergaderbundel <meeting> <date> vN.pdf`) in the meeting's `Vergaderbundel` folder and never overwrites an existing file. Without filinq the folder package is assembled and the result says no PDF was compiled. Not done here: page numbers in the table of contents and continuous pagination need filinq's `mergePdfs()` (task 1, filinq); until it exists every attachment is a placeholder page and the skip report says merging is not available. Tests: `BoardBookServiceTest`, `BoardBookComposerTest`, `BoardBookAgendaTest`.
 
 ### Task 5: Confidential exclusion + defensive merge placeholders
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-005-access-control-and-confidential-item-exclusion`
@@ -51,8 +52,9 @@
   - GIVEN an item with `confidentiality: confidential` WHEN compiled THEN its TOC line remains but its section body is only the closed-doors placeholder — no description, no attachments, for every compiled pack (no per-user variants)
   - GIVEN a non-PDF or unmergeable/oversized attachment WHEN compiled THEN compilation succeeds, a placeholder page names the file, and it appears in `skipped`
   - Mutation check: removing the exclusion branch makes the unit test fail (no fake green)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: a confidential item keeps its title in the table of contents and its bookmark; its section is only the closed-doors text and its attachments are never read into the pack. Non-PDF, oversized, unparsable or encrypted attachments get a placeholder page and a skip line (`NN - <item>/<file> (<reason>)`). Mutation-checked: removing either exclusion branch fails `BoardBookRendererTest` / `BoardBookComposerTest`.
 
 ### Task 6: `BoardBookController` + routes + `BoardBookCompileJob`
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-004-pack-outdated-indicator`
@@ -61,8 +63,9 @@
   - GIVEN a secretary/chair WHEN POST `/api/meetings/{id}/board-book` THEN a queued job is enqueued (one in-flight per meeting) and 202 returned; GIVEN any other authenticated user THEN 403 (explicit guard in the method body — `#[NoAdminRequired]` alone never suffices; guard resolver denies on failure, never fails open)
   - GIVEN packs exist WHEN GET `/api/meetings/{id}/board-book/status` THEN state, latest/current fingerprints, `outdated`, skip report and delivery failures are returned
   - Both routes registered and reachable (gates: route-auth, semantic-auth, route-reachability); no pass-through CRUD wrappers for reading packs (redundant-controller gate — frontend reads MeetingPack via the OR objects API)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: `POST /api/meetings/{id}/board-book` (chair or secretary through `MeetingRoleGateInterface`, which fails closed; 409 while a compilation is queued or running; 422 for an empty agenda or a missing change note) queues `BoardBookCompileJob`, which runs as the user who asked. `GET .../board-book/status` (participants, chair, secretary) returns the state, the latest version, both fingerprints, `outdated`, `skipped` and `deliveryFailures`. Both documented in `openapi.json`. Tests: `BoardBookControllerTest`, `BoardBookCompileJobTest`.
 
 ### Task 7: Offline delivery to attendees' Files
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-006-offline-delivery-into-attendees-own-files`
@@ -70,8 +73,9 @@
 - **acceptance_criteria**:
   - GIVEN a compiled pack WHEN delivery runs THEN each active attendee (leftAt null, resolvable NC account) gets a read-only, non-reshareable share of the versioned pack file visible in their own Files (native clients can sync it offline)
   - GIVEN one unresolvable attendee among five WHEN delivering THEN the four others receive the pack and the failure is reported per attendee, not fatal
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: `BoardBookDelivery` shares the pack file read-only (no reshare bit) with every participant whose `leftAt` is empty and whose `nextcloudUserId` exists, except the compiler; each failure is a line in the pack's `deliveryFailures`. Test: `BoardBookDeliveryTest` (one without an account, one who left, one share that fails).
 
 ### Task 8: Meeting detail page — "Vergaderbundel" section
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-008-pack-section-on-the-meeting-detail-page`
@@ -81,8 +85,9 @@
   - GIVEN a plain participant WHEN viewing THEN the section is read-only (download only, no compile action)
   - GIVEN the agenda changed after the latest pack WHEN the page loads THEN the "Vergaderbundel verouderd" `CnStatusBadge` shows (text + color, WCAG AA); fresh pack shows no badge
   - All strings nl/en with English i18n keys; NL Design System CSS variables only
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Note: `MeetingPackTab` on MeetingDetail (full and simple structures; in the simple one under Documents) with the pure helpers in `src/utils/meetingPack.js`. It shows the versions newest first (version, compiled, by, change note, pages, download), the latest skip report, the delivery report for the chair or secretary, and the `CnStatusBadge` "Vergaderbundel verouderd" when the status endpoint says the agenda moved since the latest pack. The compile action (a change note field from version 2) shows only when `my-roles` says chair, secretary or administrator; without an answer it stays hidden. The section is a manifest custom widget, not a `CnDetailCard` header action, because MeetingDetail is a manifest page whose widgets are tabs. English keys with Dutch in `l10n/nl.json`. Tests: `tests/vitest/meetingPack.spec.js` (6); `simpleMeetingPage.spec.js` counts the new widget.
 
 ### Task 9: End-to-end coverage for changed scenarios
 - **spec_ref**: `openspec/changes/meeting-pack-board-book/specs/meeting-pack-board-book/spec.md#requirement-req-002-defensive-attachment-merging-with-placeholder-pages`
