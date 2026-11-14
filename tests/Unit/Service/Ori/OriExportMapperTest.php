@@ -114,7 +114,7 @@ final class OriExportMapperTest extends TestCase {
 		$files = array_merge(
 			glob($root . 'lib/Service/Ori/*.php'),
 			glob($root . 'lib/Controller/OriFeed*.php'),
-			[$root . 'lib/Command/ImportOriCommand.php', $root . 'lib/Settings/register.d/89-ori-adoption.json']
+			[$root . 'lib/Command/ImportOriCommand.php', $root . 'lib/Settings/register.d/999-ori-adoption.json']
 		);
 		foreach ($files as $file) {
 			if (basename($file) === 'OriExportMapper.php') {

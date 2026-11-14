@@ -21,7 +21,7 @@
   **Acceptance:** register JSON validates; `importFromApp()` on an instance
   with existing objects succeeds; writes using each new enum value/property
   return 2xx; `composer check:strict` is clean.
-  > 2026-11-14 built: `lib/Settings/register.d/89-ori-adoption.json` (ADR-037 fragment instead of editing the monolith; the fragment signature moves the import version, so `occ upgrade` re-imports). Also declares `externalReference` on Meeting, AgendaItem, DigitalDocument, VotingRound, Person and Membership, which the import tag of 2.1 needs. `OriAdoptionRegisterFragmentTest` proves the deltas are additive. Box left open: the live acceptance (importFromApp on an instance with objects, 2xx writes) is not run here.
+  > 2026-11-14: the deltas were already in development (`decidesk_register.json` enums, `register.d/999-ori-adoption.json`). Added there: `externalReference` on Meeting, AgendaItem, DigitalDocument, VotingRound, Person and Membership (the import tag of 2.1), with schema versions one above the highest declared; `OriAdoptionRegisterTest::testEverySchemaTheImportWritesCarriesTheImportTag`. Box left open: the live acceptance (importFromApp on an instance with objects, 2xx writes) is not run here.
   > Built: the three enum values in `decidesk_register.json`, the new
   > properties in `register.d/999-ori-adoption.json` (an enum list in a
   > fragment would be appended by the merger but replaced by index by other

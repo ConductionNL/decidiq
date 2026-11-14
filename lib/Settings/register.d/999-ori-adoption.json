@@ -7,7 +7,7 @@
     "schemas": {
       "AgendaItem": {
         "slug": "agenda-item",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "properties": {
           "documents": {
             "title": "Documents",
@@ -19,12 +19,18 @@
               "$ref": "digital-document"
             },
             "default": []
+          },
+          "externalReference": {
+            "title": "External reference",
+            "type": "string",
+            "maxLength": 255,
+            "description": "Where this agenda item was imported from: ori:<source uuid> for one migrated by occ decidiq:import-ori. A re-run of the import updates the object carrying it instead of creating another, and --rollback deletes by it. Empty for objects created in decidiq itself."
           }
         }
       },
       "DigitalDocument": {
         "slug": "digital-document",
-        "version": "0.3.0",
+        "version": "0.4.0",
         "properties": {
           "classification": {
             "title": "Classification",
@@ -41,12 +47,18 @@
             "title": "File name",
             "type": "string",
             "description": "The document's file name."
+          },
+          "externalReference": {
+            "title": "External reference",
+            "type": "string",
+            "maxLength": 255,
+            "description": "Where this document was imported from: ori:<source uuid> for one migrated by occ decidiq:import-ori. A re-run of the import updates the object carrying it instead of creating another, and --rollback deletes by it. Empty for objects created in decidiq itself."
           }
         }
       },
       "VotingRound": {
         "slug": "voting-round",
-        "version": "0.5.0",
+        "version": "0.6.0",
         "properties": {
           "partyResults": {
             "title": "Party results",
@@ -87,6 +99,12 @@
             "$ref": "decision",
             "nullable": true,
             "description": "The decision this round voted on, for a round recorded without a decision route (for example an imported historical vote)."
+          },
+          "externalReference": {
+            "title": "External reference",
+            "type": "string",
+            "maxLength": 255,
+            "description": "Where this voting round was imported from: ori:<source uuid> for one migrated by occ decidiq:import-ori. A re-run of the import updates the object carrying it instead of creating another, and --rollback deletes by it. Empty for objects created in decidiq itself."
           }
         }
       },
@@ -108,6 +126,39 @@
               "opposition"
             ],
             "description": "Whether a political group is in the coalition or the opposition."
+          }
+        }
+      },
+      "Meeting": {
+        "version": "1.14.0",
+        "properties": {
+          "externalReference": {
+            "title": "External reference",
+            "type": "string",
+            "maxLength": 255,
+            "description": "Where this meeting was imported from: ori:<source uuid> for one migrated by occ decidiq:import-ori. A re-run of the import updates the object carrying it instead of creating another, and --rollback deletes by it. Empty for objects created in decidiq itself."
+          }
+        }
+      },
+      "Person": {
+        "version": "0.3.0",
+        "properties": {
+          "externalReference": {
+            "title": "External reference",
+            "type": "string",
+            "maxLength": 255,
+            "description": "Where this person was imported from: ori:<source uuid> for one migrated by occ decidiq:import-ori. A re-run of the import updates the object carrying it instead of creating another, and --rollback deletes by it. Empty for objects created in decidiq itself."
+          }
+        }
+      },
+      "Membership": {
+        "version": "0.5.0",
+        "properties": {
+          "externalReference": {
+            "title": "External reference",
+            "type": "string",
+            "maxLength": 255,
+            "description": "Where this membership was imported from: ori:<source uuid> for one migrated by occ decidiq:import-ori. A re-run of the import updates the object carrying it instead of creating another, and --rollback deletes by it. Empty for objects created in decidiq itself."
           }
         }
       }
