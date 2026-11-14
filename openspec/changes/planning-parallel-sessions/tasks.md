@@ -46,8 +46,8 @@
 - **files**: `lib/Service/MeetingBroadcastService.php`, `lib/Service/BroadcastCaptionService.php`, `tests/Unit/Service/MeetingBroadcastServiceTest.php`
 - **acceptance_criteria**:
   - GIVEN two sessions of one evening, each with a broadcast WHEN read THEN each broadcast carries its own recording and subtitle track and none of the other session's
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the caption attach request names the meeting and its recording; a session's folder carries its uuid, so sessions with one title do not share a subtitle file)
+- [x] Test (BroadcastCaptionServiceTest: two sessions of one evening; MeetingFolderServiceTest: a folder per session)
 
 ## Verification
 

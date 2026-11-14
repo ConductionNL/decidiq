@@ -3299,6 +3299,12 @@
         "No action items are waiting for you.": "No action items are waiting for you.",
         "Council and participation": "Council and participation",
         "My consultation reactions": "My consultation reactions",
+        "Send for approval": "Send for approval",
+        "Loading routes…": "Loading routes…",
+        "There is no active approval route for decisions.": "There is no active approval route for decisions.",
+        "The approval routes could not be loaded.": "The approval routes could not be loaded.",
+        "The proposal could not be sent for approval.": "The proposal could not be sent for approval.",
+        "Approval route": "Approval route",
         "My votes": "My votes",
         "My budget proposals": "My budget proposals",
         "My notifications": "My notifications",
@@ -3339,12 +3345,7 @@
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
-        "Send for approval": "Send for approval",
-        "Loading routes…": "Loading routes…",
-        "There is no active approval route for decisions.": "There is no active approval route for decisions.",
-        "The approval routes could not be loaded.": "The approval routes could not be loaded.",
-        "The proposal could not be sent for approval.": "The proposal could not be sent for approval.",
-        "Approval route": "Approval route"
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }

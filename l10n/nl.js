@@ -3715,6 +3715,12 @@ OC.L10N.register(
         "The sentence printed on the decision.": "De zin die op het besluit staat.",
         "Threshold after": "Drempel erna",
         "Threshold before": "Drempel ervoor",
+        "Send for approval": "Ter goedkeuring aanbieden",
+        "Loading routes…": "Routes laden…",
+        "There is no active approval route for decisions.": "Er is geen actieve goedkeuringsroute voor besluiten.",
+        "The approval routes could not be loaded.": "De goedkeuringsroutes konden niet worden geladen.",
+        "The proposal could not be sent for approval.": "Het voorstel kon niet ter goedkeuring worden aangeboden.",
+        "Approval route": "Goedkeuringsroute",
         "Threshold kind": "Soort drempel",
         "Threshold value": "Drempelwaarde",
         "What kind of step this is beyond its stage type. `intake` is the admissibility test: it yields a verdict rather than an approval, and a `niet-ontvankelijk` verdict ends the route where it stands (REQ-DWP-004).": "Wat voor stap dit is, naast het type fase. `intake` is de toets op ontvankelijkheid: die levert een oordeel op in plaats van een goedkeuring. Een oordeel `niet-ontvankelijk` beëindigt de route waar die staat (REQ-DWP-004).",
@@ -3755,12 +3761,7 @@ OC.L10N.register(
         "The body whose members make up the group.": "Het orgaan waarvan de leden de groep vormen.",
         "The people in the group.": "De personen in de groep.",
         "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
-        "Send for approval": "Ter goedkeuring aanbieden",
-        "Loading routes…": "Routes laden…",
-        "There is no active approval route for decisions.": "Er is geen actieve goedkeuringsroute voor besluiten.",
-        "The approval routes could not be loaded.": "De goedkeuringsroutes konden niet worden geladen.",
-        "The proposal could not be sent for approval.": "Het voorstel kon niet ter goedkeuring worden aangeboden.",
-        "Approval route": "Goedkeuringsroute"
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )

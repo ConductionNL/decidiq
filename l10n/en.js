@@ -3297,6 +3297,12 @@ OC.L10N.register(
         "Submitted by {proposer}": "Submitted by {proposer}",
         "No proposals are waiting for review.": "No proposals are waiting for review.",
         "No decision is up for a vote.": "No decision is up for a vote.",
+        "Send for approval": "Send for approval",
+        "Loading routes…": "Loading routes…",
+        "There is no active approval route for decisions.": "There is no active approval route for decisions.",
+        "The approval routes could not be loaded.": "The approval routes could not be loaded.",
+        "The proposal could not be sent for approval.": "The proposal could not be sent for approval.",
+        "Approval route": "Approval route",
         "No action items are waiting for you.": "No action items are waiting for you.",
         "Council and participation": "Council and participation",
         "My consultation reactions": "My consultation reactions",
@@ -3337,12 +3343,7 @@ OC.L10N.register(
         "The body whose members make up the group.": "The body whose members make up the group.",
         "The people in the group.": "The people in the group.",
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
-        "Send for approval": "Send for approval",
-        "Loading routes…": "Loading routes…",
-        "There is no active approval route for decisions.": "There is no active approval route for decisions.",
-        "The approval routes could not be loaded.": "The approval routes could not be loaded.",
-        "The proposal could not be sent for approval.": "The proposal could not be sent for approval.",
-        "Approval route": "Approval route"
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )
