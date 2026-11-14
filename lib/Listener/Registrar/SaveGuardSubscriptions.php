@@ -35,6 +35,7 @@ use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\Listener\UrgencyFieldGuardListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 
@@ -88,6 +89,10 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Urgency fields (urgent-decision-procedure, REQ-001): written only by
+		// the guarded urgency declaration, carried forward on other edits.
+		['event' => ObjectCreatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => UrgencyFieldGuardListener::class, 'schemas' => ['decision']],
 		// Implementation progress (followup-implementation-progress,
 		// REQ-FUP-001): only an adopted decision takes progress updates.
 		[

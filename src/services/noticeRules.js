@@ -27,9 +27,11 @@ export const DEADLINE_WARNING_DAYS = 3
  *
  * @return {{deadline: string|null, daysUntilDeadline: number|null, level: string}}
  *         `level` is one of 'ok' | 'warning' (within 3 days) | 'overdue' (deadline passed)
- *         | 'unknown' (no parseable meeting date).
+ *         | 'shortened' (an extraordinary meeting convened at a recorded shortened notice:
+ *         a deliberate deviation, not an error) | 'unknown' (no parseable meeting date).
  *
  * @spec openspec/specs/meeting-management/spec.md
+ * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
  */
 export function getNoticeDeadlineInfo(meeting, now = new Date()) {
 	const meetingDate = meetingDay(meeting)
@@ -48,8 +50,20 @@ export function getNoticeDeadlineInfo(meeting, now = new Date()) {
 	return {
 		deadline: deadline.toISOString().slice(0, 10),
 		daysUntilDeadline,
-		level: deadlineLevel(daysUntilDeadline),
+		level: isRecordedShortenedNotice(meeting) ? 'shortened' : deadlineLevel(daysUntilDeadline),
 	}
+}
+
+/**
+ * Whether the meeting records a deliberate shortened notice. Only an
+ * `extraordinary` meeting can: a regular meeting keeps the overdue warning.
+ *
+ * @param {object} meeting Meeting payload.
+ *
+ * @return {boolean} True for a recorded deviation.
+ */
+export function isRecordedShortenedNotice(meeting) {
+	return meeting?.meetingType === 'extraordinary' && meeting?.shortenedNotice === true
 }
 
 /**

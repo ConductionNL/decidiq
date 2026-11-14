@@ -82,6 +82,7 @@ class AgendaService implements AgendaServiceInterface {
 	 * @param LoggerInterface $logger PSR-3 logger
 	 * @param ParticipantResolver $participantResolver Canonical participant resolver
 	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
+	 * @param ShortenedNoticeService|null $shortenedNotice Checks an emergency convocation's shortened notice
 	 *
 	 * @return void
 	 *
@@ -93,6 +94,7 @@ class AgendaService implements AgendaServiceInterface {
 		private readonly LoggerInterface $logger,
 		private readonly ParticipantResolver $participantResolver,
 		private readonly PublicationEventRecorder $eventRecorder,
+		private readonly ?ShortenedNoticeService $shortenedNotice=null,
 	) {
 		$this->rules   = new AgendaRules();
 	}//end __construct()
@@ -126,20 +128,33 @@ class AgendaService implements AgendaServiceInterface {
 	 * agendaVersions) and notifies all active participants. The Meeting
 	 * lifecycle is left alone (#1396).
 	 *
-	 * @param string $meetingId UUID of the Meeting to publish
+	 * @param string      $meetingId             UUID of the Meeting to publish
+	 * @param string|null $shortenedNoticeReason Null for a regular convocation; a string (empty for the
+	 *                                           urgency reason) for an emergency convocation at shortened notice
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When no agenda items exist for the meeting
+	 * @throws InvalidArgumentException When no agenda items exist for the meeting, or the shortened notice is refused
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
 	 */
-	public function publishAgenda(string $meetingId): void {
+	public function publishAgenda(string $meetingId, ?string $shortenedNoticeReason=null): void {
 		$items = $this->publishableItems(meetingId: $meetingId);
 
 		// #315: Read the full meeting object before saving so that a partial payload cannot
 		// silently wipe required fields that are not included in the update.
-		$publication = ['meetingId' => $meetingId, 'meeting' => $this->readMeeting(meetingId: $meetingId), 'items' => $items];
+		$meeting   = $this->readMeeting(meetingId: $meetingId);
+		$deviation = [];
+		if ($shortenedNoticeReason !== null) {
+			// Checked before anything is saved or sent: a refused deviation records nothing.
+			if ($this->shortenedNotice === null) {
+				throw new InvalidArgumentException('A shortened notice is not available.');
+			}
+
+			$deviation = $this->shortenedNotice->deviationFor(meetingId: $meetingId, meeting: $meeting, reason: $shortenedNoticeReason);
+		}
+
+		$publication = ['meetingId' => $meetingId, 'meeting' => $meeting, 'items' => $items, 'deviation' => $deviation];
 		$this->savePublication(publication: $publication);
 		$this->announcePublication(publication: $publication);
 		$this->logger->info('Agenda published for meeting {meetingId}', ['meetingId' => $meetingId]);
@@ -177,7 +192,8 @@ class AgendaService implements AgendaServiceInterface {
 			meetingId: $publication['meetingId'],
 			meeting: array_merge(
 				$this->rules->withNewAgendaVersion(meetingData: $meetingData, items: $publication['items']),
-				$this->rules->publicationChanges(meetingData: $meetingData)
+				$this->rules->publicationChanges(meetingData: $meetingData),
+				($publication['deviation'] ?? [])
 			)
 		);
 	}//end savePublication()

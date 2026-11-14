@@ -30,8 +30,8 @@
   - GIVEN a non-chair (role not in `allowedTriggerRoles`) or an unresolvable role WHEN triggering THEN 403 and no fields change
   - GIVEN a direct OR object update setting `isUrgent` WHEN processed THEN the urgency-field write is rejected
   - GIVEN an unrelated title edit on an urgent decision WHEN saved THEN urgency fields survive (PUT-semantic carry-forward)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgencyTriggerGuard` (chair or an allowed role on the decision's meeting, fail closed without a policy, meeting or role), `UrgencyDeclarationService`, `POST /api/decisions/{id}/urgency` on `UrgentProcedureController`; `UrgencyFieldGuardListener` refuses urgency writes outside the flow (`UrgencyWriteGrant`) and carries the fields forward on saves that leave them out; the declaration is an ordinary audited OpenRegister save)
+- [x] Test (UrgencyTriggerGuardTest, UrgencyDeclarationServiceTest, UrgencyFieldGuardListenerTest, UrgentProcedureControllerTest)
 
 ### Task 4: Ratification orchestration — stage auto-append + agenda placement + reversal linking
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended`, `…#req-005-ratification-outcome-confirms-or-reverses`
@@ -40,8 +40,8 @@
   - GIVEN a completed urgency declaration WHEN `ratificationRequired=true` THEN a `stageType=ratifying` stage assigned to the configured (or overridden) ratifying body is appended with the next sequence and counted by route progress
   - GIVEN a scheduled `regular` meeting of the ratifying body WHEN the stage is appended THEN a linked AgendaItem is created on it; GIVEN none WHEN appended THEN the placement is recorded pending and retried when a qualifying meeting is created
   - GIVEN a ratifying stage decided `rejected` WHEN the reversal decision with `repeals` is recorded THEN the urgent decision's `effectiveStatus` derives to `repealed` with lifecycle and audit unchanged
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgentRatificationService`: ratifying stage after the last stage, for the policy's or the overridden body, agenda item (`ratifiesDecision`) on the body's next future regular meeting, else `placementPending` on the stage; `RatificationPlacementListener` places pending ratifications when a regular meeting of that body is created. Reversal needs no new code: the ratifying body records a decision with `repeals`/`supersedes` and the existing `effectiveStatus` derivation applies)
+- [x] Test (UrgentRatificationServiceTest, RatificationPlacementListenerTest)
 
 ### Task 5: Expedited written round with bounded hours deadline
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline`
@@ -49,8 +49,8 @@
 - **acceptance_criteria**:
   - GIVEN bounds `{min:4,max:72}` WHEN POST `/api/decisions/{id}/expedited-round` with 24 THEN a VotingRound with `votingDeadline` = open+24h is created linked to the decisive stage, outcome derivation unchanged
   - GIVEN a 1-hour deadline WHEN requested THEN 422 naming the bounds and no round is created
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`ExpeditedRoundService`, `POST /api/decisions/{id}/expedited-round`: whole hours within `responseDeadlineHours`, VotingRound on the first open decisive stage with `votingDeadline` = opening + hours, stage set to `method=vote` with the round)
+- [x] Test (ExpeditedRoundServiceTest)
 
 ### Task 6: Emergency convocation — shortened-notice deviation recording + floor enforcement
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations`
@@ -59,8 +59,8 @@
   - GIVEN an `extraordinary` meeting 72h out with floor 48h WHEN the convocation is sent confirming shortened notice THEN per-recipient deliveries are recorded plus `shortenedNotice=true`, `actualNoticeHours=72`, and the deviation reason
   - GIVEN a meeting 24h out with floor 48h WHEN sending THEN the send is rejected naming the floor
   - GIVEN a `regular` meeting WHEN sent late THEN the existing overdue warning applies and no deviation can be recorded
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`ShortenedNoticeService`; `POST /api/agendas/{meetingId}/publish` with `shortenedNotice` and optional `noticeDeviationReason` sends the convocation of an `extraordinary` meeting at shortened notice and stores `shortenedNotice`, `actualNoticeHours`, `noticeDeviationReason` (default: the urgency reason of the urgent decision on the meeting) with it; below `minimumNoticeFloorHours`, on a `regular` meeting or for a body without a policy it is refused before anything is saved or sent. The convocation is the agenda publication, there is no `BoardMeetingService` in this app. `noticeRules.js` reports a recorded deviation as `shortened`)
+- [x] Test (ShortenedNoticeServiceTest, AgendaShortenedNoticeTest, AgendaPublishShortenedNoticeTest, tests/vitest/noticeShortenedNotice.spec.js)
 
 ### Task 7: UI — declare-urgency dialog, banner, list badge/filter, dashboard KPI
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi`
@@ -69,8 +69,8 @@
   - GIVEN an urgent decision awaiting ratification WHEN its detail opens THEN the "urgent — awaiting ratification" banner (icon + text, CSS variables, lifecycle badge still visible) names the ratifying body
   - GIVEN the decision list WHEN rendered THEN urgent rows carry a badge and an `awaitingRatification` filter is offered
   - GIVEN the dashboard WHEN loaded THEN the KPI counts `awaitingRatification=true` decisions and navigates to the pre-filtered list
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgencyBanner` widget on DecisionDetail (also in the simple structure's Overview tab): "Urgent — awaiting ratification by {body}" with icon and text next to the lifecycle badge, where ratification is scheduled or that no meeting exists yet, and the Declare urgent / Open expedited written round actions through `DeclareUrgencyDialog` and `ExpeditedRoundDialog`; Decisions list gets an `isUrgent` badge column and a "To ratify" quick filter; Dashboard gets the "To ratify" stat counting `awaitingRatification=true`, opening the urgent decisions list pre-filtered; en/nl strings. Playwright tests and the docs screenshot are left for the live pass)
+- [x] Test (tests/vitest/urgencyState.spec.js; simpleDecisionPage/simpleListAndDashboard specs cover the new block, tile and filter)
 
 ### Task 8: Seed data — municipal + corporate urgent procedures end-to-end
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/design.md#seed-data`
@@ -78,8 +78,8 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN the register is listed THEN the municipal spoedbesluit (awaiting ratification, emergency `extraordinary` meeting with recorded deviation, ratification AgendaItem on the `regular` raadsvergadering) and the corporate urgent resolution (expedited 24h written round, ratified by RvC) exist per the design tables
   - GIVEN the seeded process templates WHEN inspected THEN both carry a valid `urgencyPolicy`
-- [ ] Implement
-- [ ] Test
+- [x] Implement (seeds live in `lib/Settings/profiles/` (the example sets), not in the register: municipality gets the spoedbesluit noodopvang (urgent, awaiting ratification), its decisive college stage and pending ratifying raad stage, the extraordinary spoedvergadering with its recorded deviation and the regular raadsvergadering of 18 June with the ratification agenda item; corporate gets the urgent data-breach resolution, its 24-hour written round (3 for, 0 against) and the ratified RvC stage. The seeded templates already carry a valid `urgencyPolicy` (task 2). The emergency meeting records 24 hours of notice, not the 18 of the design table, because 18 is below the municipal template's own 24-hour floor)
+- [x] Test (RegisterJsonTest object counts and references, SeedProfileServiceTest slug lengths)
 
 ## Quality checklist
 

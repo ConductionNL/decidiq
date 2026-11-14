@@ -3367,7 +3367,25 @@
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "An urgent decision takes effect now and is put to the ratifying body afterwards. The reason is stored with the decision and in its audit trail.": "An urgent decision takes effect now and is put to the ratifying body afterwards. The reason is stored with the decision and in its audit trail.",
+        "Between {min} and {max} hours.": "Between {min} and {max} hours.",
+        "Declare urgent": "Declare urgent",
+        "No regular meeting of the ratifying body is scheduled yet. The ratification is put on the agenda as soon as one is created.": "No regular meeting of the ratifying body is scheduled yet. The ratification is put on the agenda as soon as one is created.",
+        "Open expedited written round": "Open expedited written round",
+        "Open round": "Open round",
+        "Ratification is on the agenda of {meeting}.": "Ratification is on the agenda of {meeting}.",
+        "Reason for urgency": "Reason for urgency",
+        "Response deadline (hours)": "Response deadline (hours)",
+        "The decision is urgent. Its ratification has been added to the route.": "The decision is urgent. Its ratification has been added to the route.",
+        "The expedited written round is open.": "The expedited written round is open.",
+        "The request was refused.": "The request was refused.",
+        "Urgent — awaiting ratification": "Urgent — awaiting ratification",
+        "Urgent — awaiting ratification by {body}": "Urgent — awaiting ratification by {body}",
+        "Urgent decision — ratified": "Urgent decision — ratified",
+        "Urgency": "Urgency",
+        "Awaiting ratification": "Awaiting ratification",
+        "To ratify": "To ratify"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
