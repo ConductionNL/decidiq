@@ -3761,7 +3761,8 @@ OC.L10N.register(
         "Onboarding started": "Instroom gestart",
         "Onboarding in progress": "Instroom in uitvoering",
         "Offboarding started": "Uitstroom gestart",
-        "Offboarding in progress": "Uitstroom in uitvoering"
+        "Offboarding in progress": "Uitstroom in uitvoering",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )
