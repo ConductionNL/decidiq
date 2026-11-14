@@ -1,0 +1,214 @@
+{
+	"_note": "document-annotations task 1 (REQ-ANN-001): an annotation on a document is an OpenRegister object bound to the document version it was made on. Visibility (private, faction, body) cannot be expressed as a read rule, because the faction and body groups depend on each object; so the read rule here admits only administrators and the author, and the decidiq annotation endpoints (task 2) serve shared annotations behind their own check. The block declares no writes: a schema block denies what it omits to everyone but the owner and a superuser, so no member can write an annotation, or forge its author, around the endpoints that write it.",
+	"_spec": "openspec/changes/document-annotations/specs/document-annotations/spec.md",
+	"x-openregister": {
+		"_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+	},
+	"components": {
+		"registers": {
+			"decidiq": {
+				"schemas": [
+					"annotation"
+				]
+			}
+		},
+		"schemas": {
+			"Annotation": {
+				"slug": "annotation",
+				"icon": "Marker",
+				"version": "0.2.0",
+				"title": "Annotation",
+				"description": "A highlight, sticky note or drawing on a meeting document, private to its author unless shared.",
+				"type": "object",
+				"x-schema-org": "schema:Comment",
+				"x-openregister": {
+					"schemaType": "schema:Comment",
+					"active": true,
+					"hardDelete": false,
+					"searchable": false,
+					"mailEnabled": false
+				},
+				"required": [
+					"annotationType",
+					"fileId",
+					"fileVersion",
+					"page",
+					"visibility",
+					"author"
+				],
+				"properties": {
+					"annotationType": {
+						"title": "Annotation type",
+						"type": "string",
+						"enum": [
+							"highlight",
+							"sticky-note",
+							"drawing"
+						],
+						"facetable": true,
+						"description": "A highlight, a sticky note or a drawing."
+					},
+					"fileId": {
+						"title": "File",
+						"type": "integer",
+						"minimum": 0,
+						"description": "The Nextcloud file id of the annotated document."
+					},
+					"fileVersion": {
+						"title": "File version",
+						"type": "string",
+						"description": "The document version the annotation was made on, captured by the server."
+					},
+					"versionLabel": {
+						"title": "Version label",
+						"type": "string",
+						"description": "The version as people see it, such as v1."
+					},
+					"documentName": {
+						"title": "Document name",
+						"type": "string",
+						"maxLength": 255,
+						"description": "The file name of the document when the annotation was made, captured by the server."
+					},
+					"page": {
+						"title": "Page",
+						"type": "integer",
+						"minimum": 1,
+						"description": "The page the annotation is on."
+					},
+					"quads": {
+						"title": "Highlighted areas",
+						"type": "array",
+						"maxItems": 200,
+						"items": {
+							"type": "array",
+							"minItems": 8,
+							"maxItems": 8,
+							"items": {
+								"type": "number",
+								"minimum": 0,
+								"maximum": 1
+							}
+						},
+						"description": "The corner points of each highlighted area, relative to the page."
+					},
+					"point": {
+						"title": "Position",
+						"type": "object",
+						"properties": {
+							"x": {
+								"type": "number",
+								"minimum": 0,
+								"maximum": 1
+							},
+							"y": {
+								"type": "number",
+								"minimum": 0,
+								"maximum": 1
+							}
+						},
+						"description": "Where the sticky note sits, relative to the page."
+					},
+					"path": {
+						"title": "Drawing",
+						"type": "array",
+						"maxItems": 5000,
+						"items": {
+							"type": "array",
+							"minItems": 2,
+							"maxItems": 2,
+							"items": {
+								"type": "number",
+								"minimum": 0,
+								"maximum": 1
+							}
+						},
+						"description": "The points of the drawn line, relative to the page."
+					},
+					"quote": {
+						"title": "Quoted text",
+						"type": "string",
+						"maxLength": 2000,
+						"description": "The highlighted text."
+					},
+					"bodyText": {
+						"title": "Note",
+						"type": "string",
+						"maxLength": 4000,
+						"description": "The text of the note."
+					},
+					"color": {
+						"title": "Colour",
+						"type": "string",
+						"enum": [
+							"yellow",
+							"blue",
+							"red",
+							"green"
+						],
+						"default": "yellow",
+						"description": "The colour of the mark."
+					},
+					"visibility": {
+						"title": "Visibility",
+						"type": "string",
+						"enum": [
+							"private",
+							"faction",
+							"body"
+						],
+						"default": "private",
+						"facetable": true,
+						"description": "Who sees the annotation: only the author, the author's faction, or the whole body."
+					},
+					"author": {
+						"title": "Author",
+						"type": "string",
+						"description": "The user who made the annotation."
+					},
+					"createdAt": {
+						"title": "Created",
+						"type": "string",
+						"format": "date-time",
+						"description": "When the annotation was made, set by the server."
+					},
+					"document": {
+						"title": "Document",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "digital-document",
+						"description": "The document the annotation is on."
+					},
+					"agendaItem": {
+						"title": "Agenda item",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "agenda-item",
+						"facetable": true,
+						"description": "The agenda item the document belongs to."
+					},
+					"meeting": {
+						"title": "Meeting",
+						"type": "string",
+						"format": "uuid",
+						"$ref": "meeting",
+						"facetable": true,
+						"description": "The meeting the document belongs to."
+					}
+				},
+				"authorization": {
+					"read": [
+						"decidiq-administrators",
+						"decidesk-administrators",
+						{
+							"group": "decidesk-members",
+							"match": {
+								"author": "$userId"
+							}
+						}
+					]
+				}
+			}
+		}
+	}
+}

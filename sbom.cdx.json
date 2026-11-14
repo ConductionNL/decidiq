@@ -1948,6 +1948,40 @@
     },
     {
       "type": "library",
+      "name": "nonrecursive-glob-match",
+      "group": "@isaacs",
+      "version": "1.1.0",
+      "bom-ref": "decidiq@0.1.0|@isaacs/nonrecursive-glob-match@1.1.0",
+      "licenses": [
+        {
+          "license": {
+            "id": "BlueOak-1.0.0"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40isaacs/nonrecursive-glob-match@1.1.0",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@isaacs/nonrecursive-glob-match/-/nonrecursive-glob-match-1.1.0.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "18f9bf0dbbe4e512e68519f15c86bb9d3a4ad31b65e04d308f432c96cb8d889d45211394fb6fbd960502fdd805ec4cb84025a17c4b20c6294c44c09d1cf7c37f"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@isaacs/nonrecursive-glob-match"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "gen-mapping",
       "group": "@jridgewell",
       "version": "0.3.13",
@@ -2601,6 +2635,426 @@
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/@microsoft/fetch-event-source"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-android-arm64",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-android-arm64@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-android-arm64@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-android-arm64/-/canvas-android-arm64-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "8638422a19ed3eff7eb787241f299dc74a6160d7155be18a411e8bcf0db313ea4e5633a99529adc7d9cd3649d38db1032dcb8b66a035cbcb9f2a0d577e07edcd"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-android-arm64"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-darwin-arm64",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-darwin-arm64@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-darwin-arm64@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-darwin-arm64/-/canvas-darwin-arm64-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "d8f72cc11682ecbcbae390c6b7cf3ffffcee143849c4961d280b35b94de67e4d5ab58917b9f81c80b7c1a64e939b5da709005a36dd70a726ee3d9e2a3a14e8f0"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-darwin-arm64"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-darwin-x64",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-darwin-x64@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-darwin-x64@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-darwin-x64/-/canvas-darwin-x64-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "78f359b63ee9348bdafec899320f8799b7a8ce4223a94218768ca61fc1da037a8aecb7f314de1630133c1ba1d0f590be1f7f839e7e69aad897a602f291a3ce87"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-darwin-x64"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-arm-gnueabihf",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-arm-gnueabihf@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm-gnueabihf@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm-gnueabihf/-/canvas-linux-arm-gnueabihf-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "779703078f28585194f3f5cf854385025c9281bfd502eec3facf1f8b9e4ad4f71f83c68fa651d6a8c8226e154b53c932ecfca0fdfba254bcf835fdc9ad24ee50"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm-gnueabihf"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-arm64-gnu",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-arm64-gnu@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm64-gnu@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-gnu/-/canvas-linux-arm64-gnu-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "ac3c60c51bbaf51bc3957fdb87da36d83c4bb06afc12ab0d828b4bf7e470404d52d1bd1ca9e6adaacc3a696e399ae926d01e360c801a01a70a69843c72a4b59f"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm64-gnu"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-arm64-musl",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-arm64-musl@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-arm64-musl@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-arm64-musl/-/canvas-linux-arm64-musl-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "2b79835bae8dfb14f6fd5e37f6ed5a94500d881523744c7680b88d6270a652cbdae6364cc564e369f058c13cd82be10c14c1eb52869bb94f93d4120fe4281b61"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-arm64-musl"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-riscv64-gnu",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-riscv64-gnu@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-riscv64-gnu@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-riscv64-gnu/-/canvas-linux-riscv64-gnu-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "9a8a2a5014c8b1c719a67a100b8360ac2d6fe82d6fa1fdfd7ad2cd327070098fa9d206a3589bc01cb190ea0fe01b24b962ba435be19e7d2378f82bdcaf4f145b"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-riscv64-gnu"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-x64-gnu",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-x64-gnu@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-x64-gnu@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-gnu/-/canvas-linux-x64-gnu-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "d5e0af90309ace6ec5161b13ec37c639d49a1e06552b76edfdd4819791161ce5a69f3f88ee3f2d3ec789aaa0fcd4d17e307db58ca50ae304120e337499d8674e"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-x64-gnu"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-linux-x64-musl",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-linux-x64-musl@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-linux-x64-musl@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-linux-x64-musl/-/canvas-linux-x64-musl-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "db46ab4fa967235f52ebca8d9628bbdd34840db102360ccccf612995d0b557799916e4647ae8d791c79b464d0b4497bd484500a286222e891f315898f085fbc8"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-linux-x64-musl"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-win32-arm64-msvc",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-win32-arm64-msvc@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-win32-arm64-msvc@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-win32-arm64-msvc/-/canvas-win32-arm64-msvc-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "0d91454f5c08020dfb2c9c37ef284c4457e3013777bd34338d9d58922f2edaf84ee878b9544e8155a190d5a683bbbc5be22304af3fbd10ec23a52ef173115e07"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-win32-arm64-msvc"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas-win32-x64-msvc",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas-win32-x64-msvc@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas-win32-x64-msvc@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas-win32-x64-msvc/-/canvas-win32-x64-msvc-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "3324f58f79870b6f8bbb8a418bd98ac8c261b4fe94ee4ec495d63bb23fee4b980903ae604d7b7c31e7c94172c9a3977fbd96ee5a67f1ce411435cfeead5de91c"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas-win32-x64-msvc"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "name": "canvas",
+      "group": "@napi-rs",
+      "version": "0.1.100",
+      "bom-ref": "decidiq@0.1.0|@napi-rs/canvas@0.1.100",
+      "scope": "optional",
+      "licenses": [
+        {
+          "license": {
+            "id": "MIT"
+          }
+        }
+      ],
+      "purl": "pkg:npm/%40napi-rs/canvas@0.1.100",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/@napi-rs/canvas/-/canvas-0.1.100.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "c6095803aab75cee4fdc1349631559d4857b0cb563a753f2ea7c1a83cf189edad2fb7bca1f261c32a5d54b8673b499b0cf6b86bf3d455a123fe0b81b479b900c"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/@napi-rs/canvas"
         }
       ]
     },
@@ -8542,10 +8996,6 @@
       ],
       "properties": [
         {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
-        {
           "name": "cdx:npm:package:path",
           "value": "node_modules/balanced-match"
         }
@@ -8751,10 +9201,6 @@
         }
       ],
       "properties": [
-        {
-          "name": "cdx:npm:package:development",
-          "value": "true"
-        },
         {
           "name": "cdx:npm:package:path",
           "value": "node_modules/brace-expansion"
@@ -18844,6 +19290,39 @@
     },
     {
       "type": "library",
+      "name": "pdfjs-dist",
+      "version": "4.10.38",
+      "bom-ref": "decidiq@0.1.0|pdfjs-dist@4.10.38",
+      "licenses": [
+        {
+          "license": {
+            "id": "Apache-2.0"
+          }
+        }
+      ],
+      "purl": "pkg:npm/pdfjs-dist@4.10.38",
+      "externalReferences": [
+        {
+          "url": "https://registry.npmjs.org/pdfjs-dist/-/pdfjs-dist-4.10.38.tgz",
+          "type": "distribution",
+          "hashes": [
+            {
+              "alg": "SHA-512",
+              "content": "fd8ddf705ad7100b0c8c95de2fd27cf991bd534d4b6ee59a632a6f0d6db2716d632f6ebd2f78ecdc35418c3274529f4da75baa0d7b03ad18a11c036164e97075"
+            }
+          ],
+          "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
+        }
+      ],
+      "properties": [
+        {
+          "name": "cdx:npm:package:path",
+          "value": "node_modules/pdfjs-dist"
+        }
+      ]
+    },
+    {
+      "type": "library",
       "name": "perfect-debounce",
       "version": "1.0.0",
       "bom-ref": "decidiq@0.1.0|perfect-debounce@1.0.0",
@@ -23928,24 +24407,24 @@
         {
           "type": "library",
           "name": "minimatch",
-          "version": "9.0.9",
-          "bom-ref": "decidiq@0.1.0|webdav@5.10.0|minimatch@9.0.9",
+          "version": "11.0.8",
+          "bom-ref": "decidiq@0.1.0|webdav@5.10.0|minimatch@11.0.8",
           "licenses": [
             {
               "license": {
-                "id": "ISC"
+                "id": "BlueOak-1.0.0"
               }
             }
           ],
-          "purl": "pkg:npm/minimatch@9.0.9",
+          "purl": "pkg:npm/minimatch@11.0.8",
           "externalReferences": [
             {
-              "url": "https://registry.npmjs.org/minimatch/-/minimatch-9.0.9.tgz",
+              "url": "https://registry.npmjs.org/minimatch/-/minimatch-11.0.8.tgz",
               "type": "distribution",
               "hashes": [
                 {
                   "alg": "SHA-512",
-                  "content": "381c0137d00be1daa61139694b6cdab31faf4de59c956ce46e57d993b2930398f78de38e373fed4429d9a26532bcd83cdf02f966ff52b3a1cc2570202fc47662"
+                  "content": "9c542e6124d5ac6bf2b15069b39221fb405d9d814dfc28f70bcd7aafafa9ef22be147ad52c61383b837d005c3292b94d96f3361d8b7e45a775522ae8ea1f3c22"
                 }
               ],
               "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
@@ -23955,72 +24434,6 @@
             {
               "name": "cdx:npm:package:path",
               "value": "node_modules/webdav/node_modules/minimatch"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "brace-expansion",
-          "version": "2.1.8",
-          "bom-ref": "decidiq@0.1.0|webdav@5.10.0|brace-expansion@2.1.8",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/brace-expansion@2.1.8",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/brace-expansion/-/brace-expansion-2.1.8.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "067943cc3610a29953b194af3e2f3a08dce66dc6f4ed7f2e7d1f1f935ce2bda8842655c9922ab5310c830959a559cb166e3e9a597a879ebc307af6eb9bf49a8a"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/webdav/node_modules/brace-expansion"
-            }
-          ]
-        },
-        {
-          "type": "library",
-          "name": "balanced-match",
-          "version": "1.0.2",
-          "bom-ref": "decidiq@0.1.0|webdav@5.10.0|balanced-match@1.0.2",
-          "licenses": [
-            {
-              "license": {
-                "id": "MIT"
-              }
-            }
-          ],
-          "purl": "pkg:npm/balanced-match@1.0.2",
-          "externalReferences": [
-            {
-              "url": "https://registry.npmjs.org/balanced-match/-/balanced-match-1.0.2.tgz",
-              "type": "distribution",
-              "hashes": [
-                {
-                  "alg": "SHA-512",
-                  "content": "de849e50ed13315ebb84dd4099b5ec2b8c9aa94eed8e21e56f144364ea47d0a5bdf82797e1b440697d009f1b74b71d8cae94695b041a3f02252121098585393f"
-                }
-              ],
-              "comment": "as detected from npm-ls property \"resolved\" and property \"integrity\""
-            }
-          ],
-          "properties": [
-            {
-              "name": "cdx:npm:package:path",
-              "value": "node_modules/webdav/node_modules/balanced-match"
             }
           ]
         }

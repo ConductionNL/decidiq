@@ -1827,6 +1827,9 @@
 					"meeting-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
 					},
+					"meeting-annotations": {
+						"type": "DocumentAnnotationsTab"
+					},
 					"meeting-votes": {
 						"type": "MeetingVotesTab"
 					},
@@ -2033,6 +2036,10 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "meeting-paper-renditions"
+								},
+								{
+									"label": "Annotate",
+									"widgetId": "meeting-annotations"
 								}
 							]
 						}
@@ -3176,6 +3183,9 @@
 					"agenda-paper-renditions": {
 						"type": "AgendaPaperRenditionsTab"
 					},
+					"agenda-annotations": {
+						"type": "DocumentAnnotationsTab"
+					},
 					"agenda-type-fields": {
 						"type": "AgendaItemTypeFieldsTab"
 					},
@@ -3228,6 +3238,10 @@
 								{
 									"label": "Papers as PDF",
 									"widgetId": "agenda-paper-renditions"
+								},
+								{
+									"label": "Annotate",
+									"widgetId": "agenda-annotations"
 								}
 							]
 						}

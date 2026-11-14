@@ -48,6 +48,7 @@ import DecisionListSignersTab from './components/tabs/DecisionListSignersTab.vue
 import DecisionPublicationTab from './components/tabs/DecisionPublicationTab.vue'
 import DecisionRouteTab from './components/tabs/DecisionRouteTab.vue'
 import DecisionVotingTab from './components/tabs/DecisionVotingTab.vue'
+import DocumentAnnotationsTab from './components/tabs/DocumentAnnotationsTab.vue'
 import DocumentMetadataTab from './components/tabs/DocumentMetadataTab.vue'
 import DossierDispositionPanel from './components/tabs/DossierDispositionPanel.vue'
 import GovernanceBodyCompositionTab from './components/tabs/GovernanceBodyCompositionTab.vue'
@@ -101,6 +102,7 @@ import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
 import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
+import AnnotationView from './views/AnnotationView.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
@@ -477,6 +479,12 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+
+	// Document annotations (document-annotations): the PDF papers of a meeting
+	// or agenda item with Annotate, and the annotator itself, which loads
+	// pdf.js in a chunk of its own only when it opens.
+	DocumentAnnotationsTab: page(DocumentAnnotationsTab),
+	AnnotationView: page(AnnotationView),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.

@@ -59,6 +59,7 @@
     "dompurify": "^3.4.15",
     "gridstack": "^12.6.0",
     "marked": "^18.0.9",
+    "pdfjs-dist": "4.10.38",
     "pinia": "^3.0.3",
     "sass": "^1.104.0",
     "sass-loader": "^17.0.1",

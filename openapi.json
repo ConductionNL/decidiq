@@ -44,6 +44,10 @@
             "description": "Controller for the personal action-item list endpoint."
         },
         {
+            "name": "annotation",
+            "description": "Annotations on meeting documents, filtered by who may see each one."
+        },
+        {
             "name": "api",
             "description": "Public REST API for Decidiq governance entities."
         },
@@ -1818,6 +1822,97 @@
                 }
             }
         },
+        "/documents/{fileId}/annotations": {
+            "get": {
+                "operationId": "annotation-index",
+                "summary": "List a document's annotations",
+                "description": "The annotations on a document that the caller may see, on every version, by page. Private ones only to their author, faction ones to the author's faction, body ones to the meeting's participants. Needs a signed-in Nextcloud user who can read the file.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Nextcloud file id.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "annotation-create",
+                "summary": "Annotate a document",
+                "description": "Save a highlight, sticky note or drawing on a document. The author and the document version are set by the server; visibility is private unless asked otherwise. Needs a signed-in Nextcloud user who can read the file.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "fileId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The Nextcloud file id.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    }
+                }
+            }
+        },
         "/dossiers/{id}/assemble": {
             "post": {
                 "operationId": "archival-dossier-assemble",
@@ -3036,6 +3131,48 @@
                     },
                     "404": {
                         "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
+        "/meetings/{meetingId}/annotation-counts": {
+            "get": {
+                "operationId": "annotation-counts",
+                "summary": "Count annotations per agenda item",
+                "description": "Per agenda item of a meeting, the number of annotations the caller may see. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "annotation"
+                ],
+                "parameters": [
+                    {
+                        "name": "meetingId",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
                     }
                 }
             }
