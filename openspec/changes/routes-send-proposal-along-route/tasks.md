@@ -17,8 +17,9 @@
 - **open**: an agenda item names no decision today (agenda-item has no decision reference), so there is nothing to clear on placement; the link has to be decided first.
 - **acceptance_criteria**:
   - vitest red first
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement
+- [x] Test (red first)
+- Built: the link is the decision's own `agendaItem` (fragment 67): a decision is on an agenda when it names an agenda item. `lib/Listener/DecisionAgendaClearanceGuard.php` (before-update on `decision`, in SaveGuardSubscriptions) refuses a new `agendaItem` while a required route on the decision has an open step, with a message naming the step, through the same `routesWithStagesFor()` and `SubjectClearanceService` the clearance endpoint uses. Held at the save rather than in `MeetingAgendaTab`, so every surface (agenda page, decision page, API) is refused alike, and the tab shows the save's message. A failed check refuses. Test: `tests/Unit/Listener/DecisionAgendaClearanceGuardTest.php` (PHPUnit, with the real clearance service) instead of vitest, because the rule runs server-side.
 
 ## Verification
 

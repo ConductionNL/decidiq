@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\DecisionAgendaClearanceGuard;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
@@ -88,6 +89,10 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Agenda placement waits for approval (routes-send-proposal-along-route,
+		// REQ-RSPR-001): a decision whose approval route has an open step is
+		// not placed on an agenda item.
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionAgendaClearanceGuard::class, 'schemas' => ['decision']],
 		// Implementation progress (followup-implementation-progress,
 		// REQ-FUP-001): only an adopted decision takes progress updates.
 		[
