@@ -30,8 +30,8 @@
   - GIVEN a non-chair (role not in `allowedTriggerRoles`) or an unresolvable role WHEN triggering THEN 403 and no fields change
   - GIVEN a direct OR object update setting `isUrgent` WHEN processed THEN the urgency-field write is rejected
   - GIVEN an unrelated title edit on an urgent decision WHEN saved THEN urgency fields survive (PUT-semantic carry-forward)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgencyTriggerGuard` (chair or an allowed role on the decision's meeting, fail closed without a policy, meeting or role), `UrgencyDeclarationService`, `POST /api/decisions/{id}/urgency` on `UrgentProcedureController`; `UrgencyFieldGuardListener` refuses urgency writes outside the flow (`UrgencyWriteGrant`) and carries the fields forward on saves that leave them out; the declaration is an ordinary audited OpenRegister save)
+- [x] Test (UrgencyTriggerGuardTest, UrgencyDeclarationServiceTest, UrgencyFieldGuardListenerTest, UrgentProcedureControllerTest)
 
 ### Task 4: Ratification orchestration — stage auto-append + agenda placement + reversal linking
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-004-mandatory-ratification-stage-is-auto-appended`, `…#req-005-ratification-outcome-confirms-or-reverses`
@@ -40,8 +40,8 @@
   - GIVEN a completed urgency declaration WHEN `ratificationRequired=true` THEN a `stageType=ratifying` stage assigned to the configured (or overridden) ratifying body is appended with the next sequence and counted by route progress
   - GIVEN a scheduled `regular` meeting of the ratifying body WHEN the stage is appended THEN a linked AgendaItem is created on it; GIVEN none WHEN appended THEN the placement is recorded pending and retried when a qualifying meeting is created
   - GIVEN a ratifying stage decided `rejected` WHEN the reversal decision with `repeals` is recorded THEN the urgent decision's `effectiveStatus` derives to `repealed` with lifecycle and audit unchanged
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`UrgentRatificationService`: ratifying stage after the last stage, for the policy's or the overridden body, agenda item (`ratifiesDecision`) on the body's next future regular meeting, else `placementPending` on the stage; `RatificationPlacementListener` places pending ratifications when a regular meeting of that body is created. Reversal needs no new code: the ratifying body records a decision with `repeals`/`supersedes` and the existing `effectiveStatus` derivation applies)
+- [x] Test (UrgentRatificationServiceTest, RatificationPlacementListenerTest)
 
 ### Task 5: Expedited written round with bounded hours deadline
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-003-expedited-variant-b--written-round-with-an-hours-based-response-deadline`
@@ -49,8 +49,8 @@
 - **acceptance_criteria**:
   - GIVEN bounds `{min:4,max:72}` WHEN POST `/api/decisions/{id}/expedited-round` with 24 THEN a VotingRound with `votingDeadline` = open+24h is created linked to the decisive stage, outcome derivation unchanged
   - GIVEN a 1-hour deadline WHEN requested THEN 422 naming the bounds and no round is created
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`ExpeditedRoundService`, `POST /api/decisions/{id}/expedited-round`: whole hours within `responseDeadlineHours`, VotingRound on the first open decisive stage with `votingDeadline` = opening + hours, stage set to `method=vote` with the round)
+- [x] Test (ExpeditedRoundServiceTest)
 
 ### Task 6: Emergency convocation — shortened-notice deviation recording + floor enforcement
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations`

@@ -35,6 +35,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
+use OCA\Decidiq\Listener\RatificationPlacementListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
@@ -148,6 +149,16 @@ class ObjectListenerRegistrar {
 			listener: PlanningCycleCreatedListener::class,
 			registers: null,
 			schemas: [PlanningCycleCreatedListener::SCHEMA_PLANNING_CYCLE]
+		);
+
+		// Pending ratifications (urgent-decision-procedure, REQ-004): a new
+		// regular meeting of the ratifying body takes them on its agenda.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: RatificationPlacementListener::class,
+			registers: null,
+			schemas: [RatificationPlacementListener::SCHEMA_MEETING]
 		);
 
 		// Implementation progress (followup-implementation-progress,

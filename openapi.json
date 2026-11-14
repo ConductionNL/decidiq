@@ -1597,6 +1597,152 @@
                 }
             }
         },
+        "/decisions/{decisionId}/urgency": {
+            "post": {
+                "operationId": "urgentProcedure-declareUrgency",
+                "summary": "Declare a decision urgent",
+                "description": "Declare a decision urgent. POST /api/decisions/{decisionId}/urgency with reason and an optional ratifyingBody. Reads the decision with the caller's object rights, then authorises the caller against the body's urgency policy (the resolved meeting chair or an allowed role; fails closed). Stores isUrgent, urgencyReason, urgencyDeclaredBy and urgencyDeclaredAt without changing the lifecycle, and appends the ratifying stage. Returns 200 with the decision and its ratification, 403 for another caller, 404, 409 when already urgent, 422 without a policy or a reason. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "decision"
+                ],
+                "parameters": [
+                    {
+                        "name": "decisionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the Decision object.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "reason": {
+                                        "description": "Why the decision is urgent (required)."
+                                    },
+                                    "ratifyingBody": {
+                                        "description": "A ratifying body other than the policy's (optional)."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
+                    }
+                }
+            }
+        },
+        "/decisions/{decisionId}/expedited-round": {
+            "post": {
+                "operationId": "urgentProcedure-expeditedRound",
+                "summary": "Open the expedited written round of an urgent decision",
+                "description": "Open the expedited written round of an urgent decision. POST /api/decisions/{decisionId}/expedited-round with responseDeadlineHours. Creates a VotingRound on the decision's open decisive stage whose votingDeadline lies that many hours after opening, within the body's urgencyPolicy.responseDeadlineHours bounds. Returns 201 with the round, 403, 404, 422 outside the bounds, for a decision that is not urgent, without a policy or without an open decisive stage. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "decision"
+                ],
+                "parameters": [
+                    {
+                        "name": "decisionId",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the Decision object.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "responseDeadlineHours": {
+                                        "description": "The response deadline in whole hours."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Created.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    },
+                    "500": {
+                        "$ref": "#/components/responses/Problem500"
+                    },
+                    "503": {
+                        "$ref": "#/components/responses/Problem503"
+                    }
+                }
+            }
+        },
         "/decisions/{id}/outcome": {
             "get": {
                 "operationId": "integration-get-outcome",

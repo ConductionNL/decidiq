@@ -162,6 +162,10 @@ $extra = [
         // @spec openspec/specs/decision-management/spec.md
         ['name' => 'decision#transition',  'url' => '/api/decisions/{decisionId}/transition',  'verb' => 'POST'],
         ['name' => 'decision#transitions', 'url' => '/api/decisions/{decisionId}/transitions', 'verb' => 'GET'],
+        // Urgent decision procedure: declare urgency, open the expedited written round.
+        // @spec openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md
+        ['name' => 'urgentProcedure#declareUrgency',       'url' => '/api/decisions/{decisionId}/urgency',          'verb' => 'POST'],
+        ['name' => 'urgentProcedure#expeditedRound', 'url' => '/api/decisions/{decisionId}/expedited-round', 'verb' => 'POST'],
 
         // Whether a decision's drafter may take it (delegatie- en mandaatregister), for the decisions leaf.
         // @spec openspec/specs/decidesk-contract-decision-hub/spec.md
