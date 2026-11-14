@@ -6171,6 +6171,52 @@
       {
         "@self": {
           "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-1"
+        },
+        "motion": "00000000-0000-4000-8000-000000000001",
+        "lineFrom": 4,
+        "lineTo": 5,
+        "targetPassage": "Een krediet van 640.000 euro beschikbaar stellen",
+        "proposedText": "Een krediet van 645.000 euro beschikbaar stellen",
+        "reason": "Bedrag uit de begrotingswijziging",
+        "status": "pending"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-2"
+        },
+        "motion": "00000000-0000-4000-8000-000000000002",
+        "lineFrom": 2,
+        "lineTo": 2,
+        "targetPassage": "artikel 12",
+        "proposedText": "artikel 14",
+        "reason": "Verkeerd artikelnummer",
+        "status": "accepted",
+        "decidedBy": "griffier",
+        "decidedAt": "2026-03-02T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
+          "schema": "ChangeRecommendation",
+          "slug": "change-recommendation-voorbeeld-3"
+        },
+        "motion": "00000000-0000-4000-8000-000000000003",
+        "lineFrom": 9,
+        "lineTo": 9,
+        "targetPassage": "zo spoedig mogelijk",
+        "proposedText": "voor 1 juli",
+        "reason": "Duidelijker formulering",
+        "status": "rejected",
+        "decidedBy": "griffier",
+        "decidedAt": "2026-03-03T09:00:00+00:00"
+      },
+      {
+        "@self": {
+          "register": "decidiq",
           "schema": "CitizenPanel",
           "slug": "citizenpanel-voorbeeld-name-1-1"
         },

@@ -12,7 +12,7 @@
 		"schemas": {
 			"ChangeRecommendation": {
 				"slug": "change-recommendation",
-				"icon": "TextBoxEditOutline",
+				"icon": "TextBoxCheckOutline",
 				"version": "0.1.0",
 				"title": "Change recommendation",
 				"description": "A recommended change to a range of lines of a motion's text, accepted or rejected by the chair or secretary without a vote.",

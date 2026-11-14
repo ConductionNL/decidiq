@@ -1034,7 +1034,7 @@
 					{ "id": "motion-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "motion-text-lines", "type": "custom", "component": "MotionTextLinesTab", "title": "Motion text", "icon": "FormatListNumbered", "_note": "motion-change-recommendations (REQ-MCR-001/002): the motion text with stable line numbers, and Recommend a change for the chair or secretary." },
 					{ "id": "motion-amendments", "type": "custom", "component": "MotionAmendmentsTab", "title": "Amendments", "icon": "FileSign" },
-					{ "id": "motion-change-recommendations", "type": "custom", "component": "MotionChangeRecommendationsTab", "title": "Recommended changes", "icon": "TextBoxEditOutline", "_note": "motion-change-recommendations (mot-19): the chair or secretary accepts or rejects a recommended text change without a vote; directly below Amendments, as board DcVoorstel places it." },
+					{ "id": "motion-change-recommendations", "type": "custom", "component": "MotionChangeRecommendationsTab", "title": "Recommended changes", "icon": "TextBoxCheckOutline", "_note": "motion-change-recommendations (mot-19): the chair or secretary accepts or rejects a recommended text change without a vote; directly below Amendments, as board DcVoorstel places it." },
 					{ "id": "motion-votes", "type": "custom", "component": "MotionVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "motion-amendment-order", "type": "custom", "component": "MotionAmendmentOrderTab", "title": "Voting order", "icon": "TableColumn" },
 					{ "id": "motion-voting-round", "type": "custom", "component": "MotionVotingRoundTab", "title": "Voting round", "icon": "Gavel" },

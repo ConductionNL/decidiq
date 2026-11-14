@@ -111,12 +111,14 @@ export default {
 	},
 
 	watch: {
+		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		from(option) {
 			if (option && (!this.to || this.to.id < option.id)) {
 				this.to = option
 			}
 		},
 
+		/** @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-002-a-recommendation-names-its-lines-its-passage-and-its-new-wording */
 		passage(value) {
 			if (this.proposedText === '') {
 				this.proposedText = value
