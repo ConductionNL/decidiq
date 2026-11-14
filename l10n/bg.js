@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Извънредно заседание",
         "Committee meeting": "Заседание на комисия",
         "Public hearing": "Публично изслушване",
-        "General assembly": "Общо събрание"
+        "General assembly": "Общо събрание",
+        "Members' ancillary positions": "Странични длъжности на членовете"
     },
     "nplurals=2; plural=(n != 1);"
 )
