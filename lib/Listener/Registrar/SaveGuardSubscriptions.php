@@ -83,6 +83,11 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
+		// a decision of a type is recorded only by the body the type names as
+		// competent, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		// Implementation progress (followup-implementation-progress,
 		// REQ-FUP-001): only an adopted decision takes progress updates.
 		[
@@ -90,10 +95,5 @@ final class SaveGuardSubscriptions {
 			'listener' => ImplementationUpdateListener::class,
 			'schemas'  => [ImplementationUpdateListener::SCHEMA_UPDATE],
 		],
-		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
-		// a decision of a type is recorded only by the body the type names as
-		// competent, on create and on update.
-		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
-		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 	];
 }//end class
