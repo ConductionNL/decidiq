@@ -28,6 +28,7 @@ const OVERFLOW = [
 	'Self-evaluation',
 	'Position holders',
 	'Positions',
+	'Step-down schedule',
 	'Other positions',
 	'Gifts',
 	'Composition',
