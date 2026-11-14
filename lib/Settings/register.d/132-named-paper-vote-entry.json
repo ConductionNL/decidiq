@@ -7,7 +7,7 @@
     "schemas": {
       "VotingRound": {
         "slug": "voting-round",
-        "version": "0.5.0",
+        "version": "0.6.0",
         "description": "Patched by voting-named-paper-vote-entry: a roll call round whose votes are recorded by name.",
         "properties": {
           "votingMethod": {

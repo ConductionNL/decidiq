@@ -3783,7 +3783,14 @@ OC.L10N.register(
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
+        "A roll call is in progress. The chair or the secretary records each vote by name.": "Er loopt een hoofdelijke stemming. De voorzitter of de griffier legt elke stem op naam vast.",
+        "Apply to party": "Op fractie toepassen",
+        "Did not vote": "Niet gestemd",
+        "Record votes by name": "Stemmen op naam vastleggen",
+        "Roll call, recorded by name": "Hoofdelijke stemming, op naam vastgelegd",
+        "This meeting has no active participants.": "Deze vergadering heeft geen actieve deelnemers.",
+        "Vote of the party": "Stem van de fractie"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -11,7 +11,7 @@
   - Verification: `RegisterJsonTest` case written red first, then green
 - [x] Implement
 - [x] Test
-  > Fragment `lib/Settings/register.d/132-named-paper-vote-entry.json` (VotingRound 0.5.0, Vote 0.4.0); the municipality set carries the roll call and its three recorded votes (objectCount 232). Test: `tests/Unit/NamedPaperVoteRegisterTest.php`.
+  > Fragment `lib/Settings/register.d/132-named-paper-vote-entry.json` (VotingRound 0.6.0, Vote 0.4.0); the municipality set carries the roll call and its three recorded votes (objectCount 232). Test: `tests/Unit/NamedPaperVoteRegisterTest.php`.
 
 ### Task 2: Record named votes on a roll call round
 
@@ -62,5 +62,6 @@
   - GIVEN a refused list WHEN the server answers 400 or 409 THEN the modal names the members concerned and keeps the entries
   - GIVEN a member WHEN they view the round THEN no vote buttons show
   - Verification: Playwright on a seeded meeting, red first (no roll-call option), then green; every `NcSelect` has an `inputLabel`
-- [ ] Implement
+- [x] Implement
 - [ ] Test
+  > `roll-call` option in the open dialog, cast buttons hidden and a notice shown on a roll call, "Record votes by name" for `canEnterTally`, the sheet in `src/modals/RecordedVotesModal.vue` (party control, refused members named and marked, entries kept) over `src/utils/namedVotes.js`. Unit: `tests/vitest/namedVotes.spec.js` (red on the panel before the change). The Playwright case needs a live instance and is not run in this pass.
