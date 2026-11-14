@@ -3963,6 +3963,135 @@
 				"submitterId": "s.yilmaz",
 				"publicationDate": "{{datetime:-22 19:30}}"
 			}
+		},
+		{
+			"key": "scan-raadsvoorstel-krediet",
+			"register": "decidiq",
+			"schema": "accessibility-scan-report",
+			"data": {
+				"fileId": 1001,
+				"fileName": "raadsvoorstel-krediet-verlichting-lindelaan.pdf",
+				"sourceObject": "{{object:agenda-raad-1-3.id}}",
+				"sourceSchema": "agenda-item",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"status": "pass",
+				"findings": [],
+				"checks": [
+					"tagged",
+					"language",
+					"title",
+					"bookmarks",
+					"text-layer",
+					"alt-text"
+				],
+				"pageCount": 8,
+				"mimeType": "application/pdf",
+				"scannerVersion": "1.0.0",
+				"scannedAt": "{{datetime:-35@thu 09:15}}",
+				"heuristic": true
+			}
+		},
+		{
+			"key": "scan-bijlage-kaart-lindelaan",
+			"register": "decidiq",
+			"schema": "accessibility-scan-report",
+			"data": {
+				"fileId": 1002,
+				"fileName": "bijlage-kaart-lindelaan.pdf",
+				"sourceObject": "{{object:agenda-raad-1-3.id}}",
+				"sourceSchema": "agenda-item",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"status": "fail",
+				"findings": [
+					{
+						"code": "no-text-layer",
+						"severity": "error",
+						"evidence": "0 tekens op 14 pagina's"
+					},
+					{
+						"code": "not-tagged",
+						"severity": "error",
+						"evidence": "Geen StructTreeRoot"
+					}
+				],
+				"checks": [
+					"tagged",
+					"language",
+					"title",
+					"bookmarks",
+					"text-layer",
+					"alt-text"
+				],
+				"pageCount": 14,
+				"mimeType": "application/pdf",
+				"scannerVersion": "1.0.0",
+				"scannedAt": "{{datetime:-35@thu 09:16}}",
+				"heuristic": true
+			}
+		},
+		{
+			"key": "scan-verordening-afvalstoffenheffing",
+			"register": "decidiq",
+			"schema": "accessibility-scan-report",
+			"data": {
+				"fileId": 1003,
+				"fileName": "verordening-afvalstoffenheffing-2027.pdf",
+				"sourceObject": "{{object:agenda-raad-2-2.id}}",
+				"sourceSchema": "agenda-item",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"status": "warnings",
+				"findings": [
+					{
+						"code": "no-bookmarks",
+						"severity": "warning",
+						"evidence": "36 pagina's, geen inhoudsopgave"
+					},
+					{
+						"code": "no-title",
+						"severity": "warning",
+						"evidence": "Geen documenttitel"
+					}
+				],
+				"checks": [
+					"tagged",
+					"language",
+					"title",
+					"bookmarks",
+					"text-layer",
+					"alt-text"
+				],
+				"pageCount": 36,
+				"mimeType": "application/pdf",
+				"scannerVersion": "1.0.0",
+				"scannedAt": "{{datetime:-21@thu 14:30}}",
+				"heuristic": true
+			}
+		},
+		{
+			"key": "scan-inspraaknotitie",
+			"register": "decidiq",
+			"schema": "accessibility-scan-report",
+			"data": {
+				"fileId": 1004,
+				"fileName": "inspraaknotitie.docx",
+				"sourceObject": "{{object:agenda-raad-1-2.id}}",
+				"sourceSchema": "agenda-item",
+				"governanceBody": "{{object:body-gemeenteraad.id}}",
+				"status": "not-scanned",
+				"findings": [
+					{
+						"code": "unsupported-format",
+						"severity": "info",
+						"evidence": "Alleen PDF-documenten worden gecontroleerd"
+					}
+				],
+				"checks": [],
+				"pageCount": null,
+				"mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+				"scannerVersion": "1.0.0",
+				"scannedAt": "{{datetime:-35@thu 09:20}}",
+				"heuristic": true
+			}
 		}
 	],
 	"groups": [
@@ -4034,6 +4163,22 @@
 			"object": "meeting-college-3",
 			"set": {
 				"agendaPublishedAt": "{{datetime:-1@tue 09:00}}"
+			}
+		},
+		{
+			"key": "agenda-override-raad-1",
+			"register": "decidiq",
+			"schema": "meeting",
+			"object": "meeting-raad-1",
+			"set": {
+				"accessibilityOverrides": [
+					{
+						"reason": "Brondocument niet meer beschikbaar; publicatie wettelijk termijngebonden",
+						"actor": "bram",
+						"overriddenAt": "{{datetime:-32@thu 09:00}}",
+						"reports": []
+					}
+				]
 			}
 		}
 	]

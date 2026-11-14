@@ -389,12 +389,14 @@ class RegisterJsonTest extends TestCase {
 			// and left /api/governance-reports/{id}/export unaddressable).
 			'BoardProxy',
 			'GovernanceReport',
+			// Document accessibility scans (document-accessibility-check).
+			'AccessibilityScanReport',
 		];
 
 		self::assertCount(
-			expectedCount: 38,
+			expectedCount: 39,
 			haystack: $this->schemas,
-			message: 'Register must contain exactly 38 schemas (unified Decision supertype model, board portal '
+			message: 'Register must contain exactly 39 schemas (unified Decision supertype model, board portal '
 				. 'retired, board-self-evaluation added, BoardProxy + GovernanceReport declared for the services '
 				. 'that already write them, Product retired to pipelinq)'
 		);

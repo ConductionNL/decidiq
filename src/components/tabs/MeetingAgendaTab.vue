@@ -39,7 +39,7 @@
 					v-if="canManage"
 					data-testid="agenda-publish"
 					:disabled="publishing"
-					@click="publishAgenda">
+					@click="publishAgenda()">
 					{{ t('decidiq', 'Publish agenda') }}
 				</NcButton>
 				<NcButton
@@ -119,6 +119,13 @@
 				})
 			}}
 		</p>
+
+		<AccessibilityGateDialog
+			v-if="accessibilityGate"
+			:mode="accessibilityGate.mode"
+			:documents="accessibilityGate.documents"
+			@close="accessibilityGate = null"
+			@confirm="answerAccessibilityGate" />
 
 		<CnNoteCard
 			v-if="publishError"
@@ -265,6 +272,7 @@ import Pencil from 'vue-material-design-icons/Pencil.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
 import Presentation from 'vue-material-design-icons/Presentation.vue'
 import TrashCanOutline from 'vue-material-design-icons/TrashCanOutline.vue'
+import AccessibilityGateDialog from '../../dialogs/AccessibilityGateDialog.vue'
 import AgendaCopyDialog from '../../dialogs/AgendaCopyDialog.vue'
 import AgendaItemTypeFields from '../AgendaItemTypeFields.vue'
 import {
@@ -288,6 +296,7 @@ import {
 	typeFieldInputs,
 } from '../../utils/agendaItemTypeFields.js'
 import { publishAgendaPath, publishedOn } from '../../utils/agendaPublication.js'
+import { gateRefusal } from '../../utils/documentAccessibility.js'
 import { formalityUrl } from '../../utils/formalities.js'
 import { acceptedOrThrow, postJson, putJson } from './jsonRequests.js'
 import { ensureRelationType } from './useRelationStore.js'
@@ -396,6 +405,7 @@ async function assembledPackage(meetingId) {
 export default {
 	name: 'MeetingAgendaTab',
 	components: {
+		AccessibilityGateDialog,
 		AgendaCopyDialog,
 		AgendaItemTypeFields,
 		ContentCopy,
@@ -444,6 +454,8 @@ export default {
 			reorderError: '',
 			publishing: false,
 			publishError: '',
+			// The accessibility check held the publication back: {mode, documents}.
+			accessibilityGate: null,
 			// Add from template or meeting (agenda-templates-and-copy).
 			copyOpen: false,
 			copying: false,
@@ -928,15 +940,27 @@ export default {
 		/**
 		 * Publish the agenda: the server records the version and the
 		 * convocation and invites every member. Then reload the meeting so
-		 * the published date shows.
+		 * the published date shows. A publication the accessibility check
+		 * holds back opens the gate dialog instead.
 		 *
+		 * @param {object} [answer] The answer to the accessibility check, when publishing again.
 		 * @spec openspec/specs/agenda-publication/spec.md#requirement-req-apim-001-publishing-the-agenda-invites-the-members
 		 */
-		async publishAgenda() {
+		async publishAgenda(answer) {
 			this.publishError = ''
 			this.publishing = true
 			try {
-				await acceptedOrThrow(await postJson(publishAgendaPath(this.objectId)))
+				const response = await postJson(publishAgendaPath(this.objectId), answer)
+				if (response.status === 409) {
+					const data = await response.json().catch(() => ({}))
+					const refusal = gateRefusal(409, data)
+					if (refusal) {
+						this.accessibilityGate = refusal
+						return
+					}
+					throw new Error(data?.message || '')
+				}
+				await acceptedOrThrow(response)
 				await this.loadMeeting()
 			} catch (e) {
 				this.publishError =
@@ -944,6 +968,17 @@ export default {
 			} finally {
 				this.publishing = false
 			}
+		},
+
+		/**
+		 * Publish again with the publisher's answer to the accessibility check.
+		 *
+		 * @param {object} answer `accessibilityAcknowledged` or `accessibilityOverride`.
+		 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+		 */
+		answerAccessibilityGate(answer) {
+			this.accessibilityGate = null
+			this.publishAgenda(answer)
 		},
 
 		/** @spec openspec/specs/agenda-management/spec.md#requirement-req-amp-004-the-meeting-page-links-the-live-meeting-screen */

@@ -21,6 +21,8 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
+            "accessibility_enforcement_mode": "warn",
+            "accessibility_scan_on_upload": "true",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -170,6 +172,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "accessibility_enforcement_mode",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "accessibility_scan_on_upload",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -207,6 +223,8 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "false",
             "motion_forwarding_requires_approval": "false",
+            "accessibility_enforcement_mode": "warn",
+            "accessibility_scan_on_upload": "true",
             "menu_structure": "",
             "openregisters": true,
             "filinq": true,
@@ -356,6 +374,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "accessibility_enforcement_mode",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "accessibility_scan_on_upload",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -393,6 +425,8 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "false",
             "motion_forwarding_requires_approval": "false",
+            "accessibility_enforcement_mode": "warn",
+            "accessibility_scan_on_upload": "true",
             "menu_structure": "",
             "openregisters": false,
             "filinq": true,
@@ -542,6 +576,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "accessibility_enforcement_mode",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "accessibility_scan_on_upload",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -582,6 +630,8 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
+            "accessibility_enforcement_mode": "warn",
+            "accessibility_scan_on_upload": "true",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -766,6 +816,20 @@
             {
                 "getValueString": [
                     "decidiq",
+                    "accessibility_enforcement_mode",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "accessibility_scan_on_upload",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
                     "menu_structure",
                     ""
                 ]
@@ -803,6 +867,8 @@
             "participation_anon_rate_limit": "",
             "convert_office_papers": "true",
             "motion_forwarding_requires_approval": "false",
+            "accessibility_enforcement_mode": "warn",
+            "accessibility_scan_on_upload": "true",
             "menu_structure": "",
             "openregisters": false,
             "filinq": false,
@@ -946,6 +1012,20 @@
                 "getValueString": [
                     "decidiq",
                     "motion_forwarding_requires_approval",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "accessibility_enforcement_mode",
+                    ""
+                ]
+            },
+            {
+                "getValueString": [
+                    "decidiq",
+                    "accessibility_scan_on_upload",
                     ""
                 ]
             },

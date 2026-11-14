@@ -1,0 +1,91 @@
+{
+	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
+	"_note": "Document accessibility check (document-accessibility-check REQ-005): the per-body report as declarative pages over the accessibility-scan-report schema, reached from the Reports page card (ADR-112: no menu entry). Counts come from OpenRegister's aggregation endpoint (scalar equality filters only); the per-body and per-period split is the index page's facets and quick filters, and its mass export is the CSV. Schema ref BY SLUG.",
+	"pages": [
+		{
+			"id": "AccessibilityReport",
+			"route": "/reports/accessibility",
+			"type": "dashboard",
+			"title": "Document accessibility",
+			"_note": "spec: openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period. Every status is a heuristic check result, not a PDF/UA conformance claim; the chart and the table say so in their titles.",
+			"config": {
+				"widgets": [
+					{"id": "a11y-pass", "title": "Passed", "type": "stat", "content": {"label": "Passed", "icon": "CheckCircleOutline", "route": {"name": "AccessibilityScanReports"}, "format": {"style": "decimal", "decimals": 0}, "source": {"register": "decidiq", "schema": "accessibility-scan-report", "metric": "count", "filter": {"status": "pass"}}}},
+					{"id": "a11y-warnings", "title": "With warnings", "type": "stat", "content": {"label": "With warnings", "icon": "AlertOutline", "route": {"name": "AccessibilityScanReports"}, "format": {"style": "decimal", "decimals": 0}, "source": {"register": "decidiq", "schema": "accessibility-scan-report", "metric": "count", "filter": {"status": "warnings"}}}},
+					{"id": "a11y-fail", "title": "Failed", "type": "stat", "content": {"label": "Failed", "icon": "AlertOctagonOutline", "route": {"name": "AccessibilityScanReports"}, "format": {"style": "decimal", "decimals": 0}, "source": {"register": "decidiq", "schema": "accessibility-scan-report", "metric": "count", "filter": {"status": "fail"}}}},
+					{"id": "a11y-not-scanned", "title": "Not checked", "type": "stat", "content": {"label": "Not checked", "icon": "FileDocumentOutline", "route": {"name": "AccessibilityScanReports"}, "format": {"style": "decimal", "decimals": 0}, "source": {"register": "decidiq", "schema": "accessibility-scan-report", "metric": "count", "filter": {"status": "not-scanned"}}}},
+					{"id": "a11y-by-status", "title": "By result of the heuristic check", "type": "chart", "content": {"chartKind": "donut", "legendPosition": "bottom", "emptyLabel": "No documents checked yet", "dataSource": {"register": "decidiq", "schema": "accessibility-scan-report", "aggregate": {"groupBy": "status", "metric": "count"}}}},
+					{"id": "a11y-failing", "title": "Documents that failed the heuristic check", "type": "object-table", "content": {"register": "decidiq", "schema": "accessibility-scan-report", "filter": {"status": "fail"}, "sort": {"field": "scannedAt", "dir": "desc"}, "limit": 8, "emptyText": "No document failed the check", "viewAllRoute": {"name": "AccessibilityScanReports"}, "viewAllLabel": "View all checked documents", "columns": [{"key": "fileName", "label": "File name"}, {"key": "scannedAt", "label": "Scanned at"}]}}
+				],
+				"layout": [
+					{"id": "1", "widgetId": "a11y-pass", "gridX": 0, "gridY": 0, "gridWidth": 3, "gridHeight": 2, "showTitle": false},
+					{"id": "2", "widgetId": "a11y-warnings", "gridX": 3, "gridY": 0, "gridWidth": 3, "gridHeight": 2, "showTitle": false},
+					{"id": "3", "widgetId": "a11y-fail", "gridX": 6, "gridY": 0, "gridWidth": 3, "gridHeight": 2, "showTitle": false},
+					{"id": "4", "widgetId": "a11y-not-scanned", "gridX": 9, "gridY": 0, "gridWidth": 3, "gridHeight": 2, "showTitle": false},
+					{"id": "5", "widgetId": "a11y-by-status", "gridX": 0, "gridY": 2, "gridWidth": 4, "gridHeight": 4, "showTitle": true},
+					{"id": "6", "widgetId": "a11y-failing", "gridX": 4, "gridY": 2, "gridWidth": 8, "gridHeight": 4, "showTitle": true}
+				]
+			}
+		},
+		{
+			"id": "AccessibilityScanReports",
+			"route": "/reports/accessibility/documents",
+			"type": "index",
+			"title": "Checked documents",
+			"_note": "spec: openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-005-aggregate-accessibility-report-per-body-and-period. The body and the period are the sidebar facets (governanceBody, scannedAt); the mass export is the CSV of the same rows. Reports are written by the scan only, so the index is read only.",
+			"config": {
+				"register": "decidiq",
+				"schema": "accessibility-scan-report",
+				"readOnly": true,
+				"sortKey": "scannedAt",
+				"sortOrder": "desc",
+				"quickFilterMode": "dropdown",
+				"quickFilters": [
+					{"label": "All", "filter": {}, "default": true},
+					{"label": "Passed", "filter": {"status": "pass"}},
+					{"label": "With warnings", "filter": {"status": "warnings"}},
+					{"label": "Failed", "filter": {"status": "fail"}},
+					{"label": "Not checked", "filter": {"status": "not-scanned"}}
+				],
+				"columns": [
+					{"key": "fileName", "label": "File name", "widget": "link"},
+					{"key": "governanceBody", "label": "Governance body", "widget": "fkResolve", "widgetProps": {"register": "decidiq", "schema": "governance-body", "labelField": "name"}},
+					{"key": "status", "label": "Status", "widget": "badge"},
+					{"key": "scannedAt", "label": "Scanned at"}
+				],
+				"actions": [
+					{"id": "view", "label": "View", "icon": "EyeOutline", "handler": "navigate", "route": "AccessibilityScanReportDetail", "primary": true}
+				],
+				"showMassExport": true,
+				"sidebar": {"enabled": true, "showMetadata": true},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		},
+		{
+			"id": "AccessibilityScanReportDetail",
+			"route": "/reports/accessibility/documents/:id",
+			"type": "detail",
+			"title": "Checked document",
+			"_note": "spec: openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-004-remediation-guidance-per-finding. One report: the status, the findings with what was seen, and which file and body it is about. A report is a snapshot, so the page is read only.",
+			"config": {
+				"register": "decidiq",
+				"schema": "accessibility-scan-report",
+				"readOnly": true,
+				"widgets": [
+					{"id": "a11y-report-data", "type": "data", "title": "Data", "icon": "FileDocumentCheckOutline", "content": {"columns": 2, "include": ["fileName", "status", "findings", "governanceBody", "sourceObject", "scannedAt", "pageCount", "mimeType", "scannerVersion", "heuristic"]}}
+				],
+				"layout": [
+					{"id": "1", "widgetId": "a11y-report-data", "gridX": 0, "gridY": 0, "gridWidth": 12, "gridHeight": 6}
+				],
+				"sidebar": {
+					"enabled": true,
+					"showMetadata": true,
+					"tabs": [
+						{"id": "audit", "label": "History", "icon": "History", "widgets": [{"type": "audit"}]}
+					]
+				},
+				"documentationUrl": "https://decidiq.conduction.nl"
+			}
+		}
+	]
+}

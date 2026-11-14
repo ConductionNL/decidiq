@@ -67,7 +67,7 @@
 					variant="primary"
 					data-testid="publication-publish"
 					:disabled="working"
-					@click="publish">
+					@click="publish()">
 					{{ publishLabel || t('decidiq', 'Publish') }}
 				</NcButton>
 				<NcButton
@@ -114,6 +114,12 @@
 			</div>
 		</template>
 
+		<AccessibilityGateDialog
+			v-if="accessibilityGate"
+			:mode="accessibilityGate.mode"
+			:documents="accessibilityGate.documents"
+			@close="accessibilityGate = null"
+			@confirm="answerAccessibilityGate" />
 		<PublicationWithdrawModal
 			v-if="withdrawModalOpen"
 			@confirm="confirmWithdraw"
@@ -129,13 +135,16 @@
 import { CnNoteCard } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcLoadingIcon } from '@nextcloud/vue'
+import AccessibilityGateDialog from '../../dialogs/AccessibilityGateDialog.vue'
 import PublicationRectifyModal from '../../modals/PublicationRectifyModal.vue'
 import PublicationWithdrawModal from '../../modals/PublicationWithdrawModal.vue'
+import { gateRefusal } from '../../utils/documentAccessibility.js'
 import { ensureRelationType } from './useRelationStore.js'
 
 export default {
 	name: 'PublicationActionsTab',
 	components: {
+		AccessibilityGateDialog,
 		CnNoteCard,
 		NcButton,
 		NcLoadingIcon,
@@ -179,6 +188,8 @@ export default {
 			source: null,
 			records: [],
 			withdrawModalOpen: false,
+			// The accessibility check held the publication back: {mode, documents}.
+			accessibilityGate: null,
 			rectifyModalOpen: false,
 		}
 	},
@@ -374,15 +385,25 @@ export default {
 			})
 			const data = await response.json().catch(() => ({}))
 			if (!response.ok) {
-				throw new Error(
+				const error = new Error(
 					data.message || this.t('decidiq', 'The action failed.'),
 				)
+				error.status = response.status
+				error.data = data
+				throw error
 			}
 			return data
 		},
 
-		/** @spec openspec/specs/public-publication/spec.md */
-		async publish() {
+		/**
+		 * Publish, with the publisher's answer to the accessibility check when
+		 * it held an earlier attempt back.
+		 *
+		 * @param {object} [answer] `accessibilityAcknowledged` or `accessibilityOverride`.
+		 * @spec openspec/specs/public-publication/spec.md
+		 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+		 */
+		async publish(answer = {}) {
 			this.working = true
 			this.error = ''
 			this.warnings = []
@@ -390,14 +411,31 @@ export default {
 				const result = await this.callApi('/publications', {
 					sourceType: this.sourceType,
 					sourceId: this.sourceObjectId,
+					...answer,
 				})
 				this.warnings = result?.warnings || []
 				await this.refresh()
 			} catch (e) {
-				this.error = e.message
+				const refusal = gateRefusal(e.status, e.data)
+				if (refusal) {
+					this.accessibilityGate = refusal
+				} else {
+					this.error = e.message
+				}
 			} finally {
 				this.working = false
 			}
+		},
+
+		/**
+		 * Publish again with the publisher's answer to the accessibility check.
+		 *
+		 * @param {object} answer `accessibilityAcknowledged` or `accessibilityOverride`.
+		 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+		 */
+		answerAccessibilityGate(answer) {
+			this.accessibilityGate = null
+			this.publish(answer)
 		},
 
 		/**

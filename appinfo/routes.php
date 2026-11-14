@@ -69,6 +69,10 @@ $extra = [
         ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
 
+        // On-demand accessibility scan of one paper (document-accessibility-check REQ-001); reports stay on the OR object API.
+        // @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
+        ['name' => 'accessibility#scan', 'url' => '/api/accessibility/scan', 'verb' => 'POST'],
+
         // Approval routes (approval-routes) — instantiate a sign-off route against
         // a subject, and record an action on it. Two DISTINCT route names: a
         // duplicate name is the route identifier colliding, which throws while

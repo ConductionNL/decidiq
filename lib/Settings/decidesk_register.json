@@ -2,8 +2,8 @@
   "openapi": "3.0.0",
   "info": {
     "title": "Decidiq Register",
-    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.15.2 sends each decision outcome to the subscriber's own `outcomeCallbackUrl` as well, through the webhook channel with `webhook.urlField` (decision-outcome-reaches-the-subscriber); a decision without a callback gets no outbound call. v0.15.1 splits the Decision outcome notification into one rule per terminal lifecycle value (decided, enacted, withdrawn), because OpenRegister does not support `in` on updated triggers and the single rule never fired. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release.",
-    "version": "0.15.2"
+    "description": "Universal decision-making platform for governance bodies, associations, corporate boards, and operational meetings. v0.15.2 sends each decision outcome to the subscriber's own `outcomeCallbackUrl` as well, through the webhook channel with `webhook.urlField` (decision-outcome-reaches-the-subscriber); a decision without a callback gets no outbound call. v0.15.1 splits the Decision outcome notification into one rule per terminal lifecycle value (decided, enacted, withdrawn), because OpenRegister does not support `in` on updated triggers and the single rule never fired. v0.11.0 retires the `product` schema and the `Decision.product` relation that reached it. Pipelinq owns `product` for the fleet; decidiq, filinq and pipelinq all claimed the slug, and slugs are global on a shared OpenRegister. Nothing in decidiq read this copy. v0.12.0 adds `advice` and `bezwaar-decision` to Decision.decisionType. Dossiq delegates advice and objection decisions under those types, and the integration hub refuses any type outside this enum. v0.13.0 removes the Decision.decisionType enum entirely (decision-types-as-configuration): the vocabulary is now the decidiq decision_types app setting, seeded on install and enforced referentially by DecisionTypeRegistry, so adding a type is an admin action rather than a release. v0.16.0 adds the `accessibility-scan-report` schema and PublicationRecord.accessibilityOverride (document-accessibility-check).",
+    "version": "0.16.0"
   },
   "x-openregister": {
     "type": "application",
@@ -81,6 +81,7 @@
           ]
         },
         "schemas": [
+          "accessibility-scan-report",
           "action-item",
           "advice-request",
           "advies",
@@ -775,7 +776,7 @@
         },
         "slug": "meeting",
         "icon": "CalendarAccountOutline",
-        "version": "0.7.0",
+        "version": "0.8.0",
         "title": "Meeting",
         "description": "A scheduled governance meeting with agenda, participants, and lifecycle",
         "type": "object",
@@ -1000,6 +1001,41 @@
             "title": "Meeting cost",
             "type": "number",
             "description": "Total meeting cost in EUR, computed server-side on close from elapsed time x attendee count x the governance body's hourlyRate (meeting-efficiency). Schema.org MonetaryAmount value. NOT readOnly: see openedAt: it is stamped on close, i.e. always after create."
+          },
+          "accessibilityOverrides": {
+            "title": "Accessibility overrides",
+            "type": "array",
+            "default": [],
+            "description": "Each time the agenda was published past the document accessibility gate (document-accessibility-check REQ-003): reason, actor, time and the reports concerned. Written by AgendaService on publication; the agenda path has no PublicationRecord.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "reason": {
+                  "type": "string",
+                  "title": "Reason",
+                  "description": "Why the publication went ahead past the accessibility check."
+                },
+                "actor": {
+                  "type": "string",
+                  "title": "By",
+                  "description": "The user who published past the check."
+                },
+                "overriddenAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "title": "At",
+                  "description": "When the publication went ahead past the check."
+                },
+                "reports": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Reports",
+                  "description": "The scan reports of the documents concerned."
+                }
+              }
+            }
           }
         },
         "x-openregister-aggregations": {
@@ -5197,7 +5233,7 @@
         },
         "slug": "publication-record",
         "icon": "BullhornOutline",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "title": "PublicationRecord",
         "description": "Bookkeeping record for a single public-publication action (publish-decisions-via-opencatalogi). Tracks which source governance object was published, the derived immutable payload object that received publicationDate, the OpenCatalogi catalog publication reference, and the withdraw/rectify lifecycle. Anonymous read of published data happens exclusively through OR's RBAC published-predicate (public-group authorization.read matching publicationDate <= $now) / OpenCatalogi. NOT through any app-local route. Maps schema:PublicationEvent.",
         "type": "object",
@@ -5342,6 +5378,38 @@
             "type": "integer",
             "description": "When this record is a rectification, the payloadVersion of the prior publication it corrects and supersedes.",
             "example": 1
+          },
+          "accessibilityOverride": {
+            "title": "Accessibility override",
+            "type": "object",
+            "nullable": true,
+            "description": "Recorded when a publication went ahead past the document accessibility gate (document-accessibility-check REQ-003): who, why, when, and the reports concerned.",
+            "properties": {
+              "reason": {
+                "type": "string",
+                "title": "Reason",
+                "description": "Why the publication went ahead past the accessibility check."
+              },
+              "actor": {
+                "type": "string",
+                "title": "By",
+                "description": "The user who published past the check."
+              },
+              "overriddenAt": {
+                "type": "string",
+                "format": "date-time",
+                "title": "At",
+                "description": "When the publication went ahead past the check."
+              },
+              "reports": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "title": "Reports",
+                "description": "The scan reports of the documents concerned."
+              }
+            }
           }
         },
         "@self": {
@@ -5925,6 +5993,204 @@
             "format": "uuid",
             "$ref": "board-evaluation",
             "description": "The evaluation cycle this response belongs to (many-to-one). Canonical property-level $ref relation (ADR-062 rule 7). Links the response to the CYCLE only: never to a participant, preserving the secret-ballot guarantee."
+          }
+        }
+      },
+      "AccessibilityScanReport": {
+        "slug": "accessibility-scan-report",
+        "icon": "FileCheckOutline",
+        "version": "0.1.0",
+        "title": "AccessibilityScanReport",
+        "description": "The outcome of a heuristic accessibility scan of one uploaded document (document-accessibility-check). A heuristic scan, not a certified PDF/UA or EN 301 549 audit. One report per file is current: a newer report for the same fileId supersedes the older one as badge source. Reports are immutable snapshots, so the status is a plain enum and not a lifecycle.",
+        "type": "object",
+        "required": [
+          "fileId",
+          "status",
+          "scannedAt"
+        ],
+        "properties": {
+          "fileId": {
+            "title": "File",
+            "type": "integer",
+            "description": "Nextcloud file id of the scanned attachment."
+          },
+          "fileName": {
+            "title": "File name",
+            "type": "string",
+            "description": "The attachment's file name when it was scanned."
+          },
+          "sourceObject": {
+            "title": "Source object",
+            "type": "string",
+            "format": "uuid",
+            "description": "The meeting or agenda item the file is attached to."
+          },
+          "sourceSchema": {
+            "title": "Source schema",
+            "type": "string",
+            "enum": [
+              "meeting",
+              "agenda-item"
+            ],
+            "description": "Whether the source object is a meeting or an agenda item."
+          },
+          "governanceBody": {
+            "title": "Governance body",
+            "type": "string",
+            "format": "uuid",
+            "nullable": true,
+            "description": "The body of the source object's meeting, for the per-body report."
+          },
+          "status": {
+            "title": "Status",
+            "type": "string",
+            "enum": [
+              "pass",
+              "warnings",
+              "fail",
+              "not-scanned"
+            ],
+            "default": "not-scanned",
+            "description": "The scan outcome: pass, warnings, fail, or not-scanned when the file could not be checked."
+          },
+          "findings": {
+            "title": "Findings",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "description": "Stable finding code, e.g. not-tagged, no-language, no-title, no-bookmarks, no-text-layer, missing-alt-text, too-large, parse-failure, unsupported-format.",
+                  "title": "Finding"
+                },
+                "severity": {
+                  "type": "string",
+                  "enum": [
+                    "error",
+                    "warning",
+                    "info"
+                  ],
+                  "title": "Severity",
+                  "description": "How much the finding weighs: error, warning or info."
+                },
+                "evidence": {
+                  "type": "string",
+                  "description": "What the scan observed, e.g. '0 extractable characters across 12 pages'.",
+                  "title": "Evidence"
+                }
+              },
+              "required": [
+                "code",
+                "severity"
+              ]
+            },
+            "default": [],
+            "description": "What the scan found, one entry per check that did not pass."
+          },
+          "checks": {
+            "title": "Checks evaluated",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "default": [],
+            "description": "The checks the scan evaluated."
+          },
+          "pageCount": {
+            "title": "Pages",
+            "type": "integer",
+            "nullable": true,
+            "description": "The number of pages the scan read, when the file is a PDF."
+          },
+          "fileSize": {
+            "title": "Size in bytes",
+            "type": "integer",
+            "nullable": true,
+            "description": "The file's size when it was scanned."
+          },
+          "mimeType": {
+            "title": "Type",
+            "type": "string",
+            "nullable": true,
+            "description": "The file's type when it was scanned."
+          },
+          "scannerVersion": {
+            "title": "Scanner version",
+            "type": "string",
+            "description": "The version of the scan rules that produced this report."
+          },
+          "scannedAt": {
+            "title": "Scanned at",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the scan ran."
+          },
+          "heuristic": {
+            "title": "Heuristic scan",
+            "type": "boolean",
+            "default": true,
+            "description": "Always true: the result is a heuristic scan, not a conformance claim."
+          }
+        },
+        "x-openregister-aggregations": {
+          "passCount": {
+            "metric": "count",
+            "schema": "AccessibilityScanReport",
+            "filter": {
+              "governanceBody": "@self.governanceBody",
+              "status": "pass"
+            }
+          },
+          "warningsCount": {
+            "metric": "count",
+            "schema": "AccessibilityScanReport",
+            "filter": {
+              "governanceBody": "@self.governanceBody",
+              "status": "warnings"
+            }
+          },
+          "failCount": {
+            "metric": "count",
+            "schema": "AccessibilityScanReport",
+            "filter": {
+              "governanceBody": "@self.governanceBody",
+              "status": "fail"
+            }
+          },
+          "notScannedCount": {
+            "metric": "count",
+            "schema": "AccessibilityScanReport",
+            "filter": {
+              "governanceBody": "@self.governanceBody",
+              "status": "not-scanned"
+            }
+          }
+        },
+        "x-openregister-notifications": {
+          "accessibilityScanFailed": {
+            "trigger": {
+              "type": "created",
+              "filter": {
+                "field": "status",
+                "operator": "equals",
+                "value": "fail"
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "object-acl",
+                "permission": "read"
+              }
+            ],
+            "subject": {
+              "nl": "Toegankelijkheidsscan afgekeurd: {{fileName}}",
+              "en": "Accessibility scan failed: {{fileName}}"
+            }
           }
         }
       }

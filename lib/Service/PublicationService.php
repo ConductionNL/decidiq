@@ -70,6 +70,7 @@ class PublicationService implements PublicationServiceInterface {
 	 * @param AuditLogService $auditLogService Immutable audit trail.
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object service, handed to the repository.
 	 * @param PublicationEventRecorder $eventRecorder Records the publication for subscribers
+	 * @param DocumentPublicationGate|null $documentGate The document accessibility gate on publication.
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
@@ -83,6 +84,7 @@ class PublicationService implements PublicationServiceInterface {
 		private readonly AuditLogService $auditLogService,
 		ObjectServiceInterface $objectService,
 		private readonly PublicationEventRecorder $eventRecorder,
+		private readonly ?DocumentPublicationGate $documentGate=null,
 	) {
 		$this->repository = new PublicationRepository(logger: $logger, objectService: $objectService);
 
@@ -100,16 +102,27 @@ class PublicationService implements PublicationServiceInterface {
 	 * @param string $sourceType One of decision|agenda|minutes.
 	 * @param string $sourceId UUID of the source object.
 	 * @param string $actorId Nextcloud UID of the publishing staff member.
+	 * @param array<string, mixed> $accessibility What the publisher told the accessibility gate:
+	 *                                            `acknowledged` (bool) and `overrideReason` (string|null).
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 *
+	 * @throws \OCA\Decidiq\Exception\AccessibilityGateException When the accessibility gate holds the publication back; nothing is written.
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
-	public function publish(string $sourceType, string $sourceId, string $actorId): array {
+	public function publish(string $sourceType, string $sourceId, string $actorId, array $accessibility=[]): array {
 		$run = new PublicationRun(sourceType: $sourceType, sourceId: $sourceId);
 		$run->actorId = $actorId;
 		$this->loadEligibleSource(run: $run);
-		$this->persistPublicPayload(run: $run);
+		$this->buildPublicPayload(run: $run);
+		// The accessibility gate runs on the papers the payload makes public, before anything is written.
+		$run->accessibilityOverride = $this->documentGate?->check(
+			documents: $this->paperDocuments(run: $run),
+			consent: $accessibility
+		);
+		$run->payloadId = $this->repository->persistPayload(payload: $run->payload);
 		$run->targetCatalog = $this->targetCatalogOf(bodyId: $run->bodyId);
 		$this->routeToCatalog(run: $run);
 		$record = $this->persistPublicationRecord(run: $run, prior: []);
@@ -144,7 +157,36 @@ class PublicationService implements PublicationServiceInterface {
 	}//end loadEligibleSource()
 
 	/**
-	 * Build the allow-list payload and persist it as public from now.
+	 * The papers a run makes public, as documents for the accessibility gate.
+	 *
+	 * @param PublicationRun $run The publication, its payload built.
+	 *
+	 * @return list<array{fileId: int, sourceObject: string, sourceSchema: string, governanceBody: string|null}>
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 */
+	private function paperDocuments(PublicationRun $run): array {
+		$documents = [];
+		foreach ($run->papers as $paper) {
+			if (is_array($paper) === false || (int)($paper['file'] ?? 0) <= 0) {
+				continue;
+			}
+
+			$fileId = (int)$paper['file'];
+
+			$documents[] = [
+				'fileId' => $fileId,
+				'sourceObject' => (string)($paper['agendaItem'] ?? $run->sourceId),
+				'sourceSchema' => 'agenda-item',
+				'governanceBody' => $run->bodyId,
+			];
+		}
+
+		return $documents;
+	}//end paperDocuments()
+
+	/**
+	 * Build the allow-list payload, public from now; publish() persists it once the gate let it through.
 	 *
 	 * @param PublicationRun $run The publication.
 	 *
@@ -152,7 +194,7 @@ class PublicationService implements PublicationServiceInterface {
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
-	private function persistPublicPayload(PublicationRun $run): void {
+	private function buildPublicPayload(PublicationRun $run): void {
 		$payload = $this->payloadService->build($run->sourceType, $run->source, $run->bodyId, $run->version);
 		$run->papers = ($payload['_publishedPapers'] ?? []);
 		unset($payload['_publishedPapers']);
@@ -168,8 +210,7 @@ class PublicationService implements PublicationServiceInterface {
 		// Absent means not withdrawn; withdraw() sets it.
 		unset($payload['depublicationDate']);
 		$run->payload = $payload;
-		$run->payloadId = $this->repository->persistPayload(payload: $payload);
-	}//end persistPublicPayload()
+	}//end buildPublicPayload()
 
 	/**
 	 * The OpenCatalogi catalog configured for a body, or '' without a body.
@@ -255,8 +296,25 @@ class PublicationService implements PublicationServiceInterface {
 			'publishedBy' => $run->actorId,
 			'publishedAt' => $run->publishedAt,
 			'publishedPapers' => $run->papers,
-		];
+		] + $this->accessibilityOverrideOf(run: $run);
 	}//end publicationRecord()
+
+	/**
+	 * The `accessibilityOverride` field of a run that went past the gate, none otherwise.
+	 *
+	 * @param PublicationRun $run The publication.
+	 *
+	 * @return array<string, array<string, mixed>> The field, or [].
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 */
+	private function accessibilityOverrideOf(PublicationRun $run): array {
+		if ($run->accessibilityOverride === null) {
+			return [];
+		}
+
+		return ['accessibilityOverride' => $run->accessibilityOverride];
+	}//end accessibilityOverrideOf()
 
 	/**
 	 * The `rectifiesVersion` field of a rectification, none for a first publication.
@@ -460,7 +518,8 @@ class PublicationService implements PublicationServiceInterface {
 
 		// Re-validate eligibility for the corrected source state.
 		$this->loadEligibleSource(run: $run);
-		$this->persistPublicPayload(run: $run);
+		$this->buildPublicPayload(run: $run);
+		$run->payloadId = $this->repository->persistPayload(payload: $run->payload);
 		$run->targetCatalog = (string)($prior['targetCatalog'] ?? '');
 		$this->routeToCatalog(run: $run);
 		$newRecord = $this->persistPublicationRecord(run: $run, prior: $prior);
