@@ -24,6 +24,9 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Service\GovernanceScopeGuard;
+use OCA\Decidiq\Service\NotificationPreferenceService;
+use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Service\VotingOpenedNotifier;
 use OCA\Decidiq\Service\WrittenElectorateResolver;
 use OCA\Decidiq\Service\WrittenRoundOpener;
 use OCA\Decidiq\Service\WrittenRoundStore;
@@ -31,6 +34,7 @@ use OCA\Decidiq\Tests\Unit\Support\WrittenRoundWorld;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IGroupManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Container\ContainerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -40,6 +44,7 @@ use Psr\Log\NullLogger;
  * @uses   \OCA\Decidiq\Service\WrittenRoundStore
  * @uses   \OCA\Decidiq\Service\WrittenElectorateResolver
  * @uses   \OCA\Decidiq\Service\GovernanceScopeGuard
+ * @uses   \OCA\Decidiq\Service\VotingOpenedNotifier
  */
 class WrittenRoundOpenerTest extends TestCase {
 
@@ -56,6 +61,13 @@ class WrittenRoundOpenerTest extends TestCase {
 	 * @var list<array{0: string, 1: string}>
 	 */
 	private array $groupChecks = [];
+
+	/**
+	 * Notifications dispatched: [uid, title, deepLink].
+	 *
+	 * @var list<array{0: string, 1: string, 2: string}>
+	 */
+	private array $notified = [];
 
 	/**
 	 * Set up the board, its members and a proposed decision without a meeting.
@@ -89,12 +101,30 @@ class WrittenRoundOpenerTest extends TestCase {
 		$time = $this->createMock(ITimeFactory::class);
 		$time->method('getTime')->willReturn((new DateTimeImmutable('2026-03-09T09:00:00Z'))->getTimestamp());
 		$store = new WrittenRoundStore(objectService: $objects);
+		$preferences = $this->createMock(NotificationPreferenceService::class);
+		$preferences->method('dispatch')->willReturnCallback(
+			function (string $personId, string $eventType, string $title, string $message, string $deepLink=''): int {
+				$this->notified[] = [$personId, $title, $deepLink];
+				return 1;
+			}
+		);
+		$container = $this->createMock(ContainerInterface::class);
+		$container->method('get')->willReturnCallback(
+			static function (string $id) use ($preferences): object {
+				if ($id === NotificationPreferenceService::class) {
+					return $preferences;
+				}
+
+				throw new \RuntimeException('not in this test: ' . $id);
+			}
+		);
 
 		return new WrittenRoundOpener(
 			store: $store,
 			electorate: new WrittenElectorateResolver(store: $store),
 			scopes: new GovernanceScopeGuard(groupManager: $groups, logger: new NullLogger(), objectService: $objects),
 			time: $time,
+			notifier: new VotingOpenedNotifier(container: $container, logger: new NullLogger(), participantResolver: $this->createMock(ParticipantResolver::class)),
 		);
 	}//end opener()
 
@@ -132,6 +162,11 @@ class WrittenRoundOpenerTest extends TestCase {
 		);
 		$this->assertArrayNotHasKey('decisionStage', $round);
 		$this->assertCount(1, $this->world->savesOf('voting-round'));
+		$title = 'A decision is waiting for your answer: Appoint the external auditor for 2026';
+		$this->assertSame(
+			[['janneke', $title, '/decisions/d-auditor'], ['jan', $title, '/decisions/d-auditor'], ['mark', $title, '/decisions/d-auditor']],
+			$this->notified
+		);
 	}//end testTheSecretaryOpensAWrittenRound()
 
 	/**
@@ -148,6 +183,7 @@ class WrittenRoundOpenerTest extends TestCase {
 		}
 
 		$this->assertSame([], $this->world->saves);
+		$this->assertSame([], $this->notified);
 	}//end testAMemberOutsideTheSignatoryScopeIsRefused()
 
 	/**

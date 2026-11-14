@@ -93,6 +93,7 @@ import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
@@ -448,6 +449,7 @@ export default {
 	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
+	WrittenResolutionTab: page(WrittenResolutionTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
 
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).

@@ -61,12 +61,14 @@ class WrittenRoundOpener {
 	 * @param WrittenElectorateResolver $electorate Takes the electorate snapshot.
 	 * @param GovernanceScopeGuard      $scopes     The body's signatory scope.
 	 * @param ITimeFactory              $time       The clock.
+	 * @param VotingOpenedNotifier      $notifier   Tells the electorate the round opened.
 	 */
 	public function __construct(
 		private readonly WrittenRoundStore $store,
 		private readonly WrittenElectorateResolver $electorate,
 		private readonly GovernanceScopeGuard $scopes,
 		private readonly ITimeFactory $time,
+		private readonly VotingOpenedNotifier $notifier,
 	) {
 	}//end __construct()
 
@@ -121,7 +123,10 @@ class WrittenRoundOpener {
 			$round['decisionStage'] = $stageId;
 		}
 
-		return $this->store->save(schema: 'voting-round', object: $round);
+		$saved = $this->store->save(schema: 'voting-round', object: $round);
+		$this->notifier->announceWritten(round: $saved, decisionId: (string)$decision['id'], decisionTitle: (string)($decision['title'] ?? ''));
+
+		return $saved;
 	}//end open()
 
 	/**

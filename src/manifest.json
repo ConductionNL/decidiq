@@ -1321,6 +1321,7 @@
 				"widget-decision-approval": "DecisionApprovalTab",
 				"widget-decision-route": "DecisionRouteTab",
 				"widget-decision-voting": "DecisionVotingTab",
+				"widget-decision-written-resolution": "WrittenResolutionTab",
 				"widget-decision-publication": "DecisionPublicationTab"
 			},
 			"title": "Decision",
@@ -1338,6 +1339,7 @@
 					{ "id": "decision-approval", "type": "custom", "component": "DecisionApprovalTab", "title": "Approval route", "icon": "AccountCheckOutline" },
 					{ "id": "decision-route", "type": "custom", "component": "DecisionRouteTab", "title": "Route", "icon": "Sitemap" },
 					{ "id": "decision-voting", "type": "custom", "component": "DecisionVotingTab", "title": "Voting results", "icon": "CheckCircleOutline" },
+					{ "id": "decision-written-resolution", "type": "custom", "component": "WrittenResolutionTab", "title": "Written resolution", "icon": "VoteOutline" },
 					{ "id": "decision-publication", "type": "custom", "component": "DecisionPublicationTab", "title": "Publication", "icon": "Web" },
 					{ "id": "decision-public-consultations", "type": "object-list", "title": "Public consultations", "icon": "Earth", "content": { "register": "decidiq", "schema": "public-consultation", "filter": { "decision": "@objectId" }, "sort": { "field": "submissionDeadline", "dir": "desc" }, "columns": [ { "key": "title", "label": "Title", "widget": "link" }, { "key": "consultationType", "label": "Type", "widget": "badge" }, { "key": "status", "label": "Status", "widget": "badge" }, { "key": "submissionDeadline", "label": "Deadline", "widget": "date" } ], "limit": 10, "viewAllRoute": "Consultations", "viewAllQuery": { "decision": "@objectId" }, "emptyText": "No public consultations reference this decision yet.", "rowRoute": "ConsultationDetail" } },
 					{ "id": "decision-consultations", "type": "object-list", "title": "Consultations", "icon": "CommentQuestionOutline", "content": { "register": "decidiq", "schema": "governance-consultation", "filter": { "relatedDecision": "@objectId" }, "sort": { "field": "deadline", "dir": "desc" }, "columns": [ { "key": "subject", "label": "Subject", "widget": "link" }, { "key": "subjectType", "label": "Kind", "widget": "badge" }, { "key": "deadline", "label": "Deadline", "widget": "date" }, { "key": "lifecycle", "label": "Status", "widget": "badge" } ], "limit": 10, "allowCreate": false, "rowRoute": "GovernanceConsultationDetail", "viewAllRoute": "GovernanceConsultations", "viewAllQuery": { "relatedDecision": "@objectId" }, "emptyText": "No consultations were held on this decision." } },
@@ -1362,7 +1364,8 @@
 					{ "id": "12", "widgetId": "decision-wor-consultations", "gridX": 8, "gridY": 35, "gridWidth": 4, "gridHeight": 5 },
 					{ "id": "15", "widgetId": "decision-consultation-responses", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "16", "widgetId": "decision-commitments", "gridX": 0, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
-					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 }
+					{ "id": "17", "widgetId": "decision-confidentiality", "gridX": 6, "gridY": 45, "gridWidth": 6, "gridHeight": 5 },
+					{ "id": "19", "widgetId": "decision-written-resolution", "gridX": 0, "gridY": 50, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,

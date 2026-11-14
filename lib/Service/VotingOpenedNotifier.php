@@ -83,6 +83,64 @@ class VotingOpenedNotifier {
 	}//end announce()
 
 	/**
+	 * Tell every member of a written round's electorate that a decision waits
+	 * for their answer, linking to the decision (REQ-WRS-006). Fail-soft per
+	 * member, through the same preference-aware dispatcher as a meeting round.
+	 *
+	 * OpenRegister's declarative `field` recipient takes one user id, not the
+	 * electorate's list, so this is the imperative fallback of design D6.
+	 *
+	 * @param array<string,mixed> $round         The stored written round.
+	 * @param string              $decisionId    The decision put in writing.
+	 * @param string              $decisionTitle Its title.
+	 *
+	 * @return int How many members were notified.
+	 *
+	 * @spec openspec/changes/voting-written-resolution/specs/written-resolution/spec.md#requirement-req-wrs-006-entitled-members-are-told-when-a-written-round-opens
+	 */
+	public function announceWritten(array $round, string $decisionId, string $decisionTitle): int {
+		$this->publishActivity(round: $round);
+
+		try {
+			$prefService = $this->container->get(NotificationPreferenceService::class);
+		} catch (\Throwable $e) {
+			$this->logger->warning('Decidiq: written round notification dispatch failed', ['error' => $e->getMessage()]);
+			return 0;
+		}
+
+		if ($prefService instanceof NotificationPreferenceService === false) {
+			return 0;
+		}
+
+		$deadline = null;
+		if (is_string($round['votingDeadline'] ?? null) === true) {
+			$deadline = $round['votingDeadline'];
+		}
+
+		$notified = 0;
+		foreach (array_unique((array)($round['electorateUserIds'] ?? [])) as $uid) {
+			if (is_string($uid) === false || $uid === '') {
+				continue;
+			}
+
+			try {
+				$prefService->dispatch(
+					personId: $uid,
+					eventType: 'votingOpened',
+					title: 'A decision is waiting for your answer: ' . $decisionTitle,
+					message: sprintf('Answer before %s. Silence is not consent.', $this->deadlineLabel(closedAt: $deadline)),
+					deepLink: '/decisions/' . $decisionId
+				);
+				$notified++;
+			} catch (\Throwable $e) {
+				$this->logger->warning('Decidiq: written round notification to a member failed', ['uid' => $uid, 'error' => $e->getMessage()]);
+			}
+		}
+
+		return $notified;
+	}//end announceWritten()
+
+	/**
 	 * Activity feed (fail-soft): a voting round opened.
 	 *
 	 * @param array<string,mixed> $round The persisted voting round

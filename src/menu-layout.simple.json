@@ -876,6 +876,9 @@
 					"decision-voting": {
 						"type": "DecisionVotingTab"
 					},
+					"decision-written-resolution": {
+						"type": "WrittenResolutionTab"
+					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
 					}
@@ -1078,6 +1081,10 @@
 								{
 									"label": "Voting results",
 									"widgetId": "decision-voting"
+								},
+								{
+									"label": "Written resolution",
+									"widgetId": "decision-written-resolution"
 								}
 							]
 						}
