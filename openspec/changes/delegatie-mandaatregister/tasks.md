@@ -28,8 +28,8 @@
   - GIVEN a parent with `ondermandaatToegestaan: false` WHEN a child references it THEN the save is rejected naming the prohibition; GIVEN a permitting parent THEN the save succeeds
   - GIVEN a self-parent or a cycle (A→B→A) WHEN saved THEN the guard rejects with a cycle error and stored objects are unchanged
   - GIVEN the parent lookup throws WHEN the guard runs THEN the save is rejected (fail closed, never null-swallow)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 4: Register views — index/detail manifest pages, filters, "geldig op", search, CSV export
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-004-register-views-per-delegans-per-delegataris-in-force-on-date-search-csv-export`

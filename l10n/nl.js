@@ -3757,7 +3757,8 @@ OC.L10N.register(
         "Whether the chair can pick this group when a voting round opens.": "Of de voorzitter deze groep kan kiezen bij het openen van een stemronde.",
         "Your registered other positions": "Uw geregistreerde nevenfuncties",
         "Matches the subject": "Past bij het onderwerp",
-        "Registered other positions": "Geregistreerde nevenfuncties"
+        "Registered other positions": "Geregistreerde nevenfuncties",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -3339,7 +3339,8 @@ OC.L10N.register(
         "Whether the chair can pick this group when a voting round opens.": "Whether the chair can pick this group when a voting round opens.",
         "Your registered other positions": "Your registered other positions",
         "Matches the subject": "Matches the subject",
-        "Registered other positions": "Registered other positions"
+        "Registered other positions": "Registered other positions",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )

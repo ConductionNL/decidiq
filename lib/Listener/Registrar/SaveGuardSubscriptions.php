@@ -28,8 +28,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
+use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
@@ -70,10 +72,20 @@ final class SaveGuardSubscriptions {
 		// defaults, so a type's body is not overwritten by the evening's.
 		['event' => ObjectCreatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => ParallelSessionListener::class, 'schemas' => ['meeting']],
+		// Ondermandaat chains (delegatie-mandaatregister, REQ-DMR-003): a
+		// toedeling's parent must exist and permit ondermandaat, and the
+		// chain may not loop, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => ['bevoegdheidstoedeling']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => OndermandaatGuardListener::class, 'schemas' => ['bevoegdheidstoedeling']],
 		// Document details (platform-document-metadata-fields, REQ-DMF-002
 		// and REQ-DMF-004): a record keeps its type's required fields and
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Decision competence (configurable-types-domain-model, REQ-CTM-004):
+		// a decision of a type is recorded only by the body the type names as
+		// competent, on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 	];
 }//end class
