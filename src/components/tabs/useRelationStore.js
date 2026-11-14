@@ -105,15 +105,35 @@ export function ensureRelationType(type) {
 
 /**
  * A Membership is active when it carries no endDate (Popolo: still
- * current). Mirrors the "Remove from body" semantics (endDate = departure
- * date), matching the existing member-onboarding offboarding pattern.
+ * current) or its endDate has not passed yet: the end of the term the
+ * member was entered for (bodies-term-of-office-and-step-down). Mirrors
+ * the "Remove from body" semantics (endDate = departure date), matching
+ * the existing member-onboarding offboarding pattern. Safe to pass to
+ * Array#filter directly: it reads the clock itself.
  *
  * @param {object} membership A Membership object
- * @return {boolean} True when the membership has no endDate
+ * @return {boolean} True when the membership has no endDate or it lies ahead
  * @spec openspec/specs/admin-settings/spec.md
+ * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-005-ended-memberships-show-as-former-members-without-a-write
  */
 export function isActiveMembership(membership) {
-	return !membership?.endDate
+	return isActiveMembershipAt(membership, new Date())
+}
+
+/**
+ * Whether a Membership is active at a given moment: no endDate, an
+ * unreadable one, or one after that moment.
+ *
+ * @param {object} membership A Membership object
+ * @param {Date|number|string} now The moment to judge at
+ * @return {boolean} True when the membership has not ended at `now`
+ * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-005-ended-memberships-show-as-former-members-without-a-write
+ */
+export function isActiveMembershipAt(membership, now) {
+	if (!membership?.endDate) return true
+	const ends = new Date(membership.endDate).getTime()
+	if (Number.isNaN(ends)) return true
+	return ends > new Date(now).getTime()
 }
 
 /**
@@ -219,7 +239,13 @@ export function buildPersonPayload({ name, email = '', nextcloudUserId = '' }) {
  *
  * @type {string[]}
  */
-const OPTIONAL_MEMBERSHIP_FIELDS = ['party', 'startDate', 'faction', 'onBehalfOf']
+const OPTIONAL_MEMBERSHIP_FIELDS = [
+	'party',
+	'startDate',
+	'endDate',
+	'faction',
+	'onBehalfOf',
+]
 
 /**
  * Copy the optional Membership properties that are set onto a payload, in
@@ -249,6 +275,7 @@ function copySetOptionalFields(payload, fields) {
  * @param {number} [fields.votingWeight] Membership.votingWeight
  * @param {string} [fields.id] Existing Membership id — include to update rather than create
  * @param {string} [fields.startDate] Membership.startDate (ISO)
+ * @param {string} [fields.endDate] Membership.endDate (ISO), the end of the term
  * @param {string} [fields.faction] Membership.faction (faction body UUID)
  * @param {string} [fields.onBehalfOf] Membership.onBehalfOf (participating body UUID, shared bodies only)
  * @return {object} Membership creation/update payload

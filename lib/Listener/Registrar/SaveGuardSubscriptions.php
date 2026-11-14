@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
+use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
@@ -92,5 +93,12 @@ final class SaveGuardSubscriptions {
 		// REQ-LTAT-002): a track sits under a topic, one level deep.
 		['event' => ObjectCreatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => PlannedAgendaTrackGuardListener::class, 'schemas' => ['planned-agenda-item']],
+		// Implementation progress (followup-implementation-progress,
+		// REQ-FUP-001): only an adopted decision takes progress updates.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => ImplementationUpdateListener::class,
+			'schemas'  => [ImplementationUpdateListener::SCHEMA_UPDATE],
+		],
 	];
 }//end class

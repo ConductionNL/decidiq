@@ -177,10 +177,14 @@ jobs:
       # `test:unit` is NOT listed: the shared "Frontend Tests (unit)" job
       # already falls back to it when there is no `test` script, and this repo
       # has none — its 282 vitest tests are already covered there.
-      # `test:l10n:parity` is NOT listed either: measured on this tree it is
-      # short 289+ translations across the required locales. That is a
-      # translation backlog, and a permanently-red leg is one that gets
-      # switched off again.
+      # `test:l10n:parity` (every European locale) is NOT listed either:
+      # measured on this tree it is short 289+ translations across the
+      # required locales. That is a translation backlog, and a permanently-red
+      # leg is one that gets switched off again.
+      # `test:l10n:parity:nl` IS listed — HARD GATE. The same parity checker,
+      # scoped with L10N_REQUIRED_LOCALES=nl to the flagship locale, which is at
+      # full parity: a key missing from, or empty in, nl fails the run.
+      # Widening the required set is separate work (l10n-parity-ci-gate).
       #
       # `format` (prettier --check) is listed because the shared workflow has NO
       # prettier job of its own — `quality.yml` runs eslint and stylelint and
@@ -213,7 +217,7 @@ jobs:
       # renders the English source inside an otherwise translated form, silently.
       # The fleet had 30,459 such strings, so this records the current count and
       # fails only when it GROWS — burning it down stays an ordinary PR.
-      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "format", "check:l10n-js", "check:schema-l10n"]'
+      frontend-checks: '["check:manifest", "check:nav-ceiling", "test:l10n", "test:l10n:parity:nl", "format", "check:l10n-js", "check:schema-l10n"]'
 
       # ── Coverage ratchet ─────────────────────────────────────────────────
       # `enable-coverage-guard` defaults to FALSE, which is why both

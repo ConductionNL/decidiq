@@ -1,0 +1,116 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change ori-adoption task 1.1 (REQ-ORIA-002). The additive schema deltas that let council information (ORI) be stored in decidiq's own Popolo-aligned schemas: new properties only, nothing renamed or removed, so every existing object stays valid. The three new enum values (Meeting.meetingType informational-session, Meeting.lifecycle cancelled, GovernanceBody.bodyType political-group) are in decidesk_register.json itself: the fragment merger appends lists while other readers of the fragments replace them by index, so an enum list in a fragment would mean two different things. Named to sort after every other fragment, so its schema versions are the merged ones; each is one minor above the highest version any file declares for that schema.",
+  "components": {
+    "schemas": {
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "version": "1.4.0",
+        "properties": {
+          "documents": {
+            "title": "Documents",
+            "type": "array",
+            "description": "The documents attached to this agenda item (one-to-many).",
+            "items": {
+              "type": "string",
+              "format": "uuid",
+              "$ref": "digital-document"
+            },
+            "default": []
+          }
+        }
+      },
+      "DigitalDocument": {
+        "slug": "digital-document",
+        "version": "0.3.0",
+        "properties": {
+          "classification": {
+            "title": "Classification",
+            "type": "string",
+            "description": "A free-text category of the document, as the source that published it names it."
+          },
+          "url": {
+            "title": "URL",
+            "type": "string",
+            "format": "uri",
+            "description": "Where the document can be downloaded (schema.org url)."
+          },
+          "fileName": {
+            "title": "File name",
+            "type": "string",
+            "description": "The document's file name."
+          }
+        }
+      },
+      "VotingRound": {
+        "slug": "voting-round",
+        "version": "0.5.0",
+        "properties": {
+          "partyResults": {
+            "title": "Party results",
+            "type": "array",
+            "description": "How each party voted, as a party-level aggregate. Kept as recorded: it is never decomposed into individual votes.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "party": {
+                  "title": "Party",
+                  "type": "string",
+                  "description": "The party: a GovernanceBody reference, or its name when no body is known."
+                },
+                "value": {
+                  "title": "Vote",
+                  "type": "string",
+                  "enum": [
+                    "for",
+                    "against",
+                    "abstain"
+                  ],
+                  "description": "How the party voted."
+                },
+                "seatCount": {
+                  "title": "Seats",
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The seats the party held in this vote."
+                }
+              }
+            },
+            "default": []
+          },
+          "subjectDecision": {
+            "title": "Decision",
+            "type": "string",
+            "format": "uuid",
+            "$ref": "decision",
+            "nullable": true,
+            "description": "The decision this round voted on, for a round recorded without a decision route (for example an imported historical vote)."
+          }
+        }
+      },
+      "GovernanceBody": {
+        "slug": "governance-body",
+        "version": "0.7.0",
+        "properties": {
+          "seatCount": {
+            "title": "Seats",
+            "type": "integer",
+            "minimum": 0,
+            "description": "The seats the body holds, as a stored count for a body whose member list is incomplete."
+          },
+          "coalitionRole": {
+            "title": "Coalition role",
+            "type": "string",
+            "enum": [
+              "coalition",
+              "opposition"
+            ],
+            "description": "Whether a political group is in the coalition or the opposition."
+          }
+        }
+      }
+    }
+  }
+}
