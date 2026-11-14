@@ -29,8 +29,8 @@
   - GIVEN a member who can read the item WHEN he opens a paper that must be stamped THEN the PDF he gets shows his name and the date on every page
   - GIVEN a user who cannot read the item WHEN he asks for the paper THEN 404
   - GIVEN filinq has no stamping method WHEN a stamped paper is asked for THEN 503 with the reason, never the unstamped file
-- [ ] Implement (waits on the filinq stamping method)
-- [ ] Test
+- [x] Implement (filinq `PdfStampService::stamp()`; route `/api/papers/{schema}/{objectId}/{fileId}/view`, next to the existing convert route, so the paper is checked against the page that records it)
+- [x] Test
 
 ### Task 4: Screens link through the stamp and the package is stamped
 - **spec_ref**: `openspec/changes/agenda-paper-watermark/specs/agenda-paper-watermark/spec.md#requirement-req-wmk-003-the-meeting-package-is-stamped-for-the-person-who-takes-it`
@@ -47,8 +47,8 @@
 - **acceptance_criteria**:
   - GIVEN a member opens the same paper twice on one day WHEN the second request arrives THEN it is served from the cache
   - GIVEN cached copies from yesterday WHEN the sweep runs THEN they are removed
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ## Verification
 

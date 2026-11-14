@@ -183,6 +183,8 @@ $extra = [
         ['name' => 'mandateSubstitution#endSubstitution', 'url' => '/api/meetings/{meetingId}/substitutions/{id}/end', 'verb' => 'POST'],
         // agenda-office-files-to-pdf (age-17): queue a new conversion of a paper whose conversion failed.
         ['name' => 'paperConversion#convert', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/convert', 'verb' => 'POST'],
+        // agenda-paper-watermark REQ-WMK-002: open a paper, stamped with the reader's name when the meeting asks for it.
+        ['name' => 'paper#view', 'url' => '/api/papers/{schema}/{objectId}/{fileId}/view', 'verb' => 'GET'],
         // agenda-ai-paper-summaries (REQ-APS-002/003): ask for an AI summary or comparison of a paper; is a provider installed.
         ['name' => 'paperSummary#create',       'url' => '/api/agenda-items/{id}/paper-summaries', 'verb' => 'POST'],
         ['name' => 'paperSummary#availability', 'url' => '/api/paper-summaries/availability',      'verb' => 'GET'],
