@@ -20,8 +20,10 @@
   - GIVEN an action item moved from goal A to goal B WHEN saved THEN both goals are recomputed
   - GIVEN a save that changes nothing calculated WHEN the listener runs THEN the goal is not saved (no loop, no audit noise)
   - Test with the real OpenRegister event classes, not a fake event (accessor names `getNewObject()`/`getOldObject()`)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `GoalProgressRefreshListener` re-saves the goal as stored (`_rbac: false`), so OpenRegister's save path materialises the rates. It acts only when the link or the counted field changed (commitment `lifecycle`, action item `taskStatus`, child goal `status`/`parentGoal`); planned agenda items and decisions feed no materialised rate, so their saves refresh nothing. The goal's own re-save comes back with the same parent and status, so it stops there. `tests/Unit/Listener/GoalProgressRefreshListenerTest.php`.
+
 
 ### Task 3: Decision form and data widget
 - **spec_ref**: `#requirement-req-010-a-decision-can-name-the-goal-it-serves`
@@ -29,8 +31,10 @@
 - **acceptance_criteria**:
   - GIVEN the decision form WHEN the goal picker opens THEN achieved and abandoned goals are not offered and the NcSelect has an `inputLabel`
   - GIVEN a decision with a goal WHEN its page opens THEN the goal shows as a link
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: the picker is scoped declaratively: `Decision.goal` carries `x-relation-filter: {status: [draft, active, at-risk]}`, which the shared form dialog and data widget both apply, and both label the picker. `goal` is in the Governance data widget (editable by name); `DecisionGoalWidget` shows it as a link to `/goals/:id`, in the full and the simple page structure. `tests/vitest/decisionGoal.spec.js`.
+
 
 ### Task 4: Goal detail page per board DcDoel
 - **spec_ref**: `#requirement-req-011-the-goal-page-lists-what-contributes-to-it`, `#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts`, `#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal`
@@ -47,5 +51,7 @@
 - **files**: `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN the municipality example set WHEN loaded THEN the board's goal, its parent, two subgoals, four commitments, five action items, one planned agenda item and one decision exist with the board's values
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: added the board's goal under the new parent "Mobiliteitsvisie 2030", two subgoals (one achieved), four commitments (two disposed), five action items (three completed), one planned agenda item, one decision, and the owner Tarik Ouali (person); `objectCount` 230 to 246. `GoalsLinkedToDecisionsRegisterTest::testTheMunicipalityExampleSetHoldsTheBoardsGoal`.
+

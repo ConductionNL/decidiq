@@ -94,6 +94,7 @@ import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
+import DecisionGoalWidget from './components/widgets/DecisionGoalWidget.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
 import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
@@ -262,6 +263,7 @@ export default {
 	// Step-down schedule of a body (bodies-term-of-office-and-step-down, bod-07).
 	// @custom-widget-ratchet exclude the step-down schedule unions two schemas (memberships and position holds) into one list sorted by end date, which one object-list cannot do
 	StepDownScheduleWidget: page(StepDownScheduleWidget),
+	DecisionGoalWidget: page(DecisionGoalWidget),
 	// Steps of a planning cycle in order (planning-cycle-generate-from-template, pla-12).
 	PlanningCycleStepsTab: page(PlanningCycleStepsTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),

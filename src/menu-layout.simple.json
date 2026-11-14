@@ -861,6 +861,9 @@
 					"decision-lifecycle": {
 						"type": "DecisionLifecycleTab"
 					},
+					"decision-goal": {
+						"type": "DecisionGoalWidget"
+					},
 					"decision-actions": {
 						"type": "ActionItemsSurface"
 					},
@@ -1056,6 +1059,10 @@
 								{
 									"label": "Governance",
 									"widgetId": "decision-governance"
+								},
+								{
+									"label": "Goal",
+									"widgetId": "decision-goal"
 								}
 							]
 						}
