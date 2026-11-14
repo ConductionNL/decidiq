@@ -56,8 +56,9 @@
 ### Task 6: Strings and docs
 - Dutch and English strings for the widget, reasons and the seat field (`test:l10n`, `check:schema-l10n` green).
 - `docs/features/room-system-link.md`: linking the delegate system in integriq, setting seats, reading rejected messages.
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - English and Dutch strings for the widget; the schema strings of the fragment are all in the catalogue (`check:schema-l10n` adds no uncovered string; development already sits above its baseline). `test:l10n` passes. `docs/features/room-system-link.md` covers linking, seats, what the room sends and applying again.
 
 ### Task 7: Send the agenda, speakers and vote results to the room
 - **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results`
