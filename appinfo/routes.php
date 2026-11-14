@@ -68,6 +68,10 @@ $extra = [
         ['name' => 'publication#publish',  'url' => '/api/publications',                     'verb' => 'POST'],
         ['name' => 'publication#withdraw', 'url' => '/api/publications/{recordId}/withdraw', 'verb' => 'POST'],
         ['name' => 'publication#rectify',  'url' => '/api/publications/{recordId}/rectify',  'verb' => 'POST'],
+        // Theme pages (publication-theme-pages, REQ-THP-002): the staff timeline of a theme.
+        // Theme CRUD and its links stay on the OpenRegister object API (ADR-022).
+        // @spec openspec/changes/publication-theme-pages/specs/public-publication/spec.md#requirement-req-thp-002-a-theme-shows-a-timeline-of-what-belongs-to-it
+        ['name' => 'theme#timeline', 'url' => '/api/themes/{id}/timeline', 'verb' => 'GET'],
 
         // Approval routes (approval-routes) — instantiate a sign-off route against
         // a subject, and record an action on it. Two DISTINCT route names: a

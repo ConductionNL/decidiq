@@ -3400,7 +3400,26 @@
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Add to theme": "Add to theme",
+        "Choose a theme…": "Choose a theme…",
+        "Could not add it to the theme": "Could not add it to the theme",
+        "Could not load the themes": "Could not load the themes",
+        "Could not load the timeline": "Could not load the timeline",
+        "Long-term agenda item": "Long-term agenda item",
+        "No date": "No date",
+        "Not part of a theme.": "Not part of a theme.",
+        "Not published": "Not published",
+        "Nothing is linked to this theme yet.": "Nothing is linked to this theme yet.",
+        "The theme was not changed.": "The theme was not changed.",
+        "The themes could not be read.": "The themes could not be read.",
+        "The timeline could not be read.": "The timeline could not be read.",
+        "There is no theme to add this to yet. Create one under Theme pages.": "There is no theme to add this to yet. Create one under Theme pages.",
+        "Theme pages": "Theme pages",
+        "Timeline": "Timeline",
+        "Linked items": "Linked items",
+        "Responsible body": "Responsible body",
+        "Concluded": "Concluded"
     },
     "pluralForm": "nplurals=2; plural=(n != 1);"
 }
