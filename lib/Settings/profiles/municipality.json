@@ -13,7 +13,7 @@
 			"label": "Municipality",
 			"description": "A council with committees and factions. Motions, commitments, information letters and a regulations register.",
 			"order": 1,
-			"objectCount": 230,
+			"objectCount": 246,
 			"icon": "Domain"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -111,6 +111,74 @@
 						"assignee": "Wethouder Wonen",
 						"dueDate": "2025-07-01T00:00:00Z",
 						"taskStatus": "in-progress"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "action-item"
+						},
+						"slug": "actie-fietsroutes-inventarisatie",
+						"title": "Donkere plekken op de hoofdfietsroutes inventariseren",
+						"assignee": "Afdeling Verkeer",
+						"dueDate": "2026-02-15T00:00:00Z",
+						"taskStatus": "completed",
+						"goal": "goal-verlichte-fietsroutes-2027",
+						"completedAt": "2026-02-15T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "action-item"
+						},
+						"slug": "actie-fietsroutes-aanbesteding",
+						"title": "Aanbesteding verlichting fietsroutes uitzetten",
+						"assignee": "Afdeling Verkeer",
+						"dueDate": "2026-04-30T00:00:00Z",
+						"taskStatus": "completed",
+						"goal": "goal-verlichte-fietsroutes-2027",
+						"completedAt": "2026-04-30T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "action-item"
+						},
+						"slug": "actie-fietsroutes-route-1-4",
+						"title": "Verlichting routes 1 tot en met 4 plaatsen",
+						"assignee": "Afdeling Verkeer",
+						"dueDate": "2026-07-01T00:00:00Z",
+						"taskStatus": "completed",
+						"goal": "goal-verlichte-fietsroutes-2027",
+						"completedAt": "2026-07-01T00:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "action-item"
+						},
+						"slug": "actie-fietsroutes-route-5-8",
+						"title": "Verlichting routes 5 tot en met 8 plaatsen",
+						"assignee": "Afdeling Verkeer",
+						"dueDate": "2026-12-15T00:00:00Z",
+						"taskStatus": "in-progress",
+						"goal": "goal-verlichte-fietsroutes-2027"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "action-item"
+						},
+						"slug": "actie-fietsroutes-evaluatie",
+						"title": "Evaluatie verkeersveiligheid fietsroutes opstellen",
+						"assignee": "Afdeling Verkeer",
+						"dueDate": "2027-10-01T00:00:00Z",
+						"taskStatus": "open",
+						"goal": "goal-verlichte-fietsroutes-2027"
 					}
 				],
 				"agenda-item": [
@@ -1789,6 +1857,23 @@
 						"citizenAdviceFor": 3,
 						"citizenAdviceAgainst": 1,
 						"citizenAdviceAbstain": 1
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "raadsvoorstel-verlichting-fietspaden-2027",
+						"decisionType": "council-proposal",
+						"title": "Raadsvoorstel verlichting fietspaden 2027",
+						"text": "De raad stelt een krediet beschikbaar voor verlichting en een veilige inrichting van twaalf hoofdfietsroutes.",
+						"proposer": "Tarik Ouali",
+						"lifecycle": "decided",
+						"outcome": "adopted",
+						"decisionDate": "2026-01-22T21:00:00Z",
+						"isPublished": "public",
+						"goal": "goal-verlichte-fietsroutes-2027"
 					}
 				],
 				"decision-stage": [
@@ -2247,6 +2332,76 @@
 						"deadline": "2026-09-30",
 						"status": "at-risk",
 						"parentGoal": "goal-amsterdam-klimaatneutraal-2050"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "goal"
+						},
+						"slug": "goal-mobiliteitsvisie-2030",
+						"title": "Mobiliteitsvisie 2030",
+						"description": "Een bereikbare stad waarin lopen, fietsen en openbaar vervoer voorop staan.",
+						"horizon": "multi-year",
+						"body": "college-van-b-en-w-amsterdam",
+						"owner": "tarik-ouali",
+						"startDate": "2025-01-01",
+						"deadline": "2030-12-31",
+						"status": "active"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "goal"
+						},
+						"slug": "goal-verlichte-fietsroutes-2027",
+						"title": "Verlichte en veilige fietsroutes in 2027",
+						"description": "Twaalf hoofdfietsroutes krijgen verlichting en een veilige inrichting, zodat fietsen ook in het donker veilig is.",
+						"horizon": "multi-year",
+						"body": "college-van-b-en-w-amsterdam",
+						"owner": "tarik-ouali",
+						"startDate": "2026-01-01",
+						"deadline": "2027-12-31",
+						"status": "active",
+						"targetValue": 12,
+						"currentValue": 7,
+						"unit": "fietsroutes met verlichting",
+						"parentGoal": "goal-mobiliteitsvisie-2030"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "goal"
+						},
+						"slug": "goal-schoolroutes-veilig",
+						"title": "Schoolroutes veilig ingericht",
+						"description": "De fietsroutes naar de basisscholen zijn heringericht met vrijliggende fietspaden.",
+						"horizon": "annual",
+						"body": "college-van-b-en-w-amsterdam",
+						"owner": "tarik-ouali",
+						"startDate": "2026-01-01",
+						"deadline": "2026-09-01",
+						"status": "achieved",
+						"parentGoal": "goal-verlichte-fietsroutes-2027"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "goal"
+						},
+						"slug": "goal-led-verlichting-buitengebied",
+						"title": "LED-verlichting langs routes in het buitengebied",
+						"description": "Bewegingsgestuurde LED-verlichting langs de fietsroutes buiten de bebouwde kom.",
+						"horizon": "annual",
+						"body": "college-van-b-en-w-amsterdam",
+						"owner": "tarik-ouali",
+						"startDate": "2026-06-01",
+						"deadline": "2027-06-30",
+						"status": "active",
+						"parentGoal": "goal-verlichte-fietsroutes-2027"
 					}
 				],
 				"governance-body": [
@@ -2484,6 +2639,68 @@
 						"lifecycle": "in-execution",
 						"goal": "goal-amsterdam-klimaatneutraal-2050",
 						"publicationDate": "2026-02-10T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-fietsroutes-planning",
+						"text": "Wethouder Ouali zegt toe de raad de planning per fietsroute te sturen.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-03-01",
+						"lifecycle": "disposed",
+						"goal": "goal-verlichte-fietsroutes-2027",
+						"settlementNotes": "Afgedaan met een raadsbrief."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-fietsroutes-schouw",
+						"text": "Wethouder Ouali zegt toe met de Fietsersbond een avondschouw te houden.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-04-15",
+						"lifecycle": "disposed",
+						"goal": "goal-verlichte-fietsroutes-2027",
+						"settlementNotes": "Afgedaan met een raadsbrief."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-fietsroutes-voortgang",
+						"text": "Wethouder Ouali zegt toe de raad elk half jaar over de voortgang te informeren.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2026-12-31",
+						"lifecycle": "open",
+						"goal": "goal-verlichte-fietsroutes-2027"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "governance-commitment"
+						},
+						"slug": "toezegging-fietsroutes-ongevallen",
+						"text": "Wethouder Ouali zegt toe de ongevalscijfers per route in de evaluatie op te nemen.",
+						"madeBy": "00000000-0000-0000-0000-000000000000",
+						"meeting": "raadsvergadering-2025-01-15",
+						"directedTo": "gemeenteraad-amsterdam",
+						"deadline": "2027-06-30",
+						"lifecycle": "open",
+						"goal": "goal-verlichte-fietsroutes-2027"
 					}
 				],
 				"governance-consultation": [
@@ -3654,6 +3871,19 @@
 						"name": "W. van Dam",
 						"familyName": "van Dam",
 						"givenName": "W."
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "person"
+						},
+						"slug": "tarik-ouali",
+						"name": "Tarik Ouali",
+						"givenName": "Tarik",
+						"familyName": "Ouali",
+						"email": "t.ouali@gemeente.example",
+						"biography": "Wethouder mobiliteit en verkeersveiligheid."
 					}
 				],
 				"planned-agenda-item": [
@@ -3754,6 +3984,22 @@
 						"shiftHistory": [],
 						"reasonExpired": "Opgegaan in de bredere herziening van de legesverordening",
 						"publicationDate": "2026-06-20T09:00:00Z"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "planned-agenda-item"
+						},
+						"slug": "lta-krediet-fietsroutes-fase-2",
+						"subject": "Krediet verlichting fietsroutes, fase 2",
+						"governanceBody": "gemeenteraad-amsterdam",
+						"plannedPeriod": "2027-Q1",
+						"expectedType": "council-proposal",
+						"ownerType": "executive-board",
+						"notes": "Het college vraagt krediet voor de routes 9 tot en met 12.",
+						"lifecycle": "planned",
+						"goal": "goal-verlichte-fietsroutes-2027"
 					}
 				],
 				"planning-cycle": [

@@ -51,5 +51,7 @@
 - **files**: `lib/Settings/profiles/municipality.json`
 - **acceptance_criteria**:
   - GIVEN the municipality example set WHEN loaded THEN the board's goal, its parent, two subgoals, four commitments, five action items, one planned agenda item and one decision exist with the board's values
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: added the board's goal under the new parent "Mobiliteitsvisie 2030", two subgoals (one achieved), four commitments (two disposed), five action items (three completed), one planned agenda item, one decision, and the owner Tarik Ouali (person); `objectCount` 230 to 246. `GoalsLinkedToDecisionsRegisterTest::testTheMunicipalityExampleSetHoldsTheBoardsGoal`.
+
