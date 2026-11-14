@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Ylimääräinen kokous",
         "Committee meeting": "Valiokunnan kokous",
         "Public hearing": "Julkinen kuulemistilaisuus",
-        "General assembly": "Yleiskokous"
+        "General assembly": "Yleiskokous",
+        "Members' ancillary positions": "Jäsenten sivutoimet"
     },
     "nplurals=2; plural=(n != 1);"
 )
