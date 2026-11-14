@@ -3761,7 +3761,8 @@
         "Could not load the phase": "De fase kon niet worden geladen",
         "Phase of this agenda item": "Fase van dit agendapunt",
         "Phase": "Fase",
-        "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.": "Waar een bespreek- of besluitpunt staat: voorstel, beeldvorming, oordeelsvorming, besluitvorming of afgerond. Leeg betekent beeldvorming. Een informerend agendapunt heeft geen fase. De voorzitter zet het door op het scherm van de live vergadering."
+        "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.": "Waar een bespreek- of besluitpunt staat: voorstel, beeldvorming, oordeelsvorming, besluitvorming of afgerond. Leeg betekent beeldvorming. Een informerend agendapunt heeft geen fase. De voorzitter zet het door op het scherm van de live vergadering.",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "plurals": null,
     "pluralForm": "nplurals=2; plural=(n != 1);"

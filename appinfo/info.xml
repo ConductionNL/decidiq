@@ -586,6 +586,10 @@ Vrij en open source onder de EUPL-1.2-licentie.
         </install>
     </repair-steps>
 
+    <commands>
+        <command>OCA\Decidiq\Command\MigrateActionItems</command>
+    </commands>
+
     <settings>
         <admin>OCA\Decidiq\Settings\AdminSettings</admin>
         <admin-section>OCA\Decidiq\Sections\SettingsSection</admin-section>

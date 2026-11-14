@@ -3341,7 +3341,8 @@ OC.L10N.register(
         "Could not load the phase": "Could not load the phase",
         "Phase of this agenda item": "Phase of this agenda item",
         "Phase": "Phase",
-        "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.": "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen."
+        "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.": "Where a discussion or decision item stands: proposal, forming a picture (beeldvorming), forming an opinion (oordeelsvorming), deciding (besluitvorming) or completed. Empty reads as beeldvorming. An informational item has no phase. The chair moves it on the live meeting screen.",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )

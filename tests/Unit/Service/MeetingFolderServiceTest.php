@@ -218,6 +218,27 @@ class MeetingFolderServiceTest extends TestCase {
 	}//end testDegradesWithoutBodyOrDate()
 
 	/**
+	 * Two sessions of one evening with the same title get a folder each.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
+	 *
+	 * @return void
+	 */
+	public function testSessionsOfOneEveningGetAFolderEach(): void {
+		$service = $this->makeService(body: ['name' => 'Gemeenteraad']);
+		$session = ['title' => 'Commissie', 'scheduledDate' => '2026-11-03T19:30:00Z', 'governanceBody' => 'body-1', 'parentMeeting' => 'evening-1'];
+
+		$first  = $service->ensureMeetingFolders(meeting: ['id' => 'aaaaaaaa-1111-4000-8000-000000000001'] + $session);
+		$second = $service->ensureMeetingFolders(meeting: ['id' => 'bbbbbbbb-2222-4000-8000-000000000002'] + $session);
+		$evening = $service->ensureMeetingFolders(meeting: ['id' => 'evening-1', 'title' => 'Raadsavond', 'scheduledDate' => '2026-11-03T19:30:00Z', 'governanceBody' => 'body-1']);
+
+		self::assertSame(expected: 'Decidesk/Gemeenteraad/2026-11-03 Commissie (aaaaaaaa-1111-4000-8000-000000000001)', actual: $first);
+		self::assertSame(expected: 'Decidesk/Gemeenteraad/2026-11-03 Commissie (bbbbbbbb-2222-4000-8000-000000000002)', actual: $second);
+		self::assertSame(expected: 'Decidesk/Gemeenteraad/2026-11-03 Raadsavond', actual: $evening, message: 'a meeting that is no session keeps its name');
+
+	}//end testSessionsOfOneEveningGetAFolderEach()
+
+	/**
 	 * A meeting without title and id is skipped entirely.
 	 *
 	 * @spec openspec/specs/nextcloud-integration/spec.md
