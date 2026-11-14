@@ -37,8 +37,8 @@
 - **acceptance_criteria**:
   - GIVEN an active public theme and a newly published linked decision WHEN the nightly job runs THEN a new payload version includes it
   - GIVEN a concluded theme WHEN the job runs THEN nothing is republished
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ## Verification
 
