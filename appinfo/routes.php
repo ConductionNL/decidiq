@@ -156,6 +156,7 @@ $extra = [
         // Decision endpoints — server-side publish enforces governance access control.
         // @spec openspec/changes/p2-minutes-and-decisions/tasks.md#task-6.2
         ['name' => 'decision#publish', 'url' => '/api/decisions/{decisionId}/publish', 'verb' => 'POST'],
+        ['name' => 'decision#withdraw', 'url' => '/api/decisions/{decisionId}/withdraw', 'verb' => 'POST'],
 
         // Decision lifecycle state machine (guarded transition map).
         // @spec openspec/specs/decision-management/spec.md

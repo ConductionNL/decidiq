@@ -38,6 +38,7 @@ import {
 	fetchOfferedSteps,
 	MEETING_BREAKS,
 	MEETING_NEXT_ACTION,
+	MEETING_OFF_BAR,
 	MEETING_STATE_LABELS,
 	MEETING_STEPS,
 	nextStepIsOffered,
@@ -229,6 +230,7 @@ describe('the meeting page in the simple structure', () => {
 			'paused',
 			'adjourned',
 			'closed',
+			'cancelled',
 		])
 	})
 
@@ -524,7 +526,7 @@ describe('the meeting page in the simple structure', () => {
 
 	it('draws four steps and keeps a meeting on a break on the third', () => {
 		expect(MEETING_STEPS).toEqual(['draft', 'scheduled', 'opened', 'closed'])
-		expect([...MEETING_STEPS, ...MEETING_BREAKS].sort()).toEqual(
+		expect([...MEETING_STEPS, ...MEETING_BREAKS, ...MEETING_OFF_BAR].sort()).toEqual(
 			[...lifecycleStates].sort(),
 		)
 		expect(buildMeetingSteps('scheduled')).toEqual([
