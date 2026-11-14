@@ -28,6 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
+use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DecisionRemedyStampListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
@@ -36,7 +38,6 @@ use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
-use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 
@@ -85,6 +86,11 @@ final class SaveGuardSubscriptions {
 		// one record describes one file, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DocumentTypeFieldsGuardListener::class, 'schemas' => ['digital-document']],
+		// Confidentiality term (confidentiality-term-and-lapse, REQ-EMB-020):
+		// a restriction's lift-by date is not before the day it was imposed,
+		// on create and on update.
+		['event' => ObjectCreatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
+		['event' => ObjectUpdatingEvent::class, 'listener' => ConfidentialityTermGuardListener::class, 'schemas' => ['confidentiality-restriction']],
 		// Confidential agenda items (agenda-item-confidential-papers,
 		// REQ-ACP-003): a paper saved onto a non-public item is not public.
 		['event' => ObjectCreatingEvent::class, 'listener' => AgendaItemConfidentialityListener::class, 'schemas' => ['digital-document']],
