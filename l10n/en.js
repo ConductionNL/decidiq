@@ -1675,6 +1675,8 @@ OC.L10N.register(
         "Previous month": "Previous month",
         "Private": "Private",
         "Process template": "Process template",
+        "Deciding body": "Deciding body",
+        "The governance body that took the decision.": "The governance body that took the decision.",
         "Process templates": "Process templates",
         "Processed": "Processed",
         "Processing": "Processing",
@@ -3365,7 +3367,12 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Show these decisions": "Show these decisions",
+        "This year": "This year",
+        "This quarter": "This quarter",
+        "Custom range": "Custom range",
+        "By body, all periods": "By body, all periods"
     },
     "nplurals=2; plural=(n != 1);"
 )
