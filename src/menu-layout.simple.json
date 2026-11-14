@@ -2967,6 +2967,11 @@
 									"widgetId": "body-remuneration-total",
 									"label": "Remuneration total",
 									"overflow": true
+								},
+								{
+									"widgetId": "body-contacts",
+									"label": "Contacts",
+									"overflow": true
 								}
 							]
 						}
@@ -3859,6 +3864,14 @@
 								{
 									"label": "Reactions",
 									"widgetId": "consult-reactions"
+								},
+								{
+									"label": "Straw poll",
+									"widgetId": "consult-polls"
+								},
+								{
+									"label": "Intake form",
+									"widgetId": "consult-forms"
 								}
 							]
 						}

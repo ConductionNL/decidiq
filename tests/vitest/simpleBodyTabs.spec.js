@@ -37,6 +37,7 @@ const OVERFLOW = [
 	'Consultations',
 	'Remuneration this year',
 	'Remuneration total',
+	'Contacts',
 ]
 const SIDE = ['body-side-facts', 'body-workspace']
 const FACTS_LEAD = 'bodyType'
