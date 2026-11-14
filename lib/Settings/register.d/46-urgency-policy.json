@@ -35,6 +35,13 @@
             "format": "date-time",
             "description": "Timestamp at which the urgency was declared (set by the trigger flow). Additive optional field.",
             "example": "2026-06-02T09:15:00+02:00"
+          },
+          "awaitingRatification": {
+            "title": "Awaiting ratification",
+            "type": "boolean",
+            "facetable": true,
+            "readOnly": true,
+            "description": "Whether this urgent decision still waits on a ratifying stage that is neither decided nor skipped. Materialised by OpenRegister on save from x-openregister-calculations (isUrgent and an open ratifying stage); declared so the value is stored. Read by the urgent-decisions list, the detail banner and the dashboard KPI. Never written by decidiq and never edited by hand."
           }
         },
         "x-openregister-notifications": {
@@ -98,6 +105,70 @@
               "en": "Ratification due: {{title}}"
             },
             "_note": "decidesk-notifications delta (urgent-decision-procedure). Verified scheduled dialect (mirrors Meeting.meetingReminder): trigger.type 'scheduled', intervalSec 86400 (daily; >= 60), filter on the materialised awaitingRatification field equals true so reminders fire only while ratification is outstanding and stop once the ratifying stage is decided (awaitingRatification derives false). Recipients via kind:object-acl (read) + kind:groups (decidesk-members); no kind:field on any non-uid property."
+          }
+        },
+        "x-openregister-aggregate-refs": {
+          "ratifyingStageCount": {
+            "metric": "count",
+            "schema": "decision-stage",
+            "filters": {
+              "decision": "@self.id",
+              "stageType": "ratifying"
+            }
+          },
+          "decidedRatifyingStageCount": {
+            "metric": "count",
+            "schema": "decision-stage",
+            "filters": {
+              "decision": "@self.id",
+              "stageType": "ratifying",
+              "status": "decided"
+            }
+          },
+          "skippedRatifyingStageCount": {
+            "metric": "count",
+            "schema": "decision-stage",
+            "filters": {
+              "decision": "@self.id",
+              "stageType": "ratifying",
+              "status": "skipped"
+            }
+          }
+        },
+        "x-openregister-calculations": {
+          "awaitingRatification": {
+            "type": "boolean",
+            "materialise": true,
+            "description": "True when the decision is urgent and at least one ratifying stage is neither decided nor skipped (urgent-decision-procedure REQ-006). Declarative per ADR-031, the same pattern as routeComplete.",
+            "expression": {
+              "and": [
+                {
+                  "eq": [
+                    {
+                      "prop": "isUrgent"
+                    },
+                    true
+                  ]
+                },
+                {
+                  "gt": [
+                    {
+                      "prop": "@aggregate.ratifyingStageCount"
+                    },
+                    {
+                      "+": [
+                        {
+                          "prop": "@aggregate.decidedRatifyingStageCount"
+                        },
+                        {
+                          "prop": "@aggregate.skippedRatifyingStageCount"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
           }
         }
       },

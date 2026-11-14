@@ -9,8 +9,8 @@
   - GIVEN the fragment is loaded WHEN the register imports THEN the `consultation-request` schema exists with all required fields, property titles, and the `x-schema-org` annotation, no existing schema is modified by the fragment, and the GovernanceBody `bodyType` enum includes `works-council`
   - GIVEN the schema WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with the specced states/transitions/terminals (achterbanraadpleging optional, repeat-overleg loop, `ingetrokken` terminal), `x-openregister-notifications` declares the pre-deadline, overdue, opschorting-expiry, and afwijkend-besluit triggers (nl+en subjects) with no imperative dispatch anywhere, and `x-openregister-calculations` derives `opschortingTot` = `besluitDate` + 1 month only for adviesaanvragen with `besluitOutcome=afwijkend-van-advies` (or the documented D3 fallback is applied, never a silently wrong value)
   - GIVEN a create missing `type`, `subject`, `bestuurder`, or `receivedDate` WHEN saved THEN OpenRegister validation rejects it
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the schema, lifecycle, notifications and `works-council` enum value were already on development; `suspensionTo` is now an `x-openregister-calculations` rule instead of the D3 fallback, since OpenRegister has `dateAdd`)
+- [x] Test (`tests/Unit/Service/WorksCouncilConsultationRegisterTest.php`, on the merged register)
 
 ### Task 2: Seed data — realistic Dutch WOR trajecten and the ondernemingsraad body
 - **spec_ref**: `openspec/changes/works-council-consultation/design.md#seed-data`
