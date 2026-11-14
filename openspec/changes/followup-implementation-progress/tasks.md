@@ -4,22 +4,22 @@
 
 ### Task 1: ImplementationUpdate schema, decision status fields and the 90-day rule
 - **spec_ref**: `openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-001-an-adopted-decision-takes-dated-progress-updates`
-- **files**: `lib/Settings/register.d/92-implementation-progress.json`, `lib/Settings/profiles/municipality.json`, `lib/Settings/profiles/association.json`
+- **files**: `lib/Settings/register.d/130-implementation-progress.json`, `lib/Settings/profiles/municipality.json`, `lib/Settings/profiles/association.json`
 - **acceptance_criteria**:
   - GIVEN the register WHEN imported THEN `implementation-update` exists and `decision` carries `implementationStatus` and `implementationStatusDate`
   - GIVEN the notification rule WHEN `RegisterJsonTest::testNotificationTriggersUseCanonicalVocabulary` runs THEN it passes and gate-18 is green
-- [ ] Implement
-- [ ] Test (schema and register tests)
+- [x] Implement
+- [x] Test (schema and register tests)
 
 ### Task 2: Only adopted decisions take updates, and the newest sets the status
 - **spec_ref**: `openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-002-the-decision-shows-its-current-implementation-status`
-- **files**: `lib/Listener/ImplementationUpdateListener.php`, `lib/AppInfo/Registrar/ObjectListenerRegistrar.php`, `tests/Unit/Listener/ImplementationUpdateListenerTest.php`
+- **files**: `lib/Listener/ImplementationUpdateListener.php`, `lib/Listener/Registrar/ObjectListenerRegistrar.php`, `lib/Listener/Registrar/SaveGuardSubscriptions.php`, `tests/Unit/Listener/ImplementationUpdateListenerTest.php`
 - **acceptance_criteria**:
   - GIVEN a rejected motion WHEN the secretariat adds an update THEN it is refused with 422
   - GIVEN an adopted motion WHEN an update dated 2026-06-15 `delayed` is added after one dated 2026-03-01 THEN the decision reads `delayed`, 2026-06-15
   - GIVEN a back-dated update WHEN added THEN the decision's status does not change
-- [ ] Implement
-- [ ] Test (construct OpenRegister's real `ObjectCreatingEvent` and `ObjectCreatedEvent`)
+- [x] Implement
+- [x] Test (construct OpenRegister's real `ObjectCreatingEvent` and `ObjectCreatedEvent`)
 
 ### Task 3: Implementation widget on decision and motion pages
 - **spec_ref**: `openspec/changes/followup-implementation-progress/specs/decision-management/spec.md#requirement-req-fup-001-an-adopted-decision-takes-dated-progress-updates`
