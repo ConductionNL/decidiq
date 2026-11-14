@@ -102,8 +102,8 @@ class PublicationService implements PublicationServiceInterface {
 	 * @param string $sourceType One of decision|agenda|minutes.
 	 * @param string $sourceId UUID of the source object.
 	 * @param string $actorId Nextcloud UID of the publishing staff member.
-	 * @param bool $accessibilityAcknowledged Whether the publisher acknowledged the documents the accessibility gate lists.
-	 * @param string|null $accessibilityOverride The reason for publishing past the accessibility gate, when given.
+	 * @param array<string, mixed> $accessibility What the publisher told the accessibility gate:
+	 *                                            `acknowledged` (bool) and `overrideReason` (string|null).
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
@@ -112,13 +112,7 @@ class PublicationService implements PublicationServiceInterface {
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
-	public function publish(
-		string $sourceType,
-		string $sourceId,
-		string $actorId,
-		bool $accessibilityAcknowledged=false,
-		?string $accessibilityOverride=null
-	): array {
+	public function publish(string $sourceType, string $sourceId, string $actorId, array $accessibility=[]): array {
 		$run = new PublicationRun(sourceType: $sourceType, sourceId: $sourceId);
 		$run->actorId = $actorId;
 		$this->loadEligibleSource(run: $run);
@@ -126,8 +120,7 @@ class PublicationService implements PublicationServiceInterface {
 		// The accessibility gate runs on the papers the payload makes public, before anything is written.
 		$run->accessibilityOverride = $this->documentGate?->check(
 			documents: $this->paperDocuments(run: $run),
-			acknowledged: $accessibilityAcknowledged,
-			overrideReason: $accessibilityOverride
+			consent: $accessibility
 		);
 		$run->payloadId = $this->repository->persistPayload(payload: $run->payload);
 		$run->targetCatalog = $this->targetCatalogOf(bodyId: $run->bodyId);

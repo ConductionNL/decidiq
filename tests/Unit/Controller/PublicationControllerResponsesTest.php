@@ -121,13 +121,13 @@ class PublicationControllerResponsesTest extends TestCase {
 	 */
 	public function testPublishPassesTheAccessibilityAnswerAndAnswers409(): void {
 		$passed = function ($mock): void {
-			$mock->expects($this->once())->method('publish')->with('agenda', 'm-1', 'chair', true, 'Termijn')->willReturn(['id' => 'r-1']);
+			$mock->expects($this->once())->method('publish')->with('agenda', 'm-1', 'chair', ['acknowledged' => true, 'overrideReason' => 'Termijn'])->willReturn(['id' => 'r-1']);
 		};
 		$params = ['sourceType' => 'agenda', 'sourceId' => 'm-1', 'accessibilityAcknowledged' => 'true', 'accessibilityOverride' => ['reason' => 'Termijn']];
 		$this->assertSame([201, ['id' => 'r-1']], $this->answer($this->controller($params, $passed)->publish()));
 
 		$bare = function ($mock): void {
-			$mock->expects($this->once())->method('publish')->with('agenda', 'm-1', 'chair', false, null)->willReturn(['id' => 'r-2']);
+			$mock->expects($this->once())->method('publish')->with('agenda', 'm-1', 'chair', ['acknowledged' => false, 'overrideReason' => null])->willReturn(['id' => 'r-2']);
 		};
 		$this->assertSame([201, ['id' => 'r-2']], $this->answer($this->controller(['sourceType' => 'agenda', 'sourceId' => 'm-1', 'accessibilityOverride' => 7], $bare)->publish()));
 

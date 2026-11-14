@@ -52,21 +52,15 @@ interface PublicationServiceInterface {
 	 * @param string $sourceType One of decision|agenda|minutes.
 	 * @param string $sourceId UUID of the source object.
 	 * @param string $actorId Nextcloud UID of the publishing staff member.
-	 * @param bool $accessibilityAcknowledged Whether the publisher acknowledged the documents the accessibility gate lists.
-	 * @param string|null $accessibilityOverride The reason for publishing past the accessibility gate, when given.
+	 * @param array<string, mixed> $accessibility What the publisher told the accessibility gate:
+	 *                                            `acknowledged` (bool) and `overrideReason` (string|null).
 	 *
 	 * @spec openspec/specs/public-publication/spec.md
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 *
 	 * @return array<string,mixed> Keys: `record` (the PublicationRecord) and `warnings` (string[]).
 	 */
-	public function publish(
-		string $sourceType,
-		string $sourceId,
-		string $actorId,
-		bool $accessibilityAcknowledged=false,
-		?string $accessibilityOverride=null
-	): array;
+	public function publish(string $sourceType, string $sourceId, string $actorId, array $accessibility=[]): array;
 
 	/**
 	 * Rectify a publication: publish a corrected new version and withdraw the

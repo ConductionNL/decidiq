@@ -159,8 +159,7 @@ class PublicationController extends Controller {
 				$source->type,
 				$source->id,
 				$userId,
-				accessibilityAcknowledged: filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
-				accessibilityOverride: $this->accessibilityOverrideReason()
+				accessibility: $this->accessibilityConsent()
 			);
 			return new JSONResponse($result, Http::STATUS_CREATED);
 		} catch (AccessibilityGateException $e) {
@@ -171,26 +170,29 @@ class PublicationController extends Controller {
 	}//end publishResponse()
 
 	/**
-	 * The override reason the request gives for publishing past the accessibility gate, or null.
+	 * What the publisher said to the accessibility gate: an acknowledgement, and an override reason.
 	 *
-	 * Accepts `accessibilityOverride: {reason}` and a bare string.
+	 * `accessibilityOverride` may be the reason itself or `{reason}`.
 	 *
-	 * @return string|null
+	 * @return array{acknowledged: bool, overrideReason: string|null}
 	 *
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
 	 */
-	private function accessibilityOverrideReason(): ?string {
+	private function accessibilityConsent(): array {
 		$override = $this->request->getParam('accessibilityOverride');
 		if (is_array($override) === true) {
 			$override = ($override['reason'] ?? null);
 		}
 
 		if (is_string($override) === false) {
-			return null;
+			$override = null;
 		}
 
-		return $override;
-	}//end accessibilityOverrideReason()
+		return [
+			'acknowledged' => filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
+			'overrideReason' => $override,
+		];
+	}//end accessibilityConsent()
 
 	/**
 	 * Withdraw a publication with a mandatory reason.

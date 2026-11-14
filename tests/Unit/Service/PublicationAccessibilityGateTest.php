@@ -182,12 +182,11 @@ class PublicationAccessibilityGateTest extends TestCase {
 					['fileId' => 11, 'sourceObject' => 'item-1', 'sourceSchema' => 'agenda-item', 'governanceBody' => 'body-1'],
 					['fileId' => 12, 'sourceObject' => 'item-2', 'sourceSchema' => 'agenda-item', 'governanceBody' => 'body-1'],
 				],
-				true,
-				null
+				['acknowledged' => true]
 			)
 			->willReturn(null);
 
-		$service->publish(sourceType: 'agenda', sourceId: 'meeting-1', actorId: 'griffier', accessibilityAcknowledged: true);
+		$service->publish(sourceType: 'agenda', sourceId: 'meeting-1', actorId: 'griffier', accessibility: ['acknowledged' => true]);
 
 		self::assertSame(expected: ['publication-payload', 'publication-record'], actual: array_slice(array: $this->savedSchemas(), offset: 0, length: 2));
 		self::assertArrayNotHasKey(key: 'accessibilityOverride', array: $this->savedRecord());
@@ -205,10 +204,10 @@ class PublicationAccessibilityGateTest extends TestCase {
 		$override = ['reason' => 'Wettelijke termijn', 'actor' => 'griffier', 'overriddenAt' => '2026-06-02T10:00:00+00:00', 'reports' => ['r-11']];
 		$this->gate->expects(self::once())
 			->method('check')
-			->with(self::anything(), false, 'Wettelijke termijn')
+			->with(self::anything(), ['overrideReason' => 'Wettelijke termijn'])
 			->willReturn($override);
 
-		$result = $service->publish(sourceType: 'agenda', sourceId: 'meeting-1', actorId: 'griffier', accessibilityOverride: 'Wettelijke termijn');
+		$result = $service->publish(sourceType: 'agenda', sourceId: 'meeting-1', actorId: 'griffier', accessibility: ['overrideReason' => 'Wettelijke termijn']);
 
 		self::assertSame(expected: $override, actual: $this->savedRecord()['accessibilityOverride']);
 		self::assertSame(expected: $override, actual: $result['record']['accessibilityOverride']);

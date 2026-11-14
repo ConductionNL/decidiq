@@ -149,9 +149,13 @@ class AgendaController extends Controller {
 			$override = ($override['reason'] ?? null);
 		}
 
+		if (is_string($override) === false) {
+			$override = null;
+		}
+
 		return [
 			'acknowledged' => filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
-			'overrideReason' => (is_string($override) === true ? $override : null),
+			'overrideReason' => $override,
 		];
 	}//end accessibilityConsent()
 
