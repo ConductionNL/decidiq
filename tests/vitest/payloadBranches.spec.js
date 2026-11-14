@@ -23,8 +23,8 @@ import { filterFromQuery } from '../../src/utils/exportBundle.js'
 describe('buildParticipationPayload optional fields', () => {
 	it('keeps every filled field, truncating seats and trimming the label', () => {
 		const payload = buildParticipationPayload({
-			sharedBody: 'b',
-			participant: 'p',
+			composite: 'b',
+			component: 'p',
 			seats: '2.9',
 			votingWeight: 0,
 			accessionDate: new Date(2026, 0, 5, 13, 30),
@@ -33,18 +33,20 @@ describe('buildParticipationPayload optional fields', () => {
 			id: 'x1',
 		})
 		expect(payload).toEqual({
-			sharedBody: 'b',
-			participant: 'p',
+			composite: 'b',
+			component: 'p',
+			compositionType: 'representation',
 			seats: 2,
 			votingWeight: 0,
-			accessionDate: new Date(2026, 0, 5).toISOString(),
-			exitDate: new Date(2026, 1, 1).toISOString(),
+			accessionDate: '2026-01-05',
+			exitDate: '2026-02-01',
 			label: 'Oss',
 			id: 'x1',
 		})
 		expect(Object.keys(payload)).toEqual([
-			'sharedBody',
-			'participant',
+			'composite',
+			'component',
+			'compositionType',
 			'seats',
 			'votingWeight',
 			'accessionDate',
@@ -57,8 +59,8 @@ describe('buildParticipationPayload optional fields', () => {
 	it('drops non-numeric numbers, blank labels and unparseable dates', () => {
 		expect(
 			buildParticipationPayload({
-				sharedBody: 'b',
-				participant: 'p',
+				composite: 'b',
+				component: 'p',
 				seats: 'abc',
 				votingWeight: null,
 				accessionDate: 'not a date',
@@ -66,13 +68,14 @@ describe('buildParticipationPayload optional fields', () => {
 				label: '   ',
 				id: '',
 			}),
-		).toEqual({ sharedBody: 'b', participant: 'p' })
+		).toEqual({ composite: 'b', component: 'p', compositionType: 'representation' })
 	})
 
 	it('accepts the fields missing altogether', () => {
-		expect(buildParticipationPayload({ sharedBody: 'b', participant: 'p' })).toEqual({
-			sharedBody: 'b',
-			participant: 'p',
+		expect(buildParticipationPayload({ composite: 'b', component: 'p' })).toEqual({
+			composite: 'b',
+			component: 'p',
+			compositionType: 'representation',
 		})
 	})
 })

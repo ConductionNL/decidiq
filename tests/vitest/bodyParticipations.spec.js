@@ -22,10 +22,13 @@ vi.mock('../../src/store/store.js', () => ({
 import { buildMembershipPayload } from '../../src/components/tabs/useRelationStore.js'
 import {
 	buildParticipationPayload,
+	calendarDate,
 	endParticipationPayload,
 	isActiveParticipation,
 	isSharedBody,
 	onBehalfOfOptions,
+	PARTICIPATION_SCHEMA,
+	participationQuery,
 	participationRows,
 } from '../../src/utils/bodyParticipations.js'
 import { validatorFor } from './helpers/registerSchema.js'
@@ -47,20 +50,20 @@ const bodies = {
 describe('adding a participating municipality (REQ-SGBP-001)', () => {
 	it('the widget lists Gemeente Oss with 2 seats, 0 filled, and the schema accepts the payload', () => {
 		const payload = buildParticipationPayload({
-			sharedBody: REGIO,
-			participant: OSS,
+			composite: REGIO,
+			component: OSS,
 			seats: '2',
 			votingWeight: '3',
 			accessionDate: '2026-10-09',
 		})
 		expect(payload).toMatchObject({
-			sharedBody: REGIO,
-			participant: OSS,
+			composite: REGIO,
+			component: OSS,
 			seats: 2,
 			votingWeight: 3,
 		})
-		expect(payload.accessionDate).toBe(new Date(2026, 9, 9).toISOString())
-		const valid = validatorFor('body-participation')
+		expect(payload.accessionDate).toBe('2026-10-09')
+		const valid = validatorFor('governance-body-composition')
 		expect(valid(payload), JSON.stringify(valid.errors)).toBe(true)
 
 		const rows = participationRows([{ id: 'p1', ...payload }], [], bodies, NOW)
@@ -78,21 +81,21 @@ describe('adding a participating municipality (REQ-SGBP-001)', () => {
 
 	it('leaves out what the secretary left empty, so an empty weight is not a zero', () => {
 		const payload = buildParticipationPayload({
-			sharedBody: REGIO,
-			participant: OSS,
+			composite: REGIO,
+			component: OSS,
 			seats: '',
 			votingWeight: '',
 			accessionDate: '',
 		})
-		expect(payload).toEqual({ sharedBody: REGIO, participant: OSS })
-		expect(validatorFor('body-participation')(payload)).toBe(true)
+		expect(payload).toEqual({ composite: REGIO, component: OSS, compositionType: 'representation' })
+		expect(validatorFor('governance-body-composition')(payload)).toBe(true)
 	})
 
 	it('an edit keeps the id so the store updates instead of creating', () => {
 		const payload = buildParticipationPayload({
 			id: 'p1',
-			sharedBody: REGIO,
-			participant: OSS,
+			composite: REGIO,
+			component: OSS,
 			seats: 3,
 		})
 		expect(payload.id).toBe('p1')
@@ -102,8 +105,8 @@ describe('adding a participating municipality (REQ-SGBP-001)', () => {
 describe('a member fills a seat (REQ-SGBP-001)', () => {
 	const participation = {
 		id: 'p1',
-		sharedBody: REGIO,
-		participant: OSS,
+		composite: REGIO,
+		component: OSS,
 		seats: 2,
 	}
 
@@ -167,8 +170,8 @@ describe('ending a participation (REQ-SGBP-001)', () => {
 		const payload = endParticipationPayload(
 			{
 				id: 'p1',
-				sharedBody: REGIO,
-				participant: OSS,
+				composite: REGIO,
+				component: OSS,
 				seats: 2,
 				votingWeight: 3,
 				accessionDate: '2015-01-01T00:00:00Z',
@@ -176,15 +179,18 @@ describe('ending a participation (REQ-SGBP-001)', () => {
 			},
 			NOW,
 		)
+		const pad = (number) => String(number).padStart(2, '0')
 		expect(payload.exitDate).toBe(
-			new Date(NOW.getFullYear(), NOW.getMonth(), NOW.getDate()).toISOString(),
+			`${NOW.getFullYear()}-${pad(NOW.getMonth() + 1)}-${pad(NOW.getDate())}`,
 		)
+		// A date-time stored before the move keeps the day it named.
+		expect(payload.accessionDate).toBe('2015-01-01')
 		expect(payload.id).toBe('p1')
 		expect(payload.seats).toBe(2)
 		expect('@self' in payload).toBe(false)
 		const { id, ...rest } = payload
 		expect(id).toBe('p1')
-		expect(validatorFor('body-participation')(rest)).toBe(true)
+		expect(validatorFor('governance-body-composition')(rest)).toBe(true)
 	})
 
 	it('a participation is active until its withdrawal date has passed', () => {
@@ -203,11 +209,11 @@ describe('ending a participation (REQ-SGBP-001)', () => {
 			[
 				{
 					id: 'p2',
-					participant: UDEN,
+					component: UDEN,
 					seats: 1,
 					exitDate: '2025-01-01T00:00:00Z',
 				},
-				{ id: 'p1', participant: OSS, seats: 2 },
+				{ id: 'p1', component: OSS, seats: 2 },
 			],
 			[],
 			bodies,
@@ -230,11 +236,11 @@ describe('on behalf of in the add-member dialog (REQ-SGBP-001)', () => {
 	it('offers the active participating organisations by name', () => {
 		const options = onBehalfOfOptions(
 			[
-				{ id: 'p1', participant: UDEN },
-				{ id: 'p2', participant: OSS },
+				{ id: 'p1', component: UDEN },
+				{ id: 'p2', component: OSS },
 				{
 					id: 'p3',
-					participant: 'gone',
+					component: 'gone',
 					exitDate: '2020-01-01T00:00:00Z',
 				},
 			],
@@ -282,5 +288,29 @@ describe('the widget is wired into the shared body page (REQ-SGBP-001)', () => {
 		const dialog = read('src/modals/MemberAddDialog.vue')
 		expect(dialog).toMatch(/onBehalfOf: this\.selectedOnBehalfOf\?\.id/)
 		expect(dialog).toMatch(/isSharedBody\(body\)/)
+	})
+})
+
+/**
+ * @spec openspec/changes/configurable-types-domain-model/specs/configurable-types-domain-model/spec.md#requirement-req-ctm-009-a-gremium-may-be-composed-of-other-gremia
+ */
+describe('a participation is a representation composition (REQ-CTM-009)', () => {
+	it('is read and written as a governance-body-composition of the shared body', () => {
+		expect(PARTICIPATION_SCHEMA).toBe('governance-body-composition')
+		expect(participationQuery(42)).toEqual({
+			composite: '42',
+			compositionType: 'representation',
+			_limit: 200,
+		})
+	})
+
+	it('stores calendar dates, keeping the day a stored date-time named', () => {
+		expect(calendarDate(new Date(2026, 9, 9, 23, 30))).toBe('2026-10-09')
+		expect(calendarDate('2026-10-09')).toBe('2026-10-09')
+		expect(calendarDate('2015-01-01T00:00:00Z')).toBe('2015-01-01')
+		expect(calendarDate('2026-02-30')).toBe('')
+		expect(calendarDate('not a date')).toBe('')
+		expect(calendarDate(new Date('nonsense'))).toBe('')
+		expect(calendarDate(null)).toBe('')
 	})
 })
