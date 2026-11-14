@@ -138,13 +138,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 */
 	public function create(string $meetingId): array {
 		$meeting = $this->meeting(meetingId: $meetingId);
-		if (in_array(($meeting['meetingMode'] ?? null), ['digital', 'hybrid'], true) === false) {
-			throw new TeamsMeetingRefusedException(message: 'Only a digital or hybrid meeting gets a Teams meeting', status: 409);
-		}
-
-		if (is_array($meeting['teamsMeeting'] ?? null) === true && (string)($meeting['teamsMeeting']['joinUrl'] ?? '') !== '') {
-			throw new TeamsMeetingRefusedException(message: 'This meeting already has a Teams meeting', status: 409);
-		}
+		$this->assertCanCarryTeams(meeting: $meeting);
 
 		[$start, $end] = $this->period(meeting: $meeting);
 		$answer        = $this->call(
@@ -186,6 +180,27 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	}//end create()
 
 	/**
+	 * Refuse a meeting that is not digital or hybrid, or that already has a Teams meeting.
+	 *
+	 * @param array<string, mixed> $meeting The meeting
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 *
+	 * @throws TeamsMeetingRefusedException When the meeting cannot carry one (409).
+	 *
+	 * @return void
+	 */
+	private function assertCanCarryTeams(array $meeting): void {
+		if (in_array(($meeting['meetingMode'] ?? null), ['digital', 'hybrid'], true) === false) {
+			throw new TeamsMeetingRefusedException(message: 'Only a digital or hybrid meeting gets a Teams meeting', status: 409);
+		}
+
+		if (is_array($meeting['teamsMeeting'] ?? null) === true && (string)($meeting['teamsMeeting']['joinUrl'] ?? '') !== '') {
+			throw new TeamsMeetingRefusedException(message: 'This meeting already has a Teams meeting', status: 409);
+		}
+	}//end assertCanCarryTeams()
+
+	/**
 	 * The meeting, without its id and metadata.
 	 *
 	 * @param string $meetingId The meeting
@@ -220,31 +235,39 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 	 * @return array{0: string, 1: string} Start and end, ISO 8601.
 	 */
 	private function period(array $meeting): array {
-		try {
-			$start = new DateTimeImmutable((string)($meeting['scheduledDate'] ?? ''));
-		} catch (Throwable) {
-			$start = null;
-		}
-
-		if ($start === null || (string)($meeting['scheduledDate'] ?? '') === '') {
+		$start = $this->dateOf(value: (string)($meeting['scheduledDate'] ?? ''));
+		if ($start === null) {
 			throw new TeamsMeetingRefusedException(message: 'The meeting has no start date', status: 409);
 		}
 
-		$end = null;
-		if ((string)($meeting['endDate'] ?? '') !== '') {
-			try {
-				$end = new DateTimeImmutable((string)$meeting['endDate']);
-			} catch (Throwable) {
-				$end = null;
-			}
-		}
-
+		$end = $this->dateOf(value: (string)($meeting['endDate'] ?? ''));
 		if ($end === null || $end <= $start) {
 			$end = $start->add(new DateInterval('PT' . self::FALLBACK_MINUTES . 'M'));
 		}
 
 		return [$start->format(DATE_ATOM), $end->format(DATE_ATOM)];
 	}//end period()
+
+	/**
+	 * A date, or null when it is empty or cannot be read.
+	 *
+	 * @param string $value The date as stored on the meeting.
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 *
+	 * @return DateTimeImmutable|null
+	 */
+	private function dateOf(string $value): ?DateTimeImmutable {
+		if ($value === '') {
+			return null;
+		}
+
+		try {
+			return new DateTimeImmutable($value);
+		} catch (Throwable) {
+			return null;
+		}
+	}//end dateOf()
 
 	/**
 	 * Ask the linked source for an online meeting.
@@ -273,11 +296,7 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 			throw new TeamsMeetingRefusedException(message: 'Microsoft 365 could not be reached: ' . $e->getMessage(), status: 502);
 		}
 
-		$decoded = json_decode($this->answers->body(response: $response), true);
-		if (is_array($decoded) === false) {
-			$decoded = [];
-		}
-
+		$decoded = $this->decode(response: $response);
 		$status = $this->connection->statusOf(response: $response);
 		if ($status >= 400) {
 			throw new TeamsMeetingRefusedException(message: (string)($decoded['message'] ?? ('Microsoft 365 answered ' . $status)), status: 502);
@@ -285,6 +304,24 @@ class TeamsMeetingService implements TeamsMeetingServiceInterface {
 
 		return $decoded;
 	}//end call()
+
+	/**
+	 * The decoded body of an answer, an empty array when it is not a JSON object or list.
+	 *
+	 * @param mixed $response The answer of the call service.
+	 *
+	 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-004-a-digital-or-hybrid-meeting-can-carry-a-teams-meeting
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function decode(mixed $response): array {
+		$decoded = json_decode($this->answers->body(response: $response), true);
+		if (is_array($decoded) === false) {
+			return [];
+		}
+
+		return $decoded;
+	}//end decode()
 
 	/**
 	 * The name of who creates the Teams meeting.
