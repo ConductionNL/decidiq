@@ -230,6 +230,20 @@ class PortalContributionProvider {
 	];
 
 	/**
+	 * What a resident reads of a member's ancillary position (REQ-PLB-007).
+	 *
+	 * @var list<string>
+	 */
+	private const ANCILLARY_POSITION_FIELDS = [
+		'person',
+		'organisation',
+		'role',
+		'remunerated',
+		'startDate',
+		'endDate',
+	];
+
+	/**
 	 * What the list of motions open for advice shows; who voted is never listed.
 	 *
 	 * @var list<string>
@@ -606,6 +620,7 @@ class PortalContributionProvider {
 			$this->publicCalendarCollection(),
 			$this->publicBroadcastsCollection(),
 			$this->motionsOpenForAdviceCollection(),
+			$this->publicAncillaryPositionsCollection(),
 		];
 
 	}//end citizenCollections()
@@ -785,6 +800,35 @@ class PortalContributionProvider {
 		];
 
 	}//end motionsOpenForAdviceCollection()
+
+	/**
+	 * The members' ancillary positions residents read without an account
+	 * (platform-baseline-on-nextcloud, REQ-PLB-007).
+	 *
+	 * OpenRegister's read rule on ancillary-position admits an anonymous
+	 * caller only to a position whose publicationDate has passed, so a
+	 * position still under review never reaches this list. The whitelist
+	 * holds who, where, what, whether it is paid and when; never the review
+	 * fields (declaredAt, reviewedAt, lifecycle), the hours or the
+	 * publication controls.
+	 *
+	 * @spec openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-007-residents-read-members-ancillary-positions-without-an-account
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function publicAncillaryPositionsCollection(): array {
+		return [
+			'id' => 'publicAncillaryPositions',
+			'register' => self::REGISTER,
+			'schema' => 'ancillary-position',
+			'anonymous' => true,
+			'label' => "Members' ancillary positions",
+			'listable' => true,
+			'fields' => self::ANCILLARY_POSITION_FIELDS,
+			'defaultSort' => ['field' => 'startDate', 'direction' => 'desc'],
+		];
+
+	}//end publicAncillaryPositionsCollection()
 
 	/**
 	 * The three `type: create` actions on the `citizen` manifest (see
