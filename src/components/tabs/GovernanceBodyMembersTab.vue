@@ -118,6 +118,12 @@
 			@saved="refresh"
 			@close="roleTarget = null" />
 
+		<MemberTermDialog
+			v-if="termTarget"
+			:member="termTarget"
+			@saved="refresh"
+			@close="termTarget = null" />
+
 		<MemberGroupImportDialog
 			v-if="groupImportOpen"
 			:bodyId="objectId"
@@ -171,6 +177,7 @@ import {
 import AccountEdit from 'vue-material-design-icons/AccountEdit.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import CalendarRange from 'vue-material-design-icons/CalendarRange.vue'
 import CardAccountDetailsOutline from 'vue-material-design-icons/CardAccountDetailsOutline.vue'
 import FileDelimited from 'vue-material-design-icons/FileDelimited.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
@@ -180,6 +187,7 @@ import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
 import MemberGroupImportDialog from '../../modals/MemberGroupImportDialog.vue'
 import MemberRoleDialog from '../../modals/MemberRoleDialog.vue'
+import MemberTermDialog from '../../modals/MemberTermDialog.vue'
 import {
 	contactSummary,
 	factionsOf,
@@ -203,6 +211,7 @@ export default {
 		MemberCsvImportDialog,
 		MemberGroupImportDialog,
 		MemberRoleDialog,
+		MemberTermDialog,
 		NcActionButton,
 		NcActions,
 		NcButton,
@@ -226,6 +235,8 @@ export default {
 			groupImportOpen: false,
 			csvImportOpen: false,
 			roleTarget: null,
+			// bodies-term-of-office-and-step-down: the member whose term is edited.
+			termTarget: null,
 			removeTarget: null,
 			// bodies-membership-terms-contacts-and-factions
 			showPast: false,
@@ -235,7 +246,10 @@ export default {
 	},
 
 	computed: {
-		/** @spec openspec/specs/admin-settings/spec.md */
+		/**
+		 * @spec openspec/specs/admin-settings/spec.md
+		 * @spec openspec/changes/bodies-term-of-office-and-step-down/specs/governance-bodies/spec.md#requirement-req-tos-005-ended-memberships-show-as-former-members-without-a-write
+		 */
 		columns() {
 			const columns = [
 				{ key: 'displayName', label: this.t('decidiq', 'Name') },
@@ -245,10 +259,10 @@ export default {
 				{ key: 'email', label: this.t('decidiq', 'Email') },
 				{ key: 'phone', label: this.t('decidiq', 'Phone') },
 				{ key: 'fromLabel', label: this.t('decidiq', 'From') },
+				// A current member's term may end on a set day
+				// (bodies-term-of-office-and-step-down), so To shows for both lists.
+				{ key: 'toLabel', label: this.t('decidiq', 'To') },
 			]
-			if (this.showPast) {
-				columns.push({ key: 'toLabel', label: this.t('decidiq', 'To') })
-			}
 			return columns
 		},
 
@@ -260,6 +274,13 @@ export default {
 					icon: AccountEdit,
 					handler: (row) => {
 						this.roleTarget = { ...row }
+					},
+				},
+				{
+					label: this.t('decidiq', 'Change term'),
+					icon: CalendarRange,
+					handler: (row) => {
+						this.termTarget = { ...row }
 					},
 				},
 				{

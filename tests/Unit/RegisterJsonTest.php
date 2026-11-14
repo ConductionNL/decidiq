@@ -488,7 +488,9 @@ class RegisterJsonTest extends TestCase {
 		// discriminator (ADR-006) instead of the superseded parallel
 		// Fractie schema set.
 		self::assertContains(needle: 'faction', haystack: $bodyTypeEnum);
-		self::assertCount(expectedCount: 11, haystack: $bodyTypeEnum);
+		// Ori-adoption REQ-ORIA-002: a council party imported from ORI is a political group.
+		self::assertContains(needle: 'political-group', haystack: $bodyTypeEnum);
+		self::assertCount(expectedCount: 12, haystack: $bodyTypeEnum);
 
 	}//end testGovernanceBodySchema()
 
@@ -501,7 +503,8 @@ class RegisterJsonTest extends TestCase {
 	 */
 	public function testMeetingLifecycleEnum(): void {
 		$lifecycle = $this->schemas['Meeting']['properties']['lifecycle']['enum'];
-		$expected = ['draft', 'scheduled', 'opened', 'paused', 'adjourned', 'closed'];
+		// Ori-adoption REQ-ORIA-002 adds `cancelled` for a called-off council meeting.
+		$expected = ['draft', 'scheduled', 'opened', 'paused', 'adjourned', 'closed', 'cancelled'];
 		self::assertSame(expected: $expected, actual: $lifecycle);
 
 	}//end testMeetingLifecycleEnum()
