@@ -28,6 +28,12 @@
 					<span class="document-details__name">{{
 						row.file.name || row.file.title
 					}}</span>
+					<span
+						class="document-details__badge"
+						:class="{ 'document-details__badge--closed': !isPaperPublic(row.record) }"
+						data-testid="document-details-public">
+						{{ isPaperPublic(row.record) ? t('decidiq', 'Public') : t('decidiq', 'Closed to the public') }}
+					</span>
 					<span class="document-details__meta">
 						{{
 							typeName(row.record) || t('decidiq', 'No document type')
@@ -75,6 +81,7 @@ import {
 	TARGETS,
 	typesFor,
 } from '../../utils/documentMetadata.js'
+import { isPaperPublic } from '../../utils/paperPublicity.js'
 import { objectIdLoader } from './objectIdLoader.js'
 import { ensureRelationType } from './useRelationStore.js'
 
@@ -128,6 +135,8 @@ export default {
 	},
 
 	methods: {
+		isPaperPublic,
+
 		/**
 		 * Read the page's files, their records and the document types.
 		 *
@@ -216,6 +225,20 @@ export default {
 </script>
 
 <style scoped>
+.document-details__badge {
+	margin-inline-start: calc(var(--default-grid-baseline) * 2);
+	padding: 0 calc(var(--default-grid-baseline) * 2);
+	border-radius: var(--border-radius-pill);
+	border: 1px solid var(--color-border-maxcontrast);
+	color: var(--color-main-text);
+	font-size: var(--font-size-small, 13px);
+}
+
+.document-details__badge--closed {
+	border-color: var(--color-error);
+	color: var(--color-error-text);
+}
+
 .document-details__list {
 	margin: 0;
 	padding: 0;

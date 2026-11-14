@@ -19,6 +19,7 @@
   - matches the board's Kerngegevens and Stukken
 - [ ] Implement
 - [ ] Test (red first): vitest on the page config
+- Note: the Stukken badge is built: `DocumentMetadataTab` shows "Openbaar" or "Besloten" per paper from its record (`src/utils/paperPublicity.js`, `tests/vitest/paperPublicity.spec.js`). Kerngegevens shows `public` through the page's generic data widget, which renders every schema field. Left: the "Alleen voor leden van {orgaan}" line with "Lezers toevoegen" for the secretariat, and "Besloten punt" with only the number for readers who may not read the item (that one depends on the read rules of task 1).
 
 ### Task 3: Inheritance and restriction listener
 - **spec_ref**: `openspec/changes/agenda-item-confidential-papers/specs/agenda-item-confidentiality/spec.md#requirement-req-acp-003-a-paper-of-a-non-public-item-is-not-public`, `#requirement-req-acp-004-an-imposed-confidentiality-restriction-closes-the-item`
