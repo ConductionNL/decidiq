@@ -3438,7 +3438,16 @@ OC.L10N.register(
         "Overdue for lifting": "Overdue for lifting",
         "Lifting agenda item": "Lifting agenda item",
         "The agenda item proposing to lift the confidentiality, placed on the next meeting of the deciding body when the end date comes within the lead time.": "The agenda item proposing to lift the confidentiality, placed on the next meeting of the deciding body when the end date comes within the lead time.",
-        "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.": "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone."
+        "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.": "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.",
+        "What the confidentiality covers": "What the confidentiality covers",
+        "Confidentiality steps": "Confidentiality steps",
+        "done": "done",
+        "now": "now",
+        "planned": "planned",
+        "not applicable": "not applicable",
+        "Ratification by {body} no later than {date}": "Ratification by {body} no later than {date}",
+        "Ratification no later than {date}": "Ratification no later than {date}",
+        "Lifted": "Lifted"
     },
     "nplurals=2; plural=(n != 1);"
 )

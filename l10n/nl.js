@@ -3856,7 +3856,15 @@ OC.L10N.register(
         "Overdue for lifting": "Te laat voor opheffing",
         "Lifting agenda item": "Agendapunt opheffing",
         "The agenda item proposing to lift the confidentiality, placed on the next meeting of the deciding body when the end date comes within the lead time.": "Het agendapunt met het voorstel om de geheimhouding op te heffen, op de eerstvolgende vergadering van het orgaan dat beslist zodra de einddatum binnen de aanlooptijd valt.",
-        "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.": "Hoe het staat met de geplande opheffing: het agendapunt staat klaar, of de einddatum is voorbij zonder besluit tot opheffing. De status verandert niet door de datum alleen."
+        "Where the planned lifting stands: its agenda item is placed, or the end date passed without a lifting decision. The lifecycle does not change on the date alone.": "Hoe het staat met de geplande opheffing: het agendapunt staat klaar, of de einddatum is voorbij zonder besluit tot opheffing. De status verandert niet door de datum alleen.",
+        "What the confidentiality covers": "Waar de geheimhouding op ligt",
+        "Confidentiality steps": "Stappen van de geheimhouding",
+        "done": "gedaan",
+        "now": "nu",
+        "planned": "gepland",
+        "not applicable": "niet van toepassing",
+        "Ratification by {body} no later than {date}": "Bekrachtiging door {body} uiterlijk {date}",
+        "Ratification no later than {date}": "Bekrachtiging uiterlijk {date}"
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -30,8 +30,10 @@
 import { describe, expect, it } from 'vitest'
 import {
 	buildConfidentialityStages,
+	buildConfidentialityStepper,
 	findChildren,
 	isLiftingOverdue,
+	ratificationHeaderLine,
 	resolveObjectLabel,
 	sortVersionsByEffectiveDate,
 	toTime,
@@ -426,5 +428,46 @@ describe('resolveObjectLabel (shared reference-label resolver)', () => {
 				id: 'd-3',
 			}),
 		).toBe('d-3')
+	})
+})
+
+describe('buildConfidentialityStepper (REQ-EMB-023)', () => {
+	const states = (record) => buildConfidentialityStepper(record).map((step) => `${step.key}:${step.state}`)
+
+	it('marks an imposed restriction as the current first step with the rest planned', () => {
+		expect(states({ lifecycle: 'imposed' })).toEqual(['imposed:current', 'ratified:planned', 'dissolved:planned'])
+	})
+
+	it('moves on to ratified, then lifted', () => {
+		expect(states({ lifecycle: 'ratified', ratificationDate: '2026-10-15' })).toEqual(['imposed:done', 'ratified:current', 'dissolved:planned'])
+		expect(states({ lifecycle: 'dissolved', ratificationDate: '2026-10-15', liftingDate: '2027-07-01' })).toEqual(['imposed:done', 'ratified:done', 'dissolved:current'])
+	})
+
+	it('shows Lapsed in place of Ratified once lapsed, and never a lifting after it', () => {
+		expect(states({ lifecycle: 'lapsed', lapsedAt: '2026-10-16' })).toEqual(['imposed:done', 'lapsed:current', 'dissolved:skipped'])
+	})
+
+	it('skips ratification for a restriction lifted without one', () => {
+		expect(states({ lifecycle: 'dissolved', liftingDate: '2026-11-01' })).toEqual(['imposed:done', 'ratified:skipped', 'dissolved:current'])
+	})
+
+	it('treats a record without a lifecycle as just imposed', () => {
+		expect(states(null)).toEqual(['imposed:current', 'ratified:planned', 'dissolved:planned'])
+	})
+})
+
+describe('ratificationHeaderLine (REQ-EMB-023)', () => {
+	it('names the deadline and the ratifying body while ratification is open', () => {
+		expect(ratificationHeaderLine({ lifecycle: 'imposed', ratificationDeadline: '2026-10-15', imposedByBody: 'raad' })).toEqual({ deadline: '2026-10-15', bodyId: 'raad' })
+		expect(ratificationHeaderLine({ lifecycle: 'imposed', ratificationDeadline: '2026-10-15' })).toEqual({ deadline: '2026-10-15', bodyId: null })
+	})
+
+	it('is gone once ratified, lapsed, lifted, or without a deadline', () => {
+		expect(ratificationHeaderLine({ lifecycle: 'imposed', ratificationDeadline: '2026-10-15', ratificationDate: '2026-10-15' })).toBeNull()
+		expect(ratificationHeaderLine({ lifecycle: 'imposed', ratificationDeadline: '2026-10-15', ratificationDecision: 'd1' })).toBeNull()
+		expect(ratificationHeaderLine({ lifecycle: 'ratified', ratificationDeadline: '2026-10-15' })).toBeNull()
+		expect(ratificationHeaderLine({ lifecycle: 'lapsed', ratificationDeadline: '2026-10-15' })).toBeNull()
+		expect(ratificationHeaderLine({ lifecycle: 'imposed' })).toBeNull()
+		expect(ratificationHeaderLine(null)).toBeNull()
 	})
 })

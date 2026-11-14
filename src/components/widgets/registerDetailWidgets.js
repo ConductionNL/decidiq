@@ -148,6 +148,53 @@ export function buildConfidentialityStages(record, now = Date.now()) {
 }
 
 /**
+ * The stepper of a confidentiality restriction (board DcGeheimhouding,
+ * REQ-EMB-023): Opgelegd, Bekrachtigd (Vervallen in its place once lapsed),
+ * Opgeheven. Each step is `done`, `current`, `planned` or `skipped`: a
+ * restriction lifted without ratification skipped that step, and a lapsed
+ * one is never lifted.
+ *
+ * @param {object} record The confidentiality restriction.
+ * @return {Array<{key: string, state: string}>} The three steps in order.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ */
+export function buildConfidentialityStepper(record) {
+	const r = record || {}
+	const lapsed = r.lifecycle === 'lapsed'
+	const reached = { imposed: 0, ratified: 1, lapsed: 1, dissolved: 2 }[r.lifecycle] ?? 0
+	const stateOf = (index) => {
+		if (index < reached) return 'done'
+		return index === reached ? 'current' : 'planned'
+	}
+	const steps = [
+		{ key: 'imposed', state: stateOf(0) },
+		{ key: lapsed ? 'lapsed' : 'ratified', state: stateOf(1) },
+		{ key: 'dissolved', state: lapsed ? 'skipped' : stateOf(2) },
+	]
+	if (r.lifecycle === 'dissolved' && !isRatified(r)) {
+		steps[1].state = 'skipped'
+	}
+	return steps
+}
+
+/**
+ * The header line "Bekrachtiging door <body> uiterlijk <date>" while
+ * ratification is open: the restriction is imposed, nothing is ratified and a
+ * deadline is set. Null otherwise.
+ *
+ * @param {object} record The confidentiality restriction.
+ * @return {{deadline: string, bodyId: string|null}|null} The deadline and the ratifying body.
+ * @spec openspec/changes/confidentiality-term-and-lapse/specs/embargo-geheimhouding/spec.md#requirement-req-emb-023-the-detail-page-shows-the-four-steps-of-the-board
+ */
+export function ratificationHeaderLine(record) {
+	const r = record || {}
+	if (r.lifecycle !== 'imposed' || isRatified(r) || !r.ratificationDeadline) {
+		return null
+	}
+	return { deadline: r.ratificationDeadline, bodyId: r.imposedByBody || null }
+}
+
+/**
  * The confidentiality timeline's imposed stage.
  *
  * @param {object} r The geheimhouding object.
@@ -410,12 +457,14 @@ export async function registerDetailWidgets() {
 		{ default: DelegationChainWidget },
 		{ default: RegisterVersionTimelineWidget },
 		{ default: DetailSectionsWidget },
+		{ default: ConfidentialityHeaderWidget },
 	] = await Promise.all([
 		import('@conduction/nextcloud-vue'),
 		import('./ConfidentialityStatusTimelineWidget.vue'),
 		import('./DelegationChainWidget.vue'),
 		import('./RegisterVersionTimelineWidget.vue'),
 		import('./DetailSectionsWidget.vue'),
+		import('./ConfidentialityHeaderWidget.vue'),
 	])
 
 	// `detail-sections` lets ONE tab hold more than one panel
@@ -457,6 +506,19 @@ export async function registerDetailWidgets() {
 		form: null,
 		defaultContent: {},
 		displayName: 'Confidentiality status timeline',
+		icon: 'ShieldLockOutline',
+		surfaces: ['detail-page'],
+		ownsTitle: true,
+	})
+
+	// The confidentiality page's header row (confidentiality-term-and-lapse
+	// REQ-EMB-023): the ratification line and the stepper, placed through
+	// the page's `headerWidget`.
+	registerDashboardWidget('confidentiality-header', {
+		renderer: ConfidentialityHeaderWidget,
+		form: null,
+		defaultContent: {},
+		displayName: 'Confidentiality steps',
 		icon: 'ShieldLockOutline',
 		surfaces: ['detail-page'],
 		ownsTitle: true,

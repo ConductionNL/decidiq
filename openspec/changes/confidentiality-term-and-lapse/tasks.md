@@ -39,8 +39,8 @@ Build after `confidentiality-in-plain-words` (schema names) and with or after `e
 - **acceptance_criteria**:
   - GIVEN the example restriction WHEN its page opens THEN header, stepper, four-step timeline, Geheimhouding card, Waar de geheimhouding op ligt, Grond card and Gerelateerd match the board
   - GIVEN a lapsed restriction WHEN its page opens THEN the stepper and timeline show Vervallen
-- [ ] Implement (four-step timeline, imposing-decision link, lapse and "uiterlijk" lines done in `ConfidentialityStatusTimelineWidget`; header line, stepper and the Geheimhouding / Grond / Gerelateerd cards of the board not yet)
-- [ ] Test (vitest per stage done; the Playwright test on the example needs a live instance)
+- [x] Implement (four-step timeline, imposing-decision link, lapse and "uiterlijk" lines in `ConfidentialityStatusTimelineWidget`; the status pill, and through `headerWidget` the `ConfidentialityHeaderWidget` with the line "Bekrachtiging door <body> uiterlijk <date>" while ratification is open and the stepper Opgelegd / Bekrachtigd (Vervallen once lapsed) / Opgeheven; the Geheimhouding card, Waar de geheimhouding op ligt, Grond and Gerelateerd cards, in both structures)
+- [ ] Test (vitest done: per stage, `buildConfidentialityStepper` and `ratificationHeaderLine`, and the simple structure placing every card; the Playwright test on the example needs a live instance)
 
 ### Task 5: Align embargo-geheimhouding REQ-EMB-003 and example data
 - **files**: `lib/Settings/profiles/municipality.json`
