@@ -137,6 +137,8 @@ $extra = [
         ['name' => 'minutesCorrection#resolveCorrection', 'url' => '/api/minutes/{minutesId}/corrections/{correctionId}', 'verb' => 'PUT'],
         ['name' => 'minutes#reject',            'url' => '/api/minutes/{minutesId}/reject',                       'verb' => 'POST'],
         ['name' => 'minutes#generateDocument',  'url' => '/api/minutes/{minutesId}/generate-document',            'verb' => 'POST'],
+        // works-council-consultation (REQ-WCC-005): the formal advice or consent document of a WOR traject (works council chair, secretary or admin).
+        ['name' => 'worksCouncilConsultation#generateResponseDocument', 'url' => '/api/works-council-consultations/{id}/response-document', 'verb' => 'POST'],
 
         // Notarial proof package (minutes-ui-v1) — chair/secretary gated.
         // @spec openspec/specs/resolution-minutes/spec.md

@@ -93,6 +93,7 @@ import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import WorksCouncilResponseTab from './components/tabs/WorksCouncilResponseTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
@@ -462,6 +463,7 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	WorksCouncilResponseTab: page(WorksCouncilResponseTab),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
