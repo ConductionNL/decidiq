@@ -88,6 +88,7 @@ import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
 import MotionStageTab from './components/tabs/MotionStageTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import OnboardingChecklistTab from './components/tabs/OnboardingChecklistTab.vue'
 import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
@@ -462,6 +463,7 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	OnboardingChecklistTab: page(OnboardingChecklistTab),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.

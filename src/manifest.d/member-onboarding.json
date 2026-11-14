@@ -60,19 +60,22 @@
 			"id": "MemberOnboardingDetail",
 			"route": "/member-onboarding/:id",
 			"type": "detail",
+			"slots": { "widget-onboarding-checklist": "OnboardingChecklistTab" },
 			"title": "Member onboarding",
-			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/targetBody/targetRole/trigger/installation fields/lifecycle); the checklist steps render inside the data widget; person/targetBody/installationMeeting/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step complete/skip/execute-provisioning actions and the induction-pack delivery are imperative surfaces DEFERRED (design D3/D6, out of declarative core).",
+			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/targetBody/targetRole/trigger/installation fields/lifecycle); the checklist steps render inside the data widget; person/targetBody/installationMeeting/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The Checklist widget marks a step done or skipped (bodies-onboarding-checklist-walkthrough); execute-provisioning and the induction-pack delivery stay DEFERRED (design D3/D6).",
 			"config": {
 				"register": "decidiq",
 				"schema": "member-onboarding",
 				"_note": "MemberOnboardingDetail (REQ-MOB-012). Schema BY SLUG member-onboarding.",
 				"widgets": [
 					{ "id": "onboarding-data", "type": "data", "title": "Member onboarding", "icon": "AccountGroup", "content": { "columns": 2 } },
-					{ "id": "onboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{ "id": "onboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
+					{ "id": "onboarding-checklist", "type": "custom", "component": "OnboardingChecklistTab", "title": "Checklist", "icon": "FormatListChecks", "_note": "bodies-onboarding-checklist-walkthrough (REQ-MOBW-001, bod-08): the steps with their status; the secretary, chair or an administrator marks an open step done or skips an optional one, and the server runs the membership effect." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "onboarding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "2", "widgetId": "onboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 }
+					{ "id": "2", "widgetId": "onboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 },
+					{ "id": "3", "widgetId": "onboarding-checklist", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -125,6 +128,7 @@
 			"id": "MemberOffboardingDetail",
 			"route": "/member-offboarding/:id",
 			"type": "detail",
+			"slots": { "widget-offboarding-checklist": "OnboardingChecklistTab" },
 			"title": "Member offboarding",
 			"_note": "spec: openspec/changes/member-onboarding/specs/member-onboarding/spec.md (REQ-MOB-012). Record data leads 8-wide (person/body/membership/trigger/endDate/endReason/exit-confirmation/lifecycle); the checklist steps render inside the data widget; person/body/membership render as resolved references in the Related widget. Audit trail is a sidebar tab. The per-step revocation/end-date execution is an imperative surface DEFERRED (design D3, out of declarative core).",
 			"config": {
@@ -133,11 +137,13 @@
 				"_note": "MemberOffboardingDetail (REQ-MOB-012). Schema BY SLUG member-offboarding.",
 				"widgets": [
 					{ "id": "offboarding-data", "type": "data", "title": "Member offboarding", "icon": "AccountGroup", "content": { "columns": 2 } },
-					{ "id": "offboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
+					{ "id": "offboarding-related", "type": "related", "title": "Related", "icon": "LinkVariant" },
+					{ "id": "offboarding-checklist", "type": "custom", "component": "OnboardingChecklistTab", "title": "Checklist", "icon": "FormatListChecks", "_note": "bodies-onboarding-checklist-walkthrough (REQ-MOBW-001, bod-08): the steps with their status; the secretary, chair or an administrator marks an open step done or skips an optional one, and the server runs the membership effect." }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "offboarding-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 8 },
-					{ "id": "2", "widgetId": "offboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 }
+					{ "id": "2", "widgetId": "offboarding-related", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 8 },
+					{ "id": "3", "widgetId": "offboarding-checklist", "gridX": 0, "gridY": 8, "gridWidth": 12, "gridHeight": 6 }
 				],
 				"sidebar": {
 					"enabled": true,

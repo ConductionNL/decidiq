@@ -24,8 +24,8 @@
 - **files**: `src/components/tabs/OnboardingChecklistTab.vue`, `src/manifest.d/member-onboarding.json`
 - **acceptance_criteria**:
   - vitest red first
-- [ ] Implement
-- [ ] Test (red first)
+- [x] Implement (`src/components/tabs/OnboardingChecklistTab.vue` over `src/utils/onboardingChecklist.js`, a `custom` widget on both detail pages in `src/manifest.d/member-onboarding.json`, registered in `src/registry.js`)
+- [x] Test (red first: `tests/vitest/onboardingChecklist.spec.js`)
 
 ## Verification
 
