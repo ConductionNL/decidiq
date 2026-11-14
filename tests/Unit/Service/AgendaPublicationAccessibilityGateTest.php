@@ -138,15 +138,14 @@ class AgendaPublicationAccessibilityGateTest extends TestCase {
 					['fileId' => 10, 'fileName' => 'meeting-1.pdf', 'sourceObject' => 'meeting-1', 'sourceSchema' => 'meeting', 'governanceBody' => 'body-1'],
 					['fileId' => 20, 'fileName' => 'item-1.pdf', 'sourceObject' => 'item-1', 'sourceSchema' => 'agenda-item', 'governanceBody' => 'body-1'],
 				],
-				true,
-				'Termijn'
+				['acknowledged' => true, 'overrideReason' => 'Termijn']
 			)
 			->willReturn($override);
 		$this->objectService->expects(self::once())
 			->method('saveObject')
 			->with(self::callback(static fn (array $meeting): bool => $meeting['accessibilityOverrides'] === [$override]));
 
-		$this->service->publishAgenda('meeting-1', accessibilityAcknowledged: true, accessibilityOverride: 'Termijn');
+		$this->service->publishAgenda('meeting-1', accessibility: ['acknowledged' => true, 'overrideReason' => 'Termijn']);
 	}//end testAnOverrideIsKeptOnTheMeeting()
 
 	/**

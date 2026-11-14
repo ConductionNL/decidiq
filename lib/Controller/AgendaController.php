@@ -117,21 +117,8 @@ class AgendaController extends Controller {
 			return $denied;
 		}
 
-		$override = $this->request->getParam('accessibilityOverride');
-		if (is_array($override) === true) {
-			$override = ($override['reason'] ?? null);
-		}
-
-		if (is_string($override) === false) {
-			$override = null;
-		}
-
 		try {
-			$this->agendaService->publishAgenda(
-				$meetingId,
-				accessibilityAcknowledged: filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
-				accessibilityOverride: $override
-			);
+			$this->agendaService->publishAgenda($meetingId, accessibility: $this->accessibilityConsent());
 			return new JSONResponse(['success' => true]);
 		} catch (AccessibilityGateException $e) {
 			return new JSONResponse($e->payload(), Http::STATUS_CONFLICT);
@@ -146,6 +133,27 @@ class AgendaController extends Controller {
 		}
 
 	}//end publish()
+
+	/**
+	 * What the publisher said to the accessibility gate: an acknowledgement, and an override reason.
+	 *
+	 * `accessibilityOverride` may be the reason itself or `{reason}`.
+	 *
+	 * @return array{acknowledged: bool, overrideReason: string|null}
+	 *
+	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-003-publication-gate-on-failing-documents-with-recorded-override
+	 */
+	private function accessibilityConsent(): array {
+		$override = $this->request->getParam('accessibilityOverride');
+		if (is_array($override) === true) {
+			$override = ($override['reason'] ?? null);
+		}
+
+		return [
+			'acknowledged' => filter_var($this->request->getParam('accessibilityAcknowledged', false), FILTER_VALIDATE_BOOLEAN),
+			'overrideReason' => (is_string($override) === true ? $override : null),
+		];
+	}//end accessibilityConsent()
 
 	/**
 	 * Advance the BOB phase of a single agenda item.

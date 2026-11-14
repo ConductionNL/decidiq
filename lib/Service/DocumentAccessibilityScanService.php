@@ -108,6 +108,23 @@ class DocumentAccessibilityScanService {
 	];
 
 	/**
+	 * The severity of each finding code: an error fails, a warning warns.
+	 *
+	 * @var array<string, string>
+	 */
+	private const SEVERITY = [
+		'not-tagged' => 'error',
+		'no-text-layer' => 'error',
+		'no-language' => 'warning',
+		'no-title' => 'warning',
+		'no-bookmarks' => 'warning',
+		'missing-alt-text' => 'warning',
+		'unsupported-format' => 'info',
+		'too-large' => 'info',
+		'parse-failure' => 'info',
+	];
+
+	/**
 	 * Constructor.
 	 *
 	 * @param PdfStructureInspector  $inspector     Reads a PDF's structure.
@@ -143,7 +160,7 @@ class DocumentAccessibilityScanService {
 	 */
 	public function scanFile(int $fileId, string $sourceObject, string $sourceSchema, ?string $governanceBody=null): array {
 		$node   = $this->fileNode(fileId: $fileId);
-		$result = $this->unreadable(fileName: '', mimeType: null, size: null, evidence: 'The file could not be found');
+		$result = $this->unreadable(file: ['fileName' => '', 'mimeType' => null, 'fileSize' => null], evidence: 'The file could not be found');
 		if ($node !== null) {
 			$result = $this->evaluate(
 				fileName: (string)$node->getName(),
@@ -182,26 +199,15 @@ class DocumentAccessibilityScanService {
 	 * @spec openspec/changes/document-accessibility-check/specs/document-accessibility-check/spec.md#requirement-req-001-heuristic-accessibility-scan-of-uploaded-pdf-documents
 	 */
 	public function evaluate(string $fileName, ?string $mimeType, int $size, callable $content): array {
+		$file = ['fileName' => $fileName, 'mimeType' => $mimeType, 'fileSize' => $size];
 		if ($this->isPdf(fileName: $fileName, mimeType: $mimeType) === false) {
 			$note = sprintf('%s, %d bytes; content checks apply to PDF only', ($mimeType ?? 'unknown type'), $size);
-			return $this->result(
-				fileName: $fileName,
-				mimeType: $mimeType,
-				size: $size,
-				status: 'not-scanned',
-				findings: [$this->finding(code: 'unsupported-format', severity: 'info', evidence: $note)]
-			);
+			return $this->result(file: $file, outcome: ['status' => 'not-scanned', 'findings' => [$this->finding(code: 'unsupported-format', evidence: $note)]]);
 		}
 
 		if ($size > self::SIZE_CAP) {
 			$evidence = sprintf('%d bytes, above the %d byte limit', $size, self::SIZE_CAP);
-			return $this->result(
-				fileName: $fileName,
-				mimeType: $mimeType,
-				size: $size,
-				status: 'not-scanned',
-				findings: [$this->finding(code: 'too-large', severity: 'info', evidence: $evidence)]
-			);
+			return $this->result(file: $file, outcome: ['status' => 'not-scanned', 'findings' => [$this->finding(code: 'too-large', evidence: $evidence)]]);
 		}
 
 		try {
@@ -209,18 +215,18 @@ class DocumentAccessibilityScanService {
 		} catch (Throwable $e) {
 			$context = ['file' => $fileName, 'error' => $e->getMessage()];
 			$this->logger->info('Decidiq: a document could not be read for the accessibility scan', $context);
-			return $this->unreadable(fileName: $fileName, mimeType: $mimeType, size: $size, evidence: $e->getMessage());
+			return $this->unreadable(file: $file, evidence: $e->getMessage());
 		}
 
 		$findings = $this->pdfFindings(facts: $facts);
 		return $this->result(
-			fileName: $fileName,
-			mimeType: $mimeType,
-			size: $size,
-			status: self::statusOf(findings: $findings),
-			findings: $findings,
-			checks: self::PDF_CHECKS,
-			pageCount: $facts['pages']
+			file: $file,
+			outcome: [
+				'status' => self::statusOf(findings: $findings),
+				'findings' => $findings,
+				'checks' => self::PDF_CHECKS,
+				'pageCount' => $facts['pages'],
+			]
 		);
 	}//end evaluate()
 
@@ -291,102 +297,153 @@ class DocumentAccessibilityScanService {
 	 * @return list<array<string, string>>
 	 */
 	private function pdfFindings(array $facts): array {
-		$pages    = $facts['pages'];
-		$findings = [];
-		if ($facts['tagged'] === false) {
-			$findings[] = $this->finding(code: 'not-tagged', severity: 'error', evidence: 'No StructTreeRoot in the document catalog');
-		}
+		$checks = [
+			$this->taggedFinding(facts: $facts),
+			$this->textLayerFinding(facts: $facts),
+			$this->languageFinding(facts: $facts),
+			$this->titleFinding(facts: $facts),
+			$this->bookmarksFinding(facts: $facts),
+			$this->altTextFinding(facts: $facts),
+		];
 
-		if ($pages > 0 && $facts['images'] > 0 && $facts['textCharacters'] < ($pages * self::MIN_TEXT_PER_PAGE)) {
-			$evidence   = sprintf('%d extractable characters across %d pages, %d images', $facts['textCharacters'], $pages, $facts['images']);
-			$findings[] = $this->finding(code: 'no-text-layer', severity: 'error', evidence: $evidence);
-		}
-
-		if ($facts['language'] === null) {
-			$findings[] = $this->finding(code: 'no-language', severity: 'warning', evidence: 'No /Lang in the document catalog');
-		}
-
-		if ($facts['title'] === null) {
-			$findings[] = $this->finding(code: 'no-title', severity: 'warning', evidence: 'No title in the document information or metadata');
-		}
-
-		if ($pages > self::LONG_DOCUMENT_PAGES && $facts['outlines'] === false) {
-			$findings[] = $this->finding(code: 'no-bookmarks', severity: 'warning', evidence: sprintf('%d pages, no outline', $pages));
-		}
-
-		$withoutAlt = ($facts['figures'] - $facts['figuresWithAlt']);
-		if ($withoutAlt > 0) {
-			$evidence   = sprintf('%d of %d figures without /Alt', $withoutAlt, $facts['figures']);
-			$findings[] = $this->finding(code: 'missing-alt-text', severity: 'warning', evidence: $evidence);
-		}
-
-		return $findings;
+		return array_values(array_filter($checks, static fn (?array $finding): bool => $finding !== null));
 	}//end pdfFindings()
+
+	/**
+	 * An untagged PDF: screen readers cannot follow its structure.
+	 *
+	 * @param array<string, mixed> $facts The structural facts.
+	 *
+	 * @return array<string, string>|null The finding, or null when it does not apply.
+	 */
+	private function taggedFinding(array $facts): ?array {
+		if ($facts['tagged'] !== false) {
+			return null;
+		}
+
+		return $this->finding(code: 'not-tagged', evidence: 'No StructTreeRoot in the document catalog');
+	}//end taggedFinding()
+
+	/**
+	 * A PDF of images with almost no text: a scan without a text layer.
+	 *
+	 * @param array<string, mixed> $facts The structural facts.
+	 *
+	 * @return array<string, string>|null The finding, or null when it does not apply.
+	 */
+	private function textLayerFinding(array $facts): ?array {
+		$pages = $facts['pages'];
+		if ($pages <= 0 || $facts['images'] <= 0 || $facts['textCharacters'] >= ($pages * self::MIN_TEXT_PER_PAGE)) {
+			return null;
+		}
+
+		$evidence = sprintf('%d extractable characters across %d pages, %d images', $facts['textCharacters'], $pages, $facts['images']);
+		return $this->finding(code: 'no-text-layer', evidence: $evidence);
+	}//end textLayerFinding()
+
+	/**
+	 * No document language.
+	 *
+	 * @param array<string, mixed> $facts The structural facts.
+	 *
+	 * @return array<string, string>|null The finding, or null when it does not apply.
+	 */
+	private function languageFinding(array $facts): ?array {
+		if ($facts['language'] !== null) {
+			return null;
+		}
+
+		return $this->finding(code: 'no-language', evidence: 'No /Lang in the document catalog');
+	}//end languageFinding()
+
+	/**
+	 * No document title.
+	 *
+	 * @param array<string, mixed> $facts The structural facts.
+	 *
+	 * @return array<string, string>|null The finding, or null when it does not apply.
+	 */
+	private function titleFinding(array $facts): ?array {
+		if ($facts['title'] !== null) {
+			return null;
+		}
+
+		return $this->finding(code: 'no-title', evidence: 'No title in the document information or metadata');
+	}//end titleFinding()
+
+	/**
+	 * A long document without bookmarks.
+	 *
+	 * @param array<string, mixed> $facts The structural facts.
+	 *
+	 * @return array<string, string>|null The finding, or null when it does not apply.
+	 */
+	private function bookmarksFinding(array $facts): ?array {
+		if ($facts['pages'] <= self::LONG_DOCUMENT_PAGES || $facts['outlines'] !== false) {
+			return null;
+		}
+
+		return $this->finding(code: 'no-bookmarks', evidence: sprintf('%d pages, no outline', $facts['pages']));
+	}//end bookmarksFinding()
+
+	/**
+	 * Figures without alternative text.
+	 *
+	 * @param array<string, mixed> $facts The structural facts.
+	 *
+	 * @return array<string, string>|null The finding, or null when it does not apply.
+	 */
+	private function altTextFinding(array $facts): ?array {
+		$withoutAlt = ($facts['figures'] - $facts['figuresWithAlt']);
+		if ($withoutAlt <= 0) {
+			return null;
+		}
+
+		return $this->finding(code: 'missing-alt-text', evidence: sprintf('%d of %d figures without /Alt', $withoutAlt, $facts['figures']));
+	}//end altTextFinding()
 
 	/**
 	 * The result for a file that could not be read.
 	 *
-	 * @param string      $fileName The file name.
-	 * @param string|null $mimeType The MIME type.
-	 * @param int|null    $size     The size in bytes.
-	 * @param string      $evidence Why it could not be read.
+	 * @param array{fileName: string, mimeType: string|null, fileSize: int|null} $file     The file.
+	 * @param string                                                            $evidence Why it could not be read.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function unreadable(string $fileName, ?string $mimeType, ?int $size, string $evidence): array {
-		return $this->result(
-			fileName: $fileName,
-			mimeType: $mimeType,
-			size: $size,
-			status: 'not-scanned',
-			findings: [$this->finding(code: 'parse-failure', severity: 'info', evidence: $evidence)]
-		);
+	private function unreadable(array $file, string $evidence): array {
+		return $this->result(file: $file, outcome: ['status' => 'not-scanned', 'findings' => [$this->finding(code: 'parse-failure', evidence: $evidence)]]);
 	}//end unreadable()
 
 	/**
 	 * Assemble a result.
 	 *
-	 * @param string                      $fileName  The file name.
-	 * @param string|null                 $mimeType  The MIME type.
-	 * @param int|null                    $size      The size in bytes.
-	 * @param string                      $status    The status.
-	 * @param list<array<string, string>> $findings  The findings.
-	 * @param list<string>                $checks    The checks evaluated.
-	 * @param int|null                    $pageCount The page count, when read.
+	 * @param array{fileName: string, mimeType: string|null, fileSize: int|null} $file    The file.
+	 * @param array<string, mixed>                                              $outcome status and findings, and the checks evaluated and the page count when read.
 	 *
 	 * @return array<string, mixed>
 	 */
-	private function result(
-		string $fileName,
-		?string $mimeType,
-		?int $size,
-		string $status,
-		array $findings,
-		array $checks=[],
-		?int $pageCount=null
-	): array {
+	private function result(array $file, array $outcome): array {
 		return [
-			'fileName' => $fileName,
-			'mimeType' => $mimeType,
-			'fileSize' => $size,
-			'status' => $status,
-			'findings' => $findings,
-			'checks' => $checks,
-			'pageCount' => $pageCount,
+			'fileName' => $file['fileName'],
+			'mimeType' => $file['mimeType'],
+			'fileSize' => $file['fileSize'],
+			'status' => $outcome['status'],
+			'findings' => $outcome['findings'],
+			'checks' => ($outcome['checks'] ?? []),
+			'pageCount' => ($outcome['pageCount'] ?? null),
 		];
 	}//end result()
 
 	/**
-	 * One finding with its guidance.
+	 * One finding with its severity and guidance.
 	 *
 	 * @param string $code     The finding code.
-	 * @param string $severity `error`, `warning` or `info`.
 	 * @param string $evidence What was observed.
 	 *
 	 * @return array<string, string>
 	 */
-	private function finding(string $code, string $severity, string $evidence): array {
-		return ['code' => $code, 'severity' => $severity, 'evidence' => $evidence, 'guidance' => $this->guidance(code: $code)];
+	private function finding(string $code, string $evidence): array {
+		return ['code' => $code, 'severity' => (self::SEVERITY[$code] ?? 'info'), 'evidence' => $evidence, 'guidance' => $this->guidance(code: $code)];
 	}//end finding()
 
 	/**
@@ -491,13 +548,7 @@ class DocumentAccessibilityScanService {
 	 */
 	private function reportData(mixed $row): ?array {
 		if ($row instanceof ObjectEntityInterface) {
-			$data = $row->getObject();
-			$uuid = $row->getUuid();
-			if ($uuid !== null && $uuid !== '') {
-				$data['id'] = $uuid;
-			}
-
-			return $data;
+			return $this->entityData(entity: $row);
 		}
 
 		if (is_array($row) === true) {
@@ -506,4 +557,21 @@ class DocumentAccessibilityScanService {
 
 		return null;
 	}//end reportData()
+
+	/**
+	 * An object entity's data with its uuid as `id`.
+	 *
+	 * @param ObjectEntityInterface $entity The entity.
+	 *
+	 * @return array<string, mixed>
+	 */
+	private function entityData(ObjectEntityInterface $entity): array {
+		$data = $entity->getObject();
+		$uuid = $entity->getUuid();
+		if ($uuid !== null && $uuid !== '') {
+			$data['id'] = $uuid;
+		}
+
+		return $data;
+	}//end entityData()
 }//end class
