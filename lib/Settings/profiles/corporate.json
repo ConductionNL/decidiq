@@ -13,7 +13,7 @@
 			"label": "Company board",
 			"description": "A supervisory board, an executive board and a management team. Terms, conflicts of interest and evaluations.",
 			"order": 3,
-			"objectCount": 101,
+			"objectCount": 105,
 			"icon": "BriefcaseOutline"
 		},
 		"description": "An example set an operator picks in the first-time setup wizard (ADR-042). NEVER imported on install: the register.d fragments declare schemas only, so a bare install has zero objects. Every object carries @self.configuration/register/schema so the import resolves the live decidiq register WITHOUT this descriptor declaring components.registers. That is deliberate and load-bearing: ImportHandler::importRegister() calls setApplication($appId) unconditionally on an existing register, so a descriptor that declared the register would re-point the decidiq register at this profile config id and hydrate over its authorization baseline. Verified on a live instance: importing this shape left application=decidiq, version and authorization byte-identical. Import is idempotent by slug, so loading a profile twice adds nothing. Descriptors live in this SUBDIRECTORY on purpose: RegisterDescriptorService scans lib/Settings/*.json non-recursively and matches descriptors by declared register slug, so four profile files in lib/Settings would collide with each other and with decidesk_register.json.",
@@ -591,6 +591,26 @@
 						"outcome": "adopted",
 						"decisionDate": "2026-04-15T19:00:00Z",
 						"targetBody": "rvc-waterschap-amstel"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision"
+						},
+						"slug": "urgent-resolution-datalek-2026",
+						"decisionType": "management-point",
+						"title": "Emergency engagement of forensic IT firm after data breach",
+						"text": "The executive board engages a forensic IT firm to contain and investigate the data breach, within a budget of EUR 85,000.",
+						"lifecycle": "decided",
+						"outcome": "adopted",
+						"decisionDate": "2026-06-11T18:40:00+02:00",
+						"isPublished": "internal",
+						"governingBody": "Raad van Bestuur ACME B.V.",
+						"isUrgent": true,
+						"urgencyReason": "Active data breach requires contracting within 48 hours; statutory urgent-resolution clause art. 14.3, subject to RvC ratification",
+						"urgencyDeclaredBy": "ceo",
+						"urgencyDeclaredAt": "2026-06-10T18:40:00+02:00"
 					}
 				],
 				"decision-stage": [
@@ -713,6 +733,46 @@
 						"decision": "besluit-investering-acme",
 						"assignedBody": "raad-van-commissarissen-acme-bv",
 						"signedDocument": "notulen-rvc-investering-acme-signed"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "datalek-rvb-schriftelijk",
+						"sequence": 1,
+						"mandatory": true,
+						"stageType": "decisive",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-06-11T18:40:00+02:00",
+						"method": "vote",
+						"decisionMakerType": "body",
+						"label": "Written resolution of the executive board (24 hours)",
+						"decision": "urgent-resolution-datalek-2026",
+						"assignedBody": "raad-van-bestuur-acme-bv",
+						"votingRound": "datalek-rvb-schriftelijke-ronde"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "decision-stage"
+						},
+						"slug": "datalek-rvc-bekrachtiging",
+						"sequence": 2,
+						"mandatory": true,
+						"stageType": "ratifying",
+						"status": "decided",
+						"outcome": "adopted",
+						"decidedAt": "2026-06-17T11:00:00+02:00",
+						"method": "chair-register",
+						"decisionMakerType": "body",
+						"label": "Ratification",
+						"decision": "urgent-resolution-datalek-2026",
+						"assignedBody": "raad-van-commissarissen-acme-bv",
+						"placementPending": false
 					}
 				],
 				"decision-template": [
@@ -2062,6 +2122,25 @@
 						"voteThreshold": "simple-majority",
 						"abstentionHandling": "exclude",
 						"decisionStage": "stage-investering-acme-2-dec"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "voting-round"
+						},
+						"slug": "datalek-rvb-schriftelijke-ronde",
+						"votingMethod": "for-against-abstain",
+						"isSecret": false,
+						"openedAt": "2026-06-10T18:40:00+02:00",
+						"votingDeadline": "2026-06-11T18:40:00+02:00",
+						"closedAt": "2026-06-11T18:40:00+02:00",
+						"quorumWith": true,
+						"result": "adopted",
+						"votesFor": 3,
+						"votesAgainst": 0,
+						"votesAbstain": 0,
+						"decisionStage": "datalek-rvb-schriftelijk"
 					}
 				],
 				"meeting-pack": [

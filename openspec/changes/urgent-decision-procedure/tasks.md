@@ -78,8 +78,8 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN the register is listed THEN the municipal spoedbesluit (awaiting ratification, emergency `extraordinary` meeting with recorded deviation, ratification AgendaItem on the `regular` raadsvergadering) and the corporate urgent resolution (expedited 24h written round, ratified by RvC) exist per the design tables
   - GIVEN the seeded process templates WHEN inspected THEN both carry a valid `urgencyPolicy`
-- [ ] Implement
-- [ ] Test
+- [x] Implement (seeds live in `lib/Settings/profiles/` (the example sets), not in the register: municipality gets the spoedbesluit noodopvang (urgent, awaiting ratification), its decisive college stage and pending ratifying raad stage, the extraordinary spoedvergadering with its recorded deviation and the regular raadsvergadering of 18 June with the ratification agenda item; corporate gets the urgent data-breach resolution, its 24-hour written round (3 for, 0 against) and the ratified RvC stage. The seeded templates already carry a valid `urgencyPolicy` (task 2). The emergency meeting records 24 hours of notice, not the 18 of the design table, because 18 is below the municipal template's own 24-hour floor)
+- [x] Test (RegisterJsonTest object counts and references, SeedProfileServiceTest slug lengths)
 
 ## Quality checklist
 
