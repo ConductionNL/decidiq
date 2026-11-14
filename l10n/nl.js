@@ -2545,6 +2545,7 @@ OC.L10N.register(
         "The competence is confirmed.": "De competentie is bevestigd.",
         "The competence of the membership's body.": "De competentie van het orgaan van het lidmaatschap.",
         "The competence, such as Finance and audit or Water management.": "De competentie, zoals Financiën en audit of Waterbeheer.",
+        "Closed to the public": "Besloten",
         "The composition could not be loaded.": "De samenstelling kon niet worden geladen.",
         "The confidentiality ground it was sent with.": "De vertrouwelijkheidsgrond waarmee het is verstuurd.",
         "The configured agenda item type, by id.": "Het ingestelde type agendapunt, op id.",
@@ -3816,8 +3817,7 @@ OC.L10N.register(
         "Term reminder (days)": "Termijnherinnering (dagen)",
         "How many days before a member's term ends the secretary is reminded.": "Hoeveel dagen voordat de termijn van een lid eindigt de secretaris een herinnering krijgt.",
         "When the term ends or the membership ended. Empty while the term has no end.": "Wanneer de termijn eindigt of het lidmaatschap eindigde. Leeg zolang de termijn geen einde heeft.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient.",
-        "Closed to the public": "Besloten"
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )

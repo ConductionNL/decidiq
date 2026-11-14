@@ -2266,6 +2266,7 @@ OC.L10N.register(
         "The body putting the question.": "The body putting the question.",
         "The body that held the meeting.": "The body that held the meeting.",
         "The body that needs this competence.": "The body that needs this competence.",
+        "Closed to the public": "Closed to the public",
         "The body the agenda, paper, decision or minutes belongs to.": "The body the agenda, paper, decision or minutes belongs to.",
         "The body the membership sits on.": "The body the membership sits on.",
         "The body the position is on.": "The body the position is on.",
@@ -3398,8 +3399,7 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
-        "Closed to the public": "Closed to the public"
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )

@@ -33,13 +33,13 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
-use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
 use OCA\Decidiq\Listener\MinutesApprovedListener;
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;

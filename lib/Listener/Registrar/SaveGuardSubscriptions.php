@@ -28,7 +28,6 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Listener\Registrar;
 
-use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
@@ -36,6 +35,7 @@ use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
 use OCA\Decidiq\Listener\SubmissionDeadlineListener;
+use OCA\Decidiq\Listener\AgendaItemConfidentialityListener;
 use OCA\OpenRegister\Event\ObjectCreatingEvent;
 use OCA\OpenRegister\Event\ObjectUpdatingEvent;
 
