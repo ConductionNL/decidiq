@@ -9,8 +9,9 @@
   - GIVEN a group of 11 persons, 10 of them participants of the meeting WHEN a round opens with it THEN 10 participants are eligible and the eleventh is reported as excluded
   - GIVEN a group of another body, or an inactive group WHEN a round opens with it THEN the request is refused with 400
   - GIVEN neither a group nor preset ids WHEN a round opens THEN behaviour is unchanged
-- [ ] Implement
-- [ ] Test
+- Built: `VotingGroupResolver` matches each member to a participant of the meeting the way `PersonParticipantLookup` does (Nextcloud user id, then e-mail); a member who matches nobody is reported with her name. A group that resolves to nobody is refused (a round with no participant relations is open to the whole body). `votingGroup` and `presetParticipantIds` together are refused (400). The round answer carries `excludedGroupMembers` (id, name) and the ids join `excludedPresetUuids`. Tests: `VotingGroupResolverTest` (5), `VotingGroupRoundTest` (4, the real opener).
+- [x] Implement
+- [x] Test
 
 ### Task 2: Who may vote in the open-round panel
 - **spec_ref**: `openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground` (+ REQ-VGP-005)
@@ -18,8 +19,9 @@
 - **acceptance_criteria**:
   - GIVEN a body with two active groups WHEN the panel opens THEN the choice lists all members (default) and the two groups with their member counts
   - GIVEN the server reports one excluded member WHEN the round opens THEN the panel names her
-- [ ] Implement
-- [ ] Test
+- Built: the open-round dialog reads the meeting's body and offers "All members of the body" or the body's active groups with their member counts; a revote never sends a group. Three new strings in all 37 catalogues. Tests: `tests/vitest/votingGroups.spec.js` (+5), `votingRoundPanelRequestsGolden.spec.js` (+4).
+- [x] Implement
+- [x] Test
 
 ### Task 3: End to end
 - **spec_ref**: `openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground`

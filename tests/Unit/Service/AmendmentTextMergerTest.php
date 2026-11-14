@@ -120,4 +120,30 @@ class AmendmentTextMergerTest extends TestCase {
 		$this->assertSame('', $result['originalText']);
 		$this->assertSame('', $result['amendmentHistory'][0]['before']);
 	}
+
+	/**
+	 * A recommendation's entry names it under its own key, never as an
+	 * amendment, and the same id is only "applied" for its own kind.
+	 *
+	 * @spec openspec/changes/motion-change-recommendations/specs/motion-amendment/spec.md#requirement-req-mcr-003-the-chair-or-secretary-accepts-a-recommendation-into-the-text-without-a-vote
+	 *
+	 * @return void
+	 */
+	public function testARecommendationIsRecordedUnderItsOwnKind(): void {
+		$merger = new AmendmentTextMerger();
+		$result = $merger->merge(
+			['text' => 'Een krediet van 640.000 euro.', 'amendmentHistory' => [['amendment' => 'x-1']]],
+			['targetPassage' => '640.000', 'proposedText' => '645.000'],
+			'x-1',
+			AmendmentTextMerger::KIND_RECOMMENDATION
+		);
+
+		$this->assertSame('Een krediet van 645.000 euro.', $result['text']);
+		$entry = $result['amendmentHistory'][1];
+		$this->assertSame(['recommendation', 'kind', 'mode', 'before', 'after', 'appliedAt'], array_keys($entry));
+		$this->assertSame('x-1', $entry['recommendation']);
+		$this->assertSame('recommendation', $entry['kind']);
+
+		$this->assertNull($merger->merge($result, ['targetPassage' => '645.000', 'proposedText' => '1'], 'x-1', AmendmentTextMerger::KIND_RECOMMENDATION));
+	}
 }

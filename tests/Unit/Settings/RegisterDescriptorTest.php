@@ -363,4 +363,25 @@ class RegisterDescriptorTest extends TestCase {
 			self::assertSame(['outcome' . ucfirst($state)], $matching, $state);
 		}
 	}//end testEachDecisionOutcomeIsAnnouncedByExactlyOneRule()
+
+	/**
+	 * Each outcome rule also posts to the decision's own callback: the webhook
+	 * channel with its URL taken from `outcomeCallbackUrl`, never a fixed URL,
+	 * and inline rather than persistent (a persistent webhook needs one URL).
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/decision-outcome-reaches-the-subscriber/specs/decidesk-contract-decision-hub/spec.md#requirement-req-dcdh-010-the-outcome-reaches-the-subscribers-callback
+	 */
+	public function testEachOutcomeRuleDeliversToTheDecisionsCallback(): void {
+		$decision = (array)($this->descriptor['components']['schemas']['Decision'] ?? []);
+		self::assertArrayHasKey('outcomeCallbackUrl', (array)($decision['properties'] ?? []));
+
+		$rules = (array)($decision['x-openregister-notifications'] ?? []);
+		foreach (['outcomeDecided', 'outcomeEnacted', 'outcomeWithdrawn'] as $name) {
+			$rule = (array)($rules[$name] ?? []);
+			self::assertSame(['nc-notification', 'webhook'], ($rule['channels'] ?? null), $name);
+			self::assertSame(['urlField' => 'outcomeCallbackUrl'], ($rule['webhook'] ?? null), $name);
+		}
+	}//end testEachOutcomeRuleDeliversToTheDecisionsCallback()
 }//end class
