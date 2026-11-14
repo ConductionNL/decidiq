@@ -113,32 +113,38 @@ class OndermandaatGuardService {
 	}//end assertAllowed()
 
 	/**
-	 * A parent toedeling.
+	 * A parent toedeling, read on the current schema and then on the old Dutch slug.
+	 *
+	 * The migration moves rows to `authority-delegation`, but an install that
+	 * still holds a toedeling on `bevoegdheidstoedeling` keeps its chains
+	 * checkable: a parent missing on the first schema is looked up on the next.
 	 *
 	 * @param string $parentId The parent's uuid.
 	 *
 	 * @return array<string, mixed> The parent.
 	 *
-	 * @throws OndermandaatRefusedException When it does not exist or cannot be read.
+	 * @throws OndermandaatRefusedException When it exists on neither schema or cannot be read.
 	 */
 	private function parent(string $parentId): array {
-		try {
-			$entity = $this->objectService->find(id: $parentId, register: 'decidiq', schema: self::SCHEMA, _rbac: false);
-		} catch (DoesNotExistException) {
-			$entity = null;
-		} catch (Throwable $e) {
-			throw new OndermandaatRefusedException(
-				message: 'The toedeling was not saved: its parent could not be read to check the ondermandaat chain.',
-				code: 0,
-				previous: $e
-			);
+		foreach (self::SCHEMAS as $schema) {
+			try {
+				$entity = $this->objectService->find(id: $parentId, register: 'decidiq', schema: $schema, _rbac: false);
+			} catch (DoesNotExistException) {
+				$entity = null;
+			} catch (Throwable $e) {
+				throw new OndermandaatRefusedException(
+					message: 'The toedeling was not saved: its parent could not be read to check the ondermandaat chain.',
+					code: 0,
+					previous: $e
+				);
+			}
+
+			if ($entity !== null) {
+				return (array)$entity->jsonSerialize();
+			}
 		}
 
-		if ($entity === null) {
-			throw new OndermandaatRefusedException(message: 'The toedeling was not saved: its parent toedeling does not exist.');
-		}
-
-		return (array)$entity->jsonSerialize();
+		throw new OndermandaatRefusedException(message: 'The toedeling was not saved: its parent toedeling does not exist.');
 	}//end parent()
 
 	/**
