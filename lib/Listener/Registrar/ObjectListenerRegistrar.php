@@ -35,6 +35,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
+use OCA\Decidiq\Listener\RoomSystemMessageListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
 use OCA\Decidiq\Listener\MeetingFolderListener;
@@ -139,6 +140,8 @@ class ObjectListenerRegistrar {
 			);
 		}
 
+		$this->subscribeRoomSystem(dispatcher: $dispatcher);
+
 		// A planning cycle made from a template gets its steps
 		// (planning-cycle-generate-from-template, pla-12). Declared interest is
 		// the handler's own schema guard.
@@ -196,6 +199,27 @@ class ObjectListenerRegistrar {
 		}
 
 	}//end register()
+
+	/**
+	 * Room system messages (live-room-conference-system-link, liv-22): a speaker
+	 * marking or desk vote integriq stored is applied at once. Declared interest
+	 * is the handler's own schema guard.
+	 *
+	 * @param IEventDispatcher $dispatcher The dispatcher.
+	 *
+	 * @return void
+	 *
+	 * @spec openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-004-a-speaker-marking-becomes-a-speech-on-the-members-engagement-record
+	 */
+	private function subscribeRoomSystem(IEventDispatcher $dispatcher): void {
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: RoomSystemMessageListener::class,
+			registers: null,
+			schemas: [RoomSystemMessageListener::SCHEMA_MESSAGE]
+		);
+	}//end subscribeRoomSystem()
 
 	/**
 	 * Register an object-lifecycle listener that declares its interest up front.

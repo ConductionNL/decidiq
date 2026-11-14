@@ -212,6 +212,10 @@
             "description": "Streams a meeting recording with byte ranges."
         },
         {
+            "name": "room-system",
+            "description": "The room's conference and voting system, through integriq."
+        },
+        {
             "name": "setup",
             "description": "First-time setup wizard endpoints."
         },
@@ -7278,6 +7282,84 @@
                         "in": "path",
                         "required": true,
                         "description": "The entity UUID to update.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/meetings/{id}/room-system": {
+            "get": {
+                "operationId": "room-system-meeting",
+                "summary": "Whether a room system is connected, and the meeting's messages, rejected ones first",
+                "description": "Whether a room system is connected, and the meeting's messages, rejected ones first. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/room-system-messages/{id}/apply": {
+            "post": {
+                "operationId": "room-system-apply",
+                "summary": "Apply a room system message again",
+                "description": "Apply a room system message again. Needs a signed-in Nextcloud user who is the meeting's chair or secretary.",
+                "tags": [
+                    "room-system"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The message.",
                         "schema": {
                             "type": "string"
                         }

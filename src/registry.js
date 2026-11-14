@@ -67,6 +67,7 @@ import MeetingCaseSystemTab from './components/tabs/MeetingCaseSystemTab.vue'
 import MeetingDecisionsTab from './components/tabs/MeetingDecisionsTab.vue'
 import MeetingMinutesTab from './components/tabs/MeetingMinutesTab.vue'
 import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue'
+import MeetingRoomSystemTab from './components/tabs/MeetingRoomSystemTab.vue'
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingSessionsTab from './components/tabs/MeetingSessionsTab.vue'
@@ -304,6 +305,7 @@ export default {
 	// (platform-case-system-document-exchange).
 	AgendaItemCaseTab: page(AgendaItemCaseTab),
 	MeetingCaseSystemTab: page(MeetingCaseSystemTab),
+	MeetingRoomSystemTab: page(MeetingRoomSystemTab),
 	MeetingBroadcastTab: page(MeetingBroadcastTab),
 	MeetingSessionsTab: page(MeetingSessionsTab),
 	DecisionListSignersTab: page(DecisionListSignersTab),
