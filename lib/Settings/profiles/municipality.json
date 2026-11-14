@@ -20,6 +20,137 @@
 		"seedData": {
 			"description": "Example objects for the municipality set.",
 			"objects": {
+				"annotation": [
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "hl-bestemmingsplan-bouwhoogte",
+						"annotationType": "highlight",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 3,
+						"quads": [
+							[
+								0.12,
+								0.41,
+								0.71,
+								0.41,
+								0.71,
+								0.44,
+								0.12,
+								0.44
+							]
+						],
+						"quote": "maximale bouwhoogte van 12 meter",
+						"bodyText": "Strijdig met eerdere toezegging aan omwonenden?",
+						"color": "yellow",
+						"visibility": "private",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "commissie-ruimte-2026-11-03-punt-2",
+						"meeting": "commissie-ruimte-2026-11-03"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "note-begroting-dekking",
+						"annotationType": "sticky-note",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 2,
+						"point": {
+							"x": 0.82,
+							"y": 0.18
+						},
+						"bodyText": "Navragen bij wethouder: dekking uit de algemene reserve?",
+						"color": "blue",
+						"visibility": "faction",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "begroting-2026-bespreking"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "draw-situatietekening-kruising",
+						"annotationType": "drawing",
+						"fileId": 0,
+						"fileVersion": "seed-v1",
+						"versionLabel": "v1",
+						"page": 5,
+						"path": [
+							[
+								0.3,
+								0.52
+							],
+							[
+								0.36,
+								0.48
+							],
+							[
+								0.44,
+								0.47
+							],
+							[
+								0.5,
+								0.51
+							],
+							[
+								0.48,
+								0.58
+							],
+							[
+								0.39,
+								0.61
+							],
+							[
+								0.31,
+								0.58
+							],
+							[
+								0.3,
+								0.52
+							]
+						],
+						"bodyText": "Kruising Stationsweg: zichtlijnen controleren",
+						"color": "red",
+						"visibility": "private",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "vaststelling-omgevingsvisie",
+						"meeting": "raadsvergadering-2025-01-15"
+					},
+					{
+						"@self": {
+							"configuration": "decidiq",
+							"register": "decidiq",
+							"schema": "annotation"
+						},
+						"slug": "note-notulen-actiepunt-griffie",
+						"annotationType": "sticky-note",
+						"fileId": 0,
+						"fileVersion": "seed-v2",
+						"versionLabel": "v2",
+						"page": 1,
+						"point": {
+							"x": 0.75,
+							"y": 0.1
+						},
+						"bodyText": "Actiepunt griffie: raadsbrief vóór 1 mei versturen",
+						"color": "green",
+						"visibility": "body",
+						"author": "00000000-0000-0000-0000-000000000000",
+						"agendaItem": "notulen-2024-12-18"
+					}
+				],
 				"action-item": [
 					{
 						"@self": {
@@ -4839,137 +4970,6 @@
 						"skipped": [
 							"04 - Kadernota begroting 2026/begroting-detail.xlsx (non-PDF attachment)"
 						]
-					}
-				],
-				"annotation": [
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "annotation"
-						},
-						"slug": "hl-bestemmingsplan-bouwhoogte",
-						"annotationType": "highlight",
-						"fileId": 0,
-						"fileVersion": "seed-v1",
-						"versionLabel": "v1",
-						"page": 3,
-						"quads": [
-							[
-								0.12,
-								0.41,
-								0.71,
-								0.41,
-								0.71,
-								0.44,
-								0.12,
-								0.44
-							]
-						],
-						"quote": "maximale bouwhoogte van 12 meter",
-						"bodyText": "Strijdig met eerdere toezegging aan omwonenden?",
-						"color": "yellow",
-						"visibility": "private",
-						"author": "00000000-0000-0000-0000-000000000000",
-						"agendaItem": "commissie-ruimte-2026-11-03-punt-2",
-						"meeting": "commissie-ruimte-2026-11-03"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "annotation"
-						},
-						"slug": "note-begroting-dekking",
-						"annotationType": "sticky-note",
-						"fileId": 0,
-						"fileVersion": "seed-v1",
-						"versionLabel": "v1",
-						"page": 2,
-						"point": {
-							"x": 0.82,
-							"y": 0.18
-						},
-						"bodyText": "Navragen bij wethouder: dekking uit de algemene reserve?",
-						"color": "blue",
-						"visibility": "faction",
-						"author": "00000000-0000-0000-0000-000000000000",
-						"agendaItem": "begroting-2026-bespreking"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "annotation"
-						},
-						"slug": "draw-situatietekening-kruising",
-						"annotationType": "drawing",
-						"fileId": 0,
-						"fileVersion": "seed-v1",
-						"versionLabel": "v1",
-						"page": 5,
-						"path": [
-							[
-								0.3,
-								0.52
-							],
-							[
-								0.36,
-								0.48
-							],
-							[
-								0.44,
-								0.47
-							],
-							[
-								0.5,
-								0.51
-							],
-							[
-								0.48,
-								0.58
-							],
-							[
-								0.39,
-								0.61
-							],
-							[
-								0.31,
-								0.58
-							],
-							[
-								0.3,
-								0.52
-							]
-						],
-						"bodyText": "Kruising Stationsweg: zichtlijnen controleren",
-						"color": "red",
-						"visibility": "private",
-						"author": "00000000-0000-0000-0000-000000000000",
-						"agendaItem": "vaststelling-omgevingsvisie",
-						"meeting": "raadsvergadering-2025-01-15"
-					},
-					{
-						"@self": {
-							"configuration": "decidiq",
-							"register": "decidiq",
-							"schema": "annotation"
-						},
-						"slug": "note-notulen-actiepunt-griffie",
-						"annotationType": "sticky-note",
-						"fileId": 0,
-						"fileVersion": "seed-v2",
-						"versionLabel": "v2",
-						"page": 1,
-						"point": {
-							"x": 0.75,
-							"y": 0.1
-						},
-						"bodyText": "Actiepunt griffie: raadsbrief vóór 1 mei versturen",
-						"color": "green",
-						"visibility": "body",
-						"author": "00000000-0000-0000-0000-000000000000",
-						"agendaItem": "notulen-2024-12-18"
 					}
 				]
 			}
