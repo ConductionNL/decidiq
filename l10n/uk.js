@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Хто може голосувати",
+        "All members of the body": "Усі члени органу",
+        "Left out because they are no longer active members: {names}": "Не включені, бо більше не є чинними членами: {names}",
         "sign-off route": "маршрут погодження",
         "#": "№",
         "%1$d for, %2$d against, %3$d abstained": "%1$d за, %2$d проти, %3$d утрималися",

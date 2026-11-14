@@ -84,10 +84,12 @@ import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionChangeRecommendationsTab from './components/tabs/MotionChangeRecommendationsTab.vue'
 import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
 import MotionConflictsTab from './components/tabs/MotionConflictsTab.vue'
 import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
 import MotionStageTab from './components/tabs/MotionStageTab.vue'
+import MotionTextLinesTab from './components/tabs/MotionTextLinesTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
 import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
@@ -275,6 +277,8 @@ export default {
 	AgendaItemTypeFieldsTab: page(AgendaItemTypeFieldsTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
+	MotionChangeRecommendationsTab: page(MotionChangeRecommendationsTab),
+	MotionTextLinesTab: page(MotionTextLinesTab),
 	// Chair-controlled amendment voting order (motion-amendment spec).
 	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
