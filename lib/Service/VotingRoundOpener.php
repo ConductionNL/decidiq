@@ -69,6 +69,13 @@ class VotingRoundOpener {
 	private readonly MeetingRuleSource $ruleSource;
 
 	/**
+	 * Turns a voting group into the meeting's participants.
+	 *
+	 * @var VotingGroupResolver
+	 */
+	private readonly VotingGroupResolver $votingGroups;
+
+	/**
 	 * Constructor for VotingRoundOpener.
 	 *
 	 * @param MotionService $motionService The motion service for lifecycle transitions
@@ -76,6 +83,7 @@ class VotingRoundOpener {
 	 * @param VotingRoundPreflight $preflight Fail-closed preflight (rules, revote guard, presets)
 	 * @param VotingOpenedNotifier $notifier Fail-soft announcements for a freshly opened round
 	 * @param ObjectServiceInterface $objectService OpenRegister's published object contract (ADR-084)
+	 * @param VotingGroupResolver|null $votingGroups Turns a voting group into the meeting's participants; null builds the default
 	 *
 	 * @return void
 	 *
@@ -87,6 +95,7 @@ class VotingRoundOpener {
 		private readonly VotingRoundPreflight $preflight,
 		private readonly VotingOpenedNotifier $notifier,
 		private readonly ObjectServiceInterface $objectService,
+		?VotingGroupResolver $votingGroups = null,
 	) {
 		// ADR-084 replaced this class's `ContainerInterface $container`
 		// parameter with `ObjectServiceInterface $objectService`, and replaced
@@ -103,6 +112,7 @@ class VotingRoundOpener {
 		$this->normaliser = new SavedObjectNormaliser();
 		$this->rankedRules = new RankedBallotRules();
 		$this->ruleSource = new MeetingRuleSource(objectService: $objectService, participantResolver: $participantResolver);
+		$this->votingGroups = ($votingGroups ?? new VotingGroupResolver(participants: $participantResolver, objectService: $objectService));
 
 	}//end __construct()
 
@@ -192,9 +202,15 @@ class VotingRoundOpener {
 			$this->amendmentOrder->assertOrdering(subjectId: $motionId, subjectType: $subjectType);
 		}
 
+		// A voting group stands for its members who are participants of this
+		// meeting (REQ-VGP-002); refused before anything is written when it
+		// cannot be used. Its left-out members are reported (REQ-VGP-005).
+		$group = $this->groupParticipants(request: $request, governanceBodyId: $roundRules->governanceBodyId);
+
 		// Preset UUIDs are validated against active memberships; the eligible
 		// ones become participant relations, a substituted seat as its substitute (REQ-MSW-002).
-		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $request->presetParticipantIds());
+		$chosen = ($group['participantIds'] ?? $request->presetParticipantIds());
+		$presetIds = $this->ruleSource->seatHoldersFor(meetingId: $meetingId, participantIds: $chosen);
 		$presets = $this->preflight->splitPresetParticipants(meetingId: $meetingId, presetIds: $presetIds);
 		$resolution = new VotingRoundResolution(rules: $rules, quorumWith: $quorumWith, participantIds: $presets['eligible']);
 		$votingRound = $this->withOptions(votingRound: $resolution->roundPayload(request: $request), options: $options);
@@ -211,6 +227,7 @@ class VotingRoundOpener {
 			result: $this->normaliser->toArray(saved: $created, fallback: $votingRound),
 			excluded: $presets['excluded']
 		);
+		$result = $this->withExcludedGroupMembers(result: $result, excluded: ($group['excluded'] ?? []));
 
 		// Fail-soft announcements: the activity-feed entry and the
 		// preference-aware "pending vote" notifications (user-settings spec),
@@ -281,6 +298,53 @@ class VotingRoundOpener {
 
 		return $result;
 	}//end withExcludedPresets()
+
+	/**
+	 * The participants and left-out members of the round's voting group, or null when it names none.
+	 *
+	 * @param VotingRoundRequest $request          The request.
+	 * @param string|null        $governanceBodyId The body the request names, or null for the meeting's.
+	 *
+	 * @return array{participantIds: list<string>, excluded: list<array{id: string, name: string}>}|null
+	 *
+	 * @throws \InvalidArgumentException When the group cannot be used for this round.
+	 *
+	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-002-chair-can-select-a-voting-group-preset-when-opening-a-votinground
+	 */
+	private function groupParticipants(VotingRoundRequest $request, ?string $governanceBodyId): ?array {
+		$groupId = $request->votingGroupId();
+		if ($groupId === null) {
+			return null;
+		}
+
+		return $this->votingGroups->resolve(groupId: $groupId, meetingId: $request->meetingId, bodyId: $governanceBodyId);
+	}//end groupParticipants()
+
+	/**
+	 * The created round with the voting group's left-out members, when there are any.
+	 *
+	 * Their ids join `excludedPresetUuids`, and `excludedGroupMembers` carries
+	 * their names, so the panel can say who was left out (REQ-VGP-005).
+	 *
+	 * @param array<string, mixed>                  $result   The created round.
+	 * @param list<array{id: string, name: string}> $excluded The left-out members.
+	 *
+	 * @return array<string, mixed>
+	 *
+	 * @spec openspec/changes/voting-groups-chosen-when-a-round-opens/specs/voting-group-presets/spec.md#requirement-req-vgp-005-the-chair-sees-who-a-voting-group-left-out
+	 */
+	private function withExcludedGroupMembers(array $result, array $excluded): array {
+		if ($excluded === []) {
+			return $result;
+		}
+
+		$result['excludedPresetUuids'] = array_values(
+			array_merge(($result['excludedPresetUuids'] ?? []), array_column($excluded, 'id'))
+		);
+		$result['excludedGroupMembers'] = $excluded;
+
+		return $result;
+	}//end withExcludedGroupMembers()
 
 	/**
 	 * The options a round opens with: the requested ones for a ranked-choice

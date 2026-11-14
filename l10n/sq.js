@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Kush mund të votojë",
+        "All members of the body": "Të gjithë anëtarët e organit",
+        "Left out because they are no longer active members: {names}": "Të lënë jashtë sepse nuk janë më anëtarë aktivë: {names}",
         "sign-off route": "rruga e miratimit",
         "#": "#",
         "+ Action item": "+ Veprimi",
