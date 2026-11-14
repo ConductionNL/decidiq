@@ -46,6 +46,7 @@
 					{ "key": "type", "label": "Type", "widget": "badge" },
 					{ "key": "worArticle", "label": "WOR article" },
 					{ "key": "director", "label": "Bestuurder", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "person", "labelField": "name" } },
+					{ "key": "governanceBody", "label": "Works council", "widget": "fkResolve", "widgetProps": { "register": "decidiq", "schema": "governance-body", "labelField": "name" } },
 					{ "key": "receivedDate", "label": "Received" },
 					{ "key": "requestedResponseDate", "label": "Requested response" },
 					{ "key": "lifecycle", "label": "Status", "widget": "badge" }
@@ -63,7 +64,7 @@
 			"route": "/works-council-consultations/:id",
 			"type": "detail",
 			"title": "Works-council consultation",
-			"_note": "spec: openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md — WorksCouncilConsultationDetail (REQ-WCC-008). Shows all fields and the linked overlegvergadering/agendaItem/achterbanraadpleging/relatedDecision/responseDocument as navigable references, plus the Files leaf for submitted documents. The running opschortingstermijn surfacing, the besluit-recording dialog and the 'Generate response document' action are wired when ConsultationResponseDocumentService + the besluit dialog land (imperative, out of declarative core); this core shows the fields + related refs + Files leaf.",
+			"_note": "spec: openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md — WorksCouncilConsultationDetail (REQ-WCC-008). Shows all fields and the linked overlegvergadering/agendaItem/achterbanraadpleging/relatedDecision/responseDocument as navigable references, plus the Files leaf for submitted documents. The running opschortingstermijn shows in its own card while suspensionTo is set; the besluit-recording dialog and the 'Generate response document' action are wired when ConsultationResponseDocumentService + the besluit dialog land.",
 			"config": {
 				"register": "decidiq",
 				"schema": "consultation-request",
@@ -71,11 +72,13 @@
 				"widgets": [
 					{ "id": "wor-traject-data", "type": "data", "title": "Works-council consultation", "icon": "ClipboardList", "content": { "columns": 2 } },
 					{ "id": "wor-traject-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
+					{ "id": "wor-traject-suspension", "type": "data", "title": "Suspension term (art. 25 lid 6 WOR)", "icon": "CalendarClockOutline", "visibleWhen": { "field": "suspensionTo", "op": "notEmpty" }, "content": { "columns": 1, "include": ["decisionOutcome", "decisionDate", "suspensionTo"] }, "_note": "works-council-consultation task 3 (REQ-WCC-006): shown only while a decision contrary to the advice has set the derived suspensionTo; the bestuurder may not carry the decision out before that date." },
 					{ "id": "wor-traject-related", "type": "related", "title": "Related", "icon": "LinkVariant" }
 				],
 				"layout": [
 					{ "id": "1", "widgetId": "wor-traject-data", "gridX": 0, "gridY": 0, "gridWidth": 8, "gridHeight": 6 },
-					{ "id": "2", "widgetId": "wor-traject-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 6 },
+					{ "id": "2", "widgetId": "wor-traject-files", "gridX": 8, "gridY": 0, "gridWidth": 4, "gridHeight": 3 },
+					{ "id": "4", "widgetId": "wor-traject-suspension", "gridX": 8, "gridY": 3, "gridWidth": 4, "gridHeight": 3 },
 					{ "id": "3", "widgetId": "wor-traject-related", "gridX": 0, "gridY": 6, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {

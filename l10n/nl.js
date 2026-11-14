@@ -1900,6 +1900,7 @@ OC.L10N.register(
         "Proposed items": "Voorgestelde agendapunten",
         "Proposer": "Indiener",
         "Proxies are granted per voting round from the voting panel.": "Volmachten worden per stemronde verleend vanuit het stempaneel.",
+        "Suspension term (art. 25 lid 6 WOR)": "Opschortingstermijn (art. 25 lid 6 WOR)",
         "Proxy authorization": "Volmacht",
         "Proxy authorizations": "Volmachten",
         "Proxy row & meeting": "Volmachtregel en vergadering",

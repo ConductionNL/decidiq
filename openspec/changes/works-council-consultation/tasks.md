@@ -27,8 +27,8 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN the WOR-trajecten index renders with the specced columns and quick filters (type, lifecycle, governance body), and row click opens the detail page (schema ref by slug `consultation-request`, never PascalCase)
   - GIVEN the detail page WHEN opened THEN linked overlegvergadering/agenda item/raadpleging/decision render as navigable references, the Files leaf shows submitted documents, the running opschortingstermijn is surfaced when set, and an empty `achterbanraadpleging` reference renders without error
-- [ ] Implement
-- [ ] Test
+- [x] Implement (the pages were on development; this adds the works-council column and a `governanceBody` facet to the list, and a suspension-term card on the page that shows only while `suspensionTo` is set)
+- [x] Test (`tests/vitest/worksCouncilPages.spec.js`)
 
 ### Task 4: Dashboard KPIs — open trajecten and responses past requested date
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-008-list-and-detail-pages-plus-dashboard-kpis`

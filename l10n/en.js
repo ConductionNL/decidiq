@@ -1691,6 +1691,7 @@ OC.L10N.register(
         "Properties": "Properties",
         "Proposal": "Proposal",
         "Proposal submitted": "Proposal submitted",
+        "Suspension term (art. 25 lid 6 WOR)": "Suspension term (art. 25 lid 6 WOR)",
         "Proposal title": "Proposal title",
         "Proposals": "Proposals",
         "Propose": "Propose",

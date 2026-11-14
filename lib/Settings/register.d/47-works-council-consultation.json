@@ -304,6 +304,7 @@
             "type": "string",
             "format": "uuid",
             "$ref": "governance-body",
+            "facetable": true,
             "description": "Reference to the ondernemingsraad the request is directed to: a universal GovernanceBody (: bodyType works-council, added additively to the base register; never a parallel schema). Required."
           },
           "receivedDate": {
