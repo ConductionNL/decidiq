@@ -619,7 +619,7 @@ exports[`VotingRoundPanel write calls > openRound sends the same request and lea
     "calls": [
       {
         "init": {
-          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[]}",
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -648,7 +648,7 @@ exports[`VotingRoundPanel write calls > openRound sends the same request and lea
     "calls": [
       {
         "init": {
-          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[]}",
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -680,7 +680,7 @@ exports[`VotingRoundPanel write calls > openRound sends the same request and lea
     "calls": [
       {
         "init": {
-          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[]}",
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",
@@ -709,7 +709,7 @@ exports[`VotingRoundPanel write calls > openRound sends the same request and lea
     "calls": [
       {
         "init": {
-          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[]}",
+          "body": "{"motionId":"m1","subjectType":"motion","meetingId":"meet-1","votingMethod":"for-against-abstain","isSecret":false,"closedAt":null,"voteThreshold":null,"abstentionHandling":null,"tieBreakRule":null,"revoteOfRound":null,"options":[],"votingGroup":null}",
           "headers": {
             "Content-Type": "application/json",
             "requesttoken": "tok",

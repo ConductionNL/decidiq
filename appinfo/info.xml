@@ -58,7 +58,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
         row (the code fallback keeps them working, but the admin would have
         nothing to edit).
     -->
-    <version>1.2.6-unstable.20261020200000</version>
+    <version>1.2.6-unstable.20261114145412</version>
     <licence>EUPL-1.2</licence>
     <author mail="info@conduction.nl" homepage="https://www.conduction.nl/">Conduction</author>
     <namespace>Decidiq</namespace>
@@ -151,6 +151,9 @@ Vrij en open source onder de EUPL-1.2-licentie.
              match their subscription, straight away, daily or weekly.
              @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly -->
         <job>OCA\Decidiq\BackgroundJob\PublicationDigestJob</job>
+        <!-- publication-theme-pages REQ-THP-004: nightly, republish every active
+             public theme whose timeline changed since its last version. -->
+        <job>OCA\Decidiq\BackgroundJob\ThemeRefreshJob</job>
     </background-jobs>
 
     <repair-steps>
@@ -581,6 +584,7 @@ Vrij en open source onder de EUPL-1.2-licentie.
 
     <commands>
         <command>OCA\Decidiq\Command\MigrateActionItems</command>
+        <command>OCA\Decidiq\Command\ImportFormResponses</command>
     </commands>
 
     <settings>
