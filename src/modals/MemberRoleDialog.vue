@@ -132,6 +132,10 @@ export default {
 						role: this.selectedRole.id,
 						party: this.member.party,
 						votingWeight: this.member.votingWeight,
+						// Keep the term and faction: the save replaces the object.
+						startDate: this.member.startDate || '',
+						endDate: this.member.endDate || '',
+						faction: this.member.faction || '',
 					}),
 				)
 				this.$emit('saved')
