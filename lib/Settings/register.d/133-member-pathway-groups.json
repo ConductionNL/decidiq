@@ -1,0 +1,78 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change member-onboarding (REQ-MOB-006 / REQ-MOB-008). A governance body names, per role, the Nextcloud groups a member in that role belongs to. Provisioning on an onboarding adds the member to the groups of their role; revocation on an offboarding removes them from every group the body maps, and from no other group. The groups must already exist: provisioning never creates a group. Chair and signatory scopes are not listed here; they follow from the roster through the role-to-scope projection. A body also lists its induction documents: files and links that a joining member receives in a folder in their own Files.",
+  "_spec": "openspec/changes/member-onboarding/specs/member-onboarding/spec.md",
+  "components": {
+    "schemas": {
+      "GovernanceBody": {
+        "slug": "governance-body",
+        "properties": {
+          "memberGroups": {
+            "title": "Member groups",
+            "type": "object",
+            "description": "Per role, the Nextcloud groups a member of this body is added to when they join and removed from when they leave.",
+            "nullable": true,
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "member": [
+                "council-members"
+              ],
+              "chair": [
+                "council-members",
+                "council-presidium"
+              ]
+            },
+            "x-notes": "Keys are the roles of a member onboarding (chair, vice-chair, secretary, treasurer, member, observer, guest). Empty means nothing is mapped: provisioning then refuses with a named error instead of reporting success."
+          },
+          "inductionDocuments": {
+            "title": "Induction documents",
+            "type": "array",
+            "description": "The documents and links a joining member of this body receives in their own Files.",
+            "nullable": true,
+            "items": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "title": "Title",
+                  "description": "The name of the document or link."
+                },
+                "fileId": {
+                  "type": "integer",
+                  "nullable": true,
+                  "title": "File",
+                  "description": "The Nextcloud file to copy."
+                },
+                "url": {
+                  "type": "string",
+                  "nullable": true,
+                  "format": "uri",
+                  "title": "Link",
+                  "description": "A web address to include instead of a file."
+                }
+              }
+            },
+            "example": [
+              {
+                "title": "Rules of procedure",
+                "fileId": 1234
+              },
+              {
+                "title": "Meeting schedule",
+                "url": "https://example.org/meetings"
+              }
+            ],
+            "x-notes": "REQ-MOB-007. A file is looked up in the Files of the person who confirms the delivery, so only a document they can open is copied. Links are written together into one Links.md file in the folder. An item that cannot be delivered is listed as skipped and does not stop the others."
+          }
+        }
+      }
+    }
+  }
+}

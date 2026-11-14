@@ -2565,6 +2565,35 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "onboarding-open",
+						"gridX": 0,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "offboarding-open",
+						"gridX": 3,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "16",
+						"widgetId": "member-pathways-by-status",
+						"gridX": 6,
+						"gridY": 36,
+						"gridWidth": 6,
+						"gridHeight": 2,
+						"showTitle": true
 					}
 				],
 				"showHeader": false,

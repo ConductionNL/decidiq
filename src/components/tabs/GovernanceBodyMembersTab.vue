@@ -65,6 +65,15 @@
 						</template>
 						{{ t('decidiq', 'Import from CSV') }}
 					</NcActionButton>
+					<NcActionButton
+						data-testid="body-members-turnover"
+						closeAfterClick
+						@click="turnoverOpen = true">
+						<template #icon>
+							<AccountSwitch :size="20" />
+						</template>
+						{{ t('decidiq', 'Member turnover') }}
+					</NcActionButton>
 				</NcActions>
 				<NcButton
 					variant="primary"
@@ -131,6 +140,12 @@
 			@imported="refresh"
 			@close="groupImportOpen = false" />
 
+		<MemberTurnoverDialog
+			v-if="turnoverOpen"
+			:bodyId="objectId"
+			@confirmed="refresh"
+			@close="turnoverOpen = false" />
+
 		<MemberCsvImportDialog
 			v-if="csvImportOpen"
 			:bodyId="objectId"
@@ -177,11 +192,13 @@ import {
 import AccountEdit from 'vue-material-design-icons/AccountEdit.vue'
 import AccountGroup from 'vue-material-design-icons/AccountGroup.vue'
 import AccountMultiplePlus from 'vue-material-design-icons/AccountMultiplePlus.vue'
+import AccountSwitch from 'vue-material-design-icons/AccountSwitch.vue'
 import CalendarRange from 'vue-material-design-icons/CalendarRange.vue'
 import CardAccountDetailsOutline from 'vue-material-design-icons/CardAccountDetailsOutline.vue'
 import FileDelimited from 'vue-material-design-icons/FileDelimited.vue'
 import LinkOff from 'vue-material-design-icons/LinkOff.vue'
 import Plus from 'vue-material-design-icons/Plus.vue'
+import MemberTurnoverDialog from '../../dialogs/MemberTurnoverDialog.vue'
 import ContactDetailsDialog from '../../modals/ContactDetailsDialog.vue'
 import MemberAddDialog from '../../modals/MemberAddDialog.vue'
 import MemberCsvImportDialog from '../../modals/MemberCsvImportDialog.vue'
@@ -201,6 +218,7 @@ export default {
 	components: {
 		AccountGroup,
 		AccountMultiplePlus,
+		AccountSwitch,
 		CnDataTable,
 		CnDeleteDialog,
 		CnNoteCard,
@@ -212,6 +230,7 @@ export default {
 		MemberGroupImportDialog,
 		MemberRoleDialog,
 		MemberTermDialog,
+		MemberTurnoverDialog,
 		NcActionButton,
 		NcActions,
 		NcButton,
@@ -234,6 +253,7 @@ export default {
 			addDialogOpen: false,
 			groupImportOpen: false,
 			csvImportOpen: false,
+			turnoverOpen: false,
 			roleTarget: null,
 			// bodies-term-of-office-and-step-down: the member whose term is edited.
 			termTarget: null,

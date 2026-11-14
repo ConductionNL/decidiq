@@ -279,6 +279,128 @@
 						"id": "incoming-documents",
 						"type": "custom",
 						"title": "Incoming documents"
+					},
+					{
+						"_note": "member-onboarding Task 4 (REQ-MOB-011). The overdue-steps cut needs an array predicate over steps[].dueDate against now, which the widget filter DSL does not have; per the task's documented fallback this KPI counts the records that are not finished (started or in-execution) and routes to the index pre-filtered to the same set, where each record shows its overdue steps. It never claims to count overdue steps.",
+						"id": "onboarding-open",
+						"type": "stat",
+						"title": "Onboarding open",
+						"content": {
+							"label": "Onboarding open",
+							"icon": "AccountClockOutline",
+							"variant": "warning",
+							"route": {
+								"name": "MemberOnboarding",
+								"query": {
+									"lifecycle": [
+										"started",
+										"in-execution"
+									]
+								}
+							},
+							"format": {
+								"style": "number"
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "member-onboarding",
+								"metric": "count",
+								"filter": {
+									"lifecycle": {
+										"in": [
+											"started",
+											"in-execution"
+										]
+									}
+								}
+							}
+						}
+					},
+					{
+						"_note": "member-onboarding Task 4 (REQ-MOB-011). The overdue-steps cut needs an array predicate over steps[].dueDate against now, which the widget filter DSL does not have; per the task's documented fallback this KPI counts the records that are not finished (started or in-execution) and routes to the index pre-filtered to the same set, where each record shows its overdue steps. It never claims to count overdue steps.",
+						"id": "offboarding-open",
+						"type": "stat",
+						"title": "Offboarding open",
+						"content": {
+							"label": "Offboarding open",
+							"icon": "AccountClockOutline",
+							"variant": "warning",
+							"route": {
+								"name": "MemberOffboarding",
+								"query": {
+									"lifecycle": [
+										"started",
+										"in-execution"
+									]
+								}
+							},
+							"format": {
+								"style": "number"
+							},
+							"source": {
+								"register": "decidiq",
+								"schema": "member-offboarding",
+								"metric": "count",
+								"filter": {
+									"lifecycle": {
+										"in": [
+											"started",
+											"in-execution"
+										]
+									}
+								}
+							}
+						}
+					},
+					{
+						"_note": "member-onboarding Task 4 (REQ-MOB-011): the records per status, each a scalar-equality count over the declared lifecycle states.",
+						"id": "member-pathways-by-status",
+						"type": "stats-block",
+						"title": "Joining and leaving",
+						"content": {
+							"entries": [
+								{
+									"title": "Onboarding started",
+									"icon": "AccountPlusOutline",
+									"register": "decidiq",
+									"schema": "member-onboarding",
+									"metric": "count",
+									"filter": {
+										"lifecycle": "started"
+									}
+								},
+								{
+									"title": "Onboarding in progress",
+									"icon": "AccountPlusOutline",
+									"register": "decidiq",
+									"schema": "member-onboarding",
+									"metric": "count",
+									"filter": {
+										"lifecycle": "in-execution"
+									}
+								},
+								{
+									"title": "Offboarding started",
+									"icon": "AccountMinusOutline",
+									"register": "decidiq",
+									"schema": "member-offboarding",
+									"metric": "count",
+									"filter": {
+										"lifecycle": "started"
+									}
+								},
+								{
+									"title": "Offboarding in progress",
+									"icon": "AccountMinusOutline",
+									"register": "decidiq",
+									"schema": "member-offboarding",
+									"metric": "count",
+									"filter": {
+										"lifecycle": "in-execution"
+									}
+								}
+							]
+						}
 					}
 				],
 				"dateRange": {
@@ -415,6 +537,35 @@
 						"gridY": 20,
 						"gridWidth": 12,
 						"gridHeight": 4,
+						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "onboarding-open",
+						"gridX": 0,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "15",
+						"widgetId": "offboarding-open",
+						"gridX": 3,
+						"gridY": 24,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
+					},
+					{
+						"id": "16",
+						"widgetId": "member-pathways-by-status",
+						"gridX": 6,
+						"gridY": 24,
+						"gridWidth": 6,
+						"gridHeight": 2,
 						"showTitle": true
 					}
 				],

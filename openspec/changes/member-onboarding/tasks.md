@@ -10,8 +10,9 @@
   - GIVEN both schemas WHEN inspected THEN `x-openregister-lifecycle` uses the canonical `initial` keyword with `gestart → in-uitvoering → afgerond | vervallen` (terminals final) and `x-openregister-notifications` declares created + due-soon + overdue triggers (nl+en subjects) with no imperative dispatch anywhere
   - GIVEN a step with `verplicht: true` WHEN its status is set to `overgeslagen` THEN validation rejects it; GIVEN a traject with an open mandatory step WHEN `afgerond` is attempted THEN the transition is refused naming the open steps
   - GIVEN a traject with two open steps WHEN one step is completed THEN the other step's status and note are unchanged (full-array PUT-semantic carry-forward proven by test)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: `lib/Settings/register.d/59-member-onboarding.json`, renamed to MemberOnboarding/MemberOffboarding by `88-member-onboarding-in-plain-words.json` (lifecycle started → in-execution → completed | lapsed, notifications declared).
 
 ### Task 2: Seed data — realistic trajecten for both schemas
 - **spec_ref**: `openspec/changes/member-onboarding/design.md#seed-data`
@@ -19,8 +20,9 @@
 - **acceptance_criteria**:
   - GIVEN a fresh install WHEN seeding completes THEN 3 onboarding trajecten (in-uitvoering with one overdue step, gestart with due-soon steps, afgerond association-domain with a skipped optional step) and 2 offboarding trajecten (in-uitvoering blocked on groepen-intrekken, afgerond with exit confirmation) exist per the design tables, linked to seeded persons/bodies/meetings with nil-UUID placeholders only for unresolvable refs
   - GIVEN the seeds WHEN the dashboard renders THEN the batch `raadswisseling-2026`, the overdue KPI, and the per-status widgets are demoable on install
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: 3 onboarding and 2 offboarding seeds in `lib/Settings/profiles/municipality.json`.
 
 ### Task 3: Manifest fragment — index/detail pages + menu for both trajecten
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-012-list-and-detail-pages`
@@ -28,8 +30,9 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN navigating the menu THEN Onboarding and Offboarding index pages render with the specced columns (person, body, role/reden, trigger, lifecycle, step progress) and quick filters (lifecycle, trigger, body, batch), schema refs by slug `onboarding-traject` / `offboarding-traject`, never PascalCase
   - GIVEN a traject detail page WHEN opened THEN the checklist renders per-step status/dueDate/actions, linked person/body/meeting are navigable relations, and the audit-trail sidebar is present
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Already on development: `src/manifest.d/member-onboarding.json` (two index pages with lifecycle/trigger quick filters, two detail pages, two menu entries).
 
 ### Task 4: Dashboard widgets — trajecten per status + overdue-steps KPI
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-011-griffie-progress-dashboard`
@@ -37,8 +40,9 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN per-status traject counts and the overdue-steps KPI come from declarative source aggregations (no imperative counting endpoint) and each widget routes to the pre-filtered index
   - GIVEN the widget filter DSL lacks a relative-now or array-predicate token for the overdue cut WHEN implementing THEN the documented fallback applies (count non-terminal trajecten and cut overdue on the pre-filtered index — never a silently wrong count) and the resolution is recorded in the PR
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `onboarding-open` and `offboarding-open` stat tiles (count of unfinished records, `lifecycle in [started, in-execution]`, each routing to its index pre-filtered to the same set) and the `member-pathways-by-status` block (one scalar count per state per schema) on the Dashboard, placed in both the full and the simple layout; Dutch labels in `l10n/nl.json`. Overdue cut: the widget filter DSL has no array predicate over `steps[].dueDate`, so the documented fallback applies: the tiles count unfinished records and never claim to count overdue steps; the overdue steps show per record on the pre-filtered index. `tests/vitest/memberPathwayWidgets.spec.js`.
 
 ### Task 5: Provisioning service — account linkage, group assignment, fail-closed revocation
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-006-griffie-confirmed-account-linkage-and-role-based-provisioning` (+ REQ-MOB-008)
@@ -48,8 +52,9 @@
   - GIVEN an unresolved mapping or failed group write WHEN provisioning runs THEN the step stays not-completed with a named error — no partial success reported (fail-closed, unit-proven)
   - GIVEN an offboarding groepen-intrekken confirmation WHEN executed THEN mapped groups are removed, the Membership carries endDate = eindeDatum, unrelated groups are untouched, and the traject cannot reach `afgerond` while this step is open
   - GIVEN a non-griffie member WHEN calling the provisioning/revocation endpoints THEN the request is rejected (per-body guard, correct auth attributes — no-admin-idor/semantic-auth gates pass)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `OnboardingProvisioningService` (`provision()` for assign-groups, `revoke()` for revoke-groups) behind `POST /api/member-onboardings/{id}/assign-groups` and `POST /api/member-offboardings/{id}/revoke-groups` in `OnboardingController`. The body-role to group mapping is a new `GovernanceBody.memberGroups` property (fragment 133, role => Nextcloud group ids), so it lives on the body configuration as design D3 proposed. Fail closed: an unmapped role or a missing group refuses before any write; a write that does not hold rolls back the groups the run added and keeps the step open; revocation removes only the body's mapped groups, verifies the member is in none of them, then end-dates the membership on the offboarding's `endDate`. No scope group is written: the role-to-scope projection follows the roster. Access: `PathwayStaffGuard` (administrator, the secretariat role's groups, or the body's secretary on the roster; fails closed on an unreadable roster). Account linkage itself stays the existing Member Import matching. Tests: `OnboardingProvisioningServiceTest` (14), `PathwayStaffGuardTest` (6), `OnboardingControllerTest` (5).
 
 ### Task 6: Induction pack delivery into the member's Files
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-007-induction-pack-delivered-into-the-members-files`
@@ -57,8 +62,9 @@
 - **acceptance_criteria**:
   - GIVEN a traject with linked ncAccount and a configured induction set WHEN the introductiepakket step is triggered THEN a folder with the deliverable documents appears in the member's Files (FileService folder-package pattern) and the step completes with the folder as reference
   - GIVEN an undeliverable item WHEN delivery runs THEN remaining items are delivered and the result lists the skipped item (skip-report, never silent); GIVEN no linked ncAccount THEN delivery refuses with a message pointing at the account-koppeling step
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `InductionPackService::deliver()` behind `POST /api/member-onboardings/{id}/induction-pack`. The induction set is a new `GovernanceBody.inductionDocuments` list (fragment 133: title plus a Nextcloud file id or a link). Delivery makes `Welcome - <body>` in the member's own Files, copies each file into it and writes the links into `Links.md`, following the meeting package's folder pattern (an existing folder or file is reused, so a repeated run replaces). A file is read from the confirming user's own Files, so nobody can hand out a document they cannot open. A missing or unreadable item is listed as skipped and the rest still goes; when nothing could be delivered the step stays open. Without a linked account it refuses and points at the account linking step. The step's reference is the folder path. Tests: `InductionPackServiceTest` (6), one more in `OnboardingControllerTest`.
 
 ### Task 7: Raadswisseling batch orchestration — diff, suggestion list, griffie confirm
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md#requirement-req-mob-009-raadswisseling-batch-orchestration-from-a-completed-member-import`
@@ -67,8 +73,9 @@
   - GIVEN a completed Member Import and current active memberships WHEN the griffie starts a raadswisseling run THEN a suggestion list shows onboarding suggestions for new persons and offboarding suggestions for departed members, and nothing is created yet
   - GIVEN the griffie deselects suggestions and confirms THEN only confirmed suggestions become trajecten sharing one batch label; the run itself never creates or end-dates a Membership; a suggestion invalidated between diff and confirm is rejected, not double-applied (TOCTOU re-validation)
   - GIVEN a 45-member body WHEN the diff runs THEN it completes interactively without N+1 object reads (bulk queries)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Done: `RosterTurnoverService` behind `POST /api/governance-bodies/{bodyId}/turnover/suggestions` and `.../turnover/confirm` (`OnboardingController`, same per-body secretariat check), and `src/dialogs/MemberTurnoverDialog.vue` opened from the members tab ("Member turnover"). The incoming roster is the member-import CSV (name, email, role); people are matched by account, else by email, case-insensitively. `suggest()` only reads: an onboarding suggestion for each roster person without an active membership (and no open onboarding), an offboarding suggestion for each active member not on the roster (and no open offboarding). `confirm()` recomputes the diff from the current state and creates only the confirmed suggestions that still hold, all with one batch label and trigger `council-turnover-batch`; the rest come back as rejected (TOCTOU). It never creates or ends a membership; the only other write is a Person for a joining person who has none. Reads are six bulk queries whatever the body's size (`ids` narrowing for the members' persons). Tests: `RosterTurnoverServiceTest` (5, incl. the bulk-read count with 45 extra members), 2 more in `OnboardingControllerTest`, `tests/vitest/rosterTurnover.spec.js` (5). Class and file names say what they do (roster turnover), not the procedure.
 
 ### Task 8: E2E coverage — Playwright scenarios for onboarding, offboarding, and the batch run
 - **spec_ref**: `openspec/changes/member-onboarding/specs/member-onboarding/spec.md`
