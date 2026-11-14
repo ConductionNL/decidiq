@@ -168,6 +168,10 @@
             "description": "REST controller for the multilingual reconciliation queue."
         },
         {
+            "name": "onboarding",
+            "description": "Progress through the onboarding checklists and walkthroughs."
+        },
+        {
             "name": "open-api",
             "description": "The OpenAPI document that describes this API."
         },
