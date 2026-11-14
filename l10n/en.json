@@ -1,5 +1,8 @@
 {
     "translations": {
+        "Who may vote": "Who may vote",
+        "All members of the body": "All members of the body",
+        "Left out because they are no longer active members: {names}": "Left out because they are no longer active members: {names}",
         "Contacts": "Contacts",
         "Straw poll": "Straw poll",
         "Intake form": "Intake form",

@@ -13,7 +13,12 @@ import fs from 'fs'
 import path from 'path'
 import { describe, expect, it } from 'vitest'
 import { buildProfiledManifest } from '../../src/utils/structureProfile.js'
-import { votingGroupRows } from '../../src/utils/votingGroups.js'
+import {
+	excludedMemberNames,
+	meetingBodyId,
+	votingGroupChoices,
+	votingGroupRows,
+} from '../../src/utils/votingGroups.js'
 
 const ROOT = path.resolve(__dirname, '../..')
 const read = (...parts) => fs.readFileSync(path.join(ROOT, ...parts), 'utf8')
@@ -90,5 +95,47 @@ describe('voting groups', () => {
 		expect(root.indexOf('<VotingGroupsSettings')).toBeGreaterThan(
 			root.indexOf('<Settings v-if'),
 		)
+	})
+})
+
+describe('voting groups when a round opens (REQ-VGP-002, REQ-VGP-005)', () => {
+	const GROUPS = [
+		{ id: 'g-az', name: 'Commissie AZ', governanceBody: 'raad', members: ['a', 'b', 'c'], active: true },
+		{ id: 'g-old', name: 'Oude commissie', governanceBody: 'raad', members: ['a'], active: false },
+		{ id: 'g-other', name: 'Presidium', governanceBody: 'another-body', members: ['a'] },
+		{ id: 'g-all', name: 'Voltallige raad', governanceBody: { id: 'raad' }, members: ['a', 'b', 'c', 'd'] },
+	]
+
+	it('offers the active groups of the meeting body, by name, with their member counts', () => {
+		expect(votingGroupChoices(GROUPS, 'raad')).toEqual([
+			{ id: 'g-az', name: 'Commissie AZ', memberCount: 3 },
+			{ id: 'g-all', name: 'Voltallige raad', memberCount: 4 },
+		])
+	})
+
+	it('offers nothing when the meeting body is unknown', () => {
+		expect(votingGroupChoices(GROUPS, '')).toEqual([])
+		expect(votingGroupChoices(null, 'raad')).toEqual([])
+	})
+
+	it('reads the meeting body from the field or the flat relation', () => {
+		expect(meetingBodyId({ governanceBody: 'raad' })).toBe('raad')
+		expect(meetingBodyId({ governanceBody: { id: 'raad' } })).toBe('raad')
+		expect(meetingBodyId({ '@self': { relations: { governanceBody: 'raad' } } })).toBe('raad')
+		expect(meetingBodyId(null)).toBe('')
+	})
+
+	it('names the members the group left out, and nobody when it left none out', () => {
+		expect(excludedMemberNames({ excludedGroupMembers: [{ id: 'p-10', name: 'Anna Jansen' }, { id: 'p-11', name: '' }] }))
+			.toEqual(['Anna Jansen', 'p-11'])
+		expect(excludedMemberNames({ id: 'round-1' })).toEqual([])
+		expect(excludedMemberNames(null)).toEqual([])
+	})
+
+	it('the open-round panel sends the chosen group and shows who was left out', () => {
+		const panel = read('src', 'components', 'VotingRoundPanel.vue')
+		expect(panel).toContain("votingGroup: this.revoteOfRoundId ? null : (this.newRound.votingGroup || null)")
+		expect(panel).toContain('data-testid="voting-group-choice"')
+		expect(panel).toContain('data-testid="voting-group-left-out"')
 	})
 })
