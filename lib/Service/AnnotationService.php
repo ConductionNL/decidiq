@@ -115,7 +115,8 @@ class AnnotationService {
 	 * @param int    $fileId The Nextcloud file id
 	 * @param string $userId The user asking
 	 *
-	 * @return array{results: list<array<string, mixed>>, fileVersion: string, versionLabel: string, canShareWithFaction: bool}
+	 * @return array<string, mixed> results (by page), fileVersion, versionLabel, name and path of the
+	 *                              current version, and canShareWithFaction
 	 *
 	 * @throws MissingObjectException When the user cannot read the file.
 	 *
@@ -140,6 +141,8 @@ class AnnotationService {
 			'results'             => $results,
 			'fileVersion'         => $current['fileVersion'],
 			'versionLabel'        => $current['versionLabel'],
+			'name'                => $current['name'],
+			'path'                => $current['path'],
 			'canShareWithFaction' => $this->visibility->hasFaction(userId: $userId),
 		];
 	}//end listForDocument()

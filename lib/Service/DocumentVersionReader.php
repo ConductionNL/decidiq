@@ -60,48 +60,55 @@ class DocumentVersionReader {
 	 * @param string $userId The user
 	 * @param int    $fileId The Nextcloud file id
 	 *
-	 * @return array{fileVersion: string, versionLabel: string, name: string}
+	 * @return array{fileVersion: string, versionLabel: string, name: string, path: string}
 	 *
 	 * @throws MissingObjectException When the user cannot read the file.
 	 *
 	 * @spec openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-004-annotations-survive-re-versioning-labeled-with-their-source-version
 	 */
 	public function current(string $userId, int $fileId): array {
-		$file = $this->readableFile(userId: $userId, fileId: $fileId);
+		[$file, $path] = $this->readableFile(userId: $userId, fileId: $fileId);
 
 		return [
 			'fileVersion'  => (string)$file->getMTime(),
 			'versionLabel' => 'v' . ($this->storedVersions(file: $file) + 1),
 			'name'         => $file->getName(),
+			'path'         => $path,
 		];
 	}//end current()
 
 	/**
-	 * The file, when the user can read it.
+	 * The file, when the user can read it, and its path in the user's files.
 	 *
 	 * @param string $userId The user
 	 * @param int    $fileId The file id
 	 *
-	 * @return File
+	 * @return array{0: File, 1: string}
 	 *
 	 * @throws MissingObjectException When it is missing, a folder or unreadable.
 	 */
-	private function readableFile(string $userId, int $fileId): File {
+	private function readableFile(string $userId, int $fileId): array {
 		if ($userId === '' || $fileId < 1) {
 			throw new MissingObjectException(message: 'Document not found.');
 		}
 
+		$node = null;
+		$path = null;
 		try {
-			$node = $this->rootFolder->getUserFolder($userId)->getFirstNodeById($fileId);
+			$userFolder = $this->rootFolder->getUserFolder($userId);
+			$node = $userFolder->getFirstNodeById($fileId);
+			if ($node !== null) {
+				$path = $userFolder->getRelativePath($node->getPath());
+			}
 		} catch (NotFoundException) {
 			$node = null;
 		}
 
-		if (($node instanceof File) === false || $node->isReadable() === false) {
+		if (($node instanceof File) === false || $node->isReadable() === false || is_string($path) === false) {
 			throw new MissingObjectException(message: 'Document not found.');
 		}
 
-		return $node;
+		return [$node, $path];
 	}//end readableFile()
 
 	/**

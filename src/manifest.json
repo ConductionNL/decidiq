@@ -637,6 +637,7 @@
 					{ "id": "meeting-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "meeting-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "meeting-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
+					{ "id": "meeting-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this meeting, each with Annotate, which opens the annotator. The Documents leaf offers no per-row action, so the papers are listed here (design.md fallback)." },
 					{ "id": "meeting-votes", "type": "custom", "component": "MeetingVotesTab", "title": "Votes", "icon": "CheckCircleOutline" },
 					{ "id": "meeting-publication", "type": "custom", "component": "AgendaPublicationTab", "title": "Publication", "icon": "Web" },
 					{ "id": "meeting-series", "type": "custom", "component": "MeetingSeriesTab", "title": "Series", "icon": "Timeline" },
@@ -672,7 +673,8 @@
 					{ "id": "20", "widgetId": "meeting-technical-questions", "gridX": 0, "gridY": 48, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "21", "widgetId": "meeting-decision-list-signers", "gridX": 0, "gridY": 53, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "24", "widgetId": "meeting-document-details", "gridX": 0, "gridY": 58, "gridWidth": 12, "gridHeight": 5 },
-					{ "id": "25", "widgetId": "meeting-paper-renditions", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 4 }
+					{ "id": "25", "widgetId": "meeting-paper-renditions", "gridX": 0, "gridY": 63, "gridWidth": 12, "gridHeight": 4 },
+					{ "id": "29", "widgetId": "meeting-annotations", "gridX": 0, "gridY": 67, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,
@@ -793,6 +795,14 @@
 				"documentationUrl": "https://decidiq.conduction.nl"
 			},
 			"_note": "Email linking is consumed from the ADR-019 Email integration leaf bound to the agenda-item object (migrate-email-links-to-email-leaf), replacing the retired in-app EmailLink store. Registry hides the Email tab gracefully when Mail is absent."
+		},
+		{
+			"id": "AnnotateDocument",
+			"route": "/annotate/:fileId",
+			"type": "custom",
+			"title": "Annotate document",
+			"component": "AnnotationView",
+			"_note": "document-annotations (REQ-ANN-003): the annotator, a PDF rendered with pdf.js and decidiq's own overlay and panel. Opened from the Annotate widget of a meeting or agenda item (query meeting / agendaItem); query version shows an earlier version. No menu entry. Not a typed page: no manifest primitive renders a PDF canvas with an editable overlay."
 		},
 		{
 			"id": "LiveMeeting",
@@ -920,6 +930,7 @@
 					{ "id": "agenda-files", "type": "integration", "integrationId": "files", "title": "Documents", "icon": "FolderOutline" },
 					{ "id": "agenda-document-details", "type": "custom", "component": "DocumentMetadataTab", "title": "Document details", "icon": "FileDocumentOutline", "_note": "platform-document-metadata-fields (plt-20): each file with its document type and extra fields, and a Details dialog to fill them in." },
 					{ "id": "agenda-paper-renditions", "type": "custom", "component": "AgendaPaperRenditionsTab", "title": "Papers as PDF", "icon": "FilePdfBox", "_note": "agenda-office-files-to-pdf (age-17): each Office paper once, the PDF as the paper, the original for the secretariat, a failed conversion with its reason and Try again." },
+					{ "id": "agenda-annotations", "type": "custom", "component": "DocumentAnnotationsTab", "title": "Annotate", "icon": "Marker", "_note": "document-annotations (age-11): the PDF papers of this agenda item, each with Annotate, which opens the annotator." },
 					{ "id": "agenda-type-fields", "type": "custom", "component": "AgendaItemTypeFieldsTab", "title": "Type-specific fields", "icon": "FormatListChecks" },
 					{ "id": "agenda-motions", "type": "custom", "component": "AgendaMotionsTab", "title": "Motions", "icon": "Gavel" },
 					{ "id": "agenda-conflicts", "type": "custom", "component": "AgendaItemConflictsTab", "title": "Conflicts of interest", "icon": "AlertOctagonOutline", "_note": "bodies-conflict-of-interest-recusal (bod-10): declarations on this agenda item; a member declares here and may keep herself out of the vote on it and its motions." },
@@ -934,7 +945,8 @@
 					{ "id": "5", "widgetId": "agenda-conflicts", "gridX": 0, "gridY": 17, "gridWidth": 12, "gridHeight": 4 },
 					{ "id": "6", "widgetId": "agenda-document-details", "gridX": 0, "gridY": 21, "gridWidth": 12, "gridHeight": 5 },
 					{ "id": "7", "widgetId": "agenda-paper-renditions", "gridX": 0, "gridY": 26, "gridWidth": 12, "gridHeight": 4 },
-					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 6 }
+					{ "id": "9", "widgetId": "agenda-paper-summaries", "gridX": 0, "gridY": 34, "gridWidth": 12, "gridHeight": 6 },
+					{ "id": "10", "widgetId": "agenda-annotations", "gridX": 0, "gridY": 40, "gridWidth": 12, "gridHeight": 3 }
 				],
 				"sidebar": {
 					"enabled": true,

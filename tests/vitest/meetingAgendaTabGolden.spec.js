@@ -106,6 +106,10 @@ function tab(answers) {
 		'../../utils/agendaItemTypeFields.js': agendaItemTypeFields,
 		'../../utils/agendaPublication.js': agendaPublication,
 		'../../utils/formalities.js': formalities,
+		'../../utils/annotations.js': { countOf: () => 0 },
+		'../../store/annotation.js': {
+			useAnnotationStore: () => ({ loadCounts: async () => ({}) }),
+		},
 		'./jsonRequests.js': jsonRequests,
 		'./useRelationStore.js': { ensureRelationType: store },
 	}

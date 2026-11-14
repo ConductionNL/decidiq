@@ -115,6 +115,7 @@ import Lightbulb from 'vue-material-design-icons/Lightbulb.vue'
 import LightbulbOnOutline from 'vue-material-design-icons/LightbulbOnOutline.vue'
 import LinkVariant from 'vue-material-design-icons/LinkVariant.vue'
 import MapMarkerPath from 'vue-material-design-icons/MapMarkerPath.vue'
+import Marker from 'vue-material-design-icons/Marker.vue'
 import MessageTextOutline from 'vue-material-design-icons/MessageTextOutline.vue'
 import Microphone from 'vue-material-design-icons/Microphone.vue'
 import NotebookOutline from 'vue-material-design-icons/NotebookOutline.vue'
@@ -254,6 +255,7 @@ export default {
 	LightbulbOnOutline,
 	LinkVariant,
 	MapMarkerPath,
+	Marker,
 	MessageTextOutline,
 	Microphone,
 	NoteTextOutline,

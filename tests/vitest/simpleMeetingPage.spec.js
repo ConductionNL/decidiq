@@ -691,7 +691,7 @@ describe('the meeting page in the simple structure', () => {
 		const declared = pageOf(full, 'MeetingDetail').config.widgets.map(
 			(item) => item.id,
 		)
-		expect(declared).toHaveLength(25)
+		expect(declared).toHaveLength(26)
 		const tabs = widgets.get('meeting-panels').content.tabs
 		// The History tab is the one block the profile adds.
 		const shown = tabs
@@ -701,7 +701,7 @@ describe('the meeting page in the simple structure', () => {
 		expect(shown.filter((id) => !declared.includes(id))).toEqual([])
 		// No block is shown twice either.
 		expect(new Set(shown).size).toBe(shown.length)
-		expect(shown).toHaveLength(25)
+		expect(shown).toHaveLength(26)
 	})
 
 	it('writes the definition into every section, and it is the one the page declares', () => {
@@ -747,7 +747,7 @@ describe('the meeting page in the simple structure', () => {
 		const custom = before.config.widgets.filter(
 			(widget) => widget.type === 'custom',
 		)
-		expect(custom).toHaveLength(19)
+		expect(custom).toHaveLength(20)
 		for (const widget of custom) {
 			expect(widget.component, widget.id).toBeTruthy()
 			expect(widgets.get(widget.id).type, widget.id).toBe(widget.component)

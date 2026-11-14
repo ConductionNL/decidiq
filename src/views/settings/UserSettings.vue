@@ -57,10 +57,15 @@
 		:name="t('decidiq', 'Subscriptions')">
 		<SubscriptionsSection />
 	</NcAppSettingsSection>
+
+	<NcAppSettingsSection id="decidiq-annotations" :name="t('decidiq', 'My notes')">
+		<AnnotationsSection />
+	</NcAppSettingsSection>
 </template>
 
 <script>
 import { NcAppSettingsSection, NcLoadingIcon } from '@nextcloud/vue'
+import AnnotationsSection from '../../components/userSettings/AnnotationsSection.vue'
 import CommunicationSection from '../../components/userSettings/CommunicationSection.vue'
 import DelegationSection from '../../components/userSettings/DelegationSection.vue'
 import DisplayPreferencesSection from '../../components/userSettings/DisplayPreferencesSection.vue'
@@ -72,6 +77,7 @@ export default {
 	name: 'UserSettings',
 
 	components: {
+		AnnotationsSection,
 		CommunicationSection,
 		DelegationSection,
 		DisplayPreferencesSection,

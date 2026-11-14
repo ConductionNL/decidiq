@@ -52,8 +52,9 @@
 - **acceptance_criteria**:
   - GIVEN a PDF attachment WHEN the annotation view opens THEN pages render via pdfjs-dist (lazy-loaded chunk) with a per-page SVG overlay
   - GIVEN text selection, note placement, and drawing mode WHEN each is confirmed THEN a highlight/sticky-note/drawing is persisted with normalized page-relative anchors and re-renders at the same position after reload
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `src/views/AnnotationView.vue` (route `/annotate/:fileId`, page `AnnotateDocument`) loads `pdfjs-dist` 4.10.38 in its own `annotator` chunk and the pdf.js worker as a web worker of its own (`src/utils/pdfWorker.js`); each page gets a canvas, a text layer and `AnnotationOverlay.vue`. Selection → highlight (quads + quote), click → sticky note (point), drag → drawing (thinned stroke); anchors are page-relative (`src/utils/annotations.js`, tested in `tests/vitest/documentAnnotations.spec.js`). The file is read over WebDAV by the path the list endpoint returns. Re-rendering at the same place after a reload is the browser half of this task and is not verified here.
 
 ### Task 6: Annotation panel, visibility selector, prior-version handling
 - **spec_ref**: `openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-003-annotation-view-with-overlay-and-panel-on-meeting-and-agenda-item-documents`
@@ -62,8 +63,9 @@
   - GIVEN visible annotations WHEN the panel renders THEN entries show author, type, page, visibility badge, and body text, filterable by visibility/author; activating an entry scrolls to and emphasizes the mark
   - GIVEN a prior-version annotation WHEN listed THEN it shows "gemaakt op v(N)", is not drawn on current pages, and can be viewed against its own version when available
   - GIVEN the visibility selector WHEN the author has no faction membership THEN only Privé/Hele orgaan are offered; keyboard reachability and NcSelect `inputLabel` verified
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: `AnnotationPanel.vue` (author, type, page, visibility badge, quote, text; NcSelect filters with `inputLabel`; entries are buttons, keyboard-reachable), `src/modals/AnnotationDeleteDialog.vue`. A prior-version entry shows "gemaakt op v(N)", is not drawn, and activating it opens that version from `dav/versions` with its own marks. The composer offers Privé/Hele orgaan, and Mijn fractie only when the server says the author sits in a faction; Hele orgaan only when the annotator knows the meeting or agenda item.
 
 ### Task 7: Entry points, agenda-row count badges, own-annotations settings UI
 - **spec_ref**: `openspec/changes/document-annotations/specs/document-annotations/spec.md#requirement-req-ann-005-annotation-counts-on-agenda-item-rows`
@@ -72,8 +74,9 @@
   - GIVEN a PDF row on the Documents leaf (or the documented fallback surface from design.md) WHEN actions render THEN "Annoteren" opens the annotation view; non-PDF rows get no action
   - GIVEN the meeting agenda tab WHEN it renders THEN per-item badges show the visibility-correct counts from one batched request, and zero-count items show no badge
   - GIVEN user settings WHEN opened THEN "Mijn notities exporteren" (JSON/CSV) and "Alle eigen notities verwijderen" work end-to-end; all new strings have `nl_NL` and `en_US` translations with English keys
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: the nc-vue Documents leaf has no per-row action hook, so the design.md fallback is used: an `Annoteren` widget (`DocumentAnnotationsTab.vue`) on the meeting and agenda-item pages (full and simple structure) lists only the PDF papers, each with Annoteren. `MeetingAgendaTab.vue` reads `GET /api/meetings/{id}/annotation-counts` once and shows "{n} notities" per item, none for zero. User settings gained the section Mijn notities (export JSON/CSV, delete all with confirmation). Strings in en and nl.
 
 ## Verification
 

@@ -260,9 +260,11 @@ class AnnotationControllerTest extends TestCase {
 		$file->method('isReadable')->willReturn($readable);
 		$file->method('getOwner')->willReturn($owner);
 		$file->method('getInternalPath')->willReturn('files/Raad/Raadsvoorstel.pdf');
+		$file->method('getPath')->willReturn('/carol/files/Gedeeld/Raadsvoorstel.pdf');
 
 		$userFolder = $this->createMock(Folder::class);
 		$userFolder->method('getFirstNodeById')->willReturnCallback(static fn (int $id): ?File => $id === self::FILE ? $file : null);
+		$userFolder->method('getRelativePath')->willReturnCallback(static fn (string $path): string => '/Gedeeld/Raadsvoorstel.pdf');
 
 		$stored = $this->createMock(File::class);
 		$stored->method('getName')->willReturn('Raadsvoorstel.pdf.v1750000000');
@@ -329,6 +331,8 @@ class AnnotationControllerTest extends TestCase {
 		self::assertSame([2, 3, 3, 4], array_map(static fn (array $row): int => $row['page'], $data['results']));
 		self::assertSame(self::CURRENT, $data['fileVersion']);
 		self::assertSame('v2', $data['versionLabel']);
+		self::assertSame('/Gedeeld/Raadsvoorstel.pdf', $data['path']);
+		self::assertSame('Raadsvoorstel.pdf', $data['name']);
 		self::assertTrue($data['canShareWithFaction']);
 
 		$byId = array_column($data['results'], null, 'id');
