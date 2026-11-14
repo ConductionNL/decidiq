@@ -37,11 +37,20 @@ use Throwable;
 class OndermandaatGuardService {
 
 	/**
-	 * The toedeling schema.
+	 * The toedeling schema. It was renamed from `bevoegdheidstoedeling`
+	 * (MigrateTheLastTwoDutchNames moves the rows), so parents are read here.
 	 *
 	 * @var string
 	 */
-	public const SCHEMA = 'bevoegdheidstoedeling';
+	public const SCHEMA = 'authority-delegation';
+
+	/**
+	 * The schemas a toedeling is saved on: the current one, and the old Dutch
+	 * slug, which stays guarded while an install still writes to it.
+	 *
+	 * @var list<string>
+	 */
+	public const SCHEMAS = [self::SCHEMA, 'bevoegdheidstoedeling'];
 
 	/**
 	 * The deepest chain walked; a longer one is refused as if it looped.

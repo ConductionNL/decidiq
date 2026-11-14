@@ -69,7 +69,8 @@ class OndermandaatGuardServiceTest extends TestCase {
 					throw $failure;
 				}
 
-				self::assertContains('bevoegdheidstoedeling', $args);
+				// Parents are read on the renamed schema, where the migration moved the rows.
+				self::assertContains('authority-delegation', $args);
 				$this->reads[] = $args[0];
 				if (isset($this->stored[$args[0]]) === false) {
 					throw new DoesNotExistException('gone');
