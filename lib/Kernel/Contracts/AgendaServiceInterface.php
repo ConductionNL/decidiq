@@ -113,15 +113,18 @@ interface AgendaServiceInterface {
 	 * agendaVersions) and notifies all active participants. The Meeting
 	 * lifecycle is left alone (#1396).
 	 *
-	 * @param string $meetingId UUID of the Meeting to publish
+	 * @param string      $meetingId             UUID of the Meeting to publish
+	 * @param string|null $shortenedNoticeReason Null for a regular convocation; a string (empty for the
+	 *                                           urgency reason) to send an emergency convocation at shortened notice
 	 *
 	 * @return void
 	 *
-	 * @throws InvalidArgumentException When no agenda items exist for the meeting
+	 * @throws InvalidArgumentException When no agenda items exist for the meeting, or the shortened notice is refused
 	 *
 	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.1
+	 * @spec openspec/changes/urgent-decision-procedure/specs/meeting-management/spec.md#requirement-shortened-notice-deviation-recording-for-emergency-convocations
 	 */
-	public function publishAgenda(string $meetingId): void;
+	public function publishAgenda(string $meetingId, ?string $shortenedNoticeReason=null): void;
 
 	/**
 	 * Atomically reorder agenda items for a meeting.

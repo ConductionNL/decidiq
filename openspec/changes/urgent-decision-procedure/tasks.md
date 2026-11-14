@@ -59,8 +59,8 @@
   - GIVEN an `extraordinary` meeting 72h out with floor 48h WHEN the convocation is sent confirming shortened notice THEN per-recipient deliveries are recorded plus `shortenedNotice=true`, `actualNoticeHours=72`, and the deviation reason
   - GIVEN a meeting 24h out with floor 48h WHEN sending THEN the send is rejected naming the floor
   - GIVEN a `regular` meeting WHEN sent late THEN the existing overdue warning applies and no deviation can be recorded
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`ShortenedNoticeService`; `POST /api/agendas/{meetingId}/publish` with `shortenedNotice` and optional `noticeDeviationReason` sends the convocation of an `extraordinary` meeting at shortened notice and stores `shortenedNotice`, `actualNoticeHours`, `noticeDeviationReason` (default: the urgency reason of the urgent decision on the meeting) with it; below `minimumNoticeFloorHours`, on a `regular` meeting or for a body without a policy it is refused before anything is saved or sent. The convocation is the agenda publication, there is no `BoardMeetingService` in this app. `noticeRules.js` reports a recorded deviation as `shortened`)
+- [x] Test (ShortenedNoticeServiceTest, AgendaShortenedNoticeTest, AgendaPublishShortenedNoticeTest, tests/vitest/noticeShortenedNotice.spec.js)
 
 ### Task 7: UI — declare-urgency dialog, banner, list badge/filter, dashboard KPI
 - **spec_ref**: `openspec/changes/urgent-decision-procedure/specs/urgent-decision-procedure/spec.md#requirement-req-006-awaiting-ratification-indicators-and-dashboard-kpi`
