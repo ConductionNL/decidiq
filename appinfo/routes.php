@@ -292,6 +292,8 @@ $extra = [
 
         // Send minutes, a meeting's decision list or a motion for signature in order,
         // and collect the signed copy (signing-external-service-with-order, min-17).
+        // bodies-onboarding-checklist-walkthrough: mark one checklist step completed or skipped (secretariat or admin).
+        ['name' => 'onboarding#updateStep', 'url' => '/api/onboarding/{kind}/{id}/steps/{index}', 'verb' => 'PUT', 'requirements' => ['kind' => 'onboarding|offboarding', 'index' => '\\d+']],
         ['name' => 'signing#send',    'url' => '/api/signing/{subjectType}/{subjectId}/send',    'verb' => 'POST'],
         ['name' => 'signing#collect', 'url' => '/api/signing/{subjectType}/{subjectId}/collect', 'verb' => 'POST'],
 
