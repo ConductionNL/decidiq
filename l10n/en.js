@@ -3413,7 +3413,22 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "In force today": "In force today",
+        "Publish this delegation or mandate?": "Publish this delegation or mandate?",
+        "Anyone can then read it on the public register, including later changes such as a withdrawal.": "Anyone can then read it on the public register, including later changes such as a withdrawal.",
+        "Published on the public register.": "Published on the public register.",
+        "Could not publish it.": "Could not publish it.",
+        "Withdraw from the public register": "Withdraw from the public register",
+        "Withdraw it from the public register?": "Withdraw it from the public register?",
+        "The public can no longer read it. Its record and status stay as they are.": "The public can no longer read it. Its record and status stay as they are.",
+        "Withdrawn from the public register.": "Withdrawn from the public register.",
+        "Could not withdraw it.": "Could not withdraw it.",
+        "Taken under": "Taken under",
+        "The delegation or mandate this decision names could not be found.": "The delegation or mandate this decision names could not be found.",
+        "Decisions taken under it": "Decisions taken under it",
+        "No decision names this delegation or mandate as the authority it was taken under.": "No decision names this delegation or mandate as the authority it was taken under.",
+        "The delegation or mandate (bevoegdheidsgrondslag) this decision was taken under, shown as 'genomen krachtens' on the decision. Documentation only: it never blocks, warns on or gates the decision. Empty when the decision records no delegated authority.": "The delegation or mandate (bevoegdheidsgrondslag) this decision was taken under, shown as 'genomen krachtens' on the decision. Documentation only: it never blocks, warns on or gates the decision. Empty when the decision records no delegated authority."
     },
     "nplurals=2; plural=(n != 1);"
 )

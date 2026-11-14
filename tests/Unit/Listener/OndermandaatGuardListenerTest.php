@@ -186,7 +186,7 @@ class OndermandaatGuardListenerTest extends TestCase {
 	public function testPartiesNamedByReferenceOrByTheOldFieldNamesAreSaved(): void {
 		foreach ([
 			['delegatingDescription' => 'burgemeester', 'delegatePerson' => ['id' => 'person-1']],
-			['delegans' => 'college', 'delegatarisFunctie' => 'afdelingshoofd'],
+			['delegans' => 'college', 'delegatarisBody' => 'afdeling-samenleving'],
 		] as $parties) {
 			$event = new ObjectCreatingEvent($this->entity($parties));
 

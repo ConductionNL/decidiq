@@ -80,7 +80,7 @@ class AnyOfFieldsGuardTest extends TestCase {
 		$guard = new AnyOfFieldsGuard();
 
 		self::assertSame([], $guard->emptyGroups(row: ['delegatingBody' => 'b', 'delegateBody' => 'c'], groups: OndermandaatGuardService::PARTY_GROUPS));
-		self::assertSame([], $guard->emptyGroups(row: ['delegansOmschrijving' => 'b', 'delegatarisPersoon' => 'p'], groups: OndermandaatGuardService::PARTY_GROUPS));
+		self::assertSame([], $guard->emptyGroups(row: ['delegansDescription' => 'b', 'delegateUser' => 'jdoe'], groups: OndermandaatGuardService::PARTY_GROUPS));
 		self::assertCount(2, $guard->emptyGroups(row: ['subject' => 'x', 'decision' => 'd'], groups: OndermandaatGuardService::PARTY_GROUPS));
 	}//end testTheToedelingPartyGroupsCoverTheCurrentAndTheOldFieldNames()
 }//end class

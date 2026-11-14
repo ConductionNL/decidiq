@@ -117,6 +117,21 @@
               "match": {
                 "publicationDate": {
                   "$lte": "$now"
+                },
+                "depublicationDate": {
+                  "$exists": false
+                }
+              },
+              "crossOrganisation": true
+            },
+            {
+              "group": "public",
+              "match": {
+                "publicationDate": {
+                  "$lte": "$now"
+                },
+                "depublicationDate": {
+                  "$gt": "$now"
                 }
               },
               "crossOrganisation": true

@@ -312,7 +312,7 @@
 				"icon": "AccountKeyOutline",
 				"version": "0.1.0",
 				"title": "Authority delegation",
-				"description": "Who may exercise which authority on whose behalf: a delegation, a mandate, a power of attorney or an authorisation. Renamed from Bevoegdheidstoedeling (the-last-two-dutch-names). FOUR properties are renamed with it, because they were the only ones still in Dutch: `delegans` became `delegatingBody`, `delegansDescription` became `delegatingDescription`, `delegatarisBody` became `delegateBody`, and `beperkingen` became `restrictions`.",
+				"description": "Who may exercise which authority on whose behalf: a delegation, a mandate, a power of attorney or an authorisation. Renamed from Bevoegdheidstoedeling (the-last-two-dutch-names). FOUR properties are renamed with it, because they were the only ones still in Dutch: `delegans` became `delegatingBody`, `delegansDescription` became `delegatingDescription`, `delegatarisBody` became `delegateBody`, and `beperkingen` became `restrictions`. Publishable by construction (REQ-DMR-005, D4): the schema carries no internal-only, confidential or writeOnly property, so the whole live object can be read by the public once staff publish it. Public read holds while publicationDate has passed and depublicationDate is empty or still ahead; an intrekking or a lapse shows on the public register at once, with no republication step.",
 				"type": "object",
 				"x-schema-org": "schema:AuthorizeAction",
 				"x-openregister": {
@@ -420,6 +420,21 @@
 							"match": {
 								"publicationDate": {
 									"$lte": "$now"
+								},
+								"depublicationDate": {
+									"$exists": false
+								}
+							},
+							"crossOrganisation": true
+						},
+						{
+							"group": "public",
+							"match": {
+								"publicationDate": {
+									"$lte": "$now"
+								},
+								"depublicationDate": {
+									"$gt": "$now"
 								}
 							},
 							"crossOrganisation": true
@@ -494,7 +509,8 @@
 						"type": "string",
 						"format": "uuid",
 						"$ref": "Person",
-						"description": "Reference to the delegataris / gemandateerde as a Popolo Person, where the authority is assigned to a named natural person. At least one delegataris field MUST be present."
+						"description": "Reference to the delegataris / gemandateerde as a Popolo Person, where the authority is assigned to a named natural person. At least one delegataris field MUST be present.",
+						"facetable": true
 					},
 					"subject": {
 						"title": "Subject",

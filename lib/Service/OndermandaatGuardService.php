@@ -59,14 +59,14 @@ class OndermandaatGuardService {
 	 * @var array<string, list<string>>
 	 */
 	public const PARTY_GROUPS = [
-		'the delegans (a governing body or a description)' => ['delegatingBody', 'delegatingDescription', 'delegans', 'delegansOmschrijving'],
+		'the delegans (a governing body or a description)' => ['delegatingBody', 'delegatingDescription', 'delegans', 'delegansDescription'],
 		'the delegataris (a governing body, a role or a person)' => [
 			'delegateBody',
 			'delegateRole',
 			'delegatePerson',
+			'delegateUser',
+			'delegateGroup',
 			'delegatarisBody',
-			'delegatarisFunctie',
-			'delegatarisPersoon',
 		],
 	];
 
