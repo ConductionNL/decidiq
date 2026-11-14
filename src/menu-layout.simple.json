@@ -2613,6 +2613,16 @@
 						"gridWidth": 12,
 						"gridHeight": 4,
 						"showTitle": true
+					},
+					{
+						"id": "14",
+						"widgetId": "overdue-reviews-kpi",
+						"gridX": 0,
+						"gridY": 36,
+						"gridWidth": 3,
+						"gridHeight": 2,
+						"showTitle": false,
+						"dateChip": false
 					}
 				],
 				"showHeader": false,
