@@ -3362,7 +3362,8 @@ OC.L10N.register(
         "Document": "Document",
         "The document the annotation is on.": "The document the annotation is on.",
         "The agenda item the document belongs to.": "The agenda item the document belongs to.",
-        "The meeting the document belongs to.": "The meeting the document belongs to."
+        "The meeting the document belongs to.": "The meeting the document belongs to.",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
     },
     "nplurals=2; plural=(n != 1);"
 )

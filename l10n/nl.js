@@ -3779,7 +3779,8 @@ OC.L10N.register(
         "The user who made the annotation.": "De gebruiker die de aantekening heeft gemaakt.",
         "The document the annotation is on.": "Het document waarop de aantekening staat.",
         "The agenda item the document belongs to.": "Het agendapunt waarbij het document hoort.",
-        "The meeting the document belongs to.": "De vergadering waarbij het document hoort."
+        "The meeting the document belongs to.": "De vergadering waarbij het document hoort.",
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "Het organisatiedoel dat dit besluit dient. Leeg als het besluit geen doel dient."
     },
     "nplurals=2; plural=(n != 1);"
 )
