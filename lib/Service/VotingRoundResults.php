@@ -130,6 +130,12 @@ class VotingRoundResults {
 		}
 
 		$counts = $this->countVotes(voteEntities: $this->ballotsInRound(votingRoundId: $votingRoundId));
+		if ($round !== null && ($round['votingMethod'] ?? '') === 'show-of-hands') {
+			// A show-of-hands round has no vote objects: the chair's saved totals
+			// are the count, so closing computes the result from them instead of
+			// recounting to zero (voting-named-paper-vote-entry D4, REQ-NPV-005).
+			$counts = self::storedTotals(round: $round);
+		}
 
 		$computed = $this->compute(
 			for: $counts['votesFor'],
@@ -278,6 +284,23 @@ class VotingRoundResults {
 		);
 
 	}//end ballotsInRound()
+
+	/**
+	 * The totals a show-of-hands round holds, as saved by the chair.
+	 *
+	 * @param array<string, mixed> $round The voting round.
+	 *
+	 * @return array{votesFor: int, votesAgainst: int, votesAbstain: int}
+	 *
+	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-005-closing-a-show-of-hands-round-keeps-the-totals-the-chair-entered
+	 */
+	private static function storedTotals(array $round): array {
+		return [
+			'votesFor' => (int)($round['votesFor'] ?? 0),
+			'votesAgainst' => (int)($round['votesAgainst'] ?? 0),
+			'votesAbstain' => (int)($round['votesAbstain'] ?? 0),
+		];
+	}//end storedTotals()
 
 	/**
 	 * Sum the weighted for / against / abstain counts of a ballot set.

@@ -231,6 +231,9 @@ $extra = [
         ['name' => 'paperVote#record',   'url' => '/api/voting-rounds/{id}/recorded-votes', 'verb' => 'POST'],
         ['name' => 'voting#publish',     'url' => '/api/voting-rounds/{id}/publish','verb' => 'POST'],
         ['name' => 'voting#tally',       'url' => '/api/voting-rounds/{id}/tally',  'verb' => 'POST'],
+        // voting-named-paper-vote-entry: the chair or secretary records a roll call by name.
+        // Its own path: recorded-votes is the paper-vote entry of any public round (paperVote#record).
+        ['name' => 'voting#recordVotes', 'url' => '/api/voting-rounds/{id}/named-votes',    'verb' => 'POST'],
         // Result per member and per faction (voting-results-by-faction-and-member, vot-03).
         ['name' => 'voteBreakdown#show', 'url' => '/api/voting-rounds/{id}/breakdown', 'verb' => 'GET'],
         // A person's votes in closed, open rounds (bodies-member-profile-and-voting-record, vot-18).

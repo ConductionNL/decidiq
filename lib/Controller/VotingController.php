@@ -28,6 +28,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
+use OCA\Decidiq\Exception\RecordedVotesRefusedException;
 use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\Decidiq\Kernel\Contracts\OriPublicationServiceInterface;
 use OCA\Decidiq\Kernel\Contracts\ProxyDelegationServiceInterface;
@@ -407,6 +408,51 @@ class VotingController extends Controller {
 		);
 
 	}//end tally()
+
+	/**
+	 * Record each member's choice on an open roll call round (chair or secretary of its meeting).
+	 *
+	 * @param string $id The voting round.
+	 *
+	 * @return JSONResponse 200 `{votingRoundId, recorded}`, 403, or 400 / 404 / 409 naming the entries refused.
+	 *
+	 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-002-the-chair-or-secretary-records-each-members-choice
+	 */
+	#[NoAdminRequired]
+	public function recordVotes(string $id): JSONResponse {
+		$meetingId = $this->guard->resolveMeetingIdFromVotingRound(votingRoundId: $id);
+		$guard = $this->guard->requireChairOrSecretary(meetingId: $meetingId);
+		if ($guard !== null) {
+			return $guard;
+		}
+
+		$params = $this->request->getParams();
+		$entries = ($params['entries'] ?? []);
+		if (is_array($entries) === false) {
+			$entries = [];
+		}
+
+		$heldAt = ($params['heldAt'] ?? null);
+		if (is_string($heldAt) === false) {
+			$heldAt = null;
+		}
+
+		try {
+			return new JSONResponse(
+				$this->votingService->recordNamedVotes(
+					votingRoundId: $id,
+					entries: array_values($entries),
+					heldAt: $heldAt,
+					recordedBy: (string)$this->userSession->getUser()?->getUID()
+				)
+			);
+		} catch (RecordedVotesRefusedException $refusal) {
+			return new JSONResponse(
+				['message' => $refusal->getMessage(), 'participantIds' => $refusal->participantIds],
+				$refusal->status
+			);
+		}
+	}//end recordVotes()
 
 	/**
 	 * Revoke proxy delegation.

@@ -53,6 +53,10 @@
 					<option value="weighted">
 						{{ t('decidiq', 'Weighted vote') }}
 					</option>
+					<!-- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
+					<option value="roll-call">
+						{{ t('decidiq', 'Roll call, recorded by name') }}
+					</option>
 					<option value="ranked-choice">
 						{{ t('decidiq', 'Ranked preference (Borda count)') }}
 					</option>
@@ -259,6 +263,7 @@
 				v-if="
 					isRoundOpen
 					&& currentRound.votingMethod !== 'show-of-hands'
+					&& !isRollCallRound
 					&& !isRankedRound
 					&& !voteCast
 				"
@@ -296,6 +301,29 @@
 					{{ castVoteError }}
 				</p>
 			</div>
+
+			<!-- A roll call: members do not cast, the chair or secretary records each choice by name -->
+			<!-- @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name -->
+			<p
+				v-if="isRoundOpen && isRollCallRound"
+				class="decidiq-roll-call-notice"
+				role="status"
+				data-testid="roll-call-notice">
+				{{ t('decidiq', 'A roll call is in progress. The chair or the secretary records each vote by name.') }}
+			</p>
+			<NcButton
+				v-if="isRoundOpen && isRollCallRound && permissions.canEnterTally"
+				variant="primary"
+				data-testid="recorded-votes-open"
+				@click="showRecordedVotes = true">
+				{{ t('decidiq', 'Record votes by name') }}
+			</NcButton>
+			<RecordedVotesModal
+				v-if="showRecordedVotes"
+				:roundId="roundId"
+				:participants="participants"
+				@recorded="fetchCurrentRound"
+				@close="showRecordedVotes = false" />
 
 			<!-- Vote confirmation message -->
 			<p v-if="voteCast" class="decidiq-vote-confirmed" role="status">
@@ -566,10 +594,12 @@ import { CnDetailCard, CnStatusBadge } from '@conduction/nextcloud-vue'
 import { generateUrl } from '@nextcloud/router'
 import { NcButton, NcSelect, NcTextField } from '@nextcloud/vue'
 import RecordVotesDialog from '../dialogs/RecordVotesDialog.vue'
+import RecordedVotesModal from '../modals/RecordedVotesModal.vue'
 import RankedBallot from './RankedBallot.vue'
 import RankedResultsCard from './RankedResultsCard.vue'
 import { useObjectStore } from '../store/store.js'
 import { eligibleCount } from '../utils/conflicts.js'
+import { isRollCall } from '../utils/namedVotes.js'
 import { matching, relationFilterFor } from '../utils/objectRelations.js'
 import { pickPerson, rankedOptionsFrom } from '../utils/rankedBallot.js'
 import {
@@ -619,6 +649,7 @@ export default {
 		RankedBallot,
 		RankedResultsCard,
 		RecordVotesDialog,
+		RecordedVotesModal,
 	},
 
 	props: {
@@ -679,6 +710,7 @@ export default {
 			participantCount: 0,
 			participants: [],
 			showRecordVotes: false,
+			showRecordedVotes: false,
 			declarations: [],
 			// The server's answer on which controls this user may use
 			// (REQ-VCR-002); every control hidden until it arrives.
@@ -717,9 +749,21 @@ export default {
 			const round = this.currentRound || {}
 			return (
 				round.votingMethod !== 'show-of-hands'
+				&& !isRollCall(round)
 				&& !this.isRankedRound
 				&& round.isSecret !== true
 			)
+		},
+
+		/**
+		 * Whether the current round is a roll call, whose votes the chair or
+		 * the secretary records by name.
+		 *
+		 * @return {boolean}
+		 * @spec openspec/changes/voting-named-paper-vote-entry/specs/vote-casting/spec.md#requirement-req-npv-001-a-chair-opens-a-roll-call-round-whose-votes-are-recorded-by-name
+		 */
+		isRollCallRound() {
+			return isRollCall(this.currentRound)
 		},
 
 		/** @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting/tasks.md#task-6.1 */
@@ -969,6 +1013,7 @@ export default {
 					id: member.id || member.uuid,
 					displayName: member.displayName || '',
 					party: member.party || '',
+					leftAt: member.leftAt || '',
 				}))
 				await this.loadDeclarations()
 			} catch {
@@ -1395,6 +1440,10 @@ export default {
 .decidiq-ori-status {
 	color: var(--color-text-maxcontrast);
 	font-style: italic;
+}
+
+.decidiq-roll-call-notice {
+	color: var(--color-text-maxcontrast);
 }
 
 .decidiq-show-of-hands {
