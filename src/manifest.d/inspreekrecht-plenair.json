@@ -1,6 +1,6 @@
 {
 	"$schema": "https://github.com/ConductionNL/nextcloud-vue/raw/main/src/schemas/app-manifest-v2.schema.json",
-	"_note": "Speaking rights at meetings (inspreekrecht-plenair) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). DECLARATIVE CORE: the secretariat's cross-meeting overview of speaking requests (pending first through the default quick filter), a request detail page with its contribution, Files leaf and audit trail, and the per-body speaking policies. Schema refs BY SLUG (speaking-request, speaking-policy), never the PascalCase keys. Moderation (approve/reject/refer), the deadline warning and the agenda/queue blocks call /api/speaking-requests/* and /api/meetings/{id}/speaking-* and are imperative Vue still to be wired (tasks 5-7). No menu entries yet: the main menu and the simple structure profile are a fixed design (nav ceiling, structureProfile), so placing these pages there is its own decision; the pages are reachable by route.",
+	"_note": "Speaking rights at meetings (inspreekrecht-plenair) — appended onto the bundled src/manifest.json by main.js::mergeManifestFragments (ADR-037). DECLARATIVE CORE: the secretariat's cross-meeting overview of speaking requests (pending first through the default quick filter), a request detail page with its contribution, Files leaf and audit trail, and the per-body speaking policies. Schema refs BY SLUG (speaking-request, speaking-policy), never the PascalCase keys. Moderation (approve/reject/refer) opens registered dialogs from the overview rows, the deadline warning is the speaking-deadline cell widget, and the agenda blocks (AgendaItemSpeakersTab, MeetingSpeakersTab) sit on the base agenda item and meeting pages in src/manifest.json, because a fragment replaces a same-id page wholesale. No menu entries yet: the main menu and the simple structure profile are a fixed design (nav ceiling, structureProfile), so placing these pages there is its own decision; the pages are reachable by route.",
 	"_spec": "openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications",
 	"menu": [],
 	"pages": [
@@ -15,7 +15,7 @@
 				"schema": "speaking-request",
 				"sortKey": "@self.created",
 				"sortOrder": "asc",
-				"_note": "Cross-meeting overview for the secretariat. The default quick filter shows pending (registered) requests first; the others split by outcome. The lifecycle and late-registration columns render as badges (icon + text, never colour alone). A row opens the request detail.",
+				"_note": "Cross-meeting overview for the secretariat. The default quick filter shows pending (registered) requests first; the others split by outcome. The lifecycle and late-registration columns render as badges (icon + text, never colour alone). The registration deadline column (cell widget speaking-deadline) warns on a pending row whose registration window closes within a day or has closed, computed in the browser from the meeting start and the body's registrationDeadlineHours: a warning, never a gate. Approve, Reject and Refer open their dialogs from a pending row; the server decides who may moderate. A row opens the request detail.",
 				"quickFilterMode": "dropdown",
 				"quickFilterMultiple": false,
 				"quickFilters": [
@@ -86,6 +86,11 @@
 						"key": "registeredAfterDeadline",
 						"label": "After the deadline",
 						"widget": "badge"
+					},
+					{
+						"key": "deadline",
+						"label": "Registration deadline",
+						"widget": "speaking-deadline"
 					}
 				],
 				"actions": [
@@ -96,6 +101,39 @@
 						"handler": "navigate",
 						"route": "SpeakingRequestDetail",
 						"primary": true
+					},
+					{
+						"id": "approve",
+						"label": "Approve",
+						"icon": "CheckCircleOutline",
+						"type": "open-modal",
+						"target": "SpeakingRequestApproveDialog",
+						"visibleWhen": {
+							"field": "lifecycle",
+							"value": "registered"
+						}
+					},
+					{
+						"id": "reject",
+						"label": "Reject",
+						"icon": "CloseCircleOutline",
+						"type": "open-modal",
+						"target": "SpeakingRequestRejectDialog",
+						"visibleWhen": {
+							"field": "lifecycle",
+							"value": "registered"
+						}
+					},
+					{
+						"id": "refer",
+						"label": "Refer",
+						"icon": "ArrowRightCircleOutline",
+						"type": "open-modal",
+						"target": "SpeakingRequestReferDialog",
+						"visibleWhen": {
+							"field": "lifecycle",
+							"value": "registered"
+						}
 					}
 				],
 				"actionToggles": {

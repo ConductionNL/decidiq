@@ -1803,6 +1803,9 @@
 					"meeting-sessions": {
 						"type": "MeetingSessionsTab"
 					},
+					"meeting-speakers": {
+						"type": "MeetingSpeakersTab"
+					},
 					"meeting-stage": {
 						"type": "MeetingStageTab"
 					},
@@ -1977,6 +1980,10 @@
 								{
 									"label": "Agenda",
 									"widgetId": "meeting-agenda"
+								},
+								{
+									"label": "Public speakers",
+									"widgetId": "meeting-speakers"
 								},
 								{
 									"label": "Incoming documents",
@@ -3128,7 +3135,7 @@
 		},
 		{
 			"id": "AgendaItemDetail",
-			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn: an agenda item has no speakers list outside the live meeting. The full structure keeps the manifest's stack.",
+			"_note": "The agenda item page in the simple structure (boards DcAgendapunt, DcAgendapuntStukken, DcAgendapuntMoties): tabs Overview (the item and its type-specific fields), Papers (documents, document details, papers as PDF), Motions and Case; the key facts, the conflicts of interest and the paper summaries beside them. The board's Speakers tab is not drawn as a tab: the item's public speakers (inspreekrecht-plenair, approved slots and pending requests) sit in the side column, and the live speaker queue stays on the live meeting screen. The full structure keeps the manifest's stack.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3151,6 +3158,7 @@
 						}
 					},
 					"agenda-conflicts",
+					"agenda-speakers",
 					"agenda-paper-summaries"
 				],
 				"layout": [
@@ -3184,6 +3192,9 @@
 					},
 					"agenda-conflicts": {
 						"type": "AgendaItemConflictsTab"
+					},
+					"agenda-speakers": {
+						"type": "AgendaItemSpeakersTab"
 					},
 					"agenda-paper-summaries": {
 						"type": "AgendaPaperSummariesTab"

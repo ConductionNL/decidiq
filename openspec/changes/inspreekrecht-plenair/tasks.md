@@ -47,9 +47,9 @@
 - **acceptance_criteria**:
   - GIVEN an agenda item with goedgekeurde and aangemelde aanmeldingen WHEN the internal view renders THEN approved slots appear in volgorde order with sprekerNaam and minutes, pending ones visually distinct, afgewezen absent; meeting-level insprekers render in the meeting block for `niveau: vergadering`
   - GIVEN the public payload WHEN built under `aantal` / `voornaam` / `spreker-naam` THEN the projection matches the mode and PHPUnit asserts `contactgegevens` and `afwijzingsReden` are structurally absent in every mode (allow-list, mutation-guarded — the assertion fails when a field is added to the payload)
-  - Backend built (not ticked: the `src/` agenda-item block is still to do): `SpeakingSlots::internal()`/`public()` behind `GET /api/meetings/{meetingId}/speaking-slots` (staff of the meeting) and `/speaking-slots/public`; `SpeakingSlotsTest` pins the exact public keys per display setting.
-- [ ] Implement
-- [ ] Test
+  - Built: `SpeakingSlots::internal()`/`public()` behind `GET /api/meetings/{meetingId}/speaking-slots` (staff of the meeting) and `/speaking-slots/public`; `SpeakingSlotsTest` pins the exact public keys per display setting. In `src/`, `SpeakingSlotsBlock` renders approved slots in order with name and minutes and the pending requests after them, marked pending in text; `AgendaItemSpeakersTab` shows it on the agenda item page and `MeetingSpeakersTab` on the meeting page for meeting-level speakers (both structures). `slotsFor()` is covered in `tests/vitest/speakingRequests.spec.js`.
+- [x] Implement
+- [x] Test
 
 ### Task 6: Live wiring — speaker-queue preload and gesproken/niet-verschenen write-back
 - **spec_ref**: `openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-009-approved-insprekers-preload-the-speaker-queue-and-status-flows-back`
@@ -57,9 +57,9 @@
 - **acceptance_criteria**:
   - GIVEN an opened meeting WHEN an agenda item with goedgekeurde aanmeldingen becomes current THEN the REQ-STM queue is preloaded in volgorde order with inspreker labels and per-entry time limits, ahead of ad-hoc entries, without modifying the SpeakingTimePanel contract
   - GIVEN a preloaded entry WHEN the chair marks gesproken or niet-verschenen THEN the aanmelding transitions accordingly via a PUT-semantic save and a unit test asserts an unrelated field (bijdrageTekst) survives; WHEN the chair merely removes the entry from the queue THEN the aanmelding status is unchanged
-  - Backend built (not ticked: the SpeakingTimePanel bridge in `src/` is still to do): `GET /api/meetings/{meetingId}/speaking-queue?agendaItem=` gives the approved speakers in order with their minutes; `POST /api/speaking-requests/{id}/outcome` (spoke / no-show) saves the whole request, and a test asserts `contribution` survives.
-- [ ] Implement
-- [ ] Test
+  - Built: `GET /api/meetings/{meetingId}/speaking-queue?agendaItem=` gives the approved speakers in order with their minutes; `POST /api/speaking-requests/{id}/outcome` (spoke / no-show) saves the whole request, and a test asserts `contribution` survives. The live screen reads the queue when an item of an opened meeting becomes current and hands it to `SpeakerQueuePanel` through two optional props (`preload`, `markOutcome`); existing callers are unchanged. The panel places the public speakers once per item ahead of the chair's entries (`preloadSpeakers()`), labels them in text, uses each one's allotted minutes as its limit, and offers Spoke / No-show; ✕ only removes the entry. Covered in `tests/vitest/speakingRequests.spec.js`.
+- [x] Implement
+- [x] Test
 
 ### Task 7: Manifest fragment — griffie overview, list/detail pages, bijdrage/transcript linkage UI
 - **spec_ref**: `openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md#requirement-req-ins-010-griffie-inspraak-overview-with-deadline-warnings-and-notifications`, `openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md#requirement-req-ins-006-written-bijdrage-and-transcript-segment-linkage`
@@ -67,9 +67,9 @@
 - **acceptance_criteria**:
   - GIVEN the built app WHEN the griffier opens the inspraak overview THEN cross-meeting aanmeldingen list with status/body/date filters, pending first, deadline warnings computed from meeting start − aanmeldDeadlineUren, and approve/reject/refer actionable from the row (schema refs by slug `inspraak-aanmelding` / `inspraak-beleid`, never PascalCase — gates 28/30/51/52)
   - GIVEN a gesproken aanmelding WHEN the griffier attaches bijdrageTekst and a transcript segment THEN the agenda-item detail surfaces them with a deeplink, and the detail page carries Files leaf + audit-trail sidebar
-  - Partly built (not ticked): `src/manifest.d/inspreekrecht-plenair.json` has the overview (pending first), the request detail with Files leaf and audit trail, and the policy index. Still to do: approve/reject/refer row actions with their dialogs, the deadline warning, and menu placement (the main menu and the simple structure profile are a fixed design, so the pages are only reachable by route for now).
-- [ ] Implement
-- [ ] Test
+  - Built: `src/manifest.d/inspreekrecht-plenair.json` has the overview (pending first), the request detail with Files leaf and audit trail, and the policy index. Approve / Reject / Refer are `open-modal` row actions on pending rows, opening `SpeakingRequestApproveDialog`, `SpeakingRequestRejectDialog` (reason required) and `SpeakingRequestReferDialog` in `src/dialogs`; each refreshes the list after the server accepts. The registration deadline column (`speaking-deadline` cell widget) warns on a pending row whose window closes within a day or has closed, from the meeting start and the body's `registrationDeadlineHours`, read once per meeting and per body. The agenda slots link each speaker, with a written contribution marked, to the request detail. Not done here: menu placement — the main menu and the simple structure profile are a fixed design (nav ceiling, structure profile), so the pages are reachable by route until that design places them.
+- [x] Implement
+- [x] Test
 
 ### Task 8: E2E coverage — Playwright scenarios across both capabilities
 - **spec_ref**: `openspec/changes/inspreekrecht-plenair/specs/inspraak-register/spec.md`, `openspec/changes/inspreekrecht-plenair/specs/inspraak-agenda-live/spec.md`

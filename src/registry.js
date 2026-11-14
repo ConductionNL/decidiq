@@ -27,6 +27,7 @@ import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
+import AgendaItemSpeakersTab from './components/tabs/AgendaItemSpeakersTab.vue'
 import AgendaItemTypeFieldsTab from './components/tabs/AgendaItemTypeFieldsTab.vue'
 import AgendaMotionsTab from './components/tabs/AgendaMotionsTab.vue'
 import AgendaPaperRenditionsTab from './components/tabs/AgendaPaperRenditionsTab.vue'
@@ -70,6 +71,7 @@ import MeetingParticipantsTab from './components/tabs/MeetingParticipantsTab.vue
 import MeetingRoutedDocumentsTab from './components/tabs/MeetingRoutedDocumentsTab.vue'
 import MeetingSeriesTab from './components/tabs/MeetingSeriesTab.vue'
 import MeetingSessionsTab from './components/tabs/MeetingSessionsTab.vue'
+import MeetingSpeakersTab from './components/tabs/MeetingSpeakersTab.vue'
 import MeetingStageTab from './components/tabs/MeetingStageTab.vue'
 import MeetingTechnicalQuestionsTab from './components/tabs/MeetingTechnicalQuestionsTab.vue'
 import MeetingTranscriptionTab from './components/tabs/MeetingTranscriptionTab.vue'
@@ -101,6 +103,9 @@ import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
 import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
+import SpeakingRequestApproveDialog from './dialogs/SpeakingRequestApproveDialog.vue'
+import SpeakingRequestReferDialog from './dialogs/SpeakingRequestReferDialog.vue'
+import SpeakingRequestRejectDialog from './dialogs/SpeakingRequestRejectDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
 // slot components registered under kind: "widget".
@@ -157,6 +162,26 @@ import ParticipationPage from './views/participation/ParticipationPage.vue'
  */
 function page(component) {
 	return { kind: 'page', component }
+}
+
+/**
+ * Wrap a Vue component into a v2 `kind: "modal"` registry entry: a manifest
+ * action of `type: "open-modal"` opens it through CnAppRoot's `cnOpenModal`,
+ * a row action with the row as `object` and its key as `objectId`.
+ *
+ * @param {object} component Vue component options.
+ *
+ * @return {object} A `{ kind: "modal", component, propsSchema }` registry entry.
+ */
+function modal(component) {
+	return {
+		kind: 'modal',
+		component,
+		propsSchema: {
+			object: { type: 'object' },
+			objectId: { type: 'string' },
+		},
+	}
 }
 
 /**
@@ -300,6 +325,15 @@ export default {
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
+	// Public speakers (inspreekrecht-plenair REQ-INS-007): approved slots and
+	// pending requests on the agenda item, and the meeting-level ones.
+	AgendaItemSpeakersTab: page(AgendaItemSpeakersTab),
+	MeetingSpeakersTab: page(MeetingSpeakersTab),
+	// Moderation of a pending speaking request from the overview row
+	// (inspreekrecht-plenair REQ-INS-005), opened by `open-modal` row actions.
+	SpeakingRequestApproveDialog: modal(SpeakingRequestApproveDialog),
+	SpeakingRequestRejectDialog: modal(SpeakingRequestRejectDialog),
+	SpeakingRequestReferDialog: modal(SpeakingRequestReferDialog),
 	// The case system on the agenda item and meeting pages
 	// (platform-case-system-document-exchange).
 	AgendaItemCaseTab: page(AgendaItemCaseTab),
