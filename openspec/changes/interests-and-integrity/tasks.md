@@ -48,8 +48,8 @@
 - **acceptance_criteria**:
   - GIVEN seeded data WHEN the dashboard renders THEN the "Nevenfuncties zonder actuele review" stat widget counts non-terminal nevenfuncties with reviews older than 12 months via a declarative source aggregation and deep-links to the pre-filtered index; if the filter DSL lacks a relative-date token the documented design fallback is applied (never a silently wrong count)
   - GIVEN a body with members lacking any (or any reviewed) declaration WHEN the griffie opens the compliance panel on the Nevenfuncties index THEN those members are marked from a client-side join of two standard OR list queries (memberships × nevenfuncties), labeled assistive, with no backend endpoint added
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
 
 ### Task 6: Assistive nevenfuncties context on the COI dialog and chair panel
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md#requirement-req-int-007-assistive-nevenfuncties-context-on-the-coi-surfaces`
@@ -57,8 +57,8 @@
 - **acceptance_criteria**:
   - GIVEN a participant with active nevenfuncties WHEN they open "Belangenverstrengeling melden" (REQ-COI-001) THEN their own nevenfuncties are listed with subject-keyword matches highlighted, and the COI note mechanism itself is unchanged
   - GIVEN the chair's COI summary panel (REQ-COI-002) WHEN a declaring participant has registered nevenfuncties THEN their entry links to the register; no auto-declaration, blocking, or scoring occurs anywhere
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`src/utils/ancillaryContext.js`, `src/dialogs/ConflictDeclareDialog.vue`, `src/components/tabs/ConflictsTab.vue`; the chair link goes to the member's profile, which lists her other positions)
+- [x] Test (`tests/vitest/ancillaryContext.spec.js`)
 
 ### Task 7: E2E coverage — Playwright scenarios for declarations, publication, and integrity flows
 - **spec_ref**: `openspec/changes/interests-and-integrity/specs/interests-and-integrity/spec.md`

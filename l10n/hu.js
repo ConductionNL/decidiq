@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Rendkívüli ülés",
         "Committee meeting": "Bizottsági ülés",
         "Public hearing": "Közmeghallgatás",
-        "General assembly": "Közgyűlés"
+        "General assembly": "Közgyűlés",
+        "Members' ancillary positions": "A tagok mellékfoglalkozásai"
     },
     "nplurals=2; plural=(n != 1);"
 )
