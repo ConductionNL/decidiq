@@ -43,6 +43,16 @@
 					">
 					{{ t('decidiq', 'Room screen') }}
 				</NcButton>
+				<!-- platform-microsoft-365-calendar-and-teams (REQ-M365-005) -->
+				<NcButton
+					v-if="teamsJoinUrl"
+					variant="primary"
+					:href="teamsJoinUrl"
+					target="_blank"
+					rel="noopener noreferrer"
+					data-testid="meeting-live-teams-join">
+					{{ t('decidiq', 'Join in Microsoft Teams') }}
+				</NcButton>
 			</div>
 
 			<!-- Meeting cost panel (meeting-efficiency) -->
@@ -294,6 +304,7 @@ import {
 	sharedCurrentItemId,
 } from '../utils/liveMeeting.js'
 import { references } from '../utils/objectRelations.js'
+import { teamsJoinUrl } from '../utils/teamsMeeting.js'
 
 const BOB_STAGES = [
 	{ id: 'beeldvorming', label: 'Beeldvorming' },
@@ -368,6 +379,16 @@ export default {
 		/** @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-4.1 */
 		meeting() {
 			return this.objectStore.objects?.meeting?.[this.id] ?? {}
+		},
+
+		/**
+		 * The Teams join address of the meeting, or '' (platform-microsoft-365-calendar-and-teams).
+		 *
+		 * @return {string} The join address.
+		 * @spec openspec/changes/platform-microsoft-365-calendar-and-teams/specs/microsoft-365-work/spec.md#requirement-req-m365-005-members-join-the-teams-meeting-from-decidiq
+		 */
+		teamsJoinUrl() {
+			return teamsJoinUrl(this.meeting)
 		},
 
 		/**

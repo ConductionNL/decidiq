@@ -27,7 +27,7 @@
 - **acceptance_criteria**:
   - GIVEN a member WHEN they subscribe THEN an `.ics` address and the Outlook line show (Playwright)
   - GIVEN one subscription WHEN they stop it THEN the list is empty and the address answers 404 (Playwright plus a request)
-- [ ] Implement
+- [x] Implement
 - [ ] Test
 
 ### Task 4: The Teams field and the create action
@@ -38,7 +38,7 @@
   - GIVEN a non-staff member WHEN they call the route THEN 403 (PHPUnit and Newman)
   - GIVEN a non-Teams address WHEN saved THEN OpenRegister rejects it (Newman)
   - GIVEN hydra gates `connections-declaration`, `route-auth`, `no-admin-idor` WHEN they run THEN they pass
-- [ ] Implement
+- [x] Implement
 - [ ] Test
 
 ### Task 5: Join from the meeting and the live meeting page
@@ -46,11 +46,11 @@
 - **files**: `src/views/LiveMeeting.vue`, `tests/e2e/calendar-subscription.spec.ts`
 - **acceptance_criteria**:
   - GIVEN the seeded digital meeting WHEN the live page opens THEN "Join in Microsoft Teams" links to the join address in a new tab (Playwright)
-- [ ] Implement
+- [x] Implement
 - [ ] Test
 
 ### Task 6: Strings and docs
 - Dutch and English strings for the section, the button and the refusals (`test:l10n`, `check:schema-l10n` green).
 - `docs/features/microsoft-365.md` (new): subscribing in Outlook, how often Outlook refreshes, creating a Teams meeting, and signing in with a Microsoft account through Nextcloud's `user_oidc`.
-- [ ] Implement
+- [x] Implement
 - [ ] Test
