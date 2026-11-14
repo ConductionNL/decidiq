@@ -73,6 +73,9 @@
     "@nextcloud/axios": "$@nextcloud/axios",
     "@toast-ui/editor": {
       "dompurify": "$dompurify"
+    },
+    "webdav": {
+      "minimatch": "^11.0.1"
     }
   },
   "devDependencies": {

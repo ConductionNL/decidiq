@@ -34,6 +34,7 @@ const ICONS = [
 	'AccountEdit',
 	'AccountGroup',
 	'AccountMultiplePlus',
+	'CalendarRange',
 	'CardAccountDetailsOutline',
 	'FileDelimited',
 	'LinkOff',
@@ -82,6 +83,7 @@ async function run(data) {
 		'../../modals/MemberCsvImportDialog.vue': { default: {} },
 		'../../modals/MemberGroupImportDialog.vue': { default: {} },
 		'../../modals/MemberRoleDialog.vue': { default: {} },
+		'../../modals/MemberTermDialog.vue': { default: {} },
 		'../../utils/bodyMembership.js': bodyMembership,
 		'../../utils/memberProfile.js': { profilePath: (id) => `/p/${id}` },
 		'./useRelationStore.js': {

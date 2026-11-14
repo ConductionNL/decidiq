@@ -95,7 +95,7 @@ class PublicationControllerResponsesTest extends TestCase {
 		$never = function ($mock): void {
 			$mock->expects($this->never())->method('publish');
 		};
-		$badInput = [400, ['message' => 'sourceType (decision|agenda|minutes|activity) and sourceId are required.']];
+		$badInput = [400, ['message' => 'sourceType (decision|agenda|minutes|activity|incoming-document) and sourceId are required.']];
 
 		$this->assertSame([401, ['message' => 'Authentication required.']], $this->answer($this->controller($ok, $never, null)->publish()));
 		$this->assertSame($badInput, $this->answer($this->controller(['sourceType' => 'meeting', 'sourceId' => 'd-1'], $never)->publish()));

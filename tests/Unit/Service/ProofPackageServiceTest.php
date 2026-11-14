@@ -71,6 +71,13 @@ class ProofPackageServiceTest extends TestCase {
 	private ProofPackageService $service;
 
 	/**
+	 * The minutes rows the meeting carries.
+	 *
+	 * @var array<int, array<string, mixed>>
+	 */
+	private array $minutesRows = [];
+
+	/**
 	 * Set up test fixtures.
 	 *
 	 * @return void
@@ -161,6 +168,10 @@ class ProofPackageServiceTest extends TestCase {
 							]
 						),
 					];
+				}
+
+				if ($schema === 'minutes') {
+					return array_map(fn (array $row): ObjectEntity => $this->createEntityMock($row), $this->minutesRows);
 				}
 
 				if ($schema === 'decision') {
@@ -375,7 +386,7 @@ class ProofPackageServiceTest extends TestCase {
 		self::assertSame($envelope['generatedAt'], $result['generatedAt']);
 		self::assertSame(['package', 'integrity', 'generatedAt', 'generatedBy'], array_keys($envelope));
 		self::assertSame(
-			['meeting', 'convocation', 'quorum', 'votes', 'decisions'],
+			['meeting', 'convocation', 'quorum', 'votes', 'decisions', 'minutes', 'signatures'],
 			array_keys($envelope['package'])
 		);
 		self::assertStringContainsString($result['sha256'], $writes[1]['content']);
@@ -445,4 +456,98 @@ class ProofPackageServiceTest extends TestCase {
 
 		return $data;
 	}//end ksortRecursive()
+
+	/**
+	 * Assemble the meeting fixture and return the written JSON package and markdown.
+	 *
+	 * @return array{0: array<string, mixed>, 1: string} The package member and the markdown.
+	 */
+	private function assembleWritten(): array {
+		$this->wireMeetingFixture(['id' => 'meeting-010', 'title' => 'Raad', 'scheduledDate' => '2026-06-12']);
+		$this->participantResolver->method('resolveMeetingParticipants')->willReturn(
+			[['displayName' => 'A', 'role' => 'chair', 'attendanceStatus' => 'present']]
+		);
+		$writes = [];
+		$this->folderService->method('writeMeetingFile')->willReturnCallback(
+			static function (array $meeting, string $subfolder, string $fileName, string $content) use (&$writes): string {
+				$writes[pathinfo($fileName, PATHINFO_EXTENSION)] = $content;
+				return $fileName;
+			}
+		);
+
+		$this->service->assemble(meetingId: 'meeting-010', generatedBy: 'Griffier');
+		$envelope = json_decode($writes['json'], true);
+
+		self::assertSame(
+			hash('sha256', (string)json_encode($this->ksortRecursive($envelope['package']), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)),
+			$envelope['integrity']['hash'],
+			'The minutes and signatures sit inside the hashed package.'
+		);
+
+		return [$envelope['package'], $writes['md']];
+	}//end assembleWritten()
+
+	/**
+	 * The approved, signed minutes go into the hashed package with their signers,
+	 * next to the round results and the attendance list.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 *
+	 * @return void
+	 */
+	public function testSignedApprovedMinutesAreInTheHashedPackage(): void {
+		$this->minutesRows = [
+			['id' => 'min-1', 'title' => 'Notulen v1', 'lifecycle' => 'review', 'version' => 1, 'content' => 'oud'],
+			['id' => 'min-2', 'title' => 'Notulen juni', 'lifecycle' => 'signed', 'version' => 2, 'approvedAt' => '2026-07-01T10:00:00Z', 'content' => 'De raad besluit.', 'signedBy' => [' Roos de Vries ', '', 'Jan Bakker']],
+		];
+
+		[$package, $markdown] = $this->assembleWritten();
+
+		self::assertSame(
+			['recorded' => true, 'approved' => true, 'state' => 'signed', 'id' => 'min-2', 'title' => 'Notulen juni', 'version' => 2, 'approvedAt' => '2026-07-01T10:00:00Z', 'content' => 'De raad besluit.'],
+			$package['minutes']
+		);
+		self::assertSame(['signed' => true, 'signedBy' => ['Roos de Vries', 'Jan Bakker']], $package['signatures']);
+		self::assertSame('A', $package['quorum']['participants'][0]['displayName']);
+		self::assertSame('vr-1', $package['votes'][0]['id']);
+		self::assertStringContainsString("De raad besluit.", $markdown);
+		self::assertStringContainsString("- Roos de Vries\n- Jan Bakker", $markdown);
+	}//end testSignedApprovedMinutesAreInTheHashedPackage()
+
+	/**
+	 * Draft minutes are named with their state, not included and not left out silently.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 *
+	 * @return void
+	 */
+	public function testMinutesNotYetApprovedAreNamedWithTheirState(): void {
+		$this->minutesRows = [['id' => 'min-1', 'lifecycle' => 'draft', 'version' => 1, 'content' => 'concept tekst', 'signedBy' => []]];
+
+		[$package, $markdown] = $this->assembleWritten();
+
+		self::assertSame(
+			['recorded' => true, 'approved' => false, 'state' => 'draft', 'version' => 1, 'note' => 'The minutes are not approved; their current state is "draft".'],
+			$package['minutes']
+		);
+		self::assertSame(['signed' => false, 'signedBy' => []], $package['signatures']);
+		self::assertStringNotContainsString('concept tekst', $markdown);
+		self::assertStringContainsString('_The minutes are not approved; their current state is "draft"._', $markdown);
+		self::assertStringContainsString('_Geen ondertekening vastgelegd._', $markdown);
+	}//end testMinutesNotYetApprovedAreNamedWithTheirState()
+
+	/**
+	 * A meeting without minutes says so.
+	 *
+	 * @spec openspec/changes/capability-rows-get-requirements/specs/resolution-minutes/spec.md#requirement-a-meetings-evidence-is-bundled-into-one-proof-package
+	 *
+	 * @return void
+	 */
+	public function testAMeetingWithoutMinutesSaysSo(): void {
+		[$package] = $this->assembleWritten();
+
+		self::assertSame(['recorded' => false, 'approved' => false, 'state' => 'missing', 'note' => 'No minutes are recorded for this meeting.'], $package['minutes']);
+		self::assertSame(['signed' => false, 'signedBy' => []], $package['signatures']);
+	}//end testAMeetingWithoutMinutesSaysSo()
+
 }//end class
