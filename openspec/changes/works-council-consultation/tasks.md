@@ -46,8 +46,8 @@
   - GIVEN a traject in `vastgesteld` with response fields WHEN generation is triggered THEN a markdown document persists to the traject's Files folder, Docudesk PDF renders when available, the document links as `responseDocument`, and the save carries all fields forward (PUT-semantic)
   - GIVEN an instance without Docudesk WHEN generation is triggered with PDF format THEN the markdown persists and the response honestly states the fallback (never a silent fake PDF)
   - GIVEN a user without governance-body scope on the traject WHEN calling the endpoint THEN it is rejected (per-object guard + correct auth attributes — no-admin-idor/semantic-auth/route-reachability gates pass)
-- [ ] Implement
-- [ ] Test
+- [x] Implement (`ConsultationResponseDocumentService`, `WorksCouncilConsultationController::generateResponseDocument`, `POST /api/works-council-consultations/{id}/response-document`, documented in `openapi.json`. The file is stored on the traject itself, so its Files leaf shows it; a DigitalDocument records it and becomes `responseDocument`, the save carrying every other field. A PDF comes through filinq, which replaced Docudesk for PDF rendering in this app (`FilinqPdf`); without it the markdown is stored and the answer says so. The caller must be in the works council's signatory scope or an administrator)
+- [x] Test (`tests/Unit/Service/ConsultationResponseDocumentServiceTest.php`: markdown, PDF, fallback, refusals, and the controller's 401/403/404/201)
 
 ### Task 6: UI wiring — besluit recording, achterban link, and advisory-stage handoff
 - **spec_ref**: `openspec/changes/works-council-consultation/specs/works-council-consultation/spec.md#requirement-req-wcc-006-bestuurder-decision-recording-and-art-25-lid-6-opschortingstermijn` (+ REQ-WCC-003/REQ-WCC-005)

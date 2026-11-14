@@ -234,6 +234,10 @@
         {
             "name": "voting-record",
             "description": "A person's voting record."
+        },
+        {
+            "name": "works-council-consultation",
+            "description": "The formal response document of a WOR traject."
         }
     ],
     "paths": {
@@ -4074,6 +4078,61 @@
                 "responses": {
                     "200": {
                         "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    }
+                }
+            }
+        },
+        "/works-council-consultations/{id}/response-document": {
+            "post": {
+                "operationId": "works-council-consultation-generate-response-document",
+                "summary": "Write the formal advice or consent document of a works-council consultation",
+                "description": "Write the formal advice or consent document of a works-council consultation. POST /api/works-council-consultations/{id}/response-document. Body: { \"format\": \"markdown\" | \"pdf\" } (default: markdown). The document is stored on the consultation, recorded as a DigitalDocument and linked as its responseDocument, every other field kept. The PDF format uses filinq when it can render one; otherwise markdown is stored and the response carries `docudesk: false` and a note. Returns 201 with { path, format, docudesk, responseDocument, note? }. Returns 401 without a user and 403 unless the caller is the works council's chair or secretary or an administrator. Returns 404 when the consultation is not found, 409 when its response is not adopted or has no outcome, 422 for an unsupported format and 503 when the Files backend is unavailable. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "works-council-consultation"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "The UUID of the works-council consultation.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "format": {
+                                        "description": "The format."
+                                    }
+                                },
+                                "additionalProperties": false
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "The document was stored.",
                         "headers": {
                             "API-Version": {
                                 "$ref": "#/components/headers/API-Version"
