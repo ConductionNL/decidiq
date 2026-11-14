@@ -105,7 +105,7 @@ class VotingOpenRequestHandler implements VotingOpenRequestHandlerInterface {
 					governanceBodyId: $round['governanceBodyId'],
 					options: $round['options']
 				)
-			)
+			)->withVotingGroup(votingGroupId: $round['votingGroupId'])
 		);
 
 		return new JSONResponse($opened, Http::STATUS_CREATED);
