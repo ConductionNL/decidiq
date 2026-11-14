@@ -3,6 +3,9 @@ OC.L10N.register(
     {
         "2026": "2026",
         "2027": "2027",
+        "Contacts": "Contacten",
+        "Straw poll": "Proefpeiling",
+        "Intake form": "Inspraakformulier",
         "sign-off route": "paraferingsroute",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d voor, %2$d tegen, %3$d onthouden",

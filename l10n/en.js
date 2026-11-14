@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Contacts": "Contacts",
+        "Straw poll": "Straw poll",
+        "Intake form": "Intake form",
         "sign-off route": "sign-off route",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d for, %2$d against, %3$d abstained",
