@@ -21,6 +21,11 @@
   **Acceptance:** register JSON validates; `importFromApp()` on an instance
   with existing objects succeeds; writes using each new enum value/property
   return 2xx; `composer check:strict` is clean.
+  > Built: the three enum values in `decidesk_register.json`, the new
+  > properties in `register.d/999-ori-adoption.json` (an enum list in a
+  > fragment would be appended by the merger but replaced by index by other
+  > readers). `OriAdoptionRegisterTest` validates the merged result. Left
+  > unticked until `importFromApp()` and the writes are checked on an instance.
 
 ## 2. ORI importer (data migration target)
 

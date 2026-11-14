@@ -1,0 +1,103 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, change bodies-term-of-office-and-step-down (bod-07). A membership may carry an end date in the future: the term it was entered for. A body may set how many days ahead its secretary hears that a term ends (termReminderDays, default 90). Membership and PositionHold each declare a scheduled reminder to the secretariat for a term that ends within 90 days. The step-down schedule itself is computed in the browser from memberships and position holds and is never stored (REQ-CTM-008).",
+  "components": {
+    "schemas": {
+      "GovernanceBody": {
+        "slug": "governance-body",
+        "properties": {
+          "termReminderDays": {
+            "title": "Term reminder (days)",
+            "type": "integer",
+            "description": "How many days before a member's term ends the secretary is reminded.",
+            "default": 90,
+            "minimum": 1,
+            "nullable": true,
+            "example": 90,
+            "x-notes": "REQ-TOS-004. Empty means the default of 90 days. The declared reminders below use the default window: the scheduled-notification filter takes a fixed ISO-8601 duration and cannot read a value from another object, so a body-specific window needs the notification engine to support a referenced duration."
+          }
+        }
+      },
+      "Membership": {
+        "slug": "membership",
+        "properties": {
+          "endDate": {
+            "title": "End date",
+            "type": "string",
+            "format": "date-time",
+            "description": "When the term ends or the membership ended. Empty while the term has no end.",
+            "x-notes": "REQ-TOS-001 / REQ-TOS-005. May lie in the future: the end of the term the member was entered for. A membership whose end date has passed is a former membership; nothing is written when the date passes."
+          }
+        },
+        "x-openregister-notifications": {
+          "membershipTermEndsSoon": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "endDate": {
+                  "operator": "withinNext",
+                  "value": "P90D"
+                }
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidiq-secretariat"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Termijn van een lid eindigt op {{endDate}}",
+              "en": "A member's term ends on {{endDate}}"
+            },
+            "_note": "REQ-TOS-004. Daily sweep; a membership whose end date falls within the next 90 days notifies the secretariat once, the engine's fingerprint keeping it from repeating until the membership changes."
+          }
+        }
+      },
+      "PositionHold": {
+        "slug": "position-hold",
+        "properties": {},
+        "x-openregister-notifications": {
+          "positionTermEndsSoon": {
+            "trigger": {
+              "type": "scheduled",
+              "intervalSec": 86400,
+              "filter": {
+                "endDate": {
+                  "operator": "withinNext",
+                  "value": "P90D"
+                }
+              }
+            },
+            "enabled": true,
+            "channels": [
+              "nc-notification"
+            ],
+            "recipients": [
+              {
+                "kind": "groups",
+                "groups": [
+                  "decidiq-secretariat"
+                ]
+              }
+            ],
+            "subject": {
+              "nl": "Termijn in een functie eindigt op {{endDate}}",
+              "en": "A term in a position ends on {{endDate}}"
+            },
+            "_note": "REQ-TOS-004. Daily sweep; a position hold whose end date falls within the next 90 days notifies the secretariat once."
+          }
+        }
+      }
+    }
+  }
+}
