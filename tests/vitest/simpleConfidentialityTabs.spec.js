@@ -145,7 +145,12 @@ describe(`${PAGE} in the simple structure`, () => {
 	)
 
 	it('loses no block, and shows none twice', () => {
-		const declared = pageOf(full, PAGE).config.widgets.map((widget) => widget.id)
+		// The header widget renders in the header row, not in a tab.
+		const header = pageOf(full, PAGE).config.headerWidget
+		expect(pageOf(simple, PAGE).config.headerWidget).toBe(header)
+		const declared = pageOf(full, PAGE).config.widgets
+			.map((widget) => widget.id)
+			.filter((id) => id !== header)
 		const shown = [
 			...tabs.flatMap((tab) => blocksOf(tab).map((widget) => widget.id)),
 			...sideWidgets().map((widget) => widget.id),
