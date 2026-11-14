@@ -31,6 +31,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 use OCA\Decidiq\Listener\ConfidentialityTermGuardListener;
 use OCA\Decidiq\Listener\DecisionCompetenceGuardListener;
 use OCA\Decidiq\Listener\DocumentTypeFieldsGuardListener;
+use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\MeetingDefaultsListener;
 use OCA\Decidiq\Listener\OndermandaatGuardListener;
 use OCA\Decidiq\Listener\ParallelSessionListener;
@@ -93,5 +94,12 @@ final class SaveGuardSubscriptions {
 		// competent, on create and on update.
 		['event' => ObjectCreatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
 		['event' => ObjectUpdatingEvent::class, 'listener' => DecisionCompetenceGuardListener::class, 'schemas' => ['decision']],
+		// Implementation progress (followup-implementation-progress,
+		// REQ-FUP-001): only an adopted decision takes progress updates.
+		[
+			'event'    => ObjectCreatingEvent::class,
+			'listener' => ImplementationUpdateListener::class,
+			'schemas'  => [ImplementationUpdateListener::SCHEMA_UPDATE],
+		],
 	];
 }//end class

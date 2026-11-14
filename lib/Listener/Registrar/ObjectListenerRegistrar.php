@@ -34,6 +34,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 
 use OCA\Decidiq\Listener\ConfidentialityLapseListener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
+use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
@@ -148,6 +149,16 @@ class ObjectListenerRegistrar {
 			listener: PlanningCycleCreatedListener::class,
 			registers: null,
 			schemas: [PlanningCycleCreatedListener::SCHEMA_PLANNING_CYCLE]
+		);
+
+		// Implementation progress (followup-implementation-progress,
+		// REQ-FUP-002): the newest update sets the decision's status.
+		$this->subscribe(
+			dispatcher: $dispatcher,
+			event: ObjectCreatedEvent::class,
+			listener: ImplementationUpdateListener::class,
+			registers: null,
+			schemas: [ImplementationUpdateListener::SCHEMA_UPDATE]
 		);
 
 		// Agenda change notices (#1396). Declared interest is the handler's
