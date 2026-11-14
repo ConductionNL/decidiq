@@ -86,7 +86,10 @@ describe('a membership records from when to when (REQ-BMT-001)', () => {
 	it('the add dialog asks for the start date and the members widget has a Past members switch', () => {
 		const dialog = read('src/modals/MemberAddDialog.vue')
 		expect(dialog).toMatch(/data-testid="member-add-start"/)
-		expect(dialog).toMatch(/startDate: startOfDay\(/)
+		// The start date is still stored as the start of the picked day, now
+		// through the term (bodies-term-of-office-and-step-down).
+		expect(dialog).toMatch(/startOfDay\(this\.startDate\)/)
+		expect(dialog).toMatch(/startDate: term\.startDate/)
 		const tab = read('src/components/tabs/GovernanceBodyMembersTab.vue')
 		expect(tab).toMatch(/data-testid="body-members-past"/)
 		expect(tab).toMatch(/memberRowsFor\(/)

@@ -1,0 +1,53 @@
+{
+  "x-openregister": {
+    "_seedDataNote": "Schemas only. A register.d fragment declares no objects; the example sets live in lib/Settings/profiles/."
+  },
+  "_comment": "ADR-037 register fragment, leaf-integrations (REQ-LEAF-005, REQ-LEAF-006). The Mail sidebar offers a schema for linking only when its configuration.linkedTypes names `mail` (the id OpenRegister's sidebar filters on and its LinkedTypesRule accepts), so the four schemas that already show an email or files surface declare it, making the email tabs two-sided. Only Decision declares a mail object template: a mail-born decision is a draft resolution, inert until a person advances it. ActionItem must not declare one either: it is a read-only projection of CalDAV VTODOs, so a create-from-email button there could never save.",
+  "components": {
+    "schemas": {
+      "Meeting": {
+        "slug": "meeting",
+        "configuration": {
+          "linkedTypes": [
+            "mail",
+            "files"
+          ]
+        }
+      },
+      "Decision": {
+        "slug": "decision",
+        "configuration": {
+          "linkedTypes": [
+            "mail",
+            "files"
+          ],
+          "mailObjectTemplate": {
+            "title": "{{subject}}",
+            "text": "{{preview}}",
+            "externalReference": "{{mailRef}}",
+            "lifecycle": "draft",
+            "decisionType": "resolution"
+          }
+        }
+      },
+      "AgendaItem": {
+        "slug": "agenda-item",
+        "configuration": {
+          "linkedTypes": [
+            "mail",
+            "files"
+          ]
+        }
+      },
+      "ActionItem": {
+        "slug": "action-item",
+        "configuration": {
+          "linkedTypes": [
+            "mail",
+            "files"
+          ]
+        }
+      }
+    }
+  }
+}
