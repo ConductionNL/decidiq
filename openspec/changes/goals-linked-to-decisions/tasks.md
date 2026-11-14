@@ -31,8 +31,10 @@
 - **acceptance_criteria**:
   - GIVEN the decision form WHEN the goal picker opens THEN achieved and abandoned goals are not offered and the NcSelect has an `inputLabel`
   - GIVEN a decision with a goal WHEN its page opens THEN the goal shows as a link
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Build note: the picker is scoped declaratively: `Decision.goal` carries `x-relation-filter: {status: [draft, active, at-risk]}`, which the shared form dialog and data widget both apply, and both label the picker. `goal` is in the Governance data widget (editable by name); `DecisionGoalWidget` shows it as a link to `/goals/:id`, in the full and the simple page structure. `tests/vitest/decisionGoal.spec.js`.
+
 
 ### Task 4: Goal detail page per board DcDoel
 - **spec_ref**: `#requirement-req-011-the-goal-page-lists-what-contributes-to-it`, `#requirement-req-012-goal-progress-counts-the-live-schemas-and-reads-as-counts`, `#requirement-req-014-the-goal-page-shows-subgoals-and-the-parent-goal`
