@@ -106,6 +106,11 @@
 						"key": "status",
 						"label": "Status",
 						"widget": "badge"
+					},
+					{
+						"key": "currentEffectiveDate",
+						"label": "Inwerkingtreding",
+						"widget": "date"
 					}
 				],
 				"actions": [
@@ -130,6 +135,9 @@
 			"id": "GoverningDocumentDetail",
 			"route": "/governing-documents/:id",
 			"type": "detail",
+			"slots": {
+				"widget-document-cited-by": "GoverningDocumentCitedByTab"
+			},
 			"title": "Governing document",
 			"_note": "spec: openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-006-governing-documents-list-and-detail-pages",
 			"config": {
@@ -154,10 +162,12 @@
 						"icon": "FolderOutline"
 					},
 					{
-						"id": "document-related",
-						"type": "related",
+						"id": "document-cited-by",
+						"type": "custom",
+						"component": "GoverningDocumentCitedByTab",
 						"title": "Citing decisions",
-						"icon": "LinkVariant"
+						"icon": "LinkVariant",
+						"_note": "REQ-GDR-005: the decisions whose citesGoverningDocuments names this document, with the articles they cite, from GET /api/governing-documents/{id}/cited-by (read with the user's own rights)."
 					},
 					{
 						"id": "document-versions",
@@ -177,6 +187,7 @@
 							"statusField": "status",
 							"decisionRefField": "determinedBy",
 							"decisionRoute": "DecisionDetail",
+							"inForceControl": true,
 							"extraFields": [
 								{
 									"field": "deedDate",
@@ -210,7 +221,7 @@
 					},
 					{
 						"id": "3",
-						"widgetId": "document-related",
+						"widgetId": "document-cited-by",
 						"gridX": 0,
 						"gridY": 6,
 						"gridWidth": 12,

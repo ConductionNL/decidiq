@@ -3365,7 +3365,24 @@ OC.L10N.register(
         "Term reminder (days)": "Term reminder (days)",
         "How many days before a member's term ends the secretary is reminded.": "How many days before a member's term ends the secretary is reminded.",
         "When the term ends or the membership ended. Empty while the term has no end.": "When the term ends or the membership ended. Empty while the term has no end.",
-        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal."
+        "The organisation goal this decision serves. Empty when the decision serves no goal.": "The organisation goal this decision serves. Empty when the decision serves no goal.",
+        "Add citation": "Add citation",
+        "Article (optional)": "Article (optional)",
+        "Choose a governing document": "Choose a governing document",
+        "Enter a date.": "Enter a date.",
+        "Governing document": "Governing document",
+        "In force on": "In force on",
+        "No decision cites this governing document yet.": "No decision cites this governing document yet.",
+        "No version was in force on {date}.": "No version was in force on {date}.",
+        "pinned version": "pinned version",
+        "Remove the citation of {name}": "Remove the citation of {name}",
+        "Show version": "Show version",
+        "The citation could not be saved.": "The citation could not be saved.",
+        "The citations of this decision could not be read.": "The citations of this decision could not be read.",
+        "The citing decisions could not be read.": "The citing decisions could not be read.",
+        "The version in force could not be read.": "The version in force could not be read.",
+        "This decision cites no governing document.": "This decision cites no governing document.",
+        "Version {n} was in force on {date}.": "Version {n} was in force on {date}."
     },
     "nplurals=2; plural=(n != 1);"
 )

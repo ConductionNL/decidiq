@@ -47,8 +47,10 @@
   - GIVEN eight seeded/created documents WHEN filtering on type `statuten` + status `geldend` THEN only matches are listed with citeertitel, type, governing body, and current inwerkingtreding (no N+1 per row)
   - GIVEN a document detail page WHEN opened THEN the version timeline shows states, notarial metadata on constitutive versions, and each enacting-decision link navigates to the Decision detail page; a "geldend op" date control drives the Task 3 resolution
   - Manifest schema refs use slugs (`governing-document`, `governing-document-versie`), never PascalCase; WCAG 2.1 AA keyboard navigation on the timeline
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+      DONE: the index and detail pages are manifest configuration in `src/manifest.d/governing-documents-register.json` (on development), schema refs by slug. Added here: the Inwerkingtreding column, read from `currentEffectiveDate`, which `GoverningDocumentCurrentDateListener` writes onto the document when a version is put in effect, so the list needs no per-row resolution; and the "In force on" date control on the `version-timeline` widget (`inForceControl`), which asks `GET /api/governing-documents/{id}/in-force` and marks the version it answers (`aria-current`, announced in a polite live region). The timeline is an ordered list of focusable links and buttons; the date control is a labelled native date input.
+- [x] Test
+      `tests/Unit/Listener/GoverningDocumentCurrentDateListenerTest.php`, `tests/Unit/Service/GoverningDocumentConsolidationServiceTest.php` (the date written, or left alone), `tests/vitest/governingDocumentCitations.spec.js` (the in-force path and date check), the recorded widget state in `tests/fixtures/register-widget-loaders-golden.json`. The browser check of the filters and the timeline (Playwright) is left for a live run.
 
 ### Task 5: Decision citations — edit UI and cited-by reverse lookup
 - **spec_ref**: `openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-005-governing-document-reference-shape-and-decision-citations`
@@ -57,8 +59,10 @@
   - GIVEN a Decision detail page WHEN a secretary adds a citation `{document, artikel}` THEN it is stored on `citesGoverningDocuments` and rendered as a navigable link; the citation never blocks any decision workflow
   - GIVEN two decisions citing a document WHEN its detail page is opened THEN both appear in the cited-by list with artikel strings, navigating to the Decision detail pages
   - GIVEN a citation pinning a sealed `versie` WHEN resolved later THEN identical version content is returned (REQ-GDR-003 guarantee)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+      DONE: `GoverningDocumentCitationsTab` on DecisionDetail (both structures) lists the decision's `citesGoverningDocuments` as links to GoverningDocumentDetail, adds a citation (document and optional article) and removes one, saving the decision through the OpenRegister object API; a failed save shows only in the tab and gates nothing. `GoverningDocumentCitedByTab` on GoverningDocumentDetail lists the citing decisions from `GET /api/governing-documents/{id}/cited-by` (`GoverningDocumentConsolidationService::citingDecisions()`: OpenRegister's used-by lookup with the user's own rights, kept to decisions whose citations name the document), with their articles, each a link to DecisionDetail. A pinned version is sealed, and the seal of Task 1 keeps its content identical.
+- [x] Test
+      `tests/Unit/Service/GoverningDocumentConsolidationServiceTest.php` (citing decisions, citations of one document), `tests/Unit/Controller/GoverningDocumentControllerTest.php` (cited-by: 200, 404, 401), `tests/vitest/governingDocumentCitations.spec.js` (reading, adding and removing citations), `tests/vitest/simpleDecisionPage.spec.js`. The browser check (Playwright) is left for a live run.
 
 ### Task 6: Access — member default, public predicate, notification verification
 - **spec_ref**: `openspec/changes/governing-documents-register/specs/governing-documents-register/spec.md#requirement-req-gdr-007-member-access-by-default-optional-public-predicate`
@@ -67,8 +71,10 @@
   - GIVEN `statuten-vng` with `isPublic=true` WHEN an anonymous visitor requests the public view THEN citeertitel, type, current inwerkingtreding, and consolidated text are accessible while `notaris`, `toelichting`, and `concept` versions are structurally absent (negative test)
   - GIVEN an internal document (`isPublic=false`) or a public document with only a `concept` version WHEN anonymously requested THEN access is denied / nothing is exposed (server-side eligibility; public-publication's eligibility-gates requirement is not modified)
   - GIVEN a version transitioning to `in-werking` THEN the declarative notification fires to `object-acl` readers + `decidesk-members` with nl/en subjects; no notification on `concept → vastgesteld`
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+      DONE: documents and versions are member-only through OpenRegister RBAC; the document schema's read rule lets the public group read a document only where `isPublic` is true, and versions have no public rule. The public view is `GET /api/public/governing-documents/{id}` (`#[PublicPage]`, rate limited): `GoverningDocumentConsolidationService::publicView()` answers only for a document whose `isPublic` is exactly true, that is not lapsed and has a version in effect today, and builds the payload from the citation title, type, governing body name and that version's number, dates and files; draft and adopted versions, notes, the notary and the enacting decision are never in it. Anything else answers 404. The notification is declared in the fragment (trigger on `status` reaching `in-effect` from `adopted`), not dispatched by decidiq.
+- [x] Test
+      `tests/Unit/Service/GoverningDocumentConsolidationServiceTest.php` (the stripped payload, an internal document, a draft-only document, a lapsed one), `tests/Unit/Controller/GoverningDocumentControllerTest.php` (the public view open to anonymous visitors, only that method public), `tests/Unit/Settings/GoverningDocumentsRegisterFragmentTest.php` (the read rule and the notification trigger). Whether an anonymous visitor can open the consolidated-text file itself depends on OpenRegister's file sharing; checking that, and the notification firing, needs a live instance.
 
 ## Verification
 

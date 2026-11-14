@@ -21,6 +21,9 @@ const WIDGETS = path.resolve(__dirname, '../../src/components/widgets')
 
 const MODULES = {
 	'@nextcloud/vue': { NcButton: {} },
+	'@nextcloud/axios': { default: { get: async () => ({ data: {} }) } },
+	'@nextcloud/router': { generateUrl: (path) => path },
+	'../../utils/governingDocumentCitations.js': { inForcePath: () => '', isCalendarDate: () => false },
 	'@conduction/nextcloud-vue': {
 		CnIcon: {},
 		CnNoteCard: {},
