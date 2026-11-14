@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Tests\Unit\Controller;
 use OCA\Decidiq\Controller\RegulatorExportController;
 use OCA\Decidiq\Service\RegulatorExportService;
 use OCP\AppFramework\Http;
+use OCP\AppFramework\Http\DataDisplayResponse;
 use OCP\IGroupManager;
 use OCP\IRequest;
 use OCP\IUser;
@@ -232,5 +233,67 @@ class RegulatorExportControllerTest extends TestCase {
 		$this->assertSame(Http::STATUS_NOT_FOUND, $response->getStatus());
 
 	}//end testDownloadReturns404OnMissing()
+
+	/**
+	 * download streams the stored export as an attachment for the caller.
+	 *
+	 * @return void
+	 */
+	public function testDownloadReturnsTheAttachment(): void {
+		$service = $this->createMock(RegulatorExportService::class);
+		$service->expects($this->once())->method('download')
+			->with('e-1', 'alice')
+			->willReturn([
+				'success' => true,
+				'body' => 'id,title',
+				'contentType' => 'text/csv',
+				'filename' => 'export-e-1.csv',
+				'export' => ['id' => 'e-1'],
+				'message' => 'ok',
+			]);
+
+		$response = $this->makeController($service)->download('e-1');
+
+		$this->assertInstanceOf(DataDisplayResponse::class, $response);
+		$this->assertSame(Http::STATUS_OK, $response->getStatus());
+		$this->assertSame('id,title', $response->getData());
+		// getHeaders() requires OC::$server; read the headers the controller set.
+		$headers = (new \ReflectionProperty(\OCP\AppFramework\Http\Response::class, 'headers'))->getValue($response);
+		$this->assertSame('text/csv', $headers['Content-Type']);
+		$this->assertSame('attachment; filename="export-e-1.csv"', $headers['Content-Disposition']);
+
+	}//end testDownloadReturnsTheAttachment()
+
+	/**
+	 * download answers 422 for a failure that is not a missing export.
+	 *
+	 * @return void
+	 */
+	public function testDownloadReturns422OnOtherFailures(): void {
+		$service = $this->createMock(RegulatorExportService::class);
+		$service->method('download')->willReturn(['success' => false, 'message' => 'The export file is unreadable.']);
+
+		$response = $this->makeController($service)->download('e-1');
+
+		$this->assertSame(Http::STATUS_UNPROCESSABLE_ENTITY, $response->getStatus());
+		$this->assertSame(['message' => 'The export file is unreadable.'], $response->getData());
+
+	}//end testDownloadReturns422OnOtherFailures()
+
+	/**
+	 * download and index refuse a non-admin before the service is asked.
+	 *
+	 * @return void
+	 */
+	public function testDownloadAndIndexRequireAdmin(): void {
+		$service = $this->createMock(RegulatorExportService::class);
+		$service->expects($this->never())->method('download');
+		$service->expects($this->never())->method('listExports');
+		$controller = $this->makeController($service, requestParams: ['boardId' => 'b-1'], isAdmin: false);
+
+		$this->assertSame(Http::STATUS_FORBIDDEN, $controller->download('e-1')->getStatus());
+		$this->assertSame(Http::STATUS_FORBIDDEN, $controller->index()->getStatus());
+
+	}//end testDownloadAndIndexRequireAdmin()
 
 }//end class
