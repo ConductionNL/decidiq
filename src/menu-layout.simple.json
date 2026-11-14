@@ -499,7 +499,7 @@
 		},
 		{
 			"id": "CommitmentDetail",
-			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
+			"_note": "The commitment page in the simple structure (board DcToezegging): tabs Overview, Progress, Documents, Related and History, the key facts and the publication actions beside them. The full structure keeps the manifest's stack. The progress block is named by its registry component, because a tab resolves a widget by type.",
 			"config": {
 				"sideColumn": [
 					{
@@ -520,7 +520,8 @@
 							"hideEmpty": true,
 							"editable": false
 						}
-					}
+					},
+					"commitment-publication"
 				],
 				"layout": [
 					{
@@ -538,6 +539,9 @@
 				"widgets": {
 					"commitment-progress": {
 						"type": "CommitmentProgressTab"
+					},
+					"commitment-publication": {
+						"type": "CommitmentPublicationTab"
 					}
 				}
 			},
@@ -879,6 +883,9 @@
 					"decision-voting": {
 						"type": "DecisionVotingTab"
 					},
+					"decision-written-resolution": {
+						"type": "WrittenResolutionTab"
+					},
 					"decision-publication": {
 						"type": "DecisionPublicationTab"
 					}
@@ -1085,6 +1092,10 @@
 								{
 									"label": "Voting results",
 									"widgetId": "decision-voting"
+								},
+								{
+									"label": "Written resolution",
+									"widgetId": "decision-written-resolution"
 								}
 							]
 						}
@@ -3516,7 +3527,7 @@
 		},
 		{
 			"id": "ConfidentialityRestrictionDetail",
-			"_note": "The confidentiality page in the simple structure (board DcGeheimhouding): tabs Overview (the status timeline, then the restriction), Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
+			"_note": "The confidentiality page in the simple structure (board DcGeheimhouding): the header with the status pill, the ratification line and the stepper as in the full structure; tabs Overview (the status timeline, the restriction, what it covers and its ground), Related and History, the key facts beside them. The full structure keeps the manifest's stack.",
 			"config": {
 				"sideColumn": [
 					{
@@ -3573,6 +3584,14 @@
 								{
 									"label": "Confidentiality",
 									"widgetId": "geheimhouding-data"
+								},
+								{
+									"label": "What the confidentiality covers",
+									"widgetId": "geheimhouding-target"
+								},
+								{
+									"label": "Ground",
+									"widgetId": "geheimhouding-ground"
 								}
 							]
 						}
