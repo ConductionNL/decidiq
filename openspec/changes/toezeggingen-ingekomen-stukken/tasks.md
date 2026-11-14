@@ -46,8 +46,9 @@
 - **acceptance_criteria**:
   - GIVEN an IngekomenStuk in `geregistreerd`/`geagendeerd` WHEN publish is requested THEN it is refused server-side; in `routering-vastgesteld`/`afgedaan` with a public meeting THEN an immutable allow-list payload is created and predicate-published (OpenCatalogi routed when configured)
   - GIVEN senderType `natuurlijk-persoon` WHEN the payload is built THEN sender renders as "Inwoner" and the person's name/contact appear nowhere in the payload (PHPUnit asserts absence AND flips when senderType changes to `organisatie` — mutation-guarded, no fake green)
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Source type `incoming-document`: eligible in `routing-determined`/`disposed` when the meeting of its `listAgendaItem` is public; payload is an allow-list (no summary) with a natural-person sender, or any unknown sender type, rendered as "Inwoner"; the staff check resolves the same meeting. `tests/Unit/Service/IncomingDocumentPublicationTest.php`.
 
 ### Task 6: Routing service — place-on-list and chair bulk confirmation
 - **spec_ref**: `openspec/changes/toezeggingen-ingekomen-stukken/specs/ingekomen-stukken-register/spec.md#requirement-req-003-placement-on-the-lijst-ingekomen-stukken-agenda-item` (+ REQ-004)

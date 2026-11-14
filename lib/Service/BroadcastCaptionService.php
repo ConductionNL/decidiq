@@ -182,27 +182,40 @@ class BroadcastCaptionService implements BroadcastCaptionServiceInterface {
 		];
 		$broadcast['captionTracks'] = $tracks;
 		$stored = $this->write(broadcast: $broadcast);
-		$stored['attachedToRecording'] = $this->attach(language: $language, url: $url);
+		$stored['attachedToRecording'] = $this->attach(
+			track: ['language' => $language, 'url' => $url],
+			meetingId: $meetingId,
+			recordingUrl: (string)($broadcast['recordingUrl'] ?? '')
+		);
 
 		return $stored;
 	}//end release()
 
 	/**
-	 * Ask the streaming service to attach a released track to the recording.
+	 * Ask the streaming service to attach a released track to this meeting's recording.
 	 *
 	 * The track is public through its link either way; attaching it is the
-	 * service's extra, not a condition of the release.
+	 * service's extra, not a condition of the release. The request names the
+	 * meeting and its recording: the sessions of one evening are recorded at
+	 * the same time, and a track that named neither could land on the
+	 * recording of another session (REQ-PPS-005).
 	 *
-	 * @param string $language The language code
-	 * @param string $url      The track's public link
+	 * @param array{language: string, url: string} $track        The language code and the track's public link
+	 * @param string                                $meetingId    The meeting whose recording it belongs to
+	 * @param string                                $recordingUrl That meeting's recording, empty when the service has not reported it
 	 *
-	 * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-007-a-caption-track-is-public-only-after-the-clerk-releases-it
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
 	 *
 	 * @return bool Whether the service took it
 	 */
-	private function attach(string $language, string $url): bool {
+	private function attach(array $track, string $meetingId, string $recordingUrl): bool {
+		$body = $track + ['meeting' => $meetingId];
+		if ($recordingUrl !== '') {
+			$body['recordingUrl'] = $recordingUrl;
+		}
+
 		try {
-			$answer = $this->streaming->call(operation: 'attach-captions', body: ['language' => $language, 'url' => $url]);
+			$answer = $this->streaming->call(operation: 'attach-captions', body: $body);
 		} catch (BroadcastRefusedException) {
 			return false;
 		}
