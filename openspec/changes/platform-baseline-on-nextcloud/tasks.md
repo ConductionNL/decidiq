@@ -30,8 +30,9 @@
   - GIVEN the provider WHEN its public records are read THEN `publicAncillaryPositions` is anonymous, listable and whitelists only the six fields
   - GIVEN a position without `publicationDate`, or with a past `depublicationDate` WHEN read anonymously THEN it is not returned (OpenRegister's published predicate on `lib/Settings/register.d/81-integrity-disclosures-in-plain-words.json`)
 - **follow-up**: portaliq draws the positions on the member page (board PtStemgedrag or a member page board); that is a portaliq change
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+- Built: `publicAncillaryPositions` in `PortalContributionProvider::citizenCollections()`, anonymous and listable, whitelisting the six fields, its label in every locale. The anonymous read is bounded by the schema's own read rule (`publicationDate` passed); `testAncillaryPositionsAreAnonymousWithTheSixPublicFields` pins both. Whether a past `depublicationDate` also hides a position is OpenRegister's published predicate, not this manifest.
 
 ### Task 4: Every page at phone width
 - **spec_ref**: `openspec/changes/platform-baseline-on-nextcloud/specs/platform-baseline/spec.md#requirement-req-plb-008-every-page-works-at-phone-width`

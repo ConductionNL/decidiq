@@ -3354,7 +3354,8 @@ OC.L10N.register(
         "Extraordinary meeting": "Reunión extraordinaria",
         "Committee meeting": "Reunión de comisión",
         "Public hearing": "Audiencia pública",
-        "General assembly": "Asamblea general"
+        "General assembly": "Asamblea general",
+        "Members' ancillary positions": "Cargos complementarios de los miembros"
     },
     "nplurals=2; plural=(n != 1);"
 )
