@@ -2789,6 +2789,118 @@
                 }
             }
         },
+        "/meetings/{id}/board-book": {
+            "post": {
+                "operationId": "board-book-compile",
+                "summary": "Queue the compilation of the meeting pack (vergaderbundel)",
+                "description": "Queue the compilation of the meeting's next pack version: one PDF of the cover, the table of contents and every agenda item with its attachments. Only the meeting's chair or secretary (or an administrator) may; one compilation per meeting at a time; from version 2 the body's `changeNote` is required. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "meeting"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "changeNote": {
+                                        "type": "string",
+                                        "description": "Why this version differs from the previous one; required from version 2."
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "202": {
+                        "description": "The compilation is queued: `{status, meetingId, nextVersion}`.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    },
+                    "409": {
+                        "$ref": "#/components/responses/Problem409"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/Problem422"
+                    }
+                }
+            }
+        },
+        "/meetings/{id}/board-book/status": {
+            "get": {
+                "operationId": "board-book-status",
+                "summary": "Where the meeting pack stands",
+                "description": "The compile state, the latest pack version, the latest and current fingerprints, whether the pack is outdated, and its skip and delivery reports. For the meeting's participants, chair and secretary. Needs a signed-in Nextcloud user.",
+                "tags": [
+                    "meeting"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "description": "UUID of the meeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The request succeeded.",
+                        "headers": {
+                            "API-Version": {
+                                "$ref": "#/components/headers/API-Version"
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/Problem401"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/Problem403"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/Problem404"
+                    }
+                }
+            }
+        },
         "/meetings/{id}/proof-package": {
             "post": {
                 "operationId": "meeting-proof-package",
