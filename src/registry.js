@@ -38,6 +38,7 @@ import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab
 import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
 import BodyParticipationsTab from './components/tabs/BodyParticipationsTab.vue'
 import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
+import CommitmentPublicationTab from './components/tabs/CommitmentPublicationTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
 import DecisionApprovalTab from './components/tabs/DecisionApprovalTab.vue'
@@ -324,6 +325,8 @@ export default {
 	MotionStageTab: page(MotionStageTab),
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
+	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
+	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
 	// Public speakers (inspreekrecht-plenair REQ-INS-007): approved slots and
 	// pending requests on the agenda item, and the meeting-level ones.
