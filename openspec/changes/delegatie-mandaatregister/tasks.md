@@ -9,9 +9,9 @@
   - GIVEN a clean instance WHEN the register is imported THEN schema `bevoegdheidstoedeling` exists with `x-openregister-lifecycle` (canonical `field`/`initial`/`states`/`terminal`/`transitions` keys; `concept → van-kracht → ingetrokken | vervallen`), relations (delegans/delegatarisBody→governance-body, delegatarisPersoon→person, besluit/ingetrokkenDoor→decision, parentToedeling→self), the `authorization.read` public predicate on `publicatiedatum <= $now`, and ADR-031-dialect expiry notifications (60d/14d before geldigTot, REQ-DMR-007)
   - GIVEN a toedeling without `besluit`, without any delegataris field, or without any delegans field WHEN saved THEN OR schema validation rejects it (REQ-DMR-001)
   - GIVEN a toedeling in `ingetrokken` WHEN a transition back to `van-kracht` is attempted THEN OR rejects it (undeclared transition, REQ-DMR-002)
-- [ ] Implement
-- [ ] Test
-- State (verified on development): the schema, lifecycle, public predicate and both expiry notifications exist on `authority-delegation`. Left: "no delegans or no delegate is refused" (REQ-DMR-001). OpenRegister's `anyOf` composes schemas by reference and cannot express "at least one of these fields", so it needs a save guard beside the ondermandaat guard, and register tests.
+- [x] Implement
+- [x] Test
+- State: the schema, lifecycle, public predicate and both expiry notifications exist on `authority-delegation`. "No delegans or no delegataris is refused" (REQ-DMR-001) is a save guard beside the ondermandaat guard: OpenRegister's `anyOf` composes schemas by reference and cannot express "at least one of these fields", so `AnyOfFieldsGuard` checks the `OndermandaatGuardService::PARTY_GROUPS` in `OndermandaatGuardListener` on create and update (current and old Dutch field names). The `besluit` requirement and the undeclared transition stay with OpenRegister's schema validation and lifecycle.
 
 ### Task 2: Seed data — delegatie, mandaat + published ondermandaat chain, concept volmacht, ingetrokken machtiging
 - **spec_ref**: `openspec/changes/delegatie-mandaatregister/specs/delegatie-mandaatregister/spec.md#requirement-req-dmr-001-bevoegdheidstoedeling-schema`

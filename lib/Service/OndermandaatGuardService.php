@@ -53,6 +53,24 @@ class OndermandaatGuardService {
 	public const SCHEMAS = [self::SCHEMA, 'bevoegdheidstoedeling'];
 
 	/**
+	 * The parties a toedeling must name (REQ-DMR-001): at least one field of
+	 * each group, on the current field names and on the old Dutch ones.
+	 *
+	 * @var array<string, list<string>>
+	 */
+	public const PARTY_GROUPS = [
+		'the delegans (a governing body or a description)' => ['delegatingBody', 'delegatingDescription', 'delegans', 'delegansOmschrijving'],
+		'the delegataris (a governing body, a role or a person)' => [
+			'delegateBody',
+			'delegateRole',
+			'delegatePerson',
+			'delegatarisBody',
+			'delegatarisFunctie',
+			'delegatarisPersoon',
+		],
+	];
+
+	/**
 	 * The deepest chain walked; a longer one is refused as if it looped.
 	 *
 	 * @var int

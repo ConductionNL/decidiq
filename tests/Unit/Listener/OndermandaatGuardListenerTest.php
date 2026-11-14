@@ -40,10 +40,18 @@ use Psr\Log\NullLogger;
  *
  * @covers \OCA\Decidiq\Listener\OndermandaatGuardListener
  * @covers \OCA\Decidiq\Service\OndermandaatGuardService
+ * @covers \OCA\Decidiq\Service\AnyOfFieldsGuard
  * @covers \OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar
  * @covers \OCA\Decidiq\Listener\Registrar\SaveGuardSubscriptions
  */
 class OndermandaatGuardListenerTest extends TestCase {
+
+	/**
+	 * A delegans and a delegataris, which every saved toedeling names.
+	 *
+	 * @var array<string, mixed>
+	 */
+	private const PARTIES = ['delegatingBody' => 'college', 'delegateRole' => 'gemeentesecretaris'];
 
 	/**
 	 * An entity double carrying a record.
@@ -88,7 +96,7 @@ class OndermandaatGuardListenerTest extends TestCase {
 	}//end listener()
 
 	public function testAnOndermandaatUnderAForbiddingParentIsStoppedBeforeItIsSaved(): void {
-		$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => 'bevoegdheidstoedeling', 'parentAllocation' => 'delegatie']));
+		$event = new ObjectCreatingEvent($this->entity(self::PARTIES + ['_schemaSlug' => 'bevoegdheidstoedeling', 'parentAllocation' => 'delegatie']));
 
 		$this->listener()->handle($event);
 
@@ -97,7 +105,7 @@ class OndermandaatGuardListenerTest extends TestCase {
 	}//end testAnOndermandaatUnderAForbiddingParentIsStoppedBeforeItIsSaved()
 
 	public function testReparentingAStoredToedelingIntoALoopIsStoppedOnUpdate(): void {
-		$event = new ObjectUpdatingEvent($this->entity(['parentAllocation' => 'child'], 'mandaat'), $this->entity([], 'mandaat'));
+		$event = new ObjectUpdatingEvent($this->entity(self::PARTIES + ['parentAllocation' => 'child'], 'mandaat'), $this->entity([], 'mandaat'));
 
 		$this->listener()->handle($event);
 
@@ -106,7 +114,7 @@ class OndermandaatGuardListenerTest extends TestCase {
 	}//end testReparentingAStoredToedelingIntoALoopIsStoppedOnUpdate()
 
 	public function testAPermittedOndermandaatIsSaved(): void {
-		$event = new ObjectCreatingEvent($this->entity(['parentAllocation' => 'mandaat']));
+		$event = new ObjectCreatingEvent($this->entity(self::PARTIES + ['parentAllocation' => 'mandaat']));
 
 		$this->listener()->handle($event);
 
@@ -114,7 +122,7 @@ class OndermandaatGuardListenerTest extends TestCase {
 	}//end testAPermittedOndermandaatIsSaved()
 
 	public function testAnUnreadableParentStopsTheSave(): void {
-		$event = new ObjectCreatingEvent($this->entity(['parentAllocation' => 'mandaat']));
+		$event = new ObjectCreatingEvent($this->entity(self::PARTIES + ['parentAllocation' => 'mandaat']));
 
 		$this->listener(broken: true)->handle($event);
 
@@ -128,13 +136,65 @@ class OndermandaatGuardListenerTest extends TestCase {
 	 */
 	public function testBothTheRenamedAndTheOldSchemaAreGuarded(): void {
 		foreach (['authority-delegation', 'Authority-Delegation', 'bevoegdheidstoedeling'] as $slug) {
-			$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => $slug, 'parentAllocation' => 'delegatie']));
+			$event = new ObjectCreatingEvent($this->entity(self::PARTIES + ['_schemaSlug' => $slug, 'parentAllocation' => 'delegatie']));
 
 			$this->listener()->handle($event);
 
 			self::assertTrue($event->isPropagationStopped(), $slug);
 		}
 	}//end testBothTheRenamedAndTheOldSchemaAreGuarded()
+
+	/**
+	 * A toedeling naming no delegataris is stopped, and the message names what is missing.
+	 *
+	 * @return void
+	 */
+	public function testAToedelingWithoutADelegatarisIsStoppedBeforeItIsSaved(): void {
+		$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => 'authority-delegation', 'delegatingBody' => 'college', 'delegateRole' => '  ']));
+
+		$this->listener()->handle($event);
+
+		self::assertTrue($event->isPropagationStopped());
+		self::assertSame(
+			['message' => 'The toedeling was not saved: name the delegataris (a governing body, a role or a person).'],
+			$event->getErrors()
+		);
+	}//end testAToedelingWithoutADelegatarisIsStoppedBeforeItIsSaved()
+
+	/**
+	 * An update that clears both parties is stopped, naming both.
+	 *
+	 * @return void
+	 */
+	public function testAnUpdateThatClearsBothPartiesIsStopped(): void {
+		$event = new ObjectUpdatingEvent($this->entity(['delegatingBody' => null, 'delegatePerson' => []], 'mandaat'), $this->entity(self::PARTIES, 'mandaat'));
+
+		$this->listener()->handle($event);
+
+		self::assertTrue($event->isPropagationStopped());
+		self::assertSame(
+			['message' => 'The toedeling was not saved: name the delegans (a governing body or a description) and the delegataris (a governing body, a role or a person).'],
+			$event->getErrors()
+		);
+	}//end testAnUpdateThatClearsBothPartiesIsStopped()
+
+	/**
+	 * A reference object counts as a named party, and so do the old Dutch field names.
+	 *
+	 * @return void
+	 */
+	public function testPartiesNamedByReferenceOrByTheOldFieldNamesAreSaved(): void {
+		foreach ([
+			['delegatingDescription' => 'burgemeester', 'delegatePerson' => ['id' => 'person-1']],
+			['delegans' => 'college', 'delegatarisFunctie' => 'afdelingshoofd'],
+		] as $parties) {
+			$event = new ObjectCreatingEvent($this->entity($parties));
+
+			$this->listener()->handle($event);
+
+			self::assertFalse($event->isPropagationStopped(), json_encode($parties));
+		}
+	}//end testPartiesNamedByReferenceOrByTheOldFieldNamesAreSaved()
 
 	public function testAnotherSchemaIsLeftAlone(): void {
 		$event = new ObjectCreatingEvent($this->entity(['_schemaSlug' => 'decision', 'parentAllocation' => 'delegatie']));
