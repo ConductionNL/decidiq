@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Qui pot votar",
+        "All members of the body": "Tots els membres de l'òrgan",
+        "Left out because they are no longer active members: {names}": "Exclosos perquè ja no són membres actius: {names}",
         "sign-off route": "circuit d'aprovació",
         "#": "#",
         "%1$d for, %2$d against, %3$d abstained": "%1$d a favor, %2$d en contra, %3$d abstencions",

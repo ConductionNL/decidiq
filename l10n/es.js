@@ -1,6 +1,9 @@
 OC.L10N.register(
     "decidiq",
     {
+        "Who may vote": "Quién puede votar",
+        "All members of the body": "Todos los miembros del órgano",
+        "Left out because they are no longer active members: {names}": "Excluidos porque ya no son miembros activos: {names}",
         "sign-off route": "circuito de aprobación",
         "#": "#",
         "+ Action item": "+ Punto de acción",
