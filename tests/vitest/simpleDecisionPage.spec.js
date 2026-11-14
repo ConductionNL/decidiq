@@ -480,6 +480,8 @@ describe('the decision page in the simple structure', () => {
 			'Action items',
 			'Commitments',
 			'Related decisions',
+			// An amendment can target a proposal too (mot-02).
+			'Amendments',
 			'Lifecycle',
 		])
 		expect(
@@ -507,8 +509,9 @@ describe('the decision page in the simple structure', () => {
 		const declared = pageOf(full, 'DecisionDetail').config.widgets.map(
 			(item) => item.id,
 		)
-		// routes-send-proposal-along-route added the approval route block.
-		expect(declared).toHaveLength(16)
+		// routes-send-proposal-along-route added the approval route block,
+		// capability-rows-get-requirements the amendments (mot-02).
+		expect(declared).toHaveLength(17)
 		const tabs = widgets.get('decision-panels').content.tabs
 		const shown = new Set()
 		for (const tab of tabs) {

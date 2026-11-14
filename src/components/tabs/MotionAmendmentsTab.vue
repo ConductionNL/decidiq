@@ -2,11 +2,14 @@
 <!-- Copyright (C) 2026 Conduction B.V. -->
 
 <!--
- Sidebar tab: amendments proposed against a Motion.
+ Widget: the amendments proposed against a decision, a motion or a
+ proposal (capability-rows-get-requirements mot-02: it sits on MotionDetail
+ and on DecisionDetail).
 
- Posture: full CRUD. Motions own their amendments via `parentMotion`;
- this tab fetches amendments where `parentMotion === parent.id`,
- lists them with lifecycle badges, and lets users add / edit / delete.
+ Posture: full CRUD. An amendment names the decision it amends in `amends`;
+ this tab fetches amendments where `amends === parent.id`, writes that
+ reference and `decisionType: amendment` on save, lists them with
+ lifecycle badges, and lets users add / edit / delete.
  Lifecycle transitions, voting, and conflict warnings remain on the
  standalone /amendments/:id detail page.
 -->
@@ -45,7 +48,7 @@
 			:rows="rows"
 			:loading="loading"
 			rowKey="id"
-			:emptyText="t('decidiq', 'No amendments for this motion yet.')"
+			:emptyText="t('decidiq', 'No amendments')"
 			:loadingText="t('decidiq', 'Loading amendments…')"
 			@rowClick="openEdit">
 			<template #column-lifecycle="{ value }">

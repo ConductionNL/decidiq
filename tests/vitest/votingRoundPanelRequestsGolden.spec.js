@@ -14,6 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as objectRelations from '../../src/utils/objectRelations.js'
 import * as rankedBallot from '../../src/utils/rankedBallot.js'
 import * as votingGroups from '../../src/utils/votingGroups.js'
+import * as votingMethods from '../../src/utils/votingMethods.js'
 import * as votingPermissions from '../../src/utils/votingPermissions.js'
 import * as votingRules from '../../src/utils/votingRules.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
@@ -55,6 +56,7 @@ function panel(answer) {
 		'../utils/conflicts.js': { eligibleCount: () => 0 },
 		'../utils/objectRelations.js': objectRelations,
 		'../utils/rankedBallot.js': rankedBallot,
+		'../utils/votingMethods.js': votingMethods,
 		'../utils/votingPermissions.js': votingPermissions,
 		'../utils/votingRules.js': votingRules,
 		'../utils/votingGroups.js': votingGroups,
