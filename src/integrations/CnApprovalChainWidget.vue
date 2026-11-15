@@ -344,21 +344,21 @@ export default {
 		 * (#1397). Not the authorisation: ApprovalStageGuard decides that.
 		 *
 		 * @return {boolean} True when someone else holds the step and this user has a mandate.
-		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 * @spec openspec/specs/parafering-route-runtime/spec.md
 		 */
 		mayActForAssignee() {
 			const user = getCurrentUser()
 			return mayActOnBehalf(this.current, user && user.uid, this.mandates)
 		},
 
-		/** @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md */
+		/** @spec openspec/specs/parafering-route-runtime/spec.md */
 		onBehalfLabel() {
 			return t('decidiq', 'You may sign for {actor} under a mandate.', {
 				actor: String(this.current?.assignedPerson || ''),
 			})
 		},
 
-		/** @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md */
+		/** @spec openspec/specs/parafering-route-runtime/spec.md */
 		mandateLabel() {
 			return t('decidiq', 'Mandate')
 		},
@@ -601,7 +601,7 @@ export default {
 		 * live step belongs to someone else.
 		 *
 		 * @return {Promise<void>} Nothing.
-		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 * @spec openspec/specs/parafering-route-runtime/spec.md
 		 */
 		async loadMandates() {
 			const user = getCurrentUser()
@@ -629,7 +629,7 @@ export default {
 		 *
 		 * @param {object} option The mandate row.
 		 * @return {string} Its subject, or its id.
-		 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+		 * @spec openspec/specs/parafering-route-runtime/spec.md
 		 */
 		mandateOptionLabel(option) {
 			return String((option && (option.subject || option.id)) || '')

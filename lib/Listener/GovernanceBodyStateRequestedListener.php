@@ -27,7 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Listener;
 
 use OCA\Decidiq\Event\GovernanceBodyStateRequestedEvent;
-use OCA\Decidiq\Service\GovernanceBodyQueryService;
+use OCA\Decidiq\Kernel\Contracts\GovernanceBodyQueryServiceInterface;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventListener;
 use Psr\Log\LoggerInterface;
@@ -45,11 +45,11 @@ class GovernanceBodyStateRequestedListener implements IEventListener {
 	/**
 	 * Constructor.
 	 *
-	 * @param GovernanceBodyQueryService $queryService The keyed read.
+	 * @param GovernanceBodyQueryServiceInterface $queryService The keyed read.
 	 * @param LoggerInterface            $logger       Logger.
 	 */
 	public function __construct(
-		private readonly GovernanceBodyQueryService $queryService,
+		private readonly GovernanceBodyQueryServiceInterface $queryService,
 		private readonly LoggerInterface $logger,
 	) {
 	}//end __construct()

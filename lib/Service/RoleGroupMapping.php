@@ -23,6 +23,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\RoleGroupMappingInterface;
+
 /**
  * The register's read and write rules name decidiq's own groups
  * (decidiq-administrators, decidiq-secretariat, decidiq-publication-flow).
@@ -45,22 +47,7 @@ namespace OCA\Decidiq\Service;
  *
  * @spec openspec/specs/authorization-via-or-rbac/spec.md#requirement-req-prr-001-administrators-see-and-map-rights-per-record-type
  */
-class RoleGroupMapping {
-
-	/**
-	 * App config key holding the mapping as JSON: {role: [group, ...]}.
-	 */
-	public const CONFIG_KEY = 'role_group_mapping';
-
-	/**
-	 * The roles the register's rules name, with the groups that stand for
-	 * each (decidesk-administrators is the pre-rename name, kept in the rules).
-	 */
-	public const ROLES = [
-		'administrators'   => ['decidiq-administrators', 'decidesk-administrators'],
-		'secretariat'      => ['decidiq-secretariat'],
-		'publication-flow' => ['decidiq-publication-flow'],
-	];
+class RoleGroupMapping implements RoleGroupMappingInterface {
 
 	/**
 	 * Keep only known roles and non-empty, distinct group names.

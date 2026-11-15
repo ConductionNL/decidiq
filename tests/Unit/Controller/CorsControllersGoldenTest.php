@@ -58,6 +58,7 @@ use RuntimeException;
  * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Controller\HealthController
  * @uses   \OCA\Decidiq\Service\OriSerializer
+ * @uses   \OCA\Decidiq\Service\DateValueParser
  */
 class CorsControllersGoldenTest extends TestCase {
 

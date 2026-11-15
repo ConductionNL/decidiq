@@ -1078,7 +1078,7 @@
                     "isAdmin": "admin"
                 },
                 {
-                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                    "container": "OCA\\Decidiq\\Kernel\\Contracts\\ActionItemWriterInterface"
                 },
                 {
                     "create": {
@@ -1129,7 +1129,7 @@
                     "isAdmin": "admin"
                 },
                 {
-                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                    "container": "OCA\\Decidiq\\Kernel\\Contracts\\ActionItemWriterInterface"
                 },
                 {
                     "create": {
@@ -2025,7 +2025,7 @@
                     }
                 },
                 {
-                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                    "container": "OCA\\Decidiq\\Kernel\\Contracts\\ActionItemWriterInterface"
                 },
                 {
                     "create": {
@@ -2082,7 +2082,7 @@
                     }
                 },
                 {
-                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                    "container": "OCA\\Decidiq\\Kernel\\Contracts\\ActionItemWriterInterface"
                 },
                 {
                     "create": {
@@ -2955,7 +2955,7 @@
                     }
                 },
                 {
-                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                    "container": "OCA\\Decidiq\\Kernel\\Contracts\\ActionItemWriterInterface"
                 },
                 {
                     "create": {
@@ -3012,7 +3012,7 @@
                     }
                 },
                 {
-                    "container": "OCA\\Decidiq\\Service\\ActionItemWriter"
+                    "container": "OCA\\Decidiq\\Kernel\\Contracts\\ActionItemWriterInterface"
                 },
                 {
                     "create": {

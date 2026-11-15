@@ -146,21 +146,33 @@ export async function listDecisionStages(decisionId) {
 		return []
 	}
 	try {
-		const res = await axios.get(
-			generateUrl('/apps/openregister/api/objects/decidiq/decision-stage'),
-			{
-				params: { decision: decisionId, _limit: 50 },
-			},
-		)
-		const data = res && res.data
-		return Array.isArray(data?.results)
-			? data.results
-			: Array.isArray(data)
-				? data
-				: []
+		const res = await axios.get(decisionStagesUrl(), {
+			params: { decision: decisionId, _limit: 50 },
+		})
+		return stageRows(res && res.data)
 	} catch {
 		return []
 	}
+}
+
+/**
+ * OpenRegister objects endpoint for decidiq `decision-stage` objects.
+ *
+ * @return {string} The resolved objects URL.
+ */
+function decisionStagesUrl() {
+	return generateUrl('/apps/openregister/api/objects/decidiq/decision-stage')
+}
+
+/**
+ * The stage rows of an OpenRegister list answer, under `results` or bare.
+ *
+ * @param {object|Array|null} data The answer body.
+ * @return {Array<object>} The rows, or [] for any other shape.
+ */
+function stageRows(data) {
+	if (Array.isArray(data?.results)) return data.results
+	return Array.isArray(data) ? data : []
 }
 
 /**

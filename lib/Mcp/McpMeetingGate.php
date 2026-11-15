@@ -26,7 +26,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Mcp;
 
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\IGroupManager;
@@ -63,7 +63,7 @@ class McpMeetingGate {
 	 * @param IUserSession $userSession The current user session
 	 * @param IGroupManager $groupManager The group manager (for admin checks)
 	 * @param LoggerInterface $logger The PSR-3 logger
-	 * @param ParticipantResolver $participantResolver Participant resolver for meeting-based access checks
+	 * @param ParticipantResolverInterface $participantResolver Participant resolver for meeting-based access checks
 	 * @param McpSourceFormatter $formatter Builds the error envelopes
 	 * @param McpArgumentValidator $validator Validates the meetingUuid argument
 	 * @param ObjectServiceInterface $objectService The OpenRegister object service
@@ -74,7 +74,7 @@ class McpMeetingGate {
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly LoggerInterface $logger,
-		private readonly ParticipantResolver $participantResolver,
+		private readonly ParticipantResolverInterface $participantResolver,
 		private readonly McpSourceFormatter $formatter,
 		private readonly McpArgumentValidator $validator,
 		private readonly ObjectServiceInterface $objectService,

@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+ * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -28,7 +28,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\ConnectionReportServiceInterface;
 use OCA\Decidiq\Support\FleetAppId;
 use OCP\EventDispatcher\Event;
 use OCP\EventDispatcher\IEventDispatcher;
@@ -39,9 +40,9 @@ use Throwable;
 /**
  * Sends connection reports and refresh requests to integriq.
  *
- * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+ * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
  */
-class ConnectionReportService {
+class ConnectionReportService implements ConnectionReportServiceInterface {
 
 	/**
 	 * Integriq's report event (ADR-041). Named by string so decidiq stays
@@ -100,7 +101,7 @@ class ConnectionReportService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
 	 */
 	public function reportBindings(): void {
 		$eventClass = $this->resolveEventClass(eventClass: self::STATUS_EVENT);
@@ -117,7 +118,7 @@ class ConnectionReportService {
 			$this->send(
 				key: $key,
 				build: static fn (): object => new $eventClass(
-					app: Application::APP_ID,
+					app: AppIdentity::APP_ID,
 					key: $key,
 					status: $status,
 					message: $message,
@@ -137,7 +138,7 @@ class ConnectionReportService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-001-decidiq-declares-its-outside-connections-in-one-static-file
 	 */
 	public function refreshFromSave(array $saved): void {
 		$eventClass = $this->resolveEventClass(eventClass: self::REFRESH_EVENT);
@@ -153,7 +154,7 @@ class ConnectionReportService {
 			$this->send(
 				key: $key,
 				build: static fn (): object => new $eventClass(
-					app: Application::APP_ID,
+					app: AppIdentity::APP_ID,
 					key: $key,
 				)
 			);
@@ -169,7 +170,7 @@ class ConnectionReportService {
 	 *
 	 * @return array{0: string, 1: string} The status and the message.
 	 *
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
 	 */
 	public function observeSigning(): array {
 		try {
@@ -209,7 +210,7 @@ class ConnectionReportService {
 	 *
 	 * @return array{0: string, 1: string} The status and the message.
 	 *
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
 	 */
 	public function observeTranslation(): array {
 		try {
@@ -257,7 +258,7 @@ class ConnectionReportService {
 	 *
 	 * @return string|null The class name to instantiate, or null when absent.
 	 *
-	 * @spec openspec/changes/adopt-connection-registry/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
+	 * @spec openspec/specs/admin-settings/spec.md#requirement-req-adm-conn-002-decidiq-reports-which-signing-and-translation-services-answer
 	 */
 	protected function resolveEventClass(string $eventClass): ?string {
 		$qualified = '\\' . $eventClass;

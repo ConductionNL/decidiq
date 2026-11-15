@@ -28,7 +28,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-2.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -41,7 +41,7 @@ namespace OCA\Decidiq\Service;
  * Stateless decision-reference extraction helper that feeds the email
  * leaf's link-suggestion — never a link store.
  *
- * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-2.2
+ * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-2.2
  */
 class EmailReferenceExtractor {
 	/**
@@ -56,7 +56,7 @@ class EmailReferenceExtractor {
 	 *
 	 * @return array<int, string> Distinct extracted decision/motion identifiers.
 	 *
-	 * @spec openspec/changes/migrate-email-links-to-email-leaf/tasks.md#task-2.2
+	 * @spec openspec/changes/archive/2026-06-10-migrate-email-links-to-email-leaf/tasks.md#task-2.2
 	 */
 	public function extract(string $text): array {
 		if ($text === '') {

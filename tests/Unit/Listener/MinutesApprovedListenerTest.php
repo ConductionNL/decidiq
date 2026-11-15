@@ -21,7 +21,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Listener;
 
-use OCA\Decidiq\AppInfo\Registrar\ObjectListenerRegistrar;
+use OCA\Decidiq\Listener\Registrar\ObjectListenerRegistrar;
 use OCA\Decidiq\Listener\MinutesApprovedListener;
 use OCA\Decidiq\Service\CaseSystemExchangeService;
 use OCA\Decidiq\Service\DecisionListService;

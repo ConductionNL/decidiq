@@ -22,7 +22,7 @@
  * SPDX-License-Identifier: EUPL-1.2
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
  */
 
 declare(strict_types=1);
@@ -34,7 +34,7 @@ use Closure;
 /**
  * One merge run: the merged configuration and the signature of the fragments read.
  *
- * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+ * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
  */
 class RegisterFragmentMerger {
 
@@ -65,7 +65,7 @@ class RegisterFragmentMerger {
 	 *
 	 * @return array{0: array<string,mixed>, 1: string} [mergedConfig, fragmentSignature]
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 */
 	public function mergeDirectory(array $configData, string $fragmentDir): array {
 		$this->signature = '';
@@ -136,7 +136,7 @@ class RegisterFragmentMerger {
 	 *
 	 * @return array<mixed> The merged config.
 	 *
-	 * @spec openspec/changes/p1-crud-operations/tasks.md#task-2.3
+	 * @spec openspec/changes/archive/2026-05-11-p1-crud-operations/tasks.md#task-2.3
 	 */
 	public static function deepMerge(array $base, array $overlay): array {
 		foreach ($overlay as $key => $value) {

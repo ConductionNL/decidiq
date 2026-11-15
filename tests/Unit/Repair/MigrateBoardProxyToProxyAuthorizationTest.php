@@ -515,6 +515,107 @@ class MigrateBoardProxyToProxyAuthorizationTest extends TestCase {
 	}//end testRunToleratesTargetIndexBuildFailure()
 
 	/**
+	 * Existing proxy-authorization rows that cannot be normalised, or that
+	 * lack part of the (grantor, holder, meeting) triple, do not count as an
+	 * earlier migration: the source row is still migrated.
+	 *
+	 * @return void
+	 */
+	public function testRunIgnoresUnusableTargetRowsInTheIdempotencyIndex(): void {
+		$saved = [];
+		$step = $this->makeStep(
+			sourceRows: [
+				[
+					'id' => 'bp-7',
+					'grantorIntegration' => 'participant-grantor',
+					'holderIntegration' => 'participant-holder',
+					'meetingIntegration' => 'meeting-1',
+					'proxyStatus' => 'active',
+				],
+			],
+			targetRows: [
+				['grantor' => 'person-grantor', 'holder' => 'person-holder', 'meeting' => ''],
+				['grantor' => 'person-grantor', 'holder' => '', 'meeting' => 'meeting-1'],
+			],
+			crosswalk: [
+				'participant-grantor' => ['person' => 'person-grantor', 'membership' => 'membership-grantor'],
+				'participant-holder' => ['person' => 'person-holder', 'membership' => 'membership-holder'],
+			],
+			knownMeetings: ['meeting-1'],
+			saved: $saved,
+			rawTargetEntities: [new \stdClass()],
+		);
+
+		$output = $this->createMock(originalClassName: IOutput::class);
+		$output->expects($this->once())
+			->method('info')
+			->with('MigrateBoardProxyToProxyAuthorization: 1 migrated, 0 already migrated, 0 skipped.');
+
+		$step->run(output: $output);
+
+		$this->assertCount(expectedCount: 1, haystack: $saved);
+		$this->assertSame(expected: 'meeting-1', actual: $saved[0]['meeting']);
+
+	}//end testRunIgnoresUnusableTargetRowsInTheIdempotencyIndex()
+
+	/**
+	 * A meeting lookup that throws counts as an unresolvable meeting: the row
+	 * is skipped and logged, never saved, and the run does not abort.
+	 *
+	 * @return void
+	 */
+	public function testRunSkipsRowWhenTheMeetingLookupThrows(): void {
+		$objectService = $this->createMock(originalClassName: ObjectServiceInterface::class);
+		$objectService->method('findAll')->willReturnCallback(
+			fn (array $config): array => (($config['filters']['schema'] ?? '') === 'board-proxy')
+				? [
+					$this->entity(
+						data: [
+							'id' => 'bp-8',
+							'grantorIntegration' => 'participant-grantor',
+							'holderIntegration' => 'participant-holder',
+							'meetingIntegration' => 'meeting-1',
+						]
+					),
+				]
+				: []
+		);
+		$objectService->method('find')->willThrowException(new \RuntimeException('meeting lookup failed'));
+		$objectService->expects($this->never())->method('saveObject');
+
+		$resolver = $this->createMock(originalClassName: ParticipantToPersonMembershipResolver::class);
+		$resolver->method('resolve')->willReturnCallback(
+			static fn (string $participantId): array => ['person' => 'person-' . $participantId, 'membership' => 'm']
+		);
+
+		$logger = $this->createMock(originalClassName: LoggerInterface::class);
+		$logger->expects($this->once())
+			->method('warning')
+			->with(
+				'Decidiq: MigrateBoardProxyToProxyAuthorization skipped an unresolvable board-proxy row',
+				[
+					'sourceBoardProxyUuid' => 'bp-8',
+					'grantorResolved' => true,
+					'holderResolved' => true,
+					'meetingResolved' => false,
+				]
+			);
+
+		$output = $this->createMock(originalClassName: IOutput::class);
+		$output->expects($this->once())
+			->method('info')
+			->with('MigrateBoardProxyToProxyAuthorization: 0 migrated, 0 already migrated, 1 skipped.');
+
+		$step = new MigrateBoardProxyToProxyAuthorization(
+			objectService: $objectService,
+			resolver: $resolver,
+			logger: $logger,
+		);
+		$step->run(output: $output);
+
+	}//end testRunSkipsRowWhenTheMeetingLookupThrows()
+
+	/**
 	 * getName() is descriptive.
 	 *
 	 * @return void

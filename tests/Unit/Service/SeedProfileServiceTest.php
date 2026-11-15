@@ -42,7 +42,7 @@ class SeedProfileServiceTest extends TestCase {
 
 		// Read from disk rather than a list in code, so a set that ships without
 		// being offered is impossible by construction.
-		$this->assertSame(['municipality', 'association', 'corporate', 'works-council'], $ids);
+		$this->assertSame(['municipality', 'association', 'corporate', 'works-council', 'council-information'], $ids);
 	}
 
 	public function testSetsAreOfferedInTheirDeclaredOrder(): void {
@@ -144,7 +144,7 @@ class SeedProfileServiceTest extends TestCase {
 		$choices = $this->service->listChoices();
 
 		$this->assertSame(
-			['none', 'municipality', 'association', 'corporate', 'works-council', 'generated'],
+			['none', 'municipality', 'association', 'corporate', 'works-council', 'council-information', 'generated'],
 			array_column($choices, 'id')
 		);
 

@@ -13,6 +13,11 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { describe, expect, it } from 'vitest'
+import {
+	contentWithDefaults,
+	detailObjectId,
+	plainObject,
+} from '../../src/components/widgets/registerDetailWidgets.js'
 import { instanceOf, loadSfcScript } from './helpers/sfcScript.js'
 
 const WIDGETS = path.resolve(__dirname, '../../src/components/widgets')
@@ -60,7 +65,14 @@ function recordingStore(calls, spec) {
  */
 async function run(widget, item) {
 	const calls = []
-	const resolveObjectLabel = async (store, slug, schema, register, id, field) => {
+	const resolveObjectLabel = async (store, ref) => {
+		const {
+			typeSlug: slug,
+			schemaSlug: schema,
+			registerSlug: register,
+			id,
+		} = ref
+		const field = ref.labelField
 		calls.push({ fn: 'resolveObjectLabel', slug, schema, register, id, field })
 		if (id === 'boom') {
 			throw new Error('label lookup failed')
@@ -103,6 +115,8 @@ async function run(widget, item) {
 	return { calls, state, thrown }
 }
 
+const CONFIG_HELPERS = { contentWithDefaults, detailObjectId, plainObject }
+
 const BASE_MODULES = {
 	'@nextcloud/vue': { NcButton: {} },
 }
@@ -121,6 +135,7 @@ const CONFIDENTIALITY = {
 		'vue-material-design-icons/CheckCircleOutline.vue': { default: {} },
 		'vue-material-design-icons/ClockOutline.vue': { default: {} },
 		'./registerDetailWidgets.js': {
+			...CONFIG_HELPERS,
 			buildConfidentialityStages: () => [],
 			resolveObjectLabel,
 		},
@@ -218,7 +233,7 @@ const DELEGATION = {
 			CnWidgetWrapper: {},
 			useObjectStore: () => null,
 		},
-		'./registerDetailWidgets.js': { resolveObjectLabel },
+		'./registerDetailWidgets.js': { ...CONFIG_HELPERS, resolveObjectLabel },
 	}),
 	cases: {
 		'chain-children-parties': {
@@ -328,6 +343,7 @@ const VERSIONS = {
 			useObjectStore: () => null,
 		},
 		'./registerDetailWidgets.js': {
+			...CONFIG_HELPERS,
 			resolveObjectLabel,
 			sortVersionsByEffectiveDate: (v) => v,
 		},

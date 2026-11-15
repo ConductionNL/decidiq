@@ -28,6 +28,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use InvalidArgumentException;
+use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 
 /**
@@ -35,7 +36,7 @@ use OCA\OpenRegister\Contract\ObjectServiceInterface;
  *
  * @spec openspec/specs/agenda-live-management/spec.md#requirement-req-lsc-001-everyone-follows-the-current-item
  */
-class CurrentAgendaItemService {
+class CurrentAgendaItemService implements CurrentAgendaItemServiceInterface {
 	/**
 	 * Constructor.
 	 *

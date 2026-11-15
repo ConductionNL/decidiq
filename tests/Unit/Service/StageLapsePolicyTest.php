@@ -355,4 +355,31 @@ final class StageLapsePolicyTest extends TestCase {
 
 		$this->assertSame(StageLapsePolicy::EFFECT_NONE, $effect['effect']);
 	}//end testAnUnreadableDueDateDoesNotLapse()
+	/**
+	 * Every branch of effectFor answers with its full effect, outcome and reason.
+	 *
+	 * @return void
+	 */
+	public function testEveryBranchAnswersInFull(): void {
+		$cases = [
+			[['status' => 'done'], 'none', null, 'This stage is no longer active.'],
+			[[], 'none', null, 'The step holds on silence, which is the default.'],
+			[['lapsedAt' => '2026-09-17T00:00:00+00:00', 'onSilence' => 'approve'], 'none', null, 'A lapse has already been applied to this stage.'],
+			[['dueAt' => '  ', 'onSilence' => 'approve'], 'none', null, 'This stage has no due date, so it cannot lapse.'],
+			[['dueAt' => '2026-12-31T12:00:00+00:00', 'onSilence' => 'approve'], 'none', null, 'This stage is not due yet.'],
+			[['onSilence' => 'approve'], 'advance', 'approved', 'The step declares that silence approves, and its due date has passed.'],
+			[['onSilence' => 'refuse'], 'conclude', 'rejected', 'The step declares that silence refuses, and its due date has passed.'],
+			[['onSilence' => 'escalate'], 'reassign', null, 'The step declares that silence escalates, and its due date has passed.'],
+			[['onSilence' => 'escalate', 'actorResolvedBy' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR], 'none', null, 'This stage has already been escalated once and now holds.'],
+			[['onSilence' => 'approve', 'actorResolvedBy' => ApprovalActorResolver::RULE_MANAGER_OF_ACTOR], 'advance', 'approved', 'The step declares that silence approves, and its due date has passed.'],
+			[['onSilence' => 'whatever'], 'none', null, 'The step holds on silence, which is the default.'],
+		];
+
+		foreach ($cases as [$overrides, $effect, $outcome, $reason]) {
+			$this->assertSame(
+				['effect' => $effect, 'outcome' => $outcome, 'reason' => $reason],
+				$this->policy->effectFor(stage: $this->stage($overrides), now: $this->now)
+			);
+		}
+	}//end testEveryBranchAnswersInFull()
 }//end class

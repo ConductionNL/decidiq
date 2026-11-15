@@ -31,7 +31,10 @@ namespace OCA\Decidiq\Tests\Unit\Mcp;
 
 use OCA\Decidiq\Mcp\DecidiqToolProvider;
 use OCA\Decidiq\Mcp\McpActionItemTools;
+use OCA\Decidiq\Mcp\McpArgumentValidator;
+use OCA\Decidiq\Mcp\McpMeetingGate;
 use OCA\Decidiq\Mcp\McpMeetingTools;
+use OCA\Decidiq\Mcp\McpSourceFormatter;
 use OCA\Decidiq\Service\MeetingService;
 use OCA\Decidiq\Service\ParticipantResolver;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -84,6 +87,15 @@ class DecidiqToolProviderGoldenTest extends TestCase {
 		}
 
 		$shared   = array_diff_key($mocks, ['meetingService' => true, 'container' => true]);
+		$formatter = new McpSourceFormatter();
+		$validator = new McpArgumentValidator(formatter: $formatter);
+		$shared    = [
+			'logger'        => $shared['logger'],
+			'objectService' => $shared['objectService'],
+			'gate'          => new McpMeetingGate(...$shared, formatter: $formatter, validator: $validator),
+			'formatter'     => $formatter,
+			'validator'     => $validator,
+		];
 		$provider = new DecidiqToolProvider(
 			actionItemTools: new McpActionItemTools(...$shared, container: $mocks['container']),
 			meetingTools: new McpMeetingTools(...$shared, meetingService: $mocks['meetingService']),

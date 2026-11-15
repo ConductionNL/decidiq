@@ -97,6 +97,13 @@ class VoteBreakdownControllerTest extends TestCase {
 	 */
 	public function testTheRouteReachesTheController(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$byName = array_column($routes['routes'], 'url', 'name');
 
 		self::assertSame('/api/voting-rounds/{id}/breakdown', ($byName['voteBreakdown#show'] ?? null));

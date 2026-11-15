@@ -35,6 +35,7 @@ use OCA\OpenRegister\Kernel\Contracts\Value\ObjectDeletion;
 use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
+use OCA\Decidiq\Kernel\Contracts\PublicationDigestServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IConfig;
 use OCP\IUserManager;
@@ -49,7 +50,7 @@ use Throwable;
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-003-subscribers-receive-matching-events-immediately-daily-or-weekly
  */
-class PublicationDigestService {
+class PublicationDigestService implements PublicationDigestServiceInterface {
 
 	/**
 	 * The event type the member's delivery goes out under.

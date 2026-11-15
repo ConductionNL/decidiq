@@ -26,8 +26,8 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\VoteBreakdownService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\VoteBreakdownServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -47,15 +47,15 @@ class VoteBreakdownController extends Controller {
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param VoteBreakdownService $breakdowns Builds the breakdown
+	 * @param VoteBreakdownServiceInterface $breakdowns Builds the breakdown
 	 * @param IUserSession $userSession User session
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly VoteBreakdownService $breakdowns,
+		private readonly VoteBreakdownServiceInterface $breakdowns,
 		private readonly IUserSession $userSession,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**

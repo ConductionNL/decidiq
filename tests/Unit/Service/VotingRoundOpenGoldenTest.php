@@ -80,6 +80,8 @@ use Throwable;
  * @uses   \OCA\Decidiq\Service\RankedBallotRules
  * @uses   \OCA\Decidiq\Service\SavedObjectNormaliser
  * @uses   \OCA\Decidiq\Service\BordaCount
+ * @uses \OCA\Decidiq\Service\MeetingScopedRecords
+ * @uses \OCA\Decidiq\Service\ReferenceId
  */
 class VotingRoundOpenGoldenTest extends TestCase {
 	use VotingFacadeCalls;

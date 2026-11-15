@@ -656,10 +656,28 @@ class RegisterAuthorizationTest extends TestCase {
 			// the body run the broadcast; the public only reads it.
 			// VotingGroup (voting-groups, board DcBeheer): the secretariat keeps
 			// the groups the chair picks from; members only read them.
-			if (in_array($name, ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast', 'VotingGroup'], true) === true) {
+			// MeetingPack (meeting-pack-board-book, REQ-003): the secretariat
+			// compiles a pack; signed-in members only read it.
+			// ChangeRecommendation (motion-change-recommendations, REQ-MCR-002):
+			// the secretariat records a recommended text change; members read it.
+			if (in_array($name, ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast', 'VotingGroup', 'MeetingPack', 'ChangeRecommendation'], true) === true) {
 				$writers = ['decidiq-secretariat', 'decidiq-administrators', 'decidesk-administrators'];
 				foreach (self::WRITE_ACTIONS as $action) {
 					$this->assertSame($writers, $block[$action] ?? null, sprintf('%s must grant `%s` to the secretariat and administrators only.', $name, $action));
+				}
+
+				continue;
+			}
+
+			// ImplementationUpdate (followup-implementation-progress,
+			// REQ-FUP-001): the secretariat reports progress through the
+			// object API; correcting or removing a report is for
+			// administrators. ImplementationUpdateListener refuses a report
+			// on a decision that was not adopted.
+			if ($name === 'ImplementationUpdate') {
+				$this->assertSame(['decidiq-secretariat', 'decidiq-administrators', 'decidesk-administrators'], $block['create'] ?? null, 'ImplementationUpdate opens `create` to the secretariat and administrators.');
+				foreach (['update', 'delete'] as $action) {
+					$this->assertSame(['decidiq-administrators', 'decidesk-administrators'], $block[$action] ?? null, sprintf('ImplementationUpdate keeps `%s` to administrators.', $action));
 				}
 
 				continue;
@@ -705,7 +723,7 @@ class RegisterAuthorizationTest extends TestCase {
 		}//end foreach
 
 		// Every listed schema really has a block, so a list entry cannot go stale unnoticed.
-		$staffWritten = ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast', 'VotingGroup'];
+		$staffWritten = ['MandateRemuneration', 'PaperSummary', 'MeetingBroadcast', 'VotingGroup', 'MeetingPack', 'ChangeRecommendation'];
 		$listedSchemas = array_merge(
 			self::RESTATES_THE_BASELINE_WRITES,
 			array_keys(self::SERVICE_OWNED_WRITES_STAY_CLOSED),
@@ -720,12 +738,12 @@ class RegisterAuthorizationTest extends TestCase {
 		// The count is the positive control: without it the loop above passes
 		// vacuously if the schemas move, are renamed, or stop being found at all.
 		// 14 restate the baseline writes, 10 are service owned, 1 is
-		// EvaluationResponse, 1 is PublicationSubscription, 4 are written by
+		// EvaluationResponse, 1 is PublicationSubscription, 6 are written by
 		// the secretariat (MandateRemuneration, PaperSummary, MeetingBroadcast,
-		// VotingGroup), 17 are retired. A different number means schemas
-		// gained or lost their own block, which changes which ones the register
-		// baseline governs.
-		$this->assertCount(expectedCount: 47, haystack: $blocks, message: 'Expected 47 schema-level authorization blocks.');
+		// VotingGroup, MeetingPack, ChangeRecommendation), 1 is ImplementationUpdate,
+		// 17 are retired. A different number means schemas gained or lost their own
+		// block, which changes which ones the register baseline governs.
+		$this->assertCount(expectedCount: 50, haystack: $blocks, message: 'Expected 50 schema-level authorization blocks.');
 	}//end testEverySchemaBlockDeclaresItsWritesOnPurpose()
 
 	/**
@@ -796,6 +814,48 @@ class RegisterAuthorizationTest extends TestCase {
 			);
 		}//end foreach
 	}//end testARenamedSchemaKeepsItsPredecessorsReadRule()
+
+	/**
+	 * A read rule matches only on properties its schema declares.
+	 *
+	 * OpenRegister refuses to import a schema whose rule names a property the
+	 * schema does not have, so such a rule breaks a fresh install of that schema.
+	 *
+	 * @return void
+	 */
+	public function testEveryRuleMatchesADeclaredProperty(): void {
+		$files = array_merge(
+			[__DIR__ . '/../../lib/Settings/decidesk_register.json'],
+			glob(__DIR__ . '/../../lib/Settings/register.d/*.json') ?: []
+		);
+
+		$declared = [];
+		foreach ($files as $file) {
+			$decoded = json_decode((string)file_get_contents($file), true);
+			foreach (($decoded['components']['schemas'] ?? []) as $name => $schema) {
+				if (is_array($schema) === true) {
+					$declared[$name] = array_merge(($declared[$name] ?? []), array_keys((array)($schema['properties'] ?? [])));
+				}
+			}
+		}
+
+		$undeclared = [];
+		foreach ($this->schemaBlocks() as $name => $entry) {
+			foreach ($entry['block'] as $action => $rules) {
+				foreach ((array)$rules as $rule) {
+					foreach (array_keys((array)(is_array($rule) === true ? ($rule['match'] ?? []) : [])) as $field) {
+						if (str_starts_with((string)$field, '@') === false && str_starts_with((string)$field, '_') === false
+							&& in_array($field, ($declared[$name] ?? []), true) === false
+						) {
+							$undeclared[] = $name . '.' . $action . '.' . $field;
+						}
+					}
+				}
+			}
+		}
+
+		$this->assertSame([], $undeclared, 'A rule matches on a property its schema does not declare.');
+	}//end testEveryRuleMatchesADeclaredProperty()
 
 	/**
 	 * The demo register resolves to the same permissions as the real one.

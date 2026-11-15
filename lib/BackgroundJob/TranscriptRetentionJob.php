@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\BackgroundJob;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\AuditLogServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\BackgroundJob\TimedJob;
 use Psr\Container\ContainerInterface;
@@ -397,7 +398,7 @@ class TranscriptRetentionJob extends TimedJob {
 	 */
 	private function appendAudit(string $meetingId, array $deleted, string $policy): void {
 		try {
-			$auditLog = $this->container->get(\OCA\Decidiq\Service\AuditLogService::class);
+			$auditLog = $this->container->get(AuditLogServiceInterface::class);
 			// 'transcript-retention-purge' is a member of AuditLogService::ACTIONS;
 			// the dotted 'transcript.retention.purge' this used to send never was,
 			// so every retention purge audit append failed with "Unknown action".

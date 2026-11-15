@@ -163,7 +163,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @param ObjectCreatingEvent  $event The creating event
 	 * @param array<string, mixed> $row   The decision payload being created
 	 *
-	 * @spec openspec/changes/motions-submission-window/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
+	 * @spec openspec/specs/motion-amendment/spec.md#requirement-req-subw-002-a-motion-or-amendment-submitted-before-the-window-opens-is-refused
 	 *
 	 * @return void
 	 */
@@ -208,16 +208,7 @@ class SubmissionDeadlineListener implements IEventListener {
 	 * @return array<string, mixed> Serialized payload, or [] when unavailable
 	 */
 	private function extractRow(object $entity): array {
-		$row = [];
-		if (method_exists($entity, 'getObject') === true) {
-			$row = (array)$entity->getObject();
-		}
-
-		if ($row === [] && method_exists($entity, 'jsonSerialize') === true) {
-			$row = (array)$entity->jsonSerialize();
-		}
-
-		return $row;
+		return (new EntityPayloadReader())->payloadOf(entity: $entity);
 	}//end extractRow()
 
 	/**

@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Processes translation-queue entries against one ObjectService and adapter.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
  */
 final class TranslationQueueEntryProcessor {
 
@@ -55,7 +55,7 @@ final class TranslationQueueEntryProcessor {
 	 *
 	 * @param array<string,mixed> $entry Queue entry row
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return bool True when the entry completed, false when it failed
 	 */
@@ -84,7 +84,7 @@ final class TranslationQueueEntryProcessor {
 	 *
 	 * @param array<string,mixed> $entry Queue entry row
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed> The job (entry, id, attempts, now, locales, source), or ['failure' => changes]
 	 */
@@ -110,7 +110,7 @@ final class TranslationQueueEntryProcessor {
 	 *
 	 * @param array<string,mixed> $entry Queue entry row
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -138,7 +138,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param array<string,mixed> $row The row
 	 * @param string $key The field
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return string
 	 */
@@ -153,7 +153,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param array<string, mixed> $job The started job
 	 * @param array<string, mixed> $translation The adapter's answer
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return void
 	 */
@@ -169,7 +169,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param array<string, mixed> $job The started job, with the new minutes id under `newMinutesId`
 	 * @param array<string, mixed> $translation The adapter's answer
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -192,7 +192,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param array<string,mixed> $entry Queue entry row
 	 * @param array<string,mixed> $changes Extra fields merged before the status flip
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return void
 	 */
@@ -207,7 +207,7 @@ final class TranslationQueueEntryProcessor {
 	 *
 	 * @param string $minutesId UUID of the minutes record
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed>|null
 	 */
@@ -232,7 +232,7 @@ final class TranslationQueueEntryProcessor {
 	 *
 	 * @param object $entity The minutes entity
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -251,7 +251,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param array<string, mixed> $job The started job (source minutes, targetLocale)
 	 * @param string $translatedText Translated body
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return string The new minutes id, or '' when it was not stored
 	 */
@@ -279,7 +279,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param array<string, mixed> $job The started job (source minutes, targetLocale)
 	 * @param string $translatedText Translated body
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return array<string, mixed>
 	 */
@@ -306,7 +306,7 @@ final class TranslationQueueEntryProcessor {
 	 * @param string $entryId Queue entry UUID
 	 * @param array<string, mixed> $payload Updated payload
 	 *
-	 * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-6.3
+	 * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-6.3
 	 *
 	 * @return void
 	 */

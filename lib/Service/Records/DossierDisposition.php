@@ -36,6 +36,7 @@ namespace OCA\Decidiq\Service\Records;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\DossierDispositionInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -45,7 +46,7 @@ use OCP\IURLGenerator;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-004-transfer-via-openregister-transfer-lists-and-e-depot
  */
-class DossierDisposition {
+class DossierDisposition implements DossierDispositionInterface {
 	/**
 	 * The dossier schema's key in the register, where its category lives.
 	 */
