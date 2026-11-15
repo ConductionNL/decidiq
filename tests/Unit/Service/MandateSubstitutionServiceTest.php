@@ -49,6 +49,8 @@ use PHPUnit\Framework\TestCase;
  * @covers \OCA\Decidiq\Exception\SubstitutionRefusedException
  * @uses   \OCA\Decidiq\Service\SubstitutionResolver
  * @uses   \OCA\Decidiq\Service\MeetingRoleGate
+ * @uses \OCA\Decidiq\Service\MeetingScopedRecords
+ * @uses \OCA\Decidiq\Service\ReferenceId
  */
 class MandateSubstitutionServiceTest extends TestCase {
 

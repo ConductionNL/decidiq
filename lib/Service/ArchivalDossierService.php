@@ -39,6 +39,7 @@ use DateTimeImmutable;
 use OCA\Decidiq\Exception\AccessDeniedException;
 use OCA\Decidiq\Exception\DossierRefusedException;
 use OCA\Decidiq\Exception\MissingObjectException;
+use OCA\Decidiq\Kernel\Contracts\ArchivalDossierServiceInterface;
 use OCA\Decidiq\Service\Records\OpenRegisterArchive;
 use OCA\Decidiq\Service\Records\SecurityClassification;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
@@ -51,7 +52,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/records-management-archiving/specs/records-management-archiving/spec.md#requirement-req-rma-001-archival-dossier-assembly
  */
-class ArchivalDossierService {
+class ArchivalDossierService implements ArchivalDossierServiceInterface {
 	/**
 	 * The dossier schema.
 	 */

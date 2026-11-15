@@ -16,7 +16,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -25,9 +25,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\EngagementService;
-use OCA\Decidiq\Service\ParticipantResolver;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\EngagementServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\ParticipantResolverInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -39,31 +39,31 @@ use Psr\Container\ContainerInterface;
 /**
  * Controller for capturing and querying engagement records.
  *
- * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+ * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
  */
 class EngagementController extends Controller {
 	/**
 	 * Constructor.
 	 *
 	 * @param IRequest $request HTTP request
-	 * @param EngagementService $engagementService Engagement service
+	 * @param EngagementServiceInterface $engagementService Engagement service
 	 * @param IUserSession $userSession Current user session
 	 * @param IGroupManager $groupManager Group manager for admin checks
 	 * @param ContainerInterface $container DI container for ObjectService access
-	 * @param ParticipantResolver $participantResolver Resolves meeting chair/secretary roles (meeting-efficiency)
+	 * @param ParticipantResolverInterface $participantResolver Resolves meeting chair/secretary roles (meeting-efficiency)
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly EngagementService $engagementService,
+		private readonly EngagementServiceInterface $engagementService,
 		private readonly IUserSession $userSession,
 		private readonly IGroupManager $groupManager,
 		private readonly ContainerInterface $container,
-		private readonly ParticipantResolver $participantResolver,
+		private readonly ParticipantResolverInterface $participantResolver,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -113,7 +113,7 @@ class EngagementController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	public function capture(): JSONResponse {
@@ -176,9 +176,9 @@ class EngagementController extends Controller {
 	 *
 	 * @return bool True when the caller may act on, and see, other participants' records
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
 	 * @spec openspec/specs/meeting-efficiency/spec.md
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
 	 */
 	private function hasMeetingOversight(string $callerUid, string $meetingId): bool {
 		if ($this->groupManager->isAdmin($callerUid) === true) {
@@ -203,7 +203,7 @@ class EngagementController extends Controller {
 	 *
 	 * @return JSONResponse|null A 403 response, or null when the record is the caller's own
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	private function denyForeignParticipant(string $callerUid, string $participant): ?JSONResponse {
@@ -243,8 +243,8 @@ class EngagementController extends Controller {
 	 *
 	 * @NoAdminRequired
 	 *
-	 * @spec openspec/changes/p4-collaboration/tasks.md#task-8.2
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 * @spec openspec/changes/archive/2026-05-11-p4-collaboration/tasks.md#task-8.2
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
 	 */
 	public function index(): JSONResponse {
 		$user = $this->userSession->getUser();
@@ -288,7 +288,7 @@ class EngagementController extends Controller {
 	 *
 	 * @return array<int, array<string, mixed>> Only the caller's own records
 	 *
-	 * @spec openspec/changes/participation-and-engagement-authorization-guard/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
+	 * @spec openspec/specs/participation-and-engagement-authorization/spec.md#requirement-req-eng-101-engagement-records-are-listed-only-within-the-callers-authority
 	 */
 	private function ownRecordsOnly(string $callerUid, array $records): array {
 		$callerParticipantId = $this->resolveParticipantUuid(nextcloudUid: $callerUid);

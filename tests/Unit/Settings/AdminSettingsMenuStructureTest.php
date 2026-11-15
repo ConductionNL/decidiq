@@ -118,4 +118,18 @@ final class AdminSettingsMenuStructureTest extends TestCase {
 			$this->assertArrayHasKey($key, $published);
 		}
 	}//end testTheOtherKeysAreStillPublished()
-}//end class
+
+	/**
+	 * The admin page gets the accessibility audit digest the app ships, so its
+	 * Accessibility section shows the last audit (board DcBeheerSysteem).
+	 *
+	 * @return void
+	 */
+	public function testTheShippedAccessibilityAuditIsPublished(): void {
+		$audit = $this->publishedWith(stored: null)['accessibilityAudit'] ?? null;
+
+		$this->assertIsArray(actual: $audit);
+		$this->assertSame(expected: 'WCAG 2.1 AA', actual: $audit['standard']);
+		$this->assertIsArray(actual: $audit['findings']);
+	}//end testTheShippedAccessibilityAuditIsPublished()
+}

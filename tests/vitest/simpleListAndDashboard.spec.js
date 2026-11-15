@@ -119,7 +119,7 @@ describe('the dashboard in the simple structure', () => {
 			title: old.title,
 			content: { ...now.content, label: old.content.label },
 		}).toEqual(old)
-		expect(config.widgets).toHaveLength(before.widgets.length + 5)
+		expect(config.widgets).toHaveLength(before.widgets.length + 6)
 	})
 
 	it('lays every old card out once, in two columns as the board draws them', () => {
@@ -134,6 +134,7 @@ describe('the dashboard in the simple structure', () => {
 		}
 		const main = [
 			'simple-proposals-per-step',
+			'simple-waiting-for-you',
 			'pending-votes-list',
 			'my-action-items',
 		]
@@ -364,9 +365,12 @@ describe('the dashboard in the simple structure', () => {
 		expect(list.viewAllRoute.query).toEqual(asQuery(source.filter))
 		const target = pageOf(simple, list.viewAllRoute.name).config
 		expect(target.schema).toBe(source.schema)
+		// The lens is keyed 'Still open' (nl "Open"): the catalogue already
+		// translates the key 'Open' as the verb "Openen".
 		expect(target.quickFilters).toContainEqual({
-			label: 'Open',
+			label: 'Still open',
 			filter: source.filter,
+			showCount: true,
 		})
 		expect(pageOf(simple, list.rowRoute).type).toBe('detail')
 		// Today is late: zero days left is already the error colour.
@@ -459,9 +463,11 @@ describe.each([
 			quickFilterMaxVisible,
 			headerActions,
 			headerFilters,
+			columns,
 			...rest
 		}) => rest
 		// `headerFilters` is the full profile's pageDefaults, not this overlay.
+		// The columns follow the board: simpleProposalColumns.spec.js.
 		expect(strip(config)).toEqual(strip(before))
 	})
 })
@@ -473,13 +479,18 @@ describe('both', () => {
 		)
 		const seen = new Set()
 		JSON.stringify(overlay.configAppend, (key, value) => {
+			// A `{field}` title is a row template, not a text.
 			if (
 				['title', 'label', 'kicker', 'reason', 'emptyText'].includes(key)
 				&& typeof value === 'string'
+				&& !value.startsWith('{')
 			) {
 				seen.add(value)
 			}
-			if (key === 'labels') Object.values(value).forEach((v) => seen.add(v))
+			if (key === 'labels') {
+				// A row action's labels are `{ field, map }`; a pill's are the map.
+				Object.values(value.map ?? value).forEach((v) => seen.add(v))
+			}
 			return value
 		})
 		expect(seen.size).toBeGreaterThan(10)

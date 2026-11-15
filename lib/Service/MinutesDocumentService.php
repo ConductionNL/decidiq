@@ -32,6 +32,7 @@ use DateTimeImmutable;
 use InvalidArgumentException;
 use OCA\Decidiq\Exception\MissingObjectException;
 use OCA\Decidiq\Exception\MissingRelationException;
+use OCA\Decidiq\Kernel\Contracts\MinutesDocumentServiceInterface;
 use OCA\Decidiq\Support\FilinqPdf;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -43,7 +44,7 @@ use RuntimeException;
  *
  * @spec openspec/specs/resolution-minutes/spec.md
  */
-class MinutesDocumentService {
+class MinutesDocumentService implements MinutesDocumentServiceInterface {
 
 	/**
 	 * Formats the caller may request.
@@ -68,6 +69,13 @@ class MinutesDocumentService {
 	];
 
 	/**
+	 * Loads the minutes and their linked meeting under the caller's ACL.
+	 *
+	 * @var MinutesRecordReader
+	 */
+	private readonly MinutesRecordReader $reader;
+
+	/**
 	 * Constructor for MinutesDocumentService.
 	 *
 	 * @param FilinqPdf $filinqPdf Renders a PDF through filinq when it is installed
@@ -83,6 +91,7 @@ class MinutesDocumentService {
 		private readonly MeetingFolderService $folderService,
 		private readonly ObjectServiceInterface $objectService,
 	) {
+		$this->reader = new MinutesRecordReader(objectService: $objectService, logger: $logger);
 	}//end __construct()
 
 	/**
@@ -111,76 +120,112 @@ class MinutesDocumentService {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	public function generate(string $minutesId, string $format, string $displayName): array {
+		self::requireFormat(format: $format);
+
+		// The reader applies OpenRegister's ACL via the register/schema context (OWASP A01).
+		$minutes = $this->reader->require(minutesId: $minutesId);
+		$meeting = $this->requireLinkedMeeting(minutesId: $minutesId, minutes: $minutes);
+		$request = ($this->documentRequest(minutesId: $minutesId, minutes: $minutes) + ['format' => $format]);
+
+		$document = $this->storeDocument(meeting: $meeting, request: $request);
+		if ($document['path'] === null) {
+			throw new RuntimeException('The minutes document could not be stored: the Files backend is unavailable.', 503);
+		}
+
+		$record = self::documentRecord(document: $document, displayName: $displayName);
+		$this->recordGeneratedDocument(minutesId: $minutesId, minutes: self::withGeneratedDocument(minutes: $minutes, record: $record));
+
+		return self::documentResult(document: $document);
+	}//end generate()
+
+	/**
+	 * Refuse a format the caller may not request.
+	 *
+	 * @param string $format Requested format
+	 *
+	 * @return void
+	 *
+	 * @throws InvalidArgumentException When the format is not supported
+	 */
+	private static function requireFormat(string $format): void {
 		if (in_array($format, self::FORMATS, true) === false) {
 			throw new InvalidArgumentException(
 				sprintf('Unsupported format "%s". Supported: %s.', $format, implode(', ', self::FORMATS)),
 				422
 			);
 		}
+	}//end requireFormat()
 
-		$objectService = $this->getObjectService();
-
-		// ACL applies via session-scoped register/schema context (OWASP A01).
-		$objectService->setRegister('decidiq');
-		$objectService->setSchema('minutes');
-		$minutesEntity = $objectService->find($minutesId);
-
-		if ($minutesEntity === null) {
-			throw new MissingObjectException(
-				message: sprintf('Minutes object "%s" not found.', $minutesId)
-			);
-		}
-
-		$minutes = $minutesEntity->getObject();
-		$meeting = $this->resolveMeeting(minutes: $minutes, objectService: $objectService);
+	/**
+	 * The meeting the minutes link to; the document is stored in its folder.
+	 *
+	 * @param string              $minutesId UUID of the Minutes object
+	 * @param array<string,mixed> $minutes   The Minutes object data
+	 *
+	 * @return array<string,mixed> The meeting data
+	 *
+	 * @throws MissingRelationException When no Meeting is linked to the Minutes
+	 */
+	private function requireLinkedMeeting(string $minutesId, array $minutes): array {
+		$meeting = $this->reader->linkedMeeting(
+			minutes: $minutes,
+			failureLog: 'Decidiq: failed to fetch linked Meeting for document generation'
+		);
 
 		if ($meeting === null) {
 			throw new MissingRelationException(
-				message: sprintf(
-					'No linked Meeting found for Minutes "%s". A meeting link is required to store the document.',
-					$minutesId
-				)
+				message: sprintf('No linked Meeting found for Minutes "%s". A meeting link is required to store the document.', $minutesId)
 			);
 		}
 
-		$markdown = $this->resolveContent(minutes: $minutes, minutesId: $minutesId, objectService: $objectService);
+		return $meeting;
+	}//end requireLinkedMeeting()
 
+	/**
+	 * The document to store: its body, title and file name without extension.
+	 *
+	 * @param string              $minutesId UUID of the Minutes object
+	 * @param array<string,mixed> $minutes   The Minutes object data
+	 *
+	 * @return array{markdown: string, title: string, baseName: string}
+	 */
+	private function documentRequest(string $minutesId, array $minutes): array {
+		$markdown = $this->resolveContent(minutes: $minutes, minutesId: $minutesId);
 		$title = (string)($minutes['title'] ?? 'Minutes');
 		$version = (int)($minutes['version'] ?? 1);
 		$stamp = (new DateTimeImmutable())->format('Y-m-d Hi');
-		$baseName = sprintf('%s v%d %s', $title, $version, $stamp);
 
-		$document = $this->storeDocument(
-			meeting: $meeting,
-			baseName: $baseName,
-			markdown: $markdown,
-			title: $title,
-			format: $format
-		);
+		return ['markdown' => $markdown, 'title' => $title, 'baseName' => sprintf('%s v%d %s', $title, $version, $stamp)];
+	}//end documentRequest()
 
-		$path = $document['path'];
-		if ($path === null) {
-			throw new RuntimeException(
-				'The minutes document could not be stored: the Files backend is unavailable.',
-				503
-			);
-		}
+	/**
+	 * The generated-document record kept on the Minutes object.
+	 *
+	 * @param array<string,mixed> $document    The stored document
+	 * @param string              $displayName Display name of the requesting user
+	 *
+	 * @return array<string,mixed>
+	 */
+	private static function documentRecord(array $document, string $displayName): array {
+		return [
+			'path' => $document['path'],
+			'format' => $document['format'],
+			'generatedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
+			'generatedBy' => $displayName,
+			'docudesk' => $document['docudesk'],
+		];
+	}//end documentRecord()
 
-		$this->appendGeneratedDocument(
-			minutes: $minutes,
-			minutesId: $minutesId,
-			record: [
-				'path' => $path,
-				'format' => $document['format'],
-				'generatedAt' => (new DateTimeImmutable())->format(DateTimeImmutable::ATOM),
-				'generatedBy' => $displayName,
-				'docudesk' => $document['docudesk'],
-			],
-			objectService: $objectService
-		);
-
+	/**
+	 * What generate() answers: path, format, docudesk, and the note when there is one.
+	 *
+	 * @param array<string,mixed> $document The stored document
+	 *
+	 * @return array<string,mixed>
+	 */
+	private static function documentResult(array $document): array {
 		$result = [
-			'path' => $path,
+			'path' => $document['path'],
 			'format' => $document['format'],
 			'docudesk' => $document['docudesk'],
 		];
@@ -190,7 +235,7 @@ class MinutesDocumentService {
 		}
 
 		return $result;
-	}//end generate()
+	}//end documentResult()
 
 	/**
 	 * Render and persist the document, degrading from PDF to markdown honestly.
@@ -199,77 +244,78 @@ class MinutesDocumentService {
 	 * whenever no PDF path was produced the markdown document is written instead.
 	 *
 	 * @param array<string,mixed> $meeting The linked Meeting data
-	 * @param string $baseName File name without extension
-	 * @param string $markdown The markdown document body
-	 * @param string $title The document title (PDF metadata)
-	 * @param string $format Requested format ('markdown' or 'pdf')
+	 * @param array<string,mixed> $request The markdown body, title, base file name and requested format
 	 *
 	 * @return array{path: string|null, format: string, docudesk: bool, note: string|null}
 	 *
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
-	private function storeDocument(
-		array $meeting,
-		string $baseName,
-		string $markdown,
-		string $title,
-		string $format,
-	): array {
-		$produced = 'markdown';
-		$note = null;
-		$docudesk = false;
-		$path = null;
-		$pdfBytes = null;
-
-		if ($format === 'pdf') {
-			$pdfBytes = $this->tryDocudeskPdf(markdown: $markdown, title: $title);
-			if ($pdfBytes === null) {
-				$note = 'Docudesk is not available on this instance — a markdown document was produced instead of a PDF.';
-			}
-		}
+	private function storeDocument(array $meeting, array $request): array {
+		[$pdfBytes, $note] = $this->pdfAttempt(request: $request);
+		$document = ['path' => null, 'format' => 'markdown', 'docudesk' => false, 'note' => $note];
 
 		if ($pdfBytes !== null) {
-			$path = $this->folderService->writeMeetingFile(
-				meeting: $meeting,
-				subfolder: 'Minutes',
-				fileName: $baseName . '.pdf',
-				content: $pdfBytes
-			);
-			$produced = 'pdf';
-			$docudesk = true;
+			$document['path'] = $this->writeMinutesFile(meeting: $meeting, file: [$request['baseName'] . '.pdf', $pdfBytes]);
+			$document['format'] = 'pdf';
+			$document['docudesk'] = true;
 		}
 
-		if ($path === null) {
-			$path = $this->folderService->writeMeetingFile(
-				meeting: $meeting,
-				subfolder: 'Minutes',
-				fileName: $baseName . '.md',
-				content: $markdown
-			);
-			$produced = 'markdown';
+		if ($document['path'] === null) {
+			$document['path'] = $this->writeMinutesFile(meeting: $meeting, file: [$request['baseName'] . '.md', $request['markdown']]);
+			$document['format'] = 'markdown';
 		}
 
-		return [
-			'path' => $path,
-			'format' => $produced,
-			'docudesk' => $docudesk,
-			'note' => $note,
-		];
-
+		return $document;
 	}//end storeDocument()
+
+	/**
+	 * The PDF bytes when a PDF was asked for and rendered, and the note when it was asked for but not rendered.
+	 *
+	 * @param array<string,mixed> $request The markdown body, title and requested format
+	 *
+	 * @return array{0: string|null, 1: string|null} [pdfBytes, note]
+	 */
+	private function pdfAttempt(array $request): array {
+		if ($request['format'] !== 'pdf') {
+			return [null, null];
+		}
+
+		$pdfBytes = $this->tryDocudeskPdf(markdown: $request['markdown'], title: $request['title']);
+		if ($pdfBytes === null) {
+			return [null, 'Docudesk is not available on this instance — a markdown document was produced instead of a PDF.'];
+		}
+
+		return [$pdfBytes, null];
+	}//end pdfAttempt()
+
+	/**
+	 * Write one file into the meeting's Minutes folder.
+	 *
+	 * @param array<string,mixed>       $meeting The linked Meeting data
+	 * @param array{0: string, 1: string} $file  The file name and content
+	 *
+	 * @return string|null The path, or null when it could not be written
+	 */
+	private function writeMinutesFile(array $meeting, array $file): ?string {
+		return $this->folderService->writeMeetingFile(
+			meeting: $meeting,
+			subfolder: 'Minutes',
+			fileName: $file[0],
+			content: $file[1]
+		);
+	}//end writeMinutesFile()
 
 	/**
 	 * Resolve the document body: minutes content, draft fallback, live notes.
 	 *
 	 * @param array<string,mixed> $minutes The Minutes object data
 	 * @param string $minutesId UUID of the Minutes object
-	 * @param object $objectService OpenRegister ObjectService
 	 *
 	 * @return string Markdown document body
 	 *
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
-	private function resolveContent(array $minutes, string $minutesId, object $objectService): string {
+	private function resolveContent(array $minutes, string $minutesId): string {
 		$content = trim((string)($minutes['content'] ?? ''));
 
 		if ($content === '') {
@@ -283,29 +329,39 @@ class MinutesDocumentService {
 			return $content;
 		}
 
-		$content .= "\n\n---\n\n## Aantekeningen per agendapunt\n";
+		return $content . $this->itemNotesSection(itemNotes: $itemNotes);
+	}//end resolveContent()
+
+	/**
+	 * The live notes section: a heading and one block per agenda-item note.
+	 *
+	 * @param array<mixed> $itemNotes The itemNotes entries
+	 *
+	 * @return string Markdown section
+	 */
+	private function itemNotesSection(array $itemNotes): string {
+		$section = "\n\n---\n\n## Aantekeningen per agendapunt\n";
 		foreach ($itemNotes as $entry) {
 			if (is_array($entry) === false) {
 				continue;
 			}
 
-			$content .= $this->renderItemNote(entry: $entry, objectService: $objectService);
+			$section .= $this->renderItemNote(entry: $entry);
 		}
 
-		return $content;
-	}//end resolveContent()
+		return $section;
+	}//end itemNotesSection()
 
 	/**
 	 * Render one agenda-item note block; empty string when it carries nothing.
 	 *
 	 * @param array<string,mixed> $entry One itemNotes entry
-	 * @param object $objectService OpenRegister ObjectService
 	 *
 	 * @return string Markdown block (empty when notes and decisions are blank)
 	 *
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
-	private function renderItemNote(array $entry, object $objectService): string {
+	private function renderItemNote(array $entry): string {
 		$notes = trim((string)($entry['notes'] ?? ''));
 		$decisions = trim((string)($entry['decisions'] ?? ''));
 
@@ -314,12 +370,7 @@ class MinutesDocumentService {
 			return '';
 		}
 
-		$itemTitle = $this->resolveAgendaItemTitle(
-			agendaItemId: (string)($entry['agendaItem'] ?? ''),
-			objectService: $objectService
-		);
-
-		$block = "\n### " . $itemTitle . "\n";
+		$block = "\n### " . $this->resolveAgendaItemTitle(agendaItemId: (string)($entry['agendaItem'] ?? '')) . "\n";
 		if ($notes !== '') {
 			$block .= "\n" . $notes . "\n";
 		}
@@ -335,21 +386,16 @@ class MinutesDocumentService {
 	 * Resolve an agenda item's display title (fail-soft to the UUID).
 	 *
 	 * @param string $agendaItemId UUID of the agenda item
-	 * @param object $objectService OpenRegister ObjectService
 	 *
 	 * @return string Agenda item title or the UUID when unresolvable
 	 */
-	private function resolveAgendaItemTitle(string $agendaItemId, object $objectService): string {
+	private function resolveAgendaItemTitle(string $agendaItemId): string {
 		if ($agendaItemId === '') {
 			return 'Agendapunt';
 		}
 
 		try {
-			$entity = $objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
-			if ($entity !== null) {
-				$item = $entity->getObject();
-				return (string)($item['title'] ?? ($item['name'] ?? $agendaItemId));
-			}
+			return $this->lookupAgendaItemTitle(agendaItemId: $agendaItemId);
 		} catch (\Throwable $e) {
 			$this->logger->debug(
 				'Decidiq: agenda item title lookup failed for document generation',
@@ -359,6 +405,23 @@ class MinutesDocumentService {
 
 		return $agendaItemId;
 	}//end resolveAgendaItemTitle()
+
+	/**
+	 * The title, or else the name, of an agenda item; its UUID when it has neither or is missing.
+	 *
+	 * @param string $agendaItemId UUID of the agenda item
+	 *
+	 * @return string
+	 */
+	private function lookupAgendaItemTitle(string $agendaItemId): string {
+		$entity = $this->objectService->find(id: $agendaItemId, register: 'decidiq', schema: 'agenda-item');
+		if ($entity === null) {
+			return $agendaItemId;
+		}
+
+		$item = $entity->getObject();
+		return (string)($item['title'] ?? ($item['name'] ?? $agendaItemId));
+	}//end lookupAgendaItemTitle()
 
 	/**
 	 * Try to render a PDF via Docudesk; return null when Docudesk is absent
@@ -417,9 +480,7 @@ class MinutesDocumentService {
 	 * @spec openspec/specs/resolution-minutes/spec.md
 	 */
 	private function markdownLineToHtml(string $line): string {
-		$escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
-		$escaped = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
-		$escaped = preg_replace('/_(.+?)_/', '<em>$1</em>', $escaped) ?? $escaped;
+		$escaped = self::inlineHtml(line: $line);
 
 		foreach (self::BLOCK_PATTERNS as $pattern => $template) {
 			if (preg_match($pattern, $escaped, $matches) === 1) {
@@ -427,6 +488,17 @@ class MinutesDocumentService {
 			}
 		}
 
+		return self::plainLineHtml(escaped: $escaped);
+	}//end markdownLineToHtml()
+
+	/**
+	 * An escaped line that is no heading or list item: a rule, a blank line or a paragraph.
+	 *
+	 * @param string $escaped The escaped line
+	 *
+	 * @return string
+	 */
+	private static function plainLineHtml(string $escaped): string {
 		$trimmed = trim($escaped);
 		if ($trimmed === '---') {
 			return '<hr/>';
@@ -437,29 +509,50 @@ class MinutesDocumentService {
 		}
 
 		return '<p>' . $escaped . '</p>';
-	}//end markdownLineToHtml()
+	}//end plainLineHtml()
 
 	/**
-	 * Append a generated-document record on the Minutes object (fail-soft).
+	 * One markdown line HTML-escaped, with bold and emphasis substituted.
+	 *
+	 * @param string $line One raw markdown line
+	 *
+	 * @return string
+	 */
+	private static function inlineHtml(string $line): string {
+		$escaped = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
+		$escaped = preg_replace('/\*\*(.+?)\*\*/', '<strong>$1</strong>', $escaped) ?? $escaped;
+		return preg_replace('/_(.+?)_/', '<em>$1</em>', $escaped) ?? $escaped;
+	}//end inlineHtml()
+
+	/**
+	 * The Minutes object with a generated-document record appended.
 	 *
 	 * @param array<string,mixed> $minutes The Minutes object data
-	 * @param string $minutesId UUID of the Minutes object
-	 * @param array<string,mixed> $record The generated-document record
-	 * @param object $objectService OpenRegister ObjectService
+	 * @param array<string,mixed> $record  The generated-document record
+	 *
+	 * @return array<string,mixed>
+	 */
+	private static function withGeneratedDocument(array $minutes, array $record): array {
+		$documents = [];
+		if (is_array($minutes['generatedDocuments'] ?? null) === true) {
+			$documents = $minutes['generatedDocuments'];
+		}
+
+		$documents[] = $record;
+		return array_merge($minutes, ['generatedDocuments' => $documents]);
+	}//end withGeneratedDocument()
+
+	/**
+	 * Save the Minutes object with its generated-document record (fail-soft).
+	 *
+	 * @param string              $minutesId UUID of the Minutes object
+	 * @param array<string,mixed> $minutes   The Minutes object data with the record appended
 	 *
 	 * @return void
 	 */
-	private function appendGeneratedDocument(array $minutes, string $minutesId, array $record, object $objectService): void {
+	private function recordGeneratedDocument(string $minutesId, array $minutes): void {
 		try {
-			$documents = [];
-			if (is_array($minutes['generatedDocuments'] ?? null) === true) {
-				$documents = $minutes['generatedDocuments'];
-			}
-
-			$documents[] = $record;
-			$updated = array_merge($minutes, ['generatedDocuments' => $documents]);
-
-			$objectService->saveObject(object: $updated, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
+			$this->objectService->saveObject(object: $minutes, register: 'decidiq', schema: 'minutes', uuid: $minutesId);
 		} catch (\Throwable $e) {
 			// The document itself was persisted; a failed bookkeeping write must
 			// not fail the request. Log and continue.
@@ -468,63 +561,5 @@ class MinutesDocumentService {
 				['minutesId' => $minutesId, 'error' => $e->getMessage()]
 			);
 		}
-
-	}//end appendGeneratedDocument()
-
-	/**
-	 * Resolve the linked Meeting payload from the Minutes object.
-	 *
-	 * @param array<string,mixed> $minutes The Minutes object data
-	 * @param object $objectService OpenRegister ObjectService
-	 *
-	 * @return array<string,mixed>|null The Meeting data array or null
-	 */
-	private function resolveMeeting(array $minutes, object $objectService): ?array {
-		// A null relation casts to '' further down and is rejected there.
-		$meetingRelation = $minutes['relations']['meeting'] ?? $minutes['meeting'] ?? null;
-
-		if (is_array($meetingRelation) === true) {
-			if (isset($meetingRelation['id']) === true && $meetingRelation['id'] !== '') {
-				return $meetingRelation;
-			}
-
-			return null;
-		}
-
-		$meetingId = (string)$meetingRelation;
-		if ($meetingId === '') {
-			return null;
-		}
-
-		try {
-			$meetingEntity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-			if ($meetingEntity === null) {
-				return null;
-			}
-
-			return $meetingEntity->getObject();
-		} catch (\Throwable $e) {
-			$this->logger->warning(
-				'Decidiq: failed to fetch linked Meeting for document generation',
-				['meetingId' => $meetingId, 'error' => $e->getMessage()]
-			);
-			throw new RuntimeException(
-				'OpenRegister service is temporarily unavailable. Please try again later.',
-				503,
-				$e
-			);
-		}//end try
-
-	}//end resolveMeeting()
-
-	/**
-	 * The OpenRegister ObjectService, injected since ADR-083.
-	 *
-	 * @return object The OpenRegister ObjectService instance
-	 */
-	private function getObjectService(): object {
-		// Injected (ADR-083): a property read throws nothing, so the old
-		// catch was unreachable.
-		return $this->objectService;
-	}//end getObjectService()
+	}//end recordGeneratedDocument()
 }//end class

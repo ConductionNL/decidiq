@@ -42,7 +42,7 @@
     "extends @nextcloud/browserslist-config"
   ],
   "dependencies": {
-    "@conduction/nextcloud-vue": "^2.67.0",
+    "@conduction/nextcloud-vue": "^2.135.0",
     "@nextcloud/auth": "^2.6.0",
     "@nextcloud/axios": "~2.6.0",
     "@nextcloud/capabilities": "^1.2.1",
@@ -55,7 +55,6 @@
     "@nextcloud/vue": "^9.9.0",
     "@vue/compat": "^3.5.41",
     "@vueuse/core": "^14.4.0",
-    "axe-core": "^4.13.0",
     "dexie": "^4.4.6",
     "dompurify": "^3.4.15",
     "gridstack": "^12.6.0",
@@ -70,7 +69,13 @@
   "overrides": {
     "libxmljs2": "^0.37.0",
     "apexcharts": "4.7.0",
-    "@nextcloud/axios": "$@nextcloud/axios"
+    "@nextcloud/axios": "$@nextcloud/axios",
+    "@toast-ui/editor": {
+      "dompurify": "$dompurify"
+    },
+    "webdav": {
+      "minimatch": "^11.0.1"
+    }
   },
   "devDependencies": {
     "@babel/core": "^8.0.6",
@@ -84,6 +89,7 @@
     "@typescript-eslint/parser": "^8.69.0",
     "@vitest/coverage-v8": "^5.0.0",
     "@vue/compiler-sfc": "^3.5.43",
+    "axe-core": "^4.13.0",
     "css-loader": "~7.1.5",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",

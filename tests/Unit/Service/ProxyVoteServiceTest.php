@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -29,13 +29,12 @@ use OCA\Decidiq\Service\ProxyVoteService;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
-use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
  * Tests for ProxyVoteService.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.1
  */
 class ProxyVoteServiceTest extends TestCase {
 
@@ -51,7 +50,6 @@ class ProxyVoteServiceTest extends TestCase {
 	 *
 	 * @param array<int, array<string, mixed>> &$rows Existing rows
 	 * @param array<int, array<string, mixed>> &$saved Captured saves
-	 * @param int $maxProxies Configured max_proxies_per_holder app config value
 	 * @param bool $findAllFail When true the ObjectService::findAll() call throws (fail-closed path)
 	 * @param array<int, array<string, string>> $participants Fixture `participant` rows: ['uuid' => .., 'nextcloudUserId' => ..]
 	 * @param array<string, array<int, string>> $chairsByMeeting Map of meetingId => Nextcloud UIDs holding chair/secretary role
@@ -60,10 +58,8 @@ class ProxyVoteServiceTest extends TestCase {
 	 *                                                                                 (or fails); defaults to an identity map
 	 *                                                                                 (person = participantId) so every pre-existing
 	 *                                                                                 'g-1'/'h-1'-style assertion holds.
-	 * @param bool $appConfigThrows When true, resolving \OCP\IAppConfig from the container throws
-	 *                              (exercises maxProxiesPerHolder()'s fail-closed-to-default catch branch)
 	 * @param bool $saveObjectFails When true, ObjectService::saveObject() throws (exercises the
-	 *                              register()/transition() catch branches around the write)
+	 *                              transition() catch branch around the write)
 	 * @param bool $rowsAsEntities When true, findAll()'s normal (register/schema-context) path returns
 	 *                             ObjectEntity doubles instead of raw arrays, exercising forMeeting()'s
 	 *                             is_object()/jsonSerialize() conversion branch
@@ -73,12 +69,10 @@ class ProxyVoteServiceTest extends TestCase {
 	private function makeService(
 		array &$rows,
 		array &$saved,
-		int $maxProxies = 2,
 		bool $findAllFail = false,
 		array $participants = [],
 		array $chairsByMeeting = [],
 		array $crosswalk = [],
-		bool $appConfigThrows = false,
 		bool $saveObjectFails = false,
 		bool $rowsAsEntities = false,
 	): ProxyVoteService {
@@ -209,32 +203,6 @@ class ProxyVoteServiceTest extends TestCase {
 			}
 		);
 
-		$appConfig = $this->createMock(\OCP\IAppConfig::class);
-		$appConfig->method('getValueInt')->willReturnCallback(
-			static function (string $app, string $key, int $default = 0) use ($maxProxies): int {
-				if ($app === 'decidiq' && $key === ProxyVoteService::MAX_PROXIES_CONFIG_KEY) {
-					return $maxProxies;
-				}
-
-				return $default;
-			}
-		);
-
-		$container = $this->createMock(ContainerInterface::class);
-		$container->method('get')->willReturnCallback(
-			static function (string $id) use ($objectService, $appConfig, $appConfigThrows): object {
-				if ($id === \OCP\IAppConfig::class) {
-					if ($appConfigThrows === true) {
-						throw new \RuntimeException('IAppConfig unavailable');
-					}
-
-					return $appConfig;
-				}
-
-				return $objectService;
-			}
-		);
-
 		$this->auditCalls = new \ArrayObject();
 		$tracker = $this->auditCalls;
 		$audit = $this->createMock(AuditLogService::class);
@@ -284,7 +252,6 @@ class ProxyVoteServiceTest extends TestCase {
 		);
 
 		return new ProxyVoteService(
-			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
 			auditLogService: $audit,
 			participantResolver: $participantResolver,
@@ -293,116 +260,6 @@ class ProxyVoteServiceTest extends TestCase {
 		);
 
 	}//end makeService()
-
-	/**
-	 * register validates required fields.
-	 *
-	 * @return void
-	 */
-	public function testRegisterRequiresFields(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved);
-
-		$result = $svc->register('', 'g', 'h');
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('required', $result['message']);
-
-	}//end testRegisterRequiresFields()
-
-	/**
-	 * register rejects grantor == holder.
-	 *
-	 * @return void
-	 */
-	public function testRegisterRejectsSelfProxy(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved);
-
-		$result = $svc->register('m-1', 'g-1', 'g-1');
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('must differ', $result['message']);
-
-	}//end testRegisterRejectsSelfProxy()
-
-	/**
-	 * register stores a pending-approval row and audits proxy-created.
-	 *
-	 * @return void
-	 */
-	public function testRegisterStoresPendingAndAuditsCreated(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1', ['scope' => 'all-resolutions']);
-
-		$this->assertTrue($result['success']);
-		$this->assertSame('pending-approval', $saved[0]['proxyStatus']);
-		$this->assertSame('unsigned', $saved[0]['signatureStatus']);
-		$this->assertSame('m-1', $saved[0]['meeting']);
-
-		$calls = $this->auditCalls->getArrayCopy();
-		$this->assertCount(1, $calls);
-		$this->assertSame('proxy-created', $calls[0]['action']);
-
-	}//end testRegisterStoresPendingAndAuditsCreated()
-
-	/**
-	 * register() writes the schema's own `proxy-authorization` grantor/holder
-	 * fields with the crosswalk-resolved PERSON uuids, not the caller-supplied
-	 * Participant uuids — proven with a non-identity crosswalk map so a
-	 * regression to writing the raw Participant id turns this test red.
-	 *
-	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
-	 *
-	 * @return void
-	 */
-	public function testRegisterWritesCrosswalkResolvedPersonUuids(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService(
-			$rows,
-			$saved,
-			crosswalk: [
-				'g-1' => ['person' => 'person-grantor-1', 'membership' => 'membership-grantor-1'],
-				'h-1' => ['person' => 'person-holder-1', 'membership' => 'membership-holder-1'],
-			],
-		);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1');
-
-		$this->assertTrue($result['success']);
-		$this->assertSame('person-grantor-1', $saved[0]['grantor']);
-		$this->assertSame('person-holder-1', $saved[0]['holder']);
-
-	}//end testRegisterWritesCrosswalkResolvedPersonUuids()
-
-	/**
-	 * register() fails closed when the grantor or holder Participant cannot
-	 * be resolved to a Person record.
-	 *
-	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
-	 *
-	 * @return void
-	 */
-	public function testRegisterFailsWhenCrosswalkCannotResolveGrantorOrHolder(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService(
-			$rows,
-			$saved,
-			crosswalk: ['g-1' => null],
-		);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1');
-
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Could not resolve', $result['message']);
-		$this->assertCount(0, $saved);
-
-	}//end testRegisterFailsWhenCrosswalkCannotResolveGrantorOrHolder()
 
 	/**
 	 * suspend transitions proxyStatus to 'suspended' and does NOT audit
@@ -477,8 +334,10 @@ class ProxyVoteServiceTest extends TestCase {
 		$svc = $this->makeService($rows, $saved);
 
 		$result = $svc->transition('p-1', 'bogus', 'alice');
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Unknown proxy status', $result['message']);
+		$this->assertSame(
+			['success' => false, 'proxy' => null, 'message' => 'Unknown proxy status: bogus'],
+			$result
+		);
 
 	}//end testTransitionRejectsUnknownStatus()
 
@@ -506,202 +365,9 @@ class ProxyVoteServiceTest extends TestCase {
 	}//end testForMeetingReturnsRowsAndFilters()
 
 	/**
-	 * register rejects a holder who already holds the maximum number of ACTIVE
-	 * proxies in the meeting (per-member proxy limit, default 2).
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return void
-	 */
-	public function testRegisterRejectsHolderAtProxyCap(): void {
-		$rows = [
-			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-		];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved);
-
-		$result = $svc->register('m-1', 'g-3', 'h-1');
-
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Maximum number of proxies reached', $result['message']);
-		$this->assertCount(0, $saved, 'No proxy row may be written when the cap is reached');
-
-	}//end testRegisterRejectsHolderAtProxyCap()
-
-	/**
-	 * Non-active proxies (revoked/suspended/pending) and other meetings/holders
-	 * do not count toward the cap.
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return void
-	 */
-	public function testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder(): void {
-		$rows = [
-			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'revoked'],
-			['id' => 'p-3', 'meeting' => 'm-1', 'grantor' => 'g-3', 'holder' => 'h-1', 'proxyStatus' => 'suspended'],
-			['id' => 'p-4', 'meeting' => 'm-1', 'grantor' => 'g-4', 'holder' => 'h-1', 'proxyStatus' => 'pending-approval'],
-			['id' => 'p-5', 'meeting' => 'm-2', 'grantor' => 'g-5', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-6', 'meeting' => 'm-1', 'grantor' => 'g-6', 'holder' => 'h-2', 'proxyStatus' => 'active'],
-		];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved);
-
-		$result = $svc->register('m-1', 'g-7', 'h-1');
-
-		$this->assertTrue($result['success'], 'Only 1 ACTIVE proxy in m-1 for h-1 — under the cap of 2');
-		$this->assertSame('pending-approval', $saved[0]['proxyStatus']);
-
-	}//end testRegisterCapCountsOnlyActiveProxiesInMeetingForHolder()
-
-	/**
-	 * The cap is configurable via app config decidiq/max_proxies_per_holder.
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return void
-	 */
-	public function testRegisterCapIsConfigurable(): void {
-		$rows = [
-			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-		];
-		$saved = [];
-
-		// Raised cap (3): the third proxy is accepted.
-		$svc = $this->makeService($rows, $saved, 3);
-		$result = $svc->register('m-1', 'g-3', 'h-1');
-		$this->assertTrue($result['success']);
-
-		// A cap below 1 falls back to the default of 2 (never disables the limit).
-		$rows2 = [
-			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-		];
-		$saved2 = [];
-		$svc2 = $this->makeService($rows2, $saved2, 0);
-		$result = $svc2->register('m-1', 'g-3', 'h-1');
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Maximum number of proxies reached', $result['message']);
-
-	}//end testRegisterCapIsConfigurable()
-
-	/**
-	 * Fail closed: when existing proxies cannot be counted, registration is rejected.
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return void
-	 */
-	public function testRegisterFailsClosedWhenProxyCountUnavailable(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved, 2, true);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1');
-
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('registration refused', $result['message']);
-		$this->assertCount(0, $saved, 'No proxy row may be written when the count is unavailable');
-
-	}//end testRegisterFailsClosedWhenProxyCountUnavailable()
-
-	/**
-	 * register() allows self-grantor registration when callerUid resolves to grantorId.
-	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
-	 *
-	 * @return void
-	 */
-	public function testRegisterAllowsSelfGrantor(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService(
-			$rows,
-			$saved,
-			participants: [['uuid' => 'g-1', 'nextcloudUserId' => 'alice']]
-		);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1', callerUid: 'alice');
-		$this->assertTrue($result['success']);
-
-	}//end testRegisterAllowsSelfGrantor()
-
-	/**
-	 * register() allows a chair to register a proxy on behalf of two other members.
-	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
-	 *
-	 * @return void
-	 */
-	public function testRegisterAllowsChairOnBehalfOfOthers(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService(
-			$rows,
-			$saved,
-			participants: [
-				['uuid' => 'g-1', 'nextcloudUserId' => 'alice'],
-				['uuid' => 'h-1', 'nextcloudUserId' => 'bob'],
-			],
-			chairsByMeeting: ['m-1' => ['chair-carol']]
-		);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1', callerUid: 'chair-carol');
-		$this->assertTrue($result['success']);
-
-	}//end testRegisterAllowsChairOnBehalfOfOthers()
-
-	/**
-	 * register() rejects an unrelated authenticated user with a Forbidden message.
-	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
-	 *
-	 * @return void
-	 */
-	public function testRegisterRejectsUnrelatedCaller(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService(
-			$rows,
-			$saved,
-			participants: [
-				['uuid' => 'g-1', 'nextcloudUserId' => 'alice'],
-				['uuid' => 'h-1', 'nextcloudUserId' => 'bob'],
-				['uuid' => 'c-1', 'nextcloudUserId' => 'carol'],
-			]
-		);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1', callerUid: 'carol');
-		$this->assertFalse($result['success']);
-		$this->assertStringStartsWith('Forbidden:', $result['message']);
-		$this->assertCount(0, $saved, 'No proxy row may be written for an unauthorized caller');
-
-	}//end testRegisterRejectsUnrelatedCaller()
-
-	/**
-	 * register() allows a null callerUid (admin bypass convention).
-	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-001-only-the-grantor-or-an-authorized-official-may-register-a-proxy
-	 *
-	 * @return void
-	 */
-	public function testRegisterAllowsAdminBypassViaNullCallerUid(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1', callerUid: null);
-		$this->assertTrue($result['success']);
-
-	}//end testRegisterAllowsAdminBypassViaNullCallerUid()
-
-	/**
 	 * suspend()/revoke() allow the proxy's grantor or holder to transition it.
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */
@@ -732,7 +398,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 * suspend()/revoke() reject an unrelated authenticated user (IDOR guard),
 	 * leaving the proxy's status unchanged.
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */
@@ -753,8 +419,14 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$result = $svc->revoke('p-1', 'carol', callerUid: 'carol');
 
-		$this->assertFalse($result['success']);
-		$this->assertStringStartsWith('Forbidden:', $result['message']);
+		$this->assertSame(
+			[
+				'success' => false,
+				'proxy' => null,
+				'message' => 'Forbidden: only the proxy\'s grantor, its holder, a chair/clerk of the meeting, or an admin may change its status.',
+			],
+			$result
+		);
 		$this->assertSame('active', $rows[0]['proxyStatus'], 'Unrelated caller must not change the proxy status');
 		$this->assertCount(0, $saved, 'No save may occur for an unauthorized transition');
 
@@ -764,7 +436,7 @@ class ProxyVoteServiceTest extends TestCase {
 	 * suspend()/revoke() allow a chair/clerk of the meeting to transition
 	 * a proxy they are not a party to.
 	 *
-	 * @spec openspec/changes/board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
+	 * @spec openspec/changes/archive/2026-11-12-board-proxy-vote-authorization-guard/specs/board-proxy-voting/spec.md#requirement-req-bpv-002-only-a-party-to-the-proxy-or-an-authorized-official-may-suspend-or-revoke-it
 	 *
 	 * @return void
 	 */
@@ -783,77 +455,6 @@ class ProxyVoteServiceTest extends TestCase {
 		$this->assertTrue($result['success']);
 
 	}//end testSuspendAllowsChairOfMeeting()
-
-	/**
-	 * maxProxiesPerHolder() fails closed to the NL governance default (2) when
-	 * the app config lookup throws — the configured value (99) is proven NOT
-	 * to leak through by seeding exactly 2 existing active proxies for the
-	 * holder and asserting the third registration is still rejected.
-	 *
-	 * @spec openspec/specs/voting-system/spec.md
-	 *
-	 * @return void
-	 */
-	public function testMaxProxiesPerHolderFallsBackToDefaultWhenAppConfigLookupThrows(): void {
-		$rows = [
-			['id' => 'p-1', 'meeting' => 'm-1', 'grantor' => 'g-1', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-			['id' => 'p-2', 'meeting' => 'm-1', 'grantor' => 'g-2', 'holder' => 'h-1', 'proxyStatus' => 'active'],
-		];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved, maxProxies: 99, appConfigThrows: true);
-
-		$result = $svc->register('m-1', 'g-3', 'h-1');
-
-		$this->assertFalse($result['success'], 'A thrown app config lookup must fall back to the default cap of 2, not the configured 99');
-		$this->assertStringContainsString('Maximum number of proxies reached', $result['message']);
-		$this->assertCount(0, $saved);
-
-	}//end testMaxProxiesPerHolderFallsBackToDefaultWhenAppConfigLookupThrows()
-
-	/**
-	 * register() fails when the holder (but not the grantor) cannot be
-	 * resolved to a Person record — the OR condition's second operand.
-	 *
-	 * @spec openspec/changes/archive/2026-08-19-model-debt-cleanup-code/design.md#decision-3-proxyvoteservicecontroller-rewrite--property-mapping
-	 *
-	 * @return void
-	 */
-	public function testRegisterFailsWhenCrosswalkCannotResolveHolderOnly(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService(
-			$rows,
-			$saved,
-			crosswalk: ['h-1' => null],
-		);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1');
-
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Could not resolve', $result['message']);
-		$this->assertCount(0, $saved);
-
-	}//end testRegisterFailsWhenCrosswalkCannotResolveHolderOnly()
-
-	/**
-	 * register() reports the write failure and writes nothing when
-	 * ObjectService::saveObject() throws.
-	 *
-	 * @return void
-	 */
-	public function testRegisterFailsWhenSaveObjectThrows(): void {
-		$rows = [];
-		$saved = [];
-		$svc = $this->makeService($rows, $saved, saveObjectFails: true);
-
-		$result = $svc->register('m-1', 'g-1', 'h-1');
-
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Failed to register proxy', $result['message']);
-		$this->assertCount(0, $saved);
-		$this->assertCount(0, $this->auditCalls->getArrayCopy(), 'A failed write must not be audited as created');
-
-	}//end testRegisterFailsWhenSaveObjectThrows()
 
 	/**
 	 * transition() reports "Proxy not found." when no row matches the given
@@ -890,12 +491,32 @@ class ProxyVoteServiceTest extends TestCase {
 
 		$result = $svc->transition('p-1', 'suspended', 'alice');
 
-		$this->assertFalse($result['success']);
-		$this->assertStringContainsString('Failed to transition proxy', $result['message']);
+		$this->assertSame(
+			['success' => false, 'proxy' => null, 'message' => 'Failed to transition proxy.'],
+			$result
+		);
 		$this->assertSame('active', $rows[0]['proxyStatus'], 'The row must not change when the write fails');
 		$this->assertCount(0, $this->auditCalls->getArrayCopy());
 
 	}//end testTransitionFailsWhenSaveObjectThrows()
+
+	/**
+	 * forMeeting() reports a failure, not an empty register, when the rows
+	 * cannot be read.
+	 *
+	 * @return void
+	 */
+	public function testForMeetingReportsFailureWhenRowsCannotBeRead(): void {
+		$rows = [['id' => 'p-1', 'meeting' => 'm-1', 'proxyStatus' => 'active']];
+		$saved = [];
+		$svc = $this->makeService(rows: $rows, saved: $saved, findAllFail: true);
+
+		$result = $svc->forMeeting(meetingId: 'm-1');
+
+		$this->assertFalse(condition: $result['success']);
+		$this->assertSame(expected: 0, actual: $result['count']);
+
+	}//end testForMeetingReportsFailureWhenRowsCannotBeRead()
 
 	/**
 	 * forMeeting() converts real ObjectEntity-shaped rows (as findAll() returns

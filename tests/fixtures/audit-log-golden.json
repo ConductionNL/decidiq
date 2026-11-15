@@ -1,0 +1,1588 @@
+{
+    "append-unknown-action": {
+        "returns": {
+            "success": false,
+            "entry": null,
+            "message": "Unknown action: dance"
+        },
+        "calls": []
+    },
+    "append-no-uids": {
+        "returns": {
+            "success": false,
+            "entry": null,
+            "message": "An audit entry must reference at least one object uid."
+        },
+        "calls": [
+            {
+                "error": "Decidiq: audit append refused — no object uids to attach the entry to",
+                "context": {
+                    "actor": "anna",
+                    "action": "vote"
+                }
+            }
+        ]
+    },
+    "append-resolves-third": {
+        "returns": {
+            "success": true,
+            "entry": {
+                "id": "e-new",
+                "actorUuid": "anna",
+                "action": "vote",
+                "objectUids": [
+                    "i-1",
+                    "o-0",
+                    "o-1",
+                    "o-2",
+                    "o-3"
+                ],
+                "timestamp": "2026-04-01T06:00:00Z",
+                "payload": {
+                    "choice": "for"
+                },
+                "currentHash": "",
+                "previousHash": "h5"
+            },
+            "message": "Audit log entry appended."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "i-1"
+                }
+            },
+            {
+                "find": {
+                    "id": "o-0"
+                }
+            },
+            {
+                "find": {
+                    "id": "o-1"
+                }
+            },
+            {
+                "createAuditTrailEntry": [
+                    {
+                        "id": "o-1"
+                    },
+                    "decidiq.audit.vote",
+                    {
+                        "actorUuid": "anna",
+                        "objectUids": [
+                            "i-1",
+                            "o-0",
+                            "o-1",
+                            "o-2",
+                            "o-3"
+                        ],
+                        "payload": {
+                            "choice": "for"
+                        }
+                    }
+                ]
+            },
+            {
+                "info": "Decidiq: audit log entry appended to the OR audit trail",
+                "context": {
+                    "actor": "anna",
+                    "action": "vote",
+                    "entryUuid": "e-new"
+                }
+            }
+        ]
+    },
+    "append-zero-uid": {
+        "returns": {
+            "success": true,
+            "entry": {
+                "id": "e-new",
+                "actorUuid": "system",
+                "action": "signature",
+                "objectUids": [
+                    "0",
+                    "o-1"
+                ],
+                "timestamp": "2026-04-01T06:00:00Z",
+                "payload": [],
+                "currentHash": "",
+                "previousHash": "h5"
+            },
+            "message": "Audit log entry appended."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "0"
+                }
+            },
+            {
+                "find": {
+                    "id": "o-1"
+                }
+            },
+            {
+                "createAuditTrailEntry": [
+                    {
+                        "id": "o-1"
+                    },
+                    "decidiq.audit.signature",
+                    {
+                        "actorUuid": "system",
+                        "objectUids": [
+                            "0",
+                            "o-1"
+                        ],
+                        "payload": []
+                    }
+                ]
+            },
+            {
+                "info": "Decidiq: audit log entry appended to the OR audit trail",
+                "context": {
+                    "actor": "system",
+                    "action": "signature",
+                    "entryUuid": "e-new"
+                }
+            }
+        ]
+    },
+    "append-nothing-resolves": {
+        "returns": {
+            "success": false,
+            "entry": null,
+            "message": "No referenced object uid resolves to an OpenRegister object."
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "o-0"
+                }
+            },
+            {
+                "find": {
+                    "id": "x-1"
+                }
+            },
+            {
+                "error": "Decidiq: audit append failed — none of the referenced object uids resolve to an OpenRegister object",
+                "context": {
+                    "actor": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-0",
+                        "x-1"
+                    ]
+                }
+            }
+        ]
+    },
+    "append-mapper-throws": {
+        "returns": {
+            "success": false,
+            "entry": null,
+            "message": "Failed to append audit log entry: trail down"
+        },
+        "calls": [
+            {
+                "find": {
+                    "id": "o-1"
+                }
+            },
+            {
+                "createAuditTrailEntry": [
+                    {
+                        "id": "o-1"
+                    },
+                    "decidiq.audit.proxy-created",
+                    {
+                        "actorUuid": "anna",
+                        "objectUids": [
+                            "o-1"
+                        ],
+                        "payload": []
+                    }
+                ]
+            },
+            {
+                "error": "Decidiq: failed to append audit log entry to the OR audit trail",
+                "context": {
+                    "actor": "anna",
+                    "action": "proxy-created",
+                    "exception": "trail down"
+                }
+            }
+        ]
+    },
+    "verify-all": {
+        "returns": {
+            "valid": true,
+            "checked": 5,
+            "tampered": []
+        },
+        "calls": [
+            {
+                "verifyChain": []
+            }
+        ]
+    },
+    "verify-broken": {
+        "returns": {
+            "valid": false,
+            "checked": 3,
+            "tampered": [
+                "4"
+            ]
+        },
+        "calls": [
+            {
+                "verifyChain": []
+            }
+        ]
+    },
+    "verify-empty-result": {
+        "returns": {
+            "valid": false,
+            "checked": 0,
+            "tampered": []
+        },
+        "calls": [
+            {
+                "verifyChain": []
+            }
+        ]
+    },
+    "verify-to-entry": {
+        "returns": {
+            "valid": true,
+            "checked": 2,
+            "tampered": []
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 1,
+                    "offset": 0,
+                    "filters": {
+                        "uuid": "e-2"
+                    }
+                }
+            },
+            {
+                "verifyChain": {
+                    "to": 2
+                }
+            }
+        ]
+    },
+    "verify-unknown-entry": {
+        "returns": {
+            "valid": false,
+            "checked": 0,
+            "tampered": []
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 1,
+                    "offset": 0,
+                    "filters": {
+                        "uuid": "e-404"
+                    }
+                }
+            }
+        ]
+    },
+    "verify-throws": {
+        "returns": {
+            "valid": false,
+            "checked": 0,
+            "tampered": []
+        },
+        "calls": [
+            {
+                "verifyChain": []
+            },
+            {
+                "error": "Decidiq: failed to verify the OR audit chain",
+                "context": {
+                    "exception": "chain unreadable"
+                }
+            }
+        ]
+    },
+    "export-json": {
+        "returns": {
+            "success": true,
+            "format": "json",
+            "body": "{\"entries\":[{\"id\":\"e-2\",\"actorUuid\":\"bob, jr\",\"action\":\"signature\",\"objectUids\":[\"o-3\"],\"timestamp\":\"2026-01-15T11:30:00Z\",\"payload\":{\"link\":\"https://x/y\"},\"currentHash\":\"\",\"previousHash\":\"\"},{\"id\":\"3\",\"actorUuid\":\"\",\"action\":\"vote\",\"objectUids\":[],\"timestamp\":\"2026-01-31T23:00:00Z\",\"payload\":[],\"currentHash\":\"\",\"previousHash\":\"\"},{\"id\":\"e-\\\"5\\\"\",\"actorUuid\":\"anna\",\"action\":\"notice-sent\",\"objectUids\":[\"o-5\"],\"timestamp\":\"2026-03-01T22:59:59Z\",\"payload\":[],\"currentHash\":\"\",\"previousHash\":\"\"}]}",
+            "count": 3
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "export-csv-upper": {
+        "returns": {
+            "success": true,
+            "format": "csv",
+            "body": "id,timestamp,actor,action,objectUids,previousHash,currentHash\ne-2,2026-01-15T11:30:00Z,\"bob, jr\",signature,\"o-3\",,\n3,2026-01-31T23:00:00Z,,vote,\"\",,\n\"e-\"\"5\"\"\",2026-03-01T22:59:59Z,anna,notice-sent,\"o-5\",,\n\"'=HYPERLINK(\"\"https://evil.example\"\",\"\"open\"\")\",2026-03-02T07:00:00Z,\"dora, \"\"the\"\"\r\nchair\",vote,\"'+o-3|o-1,o-2|say \"\"hi\"\"\",'-h5,'@h6\n\"'\re-7\",2026-03-03T08:15:00Z,\"'\tsum\nline\",signature,\"'=1+1|o-4\nnext\",'@h6,h7\n\"e-8;'=2+2;\",2026-03-04T09:00:00Z,\"fay;'=1+1;\",\"'=HYPERLINK(\"\"https://evil.example\"\");x\",\"o-1;'=3+3\",\"\n'@h7\",' =4+4\ne-9,2026-03-05T10:00:00Z,'  +SUM(A1),\"'-other;x\",\"o-2\",\"h8; x\", h9",
+            "count": 7
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "export-csv-hashed": {
+        "returns": {
+            "success": true,
+            "format": "csv",
+            "body": "id,timestamp,actor,action,objectUids,previousHash,currentHash\ne-1,2025-12-31T23:00:00Z,anna,vote,\"o-2|o-1\",h0,h1\ne-2,2026-01-15T11:30:00Z,\"bob, jr\",signature,\"o-3\",,\n3,2026-01-31T23:00:00Z,,vote,\"\",,\n\"e-\"\"5\"\"\",2026-03-01T22:59:59Z,anna,notice-sent,\"o-5\",,\n\"'=HYPERLINK(\"\"https://evil.example\"\",\"\"open\"\")\",2026-03-02T07:00:00Z,\"dora, \"\"the\"\"\r\nchair\",vote,\"'+o-3|o-1,o-2|say \"\"hi\"\"\",'-h5,'@h6\n\"'\re-7\",2026-03-03T08:15:00Z,\"'\tsum\nline\",signature,\"'=1+1|o-4\nnext\",'@h6,h7\n\"e-8;'=2+2;\",2026-03-04T09:00:00Z,\"fay;'=1+1;\",\"'=HYPERLINK(\"\"https://evil.example\"\");x\",\"o-1;'=3+3\",\"\n'@h7\",' =4+4\ne-9,2026-03-05T10:00:00Z,'  +SUM(A1),\"'-other;x\",\"o-2\",\"h8; x\", h9",
+            "count": 8
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "export-unknown-format": {
+        "returns": {
+            "success": false,
+            "format": "xml",
+            "body": "",
+            "count": 0
+        },
+        "calls": []
+    },
+    "export-load-throws": {
+        "returns": {
+            "success": false,
+            "format": "csv",
+            "body": "",
+            "count": 0
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            },
+            {
+                "error": "Decidiq: failed to load audit log for export",
+                "context": {
+                    "exception": "trail unreadable"
+                }
+            }
+        ]
+    },
+    "export-none": {
+        "returns": {
+            "success": true,
+            "format": "json",
+            "body": "{\"entries\":[]}",
+            "count": 0
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-all": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
+                },
+                {
+                    "id": "e-8;=2+2;",
+                    "actorUuid": "fay;=1+1;",
+                    "action": "=HYPERLINK(\"https://evil.example\");x",
+                    "objectUids": [
+                        "o-1;=3+3"
+                    ],
+                    "timestamp": "2026-03-04T09:00:00Z",
+                    "payload": [],
+                    "currentHash": " =4+4",
+                    "previousHash": "\n@h7"
+                },
+                {
+                    "id": "e-9",
+                    "actorUuid": "  +SUM(A1)",
+                    "action": "-other;x",
+                    "objectUids": [
+                        "o-2"
+                    ],
+                    "timestamp": "2026-03-05T10:00:00Z",
+                    "payload": [],
+                    "currentHash": " h9",
+                    "previousHash": "h8; x"
+                }
+            ],
+            "count": 9
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-actor": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                }
+            ],
+            "count": 2
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-action": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                }
+            ],
+            "count": 3
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-unknown-action": {
+        "returns": {
+            "success": true,
+            "entries": [],
+            "count": 0
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-dates": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                }
+            ],
+            "count": 2
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-int-uid": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                }
+            ],
+            "count": 1
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-default-limit": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
+                },
+                {
+                    "id": "e-8;=2+2;",
+                    "actorUuid": "fay;=1+1;",
+                    "action": "=HYPERLINK(\"https://evil.example\");x",
+                    "objectUids": [
+                        "o-1;=3+3"
+                    ],
+                    "timestamp": "2026-03-04T09:00:00Z",
+                    "payload": [],
+                    "currentHash": " =4+4",
+                    "previousHash": "\n@h7"
+                },
+                {
+                    "id": "e-9",
+                    "actorUuid": "  +SUM(A1)",
+                    "action": "-other;x",
+                    "objectUids": [
+                        "o-2"
+                    ],
+                    "timestamp": "2026-03-05T10:00:00Z",
+                    "payload": [],
+                    "currentHash": " h9",
+                    "previousHash": "h8; x"
+                },
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
+                },
+                {
+                    "id": "e-8;=2+2;",
+                    "actorUuid": "fay;=1+1;",
+                    "action": "=HYPERLINK(\"https://evil.example\");x",
+                    "objectUids": [
+                        "o-1;=3+3"
+                    ],
+                    "timestamp": "2026-03-04T09:00:00Z",
+                    "payload": [],
+                    "currentHash": " =4+4",
+                    "previousHash": "\n@h7"
+                },
+                {
+                    "id": "e-9",
+                    "actorUuid": "  +SUM(A1)",
+                    "action": "-other;x",
+                    "objectUids": [
+                        "o-2"
+                    ],
+                    "timestamp": "2026-03-05T10:00:00Z",
+                    "payload": [],
+                    "currentHash": " h9",
+                    "previousHash": "h8; x"
+                },
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
+                },
+                {
+                    "id": "e-8;=2+2;",
+                    "actorUuid": "fay;=1+1;",
+                    "action": "=HYPERLINK(\"https://evil.example\");x",
+                    "objectUids": [
+                        "o-1;=3+3"
+                    ],
+                    "timestamp": "2026-03-04T09:00:00Z",
+                    "payload": [],
+                    "currentHash": " =4+4",
+                    "previousHash": "\n@h7"
+                },
+                {
+                    "id": "e-9",
+                    "actorUuid": "  +SUM(A1)",
+                    "action": "-other;x",
+                    "objectUids": [
+                        "o-2"
+                    ],
+                    "timestamp": "2026-03-05T10:00:00Z",
+                    "payload": [],
+                    "currentHash": " h9",
+                    "previousHash": "h8; x"
+                }
+            ],
+            "count": 27
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-object": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                }
+            ],
+            "count": 2
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-object-from-row": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                }
+            ],
+            "count": 1
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-page": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                }
+            ],
+            "count": 9
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-limit-zero": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
+                },
+                {
+                    "id": "e-8;=2+2;",
+                    "actorUuid": "fay;=1+1;",
+                    "action": "=HYPERLINK(\"https://evil.example\");x",
+                    "objectUids": [
+                        "o-1;=3+3"
+                    ],
+                    "timestamp": "2026-03-04T09:00:00Z",
+                    "payload": [],
+                    "currentHash": " =4+4",
+                    "previousHash": "\n@h7"
+                },
+                {
+                    "id": "e-9",
+                    "actorUuid": "  +SUM(A1)",
+                    "action": "-other;x",
+                    "objectUids": [
+                        "o-2"
+                    ],
+                    "timestamp": "2026-03-05T10:00:00Z",
+                    "payload": [],
+                    "currentHash": " h9",
+                    "previousHash": "h8; x"
+                }
+            ],
+            "count": 9
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-null-filters": {
+        "returns": {
+            "success": true,
+            "entries": [
+                {
+                    "id": "e-1",
+                    "actorUuid": "anna",
+                    "action": "vote",
+                    "objectUids": [
+                        "o-2",
+                        "o-1"
+                    ],
+                    "timestamp": "2025-12-31T23:00:00Z",
+                    "payload": {
+                        "choice": "for",
+                        "url": "https://x/y"
+                    },
+                    "currentHash": "h1",
+                    "previousHash": "h0"
+                },
+                {
+                    "id": "e-2",
+                    "actorUuid": "bob, jr",
+                    "action": "signature",
+                    "objectUids": [
+                        "o-3"
+                    ],
+                    "timestamp": "2026-01-15T11:30:00Z",
+                    "payload": {
+                        "link": "https://x/y"
+                    },
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "3",
+                    "actorUuid": "",
+                    "action": "vote",
+                    "objectUids": [],
+                    "timestamp": "2026-01-31T23:00:00Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-4",
+                    "actorUuid": "carl",
+                    "action": "other.action",
+                    "objectUids": [
+                        "7",
+                        "o-1"
+                    ],
+                    "timestamp": "",
+                    "payload": [
+                        "not a list"
+                    ],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "e-\"5\"",
+                    "actorUuid": "anna",
+                    "action": "notice-sent",
+                    "objectUids": [
+                        "o-5"
+                    ],
+                    "timestamp": "2026-03-01T22:59:59Z",
+                    "payload": [],
+                    "currentHash": "",
+                    "previousHash": ""
+                },
+                {
+                    "id": "=HYPERLINK(\"https://evil.example\",\"open\")",
+                    "actorUuid": "dora, \"the\"\r\nchair",
+                    "action": "vote",
+                    "objectUids": [
+                        "+o-3",
+                        "o-1,o-2",
+                        "say \"hi\""
+                    ],
+                    "timestamp": "2026-03-02T07:00:00Z",
+                    "payload": {
+                        "choice": "against"
+                    },
+                    "currentHash": "@h6",
+                    "previousHash": "-h5"
+                },
+                {
+                    "id": "\re-7",
+                    "actorUuid": "\tsum\nline",
+                    "action": "signature",
+                    "objectUids": [
+                        "=1+1",
+                        "o-4\nnext"
+                    ],
+                    "timestamp": "2026-03-03T08:15:00Z",
+                    "payload": [],
+                    "currentHash": "h7",
+                    "previousHash": "@h6"
+                },
+                {
+                    "id": "e-8;=2+2;",
+                    "actorUuid": "fay;=1+1;",
+                    "action": "=HYPERLINK(\"https://evil.example\");x",
+                    "objectUids": [
+                        "o-1;=3+3"
+                    ],
+                    "timestamp": "2026-03-04T09:00:00Z",
+                    "payload": [],
+                    "currentHash": " =4+4",
+                    "previousHash": "\n@h7"
+                },
+                {
+                    "id": "e-9",
+                    "actorUuid": "  +SUM(A1)",
+                    "action": "-other;x",
+                    "objectUids": [
+                        "o-2"
+                    ],
+                    "timestamp": "2026-03-05T10:00:00Z",
+                    "payload": [],
+                    "currentHash": " h9",
+                    "previousHash": "h8; x"
+                }
+            ],
+            "count": 9
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            }
+        ]
+    },
+    "query-load-throws": {
+        "returns": {
+            "success": false,
+            "entries": [],
+            "count": 0
+        },
+        "calls": [
+            {
+                "findAll": {
+                    "limit": 10000,
+                    "offset": 0,
+                    "filters": {
+                        "action": "decidiq.audit.vote,decidiq.audit.conflict-declaration,decidiq.audit.material-access,decidiq.audit.signature,decidiq.audit.notice-sent,decidiq.audit.proxy-created,decidiq.audit.proxy-revoked,decidiq.audit.decision-transition,decidiq.audit.series-generated,decidiq.audit.integration-create,decidiq.audit.integration-subscribe,decidiq.audit.transcript-retention-purge"
+                    },
+                    "sort": {
+                        "created": "ASC"
+                    }
+                }
+            },
+            {
+                "error": "Decidiq: failed to load audit log for query",
+                "context": {
+                    "exception": "trail unreadable"
+                }
+            }
+        ]
+    }
+}

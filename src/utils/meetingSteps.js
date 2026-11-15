@@ -13,7 +13,7 @@
  * No Vue in here, so the bar and its spec read one implementation. The one
  * request lives here too (`fetchOfferedSteps`), so the spec can watch it.
  *
- * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
  */
 
 import axios from '@nextcloud/axios'
@@ -27,6 +27,12 @@ export const MEETING_STEPS = ['draft', 'scheduled', 'opened', 'closed']
 export const MEETING_BREAKS = ['paused', 'adjourned']
 
 /**
+ * The states off the bar: a cancelled meeting (an imported ORI `afgelast`)
+ * never took place, so it stands on no step.
+ */
+export const MEETING_OFF_BAR = ['cancelled']
+
+/**
  * The English source label of every state. The same words the Stage block
  * and the status pill use.
  */
@@ -37,6 +43,7 @@ export const MEETING_STATE_LABELS = {
 	paused: 'Paused',
 	adjourned: 'Adjourned',
 	closed: 'Closed',
+	cancelled: 'Cancelled',
 }
 
 /**
@@ -56,7 +63,7 @@ export const MEETING_NEXT_ACTION = {
  *
  * @param {string} lifecycle The meeting's state.
  * @return {string} One of MEETING_STEPS, or '' for a state the bar does not know.
- * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
  */
 export function stepOf(lifecycle) {
 	if (MEETING_BREAKS.includes(lifecycle)) {
@@ -73,7 +80,7 @@ export function stepOf(lifecycle) {
  *
  * @param {string} lifecycle The meeting's state.
  * @return {Array<{state: string, status: string}>} The steps.
- * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-003-a-step-bar-shows-where-the-meeting-stands
  */
 export function buildMeetingSteps(lifecycle) {
 	const at = MEETING_STEPS.indexOf(stepOf(lifecycle))
@@ -98,7 +105,7 @@ export function buildMeetingSteps(lifecycle) {
  * @param {string} lifecycle The meeting's state.
  * @param {string[]} offered The steps the server offers the caller.
  * @return {boolean} False when the caller would be refused the next step.
- * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
  */
 export function nextStepIsOffered(lifecycle, offered) {
 	const action = MEETING_NEXT_ACTION[lifecycle]
@@ -119,7 +126,7 @@ export function nextStepIsOffered(lifecycle, offered) {
  *
  * @param {string|number} meetingId The meeting's id.
  * @return {Promise<string[]|null>} The offered steps, or null without a usable answer.
- * @spec openspec/changes/simple-meeting-page/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
+ * @spec openspec/specs/meeting-detail-view/spec.md#requirement-req-smp-004-the-page-says-who-takes-the-next-step
  */
 export async function fetchOfferedSteps(meetingId) {
 	if (!meetingId) {

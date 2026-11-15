@@ -34,6 +34,7 @@ use Psr\Log\NullLogger;
  *
  * @covers \OCA\Decidiq\Service\PublicationEventRecorder
  * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  *
  * @spec openspec/specs/public-publication/spec.md#requirement-req-psd-002-agendas-papers-decisions-and-minutes-are-recorded-as-events
  */

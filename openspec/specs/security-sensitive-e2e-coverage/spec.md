@@ -1,16 +1,12 @@
----
-status: done
----
-
 # security-sensitive-e2e-coverage Specification
 
 ## Purpose
-Security-relevant routes (proxy-vote delegation, eIDAS signing, governance reports and regulator exports) are exercised through Nextcloud's real HTTP and auth stack, not only by unit tests that call the controller directly. Covered by the Newman collection tests/integration/decidiq-security-flow-e2e.postman_collection.json. Built by security-flow-e2e-coverage (archived 2026-10-10).
+End-to-end coverage, through the real Nextcloud HTTP and auth stack, of the security-sensitive decidiq endpoints: proxy votes, eIDAS signing and the governance and regulator exports.
 
 ## Requirements
 
 ### Requirement: REQ-SFEC-001 Proxy-vote delegation MUST have a real HTTP e2e test
-The proxy-vote delegation flow (`proxyVote#register`, `#suspend`, `#revoke` — `appinfo/routes.php:181-184`) MUST be exercised by at least one Newman request (tests/integration) that drives the request through the real Nextcloud HTTP + auth stack, in addition to any PHPUnit unit test that calls the controller directly.
+The proxy-vote delegation flow (`proxyVote#register`, `#suspend`, `#revoke` — `appinfo/routes.php:181-184`) MUST be exercised by at least one end-to-end API test (Newman, `tests/integration/decidiq-security-flow-e2e.postman_collection.json`) that drives the request through the real Nextcloud HTTP + auth stack, in addition to any PHPUnit unit test that calls the controller directly.
 
 #### Scenario: Grantor registers and later revokes their own proxy over real HTTP
 
@@ -31,7 +27,7 @@ The proxy-vote delegation flow (`proxyVote#register`, `#suspend`, `#revoke` — 
 - **THEN** the real HTTP response is `403 Forbidden` and the proxy's status is unchanged
 
 ### Requirement: REQ-SFEC-002 eIDAS endpoints MUST have a real HTTP e2e reachability and auth test
-The eIDAS QES signing endpoints (`eIDASSignature#initiate|verify|finalize|certStatus` — `appinfo/routes.php:175-178`) MUST be exercised by at least one Newman request (tests/integration) asserting route reachability and authentication enforcement through the real middleware chain. A full external-provider signing round-trip is out of scope.
+The eIDAS QES signing endpoints (`eIDASSignature#initiate|verify|finalize|certStatus` — `appinfo/routes.php:175-178`) MUST be exercised by at least one end-to-end API test (Newman, `tests/integration/decidiq-security-flow-e2e.postman_collection.json`) asserting route reachability and authentication enforcement through the real middleware chain. A full external-provider signing round-trip is out of scope.
 
 #### Scenario: Authenticated caller can reach the certificate-status endpoint
 
@@ -51,7 +47,7 @@ The eIDAS QES signing endpoints (`eIDASSignature#initiate|verify|finalize|certSt
 - **THEN** the real Nextcloud auth middleware rejects the request before the controller logic runs
 
 ### Requirement: REQ-SFEC-003 Governance-report and regulator-export routes MUST have a real HTTP e2e test
-The `governanceReport#*` (`appinfo/routes.php:187-190`) and `regulatorExport#*` (`appinfo/routes.php:193-195`) routes MUST be exercised by at least one Newman request (tests/integration) through the real HTTP + auth stack.
+The `governanceReport#*` (`appinfo/routes.php:187-190`) and `regulatorExport#*` (`appinfo/routes.php:193-195`) routes MUST be exercised by at least one end-to-end API test (Newman, `tests/integration/decidiq-security-flow-e2e.postman_collection.json`) through the real HTTP + auth stack.
 
 #### Scenario: Authorized caller generates a governance report and a regulator export
 

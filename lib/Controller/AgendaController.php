@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -27,11 +27,11 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
 use OCA\Decidiq\Exception\NotFoundException;
-use OCA\Decidiq\Service\AgendaAuthorizationGuard;
-use OCA\Decidiq\Service\AgendaService;
-use OCA\Decidiq\Service\CurrentAgendaItemService;
+use OCA\Decidiq\Kernel\AppIdentity;
+use OCA\Decidiq\Kernel\Contracts\AgendaAuthorizationGuardInterface;
+use OCA\Decidiq\Kernel\Contracts\AgendaServiceInterface;
+use OCA\Decidiq\Kernel\Contracts\CurrentAgendaItemServiceInterface;
 use OCP\AppFramework\Controller;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\NoAdminRequired;
@@ -49,30 +49,30 @@ use Psr\Log\LoggerInterface;
  *   PUT  /api/agendas/{meetingId}/reorder      → reorderItems
  *   PUT  /api/agendas/{meetingId}/items/{itemId}/formality → setFormality
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 class AgendaController extends Controller {
 	/**
 	 * Constructor for AgendaController.
 	 *
 	 * @param IRequest $request The HTTP request
-	 * @param AgendaService $agendaService The agenda service
-	 * @param CurrentAgendaItemService $currentItems The live meeting's current item
-	 * @param AgendaAuthorizationGuard $guard Authentication + chair/secretary authorization
+	 * @param AgendaServiceInterface $agendaService The agenda service
+	 * @param CurrentAgendaItemServiceInterface $currentItems The live meeting's current item
+	 * @param AgendaAuthorizationGuardInterface $guard Authentication + chair/secretary authorization
 	 * @param LoggerInterface $logger PSR-3 logger
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly AgendaService $agendaService,
-		private readonly CurrentAgendaItemService $currentItems,
-		private readonly AgendaAuthorizationGuard $guard,
+		private readonly AgendaServiceInterface $agendaService,
+		private readonly CurrentAgendaItemServiceInterface $currentItems,
+		private readonly AgendaAuthorizationGuardInterface $guard,
 		private readonly LoggerInterface $logger,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(appName: AppIdentity::APP_ID, request: $request);
 	}//end __construct()
 
 	/**
@@ -82,7 +82,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse|null Null if authorised, 401/403 JSONResponse if not.
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	private function denyUnlessChairOrAdmin(string $meetingId): ?JSONResponse {
 		$denied = $this->guard->requireUser();
@@ -104,7 +104,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function publish(string $meetingId): JSONResponse {
@@ -137,7 +137,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function advanceBobPhase(string $id): JSONResponse {
@@ -180,7 +180,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function processHamerstukken(string $meetingId): JSONResponse {
@@ -215,7 +215,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function revise(string $meetingId): JSONResponse {
@@ -249,7 +249,7 @@ class AgendaController extends Controller {
 	 *
 	 * @return JSONResponse
 	 *
-	 * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+	 * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
 	 */
 	#[NoAdminRequired]
 	public function reorder(string $meetingId): JSONResponse {

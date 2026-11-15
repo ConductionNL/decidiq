@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
+use OCA\Decidiq\Kernel\Contracts\MeetingFolderServiceInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
 
@@ -46,7 +47,7 @@ use Psr\Log\LoggerInterface;
  *
  * @spec openspec/specs/nextcloud-integration/spec.md
  */
-class MeetingFolderService {
+class MeetingFolderService implements MeetingFolderServiceInterface {
 
 	/**
 	 * Subfolders created under every meeting folder.
@@ -97,7 +98,7 @@ class MeetingFolderService {
 
 			$leafName = $uuid;
 			if ($title !== '') {
-				$leafName = $title;
+				$leafName = $title . $this->sessionSuffix(meeting: $meeting, uuid: $uuid);
 			}
 
 			$segments[] = trim($date . ' ' . $this->sanitize(name: $leafName));
@@ -131,6 +132,32 @@ class MeetingFolderService {
 		}//end try
 
 	}//end ensureMeetingFolders()
+
+	/**
+	 * What keeps a session's folder apart from its sibling sessions' folders.
+	 *
+	 * A session takes its evening's body and date, so two sessions with the
+	 * same title would otherwise share one folder, and the second session's
+	 * subtitles and recording files would overwrite the first's. A session
+	 * (a meeting with a `parentMeeting`) therefore carries its own uuid,
+	 * whole, since only the whole uuid is sure to differ; a meeting that is
+	 * no session keeps its folder name.
+	 *
+	 * @param array<string, mixed> $meeting The meeting.
+	 * @param string               $uuid    The meeting's uuid.
+	 *
+	 * @return string The suffix, empty for a meeting that is no session.
+	 *
+	 * @spec openspec/changes/planning-parallel-sessions/specs/meeting-management/spec.md#requirement-req-pps-005-each-parallel-session-keeps-its-own-recording-and-subtitles
+	 */
+	private function sessionSuffix(array $meeting, string $uuid): string {
+		$parent = $meeting['parentMeeting'] ?? null;
+		if (is_string($parent) === false || trim($parent) === '' || $uuid === '') {
+			return '';
+		}
+
+		return ' (' . $uuid . ')';
+	}//end sessionSuffix()
 
 	/**
 	 * Write a file into a subfolder of a meeting's folder tree (fail-soft).

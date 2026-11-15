@@ -30,6 +30,7 @@ namespace OCA\Decidiq\Tests\Unit\Service;
 use OCA\Decidiq\Service\ObjectRelationFilter;
 use OCA\Decidiq\Service\PersonParticipantLookup;
 use OCA\Decidiq\Service\VoteBallotFactory;
+use OCA\Decidiq\Service\VoteCast;
 use OCA\Decidiq\Service\VoteContextReader;
 use OCA\Decidiq\Service\VoterTokenSecret;
 use OCA\Decidiq\Service\VotingRecordService;
@@ -48,6 +49,7 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Service\VoteContextReader
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\VoteBallotFactory
+ * @uses   \OCA\Decidiq\Service\VoteCast
  * @uses   \OCA\Decidiq\Service\VoterTokenSecret
  *
  * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-004-the-profile-shows-the-members-voting-record
@@ -96,15 +98,12 @@ class VotingRecordServiceTest extends TestCase {
 		$container->method('get')->willThrowException(new \RuntimeException('not in this test'));
 		$factory = new VoteBallotFactory($container, $this->createMock(LoggerInterface::class), new VoterTokenSecret($container));
 
-		$vote = $factory->buildVote(
-			votingRoundId: $roundId,
-			participantId: $participantId,
-			value: $value,
-			isProxy: $delegatorId !== null,
-			delegatorId: $delegatorId,
-			isSecret: false,
-			existingVote: null
-		);
+		$cast = new VoteCast(votingRoundId: $roundId, participantId: $participantId, value: $value);
+		if ($delegatorId !== null) {
+			$cast = $cast->asProxy(delegatorId: $delegatorId);
+		}
+
+		$vote = $factory->buildVote(cast: $cast, existingVote: null);
 		unset($vote['@self']);
 		$vote['castAt'] = '2025-04-10T21:10:00+00:00';
 		return $vote;
@@ -219,8 +218,8 @@ class VotingRecordServiceTest extends TestCase {
 		$this->store = [];
 		$this->saves = 0;
 		$this->put('governance-body', 'raad', ['name' => 'Gemeenteraad Amsterdam', 'bodyType' => 'legislative']);
-		$this->put('person', 'marie', ['name' => 'Marie Janssen', 'email' => 'm.janssen@amsterdam.nl', 'nextcloudUserId' => 'mjanssen']);
-		$this->put('participant', 'p-marie', ['displayName' => 'Marie Janssen', 'role' => 'member', 'party' => 'D66', 'nextcloudUserId' => 'mjanssen', 'email' => 'm.janssen@amsterdam.nl']);
+		$this->put('person', 'marie', ['name' => 'Marie Janssen', 'email' => 'm.janssen@gemeente.example', 'nextcloudUserId' => 'mjanssen']);
+		$this->put('participant', 'p-marie', ['displayName' => 'Marie Janssen', 'role' => 'member', 'party' => 'D66', 'nextcloudUserId' => 'mjanssen', 'email' => 'm.janssen@gemeente.example']);
 		$this->put('membership', 'm-marie', ['role' => 'member', 'party' => 'D66', 'person' => 'marie', 'governanceBody' => 'raad', 'startDate' => '2022-03-16T00:00:00Z']);
 		$this->put('meeting', 'raad-april', ['title' => 'Raadsvergadering april', 'governanceBody' => 'raad']);
 		$this->put('decision', 'groen-dak', ['title' => 'Groen dak op het stadhuis', 'decisionType' => 'motion', 'isPublished' => 'public', 'meeting' => 'raad-april']);
@@ -273,7 +272,7 @@ class VotingRecordServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testReadsBallotsCastInTheAppAndCountsAProxyVoteForTheMember(): void {
-		$this->put('participant', 'p-bas', ['displayName' => 'Bas Smit', 'role' => 'member', 'party' => 'VVD', 'email' => 'b.smit@amsterdam.nl']);
+		$this->put('participant', 'p-bas', ['displayName' => 'Bas Smit', 'role' => 'member', 'party' => 'VVD', 'email' => 'b.smit@gemeente.example']);
 		$this->put('voting-round', 'r-app', ['isSecret' => false, 'closedAt' => '2025-09-01T20:00:00Z', 'result' => 'rejected']);
 		$this->put('vote', 'v-app', $this->castBallot(roundId: 'r-app', participantId: 'p-marie', value: 'against'));
 		$this->put('vote', 'v-proxy-for-bas', $this->castBallot(roundId: 'r-app', participantId: 'p-marie', value: 'for', delegatorId: 'p-bas'));
@@ -321,13 +320,13 @@ class VotingRecordServiceTest extends TestCase {
 	 * @return void
 	 */
 	public function testTheLookupPrefersTheNextcloudUserIdOverTheEmail(): void {
-		$this->put('participant', 'p-other', ['displayName' => 'Andere Marie', 'role' => 'member', 'email' => 'm.janssen@amsterdam.nl']);
+		$this->put('participant', 'p-other', ['displayName' => 'Andere Marie', 'role' => 'member', 'email' => 'm.janssen@gemeente.example']);
 		$lookup = new PersonParticipantLookup(objectService: $this->objectService());
 
 		self::assertSame(['p-marie'], $lookup->participantIdsOf(person: $this->store['person']['marie']));
 		self::assertSame(
 			['p-marie', 'p-other'],
-			$lookup->participantIdsOf(person: ['name' => 'Marie Janssen', 'email' => 'm.janssen@amsterdam.nl'])
+			$lookup->participantIdsOf(person: ['name' => 'Marie Janssen', 'email' => 'm.janssen@gemeente.example'])
 		);
 		self::assertSame([], $lookup->participantIdsOf(person: ['name' => 'Zonder gegevens']));
 	}//end testTheLookupPrefersTheNextcloudUserIdOverTheEmail()

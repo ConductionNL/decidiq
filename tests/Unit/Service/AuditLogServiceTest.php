@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -44,8 +44,10 @@ use Psr\Log\LoggerInterface;
  * surface fails LOUDLY (error log + success=false), never silently.
  *
  * @covers \OCA\Decidiq\Service\AuditLogService
+ * @uses   \OCA\Decidiq\Service\AuditRowFormat
+ * @uses   \OCA\Decidiq\Service\CsvCell
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-2.1
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-2.1
  */
 class AuditLogServiceTest extends TestCase {
 
@@ -378,6 +380,25 @@ class AuditLogServiceTest extends TestCase {
 		self::assertStringContainsString('decision-transition', $lines[1]);
 
 	}//end testExportCsvIncludesHeader()
+
+	/**
+	 * export() quotes a cell with a semicolon, so a semicolon-separated
+	 * spreadsheet keeps it in one inert cell, and keeps a formula behind
+	 * leading spaces inert.
+	 *
+	 * @return void
+	 */
+	public function testExportCsvQuotesSemicolonCells(): void {
+		$service = $this->makeService(resolvableUids: ['dec-1']);
+		$service->append(actor: 'x;=1+1;', action: 'decision-transition', objectUids: ['dec-1']);
+		$service->append(actor: '  =2+2', action: 'decision-transition', objectUids: ['dec-1']);
+
+		$lines = explode("\n", $service->export('2026-01-01T00:00:00Z', '2026-12-31T23:59:59Z', 'csv')['body']);
+
+		self::assertStringContainsString(",\"x;'=1+1;\",", $lines[1]);
+		self::assertStringContainsString(",'  =2+2,", $lines[2]);
+
+	}//end testExportCsvQuotesSemicolonCells()
 
 	/**
 	 * verify() delegates to the platform chain verification and maps its

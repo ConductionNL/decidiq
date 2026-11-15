@@ -124,3 +124,18 @@ able to apply it again through `POST /api/room-system-messages/{id}/apply`.
 - WHEN they call `POST /api/room-system-messages/{id}/apply`
 - THEN the response is 403
 - @e2e exclude authorization contract; covered by PHPUnit on the controller and a Newman IDOR request
+
+### Requirement: REQ-RCSL-007 The room system receives the agenda, the speakers and the vote results
+
+While a room system is linked, decidiq SHALL make the meeting's published agenda with its current item, the speakers' list and each closed voting round's result available to the room system through the integriq connection, so the room's displays and desks show the same as decidiq.
+
+#### Scenario: A voting round closes in a linked room
+- GIVEN a meeting in a room whose conference and voting system is linked
+- WHEN the chair closes the voting round on the current agenda item
+- THEN the room system receives the current agenda item and the round's totals for, against and abstained
+
+#### Scenario: No room system linked
+- GIVEN a meeting in a room with no linked room system
+- WHEN a voting round closes
+- THEN nothing is sent and the meeting carries on as usual
+

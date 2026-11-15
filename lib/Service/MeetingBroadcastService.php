@@ -40,6 +40,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Service;
 
 use OCA\Decidiq\Exception\BroadcastRefusedException;
+use OCA\Decidiq\Kernel\Contracts\MeetingBroadcastServiceInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Utility\ITimeFactory;
 use OCP\IUserSession;
@@ -49,7 +50,7 @@ use OCP\IUserSession;
  *
  * @spec openspec/changes/live-public-livestream/specs/meeting-broadcast/spec.md#requirement-req-lstr-004-a-closed-session-pauses-the-broadcast-and-closes-the-public-window
  */
-class MeetingBroadcastService {
+class MeetingBroadcastService implements MeetingBroadcastServiceInterface {
 	/**
 	 * The broadcast schema.
 	 */

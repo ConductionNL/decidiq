@@ -61,7 +61,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *        so a producer built against the eight-argument shape keeps working.
 	 *
 	 * @spec openspec/specs/approval-route-events/spec.md
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function __construct(
 		private readonly string $subject,
@@ -143,7 +143,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The schema slug
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function getSubjectSchema(): string {
 		return $this->subjectSchema;
@@ -155,7 +155,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return string The external reference
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function getExternalReference(): string {
 		return $this->externalReference;
@@ -167,7 +167,7 @@ class ApprovalRouteConcludedEvent extends Event {
 	 *
 	 * @return array<int, array<string, mixed>> The actions
 	 *
-	 * @spec openspec/changes/parafering-route-runtime/specs/parafering-route-runtime/spec.md
+	 * @spec openspec/specs/parafering-route-runtime/spec.md
 	 */
 	public function getActions(): array {
 		return $this->actions;

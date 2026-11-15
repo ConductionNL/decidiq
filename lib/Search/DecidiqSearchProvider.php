@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Search;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -104,7 +104,7 @@ class DecidiqSearchProvider implements IProvider {
 	 * @return string
 	 */
 	public function getId(): string {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getId()
 
 	/**
@@ -133,7 +133,7 @@ class DecidiqSearchProvider implements IProvider {
 	 * route name, so the parameter cannot be removed.
 	 */
 	public function getOrder(string $route, array $routeParameters): ?int {
-		if (str_starts_with($route, Application::APP_ID . '.') === true) {
+		if (str_starts_with($route, AppIdentity::APP_ID . '.') === true) {
 			return -1;
 		}
 
@@ -246,7 +246,7 @@ class DecidiqSearchProvider implements IProvider {
 		}
 
 		return new SearchResultEntry(
-			$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg'),
+			$this->urlGenerator->imagePath(AppIdentity::APP_ID, 'app-dark.svg'),
 			$title,
 			implode(' · ', $sublineParts),
 			// The app router is a history router (src/main.js createWebHistory),

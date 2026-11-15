@@ -107,39 +107,53 @@ class MeetingCostService {
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	public function calculateForMeeting(string $meetingId, ?array $meeting = null): ?float {
-		$objectService = $this->getObjectService();
-
+		$meeting = $this->resolveMeeting(meetingId: $meetingId, meeting: $meeting);
 		if ($meeting === null) {
-			$entity = $objectService->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
-			if ($entity === null) {
-				return null;
-			}
-
-			$meeting = $entity->getObject();
+			return null;
 		}
 
 		$hourlyRate = $this->resolveHourlyRate(meeting: $meeting);
-		if ($hourlyRate === null || $hourlyRate <= 0.0) {
+		if ($hourlyRate === null) {
 			return null;
 		}
 
 		$elapsedSeconds = $this->resolveElapsedSeconds(meeting: $meeting);
 		$attendeeCount = $this->resolveAttendeeCount(meetingId: $meetingId, meeting: $meeting);
 
-		return $this->computeCost(
-			elapsedSeconds: $elapsedSeconds,
-			attendeeCount: $attendeeCount,
-			hourlyRate: $hourlyRate
-		);
+		return $this->computeCost(elapsedSeconds: $elapsedSeconds, attendeeCount: $attendeeCount, hourlyRate: $hourlyRate);
 
 	}//end calculateForMeeting()
+
+	/**
+	 * The pre-loaded meeting, or the meeting read from OpenRegister.
+	 *
+	 * @param string                    $meetingId Meeting UUID
+	 * @param array<string, mixed>|null $meeting   Optional pre-loaded meeting object
+	 *
+	 * @return array<string, mixed>|null The meeting, or null when it does not exist
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 */
+	private function resolveMeeting(string $meetingId, ?array $meeting): ?array {
+		if ($meeting !== null) {
+			return $meeting;
+		}
+
+		$entity = $this->getObjectService()->find(id: $meetingId, register: 'decidiq', schema: 'meeting');
+		if ($entity === null) {
+			return null;
+		}
+
+		return $entity->getObject();
+
+	}//end resolveMeeting()
 
 	/**
 	 * Resolve the hourly rate from the meeting's linked governance body.
 	 *
 	 * @param array<string, mixed> $meeting Meeting object
 	 *
-	 * @return float|null The body's hourlyRate, or null
+	 * @return float|null The body's hourlyRate, or null when it is not above zero
 	 *
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
@@ -150,35 +164,44 @@ class MeetingCostService {
 		}
 
 		try {
-			$bodyEntity = $this->getObjectService()->find(
-				id: $bodyId,
-				register: 'decidiq',
-				schema: 'governance-body'
-			);
-			if ($bodyEntity === null) {
-				return null;
-			}
-
-			$body = $bodyEntity->getObject();
-			$rate = ($body['hourlyRate'] ?? null);
-			if ($rate === null || is_numeric($rate) === false) {
-				return null;
-			}
-
-			return (float)$rate;
+			return $this->bodyHourlyRate(bodyId: $bodyId);
 		} catch (Throwable $e) {
 			$this->logger->debug(
 				'Decidiq MeetingCostService: hourlyRate resolution failed',
 				['error' => $e->getMessage()]
 			);
 			return null;
-		}//end try
+		}
 
 	}//end resolveHourlyRate()
 
 	/**
+	 * The numeric hourlyRate of a governance body.
+	 *
+	 * @param string $bodyId Governance body UUID
+	 *
+	 * @return float|null The rate, or null when the body or a numeric rate above zero is missing
+	 *
+	 * @spec openspec/specs/meeting-efficiency/spec.md
+	 */
+	private function bodyHourlyRate(string $bodyId): ?float {
+		$bodyEntity = $this->getObjectService()->find(id: $bodyId, register: 'decidiq', schema: 'governance-body');
+		if ($bodyEntity === null) {
+			return null;
+		}
+
+		$rate = ($bodyEntity->getObject()['hourlyRate'] ?? null);
+		if (is_numeric($rate) === false || (float)$rate <= 0.0) {
+			return null;
+		}
+
+		return (float)$rate;
+
+	}//end bodyHourlyRate()
+
+	/**
 	 * Resolve the governance-body UUID from a meeting object (both relation
-	 * shapes honoured, like ParticipantResolver).
+	 * shapes honoured, like ParticipantResolver), then from the flat field.
 	 *
 	 * @param array<string, mixed> $meeting Meeting object
 	 *
@@ -187,30 +210,77 @@ class MeetingCostService {
 	 * @spec openspec/specs/meeting-efficiency/spec.md
 	 */
 	private function resolveGovernanceBodyId(array $meeting): ?string {
-		$relations = ($meeting['@self']['relations'] ?? ($meeting['relations'] ?? []));
-		if (is_array($relations) === true) {
-			foreach ($relations as $key => $relation) {
-				if (is_array($relation) === true) {
-					if (($relation['schema'] ?? '') === 'governance-body') {
-						return ($relation['id'] ?? null);
-					}
-
-					continue;
-				}
-
-				if (is_string($relation) === true && $key === 'governanceBody') {
-					return $relation;
-				}
-			}
+		$match = self::relationsBodyId(relations: self::relationsOf(meeting: $meeting));
+		if ($match !== []) {
+			return $match[0];
 		}
 
-		// Flat top-level field fallback.
-		if (isset($meeting['governanceBody']) === true && is_string($meeting['governanceBody']) === true) {
-			return $meeting['governanceBody'];
+		$bodyId = ($meeting['governanceBody'] ?? null);
+		if (is_string($bodyId) === true) {
+			return $bodyId;
 		}
 
 		return null;
 	}//end resolveGovernanceBodyId()
+
+	/**
+	 * The meeting's relations, from `@self` or the top level; empty when they are not an array.
+	 *
+	 * @param array<string, mixed> $meeting Meeting object
+	 *
+	 * @return array<mixed>
+	 */
+	private static function relationsOf(array $meeting): array {
+		$relations = ($meeting['@self']['relations'] ?? ($meeting['relations'] ?? []));
+		if (is_array($relations) === false) {
+			return [];
+		}
+
+		return $relations;
+	}//end relationsOf()
+
+	/**
+	 * The first relation that names the governance body.
+	 *
+	 * @param array<mixed> $relations The meeting's relations
+	 *
+	 * @return array{0?: mixed} The body id wrapped in a list, or empty when no relation names it
+	 */
+	private static function relationsBodyId(array $relations): array {
+		foreach ($relations as $key => $relation) {
+			$match = self::relationBodyId(key: $key, relation: $relation);
+			if ($match !== []) {
+				return $match;
+			}
+		}
+
+		return [];
+	}//end relationsBodyId()
+
+	/**
+	 * The body id one relation names: a relation object of the governance-body
+	 * schema, or a uuid under the `governanceBody` key.
+	 *
+	 * @param int|string $key      The relation key
+	 * @param mixed      $relation The relation
+	 *
+	 * @return array{0?: mixed} The body id wrapped in a list, or empty when this relation names none
+	 */
+	private static function relationBodyId(int|string $key, mixed $relation): array {
+		if (is_array($relation) === true) {
+			if (($relation['schema'] ?? '') !== 'governance-body') {
+				return [];
+			}
+
+			return [($relation['id'] ?? null)];
+		}
+
+		if (is_string($relation) === true && $key === 'governanceBody') {
+			return [$relation];
+		}
+
+		return [];
+	}//end relationBodyId()
 
 	/**
 	 * Resolve elapsed seconds from the meeting's openedAt/closedAt stamps.
@@ -230,18 +300,28 @@ class MeetingCostService {
 
 		try {
 			$start = new DateTimeImmutable((string)$openedAt);
-			$closedAt = ($meeting['closedAt'] ?? null);
-			$end = new DateTimeImmutable('now');
-			if ($closedAt !== null && $closedAt !== '') {
-				$end = new DateTimeImmutable((string)$closedAt);
-			}
-
-			return max(0, $end->getTimestamp() - $start->getTimestamp());
+			return max(0, self::endOf(meeting: $meeting)->getTimestamp() - $start->getTimestamp());
 		} catch (Throwable $e) {
 			return 0;
 		}
 
 	}//end resolveElapsedSeconds()
+
+	/**
+	 * When the meeting ended: its closedAt stamp, or now while it has none.
+	 *
+	 * @param array<string, mixed> $meeting Meeting object
+	 *
+	 * @return DateTimeImmutable
+	 */
+	private static function endOf(array $meeting): DateTimeImmutable {
+		$closedAt = ($meeting['closedAt'] ?? null);
+		if ($closedAt === null || $closedAt === '') {
+			return new DateTimeImmutable('now');
+		}
+
+		return new DateTimeImmutable((string)$closedAt);
+	}//end endOf()
 
 	/**
 	 * Count the people who attended the meeting.
@@ -264,69 +344,64 @@ class MeetingCostService {
 			return 0;
 		}
 
+		$results = $this->findBodyParticipants(meetingId: $meetingId, bodyId: $bodyId);
+		if ($results === null) {
+			return 0;
+		}
+
+		$attendance = new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger);
+		$statuses = $attendance->statusesFor(meetingId: $meetingId);
+		$overlay = static fn (array $participant): array => $attendance->overlay(participants: [$participant], statuses: $statuses)[0];
+
+		return $this->countAttendees(results: $results, tally: new MeetingAttendeeTally(bodyId: $bodyId, overlay: $overlay));
+
+	}//end resolveAttendeeCount()
+
+	/**
+	 * The participants of a governance body.
+	 *
+	 * @param string $meetingId Meeting UUID (for the log)
+	 * @param string $bodyId    Governance body UUID
+	 *
+	 * @return array<mixed>|null The participants as found, or null when they cannot be read
+	 *
+	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
+	 */
+	private function findBodyParticipants(string $meetingId, string $bodyId): ?array {
 		try {
 			$objectService = $this->getObjectService();
 			$objectService->setRegister('decidiq');
 			$objectService->setSchema('participant');
 
-			$results = $objectService->findAll(['filters' => ['governanceBody' => $bodyId], 'limit' => 500]);
+			return $objectService->findAll(['filters' => ['governanceBody' => $bodyId], 'limit' => 500]);
 		} catch (Throwable $e) {
 			$this->logger->debug(
 				'Decidiq MeetingCostService: attendee count failed',
 				['meetingId' => $meetingId, 'error' => $e->getMessage()]
 			);
-			return 0;
+			return null;
 		}
 
-		$attendance = new MeetingAttendanceReader(objectService: $this->objectService, logger: $this->logger);
-
-		return $this->countAttendees(
-			results: $results,
-			bodyId: $bodyId,
-			attendance: $attendance,
-			statuses: $attendance->statusesFor(meetingId: $meetingId)
-		);
-
-	}//end resolveAttendeeCount()
+	}//end findBodyParticipants()
 
 	/**
 	 * Count the body's members marked present, or the whole roster when
 	 * nobody's attendance was taken.
 	 *
-	 * @param iterable<mixed>       $results  Participants as found (entities or arrays)
-	 * @param string                $bodyId   The meeting's governance body
-	 * @param MeetingAttendanceReader $attendance Overlays this meeting's attendance
-	 * @param array<string, string> $statuses This meeting's attendance per participant (pla-09)
+	 * @param iterable<mixed>      $results Participants as found (entities or arrays)
+	 * @param MeetingAttendeeTally $tally   Counts the body's members and who was present
 	 *
 	 * @return int Attendee count (>= 0)
 	 *
 	 * @spec openspec/specs/meeting-workflow/spec.md#requirement-req-msb-002-closing-a-meeting-records-its-cost
 	 * @spec openspec/specs/meeting-attendees/spec.md#requirement-req-mapm-001-attendance-is-recorded-per-meeting
 	 */
-	private function countAttendees(iterable $results, string $bodyId, MeetingAttendanceReader $attendance, array $statuses): int {
-		$members = 0;
-		$present = 0;
-		$attendanceTaken = false;
+	private function countAttendees(iterable $results, MeetingAttendeeTally $tally): int {
 		foreach ($results as $result) {
-			$participant = $this->participantData(result: $result);
-			if ($participant === null || ($participant['governanceBody'] ?? $bodyId) !== $bodyId) {
-				continue;
-			}
-
-			$members++;
-			$participant = $attendance->overlay(participants: [$participant], statuses: $statuses)[0];
-			$status = (string)($participant['attendanceStatus'] ?? '');
-			$attendanceTaken = ($attendanceTaken === true || $status !== '');
-			if ($status === 'present') {
-				$present++;
-			}
+			$tally->add(participant: $this->participantData(result: $result));
 		}
 
-		if ($attendanceTaken === true) {
-			return $present;
-		}
-
-		return $members;
+		return $tally->count();
 
 	}//end countAttendees()
 
@@ -344,10 +419,7 @@ class MeetingCostService {
 		if (is_object($result) === true && method_exists($result, 'getObject') === true) {
 			// The properties come from getObject(); the id comes from the
 			// entity, so this meeting's attendance can be matched to it.
-			if (method_exists($result, 'getUuid') === true) {
-				$uuid = $result->getUuid();
-			}
-
+			$uuid = self::entityUuid(entity: $result);
 			$result = $result->getObject();
 		}
 
@@ -355,11 +427,38 @@ class MeetingCostService {
 			return null;
 		}
 
-		if (is_string($uuid) === true && $uuid !== '' && isset($result['id']) === false) {
-			$result['id'] = $uuid;
-		}
-
-		return $result;
+		return self::withUuid(participant: $result, uuid: $uuid);
 
 	}//end participantData()
+
+	/**
+	 * The uuid of an entity that has a getUuid() method.
+	 *
+	 * @param object $entity One findAll() result
+	 *
+	 * @return mixed The uuid, or null when the entity has no getUuid()
+	 */
+	private static function entityUuid(object $entity): mixed {
+		if (method_exists($entity, 'getUuid') === true) {
+			return $entity->getUuid();
+		}
+
+		return null;
+	}//end entityUuid()
+
+	/**
+	 * The participant with the entity uuid as its id, when it has none of its own.
+	 *
+	 * @param array<string,mixed> $participant The participant's data
+	 * @param mixed               $uuid        The entity uuid
+	 *
+	 * @return array<string,mixed>
+	 */
+	private static function withUuid(array $participant, mixed $uuid): array {
+		if (is_string($uuid) === true && $uuid !== '' && isset($participant['id']) === false) {
+			$participant['id'] = $uuid;
+		}
+
+		return $participant;
+	}//end withUuid()
 }//end class

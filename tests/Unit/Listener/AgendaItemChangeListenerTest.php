@@ -26,11 +26,14 @@ namespace OCA\Decidiq\Tests\Unit\Listener;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Service\AgendaService;
 use OCA\Decidiq\Service\ListenerSchemaResolver;
+use OCA\Decidiq\Service\SystemWhenNobodySignedIn;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCA\OpenRegister\Db\ObjectEntity;
 use OCA\OpenRegister\Db\Schema;
 use OCA\OpenRegister\Event\ObjectCreatedEvent;
 use OCA\OpenRegister\Event\ObjectDeletedEvent;
 use OCA\OpenRegister\Event\ObjectUpdatedEvent;
+use OCP\IUserSession;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -57,6 +60,20 @@ class AgendaItemChangeListenerTest extends TestCase {
 	private AgendaItemChangeListener $listener;
 
 	/**
+	 * OpenRegister, which runs the notice as the system.
+	 *
+	 * @var ObjectServiceInterface&MockObject
+	 */
+	private ObjectServiceInterface&MockObject $objectService;
+
+	/**
+	 * Notices run through runAsSystem().
+	 *
+	 * @var int
+	 */
+	private int $systemRuns = 0;
+
+	/**
 	 * Set up.
 	 *
 	 * @return void
@@ -64,6 +81,13 @@ class AgendaItemChangeListenerTest extends TestCase {
 	protected function setUp(): void {
 		parent::setUp();
 		$this->agendaService = $this->createMock(AgendaService::class);
+		$this->objectService = $this->createMock(ObjectServiceInterface::class);
+		$this->objectService->method('runAsSystem')->willReturnCallback(
+			function (callable $operation): mixed {
+				$this->systemRuns++;
+				return $operation();
+			}
+		);
 
 		$mapper = new class {
 			/**
@@ -90,6 +114,7 @@ class AgendaItemChangeListenerTest extends TestCase {
 		$this->listener = new AgendaItemChangeListener(
 			agendaService: $this->agendaService,
 			schemaResolver: new ListenerSchemaResolver(container: $container, logger: $this->createMock(LoggerInterface::class)),
+			system: new SystemWhenNobodySignedIn($this->objectService, $this->createMock(IUserSession::class)),
 			logger: $this->createMock(LoggerInterface::class),
 		);
 	}//end setUp()
@@ -122,6 +147,7 @@ class AgendaItemChangeListenerTest extends TestCase {
 		$item = $this->entity(schemaId: '41', payload: ['title' => 'Budget', 'meeting' => 'meet-1']);
 		$this->listener->handle(new ObjectCreatedEvent($item));
 		$this->listener->handle(new ObjectDeletedEvent($item));
+		self::assertSame(2, $this->systemRuns, 'with nobody signed in (occ, cron) the notice runs as the system');
 	}//end testCreateAndDeleteReportTheMeeting()
 
 	/**

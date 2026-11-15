@@ -50,6 +50,7 @@ use Psr\Log\LoggerInterface;
  * collection and the item endpoint apply the same rule.
  *
  * @covers \OCA\Decidiq\Controller\OriController
+ * @uses   \OCA\Decidiq\Controller\CorsJsonController
  * @covers \OCA\Decidiq\Service\OriVotePublicationRule
  * @covers \OCA\Decidiq\Service\OriPersonPublicationRule
  * @covers \OCA\Decidiq\Service\OriSerializer
@@ -58,7 +59,9 @@ use Psr\Log\LoggerInterface;
  * @covers \OCA\Decidiq\Service\PersonParticipantLookup
  * @uses   \OCA\Decidiq\Service\ObjectRelationFilter
  * @uses   \OCA\Decidiq\Service\SettingsService
+ * @uses   \OCA\Decidiq\Service\Settings\RegisterFragmentMerger
  * @uses   \OCA\Decidiq\Service\RoleGroupMapping
+ * @uses   \OCA\Decidiq\Service\OriObjectsById
  *
  * @spec openspec/specs/ori-api/spec.md#requirement-req-mpr-006-the-public-ori-api-returns-public-votes-with-their-voter
  */
@@ -242,10 +245,10 @@ class OriVotePublicationTest extends TestCase {
 		$this->store = [];
 		$this->voter = null;
 		$this->put('governance-body', 'raad', ['name' => 'Gemeenteraad Amsterdam', 'bodyType' => 'legislative', 'domain' => 'municipality', 'publishVotingRecords' => true]);
-		$this->put('person', 'marie', ['name' => 'Marie Janssen', 'email' => 'm.janssen@amsterdam.nl']);
-		$this->put('person', 'bas', ['name' => 'Bas Smit', 'email' => 'b.smit@amsterdam.nl']);
-		$this->put('participant', 'p-marie', ['displayName' => 'Marie Janssen', 'role' => 'member', 'party' => 'GroenLinks', 'nextcloudUserId' => 'mjanssen', 'email' => 'm.janssen@amsterdam.nl']);
-		$this->put('participant', 'p-bas', ['displayName' => 'Bas Smit', 'role' => 'member', 'party' => 'VVD', 'email' => 'b.smit@amsterdam.nl']);
+		$this->put('person', 'marie', ['name' => 'Marie Janssen', 'email' => 'm.janssen@gemeente.example']);
+		$this->put('person', 'bas', ['name' => 'Bas Smit', 'email' => 'b.smit@gemeente.example']);
+		$this->put('participant', 'p-marie', ['displayName' => 'Marie Janssen', 'role' => 'member', 'party' => 'GroenLinks', 'nextcloudUserId' => 'mjanssen', 'email' => 'm.janssen@gemeente.example']);
+		$this->put('participant', 'p-bas', ['displayName' => 'Bas Smit', 'role' => 'member', 'party' => 'VVD', 'email' => 'b.smit@gemeente.example']);
 		$this->put('membership', 'm-marie', ['role' => 'member', 'party' => 'D66', 'person' => 'marie', 'governanceBody' => 'raad', 'startDate' => '2022-03-16T00:00:00Z']);
 		// The register declares no decision.meeting: the body that votes is the
 		// decisive stage's assignedBody, the way the example sets link it.

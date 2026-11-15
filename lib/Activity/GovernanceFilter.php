@@ -24,7 +24,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Activity;
 
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCP\Activity\IFilter;
 use OCP\IL10N;
 use OCP\IURLGenerator;
@@ -57,7 +57,7 @@ class GovernanceFilter implements IFilter {
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
 	public function getIdentifier() {
-		return Application::APP_ID;
+		return AppIdentity::APP_ID;
 	}//end getIdentifier()
 
 	/**
@@ -91,7 +91,7 @@ class GovernanceFilter implements IFilter {
 	 */
 	public function getIcon() {
 		return $this->urlGenerator->getAbsoluteURL(
-			$this->urlGenerator->imagePath(Application::APP_ID, 'app-dark.svg')
+			$this->urlGenerator->imagePath(AppIdentity::APP_ID, 'app-dark.svg')
 		);
 
 	}//end getIcon()
@@ -120,6 +120,6 @@ class GovernanceFilter implements IFilter {
 	 * @spec openspec/specs/nextcloud-integration/spec.md
 	 */
 	public function allowedApps() {
-		return [Application::APP_ID];
+		return [AppIdentity::APP_ID];
 	}//end allowedApps()
 }//end class

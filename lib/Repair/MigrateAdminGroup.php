@@ -66,7 +66,9 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Repair;
 
+use OCP\IGroup;
 use OCP\IGroupManager;
+use OCP\IUser;
 use OCP\Migration\IOutput;
 use OCP\Migration\IRepairStep;
 use Psr\Log\LoggerInterface;
@@ -143,50 +145,17 @@ class MigrateAdminGroup implements IRepairStep {
 	 */
 	public function run(IOutput $output): void {
 		try {
-			if ($this->groupManager->groupExists(self::OLD_GROUP_ID) === false) {
-				// Nothing to migrate. The register import provisions the new
-				// group (empty) from the authorization declaration; creating
-				// it here too would only duplicate that work.
-				return;
-			}
-
-			$oldGroup = $this->groupManager->get(self::OLD_GROUP_ID);
+			$oldGroup = $this->oldAdministratorsGroup();
 			if ($oldGroup === null) {
 				return;
 			}
 
-			if ($this->groupManager->groupExists(self::NEW_GROUP_ID) === false) {
-				$this->groupManager->createGroup(self::NEW_GROUP_ID);
-			}
-
-			$newGroup = $this->groupManager->get(self::NEW_GROUP_ID);
+			$newGroup = $this->newAdministratorsGroup();
 			if ($newGroup === null) {
-				$this->logger->warning(
-					'Decidiq: could not resolve the new administrators group; '
-					. 'the old-id group stays honored by the authorization baseline',
-					['group' => self::NEW_GROUP_ID]
-				);
 				return;
 			}
 
-			$copied = 0;
-			foreach ($oldGroup->getUsers() as $user) {
-				try {
-					if ($newGroup->inGroup($user) === true) {
-						continue;
-					}
-
-					$newGroup->addUser($user);
-					$copied++;
-				} catch (Throwable $e) {
-					$this->logger->warning(
-						'Decidiq: could not copy one administrators-group member; '
-						. 'the member keeps access through the old-id group',
-						['user' => $user->getUID(), 'exception' => $e->getMessage()]
-					);
-				}
-			}//end foreach
-
+			$copied = $this->copyMembers(from: $oldGroup, to: $newGroup);
 			$output->info(
 				sprintf(
 					'Decidiq administrators group: copied %d member(s) from %s to %s',
@@ -205,4 +174,91 @@ class MigrateAdminGroup implements IRepairStep {
 			);
 		}//end try
 	}//end run()
+
+	/**
+	 * The administrators group under the old app id, or null when there is
+	 * nothing to migrate.
+	 *
+	 * The register import provisions the new group (empty) from the
+	 * authorization declaration, so no old group means no work: creating the
+	 * new one here too would only duplicate that.
+	 *
+	 * @return IGroup|null The old group.
+	 */
+	private function oldAdministratorsGroup(): ?IGroup {
+		if ($this->groupManager->groupExists(self::OLD_GROUP_ID) === false) {
+			return null;
+		}
+
+		return $this->groupManager->get(self::OLD_GROUP_ID);
+	}//end oldAdministratorsGroup()
+
+	/**
+	 * The administrators group under the current app id, created when it is
+	 * missing; null, with a warning, when it cannot be resolved.
+	 *
+	 * @return IGroup|null The new group.
+	 */
+	private function newAdministratorsGroup(): ?IGroup {
+		if ($this->groupManager->groupExists(self::NEW_GROUP_ID) === false) {
+			$this->groupManager->createGroup(self::NEW_GROUP_ID);
+		}
+
+		$newGroup = $this->groupManager->get(self::NEW_GROUP_ID);
+		if ($newGroup === null) {
+			$this->logger->warning(
+				'Decidiq: could not resolve the new administrators group; '
+				. 'the old-id group stays honored by the authorization baseline',
+				['group' => self::NEW_GROUP_ID]
+			);
+		}
+
+		return $newGroup;
+	}//end newAdministratorsGroup()
+
+	/**
+	 * Copy every member of one group into another; members are copied, never
+	 * moved, and one failing write does not stop the rest.
+	 *
+	 * @param IGroup $from The old-id group.
+	 * @param IGroup $to   The new-id group.
+	 *
+	 * @return int How many members were copied.
+	 */
+	private function copyMembers(IGroup $from, IGroup $to): int {
+		$copied = 0;
+		foreach ($from->getUsers() as $user) {
+			if ($this->copyMember(group: $to, user: $user) === true) {
+				$copied++;
+			}
+		}
+
+		return $copied;
+	}//end copyMembers()
+
+	/**
+	 * Add one user to a group unless they are in it already.
+	 *
+	 * @param IGroup $group The new-id group.
+	 * @param IUser  $user  The member to copy.
+	 *
+	 * @return bool True when the user was added.
+	 */
+	private function copyMember(IGroup $group, IUser $user): bool {
+		try {
+			if ($group->inGroup($user) === true) {
+				return false;
+			}
+
+			$group->addUser($user);
+			return true;
+		} catch (Throwable $e) {
+			$this->logger->warning(
+				'Decidiq: could not copy one administrators-group member; '
+				. 'the member keeps access through the old-id group',
+				['user' => $user->getUID(), 'exception' => $e->getMessage()]
+			);
+			return false;
+		}
+	}//end copyMember()
 }//end class

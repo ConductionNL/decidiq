@@ -18,7 +18,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
  */
 
 // SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
@@ -29,7 +29,7 @@ namespace OCA\Decidiq\Service;
 
 use DateTimeImmutable;
 use DateTimeInterface;
-use OCA\Decidiq\AppInfo\Application;
+use OCA\Decidiq\Kernel\AppIdentity;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\IAppConfig;
 use OCP\IUserManager;
@@ -43,7 +43,7 @@ use RuntimeException;
  * forwarding configuration, authorised the actor, copied the motion, wrote
  * two audit notes and conditionally notified — five concerns in one body.
  *
- * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+ * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
  */
 class MotionForwardingService {
 	/**
@@ -74,7 +74,7 @@ class MotionForwardingService {
 	 *
 	 * @throws RuntimeException When the actor or the motion is not found
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 */
 	public function forward(string $motionId, string $targetBodyId, string $actorId, string $justification): array {
 		$appConfig = $this->container->get(IAppConfig::class);
@@ -130,7 +130,10 @@ class MotionForwardingService {
 		);
 
 		// Send notification if approval is required.
-		if ($appConfig->getValueBool(Application::APP_ID, 'motion_forwarding_requires_approval', false) === true) {
+		// Stored as a string by SettingsService; reading it as a bool would
+		// conflict with the stored type.
+		$requiresApproval = $appConfig->getValueString(AppIdentity::APP_ID, 'motion_forwarding_requires_approval', 'false');
+		if (in_array(strtolower(trim($requiresApproval)), ['true', '1'], true) === true) {
 			$this->notifyApprovalRequired(
 				actorId: $actorId,
 				forwardedMotionId: (string)($created['id'] ?? $created['uuid'] ?? ''),
@@ -153,7 +156,7 @@ class MotionForwardingService {
 	 *
 	 * @return array<string,mixed> The forwarded motion payload.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 */
 	private function buildForwardedMotion(
 		array $sourceMotionData,
@@ -212,7 +215,7 @@ class MotionForwardingService {
 	 *
 	 * @return array<string,mixed> The source motion with the note appended.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 */
 	private function noteForwarding(
 		object $objectService,
@@ -255,7 +258,7 @@ class MotionForwardingService {
 	 *
 	 * @return void
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 */
 	private function notifyApprovalRequired(
 		string $actorId,
@@ -281,7 +284,7 @@ class MotionForwardingService {
 	 *
 	 * @return string The formatted timestamp.
 	 *
-	 * @spec openspec/changes/p2-motion-and-voting-core-t2/tasks.md#task-3
+	 * @spec openspec/changes/archive/2026-05-11-p2-motion-and-voting-core-t2/tasks.md#task-3
 	 */
 	private function nowIso(): string {
 		return (new DateTimeImmutable())->format(DateTimeInterface::ATOM);

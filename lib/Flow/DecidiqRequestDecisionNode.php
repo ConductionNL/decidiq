@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
+ * @spec openspec/specs/flow-request-decision/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCA\Decidiq\Flow;
 
 use DateTime;
-use OCA\Decidiq\Service\FlowDecisionService;
+use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use OCA\OpenRegister\Service\Flow\FlowNodeResumeState;
 use OCA\OpenRegister\Service\Flow\FlowRunService;
 use OCA\OpenRegister\Service\Flow\FlowSuspension;
@@ -57,7 +57,7 @@ use UnexpectedValueException;
  * 🔴 UNREADABLE IS NOT GONE. A read that could not be answered buys another
  * heartbeat; only an answered "no such decision" fails the step.
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
+ * @spec openspec/specs/flow-request-decision/spec.md
  */
 class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 
@@ -107,14 +107,14 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	/**
 	 * Constructor.
 	 *
-	 * @param FlowDecisionService $decisions Raises and reads back the decision
+	 * @param FlowDecisionServiceInterface $decisions Raises and reads back the decision
 	 * @param IL10N $l10n The localisation service
 	 * @param LoggerInterface $logger The logger
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function __construct(
-		private readonly FlowDecisionService $decisions,
+		private readonly FlowDecisionServiceInterface $decisions,
 		private readonly IL10N $l10n,
 		private readonly LoggerInterface $logger,
 	) {
@@ -125,7 +125,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return string The namespaced node id
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function getId(): string {
 		return self::NODE_ID;
@@ -136,7 +136,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return string The translated name
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function getDisplayName(): string {
 		return $this->l10n->t('Request a decision');
@@ -147,7 +147,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return string The translated description
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function getDescription(): string {
 		return $this->l10n->t('Ask Decidiq to decide about this item, and pause the flow until it has.');
@@ -158,7 +158,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return string The icon name
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function getIcon(): string {
 		return 'gavel';
@@ -171,7 +171,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return bool True when available in this scope
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function isAvailableForScope(int $scope): bool {
 		return in_array($scope, [IManager::SCOPE_ADMIN, IManager::SCOPE_USER], true);
@@ -182,7 +182,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return array<int, string> The accepted top-level config keys
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function configKeys(): array {
 		return self::CONFIG_KEYS;
@@ -197,7 +197,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @throws UnexpectedValueException When the question is missing
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-001-decidiq-contributes-a-request-decision-node
 	 */
 	public function validateConfig(array $config): void {
 		if (trim((string)($config['question'] ?? '')) === '') {
@@ -220,8 +220,8 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 * @throws RuntimeException When the node has no resume slot, the raise
 	 *                          fails, or the decision was refused, gone or withdrawn
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	public function execute(array $items, array $config, array $context): array {
 		$this->validateConfig(config: $config);
@@ -261,7 +261,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 * @throws FlowSuspension While the decision is outstanding, or unreadable
 	 * @throws RuntimeException When the read is refused, or the decision is gone or withdrawn
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	private function onReEntry(array $items, array $config, array $context, FlowNodeResumeState $resume, string $ref): array {
 		$actor = $this->actorFor(context: $context, resume: $resume);
@@ -278,7 +278,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 		$read = $this->decisions->readState(decisionId: $ref, actorId: $actor);
 		$state = $read['state'];
 
-		if ($state === FlowDecisionService::STATE_UNREADABLE) {
+		if ($state === FlowDecisionServiceInterface::STATE_UNREADABLE) {
 			$this->logger->warning(
 				'Decidiq request-decision: could not read decision ' . $ref . '; waiting another heartbeat',
 				['node' => $resume->nodeId(), 'actor' => $actor]
@@ -289,7 +289,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 
 		$this->failOnDeadEnd(state: $state, ref: $ref, actor: $actor);
 
-		if ($state !== FlowDecisionService::STATE_DECIDED) {
+		if ($state !== FlowDecisionServiceInterface::STATE_DECIDED) {
 			// Still open. Suspend again, and do NOT touch the slot.
 			throw $this->suspension(config: $config);
 		}
@@ -312,10 +312,10 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @throws RuntimeException When the state is refused, gone or withdrawn
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	private function failOnDeadEnd(string $state, string $ref, string $actor): void {
-		if ($state === FlowDecisionService::STATE_REFUSED) {
+		if ($state === FlowDecisionServiceInterface::STATE_REFUSED) {
 			throw new RuntimeException(
 				sprintf(
 					'Decidiq refused to report decision %s to "%s", the identity this run raised it as, '
@@ -327,13 +327,13 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 			);
 		}
 
-		if ($state === FlowDecisionService::STATE_GONE) {
+		if ($state === FlowDecisionServiceInterface::STATE_GONE) {
 			throw new RuntimeException(
 				sprintf('Decision %s, which %s was waiting on, no longer exists.', $ref, self::NODE_ID)
 			);
 		}
 
-		if ($state === FlowDecisionService::STATE_WITHDRAWN) {
+		if ($state === FlowDecisionServiceInterface::STATE_WITHDRAWN) {
 			throw new RuntimeException(
 				sprintf('Decision %s was withdrawn, so the question %s asked will never be answered.', $ref, self::NODE_ID)
 			);
@@ -352,7 +352,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return string The uid, or '' when this run names none
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	private function actorFor(array $context, FlowNodeResumeState $resume): string {
 		$recorded = trim((string)$resume->get(key: 'raisedBy', default: ''));
@@ -377,7 +377,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return array<string, mixed> The outcome bag
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-005-the-output-matches-dossiqrequestdecision
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-005-the-output-matches-dossiqrequestdecision
 	 */
 	private function outcomeFor(array $read, string $ref, array $context, FlowNodeResumeState $resume): array {
 		$signal = ($context[FlowRunService::SIGNAL_CONTEXT_KEY] ?? null);
@@ -419,7 +419,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return array The items, each carrying the outcome
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-005-the-output-matches-dossiqrequestdecision
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-005-the-output-matches-dossiqrequestdecision
 	 */
 	private function placeOutcome(array $items, array $config, array $outcome): array {
 		$key = trim((string)($config['signalKey'] ?? ''));
@@ -448,7 +448,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return FlowSuspension The suspension to throw
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	private function suspension(array $config): FlowSuspension {
 		$minutes = (int)($config['heartbeatMinutes'] ?? self::DEFAULT_HEARTBEAT_MINUTES);
@@ -474,8 +474,8 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @throws RuntimeException When there is no object, or the decision cannot be raised
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-003-the-step-fails-closed
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-003-the-step-fails-closed
 	 */
 	private function raise(array $items, array $config, array $context, FlowNodeResumeState $resume): void {
 		$subject = $this->subjectOf(items: $items);
@@ -553,7 +553,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return string The external reference
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
 	 */
 	private function externalReference(array $context, FlowNodeResumeState $resume, string $subjectId): string {
 		$runUuid = trim((string)($context['runUuid'] ?? ''));
@@ -578,7 +578,7 @@ class DecidiqRequestDecisionNode implements IFlowNode, IFlowNodeConfigKeys {
 	 *
 	 * @return array{subjectRegister: string, subjectSchema: string, subjectId: string, subjectLabel: string} The subject
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
 	 */
 	private function subjectOf(array $items): array {
 		$first = ($items[0] ?? null);

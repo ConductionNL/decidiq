@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\TranscriptionStaffGuardInterface;
 use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\JSONResponse;
@@ -42,7 +43,7 @@ use Throwable;
  *
  * @spec openspec/specs/meeting-transcription/spec.md
  */
-class TranscriptionStaffGuard {
+class TranscriptionStaffGuard implements TranscriptionStaffGuardInterface {
 
 	/**
 	 * Meeting participant roles that count as transcription staff.

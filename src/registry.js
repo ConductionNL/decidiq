@@ -23,6 +23,7 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V.
  */
 
+import AncillaryCompliancePanel from './components/AncillaryCompliancePanel.vue'
 import ActionItemsSurface from './components/tabs/ActionItemsSurface.vue'
 import AgendaItemCaseTab from './components/tabs/AgendaItemCaseTab.vue'
 import AgendaItemConflictsTab from './components/tabs/AgendaItemConflictsTab.vue'
@@ -36,8 +37,10 @@ import AmendmentParentMotionTab from './components/tabs/AmendmentParentMotionTab
 import AmendmentVotingRoundTab from './components/tabs/AmendmentVotingRoundTab.vue'
 import BodyParticipationsTab from './components/tabs/BodyParticipationsTab.vue'
 import CommitmentProgressTab from './components/tabs/CommitmentProgressTab.vue'
+import CommitmentPublicationTab from './components/tabs/CommitmentPublicationTab.vue'
 import ConsultationReactionsTab from './components/tabs/ConsultationReactionsTab.vue'
 import DecisionActionItemsTab from './components/tabs/DecisionActionItemsTab.vue'
+import DecisionApprovalTab from './components/tabs/DecisionApprovalTab.vue'
 import DecisionLifecycleTab from './components/tabs/DecisionLifecycleTab.vue'
 // Public-publication tabs (publish-decisions-via-opencatalogi): publish /
 // withdraw / rectify actions on the decision, meeting (agenda), and minutes
@@ -81,20 +84,30 @@ import MinutesPublicationTab from './components/tabs/MinutesPublicationTab.vue'
 import MinutesSignersTab from './components/tabs/MinutesSignersTab.vue'
 import MotionAmendmentOrderTab from './components/tabs/MotionAmendmentOrderTab.vue'
 import MotionAmendmentsTab from './components/tabs/MotionAmendmentsTab.vue'
+import MotionChangeRecommendationsTab from './components/tabs/MotionChangeRecommendationsTab.vue'
 import MotionCitizenAdviceTab from './components/tabs/MotionCitizenAdviceTab.vue'
 import MotionConflictsTab from './components/tabs/MotionConflictsTab.vue'
 import MotionSignersTab from './components/tabs/MotionSignersTab.vue'
 import MotionStageTab from './components/tabs/MotionStageTab.vue'
+import MotionTextLinesTab from './components/tabs/MotionTextLinesTab.vue'
 import MotionVotesTab from './components/tabs/MotionVotesTab.vue'
 import MotionVotingRoundTab from './components/tabs/MotionVotingRoundTab.vue'
+import OnboardingChecklistTab from './components/tabs/OnboardingChecklistTab.vue'
 import ParticipantProfileLink from './components/tabs/ParticipantProfileLink.vue'
 import PersonMembershipsTab from './components/tabs/PersonMembershipsTab.vue'
 import PersonVotingRecordTab from './components/tabs/PersonVotingRecordTab.vue'
 import PlanningCycleStepsTab from './components/tabs/PlanningCycleStepsTab.vue'
 import RelatedDecisionsTab from './components/tabs/RelatedDecisionsTab.vue'
+import WrittenResolutionTab from './components/tabs/WrittenResolutionTab.vue'
 import AmendmentStepBar from './components/widgets/AmendmentStepBar.vue'
+import DecisionGoalWidget from './components/widgets/DecisionGoalWidget.vue'
 import DecisionStepBar from './components/widgets/DecisionStepBar.vue'
+import GoalContributionsWidget from './components/widgets/GoalContributionsWidget.vue'
+import GoalParentWidget from './components/widgets/GoalParentWidget.vue'
+import GoalProgressWidget from './components/widgets/GoalProgressWidget.vue'
+import GoalStepBar from './components/widgets/GoalStepBar.vue'
 import MeetingStepBar from './components/widgets/MeetingStepBar.vue'
+import StepDownScheduleWidget from './components/widgets/StepDownScheduleWidget.vue'
 import DecisionFormDialog from './dialogs/DecisionFormDialog.vue'
 import ActiveDecisionsKpiWidget from './views/dashboard/widgets/ActiveDecisionsKpiWidget.vue'
 // Dashboard v2 widgets (decidesk-dashboard-v2-widgets). Bespoke CnDashboardPage
@@ -116,6 +129,8 @@ import GovernanceHealthWidget from './views/dashboard/widgets/GovernanceHealthWi
 import IncomingDocumentsWidget from './views/dashboard/widgets/IncomingDocumentsWidget.vue'
 import MyActionItemsWidget from './views/dashboard/widgets/MyActionItemsWidget.vue'
 import OverdueActionsKpiWidget from './views/dashboard/widgets/OverdueActionsKpiWidget.vue'
+// interests-and-integrity (REQ-INT-010): the overdue-review KPI card.
+import OverdueReviewsKpiWidget from './views/dashboard/widgets/OverdueReviewsKpiWidget.vue'
 import PendingVotesKpiWidget from './views/dashboard/widgets/PendingVotesKpiWidget.vue'
 import PendingVotesListWidget from './views/dashboard/widgets/PendingVotesListWidget.vue'
 import RecentDecisionsWidget from './views/dashboard/widgets/RecentDecisionsWidget.vue'
@@ -137,7 +152,6 @@ import ParticipationPage from './views/participation/ParticipationPage.vue'
 // User settings (user-settings-v1): in-app mount of the personal settings
 // sections (notification / display / delegation / communication). The
 // canonical mount is the Nextcloud personal settings panel (ISettings).
-import UserSettingsPage from './views/settings/UserSettingsPage.vue'
 
 /**
  * Wrap a Vue component into the v2 registry shape required by CnAppRoot's
@@ -260,6 +274,17 @@ export default {
 	GovernanceBodyCompositionTab: page(GovernanceBodyCompositionTab),
 	// Participating organisations of a shared body (bodies-shared-body-participations, bod-13).
 	BodyParticipationsTab: page(BodyParticipationsTab),
+	// Step-down schedule of a body (bodies-term-of-office-and-step-down, bod-07).
+	// @custom-widget-ratchet exclude the step-down schedule unions two schemas (memberships and position holds) into one list sorted by end date, which one object-list cannot do
+	StepDownScheduleWidget: page(StepDownScheduleWidget),
+	DecisionGoalWidget: page(DecisionGoalWidget),
+	// The goal page (goals-linked-to-decisions Task 4, board DcDoel).
+	// @custom-widget-ratchet exclude the progress card counts objects of three schemas against their totals, which one stats tile cannot do
+	GoalProgressWidget: page(GoalProgressWidget),
+	// @custom-widget-ratchet exclude the contributions list joins four schemas (commitment, action item, planned agenda item, decision) into one list, which one object-list cannot do
+	GoalContributionsWidget: page(GoalContributionsWidget),
+	GoalParentWidget: page(GoalParentWidget),
+	GoalStepBar: page(GoalStepBar),
 	// Steps of a planning cycle in order (planning-cycle-generate-from-template, pla-12).
 	PlanningCycleStepsTab: page(PlanningCycleStepsTab),
 	MeetingDecisionsTab: page(MeetingDecisionsTab),
@@ -271,6 +296,8 @@ export default {
 	AgendaItemTypeFieldsTab: page(AgendaItemTypeFieldsTab),
 	AgendaMotionsTab: page(AgendaMotionsTab),
 	MotionAmendmentsTab: page(MotionAmendmentsTab),
+	MotionChangeRecommendationsTab: page(MotionChangeRecommendationsTab),
+	MotionTextLinesTab: page(MotionTextLinesTab),
 	// Chair-controlled amendment voting order (motion-amendment spec).
 	MotionAmendmentOrderTab: page(MotionAmendmentOrderTab),
 	MotionVotesTab: page(MotionVotesTab),
@@ -290,6 +317,8 @@ export default {
 	MotionStageTab: page(MotionStageTab),
 	// followup-public-progress (fol-06): progress entries on a commitment.
 	CommitmentProgressTab: page(CommitmentProgressTab),
+	// toezeggingen-ingekomen-stukken Task 7: publish, withdraw, settle a commitment.
+	CommitmentPublicationTab: page(CommitmentPublicationTab),
 	AgendaItemConflictsTab: page(AgendaItemConflictsTab),
 	// The case system on the agenda item and meeting pages
 	// (platform-case-system-document-exchange).
@@ -324,6 +353,8 @@ export default {
 	// page() because slot resolution (resolveRegistryName) ignores `kind`;
 	// what matters is that the kind is one CnAppRoot's validator knows.
 	DecisionFormDialog: page(DecisionFormDialog),
+	// Index-page slot (below-header) on AncillaryPositions.
+	AncillaryCompliancePanel: page(AncillaryCompliancePanel),
 
 	// --- Dashboard v2 widgets (decidesk-dashboard-v2-widgets). ---
 	// Eleven CnDashboardPage slot components. CnPageRenderer / CnWidgetGrid
@@ -353,6 +384,12 @@ export default {
 		allowedSlots: ['dashboard', 'kpi'],
 	}),
 	OverdueActionsKpiWidget: widget(OverdueActionsKpiWidget, {
+		defaultSize: { w: 3, h: 2 },
+		minSize: { w: 2, h: 2 },
+		maxSize: { w: 4, h: 3 },
+		allowedSlots: ['dashboard', 'kpi'],
+	}),
+	OverdueReviewsKpiWidget: widget(OverdueReviewsKpiWidget, {
 		defaultSize: { w: 3, h: 2 },
 		minSize: { w: 2, h: 2 },
 		maxSize: { w: 4, h: 3 },
@@ -442,8 +479,11 @@ export default {
 	MeetingStepBar: page(MeetingStepBar),
 	// And the step bar of the simple amendment page (simple-amendment-page).
 	AmendmentStepBar: page(AmendmentStepBar),
+	// The decision's approval route, and sending it along one (routes-send-proposal-along-route).
+	DecisionApprovalTab: page(DecisionApprovalTab),
 	DecisionRouteTab: page(DecisionRouteTab),
 	DecisionVotingTab: page(DecisionVotingTab),
+	WrittenResolutionTab: page(WrittenResolutionTab),
 	RelatedDecisionsTab: page(RelatedDecisionsTab),
 
 	// Public-publication action tabs (publish-decisions-via-opencatalogi).
@@ -458,10 +498,10 @@ export default {
 	AgendaPaperRenditionsTab: page(AgendaPaperRenditionsTab),
 	AgendaPaperSummariesTab: page(AgendaPaperSummariesTab),
 	MinutesPublicationTab: page(MinutesPublicationTab),
+	OnboardingChecklistTab: page(OnboardingChecklistTab),
 
 	// --- User settings (user-settings-v1). ---
 	// Four personal-preference sections; per-user REST endpoints only.
-	UserSettingsPage: page(UserSettingsPage),
 
 	// --- Citizen participation (citizen-participation). ---
 	// Bespoke action surfaces: the citizen+staff participation view (reaction

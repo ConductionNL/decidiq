@@ -115,13 +115,12 @@ describe('Start from a template', () => {
 describe('Copy from a meeting', () => {
 	it('adds the two picked items after the last item, in the earlier order', () => {
 		const current = [{ orderNumber: 1 }, { orderNumber: 4 }]
-		const items = itemsFromMeeting(
-			earlier,
-			EARLIER,
-			MEETING,
-			nextOrderNumber(current),
-			['i-3', 'i-1'],
-		)
+		const items = itemsFromMeeting(earlier, {
+			fromMeetingId: EARLIER,
+			meetingId: MEETING,
+			startAt: nextOrderNumber(current),
+			pickedIds: ['i-3', 'i-1'],
+		})
 		expect(items.map((i) => i.title)).toEqual(['Opening', 'Rondvraag'])
 		expect(items.map((i) => i.orderNumber)).toEqual([5, 6])
 		expect(items[0].formalityOutcome).toBeUndefined()
@@ -133,7 +132,14 @@ describe('Copy from a meeting', () => {
 	})
 
 	it('copies the whole agenda when nothing is picked', () => {
-		expect(itemsFromMeeting(earlier, EARLIER, MEETING, 1, [])).toHaveLength(3)
+		expect(
+			itemsFromMeeting(earlier, {
+				fromMeetingId: EARLIER,
+				meetingId: MEETING,
+				startAt: 1,
+				pickedIds: [],
+			}),
+		).toHaveLength(3)
 		expect(nextOrderNumber([])).toBe(1)
 	})
 })

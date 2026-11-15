@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -32,7 +32,7 @@ use Psr\Log\LoggerInterface;
 /**
  * Tests for GovernanceReportingService.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
  */
 class GovernanceReportingServiceTest extends TestCase {
 
@@ -283,6 +283,34 @@ class GovernanceReportingServiceTest extends TestCase {
 		$this->assertStringContainsString('meetingCount,4', $result['body']);
 
 	}//end testExportReportReturnsCsv()
+
+	/**
+	 * exportReport quotes CSV values that hold a separator and keeps
+	 * formula-leading values inert.
+	 *
+	 * @return void
+	 */
+	public function testExportReportCsvValuesAreQuotedAndInert(): void {
+		$rows = [
+			GovernanceReportingService::SCHEMA => [
+				[
+					'id' => 'rep-2',
+					'boardIntegration' => 'b,1;=1+1',
+					'year' => '=HYPERLINK("https://evil.example")',
+					'meetingCount' => 4,
+				],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
+
+		$lines = explode("\n", $svc->exportReport('rep-2', 'csv')['body']);
+
+		$this->assertSame('boardKoppeling,"b,1;\'=1+1"', $lines[1]);
+		$this->assertSame('year,"\'=HYPERLINK(""https://evil.example"")"', $lines[2]);
+		$this->assertSame('meetingCount,4', $lines[3]);
+
+	}//end testExportReportCsvValuesAreQuotedAndInert()
 
 	/**
 	 * listReports returns reports filtered by board.

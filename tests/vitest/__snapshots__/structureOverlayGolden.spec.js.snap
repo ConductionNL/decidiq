@@ -1,0 +1,3147 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`applyPageOverlay golden > append a non-list 1`] = `
+{
+  "config": {
+    "list": [
+      1,
+    ],
+    "other": [
+      2,
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > append onto a scalar 1`] = `
+{
+  "config": {
+    "list": [
+      2,
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > empty overlay 1`] = `
+{
+  "config": {
+    "a": 1,
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 0 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "other": "e",
+      },
+      null,
+      {
+        "other": "e",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+    "scalar": [
+      null,
+      {
+        "key": "b",
+      },
+    ],
+    "widgets": [
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+      "d",
+      "d",
+    ],
+  },
+  "id": "P",
+  "title": "Page 1",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 1 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      {
+        "label": "c",
+      },
+      {
+        "other": "e",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      "d",
+      {
+        "label": "c",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+    "two": "Two",
+  },
+  "title": "Page 2",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 2 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "key": "b",
+        "z": true,
+      },
+      {
+        "id": "a",
+        "n": 2,
+      },
+      7,
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "missing": [],
+    "scalar": [
+      {
+        "other": "e",
+      },
+      null,
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "widgets": [
+      7,
+      null,
+      {
+        "other": "e",
+      },
+      "d",
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 3",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 3 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [],
+    "scalar": [
+      "d",
+      {
+        "key": "b",
+      },
+    ],
+    "widgets": [
+      {
+        "other": "e",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+      {
+        "key": "b",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "key": "b",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 4",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 4 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "other": "e",
+      },
+      {
+        "id": "a",
+        "n": 3,
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "other": "e",
+      },
+    ],
+    "scalar": "over",
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 5",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 5 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": "text",
+    "widgets": [
+      {
+        "id": "a",
+        "n": 1,
+        "z": true,
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      "d",
+      "d",
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 6",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 6 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "label": "c",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      7,
+    ],
+    "scalar": [],
+    "widgets": [
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 7",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 7 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      7,
+      7,
+      7,
+    ],
+    "scalar": "text",
+    "widgets": [
+      7,
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 8",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 8 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "label": "c",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      {
+        "other": "e",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "two": "Two",
+  },
+  "title": "Page 9",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 9 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "scalar": "text",
+    "widgets": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      "d",
+    ],
+  },
+  "id": "P",
+  "title": "Page 10",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 10 1`] = `
+{
+  "config": {
+    "list": [
+      null,
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+    "scalar": "text",
+    "widgets": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      7,
+    ],
+  },
+  "id": "P",
+  "title": "Page 11",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 11 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "key": "b",
+      },
+      {
+        "label": "c",
+      },
+      "d",
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 12",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 12 1`] = `
+{
+  "config": {
+    "list": [
+      "d",
+      {
+        "key": "b",
+      },
+    ],
+    "missing": [
+      7,
+      {
+        "key": "b",
+      },
+    ],
+    "scalar": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "widgets": [
+      {
+        "key": "b",
+      },
+      {
+        "other": "e",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 13",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 13 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 14",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 14 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      "d",
+      7,
+      {
+        "key": "b",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "label": "c",
+      },
+    ],
+    "missing": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "scalar": [
+      "d",
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "label": "c",
+      },
+      {
+        "key": "b",
+      },
+    ],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 15",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 15 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "other": "e",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      null,
+    ],
+    "missing": [],
+    "scalar": [
+      {
+        "key": "b",
+      },
+    ],
+    "widgets": [
+      {
+        "key": "b",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 16",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 16 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 17",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 17 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+      {
+        "other": "e",
+      },
+    ],
+    "scalar": 3,
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 18",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 18 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "label": "c",
+      },
+      7,
+    ],
+    "scalar": [],
+    "widgets": [
+      7,
+    ],
+  },
+  "id": "P",
+  "title": "Page 19",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 19 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      null,
+      null,
+    ],
+  },
+  "id": "P",
+  "title": "Page 20",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 20 1`] = `
+{
+  "config": {
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 21",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 21 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [],
+    "scalar": "over",
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 22",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 22 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "key": "b",
+      },
+      7,
+    ],
+    "scalar": "over",
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 23",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 23 1`] = `
+{
+  "config": {
+    "list": [
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 24",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 24 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      "d",
+      "d",
+    ],
+    "missing": [
+      7,
+      7,
+      "d",
+    ],
+    "scalar": [
+      {
+        "other": "e",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "title": "Page 25",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 25 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      {
+        "other": "e",
+      },
+      {
+        "other": "e",
+      },
+      7,
+      {
+        "key": "b",
+      },
+    ],
+    "scalar": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "widgets": [
+      null,
+      "d",
+      "d",
+      7,
+      7,
+    ],
+  },
+  "id": "P",
+  "title": "Page 26",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 26 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      7,
+    ],
+    "scalar": "over",
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 27",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 27 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      null,
+      "d",
+      "d",
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 28",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 28 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      "d",
+      {
+        "id": "a",
+        "n": 1,
+      },
+      null,
+      {
+        "key": "b",
+      },
+    ],
+    "scalar": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      "d",
+    ],
+    "widgets": [
+      {
+        "key": "b",
+      },
+      7,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 29",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 29 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "label": "c",
+      },
+      "d",
+      7,
+      {
+        "label": "c",
+      },
+    ],
+    "scalar": "text",
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 30",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 30 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": [],
+    "widgets": [
+      "d",
+      {
+        "other": "e",
+      },
+      {
+        "other": "e",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 31",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 31 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "label": "c",
+        "z": true,
+      },
+      {
+        "label": "c",
+        "z": true,
+      },
+      "d",
+      {
+        "other": "e",
+      },
+    ],
+    "scalar": [],
+    "widgets": [
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 32",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 32 1`] = `
+{
+  "config": {
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "title": "Page 33",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 33 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [],
+    "missing": [
+      {
+        "key": "b",
+      },
+      "d",
+    ],
+    "scalar": [],
+    "widgets": [
+      null,
+      {
+        "other": "e",
+      },
+      7,
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 34",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 34 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": 3,
+    "widgets": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "two": "Two",
+  },
+  "title": "Page 35",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 35 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": 3,
+  },
+  "id": "P",
+  "title": "Page 36",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 36 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      "d",
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 37",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 37 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "other": "e",
+      },
+      {
+        "key": "b",
+      },
+    ],
+    "scalar": "text",
+    "widgets": [
+      "d",
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 38",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 38 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 39",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 39 1`] = `
+{
+  "config": {
+    "list": [
+      7,
+      "d",
+      {
+        "id": "a",
+        "n": 1,
+      },
+      null,
+    ],
+    "scalar": "text",
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 40",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 40 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "label": "c",
+      },
+      {
+        "other": "e",
+      },
+    ],
+    "scalar": [
+      {
+        "label": "c",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      7,
+    ],
+    "widgets": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widget": {
+                "id": "w2",
+                "title": "Two",
+              },
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      "d",
+      {
+        "content": {
+          "sections": [
+            {
+              "widget": {
+                "id": "w2",
+                "title": "Two",
+              },
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 41",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 41 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      {
+        "other": "e",
+      },
+      {
+        "id": "a",
+        "n": 1,
+        "z": true,
+      },
+      null,
+      7,
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      7,
+      null,
+    ],
+    "scalar": "over",
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+    "two": "Two",
+  },
+  "title": "Page 42",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 42 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      null,
+      {
+        "other": "e",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      7,
+      null,
+      {
+        "label": "c",
+      },
+      7,
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 43",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 43 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [],
+    "scalar": "over",
+    "widgets": [
+      null,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "two": "Two",
+  },
+  "title": "Page 44",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 44 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      "d",
+      {
+        "key": "b",
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      {
+        "label": "c",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 45",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 45 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "key": "b",
+      },
+      7,
+    ],
+    "scalar": 3,
+    "widgets": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      "d",
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+    "two": "Two",
+  },
+  "title": "Page 46",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 46 1`] = `
+{
+  "config": {
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 47",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 47 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "label": "c",
+      },
+      "d",
+      {
+        "other": "e",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      {
+        "key": "b",
+      },
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+    "two": "Two",
+  },
+  "title": "Page 48",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 48 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": 3,
+    "widgets": [
+      "d",
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 49",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 49 1`] = `
+{
+  "config": {
+    "list": [
+      "d",
+      7,
+      {
+        "key": "b",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      7,
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "key": "b",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 50",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 50 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      null,
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "missing": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "label": "c",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      "d",
+    ],
+    "scalar": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      null,
+    ],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "key": "b",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+    "two": "Two",
+  },
+  "title": "Page 51",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 51 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "other": "e",
+      },
+    ],
+    "scalar": [],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      null,
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "other": "e",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 52",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 52 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "label": "c",
+        "n": 4,
+      },
+      7,
+      7,
+    ],
+    "scalar": [
+      {
+        "other": "e",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      7,
+    ],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+    "two": "Two",
+  },
+  "title": "Page 53",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 53 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": 3,
+    "widgets": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "key": "b",
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 54",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 54 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "key": "b",
+      },
+      null,
+    ],
+    "scalar": "over",
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 55",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 55 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "label": "c",
+      },
+    ],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 56",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 56 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "key": "b",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      {
+        "other": "e",
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 57",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 57 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      "d",
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+      7,
+    ],
+    "scalar": "over",
+    "widgets": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      7,
+      {
+        "label": "c",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 58",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 58 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "other": "e",
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      7,
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 59",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 59 1`] = `
+{
+  "config": {
+    "list": [
+      null,
+      {
+        "label": "c",
+      },
+    ],
+    "missing": [
+      null,
+      7,
+    ],
+    "scalar": [
+      "d",
+      "d",
+      {
+        "other": "e",
+      },
+    ],
+    "widgets": [
+      {
+        "label": "c",
+      },
+      {
+        "other": "e",
+      },
+      {
+        "key": "b",
+      },
+      {
+        "key": "b",
+      },
+      {
+        "label": "c",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      "d",
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 60",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 60 1`] = `
+{
+  "config": {
+    "list": [],
+    "scalar": 3,
+    "widgets": [
+      {
+        "other": "e",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "two": "Two",
+  },
+  "title": "Page 61",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 61 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      7,
+      {
+        "content": {
+          "sections": [
+            {
+              "widget": {
+                "id": "w2",
+                "title": "Two",
+              },
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      "d",
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 62",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 62 1`] = `
+{
+  "config": {
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      "d",
+      null,
+      "d",
+      7,
+    ],
+  },
+  "id": "P",
+  "title": "Page 63",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 63 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "key": "b",
+      },
+      null,
+      {
+        "key": "b",
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      null,
+    ],
+  },
+  "id": "P",
+  "title": "Page 64",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 64 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "id": "a",
+        "n": 1,
+        "z": true,
+      },
+      {
+        "id": "a",
+        "n": 1,
+        "z": true,
+      },
+    ],
+    "scalar": "over",
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 65",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 65 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 66",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 66 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [],
+    "scalar": "over",
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 67",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 67 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      "d",
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 68",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 68 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "scalar": "text",
+    "widgets": [
+      "d",
+      {
+        "other": "e",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 69",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 69 1`] = `
+{
+  "config": {
+    "scalar": "text",
+    "widgets": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 70",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 70 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      null,
+      7,
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "label": "c",
+      },
+      "d",
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 71",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 71 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      {
+        "label": "c",
+      },
+      {
+        "key": "b",
+      },
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 72",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 72 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      {
+        "label": "c",
+        "z": true,
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+    "scalar": "over",
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 73",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 73 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "w2",
+        "title": "Two",
+        "z": true,
+      },
+      null,
+      7,
+    ],
+    "scalar": 3,
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 74",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 74 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [
+      7,
+      {
+        "other": "e",
+      },
+      7,
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "scalar": "over",
+    "widgets": [
+      "d",
+      {
+        "key": "b",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 75",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 75 1`] = `
+{
+  "config": {
+    "extra": 1,
+    "list": [],
+    "missing": [],
+    "scalar": [],
+    "widgets": [
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+      "d",
+      {
+        "id": "a",
+        "n": 2,
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 76",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 76 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [
+      {
+        "label": "c",
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "missing": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "title": "Page 77",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 77 1`] = `
+{
+  "config": {
+    "extra": 2,
+    "list": [],
+    "scalar": [],
+    "widgets": [],
+  },
+  "id": "P",
+  "slots": {
+    "two": "Two",
+  },
+  "title": "Page 78",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 78 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "other": "e",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "key": "b",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "label": "c",
+      },
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+    ],
+    "missing": [],
+    "scalar": [
+      null,
+      {
+        "key": "b",
+      },
+      {
+        "id": "w2",
+        "title": "Two",
+      },
+    ],
+    "widgets": [
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+      7,
+      null,
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+  },
+  "id": "P",
+  "title": "Page 79",
+}
+`;
+
+exports[`applyPageOverlay golden > generated 79 1`] = `
+{
+  "config": {
+    "extra": 0,
+    "list": [
+      7,
+      "d",
+      {
+        "other": "e",
+      },
+      {
+        "key": "b",
+      },
+      null,
+    ],
+    "missing": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      7,
+      {
+        "id": "a",
+        "n": 1,
+      },
+    ],
+    "scalar": [
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "id": "a",
+        "n": 1,
+      },
+      "d",
+    ],
+    "widgets": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widgetId": "w2",
+            },
+            {
+              "widget": {
+                "id": "x",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "other": "e",
+      },
+      null,
+      {
+        "id": "a",
+        "n": 1,
+      },
+      {
+        "other": "e",
+      },
+      7,
+    ],
+  },
+  "id": "P",
+  "slots": {
+    "one": "One",
+  },
+  "title": "Page 80",
+}
+`;
+
+exports[`applyPageOverlay golden > order a non-list 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "a",
+      },
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > order with unknown names 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "b",
+      },
+      {
+        "id": "b",
+      },
+      {
+        "id": "a",
+      },
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > page without config 1`] = `
+{
+  "config": {
+    "a": 1,
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > patch a scalar item 1`] = `
+{
+  "config": {
+    "list": [
+      "a",
+      {
+        "id": "a",
+        "n": 2,
+      },
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > patch on a missing list 1`] = `
+{
+  "config": {
+    "list": [],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > patch with a null by-name 1`] = `
+{
+  "config": {
+    "list": [
+      {
+        "id": "a",
+      },
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > remove every item 1`] = `
+{
+  "config": {
+    "list": [],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > slots null 1`] = `
+{
+  "config": {},
+  "id": "P",
+  "slots": {
+    "one": 1,
+  },
+}
+`;
+
+exports[`applyPageOverlay golden > slots that are not an object 1`] = `
+{
+  "config": {},
+  "id": "P",
+  "slots": {
+    "one": 1,
+  },
+}
+`;
+
+exports[`applyPageOverlay golden > slots without page slots 1`] = `
+{
+  "config": {},
+  "id": "P",
+  "slots": {
+    "two": "Two",
+  },
+}
+`;
+
+exports[`applyPageOverlay golden > widgets get sections inlined 1`] = `
+{
+  "config": {
+    "widgets": [
+      {
+        "content": {
+          "sections": [
+            {
+              "widget": {
+                "id": "w2",
+              },
+            },
+          ],
+        },
+        "id": "w1",
+      },
+      {
+        "id": "w2",
+      },
+    ],
+  },
+  "id": "P",
+}
+`;
+
+exports[`applyPageOverlay golden > widgets not a list 1`] = `
+{
+  "config": {
+    "widgets": "x",
+  },
+  "id": "P",
+}
+`;

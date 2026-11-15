@@ -56,6 +56,7 @@ use Psr\Log\LoggerInterface;
  * @uses \OCA\Decidiq\Service\BroadcastWindows
  * @uses \OCA\Decidiq\Service\StreamingClient
  * @uses \OCA\Decidiq\Service\SigningAnswer
+ * @uses \OCA\Decidiq\Service\IntegriqConnection
  * @uses \OCA\Decidiq\Service\TranscriptionStaffGuard
  * @uses \OCA\Decidiq\Exception\BroadcastRefusedException
  * @uses \OCA\Decidiq\Support\FleetAppId
@@ -322,6 +323,13 @@ final class BroadcastControllerTest extends TestCase {
 	 */
 	public function testEveryRouteIsRegistered(): void {
 		$routes = require __DIR__ . '/../../../appinfo/routes.php';
+		// The declared routes; their /api/v1/ aliases are pinned by ApiPathAliasesTest.
+		$routes['routes'] = array_values(
+			array_filter(
+				$routes['routes'],
+				static fn (array $route): bool => str_ends_with((string) ($route['postfix'] ?? ''), 'v1') === false
+			)
+		);
 		$names  = array_column($routes['routes'], 'url', 'name');
 
 		$this->assertSame('/api/meetings/{meetingId}/broadcast', $names['broadcast#status'] ?? null);

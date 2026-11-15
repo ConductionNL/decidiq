@@ -20,18 +20,16 @@
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>.
  * SPDX-License-Identifier: EUPL-1.2
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
 
 declare(strict_types=1);
 
 namespace OCA\Decidiq\Controller;
 
-use OCA\Decidiq\AppInfo\Application;
-use OCA\Decidiq\Service\OriSerializer;
-use OCA\Decidiq\Service\OriPersonPublicationRule;
-use OCA\Decidiq\Service\OriVotePublicationRule;
-use OCP\AppFramework\Controller;
+use OCA\Decidiq\Kernel\Contracts\OriPersonPublicationRuleInterface;
+use OCA\Decidiq\Kernel\Contracts\OriSerializerInterface;
+use OCA\Decidiq\Kernel\Contracts\OriVotePublicationRuleInterface;
 use OCP\AppFramework\Db\DoesNotExistException;
 use OCP\AppFramework\Http;
 use OCP\AppFramework\Http\Attribute\AnonRateLimit;
@@ -51,9 +49,9 @@ use Throwable;
  * versioned independently from the general v1 REST API (REQ-ORI-001) so its
  * URL and response envelope live in this dedicated controller.
  *
- * @spec openspec/changes/p4-integration/tasks.md#task-11
+ * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
  */
-class OriController extends Controller {
+class OriController extends CorsJsonController {
 
 	/**
 	 * Map of ORI resource slug → register schema slug.
@@ -143,18 +141,18 @@ class OriController extends Controller {
 		// payload's own `oriType` (Besluit / Vergadering / Verslag); this envelope
 		// label describes the harvest collection.
 		'publications' => 'Publication',
-		'commitments' => OriSerializer::COMMITMENT_TYPE,
+		'commitments' => OriSerializerInterface::COMMITMENT_TYPE,
 	];
 
 	/**
 	 * ORI JSON-LD context URL.
 	 */
-	private const ORI_CONTEXT = OriSerializer::ORI_CONTEXT;
+	private const ORI_CONTEXT = OriSerializerInterface::ORI_CONTEXT;
 
 	/**
 	 * The ORI resource slug backed by derived PublicationPayload objects.
 	 */
-	private const PUBLICATIONS = OriSerializer::PUBLICATIONS_RESOURCE;
+	private const PUBLICATIONS = OriSerializerInterface::PUBLICATIONS_RESOURCE;
 
 	/**
 	 * Constructor.
@@ -163,22 +161,22 @@ class OriController extends Controller {
 	 * @param IConfig $config The Nextcloud config service
 	 * @param ContainerInterface $container The DI container
 	 * @param LoggerInterface $logger PSR-3 logger
-	 * @param OriSerializer $serializer The ORI JSON-LD serializer
-	 * @param OriVotePublicationRule $voteRule The publication rule for votes and vote events
-	 * @param OriPersonPublicationRule $personRule The publication rule for persons
+	 * @param OriSerializerInterface $serializer The ORI JSON-LD serializer
+	 * @param OriVotePublicationRuleInterface $voteRule The publication rule for votes and vote events
+	 * @param OriPersonPublicationRuleInterface $personRule The publication rule for persons
 	 *
 	 * @return void
 	 */
 	public function __construct(
 		IRequest $request,
-		private readonly IConfig $config,
+		IConfig $config,
 		private readonly ContainerInterface $container,
 		private readonly LoggerInterface $logger,
-		private readonly OriSerializer $serializer,
-		private readonly OriVotePublicationRule $voteRule,
-		private readonly OriPersonPublicationRule $personRule,
+		private readonly OriSerializerInterface $serializer,
+		private readonly OriVotePublicationRuleInterface $voteRule,
+		private readonly OriPersonPublicationRuleInterface $personRule,
 	) {
-		parent::__construct(appName: Application::APP_ID, request: $request);
+		parent::__construct(request: $request, config: $config);
 
 	}//end __construct()
 
@@ -197,7 +195,7 @@ class OriController extends Controller {
 	 *
 	 * @return JSONResponse JSON-LD list envelope or error
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	#[PublicPage]
@@ -229,14 +227,7 @@ class OriController extends Controller {
 		$type = self::ORI_TYPE_MAP[$resource];
 		$items = $this->serializer->serializeCollection(resource: $resource, type: $type, objects: ($objects ?? []));
 
-		return $this->jsonLdResponse(
-			payload: [
-				'@context' => self::ORI_CONTEXT,
-				'@type' => $type,
-				'count' => count($items),
-				'items' => $items,
-			]
-		);
+		return $this->collectionResponse(type: $type, items: $items);
 
 	}//end index()
 
@@ -258,7 +249,7 @@ class OriController extends Controller {
 	 *
 	 * @return array<string, string> The filter set
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 */
 	private function buildFilters(string $resource, string $schema): array {
@@ -267,7 +258,7 @@ class OriController extends Controller {
 			'schema' => $schema,
 		];
 
-		if (in_array(needle: $resource, haystack: OriSerializer::WINDOWED_RESOURCES, strict: true) === true) {
+		if (in_array(needle: $resource, haystack: OriSerializerInterface::WINDOWED_RESOURCES, strict: true) === true) {
 			// Publish-decisions-via-opencatalogi task 5.2 — the PublicationPayload
 			// feed has no `lifecycle`/`isPublished` field; its anonymous visibility
 			// is governed solely by the RBAC published-predicate the schema declares
@@ -369,7 +360,7 @@ class OriController extends Controller {
 			return $object;
 		}
 
-		if ($resource === OriSerializer::COMMITMENTS_RESOURCE) {
+		if ($resource === OriSerializerInterface::COMMITMENTS_RESOURCE) {
 			// A commitment's lifecycle is its progress (open .. disposed), not
 			// its visibility: it is public from its publication date on.
 			if ($this->serializer->isPayloadLive(object: $object) === false) {
@@ -404,7 +395,7 @@ class OriController extends Controller {
 	 * @param string $resource The ORI resource slug
 	 * @param string $id The entity UUID
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 * @spec openspec/specs/public-publication/spec.md
 	 *
 	 * @return JSONResponse The JSON-LD entity or error
@@ -498,14 +489,7 @@ class OriController extends Controller {
 			$items[] = $this->serializer->serializeAllowed(type: $type, fields: $row);
 		}
 
-		return $this->jsonLdResponse(
-			payload: [
-				'@context' => self::ORI_CONTEXT,
-				'@type' => $type,
-				'count' => count($items),
-				'items' => $items,
-			]
-		);
+		return $this->collectionResponse(type: $type, items: $items);
 	}//end ruledIndex()
 
 	/**
@@ -573,7 +557,7 @@ class OriController extends Controller {
 	 *
 	 * @return JSONResponse The decorated response
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-11
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
 	 */
 	private function jsonLdResponse(array $payload): JSONResponse {
 		$response = new JSONResponse($payload);
@@ -584,13 +568,34 @@ class OriController extends Controller {
 	}//end jsonLdResponse()
 
 	/**
+	 * Wrap serialized items in the JSON-LD collection envelope.
+	 *
+	 * @param string $type The ORI @type of the collection
+	 * @param array<int, array<string, mixed>> $items The serialized items
+	 *
+	 * @return JSONResponse The decorated response
+	 *
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-11
+	 */
+	private function collectionResponse(string $type, array $items): JSONResponse {
+		return $this->jsonLdResponse(
+			payload: [
+				'@context' => self::ORI_CONTEXT,
+				'@type' => $type,
+				'count' => count($items),
+				'items' => $items,
+			]
+		);
+	}//end collectionResponse()
+
+	/**
 	 * CORS preflight handler for the list endpoint.
 	 *
 	 * @param string $resource The ORI resource slug
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -598,10 +603,7 @@ class OriController extends Controller {
 	public function preflight(string $resource): JSONResponse {
 		unset($resource);
 
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end preflight()
 
 	/**
@@ -616,7 +618,7 @@ class OriController extends Controller {
 	 *
 	 * @return JSONResponse HTTP 200 with Access-Control-* headers
 	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
+	 * @spec openspec/changes/archive/2026-05-11-p4-integration/tasks.md#task-1.4
 	 */
 	#[PublicPage]
 	#[NoCSRFRequired]
@@ -624,50 +626,6 @@ class OriController extends Controller {
 	public function preflightItem(string $resource, string $id): JSONResponse {
 		unset($resource, $id);
 
-		$response = new JSONResponse([], Http::STATUS_OK);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
+		return $this->preflightResponse();
 	}//end preflightItem()
-
-	/**
-	 * Build a consistent JSON error envelope (REQ-API-003).
-	 *
-	 * @param string $message The user-facing message
-	 * @param int $status The HTTP status code
-	 *
-	 * @return JSONResponse The decorated error response
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.2
-	 */
-	private function errorResponse(string $message, int $status): JSONResponse {
-		$response = new JSONResponse(['message' => $message, 'code' => $status], $status);
-		$this->applyCorsHeaders(response: $response);
-
-		return $response;
-	}//end errorResponse()
-
-	/**
-	 * Apply CORS headers using the configured proxy origin when available.
-	 *
-	 * @param JSONResponse $response The response to decorate
-	 *
-	 * @return void
-	 *
-	 * @spec openspec/changes/p4-integration/tasks.md#task-1.4
-	 * @spec openspec/changes/p4-integration/tasks.md#task-10.4
-	 */
-	private function applyCorsHeaders(JSONResponse $response): void {
-		$origin = $this->config->getSystemValueString(key: 'overwrite.cli.url', default: '*');
-
-		$allowedOrigin = '*';
-		if ($origin !== '') {
-			$allowedOrigin = $origin;
-		}
-
-		$response->addHeader(name: 'Access-Control-Allow-Origin', value: $allowedOrigin);
-		$response->addHeader(name: 'Access-Control-Allow-Methods', value: 'GET, OPTIONS');
-		$response->addHeader(name: 'Access-Control-Allow-Headers', value: 'Authorization, Content-Type, X-Requested-With');
-
-	}//end applyCorsHeaders()
 }//end class

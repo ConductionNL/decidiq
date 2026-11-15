@@ -56,6 +56,11 @@
 					<router-link :to="{ path: `/governance-bodies/${row.bodyId}` }">
 						{{ row.bodyName || t('decidiq', 'Unnamed body') }}
 					</router-link>
+					<router-link
+						class="decidiq-person__meta"
+						:to="{ name: 'MembershipDetail', params: { id: row.id } }">
+						{{ t('decidiq', 'Membership') }}
+					</router-link>
 					<span class="decidiq-person__meta">
 						{{ [row.role, row.party].filter(Boolean).join(' · ') }}
 					</span>
@@ -97,6 +102,14 @@
 						<router-link
 							:to="{ path: `/governance-bodies/${row.bodyId}` }">
 							{{ row.bodyName || t('decidiq', 'Unnamed body') }}
+						</router-link>
+						<router-link
+							class="decidiq-person__meta"
+							:to="{
+								name: 'MembershipDetail',
+								params: { id: row.id },
+							}">
+							{{ t('decidiq', 'Membership') }}
 						</router-link>
 						<span class="decidiq-person__meta">
 							{{
@@ -186,35 +199,8 @@ export default {
 			this.error = ''
 			this.photoFailed = false
 			try {
-				const [person, memberships] = await Promise.all([
-					ensureRelationType('person').fetchObject(
-						'person',
-						this.objectId,
-					),
-					ensureRelationType('membership').fetchCollection('membership', {
-						person: this.objectId,
-						_limit: 100,
-					}),
-				])
-				const bodyIds = [
-					...new Set(
-						(memberships || [])
-							.map((m) => m.governanceBody)
-							.filter(Boolean),
-					),
-				]
-				const bodyStore = ensureRelationType('governance-body')
-				const bodies = await Promise.all(
-					bodyIds.map((id) =>
-						bodyStore
-							.fetchObject('governance-body', id)
-							.catch(() => null),
-					),
-				)
-				const bodiesById = {}
-				bodyIds.forEach((id, i) => {
-					bodiesById[id] = bodies[i] || {}
-				})
+				const [person, memberships] = await this.fetchPersonAndMemberships()
+				const bodiesById = await this.fetchBodies(memberships || [])
 				this.person = person
 				this.sections = membershipSections(memberships || [], bodiesById)
 			} catch (e) {
@@ -223,6 +209,47 @@ export default {
 			} finally {
 				this.loading = false
 			}
+		},
+
+		/**
+		 * The person and their memberships, read side by side.
+		 *
+		 * @return {Promise<Array>} The person and the memberships.
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+		 */
+		fetchPersonAndMemberships() {
+			return Promise.all([
+				ensureRelationType('person').fetchObject('person', this.objectId),
+				ensureRelationType('membership').fetchCollection('membership', {
+					person: this.objectId,
+					_limit: 100,
+				}),
+			])
+		},
+
+		/**
+		 * The bodies the memberships are in, by id; a body that cannot be read
+		 * is an empty object.
+		 *
+		 * @param {Array<object>} memberships The person's memberships.
+		 * @return {Promise<object>} The bodies by id.
+		 * @spec openspec/specs/person-and-membership/spec.md#requirement-req-mpr-002-a-membership-carries-the-members-portfolio
+		 */
+		async fetchBodies(memberships) {
+			const bodyIds = [
+				...new Set(memberships.map((m) => m.governanceBody).filter(Boolean)),
+			]
+			const bodyStore = ensureRelationType('governance-body')
+			const bodies = await Promise.all(
+				bodyIds.map((id) =>
+					bodyStore.fetchObject('governance-body', id).catch(() => null),
+				),
+			)
+			const bodiesById = {}
+			bodyIds.forEach((id, i) => {
+				bodiesById[id] = bodies[i] || {}
+			})
+			return bodiesById
 		},
 
 		/**

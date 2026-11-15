@@ -1,0 +1,218 @@
+{
+    "per-item": {
+        "sections": [
+            {
+                "agendaItem": "ai-1",
+                "title": "Opening",
+                "summary": "De voorzitter opent. BENOEMING besproken.",
+                "suggestions": [
+                    {
+                        "title": "Benoeming",
+                        "recordType": "decision",
+                        "linkedId": "d-2",
+                        "unverified": false
+                    },
+                    {
+                        "title": "Stemming benoeming",
+                        "recordType": "voting-round",
+                        "linkedId": "",
+                        "unverified": true
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-per-item",
+                    "generatedAt": "2026-03-01T10:00:00+00:00"
+                }
+            },
+            {
+                "agendaItem": "u-3",
+                "title": "Rondvraag",
+                "summary": "Rondvraag: via lijst genoemd.",
+                "suggestions": [
+                    {
+                        "title": "Via lijst",
+                        "recordType": "decision",
+                        "linkedId": "d-5",
+                        "unverified": false
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-per-item",
+                    "generatedAt": "2026-03-01T10:00:00+00:00"
+                }
+            },
+            {
+                "agendaItem": "ai-2",
+                "title": "Begroting",
+                "summary": "Begroting 2027 en stemming begroting aangenomen.",
+                "suggestions": [
+                    {
+                        "title": "Begroting 2027",
+                        "recordType": "decision",
+                        "linkedId": "d-1",
+                        "unverified": false
+                    },
+                    {
+                        "title": "Stemming begroting",
+                        "recordType": "voting-round",
+                        "linkedId": "v-1",
+                        "unverified": false
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-per-item",
+                    "generatedAt": "2026-03-01T10:00:00+00:00"
+                }
+            },
+            {
+                "agendaItem": "",
+                "title": "Agendapunt",
+                "summary": "Samenvatting 4",
+                "suggestions": [
+                    {
+                        "title": "Losse motie",
+                        "recordType": "decision",
+                        "linkedId": "",
+                        "unverified": true
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-per-item",
+                    "generatedAt": "2026-03-01T10:00:00+00:00"
+                }
+            }
+        ],
+        "prompts": [
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Opening\n\nTranscript:\nVoorzitter: Welkom.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: \n- Besluit: \n- Stemming: Stemming benoeming (verworpen)",
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Rondvraag\n\nTranscript:\nLid: Bij de uuid.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Via lijst",
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Begroting\n\nTranscript:\nOver de begroting.\nZonder label.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Stemming: Stemming begroting (aangenomen)",
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Agendapunt\n\nTranscript:\nLid: Los punt.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Losse motie"
+        ]
+    },
+    "no-agenda-items": {
+        "sections": [
+            {
+                "agendaItem": "",
+                "title": "Volledige vergadering",
+                "summary": "Alles: begroting 2027, losse motie, zonder uitkomst.",
+                "suggestions": [
+                    {
+                        "title": "Begroting 2027",
+                        "recordType": "decision",
+                        "linkedId": "d-1",
+                        "unverified": false
+                    },
+                    {
+                        "title": "Benoeming",
+                        "recordType": "decision",
+                        "linkedId": "",
+                        "unverified": true
+                    },
+                    {
+                        "title": "Losse motie",
+                        "recordType": "decision",
+                        "linkedId": "d-4",
+                        "unverified": false
+                    },
+                    {
+                        "title": "Via lijst",
+                        "recordType": "decision",
+                        "linkedId": "",
+                        "unverified": true
+                    },
+                    {
+                        "title": "Stemming begroting",
+                        "recordType": "voting-round",
+                        "linkedId": "",
+                        "unverified": true
+                    },
+                    {
+                        "title": "Stemming benoeming",
+                        "recordType": "voting-round",
+                        "linkedId": "",
+                        "unverified": true
+                    },
+                    {
+                        "title": "Zonder uitkomst",
+                        "recordType": "voting-round",
+                        "linkedId": "",
+                        "unverified": false
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-no-agenda-items",
+                    "generatedAt": "2026-03-02T10:00:00+00:00"
+                }
+            }
+        ],
+        "prompts": [
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:\nVoorzitter: Welkom.\nOver de begroting.\nZonder label.\n\nLid: Los punt.\nLid: Bij de uuid.\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Begroting 2027\n- Besluit: \n- Besluit: \n- Besluit: Losse motie\n- Besluit: Via lijst\n- Stemming: Stemming begroting (aangenomen)\n- Stemming: Stemming benoeming (verworpen)\n- Stemming: Zonder uitkomst ()"
+        ]
+    },
+    "no-timeline": {
+        "sections": [
+            {
+                "agendaItem": "",
+                "title": "Volledige vergadering",
+                "summary": "Niets bijzonders.",
+                "suggestions": [
+                    {
+                        "title": "Niets",
+                        "recordType": "decision",
+                        "linkedId": "d-9",
+                        "unverified": false
+                    }
+                ],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-no-timeline",
+                    "generatedAt": "2026-03-03T10:00:00+00:00"
+                }
+            }
+        ],
+        "prompts": [
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:\nA: Een.\nTwee.\n\n\nVastgelegde uitkomsten (ter referentie, niet verzinnen):\n- Besluit: Niets"
+        ]
+    },
+    "no-records": {
+        "sections": [
+            {
+                "agendaItem": "ai-2",
+                "title": "Agendapunt",
+                "summary": "Samenvatting 1",
+                "suggestions": [],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-no-records",
+                    "generatedAt": "2026-03-04T10:00:00+00:00"
+                }
+            }
+        ],
+        "prompts": [
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Agendapunt\n\nTranscript:\nOver de begroting.\nZonder label."
+        ]
+    },
+    "empty": {
+        "sections": [
+            {
+                "agendaItem": "",
+                "title": "Volledige vergadering",
+                "summary": "",
+                "suggestions": [],
+                "provenance": {
+                    "aiGenerated": true,
+                    "providerId": "provider-empty",
+                    "generatedAt": "2026-03-05T10:00:00+00:00"
+                }
+            }
+        ],
+        "prompts": [
+            "Vat de bespreking van het volgende agendapunt zakelijk samen in het Nederlands. Noem genomen besluiten en actiepunten. Verzin niets dat niet in het transcript staat.\n\nAgendapunt: Volledige vergadering\n\nTranscript:"
+        ]
+    }
+}

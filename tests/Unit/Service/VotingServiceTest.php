@@ -63,6 +63,8 @@ use Psr\Log\NullLogger;
  * @spec openspec/changes/p2-motion-and-voting/tasks.md#task-2.5
  */
 class VotingServiceTest extends TestCase {
+	use VotingFacadeCalls;
+
 
 	/**
 	 * Captured saveObject() calls, in order.
@@ -429,7 +431,7 @@ class VotingServiceTest extends TestCase {
 		// try would be swallowed by this catch.
 		$refusal = null;
 		try {
-			$service->openVotingRound('motion-uuid', 'meeting-uuid', 'for-against-abstain', false, null);
+			$this->openRoundOn($service, 'motion-uuid', 'meeting-uuid', 'for-against-abstain', false, null);
 		} catch (\RuntimeException $e) {
 			$refusal = $e;
 		}
@@ -466,7 +468,7 @@ class VotingServiceTest extends TestCase {
 			)
 		);
 
-		$result = $service->castVote('round-uuid', 'participant-uuid', 'for', false, null);
+		$result = $this->castVoteOn($service, 'round-uuid', 'participant-uuid', 'for', false, null);
 
 		$votes = $this->savesFor('vote');
 		self::assertCount(1, $votes);
@@ -519,7 +521,7 @@ class VotingServiceTest extends TestCase {
 
 		$refusal = null;
 		try {
-			$service->castVote('round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
+			$this->castVoteOn($service, 'round-uuid', 'delegate-uuid', 'for', true, 'delegator-uuid');
 		} catch (\RuntimeException $e) {
 			$refusal = $e;
 		}
