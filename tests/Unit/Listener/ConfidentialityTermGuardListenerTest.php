@@ -145,6 +145,20 @@ class ConfidentialityTermGuardListenerTest extends TestCase {
 	}//end testAnotherSchemaIsIgnored()
 
 	/**
+	 * A create without an entity is let through untouched.
+	 *
+	 * @return void
+	 */
+	public function testACreateWithoutAnEntityIsLetThrough(): void {
+		$event = new ObjectCreatingEvent(null);
+
+		(new ConfidentialityTermGuardListener())->handle($event);
+
+		self::assertFalse($event->isPropagationStopped());
+		self::assertSame([], $event->getErrors());
+	}//end testACreateWithoutAnEntityIsLetThrough()
+
+	/**
 	 * The guard is subscribed before create and before update, for the restriction schema only.
 	 *
 	 * @return void

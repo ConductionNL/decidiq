@@ -5,7 +5,8 @@
  * The goal page in the simple structure (board DcDoel): the board's tabs in the
  * board's order, and the facts beside them where the board draws them. Every name the overlay uses is checked
  * against what it names: the declared widgets, the schema, the registry and
- * the Dutch catalogue.
+ * the Dutch catalogue. The step bar sits above the strip, as the board draws it
+ * (goals-linked-to-decisions REQ-014).
  */
 
 import { buildManifest } from '@conduction/nextcloud-vue/src/utils/buildManifest.js'
@@ -22,7 +23,8 @@ const STRIP = 'goal-panels'
 const VISIBLE = ['Overview', 'Related', 'History']
 const VISIBLE_NL = ['Overzicht', 'Gerelateerd', 'Historie']
 const OVERFLOW = []
-const SIDE = ['goal-side-facts']
+const SIDE = ['goal-side-facts', 'goal-parent']
+const ABOVE = ['goal-steps']
 const FACTS_LEAD = 'status'
 
 const ROOT = path.resolve(__dirname, '../..')
@@ -120,10 +122,12 @@ function sideWidgets() {
 }
 
 describe(`${PAGE} in the simple structure`, () => {
-	it('lays out one tab strip and nothing else in the body', () => {
+	it('lays out the step bar and one tab strip and nothing else in the body', () => {
 		expect(strip?.type).toBe('tabs')
-		expect(config.layout.map((item) => item.widgetId)).toEqual([STRIP])
-		expect(config.layout[0].gridWidth).toBe(12)
+		expect(config.layout.map((item) => item.widgetId)).toEqual([...ABOVE, STRIP])
+		for (const item of config.layout) {
+			expect(item.gridWidth, item.widgetId).toBe(12)
+		}
 	})
 
 	it('shows the board tabs in the board order', () => {
@@ -149,6 +153,7 @@ describe(`${PAGE} in the simple structure`, () => {
 		const shown = [
 			...tabs.flatMap((tab) => blocksOf(tab).map((widget) => widget.id)),
 			...sideWidgets().map((widget) => widget.id),
+			...ABOVE,
 		]
 		expect(declared.filter((id) => !shown.includes(id))).toEqual([])
 		expect(new Set(shown).size).toBe(shown.length)
@@ -159,6 +164,7 @@ describe(`${PAGE} in the simple structure`, () => {
 			...tabs.map((tab) => widgets.get(tab.widgetId)),
 			...tabs.flatMap(blocksOf),
 			...sideWidgets(),
+			...ABOVE.map((id) => widgets.get(id)),
 		]
 		for (const widget of placed) {
 			expect(widget, 'a placed widget exists').toBeDefined()

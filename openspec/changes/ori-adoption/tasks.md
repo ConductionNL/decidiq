@@ -78,12 +78,13 @@
 
 ## 4. Demo seed
 
-- [ ] 4.1 Translate the Voorbeeldstad demo dataset from procest's
+- [x] 4.1 Translate the Voorbeeldstad demo dataset from procest's
   `ori_register.json` through the mapping into a new register fragment
   `lib/Settings/register.d/66-ori-raadsinformatie-seed.json` (bodies, persons,
   memberships, meetings, agenda items, documents, decisions, voting rounds).
   **Acceptance:** double import creates each object exactly once; seed values
   keep Dutch *content* (names, titles) but zero Dutch *identifiers*.
+  > 2026-11-15 built: the source is procest's `lib/Settings/ori_register.json` as it stood before procest removed it (the parent of `0b18be5cf`, 115 objects). It was run through `OriImportService` itself, so the seed is what `occ decidiq:import-ori` writes. Since the `seed-profiles` change, seed objects no longer go in `register.d` (a bare install has zero objects), so the result is an example set, `lib/Settings/profiles/council-information.json` (196 objects: 13 bodies, 35 persons, 70 memberships, 10 meetings, 15 documents, 41 agenda items, 6 decisions, 6 voting rounds), not a `66-` fragment (that number is taken). Every object carries a fixed uuid, so a second import finds each one and adds nothing, and a decision's `subjectId` (not a schema `$ref`) still names its agenda item. The import tag is left off, so `--rollback` leaves the demo set alone. Translating it surfaced two importer defects, fixed here: a decided decision got no `decisionDate` (now the start of the vote's meeting), and an inactive member's `endDate` was a bare day where the schema asks for a date-time. `CouncilInformationExampleSetTest` validates every object against its merged schema and checks uuids, references, the decided decisions and that no ORI identifier survives.
 
 ## 5. Verification & handover
 
