@@ -117,6 +117,9 @@
         <file name="tests/Stubs/Service/Lifecycle/LifecycleGraphCheck.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/FlowNodeCall.php" preloadClasses="true" />
         <file name="tests/Stubs/Service/Flow/ICallFlowNode.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/NamedActor.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEventOptions.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEvent.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--
