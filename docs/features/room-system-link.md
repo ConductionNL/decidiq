@@ -46,6 +46,16 @@ a member" or "Seat 30 is linked to more than one member".
   ballot cannot be read from the desk units".
 - The same message sent twice in one meeting is applied once.
 
+## What decidiq sends to the room
+
+While a room system is linked, decidiq keeps the room's displays and desks in step:
+
+- **The agenda**: once the agenda is published, the items in order and the item under discussion, again each time the agenda version or the current item changes.
+- **The speakers' list**: every speech recorded in the meeting, in the order members spoke, with their name and seat, each time a speech is added.
+- **Vote results**: when the chair closes a voting round, the current agenda item and the totals for, against and abstained.
+
+With no room system linked nothing is sent, and when the room system cannot be reached the meeting carries on as usual.
+
 ## Read rejected messages and apply them again
 
 1. Open the meeting and go to the **Room system** widget (in the simple

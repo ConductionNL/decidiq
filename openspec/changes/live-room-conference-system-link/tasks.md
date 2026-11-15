@@ -63,6 +63,7 @@
 ### Task 7: Send the agenda, speakers and vote results to the room
 - **spec_ref**: `openspec/changes/live-room-conference-system-link/specs/room-system-link/spec.md#requirement-req-rcsl-007-the-room-system-receives-the-agenda-the-speakers-and-the-vote-results`
 - **files**: `lib/Service/RoomSystemMessageService.php` (outgoing messages through the `room-system` connection), `lib/Listener/RoomSystemMessageListener.php`, `tests/Unit/Service/RoomSystemMessageServiceTest.php`
-- [ ] Implement
-- [ ] Test
+- [x] Implement
+- [x] Test
+  - Built in their own classes rather than in the inbound service and listener: `RoomSystemClient` (one POST per message under `/room-system/` on the linked source through integriq's call service; never throws, sends nothing while no source is linked), `RoomSystemFeed` (`agenda` when a published meeting's agenda version or current item changes, `speakers` with the meeting's whole speakers' list in start order when an engagement record's speeches change, `vote-result` with the current item and the totals for, against and abstained when a round's `closedAt` is first set) and `RoomSystemFeedListener` on created and updated `meeting`, `voting-round` and `engagement-record`, registered in `ObjectListenerRegistrar::subscribeRoomSystem()`. A refused or unreachable room system is logged and the save carries on. Unit: `RoomSystemFeedTest` (10 tests, real `ObjectUpdatedEvent`).
 

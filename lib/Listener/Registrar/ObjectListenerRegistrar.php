@@ -35,6 +35,7 @@ namespace OCA\Decidiq\Listener\Registrar;
 use OCA\Decidiq\Listener\AgendaItemChangeListener;
 use OCA\Decidiq\Listener\ImplementationUpdateListener;
 use OCA\Decidiq\Listener\PlanningCycleCreatedListener;
+use OCA\Decidiq\Listener\RoomSystemFeedListener;
 use OCA\Decidiq\Listener\RoomSystemMessageListener;
 use OCA\Decidiq\Listener\TechnicalQuestionListener;
 use OCA\Decidiq\Listener\GovernanceRoleProjectionListener;
@@ -219,6 +220,18 @@ class ObjectListenerRegistrar {
 			registers: null,
 			schemas: [RoomSystemMessageListener::SCHEMA_MESSAGE]
 		);
+
+		// The agenda, the speakers and closed rounds' totals go back to the
+		// room (REQ-RCSL-007); the feed sends nothing while no room is linked.
+		foreach ([ObjectCreatedEvent::class, ObjectUpdatedEvent::class] as $event) {
+			$this->subscribe(
+				dispatcher: $dispatcher,
+				event: $event,
+				listener: RoomSystemFeedListener::class,
+				registers: null,
+				schemas: array_keys(RoomSystemFeedListener::HANDLERS)
+			);
+		}
 	}//end subscribeRoomSystem()
 
 	/**
