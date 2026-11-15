@@ -112,8 +112,8 @@ final class OriImportServiceTest extends TestCase {
 
 		// An alderman is a member of the executive board; an inactive member's memberships end at the cutover.
 		$alderman = $this->store->tagged('membership', 'ori:r2');
-		$this->assertSame(['member', $executive['id'], '2026-11-14'], [$alderman['role'], $alderman['governanceBody'], $alderman['endDate']]);
-		$this->assertSame('2026-11-14', $this->store->tagged('membership', 'ori:r2#group')['endDate']);
+		$this->assertSame(['member', $executive['id'], '2026-11-14T00:00:00+00:00'], [$alderman['role'], $alderman['governanceBody'], $alderman['endDate']]);
+		$this->assertSame('2026-11-14T00:00:00+00:00', $this->store->tagged('membership', 'ori:r2#group')['endDate']);
 
 		$this->assertSame('chair', $this->store->tagged('membership', 'ori:r3')['role']);
 		$this->assertSame('secretary', $this->store->tagged('membership', 'ori:r4')['role']);
@@ -158,6 +158,8 @@ final class OriImportServiceTest extends TestCase {
 			['Motie fietspad', 'resolution', 'adopted', 'decided', 'agenda-item', $motie['id'], 'Motie fietspad'],
 			[$decision['title'], $decision['decisionType'], $decision['outcome'], $decision['lifecycle'], $decision['subjectSchema'], $decision['subjectId'], $decision['subjectLabel']]
 		);
+		// A decided decision carries its date: the start of the meeting its agenda item belongs to.
+		$this->assertSame('2026-01-10T19:30:00+01:00', $decision['decisionDate']);
 		$round = $this->store->tagged('voting-round', 'ori:s1');
 		$this->assertSame(['for-against-abstain', false, 'adopted', 7, 3, 0, $decision['id']], [$round['votingMethod'], $round['isSecret'], $round['result'], $round['votesFor'], $round['votesAgainst'], $round['votesAbstain'], $round['subjectDecision']]);
 		$this->assertSame(
