@@ -213,6 +213,22 @@ final class ImplementationUpdateListenerTest extends TestCase {
 		self::assertSame([], $this->findCalls);
 	}//end testAnotherSchemaIsLeftAlone()
 
+	/**
+	 * A save without an entity is neither guarded nor projected.
+	 *
+	 * @return void
+	 */
+	public function testASaveWithoutAnEntityIsLeftAlone(): void {
+		$event = new ObjectCreatingEvent(null);
+		$this->listener(decision: $this->adopted())->handle($event);
+		$this->listener(decision: $this->adopted())->handle(new ObjectCreatedEvent(null));
+
+		self::assertFalse($event->isPropagationStopped());
+		self::assertSame([], $event->getErrors());
+		self::assertSame([], $this->findCalls);
+		self::assertSame([], $this->saved);
+	}//end testASaveWithoutAnEntityIsLeftAlone()
+
 	public function testTheNewestUpdateSetsTheDecisionStatus(): void {
 		$this->listener(decision: $this->adopted(extra: ['implementationStatus' => 'on-track', 'implementationStatusDate' => '2026-03-01']))
 			->handle(new ObjectCreatedEvent($this->update(data: ['decision' => 'dec-1', 'reportedOn' => '2026-06-15', 'status' => 'delayed'])));

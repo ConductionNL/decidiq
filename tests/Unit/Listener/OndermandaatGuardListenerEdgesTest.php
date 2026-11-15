@@ -164,4 +164,18 @@ class OndermandaatGuardListenerEdgesTest extends TestCase {
 
 		$this->assertSame(expected: [], actual: $this->checked);
 	}//end testAnyOtherEventIsIgnored()
+
+	/**
+	 * A create without an entity is not checked and not refused.
+	 *
+	 * @return void
+	 */
+	public function testACreateWithoutAnEntityIsLetThrough(): void {
+		$event = new ObjectCreatingEvent(null);
+
+		$this->listener(failure: new RuntimeException(message: 'must not be asked'))->handle(event: $event);
+
+		$this->assertSame(expected: [], actual: $this->checked);
+		$this->assertFalse(condition: $event->isPropagationStopped());
+	}//end testACreateWithoutAnEntityIsLetThrough()
 }//end class
