@@ -25,6 +25,7 @@ namespace OCA\Decidiq\Tests\Unit\Listener;
 use OCA\Decidiq\Event\DecisionRequestedEvent;
 use OCA\Decidiq\Listener\DecisionRequestedListener;
 use OCA\Decidiq\Service\DecisionIntegrationService;
+use OCP\EventDispatcher\Event;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 
@@ -139,4 +140,18 @@ class DecisionRequestedListenerTest extends TestCase {
 		self::assertArrayNotHasKey('context', $captured);
 
 	}//end testHandleWithoutContextForwardsNone()
+
+	/**
+	 * Any other event is ignored: nothing is created and nothing is logged.
+	 *
+	 * @return void
+	 */
+	public function testAnyOtherEventIsIgnored(): void {
+		$integration = $this->createMock(DecisionIntegrationService::class);
+		$integration->expects(self::never())->method('createDecision');
+		$logger = $this->createMock(LoggerInterface::class);
+		$logger->expects(self::never())->method(self::anything());
+
+		(new DecisionRequestedListener(integrationService: $integration, logger: $logger))->handle(new Event());
+	}//end testAnyOtherEventIsIgnored()
 }//end class

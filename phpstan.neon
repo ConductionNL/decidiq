@@ -32,6 +32,8 @@ parameters:
         # OpenRegister's flow engine (flow-request-decision-node): decidiq's
         # request-decision node implements IFlowNode, so the same reason applies.
         - tests/Stubs/Service/Flow/IFlowNode.php
+        - tests/Stubs/Service/Flow/ICallFlowNode.php
+        - tests/Stubs/Service/Flow/FlowNodeCall.php
         - tests/Stubs/Service/Flow/IFlowNodeConfigKeys.php
         - tests/Stubs/Service/Flow/FlowNodeRegistry.php
         - tests/Stubs/Service/Flow/RegisterFlowNodesEvent.php
@@ -43,6 +45,9 @@ parameters:
         - tests/Stubs/Db/FlowRun.php
         - tests/Stubs/Db/FlowRunMapper.php
         - tests/Stubs/Exception/FlowSignalRefused.php
+        # OpenRegister's validator for a lifecycle kept as data (#4291), which
+        # ProcessTemplateService resolves from the container for template graphs.
+        - tests/Stubs/Service/Lifecycle/LifecycleTransitionsValidator.php
 
     # ignoreErrors: none app-local. Removed 2026-09-11 after
     # `reportUnmatchedIgnoredErrors: true` showed both matched nothing:

@@ -39,7 +39,7 @@
 				}
 			},
 			"RoosterRegel": {
-				"version": "0.2.0",
+				"version": "0.3.0",
 				"description": "SUPERSEDED (retire-the-unbuilt-rooster): one derived term entry, materialized by a generator that does not exist. PositionHold carries the same facts as source data: membership, position, termNumber, reappointable, startDate and endDate. NOT copied forward, for the same reason as its parent, and because PositionHold requires a startDate that a rooster regel never recorded: it held only the END of the term, so any start date this migration wrote would be invented. Definition and slug are kept (hardDelete:false).",
 				"x-openregister": {
 					"active": false,

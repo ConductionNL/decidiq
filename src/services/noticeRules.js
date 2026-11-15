@@ -32,36 +32,65 @@ export const DEADLINE_WARNING_DAYS = 3
  * @spec openspec/specs/meeting-management/spec.md
  */
 export function getNoticeDeadlineInfo(meeting, now = new Date()) {
-	const raw = String(meeting?.meetingDate || meeting?.meetingStart || '').slice(
-		0,
-		10,
-	)
-	const meetingDate = new Date(`${raw}T00:00:00Z`)
-	if (!raw || Number.isNaN(meetingDate.getTime())) {
+	const meetingDate = meetingDay(meeting)
+	if (meetingDate === null) {
 		return { deadline: null, daysUntilDeadline: null, level: 'unknown' }
 	}
 
-	let periodDays = Number(meeting?.noticePeriodDays ?? DEFAULT_NOTICE_PERIOD_DAYS)
-	if (!Number.isFinite(periodDays) || periodDays < 0) {
-		periodDays = DEFAULT_NOTICE_PERIOD_DAYS
-	}
-
-	const deadline = new Date(meetingDate.getTime() - periodDays * 86400000)
+	const deadline = new Date(
+		meetingDate.getTime() - noticePeriodDays(meeting) * 86400000,
+	)
 	const today = new Date(`${now.toISOString().slice(0, 10)}T00:00:00Z`)
 	const daysUntilDeadline = Math.round(
 		(deadline.getTime() - today.getTime()) / 86400000,
 	)
 
-	let level = 'ok'
-	if (daysUntilDeadline < 0) {
-		level = 'overdue'
-	} else if (daysUntilDeadline <= DEADLINE_WARNING_DAYS) {
-		level = 'warning'
-	}
-
 	return {
 		deadline: deadline.toISOString().slice(0, 10),
 		daysUntilDeadline,
-		level,
+		level: deadlineLevel(daysUntilDeadline),
 	}
+}
+
+/**
+ * The meeting's day at UTC midnight, from `meetingDate` or `meetingStart`.
+ *
+ * @param {object} meeting Meeting payload.
+ *
+ * @return {Date|null} The day, null when there is no parseable date.
+ */
+function meetingDay(meeting) {
+	const raw = String(meeting?.meetingDate || meeting?.meetingStart || '').slice(
+		0,
+		10,
+	)
+	const day = new Date(`${raw}T00:00:00Z`)
+	return !raw || Number.isNaN(day.getTime()) ? null : day
+}
+
+/**
+ * The meeting's notice period in days; the statutory default when it is
+ * absent, negative or not a finite number.
+ *
+ * @param {object} meeting Meeting payload.
+ *
+ * @return {number} The notice period in days.
+ */
+function noticePeriodDays(meeting) {
+	const days = Number(meeting?.noticePeriodDays ?? DEFAULT_NOTICE_PERIOD_DAYS)
+	return !Number.isFinite(days) || days < 0 ? DEFAULT_NOTICE_PERIOD_DAYS : days
+}
+
+/**
+ * The warning level for the days left until the deadline.
+ *
+ * @param {number} daysUntilDeadline Whole days until the deadline.
+ *
+ * @return {string} 'overdue', 'warning' or 'ok'.
+ */
+function deadlineLevel(daysUntilDeadline) {
+	if (daysUntilDeadline < 0) {
+		return 'overdue'
+	}
+	return daysUntilDeadline <= DEADLINE_WARNING_DAYS ? 'warning' : 'ok'
 }

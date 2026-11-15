@@ -12,7 +12,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -28,11 +28,13 @@ use OCA\OpenRegister\Db\ObjectEntity;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\Log\LoggerInterface;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectFindOptions;
+use OCA\OpenRegister\Kernel\Contracts\Value\ObjectSaveOptions;
 
 /**
  * Tests for GovernanceReportingService.
  *
- * @spec openspec/changes/board-meeting-resolutions/tasks.md#task-5.3
+ * @spec openspec/changes/archive/2026-06-12-board-meeting-resolutions/tasks.md#task-5.3
  */
 class GovernanceReportingServiceTest extends TestCase {
 
@@ -74,7 +76,11 @@ class GovernanceReportingServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('find')->willReturnCallback(
-			function (int|string $id, ?array $_extend = [], bool $files = false, string|int|null $register = null, string|int|null $schema = null) use (&$rowsRef) {
+			function (int|string $id, ?ObjectFindOptions $options = null) use (&$rowsRef) {
+				$_extend = $options?->extend ?? [];
+				$files = $options?->files ?? false;
+				$register = $options?->register;
+				$schema = $options?->schema;
 				$schemaKey = (string)$schema;
 				foreach (($rowsRef[$schemaKey] ?? []) as $row) {
 					if (($row['id'] ?? null) === $id) {
@@ -89,7 +95,11 @@ class GovernanceReportingServiceTest extends TestCase {
 			}
 		);
 		$objectService->method('saveObject')->willReturnCallback(
-			function (array $object, ?array $extend = [], string|int|null $register = null, string|int|null $schema = null, ?string $uuid = null) use (&$savedRef, &$rowsRef): ObjectEntity {
+			function (array $object, ObjectSaveOptions $options = new ObjectSaveOptions()) use (&$savedRef, &$rowsRef): ObjectEntity {
+				$extend = $options->extend ?? [];
+				$register = $options->target->register;
+				$schema = $options->target->schema;
+				$uuid = $options->uuid;
 				$savedRef[] = $object + ['_schema' => (string)$schema];
 				$row = array_merge(['id' => $schema . '-' . count($savedRef)], $object);
 
@@ -283,6 +293,34 @@ class GovernanceReportingServiceTest extends TestCase {
 		$this->assertStringContainsString('meetingCount,4', $result['body']);
 
 	}//end testExportReportReturnsCsv()
+
+	/**
+	 * exportReport quotes CSV values that hold a separator and keeps
+	 * formula-leading values inert.
+	 *
+	 * @return void
+	 */
+	public function testExportReportCsvValuesAreQuotedAndInert(): void {
+		$rows = [
+			GovernanceReportingService::SCHEMA => [
+				[
+					'id' => 'rep-2',
+					'boardIntegration' => 'b,1;=1+1',
+					'year' => '=HYPERLINK("https://evil.example")',
+					'meetingCount' => 4,
+				],
+			],
+		];
+		$saved = [];
+		$svc = $this->makeService($rows, $saved);
+
+		$lines = explode("\n", $svc->exportReport('rep-2', 'csv')['body']);
+
+		$this->assertSame('boardKoppeling,"b,1;\'=1+1"', $lines[1]);
+		$this->assertSame('year,"\'=HYPERLINK(""https://evil.example"")"', $lines[2]);
+		$this->assertSame('meetingCount,4', $lines[3]);
+
+	}//end testExportReportCsvValuesAreQuotedAndInert()
 
 	/**
 	 * listReports returns reports filtered by board.

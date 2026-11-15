@@ -11,7 +11,7 @@
  this component (the abstract-sidebar contract doesn't traverse
  references for us).
 
- @spec openspec/changes/decidesk-manifest-v1/design.md (open question 3)
+ @spec openspec/changes/archive/2026-05-11-decidesk-manifest-v1/design.md (open question 3)
 -->
 <template>
 	<div
@@ -170,25 +170,9 @@ export default {
 }
 </script>
 
+<style scoped src="./amendmentTab.css"></style>
+
 <style scoped>
-.decidiq-tab {
-	display: flex;
-	flex-direction: column;
-	gap: var(--default-grid-baseline);
-	padding: var(--default-grid-baseline);
-}
-
-.decidiq-tab__title {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: bold;
-}
-
-.decidiq-tab__loading {
-	color: var(--color-text-maxcontrast);
-	margin: 0;
-}
-
 .decidiq-tab__cta {
 	margin-top: var(--default-grid-baseline);
 }

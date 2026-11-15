@@ -14,7 +14,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 
 declare(strict_types=1);
@@ -26,7 +26,7 @@ use RuntimeException;
 /**
  * Thrown when a requested resource cannot be found.
  *
- * @spec openspec/changes/p2-agenda-management/tasks.md#task-1.2
+ * @spec openspec/changes/archive/2026-05-11-p2-agenda-management/tasks.md#task-1.2
  */
 class NotFoundException extends RuntimeException {
 }//end class

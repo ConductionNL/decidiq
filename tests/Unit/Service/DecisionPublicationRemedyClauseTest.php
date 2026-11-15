@@ -43,8 +43,10 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Tests\Unit\Service;
 
+use OCA\Decidiq\Service\ConfidentialityRestrictions;
 use OCA\Decidiq\Service\DecisionPublicationService;
 use OCA\Decidiq\Tests\Unit\Support\RegisterScopedObjectServiceFake;
+use OCA\OpenRegister\Contract\ObjectServiceInterface;
 use OCP\AppFramework\Http;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
@@ -107,6 +109,7 @@ class DecisionPublicationRemedyClauseTest extends TestCase {
 		return new DecisionPublicationService(
 			container: $container,
 			logger: $this->createMock(LoggerInterface::class),
+			confidentiality: new ConfidentialityRestrictions($this->createMock(ObjectServiceInterface::class)),
 		);
 	}
 

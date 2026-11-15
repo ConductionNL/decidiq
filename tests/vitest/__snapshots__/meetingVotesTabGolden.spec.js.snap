@@ -1,0 +1,145 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`MeetingVotesTab golden runs > factionSummary 1`] = `
+[
+  {
+    "label": "open",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "<A>: <3> for, <1> against, <0> abstain; <B>: <0> for, <2> against, <1> abstain",
+  },
+  {
+    "label": "secret",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "Secret vote",
+  },
+  {
+    "label": "no factions",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "",
+  },
+  {
+    "label": "refused",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "",
+  },
+  {
+    "label": "null body",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "",
+  },
+  {
+    "label": "unreadable",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "",
+  },
+  {
+    "label": "throws",
+    "log": [
+      [
+        "/index.php/apps/decidiq/api/voting-rounds/r-1/breakdown",
+        {
+          "headers": {
+            "requesttoken": "tok",
+          },
+        },
+      ],
+    ],
+    "summary": "",
+  },
+]
+`;
+
+exports[`MeetingVotesTab golden runs > roundRow 1`] = `
+[
+  {
+    "factions": "factions of r1",
+    "id": "r1",
+    "motionId": "m1",
+    "motionTitle": "Motion A",
+    "motionType": "motie",
+    "result": "adopted",
+    "timestamp": "c",
+    "votesAbstain": 2,
+    "votesAgainst": 0,
+    "votesFor": 5,
+  },
+  {
+    "factions": "factions of r2",
+    "id": "r2",
+    "motionId": "m2",
+    "motionTitle": "Motion",
+    "motionType": "",
+    "result": "",
+    "timestamp": "o",
+    "votesAbstain": 0,
+    "votesAgainst": 0,
+    "votesFor": 0,
+  },
+  {
+    "factions": "factions of r3",
+    "id": "r3",
+    "motionId": undefined,
+    "motionTitle": "Motion",
+    "motionType": "",
+    "result": "",
+    "timestamp": "",
+    "votesAbstain": 0,
+    "votesAgainst": 0,
+    "votesFor": 0,
+  },
+]
+`;

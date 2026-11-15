@@ -16,6 +16,8 @@
     </projectFiles>
     <stubs>
         <file name="vendor/nextcloud/ocp/OCP/Capabilities/ICapability.php" preloadClasses="true" />
+        <!-- OCP\Files\IRootFolder extends the server-private OC\Hooks\Emitter, absent from nextcloud/ocp. -->
+        <file name="tests/stubs/OcHooksEmitter.php" />
         <!--
             OpenRegister's data-access contract, which this app's lib/ typehints
             but does not own. OpenRegister supplies it at RUNTIME; these are
@@ -71,7 +73,9 @@
             Shared, not vendored per app: filinq and planninq adopted the same
             route table and carry the same call.
         -->
-        <file name="vendor/conduction/hydra-gates/hydra-gates/stubs/openregister-apphost-bootstrap.stub.php" />
+        <!-- openregister #9078: aliasStoreController() takes a LeafAdoption; until the shared hydra-gates stub follows, psalm reads these. -->
+        <file name="tests/Stubs/AppHost/Bootstrap.php" preloadClasses="true" />
+        <file name="tests/Stubs/AppHost/LeafAdoption.php" preloadClasses="true" />
         <!--
             Integriq's connection-registry events (adopt-connection-registry).
             ConnectionReportService names them by string behind class_exists
@@ -106,6 +110,16 @@
         <file name="tests/Stubs/Db/FlowRun.php" preloadClasses="true" />
         <file name="tests/Stubs/Db/FlowRunMapper.php" preloadClasses="true" />
         <file name="tests/Stubs/Exception/FlowSignalRefused.php" preloadClasses="true" />
+        <!-- OpenRegister's validator for a lifecycle kept as data (#4291); ProcessTemplateService resolves it from the container. -->
+        <file name="tests/Stubs/Service/Lifecycle/LifecycleTransitionsValidator.php" preloadClasses="true" />
+        <!-- Value objects of the openregister surface this branch follows (verbatim copies). -->
+        <file name="tests/Stubs/Service/Lifecycle/LifecycleGraph.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Lifecycle/LifecycleGraphCheck.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/FlowNodeCall.php" preloadClasses="true" />
+        <file name="tests/Stubs/Service/Flow/ICallFlowNode.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/NamedActor.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEventOptions.php" preloadClasses="true" />
+        <file name="tests/Stubs/Db/AuditTrail/ObjectAuditEvent.php" preloadClasses="true" />
     </stubs>
     <issueHandlers>
         <!--

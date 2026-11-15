@@ -1,0 +1,14 @@
+{
+	"standard": "WCAG 2.1 AA",
+	"version": "0.1.0",
+	"date": "2026-09-30",
+	"scanned": false,
+	"sampleSize": 11,
+	"outcomes": {
+		"pass": 0,
+		"fail": 0,
+		"not-applicable": 0,
+		"not-tested": 50
+	},
+	"findings": []
+}

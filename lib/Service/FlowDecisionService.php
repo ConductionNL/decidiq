@@ -24,7 +24,7 @@
  *
  * @link https://conduction.nl
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
+ * @spec openspec/specs/flow-request-decision/spec.md
  *
  * SPDX-FileCopyrightText: 2026 Conduction B.V. <info@conduction.nl>
  * SPDX-License-Identifier: EUPL-1.2
@@ -34,6 +34,7 @@ declare(strict_types=1);
 
 namespace OCA\Decidiq\Service;
 
+use OCA\Decidiq\Kernel\Contracts\FlowDecisionServiceInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Throwable;
@@ -41,24 +42,9 @@ use Throwable;
 /**
  * Raises and reads back decisions on behalf of a flow run.
  *
- * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
+ * @spec openspec/specs/flow-request-decision/spec.md
  */
-class FlowDecisionService {
-
-	/**
-	 * The provenance a flow-raised decision carries as its `sourceApp`.
-	 *
-	 * FROZEN once decisions exist. `FlowDecisionConcludedListener` wakes a run
-	 * only for a conclusion carrying this value, and decidiq's idempotency key
-	 * includes it, so renaming it orphans every in-flight flow decision from
-	 * its wake (the heartbeat would still recover them, a heartbeat later).
-	 *
-	 * Distinct from `procest`, the value dossiq's delegation stamps, so dossiq's
-	 * conclusion listener never projects a flow decision into a ZGW besluit.
-	 *
-	 * @var string
-	 */
-	public const SOURCE_APP = 'decidiq-flow';
+class FlowDecisionService implements FlowDecisionServiceInterface {
 
 	/**
 	 * The prefix of the external reference a flow decision carries:
@@ -69,47 +55,11 @@ class FlowDecisionService {
 	private const RUN_REFERENCE_PREFIX = 'flow-run:';
 
 	/**
-	 * The read could not be answered: OpenRegister unavailable, or the lookup
-	 * failed. NEVER "there is no such decision".
-	 *
-	 * @var string
-	 */
-	public const STATE_UNREADABLE = 'unreadable';
-
-	/**
-	 * The decision exists and the identity named may not read it.
-	 *
-	 * @var string
-	 */
-	public const STATE_REFUSED = 'refused';
-
-	/**
-	 * The read was allowed and no decision carries that id.
-	 *
-	 * @var string
-	 */
-	public const STATE_GONE = 'gone';
-
-	/**
 	 * The decision exists and has not been concluded.
 	 *
 	 * @var string
 	 */
 	public const STATE_OPEN = 'open';
-
-	/**
-	 * The decision was concluded with an outcome: `approved` or `rejected`.
-	 *
-	 * @var string
-	 */
-	public const STATE_DECIDED = 'decided';
-
-	/**
-	 * The decision reached a terminal state carrying no answer.
-	 *
-	 * @var string
-	 */
-	public const STATE_WITHDRAWN = 'withdrawn';
 
 	/**
 	 * Constructor.
@@ -118,7 +68,7 @@ class FlowDecisionService {
 	 * @param DecisionIntegrationAuthorizationGuard $authorizationGuard The outcome-read rule (REQ-DCDH-101)
 	 * @param LoggerInterface $logger Logger
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md
+	 * @spec openspec/specs/flow-request-decision/spec.md
 	 */
 	public function __construct(
 		private readonly DecisionIntegrationService $integrationService,
@@ -148,7 +98,7 @@ class FlowDecisionService {
 	 *
 	 * @throws RuntimeException When the decision could not be raised
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-003-the-step-fails-closed
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-003-the-step-fails-closed
 	 */
 	public function raise(
 		string $decisionType,
@@ -209,7 +159,7 @@ class FlowDecisionService {
 	 *
 	 * @return array{state: string, status: string, envelope: array<string, mixed>} The state, decidiq's status word and the outcome envelope
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-004-the-step-advances-on-its-decision-not-on-a-signal
 	 */
 	public function readState(string $decisionId, string $actorId): array {
 		$decisionId = trim($decisionId);
@@ -290,7 +240,7 @@ class FlowDecisionService {
 	 *
 	 * @return string `flow-run:<runUuid>:<nodeId>`
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-002-the-decision-is-about-the-object-the-flow-carries
 	 */
 	public function runReference(string $runUuid, string $nodeId): string {
 		return self::RUN_REFERENCE_PREFIX . trim($runUuid) . ':' . trim($nodeId);
@@ -306,7 +256,7 @@ class FlowDecisionService {
 	 *
 	 * @return array{runUuid: string, nodeId: string}|null The parts, or null when this is not a run reference
 	 *
-	 * @spec openspec/changes/flow-request-decision-node/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
+	 * @spec openspec/specs/flow-request-decision/spec.md#requirement-req-frd-006-a-concluded-decision-wakes-the-run-that-asked
 	 */
 	public function parseRunReference(string $reference): ?array {
 		$reference = trim($reference);
